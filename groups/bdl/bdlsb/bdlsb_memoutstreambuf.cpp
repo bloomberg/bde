@@ -61,29 +61,27 @@ int MemOutStreamBuf::overflow(int_type insertionChar)
 
 MemOutStreamBuf::pos_type
 MemOutStreamBuf::seekoff(MemOutStreamBuf::off_type offset,
-                         bsl::ios_base::seekdir    fixedPosition,
+                         bsl::ios_base::seekdir    way,
                          bsl::ios_base::openmode   which)
 {
     // This is an output-only buffer, so cannot "seek" in "get" area.
-
     if (!(which & bsl::ios_base::out)) {
         return pos_type(-1);                                          // RETURN
     }
 
-    // Compute offset from current position.  In this stream, 'pptr()' defines
-    // both the current position and the end of the logical byte stream.
-    // Thus, 'bsl::ios_base::curr' and 'bsl::ios_base::end' are handled
-    // identically.
+    // Compute offset from the current position.  In this stream, 'pptr()'
+    // defines both the current position and the end of the logical byte
+    // stream.  Thus, 'bsl::ios_base::curr' and 'bsl::ios_base::end' are
+    // handled identically.
 
-    off_type currOffset = bsl::ios_base::beg == fixedPosition
+    off_type currOffset = bsl::ios_base::beg == way
                           ? offset - length()
                           : offset;
 
     // 'currOffset' is invalid if it is positive or has an absolute-value
     // greater than 'length()'.
 
-    if (currOffset > 0 ||
-        static_cast<unsigned>(-currOffset) > length()) {
+    if (currOffset > 0 || static_cast<unsigned>(-currOffset) > length()) {
         return pos_type(-1);                                          // RETURN
     }
 

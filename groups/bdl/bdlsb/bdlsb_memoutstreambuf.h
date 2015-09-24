@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlsb_fixedmemoutstreambuf, bdlsb_fixedmeminstreambuf
 //
 //@DESCRIPTION: This component provides a mechanism, 'bdlsb::MemOutStreamBuf',
-// that implements the output portion of the bsl::basic_streambuf protocol
+// that implements the output portion of the 'bsl::basic_streambuf' protocol
 // using a managed, allocator-supplied memory buffer.  Method names necessarily
-// correspond to the protocol-specified method names.
+// correspond to those specified by the protocol.
 //
 // This component provides none of the input-related functionality of
 // 'basic_streambuf' (see "Streaming Architecture", below), nor does it use
@@ -25,6 +25,10 @@ BSLS_IDENT("$Id: $")
 //
 // Because the underlying buffer is always obtained from the client-specified
 // allocator, the 'pubsetbuf' method in this component has no effect.
+//
+// Note that this component has an unspecified minimum allocation size, and
+// therefore users trying to limit themselves to a fixed buffer should use
+// bdlsb_fixedmemoutstreambuf.
 //
 ///Streaming Architecture
 ///----------------------
@@ -118,16 +122,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we create an object of our stream and write some words to it:
 //..
-//  UsageExample::CapitalizingStream cs;
+//  CapitalizingStream cs;
 //  cs << "Hello," << ' ' << "World." << '\0';
 //..
-// Finally, we are able to verify that the streamed data has been capitalized:
+// Finally, we verify that the streamed data has been capitalized:
 //..
-//  if (verbose) {
-//      // Visually verify that the streamed data has been capitalized.
-//      bsl::cout << cs.streamBuf().data() << bsl::endl;
-//  }
-//
 //  assert(0 == bsl::strcmp("HELLO, WORLD.", cs.streamBuf().data()));
 //..
 
@@ -218,8 +217,8 @@ class MemOutStreamBuf : public bsl::streambuf {
         // fit the specified 'newLength' characters.  The buffer size is grown
         // by the minimum power of 'k_GROWTH_FACTOR' needed to accommodate the
         // new length, but with a final size not less than
-        // 'k_INITIAL_BUFFER_SIZE'.  This method has no effect if
-        // 'newLength <= capacity()' holds before the call.
+        // 'k_INITIAL_BUFFER_SIZE'.  This method has no effect if 'newLength <=
+        // capacity()' holds before the call.
 
     // PRIVATE ACCESSORS
     bsl::size_t capacity() const;
@@ -236,29 +235,27 @@ class MemOutStreamBuf : public bsl::streambuf {
 
     virtual pos_type seekoff(
                            off_type                offset,
-                           bsl::ios_base::seekdir  fixedPosition,
-                           bsl::ios_base::openmode which = bsl::ios_base::out);
-        // Set the location at which the next output will be written to the
-        // specified 'offset' from the location indicated by the specified
-        // 'fixedPosition', unless the optionally specified 'which' does not
-        // include the flag 'bsl::ios_base::out'.  Return the location at which
-        // output will be next written if 'which' includes the flag
-        // 'bsl::ios_base::out' and
-        // 'char_traits<char>::pos_type(char_traits<char>::off_type(-1))'
-        // otherwise.  'offset' may be negative.  If 'which' includes the flag
-        // 'bsl::ios_base::out' then the behavior is undefined unless
-        // '0 <= fixedPosition + offset < length()'.
+                           bsl::ios_base::seekdir  way,
+                           bsl::ios_base::openmode which = bsl::ios_base::in
+                                                         | bsl::ios_base::out);
+        // Set the position indicator to the relative specified 'offset' from
+        // the base position indicated by the specified 'way' and return the
+        // resulting absolute position on success or pos_type(-1) on failure.
+        // Optionally specify 'which' area of the stream buffer.  The seek
+        // operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if the resulting absolute position is less
+        // than zero or greater then length().
 
     virtual pos_type seekpos(
                            pos_type                position,
-                           bsl::ios_base::openmode which = bsl::ios_base::out);
-        // Set the location at which the next output will be written to the
-        // specified 'position', unless the optionally specified 'which' does
-        // not include the flag 'bsl::ios_base::out'.  Return 'position' if
-        // 'which' includes the flag 'bsl::ios_base::out', and
-        // 'char_traits<char>::pos_type(char_traits<char>::off_type(-1))'
-        // otherwise.  If 'which' includes the flag 'bsl::ios_base::out' then
-        // the behavior is undefined unless '0 <= position < length()'.
+                           bsl::ios_base::openmode which = bsl::ios_base::in
+                                                         | bsl::ios_base::out);
+        // Set the position indicator to the specified 'position' and return
+        // the resulting absolute position on success or pos_type(-1) on
+        // failure.  Optionally specify 'which' area of the stream buffer.  The
+        // 'seekpos' operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if 'position' is less then zero or greater
+        // than length().
 
     virtual bsl::streamsize xsputn(const char_type *source,
                                    bsl::streamsize  numChars);
@@ -284,7 +281,7 @@ class MemOutStreamBuf : public bsl::streambuf {
                     bslma::Allocator *basicAllocator = 0);
         // Create an empty stream buffer with sufficient initial capacity to
         // accommodate up to the specified 'numElements' characters without
-        // subsequent reallocation.  If 'numElements <= 0', an implementation-
+        // subsequent reallocation.  If 'numElements == 0', an implementation-
         // defined initial capacity is used.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.

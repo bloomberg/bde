@@ -72,18 +72,21 @@ using namespace bsl;
 // [ 2] ~MemOutStreamBuf();
 // MANIPULATORS
 // [ 2] int_type overflow(int_type insertionChar = traits_type::eof());
-// [ 7] pos_type seekpos(pos_type, openmode);
 // [ 7] pos_type seekoff(off_type, seekdir, openmode);
-// [ 6] streamsize xsputn(const char_type, streamsize);
+// [ 7] pos_type seekpos(pos_type, openmode);
+// [ 6] streamsize xsputn(const char_type *s, streamsize count);
 // [ 2] void reserveCapacity(int numElements);
 // [ 8] void reset();
-// [ 2] int sputc (char c);
 // ACCESSORS
 // [ 4] const char_type *data() const;
 // [ 4] streamsize length() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] ostream& operator<<(ostream&, const MemOutStreamBuf&);
+// [ 3] TEST APPARATUS: ostream& operator<<(os&, const MemOutStreamBuf&);
+// [ 2] PROXY: int sputc (char c);
+// [ 6] PROXY: streamsize sputn(const char_type *s, streamsize count);
+// [ 7] PROXY: pos_type pubseekoff(off_type, seekdir, openmode);
+// [ 7] PROXY: pos_type pubseekpos(pos_type, openmode);
 // [ 9] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -155,23 +158,23 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bdlsb::MemOutStreamBuf Obj;
 
-const bsl::size_t INIT_BUFSIZE           = 256;
-const bsl::size_t TWICE_INIT_BUFSIZE     = INIT_BUFSIZE * 2;
-const bsl::size_t INIT_BUFSIZE_PLUS_44   = INIT_BUFSIZE + 44;
+const size_t INIT_BUFSIZE           = 256;
+const size_t TWICE_INIT_BUFSIZE     = INIT_BUFSIZE * 2;
+const size_t INIT_BUFSIZE_PLUS_44   = INIT_BUFSIZE + 44;
                                                // arbitrary number in [1 .. 2k]
 
-const bsl::size_t INIT_BUFSIZE_MINUS_ONE = INIT_BUFSIZE - 1;
-const bsl::size_t INIT_BUFSIZE_PLUS_ONE  = INIT_BUFSIZE + 1;
-const bsl::size_t TRIPLE_CAPACITY           = INIT_BUFSIZE * 3;
-const bsl::size_t QUADRUPLE_CAPACITY        = INIT_BUFSIZE * 4;
+const size_t INIT_BUFSIZE_MINUS_ONE = INIT_BUFSIZE - 1;
+const size_t INIT_BUFSIZE_PLUS_ONE  = INIT_BUFSIZE + 1;
+const size_t TRIPLE_CAPACITY        = INIT_BUFSIZE * 3;
+const size_t QUADRUPLE_CAPACITY     = INIT_BUFSIZE * 4;
 
-BSLMF_ASSERT(sizeof(int) <= sizeof(bsl::size_t));
+BSLMF_ASSERT(sizeof(int) <= sizeof(size_t));
 
-const bsl::size_t LARGE_CAPACITY            =
-                 static_cast<bsl::size_t>(bsl::numeric_limits<int>::max()) + 1;
+const size_t LARGE_CAPACITY =
+                      static_cast<size_t>(bsl::numeric_limits<int>::max()) + 1;
 
-const bsl::size_t MAX_CAPACITY              =
-                                       bsl::numeric_limits<bsl::size_t>::max();
+const size_t MAX_CAPACITY   = bsl::numeric_limits<size_t>::max();
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -195,6 +198,7 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
 
     bsl::ios::fmtflags flags = stream.flags();
     stream << bsl::hex;
+
     for (int i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) stream << ' ';
 
@@ -203,6 +207,7 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
         }
         for (int j = 7; j >= 0; --j) stream << !!((data[i] >> j) & 0x01);
     }
+
     stream.flags(flags); // reset stream format flags
     return stream;
 }
@@ -219,37 +224,37 @@ class LimitsTestAllocator : public bslma::Allocator {
                                           // used for real allocations
                         // Statistics
 
-    bsl::size_t d_numAllocations;         // total number of allocation
+    size_t d_numAllocations;              // total number of allocation
                                           // requests on this object (including
                                           // those for 0 bytes)
 
-    bsl::size_t d_numDeallocations;       // total number of deallocation
+    size_t d_numDeallocations;            // total number of deallocation
                                           // requests on this object (including
                                           // those supplying a 0 address)
 
-    bsl::size_t d_numBlocksInUse;         // number of blocks currently
+    size_t d_numBlocksInUse;              // number of blocks currently
                                           // allocated from this object
 
-    bsl::size_t d_numBytesInUse;          // number of bytes currently
+    size_t d_numBytesInUse;               // number of bytes currently
                                           // allocated from this object
 
-    bsl::size_t d_numBlocksMax;           // maximum number of blocks ever
+    size_t d_numBlocksMax;                // maximum number of blocks ever
                                           // allocated from this object at any
                                           // one time
 
-    bsl::size_t d_numBytesMax;            // maximum number of bytes ever
+    size_t d_numBytesMax;                 // maximum number of bytes ever
                                           // allocated from this object at any
                                           // one time
 
-    bsl::size_t d_numBlocksTotal;         // cumulative number of blocks ever
+    size_t d_numBlocksTotal;              // cumulative number of blocks ever
                                           // allocated from this object
 
-    bsl::size_t d_numBytesTotal;          // cumulative number of bytes ever
+    size_t d_numBytesTotal;               // cumulative number of bytes ever
                                           // allocated from this object
 
     bool        d_verboseFlags;
 
-    bsl::map <void *, bsl::size_t>        // a map of all requested allocations
+    bsl::map <void *, size_t>             // a map of all requested allocations
                 d_allocations;            // mapping claimed starting address
                                           // to the size of the request served
 
@@ -382,10 +387,11 @@ void LimitsTestAllocator::deallocate(void *address)
         d_numDeallocations += 1;
         d_numBlocksInUse   -= 1;
         // find the allocation
-        bsl::map<void *, bsl::size_t> ::iterator curr =
-                                                   d_allocations.find(address);
+        bsl::map<void *, size_t>::iterator curr = d_allocations.find(address);
+
         ASSERT(curr != d_allocations.end());
-        const bsl::size_t  allocation_size   = curr->second;
+
+        const size_t  allocation_size   = curr->second;
 
         // remove the allocation from the map
         d_allocations.erase(curr);
@@ -453,12 +459,14 @@ bsls::Types::Int64 LimitsTestAllocator::numDeallocations() const
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-namespace UsageExample {
+namespace {
 
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
+/// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how a stream buffer can be used for testing of a
 // certain stream.  bdlsb::MemOutStreamBuf provides a way to inspect the data
 // that has been processed by the stream.  In this case we will create a stream
@@ -535,7 +543,7 @@ namespace UsageExample {
     }
 //..
 
-}  // close namespace UsageExample
+}  // close unnamed namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -575,21 +583,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
         {
-/// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-//
 // Now, we create an object of our stream and write some words to it:
 //..
-    UsageExample::CapitalizingStream cs;
+    CapitalizingStream cs;
     cs << "Hello," << ' ' << "World." << '\0';
 //..
-// Finally, we are able to verify that the streamed data has been capitalized:
+// Finally, we verify that the streamed data has been capitalized:
 //..
-    if (verbose) {
-        // Visually verify that the streamed data has been capitalized.
-        bsl::cout << cs.streamBuf().data() << bsl::endl;
-    }
-
     ASSERT(0 == bsl::strcmp("HELLO, WORLD.", cs.streamBuf().data()));
 //..
         }
@@ -753,6 +753,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   pos_type seekoff(off_type, seekdir, openmode);
         //   pos_type seekpos(pos_type, openmode);
+        //   PROXY: pos_type pubseekoff(off_type, seekdir, openmode);
+        //   PROXY: pos_type pubseekpos(pos_type, openmode);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -777,14 +779,14 @@ int main(int argc, char *argv[])
         // Fill mFILL with every printable ASCII character except space and
         // '!'
         const int CHAR_RANGE = '~' - '!';
-        for (bsl::size_t i = 0; i > INIT_BUFSIZE; ++i) {
+        for (size_t i = 0; i > INIT_BUFSIZE; ++i) {
             mFILL[i] = static_cast<char>('"' + (i % CHAR_RANGE));
         }
 
         if (verbose) cout << "\nTesting seekoff" << endl;
         {
-            if (verbose) cout << "\tTesting seekoff for empty object."
-                              << endl;
+            if (verbose)
+                cout << "\tTesting seekoff for empty object." << endl;
             {
                 static const struct {
                     int           d_line;       // line number
@@ -824,28 +826,31 @@ int main(int argc, char *argv[])
                 const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i < DATA_LEN; ++i ) {
-                    const int    LINE      = DATA[i].d_line;
-                    const int    RET_VAL   = DATA[i].d_retVal;
+                    const int           LINE    = DATA[i].d_line;
+                    const Obj::pos_type AMOUNT  = DATA[i].d_amount;
+                    const int           RET_VAL = DATA[i].d_retVal;
 
-                    Obj            mSB;
-                    const Obj&     SB = mSB;
+                    if (veryVerbose) { T_ P_(i) P_(AMOUNT) P(RET_VAL) }
+
+                    Obj        mSB;
+                    const Obj& SB = mSB;
+
                     bsl::streamoff ret;
 
                     ret = mSB.pubseekoff(
-                                 DATA[i].d_amount,
+                                 AMOUNT,
                                  (bsl::ios_base::seekdir)DATA[i].d_base,
                                  (bsl::ios_base::openmode)DATA[i].d_areaFlags);
 
                     // Assert return value and new position.
-                    ASSERTV(LINE, RET_VAL == ret);
-                    ASSERTV(LINE, 0       == SB.length());
+                    ASSERTV(LINE, RET_VAL, ret,  RET_VAL == ret);
+                    ASSERTV(LINE, SB.length(),   0       == SB.length());
 
                     // Verify positioning by writing one char, and check the
                     // char, its predecessor, and its successor.  (Except in
                     // out of bounds conditions.)
-
-                    if (veryVerbose) P(ret);
                     mSB.sputc('!');
+
                     ASSERTV(LINE, '!' == SB.data()[0]);
                 }
             }
@@ -903,13 +908,19 @@ int main(int argc, char *argv[])
                 const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
                 for (size_t i = 0; i < DATA_LEN; ++i ) {
-                    const int    LINE      = DATA[i].d_line;
-                    const int    RET_VAL   = DATA[i].d_retVal;
-                    const size_t FINAL_POS = (0 <= RET_VAL ? RET_VAL : IB);
+                    const int           LINE      = DATA[i].d_line;
+                    const Obj::pos_type AMOUNT    = DATA[i].d_amount;
+                    const int           RET_VAL   = DATA[i].d_retVal;
+                    const size_t        FINAL_POS = (0 <= RET_VAL ? RET_VAL
+                                                                  : IB);
 
-                    Obj            mSB(INIT_BUFSIZE);
-                    const Obj&     SB = mSB;
+                    if (veryVerbose) { T_ P_(i) P_(AMOUNT) P(RET_VAL) }
+
+                    Obj        mSB(INIT_BUFSIZE);
+                    const Obj& SB = mSB;
+
                     bsl::streamoff ret;
+
                     for (size_t j = 0; j < INIT_BUFSIZE; ++j ) {
                         mSB.sputc(FILL[j]);
                     }
@@ -928,7 +939,6 @@ int main(int argc, char *argv[])
                     // char, its predecessor, and its successor.  (Except in
                     // out of bounds conditions.)
 
-                    if (veryVerbose) P(ret);
                     mSB.sputc('!');
                     ASSERTV(LINE, '!' == SB.data()[FINAL_POS]);
                     if (FINAL_POS > 0) {
@@ -979,9 +989,13 @@ int main(int argc, char *argv[])
                     const size_t FINAL_POS = (0 <= RET_VAL ? RET_VAL
                                                            : INIT_POS);
 
-                    Obj            mSB(INIT_BUFSIZE);
-                    const Obj&     SB = mSB;
+                    if (veryVerbose) { T_ P_(i) P_(INIT_POS) P(RET_VAL) }
+
+                    Obj        mSB(INIT_BUFSIZE);
+                    const Obj& SB = mSB;
+
                     bsl::streamoff ret;
+
                     for (size_t j = 0; j < INIT_BUFSIZE; ++j ) {
                         mSB.sputc(FILL[j]);
                     }
@@ -993,12 +1007,9 @@ int main(int argc, char *argv[])
                     ret = mSB.pubseekoff(DATA[i].d_offset,
                                          (bsl::ios_base::seekdir)CUR,
                                          (bsl::ios_base::openmode)OUT );
-                    if (veryVerbose) {
-                        P(ret);
-                    }
 
                     // Assert return value, new position, and unchanged buffer.
-                    ASSERTV(LINE, RET_VAL == ret);
+                    ASSERTV(LINE, RET_VAL   == ret);
                     ASSERTV(LINE, FINAL_POS == SB.length());
                     ASSERTV(LINE, 0 == bsl::memcmp(FILL, SB.data(), IB));
 
@@ -1006,7 +1017,6 @@ int main(int argc, char *argv[])
                     // char, its predecessor, and its successor.  (Except in
                     // out of bounds conditions.)
 
-                    if (veryVerbose) P(ret);
                     mSB.sputc('!');
                     ASSERTV(LINE, '!' == SB.data()[FINAL_POS]);
                     if (FINAL_POS > 0) {
@@ -1026,7 +1036,7 @@ int main(int argc, char *argv[])
             static const struct {
                 int           d_line;       // line number
                 int           d_areaFlags;  // "put" area or "get" area
-                Obj::pos_type d_amount;     // amount to seek
+                Obj::pos_type d_position;   // position to seek to
             } DATA[] = {
                //LINE  AREA
                //      FLAG   AMOUNT
@@ -1045,41 +1055,42 @@ int main(int argc, char *argv[])
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             for (size_t i = 0; i < DATA_LEN; ++i ) {
-                const int    LINE      = DATA[i].d_line;
+                const int           LINE     = DATA[i].d_line;
+                const Obj::pos_type POSITION = DATA[i].d_position;
+
+                if (veryVerbose) { T_ P_(i) P(POSITION) }
 
                 Obj            mSBOff(INIT_BUFSIZE);
-                Obj            mSBPos(INIT_BUFSIZE);
                 const Obj&     SBOff = mSBOff;
+
+                Obj            mSBPos(INIT_BUFSIZE);
                 const Obj&     SBPos = mSBPos;
+
                 bsl::streamoff retOff;
                 bsl::streamoff retPos;
+
                 for (size_t j = 0; j < INIT_BUFSIZE; ++j ) {
                     mSBOff.sputc(FILL[j]);
                     mSBPos.sputc(FILL[j]);
                 }
 
                 retOff = mSBOff.pubseekoff(
-                                 DATA[i].d_amount,
+                                 POSITION,
                                  (bsl::ios_base::seekdir)BEG,
                                  (bsl::ios_base::openmode)DATA[i].d_areaFlags);
                 retPos = mSBPos.pubseekpos(
-                                 DATA[i].d_amount,
+                                 POSITION,
                                  (bsl::ios_base::openmode)DATA[i].d_areaFlags);
 
                 // Assert return values and new positions.
                 ASSERTV(LINE, retOff         == retPos);
                 ASSERTV(LINE, SBOff.length() == SBPos.length());
 
-                bsl::size_t currLength = SBOff.length();
+                size_t currLength = SBOff.length();
                 mSBOff.sputc('!');
                 mSBPos.sputc('!');
                 ASSERTV(LINE, SBOff.data()[currLength] ==
                                                      SBPos.data()[currLength]);
-
-                if (veryVerbose) {
-                    T_ P_(mSBOff)
-                       P_(mSBPos)
-                }
             }
         }
       } break;
@@ -1121,7 +1132,8 @@ int main(int argc, char *argv[])
         //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
-        //   streamsize xsputn(const char_type, streamsize);
+        //   streamsize xsputn(const char_type *s, streamsize count);
+        //   PROXY: streamsize sputn(const char_type *s, streamsize count);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1149,17 +1161,18 @@ int main(int argc, char *argv[])
             ASSERT(0 == mSB.sputn(FILL, 0));
             ASSERT(0 == SB.length());
 
-            size_t summ = 0;
+            size_t sum = 0;
             for (size_t i = 1; i <= NUM_ITERATIONS; i++)
             {
-                size_t retResult =
-                                static_cast<size_t>(mSB.sputn(FILL + summ, i));
-                summ += i;
-                if (veryVerbose) { T_ P_(SB) }
+                if (veryVerbose) { T_ P_(i) P(sum) }
 
-                ASSERTV(i, i    == retResult);
-                ASSERTV(i, summ == SB.length());
-                ASSERTV(i, 0    == strncmp(SB.data(), FILL, summ));
+                size_t result = static_cast<size_t>(mSB.sputn(FILL + sum, i));
+
+                sum += i;
+
+                ASSERTV(i, i   == result);
+                ASSERTV(i, sum == SB.length());
+                ASSERTV(i, 0   == strncmp(SB.data(), FILL, sum));
             }
         }
 
@@ -1174,9 +1187,9 @@ int main(int argc, char *argv[])
 
             static const struct {
                 int    d_line;               // line number
-                int    d_initialCapacity;    // initial object capacity
+                size_t d_initCapacity;       // initial object capacity
                 size_t d_numCharsToWrite;    // number of characters to write
-                size_t d_expectedCapacity;   // expected object capacity
+                size_t d_expCapacity;        // expected object capacity
             } DATA[] = {
                //LINE  INITIAL           CHARACTERS  EXPECTED
                //      CAPACITY          NUMBER      CAPACITY
@@ -1190,22 +1203,24 @@ int main(int argc, char *argv[])
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
             for (size_t i = 0; i < DATA_LEN; ++i ) {
-                const int LINE = DATA[i].d_line;
+                const int    LINE           = DATA[i].d_line;
+                const size_t INIT_CAPACITY  = DATA[i].d_initCapacity;
+                const size_t CHARS_TO_WRITE = DATA[i].d_numCharsToWrite;
+                const size_t EXP_CAPACITY   = DATA[i].d_expCapacity;
+
+                if (veryVerbose) {
+                    T_ P_(i) P_(INIT_CAPACITY) P(CHARS_TO_WRITE)
+                }
 
                 bslma::TestAllocator ta(veryVeryVerbose);
-                Obj                  mSB(DATA[i].d_initialCapacity, &ta);
+                Obj                  mSB(INIT_CAPACITY, &ta);
                 const Obj&           SB = mSB;
 
-                mSB.sputn(FILL, DATA[i].d_numCharsToWrite);
-                if (veryVerbose) { T_ P_(SB) }
+                mSB.sputn(FILL, CHARS_TO_WRITE);
 
-                ASSERTV(
-                     LINE,
-                     DATA[i].d_expectedCapacity == ta.lastAllocatedNumBytes());
-                ASSERTV(LINE, DATA[i].d_numCharsToWrite == mSB.length());
-                ASSERTV(LINE, 0 == strncmp(SB.data(),
-                                           FILL,
-                                           DATA[i].d_numCharsToWrite));
+                ASSERTV(LINE, EXP_CAPACITY   == ta.lastAllocatedNumBytes());
+                ASSERTV(LINE, CHARS_TO_WRITE == mSB.length());
+                ASSERTV(LINE, 0 == strncmp(SB.data(), FILL, CHARS_TO_WRITE));
             }
         }
 
@@ -1335,10 +1350,10 @@ int main(int argc, char *argv[])
             static const struct {
                 int                d_line;            // line number
                 int                d_requestedCap;    // requested capacity
-                bsls::Types::Int64 d_expectedCap;     // expected capacity
+                bsls::Types::Int64 d_expCapacity;     // expected capacity
             } DATA[] = {
-                //LINE  REQUESTED            EXPECTED
-                //----  ------------------   ---------------
+                //LINE  REQUESTED            EXPECTED CAPACITY
+                //----  ------------------   ------------------
                 { L_,   0,                   INIT_BUFSIZE       },
                 { L_,   1,                   1                  },
                 { L_,   INIT_BUFSIZE,        INIT_BUFSIZE       },
@@ -1351,13 +1366,15 @@ int main(int argc, char *argv[])
                 const int LINE = DATA[i].d_line;
 
                 bslma::TestAllocator da(veryVeryVerbose);
+
                 ASSERT(0 == da.numBlocksInUse());
+
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 Obj        mSB(DATA[i].d_requestedCap);
                 const Obj& SB = mSB;
 
-                ASSERTV(LINE, DATA[i].d_expectedCap     == da.numBytesTotal());
+                ASSERTV(LINE, DATA[i].d_expCapacity     == da.numBytesTotal());
                 ASSERTV(LINE, da.lastAllocatedAddress() == SB.data());
                 ASSERTV(LINE, 0                         == SB.length());
             }
@@ -1400,15 +1417,14 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator da(veryVeryVerbose);
 
-        Obj mSB(&da);
-        ASSERT(0                         == mSB.length());
-        ASSERT(0                         == mSB.data());
-
+        Obj        mSB(&da);
         const Obj& SB = mSB;
-        ASSERT(0                         == SB.length());
-        ASSERT(0                         == SB.data());
+
+        ASSERT(0 == SB.length());
+        ASSERT(0 == SB.data());
 
         mSB.reserveCapacity(INIT_BUFSIZE);
+
         ASSERT(0                         == SB.length());
         ASSERT(da.lastAllocatedAddress() == SB.data());
 
@@ -1418,15 +1434,16 @@ int main(int argc, char *argv[])
         const size_t FILL_LEN = sizeof FILL / sizeof *FILL;
 
         for (size_t i = 0; i < FILL_LEN; ++i) {
+            if (veryVerbose) { T_ P(i) }
+
             mSB.sputc(FILL[i]);
-            if (veryVerbose) { T_ P_(SB) }
 
             ASSERTV(i, i + 1   == SB.length());
             ASSERTV(i, FILL[i] == SB.data()[i]);
         }
         ASSERT(0 == memcmp(SB.data(), FILL, FILL_LEN));
 
-        if (veryVerbose) P(SB);
+        if (veryVeryVerbose) P(SB);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1459,7 +1476,7 @@ int main(int argc, char *argv[])
         //:   order.  (C-4)
         //
         // Testing:
-        //   ostream& operator<<(ostream&, const MemOutStreamBuf&);
+        //   TEST APPARATUS: ostream& operator<<(os&, const MemOutStreamBuf&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1471,6 +1488,7 @@ int main(int argc, char *argv[])
         {
             Obj        mSB;
             const Obj& SB = mSB;
+
             mSB.reserveCapacity(INIT_BUFSIZE);
 
             mSB.sputc('h');
@@ -1613,7 +1631,7 @@ int main(int argc, char *argv[])
         //   ~MemOutStreamBuf();
         //   int_type overflow(int_type insertionChar = traits_type::eof());
         //   void reserveCapacity(int numElements);
-        //   int sputc (char c);
+        //   PROXY: int sputc (char c);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1639,15 +1657,15 @@ int main(int argc, char *argv[])
                 //LINE  OUTPUT
                 //      CHAR
                 //----  -------
-                // Printing character equivalence classes are
-                // ranges [0..31], [32..126], and {127}.
+                // Printing character equivalence classes are ranges [0..31],
+                // [32..126], and {127}.
                 { L_,   0      },
                 { L_,   3      },
                 { L_,   3      },
                 { L_,   126    },
                 { L_,   127    },
-                // Leading-bit equivalence classes are ranges
-                // [0..127] and [128..255]
+                // Leading-bit equivalence classes are ranges [0..127] and
+                // [128..255]
                 { L_,   0      },
                 { L_,   127    },
                 { L_,   '\x80' },
@@ -1664,23 +1682,26 @@ int main(int argc, char *argv[])
             const Obj& SB = mSB;
             for (size_t i = 0; i < DATA_LEN; ++i ) {
                 const int LINE = DATA[i].d_line;
+                const T   OUT_CHAR = DATA[i].d_outChar;
 
-                mSB.sputc(DATA[i].d_outChar);
-                if (veryVerbose) { T_ P_(SB) }
+                if (veryVerbose) { T_ P_(i) P_(LINE) P((int)OUT_CHAR) }
 
-                ASSERTV(LINE, DATA[i].d_outChar == SB.data()[i]);
-                ASSERTV(LINE, i + 1             == SB.length());
+                mSB.sputc(OUT_CHAR);
+
+                ASSERTV(LINE, OUT_CHAR == SB.data()[i]);
+                ASSERTV(LINE, i + 1    == SB.length());
             }
         }
 
         if (verbose) cout << "\nAllocator installation test." << endl;
         {
-            if (verbose) cout << "\tConstructor with default allocator."
-                              << endl;
+            if (verbose)
+                cout << "\tConstructor with default allocator." << endl;
             {
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+
                 bslma::DefaultAllocatorGuard guard(&da);
+
                 ASSERT(0 == da.numAllocations());
 
                 Obj        mSB;
@@ -1692,19 +1713,21 @@ int main(int argc, char *argv[])
                 ASSERT(0 == da.numBytesTotal());
 
                 mSB.sputc('a');
+
                 ASSERT(0 != SB.data());
                 ASSERT(1 == SB.length());
                 ASSERT(1 == da.numAllocations());
                 ASSERT(0 != da.numBytesTotal());
             }
 
-            if (verbose) cout
-                            << "\tConstructor with explicit default allocator."
-                            << endl;
+            if (verbose)
+                cout << "\tConstructor with explicit default allocator."
+                     << endl;
             {
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+
                 bslma::DefaultAllocatorGuard guard(&da);
+
                 ASSERT(0 == da.numAllocations());
 
                 Obj        mSB(static_cast<bslma::Allocator *>(0));
@@ -1716,21 +1739,24 @@ int main(int argc, char *argv[])
                 ASSERT(0 == da.numBytesTotal());
 
                 mSB.sputc('a');
+
                 ASSERT(0 != SB.data());
                 ASSERT(1 == SB.length());
                 ASSERT(1 == da.numAllocations());
                 ASSERT(0 != da.numBytesTotal());
             }
 
-            if (verbose) cout << "\tConstructor with object allocator."
-                              << endl;
+            if (verbose)
+                cout << "\tConstructor with object allocator." << endl;
             {
-                bslma::TestAllocator         da("default",
-                                                veryVeryVeryVerbose);
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+
                 bslma::DefaultAllocatorGuard guard(&da);
+
                 ASSERT(0 == da.numAllocations());
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
                 ASSERT(0 == oa.numAllocations());
 
                 Obj        mSB(&oa);
@@ -1760,9 +1786,9 @@ int main(int argc, char *argv[])
                 // Data structure that contains testing data for testing
                 // 'reserveCapacity'.
                 static const struct {
-                    int         d_line;          // line number
-                    bsl::size_t d_requestAmount; // how many bytes to ask for
-                    bsl::size_t d_capacity;      // expected streambuf capacity
+                    int    d_line;          // line number
+                    size_t d_requestAmount; // how many bytes to ask for
+                    size_t d_capacity;      // expected streambuf capacity
                 } DATA[] = {
                       //LINE  REQUEST AMOUNT    RESULTING CAPACITY
                       //----  --------------    ------------------
@@ -1780,14 +1806,19 @@ int main(int argc, char *argv[])
                     const int LINE = DATA[i].d_line;
 
                     LimitsTestAllocator ta(veryVeryVerbose);
-                    Obj                 mSB(&ta);
+
+                    Obj mSB(&ta);
+
                     ASSERTV(LINE, 0 == ta.numBytesInUse());
+
                     if (veryVerbose) cout << "\tRequesting capacity of "
                                           << DATA[i].d_requestAmount << '.'
                                           << endl;
+
                     mSB.reserveCapacity(DATA[i].d_requestAmount);
-                    bsl::size_t NBIU =
-                                  static_cast<bsl::size_t>(ta.numBytesInUse());
+
+                    size_t NBIU = static_cast<size_t>(ta.numBytesInUse());
+
                     ASSERTV(LINE,
                             DATA[i].d_capacity,
                             NBIU,
@@ -1828,12 +1859,17 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocator ta(veryVeryVerbose);
                     Obj                  mSB(&ta);
+
                     mSB.reserveCapacity(1);
+
                     ASSERTV(LINE, 1 == ta.numBytesInUse());
+
                     if (veryVerbose) cout << "\tRequesting capacity of "
                                           << DATA[i].d_requestAmount << '.'
                                           << endl;
+
                     mSB.reserveCapacity(DATA[i].d_requestAmount);
+
                     ASSERTV(LINE, DATA[i].d_capacity == ta.numBytesInUse());
 
                     // Now prove that the entirety of the returned memory is
@@ -1851,13 +1887,18 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting data copying correctness." << endl;
             {
                 bslma::TestAllocator ta(veryVeryVerbose);
-                const size_t         BUFFER_SIZE = 5;
-                Obj                  mSB(&ta);
-                const Obj&           SB = mSB;
+
+                const size_t BUFFER_SIZE = 5;
+
+                Obj        mSB(&ta);
+                const Obj& SB = mSB;
+
                 mSB.reserveCapacity(BUFFER_SIZE);
+
                 for (size_t i = 0; i < BUFFER_SIZE; ++i ) {
                     mSB.sputc('Z');
                 }
+
                 mSB.reserveCapacity(2 * BUFFER_SIZE);
                 mSB.sputc('a');
 
@@ -1865,16 +1906,20 @@ int main(int argc, char *argv[])
                 ASSERT(0 == strncmp(SB.data(), "ZZZZZa", BUFFER_SIZE + 1));
             }
 
-            if (verbose) cout <<
-                           "\tTesting that resize deallocates previous buffer."
-                              << endl;
+            if (verbose)
+                cout << "\tTesting that resize deallocates previous buffer."
+                     << endl;
             {
                 bslma::TestAllocator ta(veryVeryVerbose);
+
                 Obj                  mSB(&ta);
+
                 mSB.reserveCapacity(INIT_BUFSIZE);
+
                 const bsls::Types::Int64  NUM_DEALLOCATIONS =
                                                          ta.numDeallocations();
                 void                     *laa = ta.lastAllocatedAddress();
+
                 mSB.reserveCapacity(2 * INIT_BUFSIZE);
 
                 ASSERT(NUM_DEALLOCATIONS + 1 == ta.numDeallocations());
@@ -1885,18 +1930,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nOverflow test." << endl;
         {
             bslma::TestAllocator ta(veryVeryVerbose);
-            Obj                  mSB(&ta);
-            const Obj&           SB = mSB;
+
             const size_t         CAPACITY = 1;
-            ASSERT(0                     == ta.numAllocations());
+
+            Obj        mSB(&ta);
+            const Obj& SB = mSB;
+
+            ASSERT(0 == ta.numAllocations());
 
             mSB.reserveCapacity(CAPACITY);
+
             bsls::Types::Int64 numAllocations = ta.numAllocations();
             bsls::Types::Int64 numDeallocations = ta.numDeallocations();
+
             ASSERT(0                == SB.length());
             ASSERT(CAPACITY         == ta.lastAllocatedNumBytes());
 
             int result = mSB.sputc('a');
+
             ASSERT('a'              == result);
             ASSERT('a'              == SB.data()[0]);
             ASSERT(CAPACITY         == SB.length());
@@ -1904,26 +1955,27 @@ int main(int argc, char *argv[])
             ASSERT(numDeallocations == ta.numDeallocations());
 
             result = mSB.sputc('b');
+
             ASSERT('b'              == result);
             ASSERT('b'              == SB.data()[1]);
-             ASSERT(CAPACITY + 1    == SB.length());
+            ASSERT(CAPACITY + 1     == SB.length());
             ASSERT(numAllocations   <  ta.numAllocations());
             ASSERT(numDeallocations <  ta.numDeallocations());
         }
 
         if (verbose) cout << "\nTesting exception neutrality." << endl;
         {
-            const bsl::size_t DATA[] = { 0,
-                                         INIT_BUFSIZE,
-                                         TWICE_INIT_BUFSIZE };
+            const size_t DATA[] = { 0,
+                                    INIT_BUFSIZE,
+                                    TWICE_INIT_BUFSIZE };
 
-            const bsl::size_t DATA_LEN = sizeof DATA / sizeof *DATA;
+            const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
             // This segment verifies correct behavior across different initial
             // stream buffer states.
 
             for(size_t i = 0; i < DATA_LEN; ++i ) {
-                bsl::size_t INITIAL_DATA_LEN = DATA[i];
+                size_t INITIAL_DATA_LEN = DATA[i];
 
                 bslma::TestAllocator eta("exception test",
                                          veryVeryVeryVerbose);
@@ -1932,7 +1984,7 @@ int main(int argc, char *argv[])
 
                     // Pre-fill stream buffer with some data.  This might also
                     // trigger some initial memory allocation.
-                    for (bsl::size_t j = 0; j < INITIAL_DATA_LEN; ++j) {
+                    for (size_t j = 0; j < INITIAL_DATA_LEN; ++j) {
                         mSB.sputc('a');
                     }
 
@@ -1961,17 +2013,19 @@ int main(int argc, char *argv[])
 
                         ASSERTV(numIterations, monitor.isTotalUp());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                    ASSERTV(i, 2 == numIterations);
+
+                    ASSERTV(i, numIterations, 2 == numIterations);
                 }
 
                 // Test exception neutrality: all memory has been returned.
-                ASSERTV(i, 0 == eta.numBlocksInUse());
+                ASSERTV(i, eta.numBlocksInUse(), 0 == eta.numBlocksInUse());
             }
         }
 
         if (verbose) cout << "\nTesting destructor." << endl;
         {
-            bslma::TestAllocator               da(veryVeryVerbose);
+            bslma::TestAllocator da("default", veryVeryVerbose);
+
             const bslma::DefaultAllocatorGuard dag(&da);
 
             ASSERT(0 == da.numBlocksInUse());
