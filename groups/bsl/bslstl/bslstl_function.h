@@ -1183,10 +1183,6 @@ class function<RET(ARGS_01)> :
                 Soo::IsInplaceFunc
             >::Type UwFuncSelection;
 
-        const Soo::SooFuncSize<FUNC> ff;
-        volatile const bool x = ff.X, y = ff.Y, z = ff.Z;
-        const Soo::SooFuncSize<UwFuncType> uf;
-        volatile const bool ux = uf.X, uy = uf.Y, uz = uf.Z;
         const std::size_t kSOOSIZE       = Soo::SooFuncSize<FUNC>::VALUE;
         const std::size_t kUNWRAPPED_SOOSIZE
                                          = Soo::SooFuncSize<UwFuncType>::VALUE;
