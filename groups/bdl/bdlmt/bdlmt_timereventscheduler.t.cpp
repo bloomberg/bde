@@ -25,6 +25,7 @@
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_ostream.h>
@@ -764,7 +765,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply execute the specified
     // 'functor'.
 {
@@ -778,7 +779,7 @@ void dispatcherFunction(bdlf::Function<void(*)()> functor)
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23
 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply execute the specified
     // 'functor'.
 {
@@ -806,7 +807,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply execute the specified
     // 'functor'.
 {
@@ -1253,7 +1254,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply execute the specified
     // 'functor'.
 {

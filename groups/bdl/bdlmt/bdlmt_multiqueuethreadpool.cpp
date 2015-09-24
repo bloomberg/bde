@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bslmt_barrier.h>
@@ -16,6 +15,7 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_spinlock.h>
 
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -150,7 +150,8 @@ MultiQueueThreadPool_QueueContext::MultiQueueThreadPool_QueueContext(
                                               bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_lock(bsls::SpinLock::s_unlocked)
-, d_processingCb(basicAllocator)
+, d_processingCb(bsl::allocator_arg_t(),
+                 bsl::allocator<QueueProcessorCb>(basicAllocator))
 , d_destroyFlag(false)
 {
 }
@@ -159,7 +160,7 @@ inline
 void MultiQueueThreadPool_QueueContext::reset()
 {
    d_queue.reset();
-   d_processingCb.clear();
+   d_processingCb = QueueProcessorCb();
    d_destroyFlag = false;
 }
 

@@ -393,10 +393,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -419,6 +415,10 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlmt {
@@ -435,7 +435,7 @@ class MultipriorityThreadPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void(*)()> ThreadFunctor;
+    typedef bsl::function<void()> ThreadFunctor;
         // 'ThreadFunctor' is an alias for a function object that is invokable
         // (with no arguments) and returns 'void'; its use is similar to that
         // of a C-style function pointer and optional 'void *' data pointer

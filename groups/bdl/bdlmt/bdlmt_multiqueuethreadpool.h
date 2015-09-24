@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 //              const bsl::string&        file = *it;
 //              const bsl::string&        word = *jt;
 //              RegistryValue&            rv   = profileRegistry[word];
-//              bdlf::Function<void (*)()> job  =
+//              bsl::function<void()> job  =
 //                 bdlf::BindUtil::bind(&my_SearchCb, rv.second, file.c_str());
 //              int rc = pool.enqueueJob(rv.first, job);
 //              LOOP_ASSERT(word, 0 == rc);
@@ -336,12 +336,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -360,7 +360,7 @@ class MultiQueueThreadPool_Queue {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> Job;
+    typedef bsl::function<void()> Job;
 
   private:
     // TYPES
@@ -462,7 +462,7 @@ class MultiQueueThreadPool_QueueContext {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> QueueProcessorCb;
+    typedef bsl::function<void()> QueueProcessorCb;
         // This type defines a callback functor that is enqueued to the thread
         // pool, and used to process elements of a specific queue.  The queue
         // ID must be bound to the functor at the time of its instantiation.
@@ -518,8 +518,8 @@ class MultiQueueThreadPool {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> Job;
-    typedef bdlf::Function<void(*)()> CleanupFunctor;
+    typedef bsl::function<void()> Job;
+    typedef bsl::function<void()> CleanupFunctor;
 
   private:
     // TYPES

@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
-#include <bdlf_function.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
 #include <bslma_default.h>
@@ -178,7 +177,7 @@ void ThreadPool::workerThread()
 
         bool functorWasSetFlag = false;
         if (functor) {
-            functor.clear();
+            functor = Job();
             functorWasSetFlag = true;
         }
 

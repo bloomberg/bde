@@ -19,6 +19,7 @@
 #include <bsl_cstdio.h>             // For FILE in usage example
 #include <bsl_cstdlib.h>            // for atoi
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -55,7 +56,7 @@ using namespace bsl;  // automatically added by script
 //
 // [ 3] bdlmt::FixedThreadPool(const bslmt::Attributes&, int, int, int);
 // [ 3] ~bdlmt::FixedThreadPool();
-// [ 3] int enqueueJob(const bdlf::Function<void (*)()>& );
+// [ 3] int enqueueJob(const bsl::function<void()>& );
 // [ 3] int numThreads() const;
 // [ 4] int enqueueJob(FixedThreadPoolJobFunc, void *);
 // [ 4] void start();
@@ -418,8 +419,8 @@ static void myFastFunctorSearch(const string&         word,
         job.d_mutex   = &mutex;
         job.d_outList = &outFileList;
 
-        bdlf::Function<void (*)()> jobHandle =
-            bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
+        bsl::function<void()> jobHandle =
+                           bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
         pool.enqueueJob(jobHandle);
     }
     pool.drain();
@@ -472,10 +473,8 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                                     d_allocator_p,
-                                                     &ConcurrencyTest::execute,
-                                                     this);
+    bsl::function<void()> job =
+         bdlf::BindUtil::bindA(d_allocator_p, &ConcurrencyTest::execute, this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -578,9 +577,8 @@ Test9Object::Test9Object(bslmt::Barrier *barrier_p, Obj *threadPool_p)
 
 Test9Object::~Test9Object()
 {
-    bdlf::Function<void(*)(void)> job = bdlf::BindUtil::bind(
-                                                           &testJobFunction9_2,
-                                                           d_barrier_p);
+    bsl::function<void()> job =
+                        bdlf::BindUtil::bind(&testJobFunction9_2, d_barrier_p);
     ASSERT(0 == d_threadPool_p->enqueueJob(job));
 }
 

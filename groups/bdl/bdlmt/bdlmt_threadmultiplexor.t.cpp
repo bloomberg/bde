@@ -17,6 +17,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
 #include <bsl_c_math.h>
@@ -276,10 +277,10 @@ int UsageTestChecker::maxProcessors() const {
 // ----------------------------------------------------------------------------
 namespace TEST_CASE_6 {
 
-void testCase6(bslmt::Semaphore                 *startSemaphore,
-               bdlmt::ThreadMultiplexor         *mX,
-               int                               numJobs,
-               const bdlf::Function<void(*)()>&  job)
+void testCase6(bslmt::Semaphore             *startSemaphore,
+               bdlmt::ThreadMultiplexor     *mX,
+               int                           numJobs,
+               const bsl::function<void()>&  job)
 {
    startSemaphore->wait();
    for (; 0 < numJobs; --numJobs) {
@@ -461,8 +462,8 @@ int main(int argc, char *argv[])
             bdlmt::ThreadMultiplexor mX(1, MAX_QUEUESIZE, &ta);
             bslmt::ThreadGroup threads;
 
-            bdlf::Function<void (*)()> addFunc =
-                bdlf::BindUtil::bind(&bsls::AtomicInt::add, &timesCalled, 1);
+            bsl::function<void()> addFunc =
+                  bdlf::BindUtil::bind(&bsls::AtomicInt::add, &timesCalled, 1);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 LOOP_ASSERT(i, 0 == threads.addThread(bdlf::BindUtil::bind(

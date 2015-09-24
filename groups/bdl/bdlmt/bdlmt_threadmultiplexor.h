@@ -222,16 +222,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -252,7 +252,7 @@ class ThreadMultiplexor {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> Job;
+    typedef bsl::function<void()> Job;
         // A callback of this type may be passed to the 'processJob' method.
 
   private:
