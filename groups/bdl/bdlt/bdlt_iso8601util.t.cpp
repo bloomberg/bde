@@ -2058,6 +2058,19 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                         }
 
+                        // 'generate' to a 'string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, JLINE, KLINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X));
+
+                            ASSERTV(ILINE, JLINE, KLINE, EXPECTED, mS,
+                                    EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
+                        }
+
                         // 'generate' to an 'ostream'
                         {
                             bsl::ostringstream os;
@@ -2147,6 +2160,18 @@ if (veryVerbose)
                                                          buffer + k + 1,
                                                          BUFLEN - k - 1));
                             }
+                        }
+
+                        // 'generate' to a 'string'
+                        {
+                            bsl::string mS("qwerty");
+
+                            ASSERTV(ILINE, OUTLEN,
+                                    OUTLEN == Util::generate(&mS, X, C));
+
+                            ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                            if (veryVerbose) { P_(EXPECTED) P(mS); }
                         }
 
                         // 'generate' to an 'ostream'
@@ -2304,6 +2329,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2521,6 +2554,18 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+
                     // 'generate' to an 'ostream'
                     {
                         bsl::ostringstream os;
@@ -2607,6 +2652,18 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
+                    }
+
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
                     // 'generate' to an 'ostream'
@@ -2760,6 +2817,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -2972,6 +3037,18 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+
                     // 'generate' to an 'ostream'
                     {
                         bsl::ostringstream os;
@@ -3058,6 +3135,18 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
+                    }
+
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
                     }
 
                     // 'generate' to an 'ostream'
@@ -3211,6 +3300,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3425,6 +3522,18 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                     }
 
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, JLINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X));
+
+                        ASSERTV(ILINE, JLINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+
                     // 'generate' to an 'ostream'
                     {
                         bsl::ostringstream os;
@@ -3513,6 +3622,18 @@ if (veryVerbose)
                         }
                     }
 
+                    // 'generate' to a 'string'
+                    {
+                        bsl::string mS("qwerty");
+
+                        ASSERTV(ILINE, OUTLEN,
+                                OUTLEN == Util::generate(&mS, X, C));
+
+                        ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                        if (veryVerbose) { P_(EXPECTED) P(mS); }
+                    }
+
                     // 'generate' to an 'ostream'
                     {
                         bsl::ostringstream os;
@@ -3569,6 +3690,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3757,6 +3886,17 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                 }
 
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
                 // 'generate' to an 'ostream'
                 {
                     bsl::ostringstream os;
@@ -3844,6 +3984,18 @@ if (veryVerbose)
                     }
                 }
 
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
                 // 'generate' to an 'ostream'
                 {
                     bsl::ostringstream os;
@@ -3898,6 +4050,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -4085,6 +4245,17 @@ if (veryVerbose)
 #endif  // BDE_OPENSOURCE_PUBLICATION
                 }
 
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
                 // 'generate' to an 'ostream'
                 {
                     bsl::ostringstream os;
@@ -4172,6 +4343,18 @@ if (veryVerbose)
                     }
                 }
 
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
                 // 'generate' to an 'ostream'
                 {
                     bsl::ostringstream os;
@@ -4226,6 +4409,14 @@ if (veryVerbose)
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
