@@ -3,7 +3,6 @@
 #include <bdlf_bind_test0.h>
 
 #include <bdlf_bind_test.h>      // for testing only
-#include <bdlf_function.h>       // for testing only
 #include <bdlf_placeholder.h>    // for testing only
 
 // ----------------------------------------------------------------------------

@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha), Herve Bronnimann (hbronnimann)
 //
-//@SEE_ALSO: bdlf_memfn, bdlf_function, bdlf_placeholder
+//@SEE_ALSO: bdlf_memfn, bdlf_placeholder
 //
 //@DESCRIPTION: This component provides a parameterized binder mechanism,
 // 'bdlf::Bind', that is a functor object that binds an invocable object or

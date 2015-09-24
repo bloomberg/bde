@@ -6,7 +6,6 @@
 #include <ball_loggermanagerconfiguration.h>    // for testing only
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bdlf_function.h>                      // for testing only
 #include <bdlf_bind.h>                          // for testing only
 #include <bdlf_placeholder.h>                   // for testing only
 

@@ -548,7 +548,7 @@ class ThreadPool {
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  The behavior is undefined unless
-        // 'functor' is not "unset".  See 'bdlf_function' for more information
+        // 'functor' is not "unset".  See 'bsl::function' for more information
         // on functors.
 
     int enqueueJob(ThreadPoolJobFunc function, void *userData);

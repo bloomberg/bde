@@ -7,7 +7,6 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <ball_log.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
 #include <bslmt_writelockguard.h>

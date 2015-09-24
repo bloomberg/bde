@@ -3,8 +3,6 @@
 
 #include <btlsc_flag.h>          // for testing only
 
-#include <bdlf_function.h>
-
 #include <bdls_testutil.h>
 
 #include <bsls_protocoltest.h>

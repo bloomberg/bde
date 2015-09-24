@@ -518,7 +518,7 @@ class FixedThreadPool {
         // queuing is currently disabled.  Note that this function can block if
         // the underlying fixed queue has reached full capacity; use
         // 'tryEnqueueJob' instead for non-blocking.  The behavior is undefined
-        // unless 'functor' is not "unset".  See 'bdlf_function' for more
+        // unless 'functor' is not "unset".  See 'bsl::function' for more
         // information on functors.
 
     int enqueueJob(FixedThreadPoolJobFunc function, void *userData);

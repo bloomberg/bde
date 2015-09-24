@@ -8,8 +8,6 @@
 #include <balxml_prefixstack.h>
 #include <balxml_elementattribute.h>
 
-#include <bdlf_function.h>
-
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>     // atoi()

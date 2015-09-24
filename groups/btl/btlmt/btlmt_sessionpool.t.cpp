@@ -18,7 +18,6 @@
 #include <bslmt_semaphore.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bslma_defaultallocatorguard.h>

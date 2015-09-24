@@ -4,7 +4,6 @@
 #include <btlsc_flag.h>          // for testing only
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
 #include <bdls_testutil.h>

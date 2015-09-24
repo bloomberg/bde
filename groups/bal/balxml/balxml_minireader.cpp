@@ -6,8 +6,6 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 
 #include <balxml_errorinfo.h>
 
-#include <bdlf_function.h>
-
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>  // for swap

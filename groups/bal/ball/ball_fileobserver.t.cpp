@@ -20,7 +20,6 @@
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_localtimeoffset.h>
-#include <bdlf_function.h>
 #include <bdls_testutil.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>

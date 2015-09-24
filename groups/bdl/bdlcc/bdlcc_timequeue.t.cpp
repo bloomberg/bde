@@ -14,7 +14,6 @@
 #include <bslmt_threadgroup.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>

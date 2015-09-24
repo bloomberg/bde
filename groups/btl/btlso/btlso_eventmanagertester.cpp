@@ -16,7 +16,6 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bslalg_scalarprimitives.h>

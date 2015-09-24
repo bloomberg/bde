@@ -12,7 +12,6 @@
 #include <bdlb_random.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>

@@ -4,7 +4,6 @@
 #include <balst_objectfileformat.h>
 #include <balst_stackaddressutil.h>    // 'getStackAddresses(0,0)'
 
-#include <bdlf_function.h>
 #include <bdlma_sequentialallocator.h>
 #include <bdlb_string.h>
 

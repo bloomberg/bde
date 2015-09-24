@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 

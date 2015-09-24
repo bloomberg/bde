@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <ball_multiplexobserver.h>           // for testing only
 #endif
 
-#include <bdlf_function.h>
 #include <bslmt_lockguard.h>
 
 #include <bsl_cstdio.h>
