@@ -642,8 +642,6 @@ int main(int argc, char *argv[])
         }
       } break;
       case 5: {
-// TBD FIX ME
-#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
         // --------------------------------------------------------------------
         // TESTING 'dispatch' and 'registerTimer'
         // Concerns:
@@ -787,7 +785,6 @@ int main(int argc, char *argv[])
             }
             mX.deregisterAllTimers();
         }
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------

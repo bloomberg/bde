@@ -1640,8 +1640,6 @@ int main(int argc, char *argv[]) {
                           << "Testing waitForIO" << endl
                           << "=================" << endl;
 
-// TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_AIX
         const btlso::Flag::IOWaitType RD = btlso::Flag::e_IO_READ;
         const btlso::Flag::IOWaitType WR = btlso::Flag::e_IO_WRITE;
         const btlso::Flag::IOWaitType RW = btlso::Flag::e_IO_RW;
@@ -1860,7 +1858,6 @@ int main(int argc, char *argv[]) {
             testFactory.deallocate(streamSocketA);
 #endif
         }
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2187,12 +2184,13 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
 
-#if defined(BSLS_PLATFORM_OS_HPUX) || \
-    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-            bslmt::ThreadUtil::microSleep(20 * 1000);
-#endif
+// #if defined(BSLS_PLATFORM_OS_HPUX) || \
+//     defined(BSLS_PLATFORM_OS_WINDOWS)
+// // Some TCP driver implementations require some delay between write and
+// // read (on the loopback service) in order to recognize I/O events
+// // correctly.
+//             bslmt::ThreadUtil::microSleep(20 * 1000);
+// #endif
 
             resp = clientSocket->read(bufrcv, sizeof(bufrcv));
             ASSERT(resp == sizeof(buf1));
@@ -2226,12 +2224,13 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp < 0);
 
-#if defined(BSLS_PLATFORM_OS_HPUX) || \
-    defined(BSLS_PLATFORM_OS_WINDOWS) // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-            bslmt::ThreadUtil::microSleep(20 * 1000);
-#endif
+// #if defined(BSLS_PLATFORM_OS_HPUX) || \
+//     defined(BSLS_PLATFORM_OS_WINDOWS)
+// // Some TCP driver implementations require some delay between write and
+// // read (on the loopback service) in order to recognize I/O events
+// // correctly.
+//             bslmt::ThreadUtil::microSleep(20 * 1000);
+// #endif
 
             resp = clientSocket->read(bufrcv, sizeof(buf1));
             ASSERT(btlso::SocketHandle::e_ERROR_EOF == resp ||

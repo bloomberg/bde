@@ -6918,6 +6918,7 @@ struct case4WorkerInfo {
     int                        d_queueSize;
     int                        d_timeOut;
     bsls::AtomicInt            d_portNumber;
+    bslmt::Barrier            *d_barrier_p;
     bslmt::ThreadUtil::Handle *d_worker_p;
 };
 
@@ -6959,6 +6960,7 @@ void *case4OpenConnectThread(void *arg) {
                    << ": CLIENT CONNECTED.\n"
                    << MTENDL;
         }
+        info->d_barrier_p->wait();
         if (channel) {
             acceptor.deallocate(channel);
         }
@@ -7053,7 +7055,7 @@ static void case4ChannelCb(int                  channelId,
         cout << MTENDL;
     }
 
-    ASSERT(info->d_expUserId == sourceId);
+    LOOP2_ASSERT(info->d_expUserId, sourceId, info->d_expUserId == sourceId);
 
     switch (state) {
       case btlmt::ChannelPool::e_CHANNEL_UP:
@@ -15848,7 +15850,7 @@ void TestDriver::testCase4()
 
             btlso::IPv4Address peer("127.0.0.1", PORT);
 
-            case4WorkerInfo info;
+            case4WorkerInfo            info;
             bslmt::ThreadUtil::Handle  worker;
             info.d_i           = 0;
             info.d_portNumber  = PORT;
@@ -15862,6 +15864,7 @@ void TestDriver::testCase4()
             if (veryVerbose) {
                 MTCOUT << "Creating channel pool." << MTENDL;
             }
+
             btlmt::ChannelPoolConfiguration config;
             config.setMaxThreads(1);
             config.setMetricsInterval(30.0);
@@ -15901,12 +15904,16 @@ void TestDriver::testCase4()
                            << i << " (with auto-read)." << MTENDL;
                 }
 
+                bslmt::Barrier barrier(2);
+
                 isConnected           = 0;
                 numFailures           = 0;
                 info.d_expUserId      = USER_ID + i + 1;
                 info.d_expNumFailures = i;
                 info.d_i              = i;
                 info.d_worker_p       = &worker;
+                info.d_barrier_p      = &barrier;
+
                 if (0 != i) {
                     // Initial opening server may have failed, do not overwrite
                     // info in that case.  Otherwise, it may have failed at
@@ -15918,7 +15925,6 @@ void TestDriver::testCase4()
                     info.d_portNumber = PORT;
                 }
 
-                bslmt::ThreadUtil::microSleep(0, 1);
                 if (veryVerbose) {
                     MTCOUT << "--->ATTEMPT " << i << ' '
                            << bdlt::CurrentTime::now()
@@ -15930,7 +15936,8 @@ void TestDriver::testCase4()
                                                bsls::TimeInterval(TIMEOUT),
                                                info.d_expUserId));
 
-                bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
+                barrier.wait();
+//                 bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
                 if (0 == info.d_portNumber)
                 {
                     LOOP2_ASSERT(numFailures, info.d_expNumFailures,
@@ -15950,9 +15957,9 @@ void TestDriver::testCase4()
                     cout << MTENDL;
                 }
                 bslmt::ThreadUtil::join(worker);
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+//                 bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
                 bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+//                 bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
             }
             ASSERT(0 == mX.stop());
         }
@@ -16052,7 +16059,7 @@ void TestDriver::testCase4()
                     info.d_portNumber = PORT;
                 }
 
-                bslmt::ThreadUtil::microSleep(0, 1);
+//                 bslmt::ThreadUtil::microSleep(0, 1);
                 if (veryVerbose) {
                     MTCOUT << "--->ATTEMPT " << i << ' '
                            << bdlt::CurrentTime::now()
@@ -16070,7 +16077,7 @@ void TestDriver::testCase4()
                          ? btlmt::ChannelPool::e_RESOLVE_ONCE
                          : btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT));
 
-                bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
+//                 bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
                 if (0 == info.d_portNumber)
                 {
                     LOOP2_ASSERT(numFailures, info.d_expNumFailures,
@@ -16090,9 +16097,9 @@ void TestDriver::testCase4()
                     cout << MTENDL;
                 }
                 bslmt::ThreadUtil::join(worker);
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+//                 bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
                 bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
+//                 bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
             }
             ASSERT(0 == mX.stop());
         }
@@ -16166,13 +16173,13 @@ void TestDriver::testCase4()
                                                            DATA[i].d_sourceId);
                         LOOP3_ASSERT(i, j, ret, 0 == ret);
                         while (j + 1 != isInvoked) {
-                            bslmt::ThreadUtil::sleep(TIMEOUT);
+//                             bslmt::ThreadUtil::sleep(TIMEOUT);
                         }
                         if (veryVerbose) {
                             MTCOUT << "Succeded at "
                                 << bdlt::CurrentTime::now() << MTENDL;
                         }
-                        bslmt::ThreadUtil::sleep(TIMEOUT);
+//                         bslmt::ThreadUtil::sleep(TIMEOUT);
                         LOOP2_ASSERT(i, j, j + 1 == isInvoked);
                         if (veryVerbose) { P(isInvoked); }
                         ASSERT(0 == mX.stop());
@@ -16218,10 +16225,10 @@ void TestDriver::testCase4()
                                                            DATA[j].d_sourceId);
                         LOOP3_ASSERT(i, j, ret, 0 == ret);
                     }
-                    bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT + TIMEOUT);
+//                     bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT + TIMEOUT);
                 }
 
-                bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT);
+//                 bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT);
                 ASSERT(0 == mX.stop());
 
                 if (veryVerbose) {
@@ -16252,7 +16259,7 @@ void TestDriver::testCase4()
                     }
                     LOOP2_ASSERT(i, j, -1 == mX.connect(peer, j + 1, TIMEOUT,
                                                         DATA[i].d_sourceId));
-                    bslmt::ThreadUtil::sleep(TIMEOUT);
+//                     bslmt::ThreadUtil::sleep(TIMEOUT);
                     LOOP2_ASSERT(i, j, 0 == isInvoked);
                 }
             }

@@ -734,14 +734,11 @@ int main(int argc, char *argv[])
             cout << "Standard test for 'dispatch'" << endl
                  << "============================" << endl;
         {
-// TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_SOLARIS
             Obj mX(&timeMetric, &testAllocator);
 
             int fails = btlso::EventManagerTester::testDispatch(&mX,
                                                                controlFlag);
             ASSERT(0 == fails);
-#endif
         }
 
         if (verbose)
