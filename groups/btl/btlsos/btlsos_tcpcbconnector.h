@@ -478,6 +478,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
@@ -629,7 +633,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt the allocation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'callback' will not be invoked).
@@ -652,7 +656,7 @@ class TcpCbConnector : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'timedCallback' will not be

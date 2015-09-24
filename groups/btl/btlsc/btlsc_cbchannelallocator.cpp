@@ -4,22 +4,23 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlsc_cbchannelallocator_cpp,"$Id$ $CSID$")
 
-#ifdef BTE_FOR_TESTING_ONLY
-// These dependencies need to be here for the the bde_build.pl script to
-// generate the proper makefiles, but do not need to be compiled into the
-// component's .o file.  The symbol BTE_FOR_TESTING_ONLY should remain
-// undefined, and is here only because '#if 0' is optimized away by the
-// bde_build.pl script.
-
-#include <btlsc_flag.h>                     // for testing only
-#endif
+#include <btlsc_cbchannel.h>       // for testing only
+#include <btlsc_flag.h>            // for testing only
+#include <btlsc_timedcbchannel.h>  // for testing only
 
 namespace BloombergLP {
-
 namespace btlsc {
-CbChannelAllocator::~CbChannelAllocator() { }
-}  // close package namespace
 
+                          // ------------------------
+                          // class CbChannelAllocator
+                          // ------------------------
+
+// CREATORS
+CbChannelAllocator::~CbChannelAllocator()
+{
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

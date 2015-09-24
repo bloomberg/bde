@@ -1,422 +1,458 @@
 // btlsc_cbchannel.t.cpp                                              -*-C++-*-
-
 #include <btlsc_cbchannel.h>
-#include <btlsc_flag.h>
+
+#include <btlsc_flag.h>          // for testing only
 
 #include <bdlf_function.h>
 
+#include <bdls_testutil.h>
+
+#include <bsls_protocoltest.h>
+
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_c_stdlib.h>
+
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
-//                              OVERVIEW
-// We are testing a pure protocol class.  We need to verify that a concrete
-// derived class compiles and links.  We create a sample derived class that
-// provides a dummy implementation of the base class virtual methods.  We then
-// verify that when a method is called through a base class instance pointer
-// the appropriate method in the derived class instance is invoked.
+//                              Overview
+//                              --------
+// The component under test defines a protocol class the purpose of which is to
+// provide an interface for loading calendars.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o It is possible to create a concrete implementation the protocol.
 //-----------------------------------------------------------------------------
-// [ 1] virtual ~btlsc::CbChannel()
-// [ 1] virtual int read(...)
-// [ 1] virtual int readRaw(...)
-// [ 1] virtual int readvRaw(...)
-// [ 1] virtual int bufferedRead(...)
-// [ 1] virtual int bufferedReadRaw(...)
-// [ 1] virtual int write(...)
-// [ 1] virtual int writeRaw(...)
-// [ 1] virtual int writevRaw(const btls::Ovec *buffers, ...)
-// [ 1] virtual int writevRaw(const btls::Iovec *buffers, ...)
-// [ 1] virtual int bufferedWrite(const btls::Iovec *buffers, ...)
-// [ 1] virtual int bufferedWritev(const btls::Ovec *buffers, ...)
-// [ 1] virtual int bufferedWritev(const btls::Iovec *buffers, ...)
-// [ 1] virtual void cancelAll()
-// [ 1] virtual void cancelRead()
-// [ 1] virtual void cancelWrite()
-// [ 1] virtual void invalidate()
-// [ 1] virtual void invalidateRead()
-// [ 1] virtual void invalidateWrite()
-// [ 1] virtual int isInvalidRead()
-// [ 1] virtual int isInvalidWrite()
-// [ 1] virtual int numPendingReadOperations()
-// [ 1] virtual int numPendingWriteOperations()
+// CREATORS
+// [ 1] virtual ~CbChannel();
+//
+// MANIPULATORS
+// [ 1] virtual int read(char *, int, const RdCb&, int = 0) = 0;
+// [ 1] virtual int readRaw(char *, int, const RdCb&, int = 0) = 0;
+// [ 1] virtual int readvRaw(CIovec *, int, const RdCb&, int = 0) = 0;
+// [ 1] virtual int bufferedRead(int, const BffrdRdCb&, int = 0) = 0;
+// [ 1] virtual int bufferedReadRaw(int, const BffrdRdCb&, int = 0) = 0;
+// [ 1] virtual int write(const char *, int, const WrCb&, int = 0) = 0;
+// [ 1] virtual int writeRaw(const char *, int, const WrCb&, int = 0) = 0;
+// [ 1] virtual int writevRaw(CIovec *, int, const WrCb&, int = 0) = 0;
+// [ 1] virtual int writevRaw(COvec *, int, const WrCb&, int = 0) = 0;
+// [ 1] virtual int bufferedWrite(Cchar *, int, const WrCb&, int = 0) = 0;
+// [ 1] virtual int bufferedWritev(CIovec *, int, const WrCb&, int=0) = 0;
+// [ 1] virtual int bufferedWritev(COvec *, int, const WrCb&, int=0) = 0;
+// [ 1] virtual void cancelAll() = 0;
+// [ 1] virtual void cancelRead() = 0;
+// [ 1] virtual void cancelWrite() = 0;
+// [ 1] virtual void invalidate() = 0;
+// [ 1] virtual void invalidateRead() = 0;
+// [ 1] virtual void invalidateWrite() = 0;
+//
+// ACCESSORS
+// [ 1] virtual int isInvalidRead() const = 0;
+// [ 1] virtual int isInvalidWrite() const = 0;
+// [ 1] virtual int numPendingReadOperations() const = 0;
+// [ 1] virtual int numPendingWriteOperations() const = 0;
 //-----------------------------------------------------------------------------
-// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
-//=============================================================================
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                           CONCRETE DERIVED TYPE
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-class MyChannel : public btlsc::CbChannel {
-  // Test class used to verify protocol.
 
-    int d_fun;  // holds code describing (non-const) function:
-                //   + 1 read
-                //   + 2
-                //   + 3 readRaw
-                //   + 4
-                //   + 5 readvRaw
-                //   + 6
-                //   + 7 bufferedRead
-                //   + 8
-                //   + 9 bufferedReadRaw
-                //   +10
-                //   +11 write
-                //   +12
-                //   +13 writeRaw
-                //   +14
-                //   +15 writevRaw(const btls::Ovec *, ...)
-                //   +16 writevRaw(const btls::Iovec *, ...)
-                //   +17
-                //   +18
-                //   +19 bufferedWrite
-                //   +20
-                //   +21 bufferedWritev(const btls::Ovec *, ...)
-                //   +22 bufferedWritev(const btls::Iovec *, ...)
-                //   +23
-                //   +24
-                //   +25 cancelAll
-                //   +26 cancelRead
-                //   +27 cancelWrite
-                //   +28 invalidate
-                //   +29 invalidateRead
-                //   +30 invalidateWrite
+namespace {
 
-    int d_flags;      // last value of flags passed
+typedef btlsc::CbChannel ProtocolClass;
+typedef ProtocolClass    PC;
 
-    int d_valid;      // Is this object instance valid?
-    int d_validRead;  // Is this object instance valid for read?
-    int d_validWrite; // Is this object instance valid for write?
+struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
+    int read(char *, int, const PC::ReadCallback&, int = 0)
+                                                         { return markDone(); }
 
-  public:
-    MyChannel() : d_fun(0),   d_flags(0),
-                  d_valid(1), d_validRead(1), d_validWrite(1)  { }
-    ~MyChannel() { }
+    int readRaw(char *, int, const PC::ReadCallback&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int read(char                *buffer,
-                     int                  numBytes,
-                     const ReadCallback&  readCallback,
-                     int                  flags = 0)
-        { d_fun = 1; d_flags = flags; return -1; }
-    virtual int readRaw(char                *buffer,
-                        int                  numBytes,
-                        const ReadCallback&  readCallback,
-                        int                  flags = 0)
-        { d_fun = 3; d_flags = flags; return -1; }
-    virtual int readvRaw(const btls::Iovec *buffers,
-                         int                      numBuffers,
-                         const ReadCallback&      readCallback,
-                         int                      flags = 0)
-        { d_fun = 5; d_flags = flags; return -1; }
-    virtual int bufferedRead(int                         numBytes,
-                             const BufferedReadCallback& bufferedReadCallback,
-                             int                         flags = 0)
-        { d_fun = 7; d_flags = flags; return -1; }
-    virtual int bufferedReadRaw(
-                              int                         numBytes,
-                              const BufferedReadCallback& bufferedReadCallback,
-                              int                         flags = 0)
-        { d_fun = 9; d_flags = flags; return -1; }
-    virtual int write(const char           *buffer,
-                      int                   numBytes,
-                      const WriteCallback&  writeCallback,
-                      int                   flags = 0)
-        { d_fun = 11; d_flags = flags; return -1; }
-    virtual int writeRaw(const char           *buffer,
-                         int                   numBytes,
-                         const WriteCallback&  writeCallback,
-                         int                   flags = 0)
-        { d_fun = 13; d_flags = flags; return -1; }
-    virtual int writevRaw(const btls::Ovec  *buffers,
-                          int                      numBuffers,
-                          const WriteCallback&     writeCallback,
-                          int                      flags = 0)
-        { d_fun = 15; d_flags = flags; return -1; }
-    virtual int writevRaw(const btls::Iovec *buffers,
-                          int                      numBuffers,
-                          const WriteCallback&     writeCallback,
-                          int                      flags = 0)
-        { d_fun = 16; d_flags = flags; return -1; }
-    virtual int bufferedWrite(const char           *buffer,
-                              int                   numBytes,
-                              const WriteCallback&  writeCallback,
-                              int                   flags = 0)
-        { d_fun = 19; d_flags = flags; return -1; }
-    virtual int bufferedWritev(const btls::Ovec  *buffers,
-                               int                      numBuffers,
-                               const WriteCallback&     writeCallback,
-                               int                      flags = 0)
-        { d_fun = 21; d_flags = flags; return -1; }
-    virtual int bufferedWritev(const btls::Iovec *buffers,
-                               int                      numBuffers,
-                               const WriteCallback&     writeCallback,
-                               int                      flags = 0)
-        { d_fun = 22; d_flags = flags; return -1; }
-    virtual void cancelAll()
-        { d_fun = 25; }
-    virtual void cancelRead()
-        { d_fun = 26; }
-    virtual void cancelWrite()
-        { d_fun = 27; }
-    virtual void invalidate()
-        { d_fun = 28; d_valid = 0; }
-    virtual void invalidateRead()
-        { d_fun = 29; d_validRead = 0; }
-    virtual void invalidateWrite()
-        { d_fun = 30; d_validWrite = 0; }
-    virtual int isInvalidRead() const
-        { return !d_validRead; }
-    virtual int isInvalidWrite() const
-        { return !d_validWrite; }
-    // Return some special value to indicate that this method is being called.
-    virtual int numPendingReadOperations() const
-        { return -1; }
-    // This should be called numPendingWriteOperations() for consistency.
-    // Return some special value to indicate that this method is being called.
-    virtual int numPendingWriteOperations() const
-        { return -2; }
+    int readvRaw(const btls::Iovec *, int, const PC::ReadCallback&, int = 0)
+                                                         { return markDone(); }
 
-    // non-virtual functions for testing
-    int fun()   const { return d_fun; }
-    int flags() const { return d_flags; }
-    int valid() const { return d_valid; }
+    int bufferedRead(int, const PC::BufferedReadCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int bufferedReadRaw(int, const PC::BufferedReadCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int write(const char *, int, const PC::WriteCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int writeRaw(const char *, int, const PC::WriteCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int writevRaw(const btls::Iovec *, int, const PC::WriteCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int writevRaw(const btls::Ovec *, int, const PC::WriteCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int bufferedWrite(const char *, int, const PC::WriteCallback&, int = 0)
+                                                         { return markDone(); }
+
+    int bufferedWritev(const btls::Iovec *,
+                       int,
+                       const PC::WriteCallback&,
+                       int = 0)
+                                                         { return markDone(); }
+
+    int bufferedWritev(const btls::Ovec *,
+                       int,
+                       const PC::WriteCallback&,
+                       int = 0)
+                                                         { return markDone(); }
+
+    void cancelAll()                                     {        markDone(); }
+
+    void cancelRead()                                    {        markDone(); }
+
+    void cancelWrite()                                   {        markDone(); }
+
+    void invalidate()                                    {        markDone(); }
+
+    void invalidateRead()                                {        markDone(); }
+
+    void invalidateWrite()                               {        markDone(); }
+
+    int isInvalidRead() const                            { return markDone(); }
+
+    int isInvalidWrite() const                           { return markDone(); }
+
+    int numPendingReadOperations() const                 { return markDone(); }
+
+    int numPendingWriteOperations() const                { return markDone(); }
 };
 
-// Free functions passed in as callbacks.
+}  // close unnamed namespace
+
+// Free functions used as callbacks.
+
 void myRdCbFn(int, int) { }
 void myBufRdCbFn(const char *, int, int) { }
 void myWrCbFn(int, int) { }
+
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// The 'btlsc' style of callback channel interface can be used to transmit an
+// atomic (or partial) byte sequence of known size across an arbitrary
+// concrete connected channel.  For example, the following functions might be
+// implemented to read a fixed-size byte sequence and display it as soon as it
+// becomes available.  For simplicity, we will assume that the 'int' and
+// 'double' formats are compatible across the client and server platforms.  (In
+// practice, we can stream-in the marshaled structure directly from the
+// callback buffer.)
+//..
+    struct my_Tick {
+        int    d_secId;
+        double d_price;
+    };
+
+    static void myPrintTick(const char               *buffer,
+                            int                       status,
+                            int                       augStatus)
+        // Print the value of the specified 'buffer' interpreted as a tick to
+        // 'cout' if the specified 'status' and 'augStatus' indicate a
+        // successful read operation; otherwise, handle the error or
+        // partial-transmission condition.  In particular, retry a partial
+        // transmission.
+    {
+        ASSERT(buffer);
+
+        const int MSG_SIZE = sizeof(my_Tick);
+        if (MSG_SIZE == status) { // Read operation was successful.
+            my_Tick *tick = (my_Tick *)buffer; // (pseudo 'streamIn' operation)
+            bsl::cout << "[ SecId = " << tick->d_secId
+                      << ", Price = " << tick->d_price << " ]" << bsl::endl;
+        }
+        else if (0 <= status) { // Partial result.
+            if (augStatus > 0) {
+                // Handle partial read due to asynchronous event here.
+            }
+            else if (0 == status) {
+                ASSERT(augStatus < 0);
+
+                // Handle read operation being dequeued due to a partial
+                // result in some preceding enqueued "read" operation.
+            }
+            else {
+                ASSERT(status > 0 && augStatus < 0);
+
+                // Handle partial read due to OS-level operation here.
+            }
+
+            // Reinstall the read operation here.
+
+            // Create a functor.
+            btlsc::CbChannel::BufferedReadCallback functor(&myPrintTick);
+                // used to retry if interrupted
+
+// TBD 'channel is not defined
+// TBD      if (0 != channel->bufferedRead(functor,
+// TBD                                     btlsc::Flag::k_ASYNC_INTERRUPT)) {
+// TBD          // Handle immediate retry failure condition.
+// TBD      }
+        }
+        // The functor goes out of scope, but the implementation of
+        // 'bufferedRead' retains a shared "copy" of the functor to ensure that
+        // any user data associated with the functor is preserved until the
+        // 'BufferedReadCallback' is executed.
+
+        else if (-1 == status) {
+            // Handle (known) close-connection-by-peer condition here.
+        }
+        else {
+// TBD      channel->invalidate();
+// TBD      channel->cancelAll();
+            // Handle unknown error condition here.
+        }
+    }
+
+    void myPrintTickWhenAvailable(btlsc::CbChannel *channel)
+        // Initiate an asynchronous request to read a tick from the specified
+        // 'channel' and display the value to 'cout' when available.  If after
+        // 1 minute no tick has been read, the request will expire and a
+        // message to that effect will be displayed instead.
+    {
+        // Create a functor.
+        btlsc::CbChannel::BufferedReadCallback functor(&myPrintTick);
+            // used to retry if interrupted
+
+        if (0 != channel->bufferedRead(sizeof(my_Tick),
+                                       functor,
+                                       btlsc::Flag::k_ASYNC_INTERRUPT)) {
+            ASSERT(channel->isInvalidRead());
+
+            // Handle immediate initial failure condition here.
+        }
+    }
+    // The 'functor' goes out of scope, but the implementation of
+    // 'bufferedRead' retains a shared "copy" of the functor to ensure that any
+    // user data associated with the functor is preserved until the
+    // 'BufferedReadCallback' is executed.
+//..
 
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    // int veryVerbose = argc > 3;
+int main(int argc, char *argv[])
+{
+    const int         test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool     verbose = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 4: {
-        // --------------------------------------------------------------------
-        // USAGE TEST:
-        //   This test is really just to make sure the syntax is correct.
-        // Testing:
-        //   USAGE TEST - Make sure main usage example compiles and works.
-        //   TBD.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "USAGE TEST" << endl
-                                  << "==========" << endl;
-
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // OPERATOR TEST:
-        //   No operators are defined.
-        // Testing:
-        //   N/a.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "OPERATOR TEST" << endl
-                                  << "=============" << endl;
-      } break;
       case 2: {
         // --------------------------------------------------------------------
-        // STATIC MEMBER TEMPLATE METHOD TEST:
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   No static member is defined.  Not applicable.
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   N/A.
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "STATIC MEMBER TEMPLATE METHOD" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   All we need to do is make sure that a concrete subclass of the
-        //   'btlsc::CbChannel' class compiles and links when all
-        //   virtual functions are defined.
-        // Testing:
-        //   virtual ~btlsc::CbChannel(...)
-        //   virtual int read(...)
-        //   virtual int readRaw(...)
-        //   virtual int readvRaw(...)
-        //   virtual int bufferedRead(...)
-        //   virtual int bufferedReadRaw(...)
-        //   virtual int write(...)
-        //   virtual int writeRaw(...)
-        //   virtual int writevRaw(const btls::Ovec *buffers, ...)
-        //   virtual int writevRaw(const btls::Iovec *buffers, ...)
-        //   virtual int bufferedWrite(const btls::Iovec *buffers, ...)
-        //   virtual int bufferedWritev(const btls::Ovec *buffers, ...)
-        //   virtual int bufferedWritev(const btls::Iovec *buffers, ...)
-        //   virtual void cancelAll(...)
-        //   virtual void cancelRead(...)
-        //   virtual void cancelWrite(...)
-        //   virtual void invalidate(...)
-        //   virtual void invalidateRead(...)
-        //   virtual void invalidateWrite(...)
-        //   virtual int isInvalidRead(...)
-        //   virtual int isInvalidWrite(...)
-        //   virtual int numPendingReadOperations(...)
-        //   virtual int numPendingWriteOperations(...)
+        //   Ensure this class is a properly defined protocol.
         //
-        //   PROTOCOL TEST - Make sure derived class compiles and links.
+        // Concerns:
+        //: 1 The protocol is abstract: no objects of it can be created.
+        //:
+        //: 2 The protocol has no data members.
+        //:
+        //: 3 The protocol has a virtual destructor.
+        //:
+        //: 4 All methods of the protocol are pure virtual.
+        //:
+        //: 5 All methods of the protocol are publicly accessible.
+        //
+        // Plan:
+        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+        //:   of the protocol.
+        //:
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
+        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+        //:   that:
+        //:
+        //:   1 The protocol is abstract. (C-1)
+        //:
+        //:   2 The protocol has no data members. (C-2)
+        //:
+        //:   3 The protocol has a virtual destructor. (C-3)
+        //:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the protocol are:
+        //:
+        //:   1 virtual, (C-4)
+        //:
+        //:   2 publicly accessible. (C-5)
+        //
+        // Testing:
+        //   virtual ~CbChannel();
+        //   virtual int read(char *, int, const RdCb&, int = 0) = 0;
+        //   virtual int readRaw(char *, int, const RdCb&, int = 0) = 0;
+        //   virtual int readvRaw(CIovec *, int, const RdCb&, int = 0) = 0;
+        //   virtual int bufferedRead(int, const BffrdRdCb&, int = 0) = 0;
+        //   virtual int bufferedReadRaw(int, const BffrdRdCb&, int = 0) = 0;
+        //   virtual int write(const char *, int, const WrCb&, int = 0) = 0;
+        //   virtual int writeRaw(const char *, int, const WrCb&, int = 0) = 0;
+        //   virtual int writevRaw(CIovec *, int, const WrCb&, int = 0) = 0;
+        //   virtual int writevRaw(COvec *, int, const WrCb&, int = 0) = 0;
+        //   virtual int bufferedWrite(Cchar *, int, const WrCb&, int = 0) = 0;
+        //   virtual int bufferedWritev(CIovec *, int, const WrCb&, int=0) = 0;
+        //   virtual int bufferedWritev(COvec *, int, const WrCb&, int=0) = 0;
+        //   virtual void cancelAll() = 0;
+        //   virtual void cancelRead() = 0;
+        //   virtual void cancelWrite() = 0;
+        //   virtual void invalidate() = 0;
+        //   virtual void invalidateRead() = 0;
+        //   virtual void invalidateWrite() = 0;
+        //   virtual int isInvalidRead() const = 0;
+        //   virtual int isInvalidWrite() const = 0;
+        //   virtual int numPendingReadOperations() const = 0;
+        //   virtual int numPendingWriteOperations() const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        // Ensure that an instance of the derived class can be created.
-        MyChannel myC;
-        btlsc::CbChannel& c = myC;
-        ASSERT(1 == myC.valid()); ASSERT(0 == myC.isInvalidRead());
-                                  ASSERT(0 == myC.isInvalidRead());
+        if (verbose) cout << "\nCreate a test object.\n";
 
-        if (verbose) cout << "\nTesting protocol interface" << endl;
-        {
-            // Invoke different methods via the base class reference and check
-            // if the derived class method is invoked.
+        bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 
-            // Create a dummy functor object.
-            btlsc::CbChannel::ReadCallback myRdCb(&myRdCbFn);
+        if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 
-            btlsc::CbChannel::BufferedReadCallback myBufCb(&myBufRdCbFn);
+        ASSERT(testObj.testAbstract());
 
-            btlsc::CbChannel::WriteCallback myWrCb(&myWrCbFn);
+        if (verbose) cout << "\nVerify that there are no data members.\n";
 
-            // Flags to indicate that async interrupts are allowed.
-            const int myFlags = btesc_Flag::k_ASYNC_INTERRUPT;
+        ASSERT(testObj.testNoDataMembers());
 
-            ASSERT(0 == myC.flags());
+        if (verbose) cout << "\nVerify that the destructor is virtual.\n";
 
-            c.read(NULL, 0, myRdCb);
-            ASSERT(1 == myC.fun()); ASSERT(0 == myC.flags());
-            c.read(NULL, 0, myRdCb, myFlags);
-            ASSERT(1 == myC.fun()); ASSERT(myFlags == myC.flags());
+        ASSERT(testObj.testVirtualDestructor());
 
-            c.readRaw(NULL, 0, myRdCb);
-            ASSERT(3 == myC.fun()); ASSERT(0 == myC.flags());
-            c.readRaw(NULL, 0, myRdCb, myFlags);
-            ASSERT(3 == myC.fun()); ASSERT(myFlags == myC.flags());
+        if (verbose) cout << "\nVerify that methods are public and virtual.\n";
 
-            c.readvRaw(NULL, 0, myRdCb);
-            ASSERT(5 == myC.fun()); ASSERT(0 == myC.flags());
-            c.readvRaw(NULL, 0, myRdCb, myFlags);
-            ASSERT(5 == myC.fun()); ASSERT(myFlags == myC.flags());
+        const btls::Iovec *pIovec = 0;
+        const btls::Ovec  *pOvec  = 0;
 
-            c.bufferedRead(0, myBufCb);
-            ASSERT(7 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedRead(0, myBufCb, myFlags);
-            ASSERT(7 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, read(0, 0, &myRdCbFn, 0));
 
-            c.bufferedReadRaw(0, myBufCb);
-            ASSERT(9 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedReadRaw(0, myBufCb, myFlags);
-            ASSERT(9 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readRaw(0, 0, &myRdCbFn, 0));
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readvRaw(0, 0, &myRdCbFn, 0));
 
-            c.write(NULL, 0, myWrCb);
-            ASSERT(11 == myC.fun()); ASSERT(0 == myC.flags());
-            c.write(NULL, 0, myWrCb, myFlags);
-            ASSERT(11 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedRead(0, &myBufRdCbFn, 0));
 
-            c.writeRaw(NULL, 0, myWrCb);
-            ASSERT(13 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writeRaw(NULL, 0, myWrCb, myFlags);
-            ASSERT(13 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedReadRaw(0, &myBufRdCbFn, 0));
 
-            c.writevRaw(static_cast<const btls::Ovec *>(0), 0, myWrCb);
-            ASSERT(15 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writevRaw(static_cast<const btls::Ovec *>(0), 0, myWrCb, myFlags);
-            ASSERT(15 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, write(0, 0, &myWrCbFn, 0));
 
-            c.writevRaw(static_cast<const btls::Iovec *>(0), 0, myWrCb);
-            ASSERT(16 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writevRaw(static_cast<const btls::Iovec *>(0), 0, myWrCb,
-                        myFlags);
-            ASSERT(16 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writeRaw(0, 0, &myWrCbFn, 0));
 
-            c.bufferedWrite(NULL, 0, myWrCb);
-            ASSERT(19 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedWrite(NULL, 0, myWrCb, myFlags);
-            ASSERT(19 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(pIovec, 0, &myWrCbFn, 0));
 
-            c.bufferedWritev(static_cast<const btls::Ovec *>(0), 0, myWrCb);
-            ASSERT(21 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedWritev(static_cast<const btls::Ovec *>(0), 0, myWrCb,
-                             myFlags);
-            ASSERT(21 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(pOvec, 0, &myWrCbFn, 0));
 
-            c.bufferedWritev(static_cast<const btls::Iovec *>(0), 0, myWrCb);
-            ASSERT(22 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedWritev(static_cast<const btls::Iovec *>(0), 0, myWrCb,
-                             myFlags);
-            ASSERT(22 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedWrite(0, 0, &myWrCbFn, 0));
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedWritev(pIovec, 0, &myWrCbFn,
+                                                         0));
 
-            c.cancelAll();
-            ASSERT(25 == myC.fun());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedWritev(pOvec, 0, &myWrCbFn,
+                                                         0));
 
-            c.cancelRead();
-            ASSERT(26 == myC.fun());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, cancelAll());
 
-            c.cancelWrite();
-            ASSERT(27 == myC.fun());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, cancelRead());
 
-            ASSERT(1 == myC.valid()); // non-virtual test method
-            c.invalidate();
-            ASSERT(28 == myC.fun());  ASSERT(0 == myC.valid());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, cancelWrite());
 
-            ASSERT(0 == c.isInvalidRead());
-            c.invalidateRead();
-            ASSERT(29 == myC.fun());  ASSERT(1 == c.isInvalidRead());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, invalidate());
 
-            ASSERT(0 == c.isInvalidWrite());
-            c.invalidateWrite();
-            ASSERT(30 == myC.fun());  ASSERT(1 == c.isInvalidWrite());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, invalidateRead());
 
-            ASSERT(-1 == c.numPendingReadOperations());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, invalidateWrite());
 
-            ASSERT(-2 == c.numPendingWriteOperations());
-        }
+        BSLS_PROTOCOLTEST_ASSERT(testObj, isInvalidRead());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, isInvalidWrite());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, numPendingReadOperations());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, numPendingWriteOperations());
 
       } break;
       default: {

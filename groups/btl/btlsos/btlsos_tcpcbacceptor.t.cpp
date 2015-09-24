@@ -490,7 +490,7 @@ enum {
 //..
 
 //-----------------------------------------------------------------------------
-/// Usage example: Tick publisher (see 'btesc_timedcballocator.h')
+/// Usage example: Tick publisher (see 'btlsc_timedcbchannelallocator.h')
 
 class my_Tick {
     char   d_name[3];
