@@ -79,133 +79,131 @@ OverflowMemOutStreamBuf::overflow(OverflowMemOutStreamBuf::int_type c)
 
 OverflowMemOutStreamBuf::pos_type
 OverflowMemOutStreamBuf::seekoff(off_type                offset,
-                                 bsl::ios_base::seekdir  fixedPosition,
+                                 bsl::ios_base::seekdir  way,
                                  bsl::ios_base::openmode which)
 {
+    if (!(which & bsl::ios_base::out)) {
+        return pos_type(-1);                                          // RETURN
+    }
+
     privateSync();
 
     bsl::size_t length = static_cast<bsl::size_t>(pptr() - pbase());
-    if (d_inOverflowBufferFlag) {
-        BSLS_ASSERT(length == (d_dataLength - d_initialBufferSize));
-    }
-    else {
-        BSLS_ASSERT(length == d_dataLength);
-    }
 
-    bool gseek = which & bsl::ios_base::in;
-    bool pseek = which & bsl::ios_base::out;
+    BSLS_ASSERT(length ==
+            d_inOverflowBufferFlag ? (d_dataLength - d_initialBufferSize)
+                                   : d_dataLength);
 
-    if (!pseek || gseek) {
-        return bsl::streambuf::pos_type(-1);                          // RETURN
-    }
+    bsl::size_t totalCapacity = d_initialBufferSize + d_overflowBufferSize;
 
-    bsl::size_t totalSize = d_initialBufferSize + d_overflowBufferSize;
+    off_type newOffset;
 
-    bsl::streambuf::off_type newoff;
-    switch (fixedPosition) {
+    switch (way) {
       case bsl::ios_base::beg: {
-        newoff = 0;
+        newOffset = 0;
       } break;
       case bsl::ios_base::cur: {
-        newoff = d_dataLength;
+        newOffset = d_dataLength;
       } break;
       case bsl::ios_base::end: {
-        newoff = totalSize;
+        newOffset = totalCapacity;
       } break;
       default: {
-        return bsl::streambuf::pos_type(-1);                          // RETURN
+        return pos_type(-1);                                          // RETURN
       }
     }
 
-    newoff += offset;
+    newOffset += offset;
 
-    if (0 > newoff) {
-        return -1;                                                    // RETURN
+    if (0 > newOffset) {
+        return pos_type(-1);                                          // RETURN
     }
 
-
-    if (static_cast<bsl::size_t>(newoff) <= d_initialBufferSize) {
-        // Move destination is in initial buffer.
-
+    if (static_cast<bsl::size_t>(newOffset) <= d_initialBufferSize) {
+        // Final absolute position is in initial buffer.
         if (!d_inOverflowBufferFlag)  {
-            pbump(static_cast<int>(newoff - d_dataLength));
+            pbump(static_cast<int>(newOffset - d_dataLength));
         }
         else {
             d_inOverflowBufferFlag = false;
             setp(d_initialBuffer_p, d_initialBuffer_p + d_initialBufferSize);
-            pbump(static_cast<int>(newoff));
+            pbump(static_cast<int>(newOffset));
         }
     }
     else {
-        // Move destination is in overflow buffer.
-
-        if (totalSize < static_cast<bsl::size_t>(newoff)) {
-            grow(static_cast<int>(newoff) - totalSize);
+        // Final absolute position is in overflow buffer.
+        if (totalCapacity < static_cast<bsl::size_t>(newOffset)) {
+            grow(static_cast<bsl::size_t>(newOffset) - totalCapacity);
             d_inOverflowBufferFlag = true;
             setp(d_overflowBuffer_p,
                  d_overflowBuffer_p + d_overflowBufferSize);
-            pbump(static_cast<int>(newoff - d_initialBufferSize));
+            pbump(static_cast<int>(newOffset - d_initialBufferSize));
         }
         else {
             if (d_inOverflowBufferFlag) {
-                pbump(static_cast<int>(newoff - d_dataLength));
+                pbump(static_cast<int>(newOffset - d_dataLength));
             }
             else {
                 d_inOverflowBufferFlag = true;
                 setp(d_overflowBuffer_p,
                      d_overflowBuffer_p + d_overflowBufferSize);
-                pbump(static_cast<int>(newoff - d_initialBufferSize));
+                pbump(static_cast<int>(newOffset - d_initialBufferSize));
             }
         }
     }
 
-    d_dataLength = static_cast<bsl::size_t>(newoff);
-    return newoff;
+    d_dataLength = static_cast<bsl::size_t>(newOffset);
+    return newOffset;
 }
 
 bsl::streamsize
 OverflowMemOutStreamBuf::xsputn(const char_type *source,
-                                bsl::streamsize  numChars)
+                                bsl::streamsize  length)
 {
-    BSLS_ASSERT(source);
-    BSLS_ASSERT(0 <= numChars);
+    BSLS_ASSERT(( source && 0 < length) || 0 == length);
+
+    if (0 == length) {
+        return length;                                                // RETURN
+    }
 
     privateSync();
 
-    bsl::streamsize numBytesForLastCopy = numChars;
+    bsl::size_t numBytesForLastCopy = static_cast<bsl::size_t>(length);
 
-    bsl::size_t newDataLength = d_dataLength + numChars;
+    bsl::streamsize numBytesNeeded = length + d_dataLength
+                                   - d_initialBufferSize
+                                   - d_overflowBufferSize;
 
     if (d_inOverflowBufferFlag) {
-        if (newDataLength > d_initialBufferSize + d_overflowBufferSize) {
-            grow(numChars); // this is potentially more than necessary
+        if (numBytesNeeded > 0) {
+            grow(numBytesNeeded);
             setp(d_overflowBuffer_p,
                  d_overflowBuffer_p + d_overflowBufferSize);
             pbump(static_cast<int>(d_dataLength - d_initialBufferSize));
         }
-    }
-    else if (newDataLength > d_initialBufferSize) {
+    } else {
+        if (d_dataLength + length > d_initialBufferSize) {
+            if (numBytesNeeded > 0) {
+                grow(numBytesNeeded);
+            }
 
-        if (newDataLength > d_initialBufferSize + d_overflowBufferSize) {
-            grow(numChars);
+            bsl::size_t firstCopyBytes = d_initialBufferSize - d_dataLength;
+
+            BSLS_ASSERT(firstCopyBytes < static_cast<bsl::size_t>(length));
+
+            bsl::memcpy(pptr(), source, firstCopyBytes);
+            source += firstCopyBytes;
+            numBytesForLastCopy -= firstCopyBytes;
+            d_inOverflowBufferFlag = true;
+            setp(d_overflowBuffer_p,
+                    d_overflowBuffer_p + d_overflowBufferSize);
         }
-
-        bsl::size_t firstCopyBytes = d_initialBufferSize - d_dataLength;
-
-        BSLS_ASSERT(firstCopyBytes < static_cast<bsl::size_t>(numChars));
-
-        bsl::memcpy(pptr(), source, firstCopyBytes);
-        source += firstCopyBytes;
-        numBytesForLastCopy -= firstCopyBytes;
-        d_inOverflowBufferFlag = true;
-        setp(d_overflowBuffer_p,
-             d_overflowBuffer_p + d_overflowBufferSize);
     }
 
-    d_dataLength += numChars;
+    d_dataLength += length;
     bsl::memcpy(pptr(), source, numBytesForLastCopy);
     pbump(static_cast<int>(numBytesForLastCopy));
-    return numChars;
+    return length;
 }
 
 // CREATORS
