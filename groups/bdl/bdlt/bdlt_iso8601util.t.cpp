@@ -635,7 +635,6 @@ int main(int argc, char *argv[])
     (void)veryVeryVeryVerbose;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    BSLS_ASSERT(!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode());
     if (!veryVeryVerbose) {
         // Except when in 'veryVeryVerbose' mode, suppress logging performed by
         // the (private) 'bdlt::Date::logIfProblematicDate*' methods.  When
@@ -873,10 +872,9 @@ if (veryVerbose)
         //:
         //: 8 The entire extent of the input string is parsed.
         //:
-        //: 9 The (somewhat special) cases involving 24:00, leap seconds,
-        //:   fractional seconds containing more than three digits, and
-        //:   extremal values (the last concern being specific to 'Datetime')
-        //:   are handled correctly.
+        //: 9 Leap seconds, fractional seconds containing more than three
+        //:   digits, and extremal values (those that can overflow a
+        //:   'Datetime') are handled correctly.
         //:
         //:10 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -900,10 +898,10 @@ if (veryVerbose)
         //:   that parsing fails, i.e., that a non-zero value is returned and
         //:   the result objects are unchanged.  (C-6..8)
         //:
-        //: 6 Using the table-driven technique, specify a set of distinct
-        //:   ISO 8601 strings that specifically cover cases involving 24:00,
-        //:   leap seconds, fractional seconds containing more than three
-        //:   digits, and extremal values.
+        //: 6 Using the table-driven technique, specify a set of distinct ISO
+        //:   8601 strings that specifically cover cases involving leap
+        //:   seconds, fractional seconds containing more than three digits,
+        //:   and extremal values.
         //:
         //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
         //:   the results are as expected.  (C-9)
@@ -1243,8 +1241,8 @@ if (veryVerbose)
             }
         }
 
-// TBD special cases (24:00, leap seconds, fractional seconds)
-        if (verbose) cout << "\nTesting valid datetime values." << endl;
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
         {
             const struct {
                 int         d_line;
@@ -1256,89 +1254,94 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
+                int         d_offset;
             } DATA[] = {
-                // Test fractional millisecond rounding
+                // leap seconds
+                { L_, "0001-01-01T00:00:60.000",
+                                          0001, 01, 01, 00, 01, 00, 000,   0 },
+                { L_, "9998-12-31T23:59:60.999",
+                                          9999, 01, 01, 00, 00, 00, 999,   0 },
+
+                // fractional seconds
+                { L_, "0001-01-01T00:00:00.0001",
+                                          0001, 01, 01, 00, 00, 00, 000,   0 },
+                { L_, "0001-01-01T00:00:00.0009",
+                                          0001, 01, 01, 00, 00, 00, 001,   0 },
                 { L_, "0001-01-01T00:00:00.00001",
-                                               0001, 01, 01, 00, 00, 00, 000 },
+                                          0001, 01, 01, 00, 00, 00, 000,   0 },
                 { L_, "0001-01-01T00:00:00.00049",
-                                               0001, 01, 01, 00, 00, 00, 000 },
+                                          0001, 01, 01, 00, 00, 00, 000,   0 },
                 { L_, "0001-01-01T00:00:00.00050",
-                                               0001, 01, 01, 00, 00, 00, 001 },
+                                          0001, 01, 01, 00, 00, 00, 001,   0 },
                 { L_, "0001-01-01T00:00:00.00099",
-                                               0001, 01, 01, 00, 00, 00, 001 },
-
-                // Test fractional millisecond rounding to 1000
+                                          0001, 01, 01, 00, 00, 00, 001,   0 },
                 { L_, "0001-01-01T00:00:00.9994" ,
-                                               0001, 01, 01, 00, 00, 00, 999 },
+                                          0001, 01, 01, 00, 00, 00, 999,   0 },
                 { L_, "0001-01-01T00:00:00.9995" ,
-                                               0001, 01, 01, 00, 00, 01, 000 },
+                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                { L_, "0001-01-01T00:00:00.9999" ,
+                                          0001, 01, 01, 00, 00, 01, 000,   0 },
+                { L_, "9998-12-31T23:59:60.9999" ,
+                                          9999, 01, 01, 00, 00, 01, 000,   0 },
 
-                // Test without fractional seconds
-                { L_, "1234-02-23T12:34:45"      ,
-                                               1234, 02, 23, 12, 34, 45, 000 },
-                { L_, "2014-12-15T17:03:56"      ,
-                                               2014, 12, 15, 17, 03, 56, 000 },
-
-                // Test leap-seconds
-                { L_, "0001-01-01T00:00:60.000"  ,
-                                               0001, 01, 01, 00, 01, 00, 000 },
-                { L_, "9998-12-31T23:59:60.999"  ,
-                                               9999, 01, 01, 00, 00, 00, 999 },
-
-                // Test special case 24:00:00 (midnight) values
-                { L_, "0001-01-01T24:00:00.000"  ,
-                                               0001, 01, 01, 24, 00, 00, 000 },
-                { L_, "2001-01-01T24:00:00.000"  ,
-                                               2001, 01, 01, 24, 00, 00, 000 },
-                { L_, "0001-01-01T24:00:00"      ,
-                                               0001, 01, 01, 24, 00, 00, 000 },
+                // omit fractional seconds
+                { L_, "2014-12-23T12:34:45",
+                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                { L_, "2014-12-23T12:34:45Z",
+                                          2014, 12, 23, 12, 34, 45, 000,   0 },
+                { L_, "2014-12-23T12:34:45+00:30",
+                                          2014, 12, 23, 12, 34, 45, 000,  30 },
+                { L_, "2014-12-23T12:34:45-01:30",
+                                          2014, 12, 23, 12, 34, 45, 000, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_line;
-                const char *INPUT  = DATA[i].d_input;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR   = DATA[ti].d_year;
+                const int   MONTH  = DATA[ti].d_month;
+                const int   DAY    = DATA[ti].d_day;
+                const int   HOUR   = DATA[ti].d_hour;
+                const int   MIN    = DATA[ti].d_min;
+                const int   SEC    = DATA[ti].d_sec;
+                const int   MSEC   = DATA[ti].d_msec;
+                const int   OFFSET = DATA[ti].d_offset;
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
 
                 bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
                 bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
-                bdlt::Datetime   EXPECTED(DATA[i].d_year,
-                                          DATA[i].d_month,
-                                          DATA[i].d_day,
-                                          DATA[i].d_hour,
-                                          DATA[i].d_min,
-                                          DATA[i].d_sec,
-                                          DATA[i].d_msec);
-                bdlt::DatetimeTz EXPECTEDTZ(EXPECTED, 0);
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
+                                                         HOUR, MIN, SEC, MSEC),
+                                          OFFSET);
 
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parse(&mX, INPUT, LENGTH));
-                ASSERTV(LINE, EXPECTED,   X, EXPECTED   == X);
+                ASSERTV(LINE, EXPECTED, X, EXPECTED.utcDatetime() == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parse(&mZ, INPUT, LENGTH));
-                ASSERTV(LINE, EXPECTEDTZ, Z, EXPECTEDTZ == Z);
+                ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
 
                 mX = XX;
                 mZ = ZZ;
 
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
-                ASSERTV(LINE, EXPECTED,   X, EXPECTED   == X);
+                ASSERTV(LINE, EXPECTED, X, EXPECTED.utcDatetime() == X);
 
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
-                ASSERTV(LINE, EXPECTEDTZ, Z, EXPECTEDTZ == Z);
+                ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
             }
         }
 
-// TBD RETAIN - extremal values
-        if (verbose) cout
-            << "\nTesting timezone offsets that cannot be converted to UTC."
-            << endl;
+        if (verbose)
+            cout << "\nTesting zone designators that overflow a 'Datetime'."
+                 << endl;
         {
             struct {
                 int         d_line;
@@ -1350,52 +1353,73 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
-                int         d_tzOffset;
+                int         d_offset;
             } DATA[] = {
+                { L_, "0001-01-01T00:00:00.000+00:00",
+                                        0001, 01, 01, 00, 00, 00, 000,     0 },
                 { L_, "0001-01-01T00:00:00.000+00:01",
-                                         0001, 01, 01, 00, 00, 00, 000,    1 },
+                                        0001, 01, 01, 00, 00, 00, 000,     1 },
                 { L_, "0001-01-01T23:58:59.000+23:59",
-                                         0001, 01, 01, 23, 58, 59, 000, 1439 },
+                                        0001, 01, 01, 23, 58, 59, 000,  1439 },
+
+                { L_, "9999-12-31T23:59:59.999+00:00",
+                                        9999, 12, 31, 23, 59, 59, 999,     0 },
                 { L_, "9999-12-31T23:59:59.999-00:01",
-                                         9999, 12, 31, 23, 59, 59, 999,   -1 },
+                                        9999, 12, 31, 23, 59, 59, 999,    -1 },
                 { L_, "9999-12-31T00:01:00.000-23:59",
-                                         9999, 12, 31, 00, 01, 00, 000,-1439 },
+                                        9999, 12, 31, 00, 01, 00, 000, -1439 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_line;
-                const char *INPUT  = DATA[i].d_input;
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
                 const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+                const int   YEAR   = DATA[ti].d_year;
+                const int   MONTH  = DATA[ti].d_month;
+                const int   DAY    = DATA[ti].d_day;
+                const int   HOUR   = DATA[ti].d_hour;
+                const int   MIN    = DATA[ti].d_min;
+                const int   SEC    = DATA[ti].d_sec;
+                const int   MSEC   = DATA[ti].d_msec;
+                const int   OFFSET = DATA[ti].d_offset;
 
-                if (veryVerbose) { T_ P_(i) P(INPUT) }
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
 
-                bdlt::Datetime   mX(XX);
+                bdlt::Datetime   mX(XX);  const bdlt::Datetime&   X = mX;
                 bdlt::DatetimeTz mZ(ZZ);  const bdlt::DatetimeTz& Z = mZ;
 
-                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(DATA[i].d_year,
-                                                         DATA[i].d_month,
-                                                         DATA[i].d_day,
-                                                         DATA[i].d_hour,
-                                                         DATA[i].d_min,
-                                                         DATA[i].d_sec,
-                                                         DATA[i].d_msec),
-                                          DATA[i].d_tzOffset);
+                bdlt::DatetimeTz EXPECTED(bdlt::Datetime(YEAR, MONTH, DAY,
+                                                         HOUR, MIN, SEC, MSEC),
+                                          OFFSET);
 
-                ASSERTV(LINE, INPUT, LENGTH,
-                        0 != Util::parse(&mX, INPUT, LENGTH));
+                if (0 == OFFSET) {
+                    ASSERTV(LINE, INPUT, 0 == Util::parse(&mX, INPUT, LENGTH));
+                    ASSERTV(LINE, INPUT, EXPECTED.utcDatetime() == X);
+                }
+                else {
+                    ASSERTV(LINE, INPUT, 0 != Util::parse(&mX, INPUT, LENGTH));
+                    ASSERTV(LINE, INPUT, XX == X);
+                }
 
-                ASSERTV(LINE, INPUT, LENGTH,
-                        0 == Util::parse(&mZ, INPUT, LENGTH));
+                ASSERTV(LINE, INPUT, 0 == Util::parse(&mZ, INPUT, LENGTH));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
 
                 mX = XX;
                 mZ = ZZ;
 
-                ASSERTV(LINE, INPUT, LENGTH,
-                        0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                if (0 == OFFSET) {
+                    ASSERTV(LINE, INPUT,
+                            0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                    ASSERTV(LINE, INPUT, EXPECTED.utcDatetime() == X);
+                }
+                else {
+                    ASSERTV(LINE, INPUT,
+                            0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                    ASSERTV(LINE, INPUT, XX == X);
+                }
 
-                ASSERTV(LINE, INPUT, LENGTH,
+                ASSERTV(LINE, INPUT,
                         0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
             }
@@ -1491,9 +1515,8 @@ if (veryVerbose)
         //:
         //: 8 The entire extent of the input string is parsed.
         //:
-        //: 9 The (somewhat special) cases involving 24:00, leap seconds, and
-        //:   fractional seconds containing more than three digits are handled
-        //:   correctly.
+        //: 9 Leap seconds and fractional seconds containing more than three
+        //:   digits are handled correctly.
         //:
         //:10 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -1518,9 +1541,8 @@ if (veryVerbose)
         //:   the result objects are unchanged.  (C-6..8)
         //:
         //: 6 Using the table-driven technique, specify a set of distinct
-        //:   ISO 8601 strings that specifically cover cases involving 24:00,
-        //:   leap seconds, and fractional seconds containing more than three
-        //:   digits.
+        //:   ISO 8601 strings that specifically cover cases involving leap
+        //:   seconds and fractional seconds containing more than three digits.
         //:
         //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
         //:   the results are as expected.  (C-9)
@@ -1755,7 +1777,84 @@ if (veryVerbose)
             }
         }
 
-        // TBD special cases (24:00, leap seconds, fractional seconds)
+        if (verbose) cout << "\nTesting leap seconds and fractional seconds."
+                          << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input;
+                int         d_hour;
+                int         d_min;
+                int         d_sec;
+                int         d_msec;
+                int         d_offset;
+            } DATA[] = {
+                // leap seconds
+                { L_, "00:00:60.000",    00, 01, 00, 000,   0 },
+                { L_, "22:59:60.999",    23, 00, 00, 999,   0 },
+                { L_, "23:59:60.999",    00, 00, 00, 999,   0 },
+
+                // fractional seconds
+                { L_, "00:00:00.0001",   00, 00, 00, 000,   0 },
+                { L_, "00:00:00.0009",   00, 00, 00, 001,   0 },
+                { L_, "00:00:00.00001",  00, 00, 00, 000,   0 },
+                { L_, "00:00:00.00049",  00, 00, 00, 000,   0 },
+                { L_, "00:00:00.00050",  00, 00, 00, 001,   0 },
+                { L_, "00:00:00.00099",  00, 00, 00, 001,   0 },
+                { L_, "00:00:00.9994",   00, 00, 00, 999,   0 },
+                { L_, "00:00:00.9995",   00, 00, 01, 000,   0 },
+                { L_, "00:00:00.9999",   00, 00, 01, 000,   0 },
+                { L_, "00:00:59.9999",   00, 01, 00, 000,   0 },
+                { L_, "22:59:60.9999",   23, 00, 01, 000,   0 },
+
+                // omit fractional seconds
+                { L_, "12:34:45",        12, 34, 45, 000,   0 },
+                { L_, "12:34:45Z",       12, 34, 45, 000,   0 },
+                { L_, "12:34:45+00:30",  12, 34, 45, 000,  30 },
+                { L_, "00:00:00+00:30",  00, 00, 00, 000,  30 },
+                { L_, "12:34:45-01:30",  12, 34, 45, 000, -90 },
+                { L_, "23:59:59-01:30",  23, 59, 59, 000, -90 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+                const int   HOUR   = DATA[ti].d_hour;
+                const int   MIN    = DATA[ti].d_min;
+                const int   SEC    = DATA[ti].d_sec;
+                const int   MSEC   = DATA[ti].d_msec;
+                const int   OFFSET = DATA[ti].d_offset;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
+                bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
+
+                bdlt::TimeTz EXPECTED(bdlt::Time(HOUR, MIN, SEC, MSEC),
+                                      OFFSET);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+                ASSERTV(LINE, EXPECTED, X, EXPECTED.utcTime() == X);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, INPUT, LENGTH));
+                ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
+
+                mX = XX;
+                mZ = ZZ;
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, EXPECTED, X, EXPECTED.utcTime() == X);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mZ, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
+            }
+        }
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
