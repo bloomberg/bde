@@ -101,10 +101,14 @@ bsl::streamsize MemOutStreamBuf::xsputn(const char_type *source,
                                         bsl::streamsize  numChars)
 {
     BSLMF_ASSERT(bsl::numeric_limits<bsl::streamsize>::is_signed);
-    BSLS_ASSERT(0 <= numChars);
+    BSLS_ASSERT((source && 0 < numChars) || 0 == numChars);
 
-    const bsl::size_t newLength = static_cast<bsl::size_t>(
-                                                          length() + numChars);
+    if (0 == numChars) {
+        return numChars;                                              // RETURN
+    }
+
+    const bsl::size_t newLength =
+                                 static_cast<bsl::size_t>(length() + numChars);
     BSLS_ASSERT_SAFE(newLength >= length());
 
     if (newLength > capacity()) {

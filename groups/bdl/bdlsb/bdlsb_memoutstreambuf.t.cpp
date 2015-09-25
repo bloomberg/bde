@@ -74,7 +74,7 @@ using namespace bsl;
 // [ 2] int_type overflow(int_type insertionChar = traits_type::eof());
 // [ 7] pos_type seekoff(off_type, seekdir, openmode);
 // [ 7] pos_type seekpos(pos_type, openmode);
-// [ 6] streamsize xsputn(const char_type *s, streamsize count);
+// [ 6] streamsize xsputn(const char_type *s, streamsize length);
 // [ 2] void reserveCapacity(int numElements);
 // [ 8] void reset();
 // ACCESSORS
@@ -467,78 +467,61 @@ namespace {
 //
 /// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how a stream buffer can be used for testing of a
-// certain stream.  bdlsb::MemOutStreamBuf provides a way to inspect the data
-// that has been processed by the stream.  In this case we will create a stream
-// with simple formatting requirements - namely, capitalizing all lower-case
-// ASCII character data that is output.  To simplify the example, we do not
-// include the functions for streaming non-character data, e.g., numeric
-// values.
+// This example demonstrates using a 'bdlsb::MemOutStreamBuf' in order to test
+// a user defined stream type, 'CapitalizingStream'. In this example, we'll
+// define a simple example stream type 'CapitalizingStream' that capitalizing
+// lower-case ASCII data written to the stream. In order to test this
+// 'CapitalizingStream' type, we'll create an instance, and supply it a
+// 'bdlsb::MemOutStreamBuf' object as its stream buffer; after we write some
+// character data to the 'CapitalizingStream' we'll inspect the buffer of the
+// 'bdlsb::MemOutStreamBuf' and verify its contents match our expected output.
+// Note that to simplify the example, we do not include the functions for
+// streaming non-character data, e.g., numeric values.
 //
-// First, we define a stream class, that will use our stream buffer:
+// First, we define our example stream class, 'CapitalizingStream' (which we
+// will later test using 'bdlsb::MemOutStreamBuf):
 //..
     class CapitalizingStream {
         // This class capitalizes lower-case ASCII characters that are output.
 
-        bdlsb::MemOutStreamBuf d_streamBuf;  // buffer to write to
+        // DATA
+        bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
 
-        friend
-        CapitalizingStream& operator<<(CapitalizingStream& stream,
-                                       char                data);
-        friend
-        CapitalizingStream& operator<<(CapitalizingStream&  stream,
-                                       const char          *data);
+        // FRIENDS
+        friend CapitalizingStream& operator<<(CapitalizingStream&  stream,
+                                              const char          *data);
       public:
         // CREATORS
-        CapitalizingStream();
-            // Create a capitalizing stream.
-
-        ~CapitalizingStream();
-            // Destroy this capitalizing stream.
-
-        // ACCESSORS
-        const bdlsb::MemOutStreamBuf& streamBuf() { return d_streamBuf; }
-            // Return the stream buffer used by this capitalizing stream.  Note
-            // that this function is for debugging only.
+        explicit CapitalizingStream(bsl::streambuf *streamBuffer);
+            // Create a capitalizing stream using the specified 'streamBuffer'
+            // as underlying stream buffer to the stream.
     };
 
     // FREE OPERATORS
-    CapitalizingStream& operator<<(CapitalizingStream& stream,
-                                   char                data);
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data);
         // Write the specified 'data' in capitalized form to the specified
-        // capitalizing 'stream', and return a reference to the modifiable
         // 'stream'.
 
-    CapitalizingStream::CapitalizingStream()
-    {
-    }
-
-    CapitalizingStream::~CapitalizingStream()
+    CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
+    : d_streamBuffer_p(streamBuffer)
     {
     }
 //..
 // As is typical, the streaming operators are made friends of the class.  We
-// use the 'transform' algorithm to convert lower-case characters to uppercase:
+// use the 'transform' algorithm to convert lower-case characters to
+// upper-case.
 //..
-//
     // FREE OPERATORS
-    CapitalizingStream& operator<<(CapitalizingStream& stream, char data)
-    {
-        stream.d_streamBuf.sputc(static_cast<char>(bsl::toupper(data)));
-        return stream;
-    }
-
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data)
     {
         bsl::string tmp(data);
-        transform(tmp.begin(),
-                  tmp.end(),
-                  tmp.begin(),
-                  static_cast<int(*)(int)>(bsl::toupper));
-        stream.d_streamBuf.sputn(tmp.data(), tmp.length());
+        bsl::transform(tmp.begin(),
+                       tmp.end(),
+                       tmp.begin(),
+                       static_cast<int(*)(int)>(bsl::toupper));
+        stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
         return stream;
     }
 //..
@@ -583,14 +566,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
         {
-// Now, we create an object of our stream and write some words to it:
+// Now, we create an instance of 'bdlsb::MemOutStreamBuf' that will serve as
+// underlying stream buffer for our 'CapitalingStream':
 //..
-    CapitalizingStream cs;
-    cs << "Hello," << ' ' << "World." << '\0';
+    bdlsb::MemOutStreamBuf streamBuffer;
 //..
-// Finally, we verify that the streamed data has been capitalized:
+// Now, we test our 'CapitalingStream' by supplying the created instance of
+// 'bdlsb::MemOutStreamBuf' and using it to inspect the output of the stream:
 //..
-    ASSERT(0 == bsl::strcmp("HELLO, WORLD.", cs.streamBuf().data()));
+    CapitalizingStream  testStream(&streamBuffer);
+    testStream << "Hello world.";
+//..
+// Finally, we verify that the streamed data has been capitalized and placed
+// into dynamically allocated buffer:
+//..
+    ASSERT(12 == streamBuffer.length());
+    ASSERT(0  == bsl::strcmp("HELLO WORLD.", streamBuffer.data()));
 //..
         }
       } break;
@@ -1132,8 +1123,8 @@ int main(int argc, char *argv[])
         //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
-        //   streamsize xsputn(const char_type *s, streamsize count);
-        //   PROXY: streamsize sputn(const char_type *s, streamsize count);
+        //   streamsize xsputn(const char_type *s, streamsize length);
+        //   PROXY: streamsize sputn(const char_type *s, streamsize length);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1230,7 +1221,9 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             Obj mSB(INIT_BUFSIZE);
+            ASSERT_SAFE_PASS(mSB.sputn(0, 0));
             ASSERT_SAFE_FAIL(mSB.sputn("hello", -1));
+            ASSERT_SAFE_PASS(mSB.sputn("hello", 0));
             ASSERT_SAFE_PASS(mSB.sputn("hello", 1));
         }
       } break;

@@ -45,89 +45,80 @@ BSLS_IDENT("$Id: $")
 //
 /// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how a stream buffer can be used for testing of a
-// certain stream.  bdlsb::MemOutStreamBuf provides a way to inspect the data
-// that has been processed by the stream.  In this case we will create a stream
-// with simple formatting requirements - namely, capitalizing all lower-case
-// ASCII character data that is output.  To simplify the example, we do not
-// include the functions for streaming non-character data, e.g., numeric
-// values.
+// This example demonstrates using a 'bdlsb::MemOutStreamBuf' in order to test
+// a user defined stream type, 'CapitalizingStream'. In this example, we'll
+// define a simple example stream type 'CapitalizingStream' that capitalizing
+// lower-case ASCII data written to the stream. In order to test this
+// 'CapitalizingStream' type, we'll create an instance, and supply it a
+// 'bdlsb::MemOutStreamBuf' object as its stream buffer; after we write some
+// character data to the 'CapitalizingStream' we'll inspect the buffer of the
+// 'bdlsb::MemOutStreamBuf' and verify its contents match our expected output.
+// Note that to simplify the example, we do not include the functions for
+// streaming non-character data, e.g., numeric values.
 //
-// First, we define a stream class, that will use our stream buffer:
+// First, we define our example stream class, 'CapitalizingStream' (which we
+// will later test using 'bdlsb::MemOutStreamBuf):
 //..
 //  class CapitalizingStream {
 //      // This class capitalizes lower-case ASCII characters that are output.
 //
-//      bdlsb::MemOutStreamBuf d_streamBuf;  // buffer to write to
+//      // DATA
+//      bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
 //
-//      friend
-//      CapitalizingStream& operator<<(CapitalizingStream& stream,
-//                                     char                data);
-//      friend
-//      CapitalizingStream& operator<<(CapitalizingStream&  stream,
-//                                     const char          *data);
+//      // FRIENDS
+//      friend CapitalizingStream& operator<<(CapitalizingStream&  stream,
+//                                            const char          *data);
 //    public:
 //      // CREATORS
-//      CapitalizingStream();
-//          // Create a capitalizing stream.
-//
-//      ~CapitalizingStream();
-//          // Destroy this capitalizing stream.
-//
-//      // ACCESSORS
-//      const bdlsb::MemOutStreamBuf& streamBuf() { return d_streamBuf; }
-//          // Return the stream buffer used by this capitalizing stream.  Note
-//          // that this function is for debugging only.
+//      explicit CapitalizingStream(bsl::streambuf *streamBuffer);
+//          // Create a capitalizing stream using the specified 'streamBuffer'
+//          // as underlying stream buffer to the stream.
 //  };
 //
 //  // FREE OPERATORS
-//  CapitalizingStream& operator<<(CapitalizingStream& stream,
-//                                 char                data);
 //  CapitalizingStream& operator<<(CapitalizingStream&  stream,
 //                                 const char          *data);
 //      // Write the specified 'data' in capitalized form to the specified
-//      // capitalizing 'stream', and return a reference to the modifiable
 //      // 'stream'.
 //
-//  CapitalizingStream::CapitalizingStream()
-//  {
-//  }
-//
-//  CapitalizingStream::~CapitalizingStream()
+//  CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
+//  : d_streamBuffer_p(streamBuffer)
 //  {
 //  }
 //..
 // As is typical, the streaming operators are made friends of the class.  We
-// use the 'transform' algorithm to convert lower-case characters to uppercase:
+// use the 'transform' algorithm to convert lower-case characters to
+// upper-case.
 //..
-//
 //  // FREE OPERATORS
-//  CapitalizingStream& operator<<(CapitalizingStream& stream, char data)
-//  {
-//      stream.d_streamBuf.sputc(static_cast<char>(bsl::toupper(data)));
-//      return stream;
-//  }
-//
 //  CapitalizingStream& operator<<(CapitalizingStream&  stream,
 //                                 const char          *data)
 //  {
 //      bsl::string tmp(data);
-//      transform(tmp.begin(),
-//                tmp.end(),
-//                tmp.begin(),
-//                static_cast<int(*)(int)>(bsl::toupper));
-//      stream.d_streamBuf.sputn(tmp.data(), tmp.length());
+//      bsl::transform(tmp.begin(),
+//                     tmp.end(),
+//                     tmp.begin(),
+//                     static_cast<int(*)(int)>(bsl::toupper));
+//      stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
 //      return stream;
 //  }
 //..
-// Now, we create an object of our stream and write some words to it:
+// Now, we create an instance of 'bdlsb::MemOutStreamBuf' that will serve as
+// underlying stream buffer for our 'CapitalingStream':
 //..
-//  CapitalizingStream cs;
-//  cs << "Hello," << ' ' << "World." << '\0';
+//  bdlsb::MemOutStreamBuf streamBuffer;
 //..
-// Finally, we verify that the streamed data has been capitalized:
+// Now, we test our 'CapitalingStream' by supplying the created instance of
+// 'bdlsb::MemOutStreamBuf' and using it to inspect the output of the stream:
 //..
-//  assert(0 == bsl::strcmp("HELLO, WORLD.", cs.streamBuf().data()));
+//  CapitalizingStream  testStream(&streamBuffer);
+//  testStream << "Hello world.";
+//..
+// Finally, we verify that the streamed data has been capitalized and placed
+// into dynamically allocated buffer:
+//..
+//  assert(12 == streamBuffer.length());
+//  assert(0  == bsl::strcmp("HELLO WORLD.", streamBuffer.data()));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -259,10 +250,10 @@ class MemOutStreamBuf : public bsl::streambuf {
 
     virtual bsl::streamsize xsputn(const char_type *source,
                                    bsl::streamsize  numChars);
-        // Copy the specified 'numChars' from the specified 'source' to this
-        // stream buffer's character buffer, starting at this stream buffer's
-        // current location.  Return the number of characters successfully
-        // added.  The behavior is undefined unless '0 <= numChars'.
+        // Write the specified 'numChars' characters from the specified
+        // 'source' to the stream buffer.  Return the number of characters
+        // successfully written.  The behavior is undefined unless '(source &&
+        // 0 < numChars) || 0 == numChars'.
 
   public:
     // TRAITS
