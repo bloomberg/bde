@@ -275,9 +275,10 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
 
     virtual bsl::streamsize xsputn(const char_type *source,
                                    bsl::streamsize  numChars);
-        // Write the specified 'numChars' from the specified 'source' to the
-        // stream buffer.  Return the number of characters successfully
-        // written.  The behavior is undefined unless '0 <= numChars'.
+        // Write the specified 'numChars' characters from the specified
+        // 'source' to the stream buffer.  Return the number of characters
+        // successfully written.  The behavior is undefined unless '(source &&
+        // 0 < numChars) || 0 == numChars'.
 
     virtual int_type overflow(int_type c = bsl::streambuf::traits_type::eof());
         // If c is not 'EOF', adjust the underlying buffer so that the next put

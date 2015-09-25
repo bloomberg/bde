@@ -158,19 +158,19 @@ OverflowMemOutStreamBuf::seekoff(off_type                offset,
 
 bsl::streamsize
 OverflowMemOutStreamBuf::xsputn(const char_type *source,
-                                bsl::streamsize  length)
+                                bsl::streamsize  numChars)
 {
-    BSLS_ASSERT(( source && 0 < length) || 0 == length);
+    BSLS_ASSERT(( source && 0 < numChars) || 0 == numChars);
 
-    if (0 == length) {
-        return length;                                                // RETURN
+    if (0 == numChars) {
+        return numChars;                                              // RETURN
     }
 
     privateSync();
 
-    bsl::size_t numBytesForLastCopy = static_cast<bsl::size_t>(length);
+    bsl::size_t numBytesForLastCopy = static_cast<bsl::size_t>(numChars);
 
-    bsl::streamsize numBytesNeeded = length + d_dataLength
+    bsl::streamsize numBytesNeeded = numChars + d_dataLength
                                    - d_initialBufferSize
                                    - d_overflowBufferSize;
 
@@ -182,14 +182,14 @@ OverflowMemOutStreamBuf::xsputn(const char_type *source,
             pbump(static_cast<int>(d_dataLength - d_initialBufferSize));
         }
     } else {
-        if (d_dataLength + length > d_initialBufferSize) {
+        if (d_dataLength + numChars > d_initialBufferSize) {
             if (numBytesNeeded > 0) {
                 grow(numBytesNeeded);
             }
 
             bsl::size_t firstCopyBytes = d_initialBufferSize - d_dataLength;
 
-            BSLS_ASSERT(firstCopyBytes < static_cast<bsl::size_t>(length));
+            BSLS_ASSERT(firstCopyBytes < static_cast<bsl::size_t>(numChars));
 
             bsl::memcpy(pptr(), source, firstCopyBytes);
             source += firstCopyBytes;
@@ -200,10 +200,10 @@ OverflowMemOutStreamBuf::xsputn(const char_type *source,
         }
     }
 
-    d_dataLength += length;
+    d_dataLength += numChars;
     bsl::memcpy(pptr(), source, numBytesForLastCopy);
     pbump(static_cast<int>(numBytesForLastCopy));
-    return length;
+    return numChars;
 }
 
 // CREATORS
