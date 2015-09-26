@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 18 components having 7 levels of physical
+ The 'bdlt' package currently has 20 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -35,18 +35,20 @@
      bdlt_epochutil
 
   4. bdlt_datetime
+     bdlt_dateutil
      bdlt_timetz
 
-  3. bdlt_dateutil
+  3. bdlt_date
      bdlt_intervalconversionutil
      bdlt_time
 
-  2. bdlt_date
-     bdlt_datetimeinterval
+  2. bdlt_datetimeinterval
      bdlt_dayofweekset
+     bdlt_delegatingdateimputil                          !DEPRECATED!
 
   1. bdlt_dayofweek
      bdlt_monthofyear
+     bdlt_posixdateimputil                               !DEPRECATED!
      bdlt_serialdateimputil
      bdlt_timeunitratio
 ..
@@ -83,6 +85,9 @@
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
 :
+: 'bdlt_delegatingdateimputil':                          !DEPRECATED!
+:      Provide low-level support functions for date-value manipulation.
+:
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
 :
@@ -94,6 +99,9 @@
 :
 : 'bdlt_monthofyear':
 :      Enumerate the set of month-of-year values.
+:
+: 'bdlt_posixdateimputil':                               !DEPRECATED!
+:      Provide low-level support functions for date-value manipulation.
 :
 : 'bdlt_serialdateimputil':
 :      Provide low-level support functions for date-value manipulation.

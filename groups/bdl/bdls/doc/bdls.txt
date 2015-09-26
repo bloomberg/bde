@@ -8,10 +8,10 @@
 /---------------------
  The 'bdls' package currently has 1 component.
 ..
-  1. bdls_testutil
+  1. bdls_testutil                                       !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
-: 'bdls_testutil':
+: 'bdls_testutil':                                       !DEPRECATED!
 :      Provide test utilities for components in 'bdl' and above.

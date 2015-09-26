@@ -24,9 +24,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::Date' and its associated free operators.  Calculations involving
 // business days (or holidays), and day-count conventions (e.g., "ISMA30360"),
 // can be found elsewhere.
-#ifndef BDE_OPENSOURCE_PUBLICATION  // references to unreleased components
 // See 'bdlt_calendar' and the 'bbedc' day-count convention package.
-#endif
 //
 ///Valid Date Values and Their Representations
 ///-------------------------------------------

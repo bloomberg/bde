@@ -19,11 +19,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 52 components having 7 levels of physical
+ The 'bslstl' package currently has 53 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  8. bslstl_ownerless
+
   7. bslstl_queue
      bslstl_sharedptr
      bslstl_stack
@@ -33,7 +35,6 @@
      bslstl_multimap
      bslstl_multiset
      bslstl_set
-     bslstl_sstream
      bslstl_unorderedmap
      bslstl_unorderedmultimap
      bslstl_unorderedmultiset
@@ -67,6 +68,7 @@
      bslstl_treeiterator
 
   2. bslstl_iterator
+     bslstl_pair
      bslstl_sharedptrallocateinplacerep
      bslstl_sharedptrallocateoutofplacerep
      bslstl_simplepool
@@ -77,7 +79,7 @@
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
-     bslstl_pair
+     bslstl_referencewrapper
      bslstl_stdexceptutil
      bslstl_stringrefdata
      bslstl_unorderedmapkeyconfiguration
@@ -158,6 +160,9 @@
 : 'bslstl_ostringstream':
 :      Provide a C++03-compatible 'ostringstream' class.
 :
+: 'bslstl_ownerless':
+:      Provide an ordering for shared and weak pointers.
+:
 : 'bslstl_pair':
 :      Provide a simple 'struct' with two members that may use allocators.
 :
@@ -169,6 +174,9 @@
 :
 : 'bslstl_randomaccessiterator':
 :      Provide a template to create STL-compliant random access iterators.
+:
+: 'bslstl_referencewrapper':
+:      Provide copyable, assignable object wrapper for references.
 :
 : 'bslstl_set':
 :      Provide an STL-compliant set class.
@@ -187,9 +195,6 @@
 :
 : 'bslstl_simplepool':
 :      Provide efficient allocation of memory blocks for a specific type.
-:
-: 'bslstl_sstream':
-:      Provide C++03-compatible 'stringstream' classes.
 :
 : 'bslstl_stack':
 :      Provide an STL-compliant stack class.
