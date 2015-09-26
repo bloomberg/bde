@@ -148,7 +148,7 @@
  Each of these classes are designed to hold date and time values, but do not
  themselves provide means for obtaining values such as current time and date.
  Those values are available via separate utility components.  See {Obtaining
- Date, Time, and Local-Time Offset Values}.
+ Current Date, Time, and Local-Time Offset Values}.
 
 /Singular 'Time' and 'Datetime' Values
 /-  -  -  -  -  -  -  -  -  -  -  -  -

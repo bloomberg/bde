@@ -1,4 +1,4 @@
- bdlt.txt
+ bdlc.txt
 
 @PURPOSE: Provide container vocabulary types.
 
