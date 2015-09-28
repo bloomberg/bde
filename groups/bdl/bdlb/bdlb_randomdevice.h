@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-//..
+//
 ///Example 1: Seeding the Random-Number Generator
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // System-provided random-number generators generally must be initialized with

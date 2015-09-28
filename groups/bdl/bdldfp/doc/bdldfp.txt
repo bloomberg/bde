@@ -9,32 +9,33 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 15 components having 7 levels of physical
+ The 'bdldfp' package currently has 15 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdldfp_decimalconvertutil
+  8. bdldfp_decimalconvertutil
 
-  6. bdldfp_decimalutil
+  7. bdldfp_decimalconvertutil_decnumber                              !PRIVATE!
+     bdldfp_decimalconvertutil_ibmxlc                                 !PRIVATE!
+     bdldfp_decimalconvertutil_inteldfp                               !PRIVATE!
+     bdldfp_decimalutil
 
-  5. bdldfp_decimal
+  6. bdldfp_decimal
 
-  4. bdldfp_binaryintegraldecimalimputil
-     bdldfp_decimalimputil
+  5. bdldfp_decimalimputil
 
-  3. bdldfp_denselypackeddecimalimputil
+  4. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
+
+  3. bdldfp_binaryintegraldecimalimputil
+     bdldfp_decimalimputil_decnumber                                  !PRIVATE!
+     bdldfp_decimalimputil_ibmxlc                                     !PRIVATE!
+
+  2. bdldfp_denselypackeddecimalimputil
      bdldfp_intelimpwrapper
 
-  2. bdldfp_decimalplatform
+  1. bdldfp_decimalplatform
      bdldfp_uint128
-
-  1. bdldfp_decimalconvertutil_decnumber
-     bdldfp_decimalconvertutil_ibmxlc
-     bdldfp_decimalconvertutil_inteldfp
-     bdldfp_decimalimputil_decnumber
-     bdldfp_decimalimputil_ibmxlc
-     bdldfp_decimalimputil_inteldfp
 ..
 
 /Component Synopsis
@@ -48,8 +49,26 @@
 : 'bdldfp_decimalconvertutil':
 :      Provide decimal floating-point conversion functions.
 :
+: 'bdldfp_decimalconvertutil_decnumber':                              !PRIVATE!
+:      Provide decimal floating-point conversion functions for decNumber.
+:
+: 'bdldfp_decimalconvertutil_ibmxlc':                                 !PRIVATE!
+:      Provide decimal floating-point conversion functions.
+:
+: 'bdldfp_decimalconvertutil_inteldfp':                               !PRIVATE!
+:      Provide decimal floating-point conversion functions for Intel DFP.
+:
 : 'bdldfp_decimalimputil':
 :      Provide a unified low-level interface for decimal floating point.
+:
+: 'bdldfp_decimalimputil_decnumber':                                  !PRIVATE!
+:      Provide utility implementing decimal FP on the decNumber library.
+:
+: 'bdldfp_decimalimputil_ibmxlc':                                     !PRIVATE!
+:      Provide utility to implement decimal 'float's on the IBM compiler.
+:
+: 'bdldfp_decimalimputil_inteldfp':                                   !PRIVATE!
+:      Provide utility to implement decimal 'float's on the Intel library.
 :
 : 'bdldfp_decimalplatform':
 :      Provide decimal floating-point platform information macros.
