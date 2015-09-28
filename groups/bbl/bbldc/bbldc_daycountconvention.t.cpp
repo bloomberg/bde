@@ -1195,14 +1195,12 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,   1,
                                                  "PERIOD_ICMA_ACTUAL_ACTUAL" },
             {  L_, Obj::e_CALENDAR_BUS_252,            1, "CALENDAR_BUS_252" },
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            {  L_, 0,                                  0,
+            {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, k_ABOVE_ENUM_RANGE,                   0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, 19,                                 0,
                                                   "(* Unknown Enumerator *)" },
-#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
