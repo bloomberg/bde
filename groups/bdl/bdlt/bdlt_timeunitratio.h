@@ -144,8 +144,7 @@ BSLS_IDENT("$Id: $")
 // Note that in practice, the number of nanoseconds since the event would be
 // provided by some system utility, and not a constant as was shown here for
 // purposes of exposition.
-//..
-//
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif

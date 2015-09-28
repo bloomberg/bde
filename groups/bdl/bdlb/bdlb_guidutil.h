@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 //
 ///GUID String Format
 // ------------------
+//..
 // <SPEC>             ::=  <BRACED GUID>     |   <GUID>
 //
 // <BRACED GUID>      ::=  '[' <GUID> ']'    |   '[ ' <GUID> ' ]'
@@ -43,6 +44,7 @@ BSLS_IDENT("$Id: $")
 // { 87654321-AAAA-BBBB-CCCC-012345654321 }
 // 00010203-0405-0607-0809-101112131415
 // [00112233445566778899aAbBcCdDeEfF]
+//..
 //
 ///Usage
 ///-----

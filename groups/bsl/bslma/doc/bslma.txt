@@ -23,14 +23,14 @@
 ..
   9. bslma_managedptr
 
-  8. bslma_managedptr_members
+  8. bslma_managedptr_members                                         !PRIVATE!
 
-  7. bslma_managedptr_factorydeleter
-     bslma_sequentialallocator
+  7. bslma_managedptr_factorydeleter                                  !PRIVATE!
+     bslma_sequentialallocator                           !DEPRECATED!
 
   6. bslma_autorawdeleter
      bslma_destructorproctor
-     bslma_sequentialpool
+     bslma_sequentialpool                                !DEPRECATED!
      bslma_sharedptrinplacerep
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
@@ -42,8 +42,8 @@
      bslma_defaultallocatorguard
      bslma_destructorguard
      bslma_exceptionguard
-     bslma_infrequentdeleteblocklist
-     bslma_managedptr_pairproxy
+     bslma_infrequentdeleteblocklist                     !DEPRECATED!
+     bslma_managedptr_pairproxy                                       !PRIVATE!
      bslma_managedptrdeleter
      bslma_rawdeleterguard
      bslma_rawdeleterproctor
@@ -52,9 +52,9 @@
   4. bslma_default
      bslma_testallocator
 
-  3. bslma_bufferallocator
+  3. bslma_bufferallocator                               !DEPRECATED!
      bslma_mallocfreeallocator
-     bslma_managedallocator
+     bslma_managedallocator                              !DEPRECATED!
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
@@ -78,7 +78,7 @@
 : 'bslma_autorawdeleter':
 :      Provide a range proctor to manage a sequence objects.
 :
-: 'bslma_bufferallocator':
+: 'bslma_bufferallocator':                               !DEPRECATED!
 :      Support efficient memory allocations from a user-supplied buffer.
 :
 : 'bslma_deallocatorguard':
@@ -105,29 +105,29 @@
 : 'bslma_exceptionguard':
 :      Provide a check that objects throwing exceptions do not change.
 :
-: 'bslma_infrequentdeleteblocklist':
+: 'bslma_infrequentdeleteblocklist':                     !DEPRECATED!
 :      Provide allocation and management of a sequence of memory blocks.
 :
 : 'bslma_mallocfreeallocator':
 :      Provide malloc/free adaptor to 'bslma::Allocator' protocol.
 :
-: 'bslma_managedallocator':
+: 'bslma_managedallocator':                              !DEPRECATED!
 :      Provide a protocol for memory allocators that support 'release'.
 :
 : 'bslma_managedptr':
 :      Provide a managed pointer class.
 :
-: 'bslma_managedptr_factorydeleter':
+: 'bslma_managedptr_factorydeleter':                                  !PRIVATE!
 :      Provide a basic deleter for the managed pointer class.
 :
-: 'bslma_managedptr_members':
+: 'bslma_managedptr_members':                                         !PRIVATE!
 :      Provide the internal state of a managed pointer class.
 :
-: 'bslma_managedptr_pairproxy':
+: 'bslma_managedptr_pairproxy':                                       !PRIVATE!
 :      Provide the internal state of a managed pointer class.
 :
 : 'bslma_managedptrdeleter':
-:      Provide an in-core value semantic class to call a delete function.
+:      Provide an in-core value-semantic class to call a delete function.
 :
 : 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
@@ -138,10 +138,10 @@
 : 'bslma_rawdeleterproctor':
 :      Provide a proctor to conditionally manage an object.
 :
-: 'bslma_sequentialallocator':
+: 'bslma_sequentialallocator':                           !DEPRECATED!
 :      Support fast memory allocation for objects of varying sizes.
 :
-: 'bslma_sequentialpool':
+: 'bslma_sequentialpool':                                !DEPRECATED!
 :      Provide fast variable-size memory pool with allocation methods.
 :
 : 'bslma_sharedptrinplacerep':

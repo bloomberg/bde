@@ -27,7 +27,8 @@ BSLS_IDENT("$Id: $")
 // corresponding to the local time and UTC time represented by the object,
 // respectively.  In addition, the 'offset' method returns the time zone offset
 // in minutes from UTC (i.e., 'UTC + offset' equals local time).
-/////Attributes
+//
+///Attributes
 ///----------
 //..
 //  Name                Type         Default         Simple Constraints
