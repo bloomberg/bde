@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_metricrecord_cpp,"$Id$ $CSID$")
 
-#include <bsl_limits.h>
+#include <bsl_cfloat.h>  // DBL_MAX
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -14,15 +14,24 @@ namespace BloombergLP {
                           // ------------------------
 
 // PUBLIC CONSTANTS
-const double balm::MetricRecord::k_DEFAULT_MIN = 1.0/0;
-                                    // bsl::numeric_limits<double>::infinity();
-const double balm::MetricRecord::k_DEFAULT_MAX = -1.0/0;
-                                    //-bsl::numeric_limits<double>::infinity();
+
+// During static initialization, we cannot rely on calling
+// 'bsl::numeric_limits<double>::infinity()'.  One common idiom for obtaining a
+// compile-time "infinity" value, '1.0/.0', generates an error on MSVC.  So, we
+// fall back on 'DBL_MAX * 2'.
+//
+// Note that no solution to this problem is explicitly allowed by the standard,
+// so we are necessarily relying on observing that this strategy happens to
+// work on all of our supported platforms.
+
+const double balm::MetricRecord::k_DEFAULT_MIN = DBL_MAX * 2;
+const double balm::MetricRecord::k_DEFAULT_MAX = DBL_MAX * -2;
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-const double balm::MetricRecord::DEFAULT_MIN = 1.0/0;
-                                    // bsl::numeric_limits<double>::infinity();
-const double balm::MetricRecord::DEFAULT_MAX = -1.0/0;
-                                    //-bsl::numeric_limits<double>::infinity();
+const double balm::MetricRecord::DEFAULT_MIN =
+                                             balm::MetricRecord::k_DEFAULT_MIN;
+const double balm::MetricRecord::DEFAULT_MAX =
+                                             balm::MetricRecord::k_DEFAULT_MAX;
 #endif
 
 namespace balm {
