@@ -558,12 +558,13 @@ extern "C" void *testTimersThread(void *arg) {
     ASSERT(mX);
 
     const Obj& X = *mX;
-    enum { NUM_TIMERS = 10 };
+    enum { NUM_TIMERS = 1 };
     int flags[NUM_TIMERS];
     bsls::TimeInterval timeValues[NUM_TIMERS];
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     void *timerIds[NUM_TIMERS];
 
+    bslma::TestAllocator scratchAllocator;
     for (int i = 0; i < NUM_TIMERS; ++i) {
         int offset = i % 2 ? i : -i;
         offset *= 10 * 1000 * 1000;  // make it milliseconds, at most +/- 100ms
@@ -573,6 +574,8 @@ extern "C" void *testTimersThread(void *arg) {
         bsls::TimeInterval expDelta = i % 2 ? delta : bsls::TimeInterval(0);
         expDelta += bsls::TimeInterval(0.25);
         bsl::function<void()> functor(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(&scratchAllocator),
                 bdlf::BindUtil::bind(&timerCallback, &flags[i],
                                     &timeValues[i], expDelta, -i, true));
 
@@ -580,8 +583,7 @@ extern "C" void *testTimersThread(void *arg) {
     }
 
     globalBarrier->wait();
-// TBD: Uncomment
-//     ASSERT(0 == defaultAllocator.numBytesInUse());
+    ASSERT(0 == defaultAllocator.numBytesInUse());
 
     if (X.isEnabled()) {
         bsls::TimeInterval delta(0.5);  // 500ms
@@ -706,7 +708,7 @@ void readData(ReadDataType *readDataArgs)
 {
     const int SIZE = 1024;
     char readBuffer[SIZE]  = { 'x' };
-//     char expBuffer[SIZE]   = { 'z' };
+    char expBuffer[SIZE]   = { 'z' };
     int errorCode = 0;
     int rc = btlso::SocketImpUtil::read(readBuffer,
                                         readDataArgs->d_handle,
@@ -719,10 +721,8 @@ void readData(ReadDataType *readDataArgs)
 
     ASSERT(rc > 0);
     readDataArgs->d_numBytesRead += rc;
-    // TBD: Uncomment
-//    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
-    //if (0 == (readDataArgs->d_numBytesRead % (1024 * 1024)))
-    //    cout << "Read Data: " << readDataArgs->d_numBytesRead << endl;
+    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
+
     if (readDataArgs->d_numBytesRead >= readDataArgs->d_totalBytesToRead) {
         ++(*readDataArgs->d_numConnsDone_p);
         cout << "Conns Done: " << *readDataArgs->d_numConnsDone_p << endl;
@@ -1430,16 +1430,6 @@ int main(int argc, char *argv[])
             executeInParallel(executeTest, (void*)&mX, NUM_THREADS);
             mX.disable();
         }
-#if 0
-    // TBD -- currently, the behavior is undefined if the object is disabled
-          if (verbose)
-              cout << "\tOn disabled object" << endl;
-          {
-              Obj mX(&testAllocator);
-              ASSERT(0 == mX.isEnabled());
-              executeInParallel(executeTest, (void*)&mX, NUM_THREADS);
-          }
-#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1812,9 +1802,8 @@ int main(int argc, char *argv[])
                          << " timers." << endl;
                 }
 
-                    // TBD: Uncomment
-//                 bslma::TestAllocator da;
-//                 bslma::DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                     LOOP_ASSERT(i, 0 == mX.disable());
@@ -1822,8 +1811,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 0 == mX.enable());
                     LOOP_ASSERT(i, 1 == X.isEnabled());
 
-                    // TBD: Uncomment
-//                     LOOP_ASSERT(i, 0 == da.numBytesInUse());
+                    LOOP_ASSERT(i, 0 == da.numBytesInUse());
                 }
                 bslmt::ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdlt::CurrentTime::now() + delta);
@@ -1916,7 +1904,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Registration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
+            enum { NUM_THREADS = 1 };
             Obj mX(false, true, &testAllocator);
             const Obj& X = mX;
 
@@ -1926,8 +1914,9 @@ int main(int argc, char *argv[])
             bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
-            // TBD: Uncomment
-//             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+            defaultAllocator.setVerbose(1);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
                 int rc = bslmt::ThreadUtil::create(&workers[i],
@@ -1942,9 +1931,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 0 == rc);
             }
 
-            // TBD: Uncomment
-//             LOOP_ASSERT(defaultAllocator.numBytesInUse(),
-//                         0 == defaultAllocator.numBytesInUse());
+            LOOP_ASSERT(defaultAllocator.numBytesInUse(),
+                        0 == defaultAllocator.numBytesInUse());
 
             if (veryVerbose) {
                 P(X.numTimers());
@@ -1955,46 +1943,44 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.numTotalSocketEvents());
         }
 
-        if (verbose)
-            cout << "\tConcern #2: Registration on enabled object."
-                 << endl;
-        {
-            enum { NUM_THREADS = 10 };
-            Obj mX(false, true, &testAllocator);
-            const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
-            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+//         if (verbose)
+//             cout << "\tConcern #2: Registration on enabled object."
+//                  << endl;
+//         {
+//             enum { NUM_THREADS = 10 };
+//             Obj mX(false, true, &testAllocator);
+//             const Obj& X = mX;
+//             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
+//             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            ASSERT(0 == defaultAllocator.numBytesInUse());
-            bslmt::Barrier barrier(NUM_THREADS);
-            globalBarrier = &barrier;
+//             ASSERT(0 == defaultAllocator.numBytesInUse());
+//             bslmt::Barrier barrier(NUM_THREADS);
+//             globalBarrier = &barrier;
 
-            // TBD: Uncomment
 //             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bslmt::ThreadUtil::create(&workers[i],
-                                                  bslmt::ThreadAttributes(),
-                                                  &testTimersThread,
-                                                  &mX);
-                LOOP_ASSERT(i, 0 == rc);
-            }
+//             for (int i = 0; i < NUM_THREADS; ++i) {
+//                 int rc = bslmt::ThreadUtil::create(&workers[i],
+//                                                   bslmt::ThreadAttributes(),
+//                                                   &testTimersThread,
+//                                                   &mX);
+//                 LOOP_ASSERT(i, 0 == rc);
+//             }
 
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bslmt::ThreadUtil::join(workers[i]);
-                LOOP_ASSERT(i, 0 == rc);
-            }
+//             for (int i = 0; i < NUM_THREADS; ++i) {
+//                 int rc = bslmt::ThreadUtil::join(workers[i]);
+//                 LOOP_ASSERT(i, 0 == rc);
+//             }
 
-            // TBD: Uncomment
 //             LOOP_ASSERT(defaultAllocator.numBytesInUse(),
 //                         0 == defaultAllocator.numBytesInUse());
 
-            if (veryVerbose) {
-                P(X.numTimers());
-            }
-            ASSERT(0 == mX.numTimers());
-            ASSERT(0 == mX.numTotalSocketEvents());
-        }
+//             if (veryVerbose) {
+//                 P(X.numTimers());
+//             }
+//             ASSERT(0 == mX.numTimers());
+//             ASSERT(0 == mX.numTotalSocketEvents());
+//         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2031,15 +2017,12 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-            // TBD: Uncomment
-//                 bslma::TestAllocator da;
-//                 bslma::DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
 
-            // TBD: Uncomment
-//                 LOOP2_ASSERT(i, da.numBytesInUse(),
-//                              0 == da.numBytesInUse());
+                LOOP2_ASSERT(i, da.numBytesInUse(), 0 == da.numBytesInUse());
 
                 LOOP_ASSERT(i, mX.isEnabled());
             }
@@ -2087,17 +2070,14 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-            // TBD: Uncomment
-//                 bslma::TestAllocator da;
-//                 bslma::DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
                 LOOP_ASSERT(i, 1 == mX.isEnabled());
                 LOOP_ASSERT(i, 0 == mX.enable());
 
-            // TBD: Uncomment
-//                 LOOP2_ASSERT(i, da.numBytesInUse(),
-//                              0 == da.numBytesInUse());
+                LOOP2_ASSERT(i, da.numBytesInUse(), 0 == da.numBytesInUse());
 
                 LOOP_ASSERT(i, 1 == mX.isEnabled());
             }
@@ -2110,15 +2090,12 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-            // TBD: Uncomment
-//                 bslma::TestAllocator da;
-//                 bslma::DefaultAllocatorGuard dag(&da);
+                bslma::TestAllocator da;
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
 
-            // TBD: Uncomment
-//                 LOOP2_ASSERT(i, da.numBytesInUse(),
-//                              0 == da.numBytesInUse());
+                LOOP2_ASSERT(i, da.numBytesInUse(), 0 == da.numBytesInUse());
             }
         }
 

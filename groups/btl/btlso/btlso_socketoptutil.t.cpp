@@ -650,10 +650,8 @@ int main(int argc, char *argv[])
                   {   L_,   "IY",         0, 0 },
 
 #ifndef BSLS_PLATFORM_OS_AIX
-// TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-//                   {   L_,   "JN",        -1 }, //*
-//                   {   L_,   "JY",        -1 }, //*
-// #else
+                  {   L_,   "JN",         0, 0 },
+                  {   L_,   "JY",         0, 0 },
 # if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_SOLARIS)
                   {   L_,   "JN",         0, -1 },
                   {   L_,   "JY",         0, -1 },
@@ -763,17 +761,6 @@ int main(int argc, char *argv[])
               {   L_,   "D2",        -1, -1 },
 #endif
 
-#ifndef BSLS_PLATFORM_OS_HPUX
-// TBD on HPUX setting this option succeeds but the timeout value is not what
-// was specified.
-//               {   L_,   "E0",         0, 0 },
-//               {   L_,   "E1",         0, 0 },
-//               {   L_,   "E2",         0, 0 },
-
-//               {   L_,   "F0",         0, 0 },
-//               {   L_,   "F1",         0, 0 },
-//               {   L_,   "F2",         0, 0 },
-// #else
 # ifdef BSLS_PLATFORM_OS_WINDOWS
               {   L_,   "E0",        0, 0 },
               {   L_,   "E1",        0, 0 },
@@ -791,7 +778,6 @@ int main(int argc, char *argv[])
               {   L_,   "F1",        -1, -1 },
               {   L_,   "F2",        -1, -1 },
 # endif
-#endif
 
 #if defined(BSLS_PLATFORM_OS_AIX)
               // Works only on IBM.  On other platforms although the return

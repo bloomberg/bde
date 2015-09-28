@@ -643,7 +643,8 @@ class ChannelPoolStateCbTester {
             }
 
             if (!found) {
-                d_condition.timedWait(&d_mutex, timeout);
+                d_condition.timedWait(&d_mutex,
+                                      now + bsls::TimeInterval(0.01));
             }
             now = bdlt::CurrentTime::now();
         }
@@ -686,10 +687,10 @@ void populateMessage(btlb::Blob       *msg,
 }
 
 //-----------------------------------------------------------------------------
-//                                  CASE 44
+//                                  TEST_CASE_CTOR_TAKING_FACTORY
 //-----------------------------------------------------------------------------
 
-namespace CASE44 {
+namespace TEST_CASE_CTOR_TAKING_FACTORY {
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -934,13 +935,13 @@ int ReadServer::portNumber() const
     return d_port;
 }
 
-}  // close namespace CASE44
+}  // close namespace TEST_CASE_CTOR_TAKING_FACTORY
 
 //-----------------------------------------------------------------------------
-//                                  CASE 39
+//                                  TEST_CASE_TESTING_PEER_ADDRESS
 //-----------------------------------------------------------------------------
 
-namespace CASE39 {
+namespace TEST_CASE_TESTING_PEER_ADDRESS {
 
 btlmt::ChannelPool *d_pool_p = 0;
 btlso::IPv4Address  d_peerAddress;
@@ -1004,17 +1005,19 @@ void blobBasedReadCb(int            *needed,
     msg->removeAll();
 }
 
-}  // close namespace CASE39
+}  // close namespace TEST_CASE_TESTING_PEER_ADDRESS
 
 //-----------------------------------------------------------------------------
-//                                  CASE 43
+//                                  TEST_CASE_STOP_AND_REMOVE_CHANNELS
 //-----------------------------------------------------------------------------
 
-namespace CASE43 {
+namespace TEST_CASE_STOP_AND_REMOVE_CHANNELS {
 
-bslmt::Mutex       mapMutex;
-bsl::map<int, int> sourceIdToChannelIdMap;
+bslmt::Mutex                         mapMutex;
+bsl::map<int, int>                   sourceIdToChannelIdMap;
 typedef bsl::map<int, int>::iterator MapIter;
+
+bsls::AtomicInt numUp(0);
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -1027,22 +1030,19 @@ void poolStateCb(int state, int source, int severity)
     }
 }
 
-void channelStateCb(int             channelId,
-                    int             sourceId,
-                    int             state,
-                    void           *,
-                    int            *id,
-                    bslmt::Barrier *)
+void channelStateCb(int              channelId,
+                    int              sourceId,
+                    int              state,
+                    void            *)
 {
     if (veryVerbose) {
-        bsl::cout << "Channel state callback called with"
-                  << " Channel Id: " << channelId
-                  << " Server Id: "  << sourceId
-                  << " State: " << state << bsl::endl;
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << sourceId
+               << " State: " << state << MTENDL;
     }
 
     if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
-        *id = channelId;
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&mapMutex);
             sourceIdToChannelIdMap[sourceId] = channelId;
@@ -1053,8 +1053,7 @@ void channelStateCb(int             channelId,
 void blobBasedReadCb(int            *needed,
                      btlb::Blob     *msg,
                      int             channelId,
-                     void           *,
-                     bslmt::Barrier *)
+                     void           *)
 {
     if (veryVerbose) {
         bsl::cout << "Blob Based Read Cb called with"
@@ -1073,7 +1072,6 @@ btlso::InetStreamSocketFactory<btlso::IPv4Address>     factory;
 
 struct ConnectData {
     int                d_index;
-    int                d_numBytes;
     btlso::IPv4Address d_serverAddress;
 };
 
@@ -1081,75 +1079,69 @@ void *connectFunction(void *args)
 {
     ConnectData              data      = *(const ConnectData *) args;
     const int                INDEX     = data.d_index;
-    const int                NUM_BYTES = data.d_numBytes;
     const btlso::IPv4Address ADDRESS   = data.d_serverAddress;
 
     clientSockets[INDEX] = factory.allocate();
 
     ASSERT(0 == clientSockets[INDEX]->connect(ADDRESS));
 
-    bsl::vector<char> buffer(NUM_BYTES);
-
-    int numRemaining = NUM_BYTES;
-    do {
-        int rc = clientSockets[INDEX]->read(buffer.data(), numRemaining);
-        if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
-            numRemaining -= rc;
-        }
-
-        rc = clientSockets[INDEX]->write(buffer.data(), numRemaining);
-
-        bslmt::ThreadUtil::microSleep(1000, 0);
-    } while (numRemaining > 0);
     return 0;
 }
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> serverSockets(NT);
-
-struct ListenData {
-    int d_index;
-    int d_numBytes;
-};
+bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> acceptSockets(NT);
 
 void *listenFunction(void *args)
 {
-    ListenData data      = *(const ListenData *) args;
-    const int  INDEX     = data.d_index;
-    const int  NUM_BYTES = data.d_numBytes;
+    const int INDEX = *(int *) args;
 
     serverSockets[INDEX] = factory.allocate();
 
     ASSERT(0 == serverSockets[INDEX]->bind(getLocalAddress()));
     ASSERT(0 == serverSockets[INDEX]->listen(1));
 
+    serverSockets[INDEX]->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+
     btlso::StreamSocket<btlso::IPv4Address> *client;
-    ASSERT(!serverSockets[INDEX]->accept(&client));
+    ASSERT(0 == serverSockets[INDEX]->accept(&client));
     ASSERT(0 == client->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE));
+
+    acceptSockets[INDEX] = client;
+
+    return 0;
+}
+
+void *dataFunction(void *args)
+{
+    btlso::StreamSocket<btlso::IPv4Address> *socket =
+                              (btlso::StreamSocket<btlso::IPv4Address> *) args;
+
+    const int NUM_BYTES = 1024 * 1024; // 1MB
 
     bsl::vector<char> buffer(NUM_BYTES);
 
     int numRemaining = NUM_BYTES;
     do {
-        int rc = client->read(buffer.data(), numRemaining);
+        int rc = socket->read(buffer.data(), numRemaining);
         if (rc != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
             numRemaining -= rc;
         }
 
-        rc = client->write(buffer.data(), numRemaining);
+        rc = socket->write(buffer.data(), numRemaining);
 
         bslmt::ThreadUtil::microSleep(1000, 0);
     } while (numRemaining > 0);
     return 0;
 }
 
-}  // close namespace CASE43
+}  // close namespace TEST_CASE_STOP_AND_REMOVE_CHANNELS
 
 
 //-----------------------------------------------------------------------------
-//                                  CASE 42
+//                     TEST_CASE_LOWWAT_AFTER_ENQUEUEMARK_EXCEEDED
 //-----------------------------------------------------------------------------
 
-namespace CASE42 {
+namespace TEST_CASE_LOWWAT_AFTER_ENQUEUEMARK_EXCEEDED {
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -1231,14 +1223,14 @@ void *readData(void *data)
     return 0;
 }
 
-}  // close namespace CASE42
+}  // close namespace TEST_CASE_LOWWAT_AFTER_ENQUEUEMARK_EXCEEDED
 
 
 //-----------------------------------------------------------------------------
-//                                  CASE 41
+//                       TEST_CASE_ADDING_WRITE_STATS
 //-----------------------------------------------------------------------------
 
-namespace CASE41 {
+namespace TEST_CASE_ADDING_WRITE_STATS {
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -1412,223 +1404,13 @@ void *writeData(void *data)
     return 0;
 }
 
-}  // close namespace CASE41
+}  // close namespace TEST_CASE_ADDING_WRITE_STATS
 
 //-----------------------------------------------------------------------------
-//                                  CASE 37
+//                             TEST_CASE_DISABLE_READ
 //-----------------------------------------------------------------------------
 
-namespace CASE37 {
-
-Obj       *channelPool;
-int        s_channelId;
-const int  CACHE_HI_WAT = 6000000;
-
-btlb::PooledBlobBufferFactory blobFactory(256);
-
-int delayBetweenWrites = 1000000;
-int maxWritesPerThread = 10000;
-int maxConsecutiveFailures = 1;
-int minMsgSize = 100;
-int maxMsgSize = 32000;
-
-#ifdef BDE_BUILD_TARGET_OPT
-const int NUM_THREADS = 20;
-#else
-const int NUM_THREADS = 5;
-#endif
-
-bslmt::Barrier *barrier;
-
-void poolStateCb(int state, int source, int severity)
-{
-    if (veryVerbose) {
-        bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
-        bsl::cout << "Pool state callback called with"
-                  << " State: " << state
-                  << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
-    }
-}
-
-void channelStateCb(int             channelId,
-                    int             serverId,
-                    int             state,
-                    void           *,
-                    int            *id,
-                    bslmt::Barrier *barrier)
-{
-    if (veryVerbose) {
-        bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
-        bsl::cout << "Channel state callback called with"
-                  << " Channel Id: " << channelId
-                  << " Server Id: "  << serverId
-                  << " State: " << state << bsl::endl;
-    }
-    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
-        *id = channelId;
-        s_channelId = channelId;
-        barrier->wait();
-    }
-}
-
-void blobBasedReadCb(int        *needed,
-                     btlb::Blob *msg,
-                     int         channelId,
-                     void       *)
-{
-    if (veryVerbose) {
-        bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
-        bsl::cout << "Blob Based Read Cb called with"
-                  << " Channel Id: " << channelId
-                  << " of length: "  << msg->length() << bsl::endl;
-    }
-    *needed = 1;
-    msg->removeAll();
-}
-
-struct TestData {
-    Obj            *d_pool_p;
-    int             d_channelId;
-    bslmt::Barrier *d_barrier_p;
-    btlb::Blob     *d_blob_p;
-};
-
-int write(int nBytes)
-{
-    btlb::Blob blob(&blobFactory);
-    blob.setLength(nBytes);
-    return channelPool->write(s_channelId, blob);
-}
-
-enum  {
-    ERROR_IMPOSSIBLE_WRITE_SUCCEEDED = 1,
-    ERROR_MAX_POSSIBLE_WRITE_FAILED  = 2
-};
-
-const char* checkRcToString(int type)
-{
-    #define CASE(T)         case T: return #T
-    switch (type) {
-      CASE(ERROR_IMPOSSIBLE_WRITE_SUCCEEDED);
-      CASE(ERROR_MAX_POSSIBLE_WRITE_FAILED);
-    };
-    #undef CASE
-
-    ASSERT(0);
-    return "UNKNOWN";
-}
-
-int check()
-{
-    int rc;
-
-    // try to write too much
-    rc = write(CACHE_HI_WAT + 1);
-    LOOP_ASSERT(rc, rc);
-    if (!rc) {
-        return ERROR_IMPOSSIBLE_WRITE_SUCCEEDED;                      // RETURN
-    }
-
-    // try to write max possible
-    rc = write(CACHE_HI_WAT);
-    LOOP_ASSERT(rc, !rc);
-    if (rc) {
-        return ERROR_MAX_POSSIBLE_WRITE_FAILED;                       // RETURN
-    }
-
-    return 0;
-}
-
-void delay(int delay)
-{
-    int i;
-    for (i = 0; i < delay; ++i);
-    ASSERT(i); // poor way to stop optimize-away
-}
-
-// signal allow writer threads to start writing from the same time (to
-// increase concurrency), barrier could be another way but might be too heavy.
-static bsls::AtomicInt sig(0);
-void signalerThread()
-{
-    while(1) {
-        ++sig;
-
-        delay(delayBetweenWrites);
-    }
-}
-
-void writerThread(unsigned threadIndex)
-{
-    int failures = 0;
-    int consecutiveFailures = 0;
-    int iter;
-    int oldSignal = 0;
-
-    btlb::Blob blob(&blobFactory);
-    for (iter = 0; iter < maxWritesPerThread &&
-                   consecutiveFailures < maxConsecutiveFailures; ++iter) {
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        int randVal = rand();
-#else
-        int randVal = rand_r(&threadIndex);
-#endif
-        int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
-        blob.setLength(nBytes);
-
-        while(sig <= oldSignal);
-        oldSignal = sig;
-
-        int rc = channelPool->write(s_channelId, blob);
-
-        if (rc == 0) {
-            consecutiveFailures = 0;
-        }
-        else {
-            ++consecutiveFailures;
-            ++failures;
-        }
-    }
-
-    barrier->wait();
-}
-
-void success()
-{
-    std::cout << "no bug found" << std::endl;
-    _exit(0);
-}
-
-btlb::PooledBlobBufferFactory f(1024);
-extern "C" void* threadFunctionCase36(void *data)
-{
-    TestData       *testData = static_cast<TestData *>(data);
-    Obj            *pool     = testData->d_pool_p;
-    int             id       = testData->d_channelId;
-    bslmt::Barrier *barrier  = testData->d_barrier_p;;
-
-    btlb::Blob b(&f);
-    b.setLength(CACHE_HI_WAT);
-
-    barrier->wait();
-
-    int rc = pool->write(id, b);
-    LOOP_ASSERT(rc, !rc);
-
-    barrier->wait();
-
-    return 0;
-}
-
-}  // close namespace CASE37
-
-//-----------------------------------------------------------------------------
-//                                  CASE 38
-//-----------------------------------------------------------------------------
-
-namespace CASE38 {
+namespace TEST_CASE_DISABLE_READ {
 
 btlmt::ChannelPool *d_pool_p = 0;
 int                 numRead = 0;
@@ -1665,11 +1447,12 @@ void channelStateCb(int   channelId,
     }
 }
 
-void blobBasedReadCb(int        *needed,
-                     btlb::Blob *msg,
-                     int         channelId,
-                     void       *,
-                     int        *numTimesCbCalled)
+void blobBasedReadCb(int            *needed,
+                     btlb::Blob     *msg,
+                     int             channelId,
+                     void           *,
+                     int            *numTimesCbCalled,
+                     bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
         bslmt::LockGuard<bslmt::Mutex> guard(&coutMutex);
@@ -1683,6 +1466,11 @@ void blobBasedReadCb(int        *needed,
     if (*numTimesCbCalled <= 2) {
         d_pool_p->disableRead(channelId);
     }
+
+    if (*numTimesCbCalled <= 3) {
+        barrier->wait();
+    }
+
     *needed = 1;
 
     btlb::BlobUtil::asciiDump(dataStream, *msg);
@@ -1704,13 +1492,13 @@ void populateText(char *text, int length)
     memset(curr, 'A', end - curr);
 }
 
-}  // close namespace CASE38
+}  // close namespace TEST_CASE_DISABLE_READ
 
 //-----------------------------------------------------------------------------
-//                                  CASE 36
+//                                  TEST_CASE_DISABLE_READ_WHEN_NUM_NEEDED_ZERO
 //-----------------------------------------------------------------------------
 
-namespace CASE36 {
+namespace TEST_CASE_DISABLE_READ_WHEN_NUM_NEEDED_ZERO {
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -1737,7 +1525,8 @@ void channelStateCb(int              channelId,
                   << " Server Id: "  << serverId
                   << " State: " << state << bsl::endl;
     }
-    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
+    if (btlmt::ChannelPool::e_CHANNEL_UP         == state
+     || btlmt::ChannelPool::e_AUTO_READ_DISABLED == state) {
         *id = channelId;
         barrier->wait();
     }
@@ -1768,13 +1557,13 @@ void blobBasedReadCb(int             *needed,
     barrier->wait();
 }
 
-}  // close namespace CASE36
+}  // close namespace TEST_CASE_DISABLE_READ_WHEN_NUM_NEEDED_ZERO
 
 //-----------------------------------------------------------------------------
-//                                  CASE 32
+//                                  TEST_CASE_TESTING_SOCKET_OPTIONS
 //-----------------------------------------------------------------------------
 
-namespace CASE32 {
+namespace TEST_CASE_TESTING_SOCKET_OPTIONS {
 
 class SocketPool {
 
@@ -2250,12 +2039,12 @@ int verify(const Obj&                  pool,
     return 0;
 }
 
-}  // close namespace CASE32
+}  // close namespace TEST_CASE_TESTING_SOCKET_OPTIONS
 
 //-----------------------------------------------------------------------------
-//                          CASE 31
+//                          TEST_CASE_PARTIAL_READS
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_31_NAMESPACE {
+namespace TEST_CASE_PARTIAL_READS {
 
 class ReadServer
 {
@@ -2460,13 +2249,13 @@ const bsl::string& ReadServer::data() const
     return d_data;
 }
 
-}  // close namespace TEST_CASE_31_NAMESPACE
+}  // close namespace TEST_CASE_PARTIAL_READS
 
 //-----------------------------------------------------------------------------
-//                          CASE 30 read testing
+//                          TEST_CASE_READ
 //-----------------------------------------------------------------------------
 
-namespace TEST_CASE_30_NAMESPACE {
+namespace TEST_CASE_READ {
 
                         // ================
                         // class DataReader
@@ -2966,10 +2755,10 @@ void TestData::run()
     }
 }
 
-}  // close namespace TEST_CASE_30_NAMESPACE
+}  // close namespace TEST_CASE_READ
 
 //-----------------------------------------------------------------------------
-// CASE 28: 'btlmt::ChannelPool::busyMetrics()'
+// 'btlmt::ChannelPool::busyMetrics()'
 //-----------------------------------------------------------------------------
 
 namespace TEST_CASE_BUSY_METRICS {
@@ -2987,7 +2776,7 @@ void dummyDataCallbackWithDelay(int        *numNeeded,
 
 }  // close namespace TEST_CASE_BUSY_METRICS
 //-----------------------------------------------------------------------------
-// CASE 26: 'btlmt::ChannelPool_MessageUtil'
+// 'btlmt::ChannelPool_MessageUtil'
 //-----------------------------------------------------------------------------
 namespace TEST_CASE_MESSAGEHELPER_NAMESPACE {
 
@@ -3303,9 +3092,9 @@ void testIovecArray()
 }  // close namespace TEST_CASE_MESSAGEHELPER_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 25 'setWriteCache[Hi|Low]Watermark' & 'setWriteCacheWatermarks'
+// 'setWriteCache[Hi|Low]Watermark' & 'setWriteCacheWatermarks'
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_25_NAMESPACE {
+namespace TEST_CASE_CONCURRENCY_TEST {
 
 int drainSocket(btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
                 int                                      numBytesExpected)
@@ -3325,10 +3114,10 @@ int drainSocket(btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
 }
 
 enum {
-    CASE_25_NUM_THREADS = 5
+    NUM_THREADS = 5
 };
 
-class TestCase25ConcurrencyTest {
+class TestCaseConcurrencyTest {
 
      typedef btlso::StreamSocket<btlso::IPv4Address> Socket;
      btlmt::ChannelPool * const d_pool_p;
@@ -3348,7 +3137,7 @@ class TestCase25ConcurrencyTest {
 
   public:
 
-    TestCase25ConcurrencyTest(
+    TestCaseConcurrencyTest(
                        btlmt::ChannelPool                      *pool,
                        int                                      channelId,
                        btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
@@ -3360,7 +3149,7 @@ class TestCase25ConcurrencyTest {
 
 };
 
-TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
+TestCaseConcurrencyTest::TestCaseConcurrencyTest(
                          btlmt::ChannelPool                      *pool,
                          int                                      channelId,
                          btlso::StreamSocket<btlso::IPv4Address> *clientSocket,
@@ -3377,7 +3166,7 @@ TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
 {
 }
 
-void TestCase25ConcurrencyTest::executeTest()
+void TestCaseConcurrencyTest::executeTest()
 {
     enum { LOW_WATERMARK = 64,
            HI_WATERMARK  = 1096,
@@ -3423,7 +3212,7 @@ void TestCase25ConcurrencyTest::executeTest()
     ++d_done;
 }
 
-void TestCase25ConcurrencyTest::run()
+void TestCaseConcurrencyTest::run()
 {
     // Start 'd_numThreads' threads performing 'executeTest' then read data
     // from 'd_clientSocket_p' until all threads are completed (i.e.
@@ -3438,7 +3227,7 @@ void TestCase25ConcurrencyTest::run()
     int numBytesRead = 0;
     d_threadPool.start();
     bsl::function<void()> job = bdlf::BindUtil::bind(
-                                       &TestCase25ConcurrencyTest::executeTest,
+                                       &TestCaseConcurrencyTest::executeTest,
                                        this);
     for (int i = 0; i < d_numThreads; ++i) {
         d_threadPool.enqueueJob(job);
@@ -3466,49 +3255,7 @@ void TestCase25ConcurrencyTest::run()
     }
 }
 
-#if 0
-void testCase25ConcurrencyTest(btlmt::ChannelPool *pool,
-                               int                channelId,
-                               bslmt::Barrier      *barrier,
-                               bsls::AtomicInt      *numWritten,
-                               bsls::AtomicInt      *done)
-{
-    enum { HI_WATERMARK = 1024,
-           NUM_BYTES    = HI_WATERMARK * 10 };
-
-    int rc = 0, totalBytesWritten = 0;
-    btlb::Blob oneByteMsg;
-    populateMessage(&oneByteMsg, 1, bslma::Default::allocator(0));
-
-    barrier->wait();
-
-    pool->setWriteCacheHiWatermark(channelId, HI_WATERMARK);
-    while (totalBytesWritten < NUM_BYTES) {
-        int currentBytesWritten = 0;
-        while (currentBytesWritten < (HI_WATERMARK / 4) &&
-               0 == (rc = pool->write(channelId, oneByteMsg))) {
-            currentBytesWritten += oneByteMsg.length();
-            totalBytesWritten   += oneByteMsg.length();
-            (*numWritten)       += oneByteMsg.length();
-        }
-
-        pool->setWriteCacheHiWatermark(channelId, 2 * HI_WATERMARK);
-
-        currentBytesWritten = 0;
-        while (currentBytesWritten < (HI_WATERMARK / 4) &&
-               0 == (rc = pool->write(channelId, oneByteMsg))) {
-            currentBytesWritten += oneByteMsg.length();
-            totalBytesWritten   += oneByteMsg.length();
-            (*numWritten)       += oneByteMsg.length();
-        }
-
-        pool->setWriteCacheHiWatermark(channelId, HI_WATERMARK);
-    }
-    (*done)++;
-}
-#endif
-
-}  // close namespace TEST_CASE_25_NAMESPACE
+}  // close namespace TEST_CASE_CONCURRENCY_TEST
 
 //-----------------------------------------------------------------------------
 // CASE -2 supporting classes and methods
@@ -3557,98 +3304,13 @@ void caseN2ChannelStateCallback(int                  channelId,
 }  // close namespace TEST_CASE_N2_NAMESPACE
 
 //-----------------------------------------------------------------------------
-//                  CASE 23 supporting classes and methods
+//                  TEST_CASE_STRESS_TEST supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_23_NAMESPACE {
-
-const char MESSAGE[] = "MESSAGE\n";
-
-struct case23CallbackInfo {
-    bslmt::Barrier     *d_clientServerBarrier_p;
-    bslmt::Barrier     *d_stateBarrier_p;
-    bslmt::Barrier     *d_dataBarrier_p;
-    bsls::AtomicInt     d_channelId;
-    bsls::AtomicInt     d_channelDownReadFlag;
-    bsls::AtomicInt     d_channelDownWriteFlag;
-    btlmt::ChannelPool *d_channelPool_p;
-    int                 d_msgLength;
-    bool                d_echoMode; // differentiates server thread
-};
-
-extern "C"
-void *case23ClientThread3(void *arg)
-{
-    case23CallbackInfo *info = (case23CallbackInfo*)arg;
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_UP
-    MTASSERT(-1 != info->d_channelId);
-
-    btls::Ovec msg[1];
-    *msg = btls::Ovec(MESSAGE, sizeof(MESSAGE));
-    ASSERT(0 == info->d_channelPool_p->write(info->d_channelId, msg, 1));
-
-    info->d_clientServerBarrier_p->wait(); // for server to send response
-
-    ASSERT(0 == info->d_channelPool_p->shutdown(
-                                             info->d_channelId,
-                                             btlso::Flag::e_SHUTDOWN_SEND));
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_WRITE
-    MTASSERT(1 == info->d_channelDownWriteFlag);
-
-    info->d_clientServerBarrier_p->wait(); // for server to start closing
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_READ
-    MTASSERT(1 == info->d_channelDownReadFlag);
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN
-    MTASSERT(1 == info->d_channelDownReadFlag);
-    MTASSERT(1 == info->d_channelDownWriteFlag);
-
-    return 0;
-}
-
-extern "C"
-void *case23ServerThread3(void *arg)
-{
-    case23CallbackInfo *info = (case23CallbackInfo*)arg;
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_UP
-    MTASSERT(-1 != info->d_channelId);
-
-    info->d_dataBarrier_p->wait(); // for server dataCb's reply
-
-    info->d_clientServerBarrier_p->wait(); // enable client to close channel
-
-    // The data callback will close the channel, detected b/c
-    // server connection is read-enabled.
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_READ
-    MTASSERT(1 == info->d_channelDownReadFlag);
-
-    info->d_clientServerBarrier_p->wait(); // for server to send response
-
-    MTASSERT(0 == info->d_channelPool_p->shutdown(
-                                             info->d_channelId,
-                                             btlso::Flag::e_SHUTDOWN_SEND));
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN_WRITE
-    MTASSERT(1 == info->d_channelDownReadFlag);
-
-    info->d_stateBarrier_p->wait(); // for CHANNEL_DOWN
-    MTASSERT(1 == info->d_channelDownReadFlag);
-
-    return 0;
-}
-
-}  // close namespace TEST_CASE_23_NAMESPACE
-
-//-----------------------------------------------------------------------------
-//                  CASE 22 supporting classes and methods
-//-----------------------------------------------------------------------------
-namespace TEST_CASE_22_NAMESPACE {
+namespace TEST_CASE_STRESS_TEST {
 
 const int MAGIC          = 0x0ABCDEF0;
 
-struct case22ThreadInfo {
+struct caseStressTestThreadInfo {
     bslmt::Barrier                  *d_barrier_p;
     Obj                             *d_channelPool_p;
     btlso::IPv4Address               d_serverAddress;
@@ -3667,9 +3329,10 @@ struct case22ThreadInfo {
 
 extern "C" {
 
-void *case22Thread(void *arg)
+void *caseStressTestThread(void *arg)
 {
-    case22ThreadInfo *info = static_cast<case22ThreadInfo *>(arg);
+    caseStressTestThreadInfo *info =
+        static_cast<caseStressTestThreadInfo *>(arg);
     const int BUF_SIZE       = info->d_bufferAlloc;
     const int MSG_LENGTH     = info->d_messageLength;
     const int TOTAL_SIZE     = MSG_LENGTH ? MSG_LENGTH : info->d_totalAlloc;
@@ -3800,7 +3463,7 @@ void *case22Thread(void *arg)
 } // closing extern "C"
 
 static
-void case22PoolStateCallback(
+void caseStressTestPoolStateCallback(
     int             state,
     int             sourceId,
     int             severity)
@@ -3841,7 +3504,7 @@ void case22PoolStateCallback(
     }
 }
 
-struct case22CallbackInfo {
+struct caseStressTestCallbackInfo {
     Obj                **d_channelPool_p;
     btlso::IPv4Address   d_serverAddress;
     bsls::AtomicInt     *d_channelId1;
@@ -3855,11 +3518,11 @@ struct case22CallbackInfo {
 };
 
 static
-void case22ChannelStateCallback(int                 channelId,
-                                int                 sourceId,
-                                int                 state,
-                                void               *,
-                                case22CallbackInfo *info)
+void caseStressTestChannelStateCallback(int                 channelId,
+                                        int                 sourceId,
+                                        int                 state,
+                                        void               *,
+                                        caseStressTestCallbackInfo *info)
 {
     MTASSERT(info);
     btlmt::ChannelPool        *mXp = *info->d_channelPool_p;
@@ -3933,11 +3596,11 @@ void case22ChannelStateCallback(int                 channelId,
     }
 }
 
-void case22DataCallback(int                *numNeeded,
-                        btlb::Blob         *msg,
-                        int                 channelId,
-                        void               *,
-                        case22CallbackInfo *info)
+void caseStressTestDataCallback(int                *numNeeded,
+                                btlb::Blob         *msg,
+                                int                 channelId,
+                                void               *,
+                                caseStressTestCallbackInfo *info)
 {
     // This is an echo server, the clients merely receive the data but don't
     // echo it.  They do only minimal checking.  We need to adjust the
@@ -4093,7 +3756,8 @@ void case22DataCallback(int                *numNeeded,
 }
 
 static
-void runTestCase22(char                                           *,
+void runTestCaseStressTest(
+                   char                                           *,
                    int                                             numThreads,
                    int                                             numIters,
                    int                                             bufferSize,
@@ -4129,7 +3793,7 @@ void runTestCase22(char                                           *,
     bsls::AtomicInt     oldChannelId1(0);
     bsls::AtomicInt     oldChannelId2(0);
 
-    case22CallbackInfo info;
+    caseStressTestCallbackInfo info;
     info.d_channelPool_p = &poolAddr;
     info.d_serverAddress = ADDRESS;
     info.d_channelId1    = &channelId1;
@@ -4143,20 +3807,20 @@ void runTestCase22(char                                           *,
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
             bdlf::BindUtil::bindA( allocator
-                                , &case22ChannelStateCallback
+                                , &caseStressTestChannelStateCallback
                                 , _1, _2, _3, _4
                                 , &info));
 
     btlmt::ChannelPool::BlobBasedReadCallback  dataCb(
             bdlf::BindUtil::bindA( allocator
-                                , &case22DataCallback
+                                , &caseStressTestDataCallback
                                 , _1, _2, _3, _4
                                 , &info));
 
     btlmt::ChannelPool::PoolStateChangeCallback poolCb(
         bsl::allocator_arg_t(),
         bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(allocator),
-        &case22PoolStateCallback);
+        &caseStressTestPoolStateCallback);
 
     btlmt::ChannelPoolConfiguration cpc;
     cpc.setMaxConnections(4 * NUM_ITERS / 10);
@@ -4207,8 +3871,8 @@ void runTestCase22(char                                           *,
 
         bslmt::ThreadUtil::Handle  *threads = (bslmt::ThreadUtil::Handle*)
          allocator->allocate(sizeof(bslmt::ThreadUtil::Handle)  * NUM_THREADS);
-        case22ThreadInfo *info = (case22ThreadInfo*)
-                   allocator->allocate(sizeof(case22ThreadInfo) * NUM_THREADS);
+        caseStressTestThreadInfo *info = (caseStressTestThreadInfo*)
+           allocator->allocate(sizeof(caseStressTestThreadInfo) * NUM_THREADS);
         bslmt::Barrier  barrier(NUM_THREADS + 1);
         for (int i = 0; i < NUM_THREADS; ++i) {
             info[i].d_barrier_p     = &barrier;
@@ -4230,7 +3894,7 @@ void runTestCase22(char                                           *,
             info[i].d_messageLength = msgSize < 0 ? -msgSize : 0;
 
             ASSERT(0  == bslmt::ThreadUtil::create(&threads[i],
-                                                   &case22Thread,
+                                                   &caseStressTestThread,
                                                    &info[i]));
         }
 
@@ -4265,12 +3929,12 @@ void runTestCase22(char                                           *,
     }
 }
 
-}  // close namespace TEST_CASE_22_NAMESPACE
+}  // close namespace TEST_CASE_STRESS_TEST
 
 //-----------------------------------------------------------------------------
-//                  CASE 21 supporting classes and methods
+//                  TEST_CASE_SSL_SOCKETS supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_21_NAMESPACE {
+namespace TEST_CASE_SSL_SOCKETS {
 
 template <class ADDRESS>
 class bteso_SslLikeStreamSocketFactory;
@@ -5033,18 +4697,18 @@ void bteso_SslLikeStreamSocketFactory<ADDRESS>::deallocate(
     d_allocator_p->deallocate(socket);
 }
 
-}  // close namespace TEST_CASE_21_NAMESPACE
+}  // close namespace TEST_CASE_SSL_SOCKETS
 
 //-----------------------------------------------------------------------------
-//                          CASE 20 function helpers
+//                          TEST_CASE_IMPORT function helpers
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_20_NAMESPACE {
+namespace TEST_CASE_IMPORT {
 
 static
-void case20DataCallback(int        *numNeeded,
-                        btlb::Blob *msg,
-                        int         ,
-                        void       *)
+void caseImportDataCallback(int        *numNeeded,
+                            btlb::Blob *msg,
+                            int         ,
+                            void       *)
 {
     btlb::BlobUtil::erase(msg, 0, msg->length());
     *numNeeded = 1;
@@ -5053,14 +4717,14 @@ void case20DataCallback(int        *numNeeded,
 }
 
 static
-void case20ChannelStateCallback(int                  channelId,
-                                int                  serverId,
-                                int                  state,
-                                void                *,
-                                btlmt::ChannelPool **poolAddr,
-                                int                **eventAddr,
-                                bslmt::Barrier      *barrier,
-                                int                 *channelId_p)
+void caseImportChannelStateCallback(int                  channelId,
+                                    int                  serverId,
+                                    int                  state,
+                                    void                *,
+                                    btlmt::ChannelPool **poolAddr,
+                                    int                **eventAddr,
+                                    bslmt::Barrier      *barrier,
+                                    int                 *channelId_p)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5092,18 +4756,18 @@ void case20ChannelStateCallback(int                  channelId,
     }
 }
 
-}  // close namespace TEST_CASE_20_NAMESPACE
+}  // close namespace TEST_CASE_IMPORT
 
 //-----------------------------------------------------------------------------
-//                  CASE 19 supporting classes and methods
+//                  TEST_CASE_ACCEPT supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_19_NAMESPACE {
+namespace TEST_CASE_ACCEPT {
 
 static
-void case19PoolStateCallback(int                state,
-                             int                serverId,
-                             int                severity,
-                             bsls::AtomicInt64 *acceptErrors)
+void caseAcceptPoolStateCallback(int                state,
+                                 int                serverId,
+                                 int                severity,
+                                 bsls::AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
 
@@ -5120,21 +4784,21 @@ void case19PoolStateCallback(int                state,
     }
 }
 
-}  // close namespace TEST_CASE_19_NAMESPACE
+}  // close namespace TEST_CASE_ACCEPT
 
 //-----------------------------------------------------------------------------
-//                  CASE 18 supporting classes and methods
+//                  TEST_CASE_MAX_CONNS_LIMIT supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_18_NAMESPACE {
+namespace TEST_CASE_MAX_CONNS_LIMIT {
 
 static
-void case18ChannelStateCallback(int                  channelId,
-                                int                  serverId,
-                                int                  state,
-                                void                *,
-                                btlmt::ChannelPool **poolAddr,
-                                int                **eventAddr,
-                                bslmt::Barrier      *barrier)
+void caseMaxConnsChannelStateCallback(int                  channelId,
+                                      int                  serverId,
+                                      int                  state,
+                                      void                *,
+                                      btlmt::ChannelPool **poolAddr,
+                                      int                **eventAddr,
+                                      bslmt::Barrier      *barrier)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5170,11 +4834,11 @@ void case18ChannelStateCallback(int                  channelId,
 }
 
 static
-void case18PoolStateCallback(int                state,
-                             int                serverId,
-                             int                severity,
-                             int              **eventAddr,
-                             bsls::AtomicInt   *limitReachedFlag)
+void caseMaxConnsPoolStateCallback(int                state,
+                                   int                serverId,
+                                   int                severity,
+                                   int              **eventAddr,
+                                   bsls::AtomicInt   *limitReachedFlag)
 {
     ASSERT(eventAddr && *eventAddr);
     ASSERT(limitReachedFlag);
@@ -5218,20 +4882,20 @@ void case18PoolStateCallback(int                state,
     }
 }
 
-}  // close namespace TEST_CASE_18_NAMESPACE
+}  // close namespace TEST_CASE_MAX_CONNS_LIMIT
 
 //-----------------------------------------------------------------------------
-//                  CASE 17 supporting classes and methods
+//                  TEST_CASE_CALLBACKS_TEST supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_17_NAMESPACE {
+namespace TEST_CASE_CALLBACKS_TEST {
 
 static
-void case17ChannelStateCallback(int             channelId,
-                                int             serverId,
-                                int             state,
-                                void           *,
-                                int            *value,
-                                bslmt::Barrier *barrier)
+void caseCallbacksChannelStateCallback(int             channelId,
+                                       int             serverId,
+                                       int             state,
+                                       void           *,
+                                       int            *value,
+                                       bslmt::Barrier *barrier)
 {
     ASSERT(value);
     ASSERT(barrier);
@@ -5264,22 +4928,22 @@ void case17ChannelStateCallback(int             channelId,
     }
 }
 
-}  // close namespace TEST_CASE_17_NAMESPACE
+}  // close namespace TEST_CASE_CALLBACKS_TEST
 
 //-----------------------------------------------------------------------------
-//                  CASE 16 supporting classes and methods
+//                  TEST_CASE_SHUTDOWN_IN_USER_CALLBACK classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_16_NAMESPACE {
+namespace TEST_CASE_SHUTDOWN_IN_USER_CALLBACK {
 
 static
-void case16ChannelStateCallback(int                  channelId,
-                                int                  serverId,
-                                int                  state,
-                                void                *,
-                                int                  expServerId,
-                                btlmt::ChannelPool **poolAddr,
-                                int                 *value,
-                                bslmt::Barrier      *barrier)
+void caseShutdownChannelStateCallback(int                  channelId,
+                                      int                  serverId,
+                                      int                  state,
+                                      void                *,
+                                      int                  expServerId,
+                                      btlmt::ChannelPool **poolAddr,
+                                      int                 *value,
+                                      bslmt::Barrier      *barrier)
 {
     ASSERT(poolAddr && *poolAddr);
     ASSERT(barrier);
@@ -5313,7 +4977,7 @@ void case16ChannelStateCallback(int                  channelId,
     }
 }
 
-}  // close namespace TEST_CASE_16_NAMESPACE
+}  // close namespace TEST_CASE_SHUTDOWN_IN_USER_CALLBACK
 
 //-----------------------------------------------------------------------------
 //                  CASE 15 supporting classes and methods
@@ -5338,7 +5002,7 @@ operator<<(bsl::ostream& s,
     return s;
 }
 
-namespace TEST_CASE_15_NAMESPACE {
+namespace TEST_CASE_GET_HANDLE_STATS {
 
 enum {
     SERVER_ID            = 0x701d50da,
@@ -5358,7 +5022,7 @@ struct LessThanByType {
 };
 
 static
-void case15ChannelStateCallback(int   channelId,
+void caseHandleStatsChannelStateCallback(int   channelId,
                                 int   sourceId,
                                 int   state,
                                 void *,
@@ -5416,15 +5080,15 @@ void case15ChannelStateCallback(int   channelId,
     }
 }
 
-}  // close namespace TEST_CASE_15_NAMESPACE
+}  // close namespace TEST_CASE_GET_HANDLE_STATS
 
 //-----------------------------------------------------------------------------
-//                  CASE 14 supporting classes and methods
+//                  TEST_CASE_GET_CHANNEL_STATS supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_14_NAMESPACE {
+namespace TEST_CASE_GET_CHANNEL_STATS {
 
 static
-void case14ChannelDataCallback(int               *numNeeded,
+void caseChannelStatsChannelDataCallback(int               *numNeeded,
                                btlb::Blob        *msg,
                                int                channelId,
                                void              *,
@@ -5444,7 +5108,7 @@ void case14ChannelDataCallback(int               *numNeeded,
 }
 
 static
-void case14ChannelStateCallback(int                  channelId,
+void caseChannelStatsChannelStateCallback(int                  channelId,
                                 int                  serverId,
                                 int                  state,
                                 void                *,
@@ -5485,21 +5149,21 @@ void case14ChannelStateCallback(int                  channelId,
     }
 }
 
-}  // close namespace TEST_CASE_14_NAMESPACE
+}  // close namespace TEST_CASE_GET_CHANNEL_STATS
 
 //-----------------------------------------------------------------------------
-//                  CASE 13 supporting classes and methods
+//                  TEST_CASE_REPORT_AVG_RESET supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_13_NAMESPACE {
+namespace TEST_CASE_REPORT_AVG_RESET {
 
 static
-void case13ChannelStateCallback(int                  channelId,
-                                int                  serverId,
-                                int                  state,
-                                void                *,
-                                btlmt::ChannelPool **poolAddr,
-                                int                **eventAddr,
-                                bslmt::Barrier      *barrier)
+void caseAvgResetChannelStateCallback(int                  channelId,
+                                      int                  serverId,
+                                      int                  state,
+                                      void                *,
+                                      btlmt::ChannelPool **poolAddr,
+                                      int                **eventAddr,
+                                      bslmt::Barrier      *barrier)
 {
     ASSERT(poolAddr  && *poolAddr);
     ASSERT(eventAddr && *eventAddr);
@@ -5532,15 +5196,15 @@ void case13ChannelStateCallback(int                  channelId,
     }
 }
 
-}  // close namespace TEST_CASE_13_NAMESPACE
+}  // close namespace TEST_CASE_REPORT_AVG_RESET
 
 //-----------------------------------------------------------------------------
-//                  CASE 12 supporting classes and methods
+//                  TEST_CASE_FLOW_CONTROL supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_12_NAMESPACE {
+namespace TEST_CASE_FLOW_CONTROL {
 
 static
-void case12FlowControlChannelCallback(
+void caseFlowControlChannelCallback(
                       int                                      channelId,
                       int                                      sourceId,
                       int                                      state,
@@ -5601,22 +5265,23 @@ void case12FlowControlChannelCallback(
     }
 }
 
-}  // close namespace TEST_CASE_12_NAMESPACE
+}  // close namespace TEST_CASE_FLOW_CONTROL
 
 //-----------------------------------------------------------------------------
-//                  CASE 11 supporting classes and methods
+//                  TEST_CASE_ENABLE_DISABLE_CHANNELS classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_11_NAMESPACE {
+namespace TEST_CASE_ENABLE_DISABLE_CHANNELS {
 
 static
-void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
-                   bslma::TestAllocator&                           ta)
+void runTestCaseEnableDisable(
+                       btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
+                       bslma::TestAllocator&                           ta)
 {
     enum {
         SERVER_ID   = 1013410001,
         BACKLOG     = 1
     };
-    const int NUM_SOCKETS = 20;  // an enum would confuse bsl::fill_n below
+    const int NUM_SOCKETS = 5;  // an enum would confuse bsl::fill_n below
 
     bsl::vector<my_ChannelEvent> channelEvents;
     bslmt::Mutex                 channelEventsMutex;
@@ -5694,8 +5359,14 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
             mX.import(&socket, i);
         }
     }
-    bslmt::ThreadUtil::yield();
-    bslmt::ThreadUtil::microSleep(0,  15);
+
+    while (1) {
+        bslmt::LockGuard<bslmt::Mutex> lock(&channelEventsMutex);
+        const int NUM_EVENTS = (int) channelEvents.size();
+        if (NUM_EVENTS / 2 >= NUM_SOCKETS) {
+            break;
+        }
+    }                
 
     ASSERT(NUM_SOCKETS     == mX.numChannels());
     ASSERT(2 * NUM_SOCKETS == channelEvents.size());
@@ -5753,7 +5424,14 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
             if (veryVerbose) { P(backup[i].d_channelId); }
             LOOP_ASSERT(i, 0 == mX.disableRead(backup[i].d_channelId));
         }
-        bslmt::ThreadUtil::microSleep(0,  2);
+
+        while (1) {
+            bslmt::LockGuard<bslmt::Mutex> lock(&channelEventsMutex);
+            const int NUM_EVENTS = (int) channelEvents.size();
+            if (NUM_EVENTS >= NUM_SOCKETS) {
+                break;
+            }
+        }
 
         numEvents = channelEvents.size();
         if (veryVerbose) {
@@ -5778,7 +5456,6 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
         for (int i = 0; i < numEvents; ++i) {
             LOOP_ASSERT(i, 1 == importedFlag[i]);
         }
-        bslmt::ThreadUtil::microSleep(0,  2);
     }
 
     if (verbose)
@@ -5791,7 +5468,14 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
             }
             LOOP_ASSERT(i, 0 == mX.enableRead(backup[i].d_channelId));
         }
-        bslmt::ThreadUtil::microSleep(0,  2);
+
+        while (1) {
+            bslmt::LockGuard<bslmt::Mutex> lock(&channelEventsMutex);
+            const int NUM_EVENTS = (int) channelEvents.size();
+            if (NUM_EVENTS >= NUM_SOCKETS) {
+                break;
+            }
+        }
 
         numEvents = channelEvents.size();
         if (veryVerbose) {
@@ -5813,7 +5497,6 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
         for (int i = 0; i < numEvents; ++i) {
             LOOP_ASSERT(i, 1 == importedFlag[i]);
         }
-        bslmt::ThreadUtil::microSleep(0,  2);
     }
 
     for (int i = 0; i < (int)backup.size(); ++i) {
@@ -5826,12 +5509,12 @@ void runTestCase11(btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
     mY.stop();
 }
 
-}  // close namespace TEST_CASE_11_NAMESPACE
+}  // close namespace TEST_CASE_ENABLE_DISABLE_CHANNELS
 
 //-----------------------------------------------------------------------------
-//                  CASE 10 supporting classes and methods
+//                  TEST_CASE_CLOCK_FUNCTIONS supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_10_NAMESPACE {
+namespace TEST_CASE_CLOCK_FUNCTIONS {
 
 const ThreadId DONT_CHECK_THREAD_ID = NULL_THREAD_ID;
 
@@ -5844,11 +5527,11 @@ struct my_ClockState {
 };
 
 static
-void case10MyClockCallback(my_ClockState      *state,
-                           int                 clockId,
-                           btlmt::ChannelPool *pool,
-                           int                 deregister,
-                           ThreadId            checkThreadId)
+void caseMyClockCallback(my_ClockState      *state,
+                         int                 clockId,
+                         btlmt::ChannelPool *pool,
+                         int                 deregister,
+                         ThreadId            checkThreadId)
 {
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     if (veryVerbose) {
@@ -5884,15 +5567,15 @@ void case10MyClockCallback(my_ClockState      *state,
 }
 
 static
-void case10ChannelStateCallback(int                  channelId,
-                                int                  sourceId,
-                                int                  state,
-                                void                *,
-                                int                 *channelId1,
-                                bsls::Types::Uint64 *threadId1,
-                                int                 *channelId2,
-                                bsls::Types::Uint64 *threadId2,
-                                int                  veryVerbose)
+void caseChannelStateCallback(int                  channelId,
+                              int                  sourceId,
+                              int                  state,
+                              void                *,
+                              int                 *channelId1,
+                              bsls::Types::Uint64 *threadId1,
+                              int                 *channelId2,
+                              bsls::Types::Uint64 *threadId2,
+                              int                  veryVerbose)
 {
     ASSERT(channelId1 && threadId1);
     ASSERT(channelId2 && threadId2);
@@ -5926,14 +5609,14 @@ void case10ChannelStateCallback(int                  channelId,
     }
 }
 
-}  // close namespace TEST_CASE_10_NAMESPACE
+}  // close namespace TEST_CASE_CLOCK_FUNCTIONS
 
 //-----------------------------------------------------------------------------
-//                  CASE 9 supporting classes and methods
+//                  TEST_CASE_WRITE supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_9_NAMESPACE {
+namespace TEST_CASE_WRITE {
 
-struct case9ThreadInfo {
+struct caseThreadInfo {
     bslmt::Barrier   *d_barrier;
     bsls::AtomicInt  *d_threadCount;
     Obj              *d_channelPool_p;
@@ -5944,7 +5627,7 @@ struct case9ThreadInfo {
     bslma::Allocator *d_allocator_p;
 };
 
-struct case9ThreadInfo2 {
+struct caseThreadInfo2 {
     bslmt::Barrier                  *d_barrier;
     bsls::AtomicInt                 *d_threadCount;
     Obj                             *d_channelPool_p;
@@ -5957,9 +5640,9 @@ struct case9ThreadInfo2 {
 };
 
 extern "C" {
-void *case9Thread0(void *arg)
+void *caseThread0(void *arg)
 {
-    case9ThreadInfo2 *info = (case9ThreadInfo2 *) arg;
+    caseThreadInfo2 *info = (caseThreadInfo2 *) arg;
     const int BUF_SIZE = info->d_bufferAlloc;
     const int TOTAL_SIZE = info->d_totalAlloc;
 
@@ -6009,9 +5692,9 @@ void *case9Thread0(void *arg)
 }
 
 extern "C" {
-void *case9Thread2(void *arg)
+void *caseThread2(void *arg)
 {
-    case9ThreadInfo *info = (case9ThreadInfo *) arg;
+    caseThreadInfo *info = (caseThreadInfo *) arg;
     const int BUF_SIZE = info->d_bufferAlloc;
     const int TOTAL_SIZE = info->d_totalAlloc;
 
@@ -6061,9 +5744,9 @@ void *case9Thread2(void *arg)
 
 extern "C" {
 
-void *case9Thread3(void *arg)
+void *caseThread3(void *arg)
 {
-    case9ThreadInfo2 *info = (case9ThreadInfo2 *) arg;
+    caseThreadInfo2 *info = (caseThreadInfo2 *) arg;
     const int BUF_SIZE = info->d_bufferAlloc;
     const int TOTAL_SIZE = info->d_totalAlloc;
 
@@ -6149,7 +5832,7 @@ void *case9Thread3(void *arg)
 
 }
 
-struct case9ReadInfo {
+struct caseReadInfo {
     btlsos::TcpChannel *d_channel_p;
     int                 d_concurrentReadFlag;
     int                 d_numThreads;
@@ -6160,9 +5843,9 @@ struct case9ReadInfo {
 };
 
 extern "C" {
-void *case9Read(void *arg)
+void *caseRead(void *arg)
 {
-    case9ReadInfo *info = (case9ReadInfo*) arg;
+    caseReadInfo *info = (caseReadInfo*) arg;
     const int NUM_THREADS = info->d_numThreads;
 #ifdef BSLS_PLATFORM_OS_AIX
     // AIX is doing something very very weird.  The following
@@ -6237,7 +5920,7 @@ void *case9Read(void *arg)
 }
 
 static
-void case9ChannelStateCallback(int                  channelId,
+void caseChannelStateCallback(int                  channelId,
                                int                  serverId,
                                int                  state,
                                void                *,
@@ -6279,14 +5962,14 @@ void case9ChannelStateCallback(int                  channelId,
 }
 
 static
-void runTestCase9(char                                           *,
+void runTestCase(char                                           *,
                   btlso::StreamSocketFactory<btlso::IPv4Address> *factory,
                   bslma::TestAllocator&                           ta)
 {
-    using namespace TEST_CASE_21_NAMESPACE; // for dynamic_cast(SslLikeSocket)
+    using namespace TEST_CASE_SSL_SOCKETS; // for dynamic_cast(SslLikeSocket)
     typedef bteso_SslLikeStreamSocketFactory<btlso::IPv4Address>
                                                           SslLikeSocketFactory;
-    const int IS_CASE_21 = (dynamic_cast<SslLikeSocketFactory*>(factory) != 0);
+    const int IS_SSL = (dynamic_cast<SslLikeSocketFactory*>(factory) != 0);
 
     const struct {
         int d_line;
@@ -6387,8 +6070,8 @@ void runTestCase9(char                                           *,
 
     for (int i = 0; i < NUM_DATA; ++i) {
         const int LINE               = DATA[i].d_line;
-        const int CONCURRENT_READ    = IS_CASE_21
-                                     ? 1 // always concurrent read in case 21
+        const int CONCURRENT_READ    = IS_SSL
+                                     ? 1 // always concurrent read
                                      : DATA[i].d_concurrentReadFlag;
         const int BUFFER_ALLOC       = DATA[i].d_bufferAlloc;
         const int BIG_BUFFER_ALLOC   = DATA[i].d_bigBufferAlloc;
@@ -6419,7 +6102,7 @@ void runTestCase9(char                                           *,
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                 bdlf::BindUtil::bindA( &ta
-                                    , &case9ChannelStateCallback
+                                    , &caseChannelStateCallback
                                     , _1, _2, _3, _4
                                     , &poolAddr
                                     , &eventAddr
@@ -6501,7 +6184,7 @@ void runTestCase9(char                                           *,
             bslmt::ThreadUtil::Handle threadsHandle[WRITING_THREADS + 1];
             bslmt::Barrier            threadBarrier(WRITING_THREADS);
             bslmt::ThreadAttributes   attr;
-            case9ThreadInfo2          info[WRITING_THREADS];
+            caseThreadInfo2          info[WRITING_THREADS];
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
                 info[i].d_threadCount   = &count;
@@ -6513,14 +6196,14 @@ void runTestCase9(char                                           *,
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                     attr, &case9Thread0,
+                                                     attr, &caseThread0,
                                                      &info[i]));
             }
 
             if (veryVerbose) {
                 cout << "\tReading BIG_BUFFER_ALLOC" << endl;
             }
-            case9ReadInfo infoRead;
+            caseReadInfo infoRead;
             infoRead.d_channel_p          = &channel;
             infoRead.d_threadCount        = &count;
             infoRead.d_concurrentReadFlag = CONCURRENT_READ;
@@ -6530,9 +6213,8 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6557,7 +6239,7 @@ void runTestCase9(char                                           *,
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                      attr, &case9Thread0,
+                                                      attr, &caseThread0,
                                                       &info[i]));
             }
 
@@ -6573,9 +6255,8 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6597,7 +6278,7 @@ void runTestCase9(char                                           *,
             bslmt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
             bslmt::Barrier            threadBarrier(WRITING_THREADS);
             bslmt::ThreadAttributes   attr;
-            case9ThreadInfo           info[WRITING_THREADS];
+            caseThreadInfo           info[WRITING_THREADS];
 
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
@@ -6609,14 +6290,14 @@ void runTestCase9(char                                           *,
                 info[i].d_totalAlloc    = BIG_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                      attr, &case9Thread2,
+                                                      attr, &caseThread2,
                                                       &info[i]));
             }
 
             if (veryVerbose) {
                 cout << "\tReading BIG_BUFFER_ALLOC" << endl;
             }
-            case9ReadInfo infoRead;
+            caseReadInfo infoRead;
             infoRead.d_channel_p          = &channel;
             infoRead.d_threadCount        = &count;
             infoRead.d_concurrentReadFlag = CONCURRENT_READ;
@@ -6626,9 +6307,8 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6651,7 +6331,7 @@ void runTestCase9(char                                           *,
                 info[i].d_totalAlloc    = SMALL_BUFFER_ALLOC;
                 info[i].d_allocator_p   = &ta;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                      attr, &case9Thread2,
+                                                      attr, &caseThread2,
                                                       &info[i]));
             }
 
@@ -6667,9 +6347,8 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6692,7 +6371,7 @@ void runTestCase9(char                                           *,
             bslmt::ThreadUtil::Handle threadsHandle[WRITING_THREADS+1];
             bslmt::Barrier            threadBarrier(WRITING_THREADS);
             bslmt::ThreadAttributes   attr;
-            case9ThreadInfo2          info[WRITING_THREADS];
+            caseThreadInfo2          info[WRITING_THREADS];
 
             for (int i = 0; i < WRITING_THREADS; ++i) {
                 info[i].d_barrier       = &threadBarrier;
@@ -6705,14 +6384,14 @@ void runTestCase9(char                                           *,
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                        attr, &case9Thread3,
+                                                        attr, &caseThread3,
                                                         &info[i]));
             }
 
             if (veryVerbose) {
                 cout << "\tReading BIG_BUFFER_ALLOC" << endl;
             }
-            case9ReadInfo infoRead;
+            caseReadInfo infoRead;
             infoRead.d_channel_p          = &channel;
             infoRead.d_threadCount        = &count;
             infoRead.d_concurrentReadFlag = CONCURRENT_READ;
@@ -6722,13 +6401,12 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
             for (int i = 0; i <= WRITING_THREADS; ++i) {
                 ASSERT(0 == bslmt::ThreadUtil::join(threadsHandle[i],  0));
             }
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6749,7 +6427,7 @@ void runTestCase9(char                                           *,
                 info[i].d_allocator_p   = &ta;
                 info[i].d_factory_p     = &bufferFactory;
                 ASSERT(0 == bslmt::ThreadUtil::create(&threadsHandle[i],
-                                                      attr, &case9Thread3,
+                                                      attr, &caseThread3,
                                                       &info[i]));
             }
 
@@ -6765,9 +6443,8 @@ void runTestCase9(char                                           *,
             infoRead.d_allocator_p        = &ta;
             ASSERT(0 ==
                    bslmt::ThreadUtil::create(&threadsHandle[WRITING_THREADS],
-                                             attr, &case9Read, &infoRead));
+                                             attr, &caseRead, &infoRead));
 
-            // For reuse in case 21
             if (sSocket) {
                 sSocket->writeFlush();
             }
@@ -6783,14 +6460,14 @@ void runTestCase9(char                                           *,
     }
 }
 
-}  // close namespace TEST_CASE_9_NAMESPACE
+}  // close namespace TEST_CASE_WRITE
 
 //-----------------------------------------------------------------------------
-//                  CASE 8 supporting classes and methods
+//                  TEST_CASE_SHUTDOWN supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_8_NAMESPACE {
+namespace TEST_CASE_SHUTDOWN {
 
-struct case8CallbackInfo {
+struct caseCallbackInfo {
     bslmt::Barrier    *d_barrier_p;
     bsls::AtomicInt    d_channelId;
     bsls::AtomicInt    d_channelDownReadFlag;
@@ -6798,11 +6475,11 @@ struct case8CallbackInfo {
 };
 
 static
-void case8ChannelStateCallback(int                channelId,
+void caseChannelStateCallback(int                channelId,
                                int                serverId,
                                int                state,
                                void              *,
-                               case8CallbackInfo *info)
+                               caseCallbackInfo *info)
 {
     ASSERT(info);
 
@@ -6852,15 +6529,15 @@ void case8ChannelStateCallback(int                channelId,
     }
 }
 
-}  // close namespace TEST_CASE_8_NAMESPACE
+}  // close namespace TEST_CASE_SHUTDOWN
 
 //-----------------------------------------------------------------------------
-//                  CASE 7 supporting classes and methods
+//                  TEST_CASE_IMPORT_HALF_CLOSED_CONN classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_7_NAMESPACE {
+namespace TEST_CASE_IMPORT_HALF_CLOSED_CONN {
 
 static
-void case7ChannelStateCallback(int              channelId,
+void caseChannelStateCallback(int              channelId,
                                int              serverId,
                                int              state,
                                void            *,
@@ -6890,40 +6567,73 @@ void case7ChannelStateCallback(int              channelId,
     }
 }
 
-}  // close namespace TEST_CASE_7_NAMESPACE
+}  // close namespace TEST_CASE_IMPORT_HALF_CLOSED_CONN
 
 //-----------------------------------------------------------------------------
-//                  CASE 6 supporting classes and methods
+//                  TEST_CASE_CONNECT supporting classes and methods
 //-----------------------------------------------------------------------------
-namespace TEST_CASE_6_NAMESPACE {
 
-}  // close namespace TEST_CASE_6_NAMESPACE
+namespace TEST_CASE_CONNECT {
 
-//-----------------------------------------------------------------------------
-//                  CASE 5 supporting classes and methods
-//-----------------------------------------------------------------------------
-namespace TEST_CASE_5_NAMESPACE {
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source
+               << " Severity: " << severity << MTENDL;
+    }
+}
 
-}  // close namespace TEST_CASE_5_NAMESPACE
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *,
+                    int             *id,
+                    bslmt::Barrier  *barrier)
+{
+    if (veryVerbose) {
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << serverId
+               << " State: " << state << MTENDL;
+    }
 
-//-----------------------------------------------------------------------------
-//                  CASE 4 supporting classes and methods
-//-----------------------------------------------------------------------------
-namespace TEST_CASE_4_NAMESPACE {
+    if (btlmt::ChannelPool::e_CHANNEL_UP == state) {
+        *id = channelId;
+        barrier->wait();
+    }
+}
 
-struct case4WorkerInfo {
+void blobBasedReadCb(int        *needed,
+                     btlb::Blob *msg,
+                     int         channelId,
+                     void       *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Blob Based Read Cb called with"
+               << " Channel Id: " << channelId
+               << " of length: "  << msg->length() << MTENDL;
+    }
+    *needed = 1;
+    msg->removeAll();
+}
+
+struct caseWorkerInfo {
     int                        d_i;
     int                        d_expUserId;
     int                        d_expNumFailures;
     int                        d_queueSize;
     int                        d_timeOut;
     bsls::AtomicInt            d_portNumber;
+    btlso::IPv4Address         d_address;
+    bslmt::Barrier            *d_barrier_p;
     bslmt::ThreadUtil::Handle *d_worker_p;
 };
 
 extern "C"
-void *case4OpenConnectThread(void *arg) {
-    case4WorkerInfo *info = (case4WorkerInfo*) arg;
+void *caseOpenConnectThread(void *arg) {
+    caseWorkerInfo *info = (caseWorkerInfo*) arg;
 
     const int i            = info->d_i;
     const int QUEUE_SIZE   = info->d_queueSize;
@@ -6933,7 +6643,7 @@ void *case4OpenConnectThread(void *arg) {
 
     btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
     btlso::IPv4Address serverAddress;
-    serverAddress.setPortNumber(PORT_NUMBER);
+//     serverAddress.setPortNumber(PORT_NUMBER);
 
     btlsos::TcpTimedAcceptor acceptor(&factory);
 
@@ -6959,6 +6669,7 @@ void *case4OpenConnectThread(void *arg) {
                    << ": CLIENT CONNECTED.\n"
                    << MTENDL;
         }
+        info->d_barrier_p->wait();
         if (channel) {
             acceptor.deallocate(channel);
         }
@@ -6975,12 +6686,12 @@ void *case4OpenConnectThread(void *arg) {
     return 0;
 }
 
-static void case4PoolStateCb(int              poolState,
+static void casePoolStateCb(int              poolState,
                              int              sourceId,
                              int              severity,
                              // additional arguments follow
                              bsls::AtomicInt *numFailures,
-                             case4WorkerInfo *info)
+                             caseWorkerInfo *info)
 {
     if (veryVerbose) {
         MTCOUT << "PoolStateCb: bdlt::CurrentTime::now() = "
@@ -7015,19 +6726,19 @@ static void case4PoolStateCb(int              poolState,
     if (*numFailures == info->d_expNumFailures) {
         // Now is the time to let the last connect attempt succeed.
 
-        bslmt::ThreadUtil::create(info->d_worker_p,  &case4OpenConnectThread,
+        bslmt::ThreadUtil::create(info->d_worker_p,  &caseOpenConnectThread,
                                  (void *)info);
     }
 }
 
-static void case4ChannelCb(int                  channelId,
+static void caseChannelCb(int                  channelId,
                            int                  sourceId,
                            int                  state,
                            void                *,
                            int                 *channelIdPtr,
                            bsls::AtomicInt     *isInvokedFlag,
                            bsls::AtomicInt     *numFailures,
-                           case4WorkerInfo     *info,
+                           caseWorkerInfo     *info,
                            btlmt::ChannelPool **pool)
 {
     if (veryVerbose) {
@@ -7053,7 +6764,7 @@ static void case4ChannelCb(int                  channelId,
         cout << MTENDL;
     }
 
-    ASSERT(info->d_expUserId == sourceId);
+    LOOP2_ASSERT(info->d_expUserId, sourceId, info->d_expUserId == sourceId);
 
     switch (state) {
       case btlmt::ChannelPool::e_CHANNEL_UP:
@@ -7076,12 +6787,12 @@ static void case4ChannelCb(int                  channelId,
         break;
 
       default:
-        ASSERT(!"Unexpected channel state callback in case4ChannelCallback");
+        ASSERT(!"Unexpected channel state callback in caseChannelCallback");
         P(state);
     }
 }
 
-static void case4ErrorPoolStateCb(int              poolState,
+static void caseErrorPoolStateCb(int              poolState,
                                   int              sourceId,
                                   int              severity,
                                   int              expectedSourceId,
@@ -7100,7 +6811,7 @@ static void case4ErrorPoolStateCb(int              poolState,
     ++(*isInvokedFlag);
 }
 
-}  // close namespace TEST_CASE_4_NAMESPACE
+}  // close namespace TEST_CASE_CONNECT
 
 //=============================================================================
 //                              USAGE EXAMPLES
@@ -7113,7 +6824,7 @@ static void case4ErrorPoolStateCb(int              poolState,
 static void monitorPool(bslmt::Mutex              *coutLock,
                         const btlmt::ChannelPool&  pool,
                         int                        numTimes,
-                        bool                       verbose = true)
+                        bool                       verbose)
     // With the period of 2 seconds up to the specified 'numTimes' times,
     // output the percent busy of the specified channel 'pool' to the standard
     // output using the specified 'coutLock' for synchronizing access to a
@@ -7121,7 +6832,7 @@ static void monitorPool(bslmt::Mutex              *coutLock,
 {
     while (0 <= --numTimes) {
         bslmt::ThreadUtil::yield();
-        bslmt::ThreadUtil::microSleep(0,  2);  // 2 seconds
+//         bslmt::ThreadUtil::microSleep(0,  2);  // 2 seconds
         if (verbose) {
             coutLock->lock();
             bsl::cout << bdlt::CurrentTime::utc() << "\n"
@@ -7186,7 +6897,7 @@ int usageExample1(bslma::Allocator *allocator) {
     ASSERT(0 == pool.start());
     enum { NUM_MONITOR = 5 };
     MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
-    monitorPool(&coutMutex, pool, NUM_MONITOR);
+    monitorPool(&coutMutex, pool, NUM_MONITOR, true);
     MTCOUT << "Stopping the event manager" << MTENDL;
     ASSERT(0 == pool.stop());
     MTCOUT << "Exiting" << MTENDL;
@@ -7247,7 +6958,7 @@ class vlm_EchoServer
     bslma::Allocator   *d_allocator_p;
     btlmt::ChannelPool *d_cp_p;
 
-private:
+  private:
     // ChannelPool Callback Functions
     void poolCB(int state, int source, int severity);
     void chanCB(int channelId, int serverId, int state, void *arg);
@@ -7257,7 +6968,7 @@ private:
     vlm_EchoServer(const vlm_EchoServer&);
     vlm_EchoServer& operator=(const vlm_EchoServer&);
 
-public:
+  public:
     // CREATORS
     vlm_EchoServer(int                port,
                    bslma::Allocator  *allocator = 0);
@@ -7565,7 +7276,7 @@ my_QueueProcessor::~my_QueueProcessor() {
 int my_QueueProcessor::processOutgoingQueue() {
     while (bsls::AtomicOperations::getInt(&d_runningFlag)) {
         bsls::TimeInterval TIMEOUT(bdlt::CurrentTime::now());
-        TIMEOUT += 5.0; // 5s
+        TIMEOUT += 0.5; // 0.5s
         BlobTypeWithId msg;
         if (0 == d_outgoingQueue_p->timedPopBack(&msg, TIMEOUT)) {
             if (0 != d_channelPool_p->write(msg.first, msg.second)) {
@@ -7774,7 +7485,8 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
                                  int               numConnections,
                                  bslma::Allocator *basicAllocator)
     : d_allocator_p(bslma::Default::allocator(basicAllocator))
-    , d_coutLock_p(coutLock) {
+    , d_coutLock_p(coutLock)
+    {
         d_config.setMaxThreads(4);
         d_config.setMaxConnections(numConnections);
         d_config.setReadTimeout(5.0);       // in seconds
@@ -7898,10 +7610,11 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
     {
         while(--numTimes > 0) {
             coutLock->lock();
-            MTCOUT << "The pool is " << pool.busyMetrics() << "% busy ("
-                   << pool.numThreads() << " threads)." << MTENDL;
+            if (verbose) {
+                cout << "The pool is " << pool.busyMetrics() << "% busy ("
+                     << pool.numThreads() << " threads)." << endl;
+            }
             coutLock->unlock();
-            bslmt::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));   // 10 secs
         }
     }
 //..
@@ -8262,145 +7975,127 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase44();
+    static void testCase38();
+        // Test usage example 2.
+
+    static void testCase37();
+        // Test usage example 1.
+
+    static void testCase36();
         // Test the new constructor form that takes a BlobBufferFactory.
 
-    static void testCase43();
+    static void testCase35();
         // Test that 'stopAndRemoveAllChannels' correctly releases all
         // resources held by channels.
 
-    static void testCase42();
+    static void testCase34();
         // Test that 'BTEMT_WRITE_CACHE_LOWWAT' is invoked after the
         // 'enqueueWatermark' is exceeded on the 'write'.
 
-    static void testCase41();
+    static void testCase33();
         // Test that additional write statistics are reported as expected.
 
-    static void testCase40();
-        // TBD: Doc
+    static void testCase32();
+        // Test that 'peerAddress' is correctly returned.
 
-    static void testCase39();
-        // Test that 'peerAddress' returns the correct IP address.
-
-    static void testCase38();
+    static void testCase31();
         // Test that 'disableRead' when called from dispatcher thread stops
         // reading from the socket.
 
-    static void testCase37();
-        // Test usage example 3.
+    static void testCase30();
+        // Test a queue processor implementation.
 
-    static void testCase36();
-        // Test usage example 2.
-
-    static void testCase35();
-        // Test usage example 1.
-
-    static void testCase34();
-        // Test that there isnt a race condition in 'writeMessage'.
-
-    static void testCase33();
+    static void testCase29();
         // Test that channel pool does not read extra data even after
         // numNeeded is set to 0.
 
-    static void testCase32();
+    static void testCase28();
         // Test that providing socket options sets the appropriate options on
         // the socket.
 
-    static void testCase31();
+    static void testCase27();
         // Test that reading into a partially filled blob works as expected.
 
-    static void testCase30();
+    static void testCase26();
         // Test that blob-based 'read' works as expected.
 
-    static void testCase29();
+    static void testCase25();
         // Test that the allocation of event managers works as expected.
 
-    static void testCase28();
+    static void testCase24();
         // Test that the time metrics are correctly computed.
 
-    static void testCase27();
+    static void testCase23();
         // Test that read operations time out correctly.
 
-    static void testCase26();
+    static void testCase22();
         // Test that 'btlmt::ChannelPool_MessageUtil' class works as expected.
 
-    static void testCase25();
+    static void testCase21();
         // Test that 'setWriteCache[Hi|Low]Watermark' and
         // 'setWriteCacheWatermarks' work as expected.
 
-    static void testCase24();
-        // Test that 'enableRead' works as expected.
-
-    static void testCase23();
-        // Test that half-open connections operate as expected.
-
-    static void testCase22();
-        // Stress test the component.
-
-    static void testCase21();
+    static void testCase20();
         // Test that reading from OpenSSL sockets works as expected.
 
-    static void testCase20();
+    static void testCase19();
         // Test that 'import' works under high load.
 
-    static void testCase19();
+    static void testCase18();
         // Test that channel pool fails to accept connections when its file
         // descriptor limit is reached.
 
-    static void testCase18();
+    static void testCase17();
         // Test that channel pool only creates 'maxConnections' channels.
 
-    static void testCase17();
+    static void testCase16();
         // Test that CHANNEL_UP and CHANNEL_DOWN callbacks are correctly
         // delivered.
 
-    static void testCase16();
+    static void testCase15();
         // Test that 'shutdown' is correctly processed from within a channel
         // state callback.
 
-    static void testCase15();
+    static void testCase14();
         // Test that the 'getHandleStatistics' returns the correct statistics.
 
-    static void testCase14();
+    static void testCase13();
         // Test that 'numBytes*', 'totalBytes*' and related accessors return
         // the right values.
 
-    static void testCase13();
+    static void testCase12();
         // Test that 'reportWeightedAverageReset' works as expected.
 
-    static void testCase12();
+    static void testCase11();
         // Test that HIWAT and LOWWAT callbacks are correctly invoked.
 
-    static void testCase11();
+    static void testCase10();
         // Test that 'enableRead' and 'disableRead' work as expected.
 
-    static void testCase10();
+    static void testCase9();
         // Test that 'registerClock' AND 'deregisterClock' work as expected.
 
-    static void testCase9();
+    static void testCase8();
         // Test that 'writeMessage' works as expected.
 
-    static void testCase8();
+    static void testCase7();
         // Test that 'shutdown' works as expected.
 
-    static void testCase7();
+    static void testCase6();
         // Test that a half-closed socket pair can be correctly imported and
         // that the channel is correctly recognized as half-closed.
 
-    static void testCase6();
+    static void testCase5();
         // Test that 'import' works as expected.
 
-    static void testCase5();
+    static void testCase4();
         // Test that 'listen' works as expected.
 
-    static void testCase4();
+    static void testCase3();
         // Test that 'connect' works as expected.
 
-    static void testCase3();
-        // Test that 'start' and 'stop' work as expected.
-
     static void testCase2();
-        // Test the creators.
+        // Test that 'start' and 'stop' work as expected.
 
     static void testCase1();
         // Breathing test.
@@ -8412,7 +8107,68 @@ class TestDriver {
                                // --------------
 
 
-void TestDriver::testCase44()
+void TestDriver::testCase38()
+{
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and execute as shown.
+        //
+        // Plan:
+        //   Incorporate the usage example from the header file into the test
+        //   driver.  Additionally, replace all calls to 'assert' in the usage
+        //   example with calls to 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING USAGE EXAMPLE - AN ECHO SERVER"
+                 << "\n======================================" << endl;
+
+        using namespace USAGE_EXAMPLE_2_NAMESPACE;
+
+        enum {
+            MAX_CONNECTIONS = 1000,
+            NUM_MONITOR     = 10
+        };
+
+        my_EchoServer echoServer(&coutMutex, 0, MAX_CONNECTIONS);
+
+        if (verbose) {
+            MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
+        }
+        monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase37()
+{
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and execute as shown.
+        //
+        // Plan:
+        //   Incorporate the usage example from the header file into the test
+        //   driver.  Additionally, replace all calls to 'assert' in the usage
+        //   example with calls to 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING USAGE EXAMPLE 1"
+                 << "\n=======================" << endl;
+
+}
+
+void TestDriver::testCase36()
 {
     // --------------------------------------------------------------------
     // TESTING: constructor that accepts BlobBufferFactory
@@ -8446,11 +8202,11 @@ void TestDriver::testCase44()
     //
     // Testing:
     //   btlmt::ChannelPool(bslma::ManagedPtr<btlb::BlobBufferFactory>*,
-    //                     ChannelStateChangeCallback,
-    //                     BlobBasedReadCallback,
-    //                     PoolStateChangeCallback,
-    //                     const btlmt::ChannelPoolConfiguration&,
-    //                     bslma::Allocator*);
+    //                      ChannelStateChangeCallback,
+    //                      BlobBasedReadCallback,
+    //                      PoolStateChangeCallback,
+    //                      const btlmt::ChannelPoolConfiguration&,
+    //                      bslma::Allocator *);
     //-------------------------------------------------------------------
 
     bslma::TestAllocator da("defaultAllocator", veryVeryVerbose);
@@ -8461,7 +8217,7 @@ void TestDriver::testCase44()
                  << "\n=========================================="
                  << endl;
         }
-        using namespace CASE44;
+        using namespace TEST_CASE_CTOR_TAKING_FACTORY;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -8536,7 +8292,7 @@ void TestDriver::testCase44()
     ASSERT(0 != da.numAllocations());
 }
 
-void TestDriver::testCase43()
+void TestDriver::testCase35()
 {
         // --------------------------------------------------------------------
         // Testing 'stopAndRemoveAllChannels'
@@ -8575,32 +8331,26 @@ void TestDriver::testCase43()
                  << "\n=================================="
                  << endl;
 
-        using namespace CASE43;
+        using namespace TEST_CASE_STOP_AND_REMOVE_CHANNELS;
 
         btlmt::ChannelPoolConfiguration config;
-        config.setMaxThreads(NT);
+        config.setMaxThreads(4 * NT);
         config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
         config.setReadTimeout(0);        // in seconds
+        config.setCollectTimeMetrics(false);
         if (verbose) {
             P(config);
         }
 
-        bslmt::Barrier  channelCbBarrier(NT + 1);
-        int             channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
-                                                         _1, _2, _3, _4,
-                                                         &channelId,
-                                                         &channelCbBarrier));
+                                                            _1, _2, _3, _4));
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bslmt::Barrier dataCbBarrier(NT + 1);
-
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(&blobBasedReadCb,
-                                                         _1, _2, _3, _4,
-                                                         &dataCbBarrier));
+                                                          _1, _2, _3, _4));
 
         Obj mX(channelCb, dataCb, poolCb, config);
 
@@ -8612,15 +8362,12 @@ void TestDriver::testCase43()
             ASSERT(0 == mX.listen(0, 1, SERVER_ID + i));
         }
 
-        bslmt::ThreadUtil::microSleep(0, 2);
-
         bslmt::ThreadUtil::Handle connectThreads[NT];
         ConnectData               connectData[NT];
-        const int                 SIZE = 1024 * 1024; // 1 MB
 
         for (int i = 0; i < NT; ++i) {
-            connectData[i].d_index    = i;
-            connectData[i].d_numBytes = SIZE;
+            connectData[i].d_index = i;
+
             ASSERT(0 == mX.getServerAddress(&connectData[i].d_serverAddress,
                                             SERVER_ID + i));
             ASSERT(0 == bslmt::ThreadUtil::create(&connectThreads[i],
@@ -8628,20 +8375,19 @@ void TestDriver::testCase43()
                                                   (void *) &connectData[i]));
         }
 
-        bslmt::ThreadUtil::microSleep(0,  2);
-
-        bslmt::ThreadUtil::Handle  listenThreads[NT];
-        ListenData               listenData[NT];
         for (int i = 0; i < NT; ++i) {
-            listenData[i].d_index    = i;
-            listenData[i].d_numBytes = SIZE;
+            ASSERT(0 == bslmt::ThreadUtil::join(connectThreads[i]));
+        }        
 
+        bslmt::ThreadUtil::Handle listenThreads[NT];
+
+        for (int i = 0; i < NT; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                                   &listenFunction,
-                                                  (void *) &listenData[i]));
-        }
+                                                  (void *) &i));
 
-        bslmt::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(100, 0);
+        }
 
         const int CLIENT_ID = 200;
 
@@ -8655,9 +8401,28 @@ void TestDriver::testCase43()
                                    CLIENT_ID + i));
         }
 
-        bslmt::ThreadUtil::microSleep(0, 2);
+        for (int i = 0; i < NT; ++i) {
+            ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
+        }        
 
-        const int NUM_BYTES = 1024 * 1024 * 10;
+        for (int i = 0; i < NT; ++i) {
+            btlso::StreamSocket<btlso::IPv4Address> *socket = clientSockets[i];
+
+            ASSERT(0 == bslmt::ThreadUtil::create(&connectThreads[i],
+                                                  &dataFunction,
+                                                  (void *) socket));
+        }
+
+        for (int i = 0; i < NT; ++i) {
+            btlso::StreamSocket<btlso::IPv4Address> *socket = acceptSockets[i];
+
+            ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
+                                                  &dataFunction,
+                                                  (void *) socket));
+        }
+
+        const int SIZE      = 1024 * 1024;
+        const int NUM_BYTES = SIZE * 10;
         btlb::PooledBlobBufferFactory f(SIZE);
         btlb::Blob                    b(&f);
         b.setLength(NUM_BYTES);
@@ -8681,13 +8446,13 @@ void TestDriver::testCase43()
         mX.totalBytesRead(&numRead);
         mX.totalBytesWritten(&numWritten);
 
-        ASSERT(!mX.stopAndRemoveAllChannels());
+        ASSERT(0 == mX.stopAndRemoveAllChannels());
 
         ASSERT(0 == mX.numChannels());
         ASSERT(0 == mX.numThreads());
 }
 
-void TestDriver::testCase42()
+void TestDriver::testCase34()
 {
         // --------------------------------------------------------------------
         // Testing LOWWAT called when 'enqueueWatermark' exceeded
@@ -8710,7 +8475,7 @@ void TestDriver::testCase42()
                  << "\n===========-=========================================="
                  << endl;
 
-        using namespace CASE42;
+        using namespace TEST_CASE_LOWWAT_AFTER_ENQUEUEMARK_EXCEEDED;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -8804,7 +8569,7 @@ void TestDriver::testCase42()
         LOOP_ASSERT(numTimesLowWatCalled, 2 == numTimesLowWatCalled);
 }
 
-void TestDriver::testCase41()
+void TestDriver::testCase33()
 {
         // --------------------------------------------------------------------
         // ADDING WRITE STATISTICS
@@ -8821,7 +8586,7 @@ void TestDriver::testCase41()
                  << "\n======================="
                  << endl;
 
-        using namespace CASE41;
+        using namespace TEST_CASE_ADDING_WRITE_STATS;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -8863,7 +8628,6 @@ void TestDriver::testCase41()
 
         btlso::IPv4Address serverAddr;
         ASSERT(0 == socket->localAddress(&serverAddr));
-        P(serverAddr);
 
         int rc = pool.connect(serverAddr,
                               10,
@@ -8917,12 +8681,7 @@ void TestDriver::testCase41()
         ASSERT(0 == bslmt::ThreadUtil::join(handles[NUM_THREADS]));
 }
 
-void TestDriver::testCase40()
-{
-    // TBD: Update when test cases are merged.
-}
-
-void TestDriver::testCase39()
+void TestDriver::testCase32()
 {
         // --------------------------------------------------------------------
         // Testing 'peerAddress' is correctly returned
@@ -8939,7 +8698,7 @@ void TestDriver::testCase39()
                  << "\n==========================================="
                  << endl;
 
-        using namespace CASE39;
+        using namespace TEST_CASE_TESTING_PEER_ADDRESS;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -9028,7 +8787,7 @@ void TestDriver::testCase39()
         channelCbBarrier.wait();
 }
 
-void TestDriver::testCase38()
+void TestDriver::testCase31()
 {
         // --------------------------------------------------------------------
         // TESTING 'disableRead'
@@ -9045,7 +8804,7 @@ void TestDriver::testCase38()
                           << "\n====================="
                           << endl;
 
-        using namespace CASE38;
+        using namespace TEST_CASE_DISABLE_READ;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -9057,17 +8816,19 @@ void TestDriver::testCase38()
         int channelId;
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdlf::BindUtil::bind(&channelStateCb,
-                                                           _1, _2, _3, _4,
-                                                           &channelId));
+                                                            _1, _2, _3, _4,
+                                                            &channelId));
 
         btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        int             numTimesDataCbCalled = 0;
+        bslmt::Barrier barrier(2);
+        int numTimesDataCbCalled = 0;
         btlmt::ChannelPool::BlobBasedReadCallback dataCb(
                                      bdlf::BindUtil::bind(
                                                        &blobBasedReadCb,
                                                        _1, _2, _3, _4,
-                                                       &numTimesDataCbCalled));
+                                                       &numTimesDataCbCalled,
+                                                       &barrier));
 
         btlmt::ChannelPool pool(channelCb, dataCb, poolCb, config);
 
@@ -9106,139 +8867,41 @@ void TestDriver::testCase38()
         // Wait for the dispatcher thread to process the deregister the READ
         // event.
 
-        bslmt::ThreadUtil::microSleep(0, 3);
+        barrier.wait();
 
         LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
 
         pool.enableRead(channelId);
 
-        bslmt::ThreadUtil::microSleep(0, 3);
+        barrier.wait();
 
         LOOP_ASSERT(numTimesDataCbCalled, 2 == numTimesDataCbCalled);
 
         pool.enableRead(channelId);
 
-        bslmt::ThreadUtil::microSleep(0, 3);
+        barrier.wait();
 
         LOOP_ASSERT(numTimesDataCbCalled, numTimesDataCbCalled > 2);
-        ASSERT(0 == memcmp(TEXT, dataStream.str().c_str(), LEN));
 
         if (veryVerbose) {
             P(dataStream.str())
         }
 }
 
-void TestDriver::testCase37()
+void TestDriver::testCase30()
 {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 3
-        //   Send and receive various messages conforming to the vlm_EchoServer
-        //   message schema.  This is a common message schema for passing
-        //   variable-length messages.
-        //
-        // Plan:
-        //
-        // Testing:
-        //   USAGE EXAMPLE 3
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING USAGE EXAMPLE 3"
-                          << "\n======================="
-                          << endl;
-
-        using namespace USAGE_EXAMPLE_3_NAMESPACE;
-
-        const struct {
-            int           d_line;
-            const char   *d_text;
-        } DATA[] = {
-            // Line  Text
-            {  L_,   "" },
-            {  L_,   "BDE" },
-            {  L_,   "hello world"},
-            {  L_,   "This is a short test."},
-            {  L_,   "This is a somewhat longer test which we hope "
-                     "will not pose much of a problem for the "
-                     "vlm_EchoServer." },
-        };
-        const int DATA_SIZE = sizeof DATA / sizeof *DATA;
-
-        typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> IPv4Factory;
-        typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
-
-        bslma::TestAllocator ta(veryVeryVerbose);
-        {
-            vlm_EchoServer server(0, &ta);
-            ASSERT(0 == server.start());
-            const int PORT = server.portNumber();
-
-            IPv4Factory          factory(&ta);
-            Socket              *socket = factory.allocate();
-            btlsos::TcpChannel    channel(socket);
-            btlso::IPv4Address    address;
-
-            address.setPortNumber(PORT);
-            ASSERT(0 == socket->connect(address));
-            ASSERT(0 == channel.isInvalid());
-
-            for(int i=0; i < DATA_SIZE; ++i){
-                // Send Request
-                const int             LINE = DATA[i].d_line;
-                const char           *TEXT = DATA[i].d_text;
-                int                   length;
-                char                  rawLength[sizeof length];
-
-                length = strlen(TEXT) + 1;
-                bslx::MarshallingUtil::putInt32(rawLength, length);
-                channel.write(rawLength, sizeof length);
-                channel.write(TEXT, length);
-
-                // Read Response
-                channel.read(rawLength, sizeof length);
-                bslx::MarshallingUtil::getInt32(&length, rawLength);
-                LOOP_ASSERT(i, 0 < length);
-                char   *text = new char[length];
-                channel.read(text, length);
-
-                if(veryVerbose){
-                    P_(i); P(TEXT);
-                    P_(i); P(text);
-                }
-                LOOP2_ASSERT(i, LINE, 0 == strcmp(TEXT, text));
-                delete[] text;
-            }
-
-            channel.invalidate();
-            factory.deallocate(socket);
-            ASSERT(0 == server.stop());
-        }
-        ASSERT(0 <  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-
-}
-
-void TestDriver::testCase36()
-{
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST: my_QueueProcessor
+        // Implementing a QueueProcessor
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and execute as shown.
         //
         // Plan:
-        //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'assert' in the usage
-        //   example with calls to 'ASSERT'.  In order for this usage example
-        //   to actually do something useful, run the test case -1 in another
-        //   thread.
         //
         // Testing:
-        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE - QUEUE PROCESSOR"
-                 << "\n=======================================" << endl;
+            cout << "\nIMPLEMENTING A QUEUE PROCESSOR"
+                 << "\n==============================" << endl;
 
         using namespace USAGE_EXAMPLE_2_NAMESPACE;
         using namespace USAGE_EXAMPLE_M1_NAMESPACE;
@@ -9253,10 +8916,10 @@ void TestDriver::testCase36()
         }
 
         enum {
-            NUM_CONNECTIONS = 10,
-            MAX_CONNECTIONS = 100,
-            NUM_MESSAGES    = 10,  // per connection
-            NUM_ITERS       = 10
+            NUM_CONNECTIONS = 3,
+            MAX_CONNECTIONS = 10,
+            NUM_MESSAGES    = 3,  // per connection
+            NUM_ITERS       = 3
         };
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -9281,7 +8944,7 @@ void TestDriver::testCase36()
                                      (void *)&info);
         }
 
-        bslmt::ThreadUtil::microSleep(0, 1); // 1s, to let my_QueueClients
+        bslmt::ThreadUtil::microSleep(100); // 1s, to let my_QueueClients
                                             // enqueue messages into incoming
                                             // queue.
 
@@ -9295,7 +8958,7 @@ void TestDriver::testCase36()
                 MTCOUT << "Processing message from "
                        << msg.first << MTENDL;
             }
-            bslmt::ThreadUtil::microSleep(10000);
+            bslmt::ThreadUtil::microSleep(100);
             outgoing.pushBack(msg); // will send back to corresponding client
         }
 
@@ -9306,195 +8969,7 @@ void TestDriver::testCase36()
 
 }
 
-void TestDriver::testCase35()
-{
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and execute as shown.
-        //
-        // Plan:
-        //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'assert' in the usage
-        //   example with calls to 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 1
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE - AN ECHO SERVER"
-                 << "\n======================================" << endl;
-
-        using namespace USAGE_EXAMPLE_2_NAMESPACE;
-
-        enum {
-            MAX_CONNECTIONS = 1000,
-            NUM_MONITOR     = 10
-        };
-
-        my_EchoServer echoServer(&coutMutex, 0, MAX_CONNECTIONS);
-
-        if (verbose) {
-            MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
-        }
-        monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
-}
-
-void TestDriver::testCase34()
-{
-        // --------------------------------------------------------------------
-        // TESTING 'write' in multiple threads simultaneously
-        //   Reproducing that even when numNeeded is specified as 0 channel
-        //   pool can continue reading because it fails to disableRead in all
-        //   cases.  After reproduction check that the fix corrects the bug.
-        //
-        // Concerns:
-        //: 1 The writeMessage contained a race condition where two threads
-        //:   when writing at the same time could concurrently be updating the
-        //:   internal 'd_writeCacheSize' variable (which controls the size
-        //:   of the current write buffer), without synchronization resulting
-        //:   'd_writeCacheSize' containing an invalid value.  If the value
-        //:   exceeded the cache high-water mark then writes would start
-        //:   failing.
-        //
-        // Plan:
-        //: Reproducing this bug was extremely difficult as this happens
-        //: within the implementation class 'btlmt::Channel' and there is no
-        //: was no easy way to access it.  So we create multiple threads that
-        //: write random data on a channel with random intervals of spinning.
-        //: The hope is that with sufficient attempts the value of
-        //: 'd_writeCacheSize' would become invalid.  This condition can be
-        //: checked by trying to write data of length cache hi-water mark (and
-        //: then one plus the cache hi-water mark).  The former should succeed
-        //: and the latter should fail.  If both conditions do not return the
-        //: expected return code then we have reproduced the bug.
-        //
-        // Testing:
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING 'write' in multiple threads simultaneously"
-                 << "\n=================================================="
-                 << endl;
-
-        using namespace CASE37;
-
-        btlmt::ChannelPoolConfiguration config;
-        config.setMaxThreads(1);
-        config.setMaxConnections(100);
-        config.setReadTimeout(5.0);       // in seconds
-        config.setMetricsInterval(10.0);  // seconds
-        config.setWriteCacheWatermarks(0, CACHE_HI_WAT);
-        if (verbose) {
-            P(config);
-        }
-
-        bslmt::Barrier  channelCbBarrier(2);
-        int             channelId;
-        btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                                       bdlf::BindUtil::bind(&channelStateCb,
-                                                           _1, _2, _3, _4,
-                                                           &channelId,
-                                                           &channelCbBarrier));
-
-        btlmt::ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
-
-        btlmt::ChannelPool::BlobBasedReadCallback dataCb(&blobBasedReadCb);
-
-        const int SIZE = 1024;
-        btlb::PooledBlobBufferFactory f(SIZE);
-        btlb::Blob b(&f);
-        b.setLength(CACHE_HI_WAT);
-
-        btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config);
-        btlmt::ChannelPool mY(channelCb, dataCb, poolCb, config);
-
-        channelPool = &mY;
-
-        ASSERT(0 == mX.start());
-        ASSERT(0 == mY.start());
-
-        btlso::IPv4Address serverAddr;
-        const int SOURCE_ID = 1700;
-        const int SERVER_ID = 1701;
-
-        ASSERT(0 == mX.listen(serverAddr, 5, SERVER_ID));
-
-        ASSERT(0 == mX.getServerAddress(&serverAddr, SERVER_ID));
-
-        int rc = mY.connect(serverAddr,
-                            5,
-                            bsls::TimeInterval(1),
-                            SOURCE_ID);
-        ASSERT(!rc);
-
-        channelCbBarrier.wait();
-        channelCbBarrier.wait();
-
-        bslmt::Barrier currBarrier(NUM_THREADS + 1);
-        barrier = &currBarrier;
-
-        rc = check();
-        ASSERT(!rc);
-
-        // signalerThread
-        bslmt::ThreadUtil::Handle handle;
-        rc = bslmt::ThreadUtil::create(&handle, &signalerThread);
-        ASSERT(!rc);
-
-        // fork threads
-        for (int i = 0; i < NUM_THREADS; ++i) {
-            bslmt::ThreadUtil::Handle handle;
-            rc = bslmt::ThreadUtil::create(&handle,
-                                       bdlf::BindUtil::bind(&writerThread, i));
-            ASSERT(!rc);
-        }
-
-        barrier->wait();
-
-        // quick check
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));  // let flush complete
-                                                          // if any
-        rc = check();
-        ASSERT(!rc); // never returns
-
-        // more thorough check
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(10));  // in case flush did
-                                                           // not complete
-
-        rc = check();
-        ASSERT(!rc); // never returns
-
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(10));  // in case flush did
-                                                           // not complete
-
-        rc = check();
-        ASSERT(!rc); // never returns
-
-        // Following veriy that the bug is due to d_writeCacheSize mess-up
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(10));  // in case flush did
-                                                           // not complete
-        if (ERROR_MAX_POSSIBLE_WRITE_FAILED) {
-          rc = channelPool->setWriteCacheHiWatermark(channelId,
-                                                     CACHE_HI_WAT * 2);
-          ASSERT(!rc);
-
-          rc = write(CACHE_HI_WAT);
-          ASSERT(!rc);
-        }
-        else {
-          rc = channelPool->setWriteCacheHiWatermark(channelId, 1);
-          ASSERT(!rc);
-
-          rc = write(CACHE_HI_WAT + 1);
-          ASSERT(rc);
-        }
-}
-
-void TestDriver::testCase33()
+void TestDriver::testCase29()
 {
         // --------------------------------------------------------------------
         // TESTING 'disableRead' is called if 'numNeeded' is 0
@@ -9515,7 +8990,7 @@ void TestDriver::testCase33()
                      << "\n==================================================="
                      << endl;
 
-        using namespace CASE36;
+        using namespace TEST_CASE_DISABLE_READ_WHEN_NUM_NEEDED_ZERO;
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
@@ -9582,16 +9057,12 @@ void TestDriver::testCase33()
         rc = pool.disableRead(channelId);
         ASSERT(!rc);
 
-        // Wait for the dispatcher thread to process the deregister the READ
-        // event.
-
-        bslmt::ThreadUtil::microSleep(0, 2);
+        channelCbBarrier.wait();
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
 
-        bsls::TimeInterval time = bdlt::CurrentTime::now() + 2;  // wait for 2
-                                                               // secs
+        bsls::TimeInterval time = bdlt::CurrentTime::now() + 1.0;
         rc = dataCbBarrier.timedWait(time);
 
         // The wait should time out as we dont expect a data callback after we
@@ -9606,7 +9077,7 @@ void TestDriver::testCase33()
         }
 }
 
-void TestDriver::testCase32()
+void TestDriver::testCase28()
 {
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
@@ -9631,7 +9102,7 @@ void TestDriver::testCase32()
                  << "\n===================================================="
                  << endl;
 
-        using namespace CASE32;
+        using namespace TEST_CASE_TESTING_SOCKET_OPTIONS;
 
         SocketPool sp;
 
@@ -9665,10 +9136,6 @@ void TestDriver::testCase32()
             {   L_,   "IY",         0 },
 
 #ifndef BSLS_PLATFORM_OS_AIX
-// TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-            {   L_,   "JN",        -1 },
-            {   L_,   "JY",        -1 },
-#else
             {   L_,   "JN",         0 },
             {   L_,   "JY",         0 },
 #endif
@@ -9676,14 +9143,8 @@ void TestDriver::testCase32()
             {   L_,   "KN",         0 },
             {   L_,   "KY",         0 },
 
-#ifndef BSLS_PLATFORM_OS_HPUX
-// TBD on HPUX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-            {   L_,   "LN",        -1 },
-            {   L_,   "LY",        -1 },
-#else
             {   L_,   "LN",         0 },
             {   L_,   "LY",         0 },
-#endif
 
 #ifdef BSLS_PLATFORM_OS_CYGWIN
             {   L_,   "GNHN",      -1 },
@@ -9706,14 +9167,13 @@ void TestDriver::testCase32()
 #endif
 
 #if !defined(BSLS_PLATFORM_OS_SOLARIS)          \
- && !defined(BSLS_PLATFORM_OS_LINUX)            \
- && !defined(BSLS_PLATFORM_OS_HPUX)
+ && !defined(BSLS_PLATFORM_OS_LINUX)
               // Cannot be changed on Linux and not specified on Sun
 
             {   L_,   "C0",         0 },
             {   L_,   "C1",         0 },
             {   L_,   "C2",         0 },
-#elif !defined(BSLS_PLATFORM_OS_HPUX)
+#else
             {   L_,   "C0",        -1 },
             {   L_,   "C1",        -1 },
             {   L_,   "C2",        -1 },
@@ -9723,7 +9183,7 @@ void TestDriver::testCase32()
             {   L_,   "D0",        -1 },
             {   L_,   "D1",        -1 },
             {   L_,   "D2",        -1 },
-#elif !defined(BSLS_PLATFORM_OS_HPUX) && !defined(BSLS_PLATFORM_OS_AIX)
+#elif !defined(BSLS_PLATFORM_OS_AIX)
             {   L_,   "D0",         0 },
             {   L_,   "D1",         0 },
             {   L_,   "D2",         0 },
@@ -9794,7 +9254,7 @@ void TestDriver::testCase32()
             ASSERT(0 == pool.start());
 
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            vector<btlso::StreamSocket<btlso::IPv4Address> *> sockets;
+            vector<btlso::StreamSocket<btlso::IPv4Address> *>  sockets;
             int numExpChannels = 0;
             for (int i = 0; i < NUM_DATA; ++i) {
                 for (int j = 0; j < 2; ++j) {
@@ -9805,7 +9265,7 @@ void TestDriver::testCase32()
                     SocketOptions opt = g(SPEC);
                     const SocketOptions& OPT = opt;
 
-                    if (veryVerbose) { P_(LINE) P(OPT); }
+                    if (veryVerbose) { P_(LINE) }
 
                     const int SOURCE_ID = 200;
 
@@ -10441,7 +9901,7 @@ void TestDriver::testCase32()
         }
 }
 
-void TestDriver::testCase31()
+void TestDriver::testCase27()
 {
         // --------------------------------------------------------------------
         // TESTING that partial reads work correctly
@@ -10468,7 +9928,7 @@ void TestDriver::testCase31()
             cout << "\nTESTING that partial reads work correctly"
                  << "\n=========================================" << endl;
 
-        using namespace TEST_CASE_31_NAMESPACE;
+        using namespace TEST_CASE_PARTIAL_READS;
 
         typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> IPv4Factory;
         typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
@@ -10506,17 +9966,17 @@ void TestDriver::testCase31()
         for (int i = 0, offset = 0; i < 10; ++i) {
             ASSERT(NUM_WRITTEN == socket->write(data + offset, NUM_WRITTEN));
             offset += NUM_WRITTEN;
-            bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));
+            bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
         }
 
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(5));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
 
         const string& DATA = server.data();
 
         LOOP_ASSERT(DATA, DATA == string(TEXT));
 }
 
-void TestDriver::testCase30()
+void TestDriver::testCase26()
 {
         // --------------------------------------------------------------------
         // READ TEST
@@ -10530,7 +9990,7 @@ void TestDriver::testCase30()
             cout << "\nREAD TESTING"
                  << "\n============" << endl;
 
-        using namespace TEST_CASE_30_NAMESPACE;
+        using namespace TEST_CASE_READ;
 
         const struct {
             int           d_line;
@@ -10545,23 +10005,6 @@ void TestDriver::testCase30()
             {  L_,   "This is the longest test which we hope "
                      "will not pose much of a problem for the "
                      "channel pool read functionality." },
-
-            // A long passage from the component level doc
-            { L_,
-"//@DESCRIPTION:  This component provides a thread-enabled manager of the"
-"// IPv4-based byte-stream communication channels.  The channels are created"
-"// automatically when the appropriate events occur an destroyed based on user"
-"// requests.  A new channel is allocated automatically when an incoming"
-"// connection is accepted, or the user explicitly requests a connection to"
-"// a server.  Pool provides both client (aka connector) and server (aka"
-"// acceptor) functionality.  The channel pool manages efficient delivery of"
-"// messages to/from the user based on configuration information supplied at"
-"// construction.  The states of individual messages are *not* reported;"
-"// rather, channel pool notifies the user when a channel's state changes.  It"
-"// also notifies the user when the pool's state is affected and provides the"
-"// classification of errors.  The notification is done via asynchronous"
-"// callback that may be invoked from *any* (managed) thread."
-            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10622,7 +10065,7 @@ void TestDriver::testCase30()
         }
 }
 
-void TestDriver::testCase29()
+void TestDriver::testCase25()
 {
         // --------------------------------------------------------------------
         // CONCERN: Event Manager Allocation
@@ -10983,7 +10426,7 @@ void TestDriver::testCase29()
         }
 }
 
-void TestDriver::testCase28()
+void TestDriver::testCase24()
 {
         // --------------------------------------------------------------------
         // TESTING: 'busyMetrics' and time metrics collection.
@@ -11024,11 +10467,11 @@ void TestDriver::testCase28()
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        int       NUM_THREADS[] = { 1,  2,  4,  8 };
+        int       NUM_THREADS[] = { 1,  2,  4 };
         const int NUM_NUM_THREADS = sizeof NUM_THREADS / sizeof *NUM_THREADS;
         bool      COLLECT_METRICS[] = { false, true };
         const int NUM_COLLECT_METRICS = sizeof COLLECT_METRICS /
-                                        sizeof * COLLECT_METRICS;
+                                        sizeof *COLLECT_METRICS;
 
         for (int i = 0; i < NUM_NUM_THREADS; ++i) {
             for (int j = 0; j < NUM_COLLECT_METRICS; ++j) {
@@ -11154,7 +10597,7 @@ void TestDriver::testCase28()
         }
 }
 
-void TestDriver::testCase27()
+void TestDriver::testCase23()
 {
         // --------------------------------------------------------------------
         // TESTING: readTimeout configuration
@@ -11183,9 +10626,7 @@ void TestDriver::testCase27()
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        using namespace TEST_CASE_25_NAMESPACE;
-
-        double    TEST_VALUES[]   = { 0.0, 0.01, .5, 1.0 };
+        double    TEST_VALUES[]   = { 0.0, 0.1, 0.25 };
         const int NUM_TEST_VALUES = sizeof TEST_VALUES / sizeof *TEST_VALUES;
         for (int i = 0; i < NUM_TEST_VALUES; ++i) {
 
@@ -11225,6 +10666,7 @@ void TestDriver::testCase27()
             ASSERT(0 == code);
 
             // The following socket options are set only if necessary.
+
             ret = btlso::SocketOptUtil::setOption(handles[1],
                                                  SockOpt::k_TCPLEVEL,
                                                  SockOpt::k_TCPNODELAY, 1);
@@ -11251,6 +10693,7 @@ void TestDriver::testCase27()
             ASSERT(1 == oneByteMsg.length());
 
             // Wait for the channel to come up and obtain the channel id.
+
             bsl::vector<ChannelPoolStateCbTester::ChannelState> states(&ta);
 
             ASSERT(0 == mX.waitForState(&states,
@@ -11267,8 +10710,6 @@ void TestDriver::testCase27()
 
             // Test whether the timeout callback is registed for initial read.
 
-            // Note the maximum tested read timeout value is 3s, so 5s should
-            // be more than enough.
             LOOP_ASSERT(i,
                         timeoutShouldOccur ==
                         (0 == mX.waitForState(
@@ -11277,14 +10718,6 @@ void TestDriver::testCase27()
                                         bsls::TimeInterval(2.0))));
 
             timer.stop();
-            if (timeoutShouldOccur) {
-                MTLOOP2_ASSERT(READ_TIMEOUT, timer.elapsedTime(),
-                               READ_TIMEOUT - 1.0 < timer.elapsedTime() &&
-                               READ_TIMEOUT + 1.0 > timer.elapsedTime());
-            }
-            else {
-                ASSERT(1 < timer.elapsedTime() && 3 > timer.elapsedTime());
-            }
 
             // Test whether the timeout callback is registed when the read
             // timeout is invoked.
@@ -11300,13 +10733,6 @@ void TestDriver::testCase27()
                                         bsls::TimeInterval(2.0))));
 
             timer.stop();
-            if (timeoutShouldOccur) {
-                ASSERT(READ_TIMEOUT - 1.0 < timer.elapsedTime() &&
-                       READ_TIMEOUT + 1.0 > timer.elapsedTime());
-            }
-            else {
-                ASSERT(1 < timer.elapsedTime() && 3 > timer.elapsedTime());
-            }
 
             pool.stop();
             factory.deallocate(clientSocket);
@@ -11317,7 +10743,7 @@ void TestDriver::testCase27()
 
 }
 
-void TestDriver::testCase26()
+void TestDriver::testCase22()
 {
         // --------------------------------------------------------------------
         // TESTING: struct 'btlmt::ChannelPool_MessageUtil' and
@@ -11655,7 +11081,7 @@ void TestDriver::testCase26()
         }
 }
 
-void TestDriver::testCase25()
+void TestDriver::testCase21()
 {
         // --------------------------------------------------------------------
         // TESTING: 'setWriteCache[High|Low]Watermark[s]'
@@ -11705,7 +11131,7 @@ void TestDriver::testCase25()
                           << "=============================================="
                           << endl;
 
-        using namespace TEST_CASE_25_NAMESPACE;
+        using namespace TEST_CASE_CONCURRENCY_TEST;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -11780,6 +11206,7 @@ void TestDriver::testCase25()
             // 1. Verify that 'setWriteCache[Hi|Low]Watermark' and
             //    'setWriteCacheWatermarks' succeed or fail appropriately based
             //     on channelId and numBytes.
+
             if (verbose) {
                 bsl::cout << "\tVerify invalid arguments are rejected"
                           << bsl::endl;
@@ -11878,7 +11305,7 @@ void TestDriver::testCase25()
                     numBytesWritten   += oneByteMsg.length();
                     totalBytesWritten += oneByteMsg.length();
                 }
-                bslmt::ThreadUtil::sleep(bsls::TimeInterval(.25));
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(.1));
             }
             if (veryVerbose) {
                 PT2(numBytesWritten, totalBytesWritten);
@@ -11969,10 +11396,10 @@ void TestDriver::testCase25()
             int numBytesRead = drainSocket(clientSocket, totalBytesWritten);
             LOOP2_ASSERT(numBytesRead, totalBytesWritten,
                                             numBytesRead == totalBytesWritten);
-            TestCase25ConcurrencyTest concurrencyTest(&pool,
-                                                      channelId,
-                                                      clientSocket,
-                                                      CASE_25_NUM_THREADS);
+            TestCaseConcurrencyTest concurrencyTest(&pool,
+                                                    channelId,
+                                                    clientSocket,
+                                                    NUM_THREADS);
             concurrencyTest.run();
             pool.stop();
             factory.deallocate(clientSocket);
@@ -11982,485 +11409,7 @@ void TestDriver::testCase25()
         if (veryVerbose) { P(ta); }
 }
 
-void TestDriver::testCase24()
-{
-        // --------------------------------------------------------------------
-        // TESTING 'enableRead' FIX
-        //
-        // Concerns:
-        // * That a channel which is disabled for read but has data read off
-        //   the socket and enqueued in the internal buffers, is processing the
-        //   data as soon as the channel is re-enabled for read, even though no
-        //   new data was written to the socket in the interval disabled for
-        //   read.
-        //
-        // Plan:
-        //   Establish a client-server pair, using two distinct channel pools
-        //   for the server ('mX') and for the client ('mY').  With the server
-        //   enabled for read, write a message from the client, but let the
-        //   data callback refuse to process the data (leaving the data in the
-        //   internal 'd_currentMsg' buffer); then disable both server-side and
-        //   client-side automatic reading.  In the channel state callback for
-        //   the server, upon receiving the AUTO_READ_DISABLED signal, trigger
-        //   a global variable to let the server data callback know that it
-        //   should now start accepting data and function as an echo server,
-        //   and subsequently re-enable the server-side channel for automatic
-        //   reading (in the channel state callback is fine, or in the main
-        //   thread, serialized by a thread barrier).  Assert that data is then
-        //   actually read and echoed by the server, even though no new data
-        //   was written to the server in the interval disabled for read.
-        //   Finally, enable the client-side for reading, and assert that data
-        //   is actually received by the client callback, even though no data
-        //   was present in the internal buffer prior to the 'enableRead' but
-        //   data was written to the client socket by the echo server in the
-        //   interval disabled for read by the client.
-        //
-        // Testing:
-        //   int btlmt::ChannelPool::disableRead();
-        //   int btlmt::ChannelPool::enableRead();
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTesting 'enableRead' fix."
-                 << "\n=========================" << endl;
-
-}
-
-void TestDriver::testCase23()
-{
-        // --------------------------------------------------------------------
-        // TESTING HALF-OPEN CONNECTIONS
-        //
-        // Concerns:
-        // * That a channel created in half-open mode can be partially shut
-        //   down by peer and still continue to function in the other half.
-        // * That a CHANNEL_DOWN_READ or CHANNEL_DOWN_WRITE callback is
-        //   invoked only once when half of the channel is closed.
-        // * That a channel partially shut down is closed when the second half
-        //   is closed.
-        //
-        // Plan:
-        //   Establish a client-server pair, using two distinct channel pools
-        //   for the server ('mX') and for the client ('mY').  There are three
-        //   cases of interest, depending on who is responsible for the
-        //   shutdown and on which part of the channel (read or write):
-        //   - Server shuts down read: after receiving a client request, the
-        //     server shuts down the read part, but later sends down a
-        //     response.  Verify that the client indeed shuts down its write
-        //     part of the channel, and so cannot enqueue another request, but
-        //     does receive the server response.  Upon server shutting down the
-        //     write part as well, verify that the server channel is fully shut
-        //     down, and that the client (enabled for automatic reading) is now
-        //     shut down for read, and hence fully shut down as well.
-        //   - Client shuts down read: after sending the server a request but
-        //     prior to getting the response, the client shuts down its read
-        //     part of the channel.  Verify that the server consequently shuts
-        //     down its write part of the channel, as a result of attempting to
-        //     send a response.  Upon client shutting down its  write part as
-        //     well, verify that the server channel (always enabled for
-        //     automatic reading) is now shut down for read, and hence fully
-        //     shut down as well.
-        //   - Client shuts down write: after sending the server a request but
-        //     prior to getting the response, the client shuts down its write
-        //     part of the channel.  Verify that the server consequently shuts
-        //     down its read part of the channel, as a result of attempting to
-        //     read on the channel, but still manages to send a response
-        //     (delayed to make sure the response isn't sent while the server
-        //     still think the full duplex channel is alive).  Verify that the
-        //     client does receive the response.  Upon client shutting down its
-        //     read part as well, verify that the client channel is now fully
-        //     shut down as well.  Verify also that either shutting down the
-        //     write part of the server channel, or the server attempting to
-        //     write another response onto that channel, will result in the
-        //     complete shutdown of the channel server-side.
-        //
-        // Testing:
-        //   int btlmt::ChannelPool::connect();
-        //   int btlmt::ChannelPool::listen();
-        //   int btlmt::ChannelPool::shutdown();
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTesting half-open connections."
-                 << "\n==============================" << endl;
-
-#if 0
-        using namespace TEST_CASE_22_NAMESPACE;  // reusing
-        bslma::TestAllocator ta(veryVeryVerbose);
-        {
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Test Initialization
-
-            enum {
-                MAX_CLIENTS  = 1,
-                MAX_THREADS  = 1,
-
-                SERVER_ID    = 0x701d50da,
-                USER_ID      = 0x12345678,
-                BACKLOG      = 1,
-
-                TIMEOUT      = 1   // 1s
-            };
-
-            btlso::InetStreamSocketFactory<btlso::IPv4Address>  factory;
-
-            btlmt::ChannelPool::ChannelStateChangeCallback channelCb;
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-            btlmt::ChannelPool::BlobBasedReadCallback           dataCb;
-
-            bslmt::Barrier clientServerBarrier(2); // client and server thread
-
-            bslmt::Barrier serverStateBarrier(2); // server control thread and
-                                                  // channelStateCallback of mY
-
-            bslmt::Barrier serverDataBarrier(2);  // server control thread and
-                                                  // dataCallback of mY
-
-            case23CallbackInfo serverInfo;
-            serverInfo.d_clientServerBarrier_p = &clientServerBarrier;
-            serverInfo.d_stateBarrier_p = &serverStateBarrier;
-            serverInfo.d_dataBarrier_p = &serverDataBarrier;
-            serverInfo.d_channelId = -1;
-            serverInfo.d_channelDownReadFlag = 0;
-            serverInfo.d_channelDownWriteFlag = 0;
-            serverInfo.d_msgLength = sizeof(MESSAGE);
-            serverInfo.d_echoMode = true;
-
-            channelCb = bdef::BindUtilA(&ta,
-                                       case23ChannelStateCallback,
-                                       _1, _2, _3, _4,
-                                       &serverInfo);
-
-
-            dataCb = bdef::BindUtilA(&ta,
-                                    case23DataCallback,
-                                    _1, _2, _3, _4,
-                                    &serverInfo);
-
-            btlmt::ChannelPoolConfiguration cpc;
-            cpc.setMaxConnections(MAX_CLIENTS);
-            cpc.setMaxThreads(MAX_THREADS);
-            cpc.setMetricsInterval(10.0);
-            cpc.setReadTimeout(1);    // in seconds
-            cpc.setIncomingMessageSizes(1, 32, 256);
-
-            btlmt::ChannelPool mX(channelCb, dataCb, poolCb, cpc, &ta);
-            serverInfo.d_channelPool_p = &mX;
-
-            bslmt::Barrier clientStateBarrier(2); // client control thread and
-                                                  // channelStateCallback of mY
-
-            bslmt::Barrier clientDataBarrier(2);  // client control thread and
-                                                  // dataCallback of mY
-
-            case23CallbackInfo clientInfo;
-            clientInfo.d_clientServerBarrier_p = &clientServerBarrier;
-            clientInfo.d_stateBarrier_p = &clientStateBarrier;
-            clientInfo.d_dataBarrier_p = &clientDataBarrier;
-            clientInfo.d_channelId = -1;
-            clientInfo.d_channelDownReadFlag = 0;
-            clientInfo.d_channelDownWriteFlag = 0;
-            clientInfo.d_msgLength = sizeof(MESSAGE);
-            clientInfo.d_echoMode = false;
-
-            channelCb = bdlf::BindUtil::bindA(&ta,
-                                             case23ChannelStateCallback,
-                                             _1, _2, _3, _4,
-                                             &clientInfo);
-
-            dataCb = bdlf::BindUtil::bindA(&ta,
-                                          case23DataCallback,
-                                          _1, _2, _3, _4,
-                                          &clientInfo);
-
-            btlmt::ChannelPool mY(channelCb, dataCb, poolCb, cpc, &ta);
-            clientInfo.d_channelPool_p = &mY;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Test Execution
-
-            if (verbose)
-                cout << "\tServer shuts down read." << endl;
-            serverInfo.d_channelId = -1;
-            serverInfo.d_channelDownReadFlag = 0;
-            serverInfo.d_channelDownWriteFlag = 0;
-            clientInfo.d_channelId = -1;
-            clientInfo.d_channelDownReadFlag = 0;
-            clientInfo.d_channelDownWriteFlag = 0;
-            {
-                ASSERT(0 == mX.start());
-                ASSERT(0 == mY.start());
-
-                ASSERT(0 == mX.listen(0, BACKLOG, SERVER_ID));
-                btlso::IPv4Address peer = *mX.serverAddress(SERVER_ID);
-
-                ASSERT(0 == mX.stop());
-                ASSERT(0 == mY.stop());
-            }
-            bslmt::ThreadUtil::microSleep(0, 2);
-
-            if (verbose)
-                cout << "\tClient shuts down read." << endl;
-            serverInfo.d_channelId = -1;
-            serverInfo.d_channelDownReadFlag = 0;
-            serverInfo.d_channelDownWriteFlag = 0;
-            clientInfo.d_channelId = -1;
-            clientInfo.d_channelDownReadFlag = 0;
-            clientInfo.d_channelDownWriteFlag = 0;
-            {
-                ASSERT(0 == mX.start());
-                ASSERT(0 == mY.start());
-
-                ASSERT(0 == mX.listen(0, BACKLOG, SERVER_ID));
-                btlso::IPv4Address peer = *mX.serverAddress(SERVER_ID);
-
-                ASSERT(0 == mX.stop());
-                ASSERT(0 == mY.stop());
-            }
-
-            if (verbose)
-                cout << "\tClient shuts down write." << endl;
-            serverInfo.d_channelId = -1;
-            serverInfo.d_channelDownReadFlag = 0;
-            serverInfo.d_channelDownWriteFlag = 0;
-            clientInfo.d_channelId = -1;
-            clientInfo.d_channelDownReadFlag = 0;
-            clientInfo.d_channelDownWriteFlag = 0;
-            {
-                ASSERT(0 == mX.start());
-                ASSERT(0 == mY.start());
-
-                ASSERT(0 == mX.listen(0, BACKLOG, SERVER_ID));
-                btlso::IPv4Address peer = *mX.serverAddress(SERVER_ID);
-
-                ASSERT(0 == mX.connect(peer, 1,
-                                    bsls::TimeInterval(TIMEOUT),
-                                    USER_ID,
-                                    false,
-                                    btlmt::ChannelPool::e_KEEP_HALF_OPEN));
-
-                bslmt::ThreadUtil::Handle serverHandle;
-                ASSERT(0 == bslmt::ThreadUtil::create(&serverHandle,
-                                                      &case23ServerThread3,
-                                                      &serverInfo));
-
-                bslmt::ThreadUtil::Handle  clientHandle;
-                ASSERT(0 == bslmt::ThreadUtil::create(&clientHandle,
-                                                      &case23ClientThread3,
-                                                      &clientInfo));
-
-                bslmt::ThreadUtil::join(serverHandle);
-                bslmt::ThreadUtil::join(clientHandle);
-            }
-            bslmt::ThreadUtil::microSleep(0, 1);
-        }
-        ASSERT(0 <  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        if (veryVerbose) { P(ta); }
-#endif
-
-}
-
-void TestDriver::testCase22()
-{
-        // --------------------------------------------------------------------
-        // TESTING CONCERN: Stress test
-        //
-        // Concern:
-        //   We want to exercise the component under stress.
-        //
-        // Plan:
-        //   We will create two groups of 5 threads each.  Each groups will
-        //   have a leader.  The leader will be responsible to open and close a
-        //   channel.  Each thread will send request through the channelId open
-        //   by its group leader.  Every 10 iterations, the group leader
-        //   will close the channel and open another one.  Since the threads
-        //   are not synchronized, their status is unknown so only a very
-        //   superficial error testing will be performed, but the objective of
-        //   this test is mainly to verify that no crashes or memory corruption
-        //   occurs.  We also use a channel pool for the server (reading the
-        //   other end of the channels) and use various parameters for that
-        //   channel pool (incoming message size, number of bytes needed before
-        //   the next data callback).
-        //
-        // Testing:
-        //   Concern: Stress test
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING CONCERN: Stress test."
-                 << "\n=============================" << endl;
-
-        using namespace TEST_CASE_22_NAMESPACE;
-        typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> Factory;
-
-        bslma::TestAllocator ta(veryVeryVerbose);
-        {
-            if (verbose) cout << "\tSmall message test." << endl
-                              << "\t-------------------" << endl;
-
-            // Small individual messages on the client size, with NUM_THREADS
-            // client, and one server accepting large messages.
-
-            enum {
-#if !defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CPU_X86_64) \
- && !defined(BSLS_PLATFORM_OS_AIX)
-                NUM_THREADS        = 10,
-                NUM_ITERS          = 1005,   // never a multiple of 10
-                LARGE_NUM_ITERS    = 10005,  // never a multiple of 10
-#else
-                // This check is due to the fact that we're still trying to
-                // assert the return value of connect and shutdown.  If we
-                // overload the machine too much, they will fail because of the
-                // backlog.  Since it is still nice to check their return
-                // values, we customize the test (our x86 boxes do not have
-                // many CPUs).  Also, AIX is brain-dead and we scale the test
-                // down.
-
-                NUM_THREADS        = 4,
-                NUM_ITERS          = 105,   // never a multiple of 10
-                LARGE_NUM_ITERS    = 1005,  // never a multiple of 10
-
-#endif
-                BUFFER_SIZE        = 1024,
-                SMALL_MSG_SIZE     = 327,
-                MSG_SIZE           = 1024 * 2 + 512,
-                SERVER_SIZE        = 1024 * 32,
-                SERVER_NEEDED      = 1024 * 2 + 128
-            };
-
-            Factory factory(&ta);
-
-            if (verbose) cout << "\t\tAlways invoke data callback." << endl;
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, 1,
-                          &factory, &ta);
-
-            if (verbose) cout << "\n\t\tInvoke data callback after "
-                              << SERVER_NEEDED << " bytes only." << endl;
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, SERVER_NEEDED,
-                          &factory, &ta);
-
-            if (verbose) cout << "\n\t\tInvoke data callback every "
-                              << SMALL_MSG_SIZE << " bytes (msg boundaries)."
-                              << endl;
-
-            runTestCase22(ARGV[0],
-                          2, LARGE_NUM_ITERS,
-                          BUFFER_SIZE, -SMALL_MSG_SIZE,
-                          SERVER_SIZE, SERVER_NEEDED,
-                          &factory, &ta);
-
-            if (verbose) cout << "\n\t\tInvoke data callback every "
-                              << MSG_SIZE << " bytes (msg boundaries)."
-                              << endl;
-
-            runTestCase22(ARGV[0],
-                          2, LARGE_NUM_ITERS,
-                          BUFFER_SIZE, -MSG_SIZE,
-                          SERVER_SIZE, SERVER_NEEDED,
-                          &factory, &ta);
-        }
-        ASSERT(0 <=  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        if (veryVerbose) { P(ta); }
-
-#if !defined(BSLS_PLATFORM_OS_AIX)
-        // Bad AIX seems to have problems read and writing from the same
-        // process, takes forever.  Similar cases commented out in case 9.
-        {
-            enum {
-                NUM_THREADS        = 4,
-                NUM_ITERS          = 101,
-                BUFFER_SIZE        = 4096,
-                MSG_SIZE           = 32768 + 50,
-                SERVER_SIZE        = 32768,
-                SERVER_NEEDED      = 32768 + 48
-            };
-
-            if (verbose) cout << endl
-                              << "\tBig buffer test." << endl
-                              << "\t----------------" << endl;
-
-            // Large individual messages on the client size, with NUM_THREADS
-            // client, and one server accepting large messages (of about the
-            // same size).
-
-            Factory factory(&ta);
-
-            if (verbose) cout << "\t\tAlways invoke data callback." << endl;
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, 1,
-                          &factory, &ta);
-
-            if (verbose) cout << "\n\t\tInvoke data callback after "
-                              << SERVER_NEEDED << " bytes only." << endl;
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, SERVER_NEEDED,
-                          &factory, &ta);
-        }
-        ASSERT(0 <=  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        if (veryVerbose) { P(ta); }
-
-        {
-            enum {
-                NUM_THREADS        = 4,
-                NUM_ITERS          = 101,
-                BUFFER_SIZE        = 1024,
-                MSG_SIZE           = 1024 * 16 + 50,
-                SERVER_SIZE        = 1024 * 2,
-                SERVER_NEEDED      = 1024 * 16 + 48
-            };
-
-            if (verbose) cout << endl
-                              << "\tBig message test." << endl
-                              << "\t-----------------" << endl;
-
-            // Large individual messages on the client size, with NUM_THREADS
-            // client, and one server accepting large messages (of about the
-            // same size).
-
-            Factory factory(&ta);
-
-            // Always invoke data callback if data is incoming.
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, 1,
-                          &factory, &ta);
-
-            // Only invoke data callback when 'SERVER_NEEDED' bytes are
-            // available.
-
-            runTestCase22(ARGV[0],
-                          NUM_THREADS, NUM_ITERS,
-                          BUFFER_SIZE, MSG_SIZE,
-                          SERVER_SIZE, SERVER_NEEDED,
-                          &factory, &ta);
-        }
-        ASSERT(0 <=  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-        if (veryVerbose) { P(ta); }
-#endif
-
-}
-
-void TestDriver::testCase21()
+void TestDriver::testCase20()
 {
         // --------------------------------------------------------------------
         // TESTING CONCERN: OpenSSL-like sockets
@@ -12484,7 +11433,7 @@ void TestDriver::testCase21()
             cout << "\nTESTING OpenSSL-LIKE SOCKETS"
                  << "\n============================" << endl;
 
-        using namespace TEST_CASE_21_NAMESPACE;
+        using namespace TEST_CASE_SSL_SOCKETS;
         typedef bteso_SslLikeStreamSocketFactory<btlso::IPv4Address> Factory;
         const int SSL_LIKE_SOCKET_BUFFER_SIZE = 4 * 65536;
 
@@ -12493,10 +11442,10 @@ void TestDriver::testCase21()
         // The following is a copy-paste of test case 9 but using
         // bteso_SslLikeStreamSocket instead of bteso_InetStreamSocket.
         {
-            using namespace TEST_CASE_9_NAMESPACE;
+            using namespace TEST_CASE_WRITE;
 
             Factory factory(SSL_LIKE_SOCKET_BUFFER_SIZE, &ta);
-            runTestCase9(ARGV[0], &factory, ta);
+            runTestCase(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
@@ -12506,10 +11455,10 @@ void TestDriver::testCase21()
         // The following is a copy-paste of test case 11, but using
         // bteso_SslLikeStreamSocket instead of bteso_InetStreamSocket.
         {
-            using namespace TEST_CASE_11_NAMESPACE;
+            using namespace TEST_CASE_ENABLE_DISABLE_CHANNELS;
 
             Factory factory(SSL_LIKE_SOCKET_BUFFER_SIZE, &ta);
-            runTestCase11(&factory, ta); // Note: ta passed by reference
+            runTestCaseEnableDisable(&factory, ta); // ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
@@ -12517,7 +11466,7 @@ void TestDriver::testCase21()
 
 }
 
-void TestDriver::testCase20()
+void TestDriver::testCase19()
 {
         // --------------------------------------------------------------------
         // TESTING import works under high load
@@ -12541,7 +11490,7 @@ void TestDriver::testCase20()
         if (verbose) cout << "TESTING import works under high load" << endl
                           << "====================================" << endl;
 
-        using namespace TEST_CASE_20_NAMESPACE;
+        using namespace TEST_CASE_IMPORT;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
@@ -12593,7 +11542,7 @@ void TestDriver::testCase20()
             // This pool will import.
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case20ChannelStateCallback
+                                        , &caseImportChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -12623,7 +11572,7 @@ void TestDriver::testCase20()
             btlmt::ChannelPool::BlobBasedReadCallback      dataCb2(
                 bsl::allocator_arg_t(),
                 bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(&ta),
-                &case20DataCallback);
+                &caseImportDataCallback);
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb2;
 
@@ -12663,7 +11612,7 @@ void TestDriver::testCase20()
                     ret = mX.import(&managedSocket, i);
                     LOOP_ASSERT(i, 0 == ret);
                     if (0 == ret) {
-                        // Other barrier is in case20ChannelStateCallback,
+                        // Other barrier is in caseImportChannelStateCallback,
                         // called by import.
                         channelBarrier.wait();
                     }
@@ -12681,7 +11630,7 @@ void TestDriver::testCase20()
                 }
             }
 
-            bslmt::ThreadUtil::microSleep(0, 3); // 3 sec should be enough
+//             bslmt::ThreadUtil::microSleep(0, 3); // 3 sec should be enough
 
             if (verbose)
                 cout << "Shutting down" << endl;
@@ -12707,7 +11656,7 @@ void TestDriver::testCase20()
 
 }
 
-void TestDriver::testCase19()
+void TestDriver::testCase18()
 {
         // --------------------------------------------------------------------
         // TESTING accept fails if FD limit reached
@@ -12742,7 +11691,7 @@ void TestDriver::testCase19()
              cout << "\nTESTING accept fails if FD limit reached"
                   << "\n========================================" << endl;
 
-        using namespace TEST_CASE_19_NAMESPACE;
+        using namespace TEST_CASE_ACCEPT;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -12760,10 +11709,11 @@ void TestDriver::testCase19()
             makeNull(&channelCb);
 
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                 bdlf::BindUtil::bindA(&ta,
-                                                      &case19PoolStateCallback,
-                                                      _1, _2, _3,
-                                                      &acceptErrors));
+                                 bdlf::BindUtil::bindA(
+                                                  &ta,
+                                                  &caseAcceptPoolStateCallback,
+                                                  _1, _2, _3,
+                                                  &acceptErrors));
 
             btlmt::ChannelPool::BlobBasedReadCallback dataCb;
             makeNull(&dataCb);
@@ -12776,8 +11726,7 @@ void TestDriver::testCase19()
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
 
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX) \
- || defined(BSLS_PLATFORM_OS_HPUX)
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 5;
@@ -12830,11 +11779,11 @@ void TestDriver::testCase19()
 
                 // Give time to the channel pool to process accept error
                 // callbacks.
-                bslmt::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(100, 0);
             }
 
             // Give time to the channel pool to process accept error callbacks.
-            bslmt::ThreadUtil::microSleep(0, 8);
+//             bslmt::ThreadUtil::microSleep(0, 8);
 
             ASSERT(acceptErrors);
 
@@ -12897,7 +11846,7 @@ void TestDriver::testCase19()
 
 }
 
-void TestDriver::testCase18()
+void TestDriver::testCase17()
 {
         // --------------------------------------------------------------------
         // TESTING 'maxConnections' limit is respected
@@ -12933,7 +11882,7 @@ void TestDriver::testCase18()
             cout << "TESTING 'maxConnections' limit is respected" << endl
                  << "===========================================" << endl;
 
-        using namespace TEST_CASE_18_NAMESPACE;
+        using namespace TEST_CASE_MAX_CONNS_LIMIT;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -12946,16 +11895,16 @@ void TestDriver::testCase18()
                 BACKLOG     = 1
             };
 
-            bslmt::Barrier   channelBarrier(2);
+            bslmt::Barrier  channelBarrier(2);
             bsls::AtomicInt limitReachedFlag;
 
             btlmt::ChannelPool *poolAddr;
-            int                poolEvent = -1;
-            int               *eventAddr = &poolEvent;
+            int                 poolEvent = -1;
+            int                *eventAddr = &poolEvent;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case18ChannelStateCallback
+                                        , &caseMaxConnsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -12963,7 +11912,7 @@ void TestDriver::testCase18()
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case18PoolStateCallback
+                                        , &caseMaxConnsPoolStateCallback
                                         , _1, _2, _3
                                         , &eventAddr
                                         , &limitReachedFlag));
@@ -12993,7 +11942,7 @@ void TestDriver::testCase18()
 
             typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> Factory;
             typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
-            typedef btlsos::TcpChannel                                Channel;
+            typedef btlsos::TcpChannel                                 Channel;
 
             Factory              factory(&ta);
             bsl::vector<Socket*> sockets(&ta);
@@ -13016,10 +11965,9 @@ void TestDriver::testCase18()
                     channelBarrier.wait();
                     LOOP_ASSERT(i, i+1 == X.numChannels());
                     sockets.push_back(socket);
-                    bslmt::ThreadUtil::microSleep(200000);
                 }
                 while (!limitReachedFlag) {
-                    bslmt::ThreadUtil::microSleep(200000);
+                    bslmt::ThreadUtil::microSleep(100);
                     bslmt::ThreadUtil::yield();
                 }
                 ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
@@ -13050,7 +11998,6 @@ void TestDriver::testCase18()
                         factory.deallocate(socket);
                         channelBarrier.wait();
                     }
-                    bslmt::ThreadUtil::microSleep(250000);
                     ASSERT(0  == X.numChannels());
                     LOOP_ASSERT(poolEvent, -1 == poolEvent);
                     sockets.clear();
@@ -13074,7 +12021,7 @@ void TestDriver::testCase18()
                         sockets.push_back(socket);
                     }
                     while (!limitReachedFlag) {
-                        bslmt::ThreadUtil::microSleep(200000);
+                        bslmt::ThreadUtil::microSleep(100);
                         bslmt::ThreadUtil::yield();
                     }
                     ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
@@ -13097,7 +12044,6 @@ void TestDriver::testCase18()
                 ASSERT(0 == channel.isInvalid());
 
                 bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(400000);
                 ASSERT(MAX_CLIENTS == X.numChannels());
                 ASSERT(PoolState::BTEMT_CHANNEL_LIMIT == poolEvent);
 
@@ -13124,7 +12070,6 @@ void TestDriver::testCase18()
                     channelBarrier.wait();
                 }
                 bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(400000);
                 ASSERT(0  == X.numChannels());
                 ASSERT(-1 == poolEvent);
             }
@@ -13138,7 +12083,7 @@ void TestDriver::testCase18()
 
 }
 
-void TestDriver::testCase17()
+void TestDriver::testCase16()
 {
         // --------------------------------------------------------------------
         // TESTING channel callbacks are called with correct ids
@@ -13165,7 +12110,7 @@ void TestDriver::testCase17()
                  << "\n====================================================="
                  << endl;
 
-        using namespace TEST_CASE_17_NAMESPACE;
+        using namespace TEST_CASE_CALLBACKS_TEST;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13184,7 +12129,7 @@ void TestDriver::testCase17()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case17ChannelStateCallback
+                                        , &caseCallbacksChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &channelId
                                         , &barrier));
@@ -13235,7 +12180,7 @@ void TestDriver::testCase17()
 
 }
 
-void TestDriver::testCase16()
+void TestDriver::testCase15()
 {
         // --------------------------------------------------------------------
         // TESTING CONCERN: SHUTDOWN INSIDE CHANNEL STATE CALLBACK
@@ -13262,7 +12207,7 @@ void TestDriver::testCase16()
                  << "\n======================================================="
                  << endl;
 
-        using namespace TEST_CASE_16_NAMESPACE;
+        using namespace TEST_CASE_SHUTDOWN_IN_USER_CALLBACK;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13286,7 +12231,7 @@ void TestDriver::testCase16()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case16ChannelStateCallback
+                                        , &caseShutdownChannelStateCallback
                                         , _1, _2, _3, _4
                                         , (int)SERVER_ID
                                         , &poolAddr
@@ -13334,7 +12279,7 @@ void TestDriver::testCase16()
 
 }
 
-void TestDriver::testCase15()
+void TestDriver::testCase14()
 {
         // --------------------------------------------------------------------
         // Testing getHandleStatistics facility
@@ -13358,7 +12303,7 @@ void TestDriver::testCase15()
              cout << "\nTesting getHandleStatistics facility"
                   << "\n====================================" << endl;
 
-        using namespace TEST_CASE_15_NAMESPACE;
+        using namespace TEST_CASE_GET_HANDLE_STATS;
         bslma::TestAllocator ta(veryVeryVerbose);
         btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
         {
@@ -13388,7 +12333,7 @@ void TestDriver::testCase15()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case15ChannelStateCallback
+                                        , &caseHandleStatsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &acceptedChannelId1
                                         , &channelId1
@@ -13454,7 +12399,7 @@ void TestDriver::testCase15()
 
                 for (int i = 0; (-1 == acceptedChannelId1 || -1 == channelId1)
                                                    && i < SETUP_TIMEOUT; ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -13524,7 +12469,7 @@ void TestDriver::testCase15()
                 // Wait until channel has been created.
 
                 for (int i = 0; (-1 == channelId2) && i < SETUP_TIMEOUT; ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -13602,7 +12547,7 @@ void TestDriver::testCase15()
 
                 for (int i = 0; (-1 != acceptedChannelId1 || -1 != channelId1)
                                                    && i < SETUP_TIMEOUT; ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -13622,7 +12567,7 @@ void TestDriver::testCase15()
                 // Wait until channels have been destroyed.
 
                 for (int i = 0; (-1 != channelId2) && i < SETUP_TIMEOUT; ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -13636,7 +12581,7 @@ void TestDriver::testCase15()
 
 }
 
-void TestDriver::testCase14()
+void TestDriver::testCase13()
 {
         // --------------------------------------------------------------------
         // Testing numBytes*(), totalBytes*() and getChannelStatistics*()
@@ -13678,7 +12623,7 @@ void TestDriver::testCase14()
              cout << "\nTesting {num,total}Bytes*() facility"
                   << "\n====================================" << endl;
 
-        using namespace TEST_CASE_14_NAMESPACE;
+        using namespace TEST_CASE_GET_CHANNEL_STATS;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -13703,7 +12648,7 @@ void TestDriver::testCase14()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case14ChannelStateCallback
+                                        , &caseChannelStatsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -13712,7 +12657,7 @@ void TestDriver::testCase14()
 
             btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case14ChannelDataCallback
+                                        , &caseChannelStatsChannelDataCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &fail));
@@ -13775,7 +12720,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bslmt::ThreadUtil::microSleep(200 * 1000);
+//             bslmt::ThreadUtil::microSleep(200 * 1000);
             LOOP_ASSERT(X.numChannels(), 1 == X.numChannels());
 
             bsls::Types::Int64 clientBytesRead = 0;
@@ -13902,7 +12847,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bslmt::ThreadUtil::microSleep(200 * 1000);
+//             bslmt::ThreadUtil::microSleep(200 * 1000);
             ASSERT(1 == X.numChannels());
 
             bsls::Types::Int64 oldBytesWritten = bytesWritten;
@@ -14047,7 +12992,7 @@ void TestDriver::testCase14()
                 }
                 #endif
             }
-            bslmt::ThreadUtil::microSleep(200 * 1000);
+//             bslmt::ThreadUtil::microSleep(200 * 1000);
             ASSERT(1 == X.numChannels());
 
             clientBytesRead = 0;
@@ -14140,7 +13085,7 @@ void TestDriver::testCase14()
 
 }
 
-void TestDriver::testCase13()
+void TestDriver::testCase12()
 {
         // --------------------------------------------------------------------
         // TESTING 'reportWeightedAverageReset()'
@@ -14175,7 +13120,7 @@ void TestDriver::testCase13()
              cout << "\nTesting reportWeightedAverageReset()"
                   << "\n====================================" << endl;
 
-        using namespace TEST_CASE_13_NAMESPACE;
+        using namespace TEST_CASE_REPORT_AVG_RESET;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14198,12 +13143,12 @@ void TestDriver::testCase13()
             bslmt::Barrier channelBarrier(2);
 
             btlmt::ChannelPool *poolAddr;
-            int                poolEvent = -1;
-            int               *eventAddr = &poolEvent;
+            int                 poolEvent = -1;
+            int                *eventAddr = &poolEvent;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case13ChannelStateCallback
+                                        , &caseAvgResetChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -14226,7 +13171,7 @@ void TestDriver::testCase13()
 
             typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> Factory;
             typedef btlso::StreamSocket<btlso::IPv4Address>            Socket;
-            typedef btlsos::TcpChannel                                Channel;
+            typedef btlsos::TcpChannel                                 Channel;
 
             Factory              factory(&ta);
             bsl::vector<Socket*> sockets(&ta);
@@ -14269,7 +13214,7 @@ void TestDriver::testCase13()
                 if (!i) {
                     // Give some time to the pool to setup its stuff.
 
-                    bslmt::ThreadUtil::microSleep(200 * 1000);
+                    bslmt::ThreadUtil::microSleep(1000);
                 }
 
             }
@@ -14285,7 +13230,7 @@ void TestDriver::testCase13()
                 Socket  *socket = *it;
                 Channel  channel(socket);
 
-                bslmt::ThreadUtil::microSleep(2000 * 1000);
+//                 bslmt::ThreadUtil::microSleep(2000 * 1000);
                 channel.invalidate();
                 factory.deallocate(socket);
                 channelBarrier.wait();
@@ -14320,7 +13265,7 @@ void TestDriver::testCase13()
 
 }
 
-void TestDriver::testCase12()
+void TestDriver::testCase11()
 {
         // --------------------------------------------------------------------
         // TESTING FLOW CONTROL
@@ -14344,7 +13289,7 @@ void TestDriver::testCase12()
         if (verbose) cout << "TESTING FLOW CONTROL."
                           << "=====================" << endl;
 
-        using namespace TEST_CASE_12_NAMESPACE;
+        using namespace TEST_CASE_FLOW_CONTROL;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
@@ -14386,7 +13331,7 @@ void TestDriver::testCase12()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case12FlowControlChannelCallback
+                                        , &caseFlowControlChannelCallback
                                         , _1, _2, _3, _4
                                         , &barrier
                                         , &numBytesWritten
@@ -14449,7 +13394,6 @@ void TestDriver::testCase12()
                          numBytesRead == numBytesWritten);
 
             if (verbose) cout << "\tShutting down\n";
-            bslmt::ThreadUtil::microSleep(0, 2);
 
             mX.stop();
 
@@ -14461,7 +13405,7 @@ void TestDriver::testCase12()
 
 }
 
-void TestDriver::testCase11()
+void TestDriver::testCase10()
 {
         // --------------------------------------------------------------------
         // TESTING 'disableRead' and 'enableRead' METHODS
@@ -14491,11 +13435,11 @@ void TestDriver::testCase11()
            cout << "\nTESTING 'disableRead' and 'enableRead' METHODS."
                 << "\n===============================================" << endl;
 
-        using namespace TEST_CASE_11_NAMESPACE;
+        using namespace TEST_CASE_ENABLE_DISABLE_CHANNELS;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory(&ta);
-            runTestCase11(&factory, ta); // Note: ta passed by reference
+            runTestCaseEnableDisable(&factory, ta);  // ta passed by reference
         }
 
         ASSERT(0 <  ta.numAllocations());
@@ -14504,7 +13448,7 @@ void TestDriver::testCase11()
 
 }
 
-void TestDriver::testCase10()
+void TestDriver::testCase9()
 {
         // --------------------------------------------------------------------
         // TESTING 'registerClock' AND 'deregisterClock' METHODS
@@ -14560,7 +13504,7 @@ void TestDriver::testCase10()
         if (verbose)
             cout << "TESTING 'registerClock' AND 'deregisterClock'\n";
 
-        using namespace TEST_CASE_10_NAMESPACE;
+        using namespace TEST_CASE_CLOCK_FUNCTIONS;
         if (verbose) cout << "\nWhen channel pool is running.\n";
         {
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14625,12 +13569,12 @@ void TestDriver::testCase10()
                 ASSERT(0 == mX.start());
                 bsls::TimeInterval startTime = bdlt::CurrentTime::now();
                 bsls::TimeInterval noPeriod(0.0);  // 0s, for timers
-                bsls::TimeInterval period(1.0);    // 1s, for clocks
+                bsls::TimeInterval period(0.1);    // .1s, for clocks
                 const int mT = 10 * 1000;         // 10ms
 
                 enum {
-                    NUM_CLOCKS      = 10,
-                    NUM_INVOCATIONS = 10,
+                    NUM_CLOCKS      = 5,
+                    NUM_INVOCATIONS = 5,
                     LAST_CLOCK_IDX  = 2 * ((NUM_CLOCKS - 1)/ 2)
                         // clocks have even idx, timers have odd idx
                 };
@@ -14647,7 +13591,7 @@ void TestDriver::testCase10()
                     clockState[i].d_maxNumInvocations = 0;  // do not check
                     bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
-                                                , &case10MyClockCallback
+                                                , &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -14663,7 +13607,7 @@ void TestDriver::testCase10()
                          << NUM_INVOCATIONS << " times.\n";
 
                 bslmt::ThreadUtil::sleep(bsls::TimeInterval(
-                                                 NUM_INVOCATIONS * 1.0) + 0.5);
+                                                 NUM_INVOCATIONS * 0.1) + 0.5);
                 int iter = 10;
                 while (--iter && !(NUM_INVOCATIONS <=
                                 clockState[LAST_CLOCK_IDX].d_numInvocations)) {
@@ -14701,15 +13645,15 @@ void TestDriver::testCase10()
             {
                 enum {
                     NUM_CONNECT_ATTEMPTS = 10,  // for client channel
-                    TIMEOUT              = 1,   // 1s
-                    NUM_CLOCKS           = 10,
-                    NUM_INVOCATIONS      = 10,
+                    NUM_CLOCKS           = 5,
+                    NUM_INVOCATIONS      = 5,
                     SETUP_TIMEOUT        = 20,   // 20s
                     SERVER_ID            = 0x701d50da
                 };
 
-                bsls::TimeInterval period(1.0);    // 1s, for clocks
-                const int mT = 10 * 1000;         // 10ms
+                bsls::TimeInterval period(0.01);   // 0.01s, for clocks
+                const int TIMEOUT = 1;             // 1s
+                const int mT = 10 * 1000;          // 10ms
 
                 my_ClockState clockState[NUM_CLOCKS];
 
@@ -14739,7 +13683,7 @@ void TestDriver::testCase10()
 
                 btlmt::ChannelPool::ChannelStateChangeCallback channel2Cb(
                         bdlf::BindUtil::bindA( &ta
-                                            , &case10ChannelStateCallback
+                                            , &caseChannelStateCallback
                                             , _1, _2, _3, _4
                                             , &channelId1
                                             , &threadId1
@@ -14759,7 +13703,7 @@ void TestDriver::testCase10()
 
                 for (int i = 0; -1 == channelId1 && i < (int) SETUP_TIMEOUT;
                                                                          ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -14778,7 +13722,7 @@ void TestDriver::testCase10()
 
                 for (int i = 0; (-1 == channelId1 || -1 == channelId2) &&
                                                 i < (int) SETUP_TIMEOUT; ++i) {
-                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(TIMEOUT));
+                    bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
                     bslmt::ThreadUtil::yield();
                 }
 
@@ -14818,7 +13762,7 @@ void TestDriver::testCase10()
                     clockState[i].d_maxNumInvocations = 0;  // do not check
                     bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
-                                                , &case10MyClockCallback
+                                                , &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -14837,7 +13781,7 @@ void TestDriver::testCase10()
                          << NUM_INVOCATIONS << " times.\n";
 
                 bslmt::ThreadUtil::sleep(bsls::TimeInterval(
-                                                 NUM_INVOCATIONS * 1.0) + 0.5);
+                                         NUM_INVOCATIONS * 0.1) + 0.5);
                 int iter = 10;
                 while (--iter && !((int) NUM_INVOCATIONS <=
                                 clockState[NUM_CLOCKS - 1].d_numInvocations)) {
@@ -14870,11 +13814,11 @@ void TestDriver::testCase10()
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
                 ASSERT(0 == mX.start());
                 bsls::TimeInterval startTime = bdlt::CurrentTime::now();
-                bsls::TimeInterval period(1.0);  // 1s
+                bsls::TimeInterval period(0.1);  // 1s
                 const int mT = 10 * 1000;       // 10ms
                 enum {
-                    NUM_CLOCKS = 10,
-                    NUM_INVOCATIONS = 10
+                    NUM_CLOCKS = 5,
+                    NUM_INVOCATIONS = 5
                 };
 
                 my_ClockState clockState[NUM_CLOCKS];
@@ -14889,7 +13833,7 @@ void TestDriver::testCase10()
                     clockState[i].d_maxNumInvocations = NUM_INVOCATIONS;
                     bsl::function<void()> functor(
                             bdlf::BindUtil::bindA( &ta
-                                                , &case10MyClockCallback
+                                                , &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -14904,7 +13848,7 @@ void TestDriver::testCase10()
                          << NUM_INVOCATIONS << " times.\n";
 
                 bslmt::ThreadUtil::sleep(bsls::TimeInterval(
-                                                 NUM_INVOCATIONS * 1.0) + 0.5);
+                                                 NUM_INVOCATIONS * 0.1) + 0.5);
                 int iter = 10;
                 while (--iter && !(NUM_INVOCATIONS <=
                                 clockState[NUM_CLOCKS - 1].d_numInvocations)) {
@@ -14959,7 +13903,7 @@ void TestDriver::testCase10()
                 ASSERT(0 == mX.stop());
 
                 enum {
-                    NUM_CLOCKS = 20
+                    NUM_CLOCKS = 5
                 };
 
                 if (veryVerbose)
@@ -15024,8 +13968,6 @@ void TestDriver::testCase10()
                     if (veryVerbose)
                         cout << "\t\tSleeping..." << endl;
 
-                    bslmt::ThreadUtil::microSleep(0, 7);
-
                     if (veryVerbose)
                         cout << "\t\tDeregistering clocks" << endl;
 
@@ -15043,7 +13985,7 @@ void TestDriver::testCase10()
 
 }
 
-void TestDriver::testCase9()
+void TestDriver::testCase8()
 {
         // --------------------------------------------------------------------
         // Testing 'writeMessage'
@@ -15081,12 +14023,12 @@ void TestDriver::testCase9()
         if (verbose) cout << "\nTesting 'write'"
                           << "\n===============" << endl;
 
-        using namespace TEST_CASE_9_NAMESPACE;
+        using namespace TEST_CASE_WRITE;
         bslma::TestAllocator ta(veryVeryVerbose);
 
         {
             btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-            runTestCase9(ARGV[0], &factory, ta);
+            runTestCase(ARGV[0], &factory, ta);
                 // Note: ta passed by reference
         }
         ASSERT(0 <  ta.numAllocations());
@@ -15095,7 +14037,7 @@ void TestDriver::testCase9()
 
 }
 
-void TestDriver::testCase8()
+void TestDriver::testCase7()
 {
         // --------------------------------------------------------------------
         // TESTING 'shutdown'
@@ -15117,11 +14059,10 @@ void TestDriver::testCase8()
         //   int btlmt::ChannelPool::shutdown();
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'shutdown'"
-                 << "\n==================" << endl;
+        if (verbose) cout << "\nTesting 'shutdown'"
+                          << "\n==================" << endl;
 
-        using namespace TEST_CASE_8_NAMESPACE;
+        using namespace TEST_CASE_SHUTDOWN;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -15145,7 +14086,7 @@ void TestDriver::testCase8()
 
             bslmt::Barrier barrier(2);
 
-            case8CallbackInfo info;
+            caseCallbackInfo info;
             info.d_barrier_p = &barrier;
             info.d_channelId = -1;
             info.d_channelDownReadFlag = 0;
@@ -15177,7 +14118,7 @@ void TestDriver::testCase8()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case8ChannelStateCallback
+                                        , &caseChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &info));
 
@@ -15205,7 +14146,6 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId));
             }
-            bslmt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tPartial shutdown is same as full shutdown." << endl;
@@ -15227,7 +14167,6 @@ void TestDriver::testCase8()
                 MTASSERT(0 == info.d_channelDownReadFlag);
                 MTASSERT(0 == info.d_channelDownWriteFlag);
             }
-            bslmt::ThreadUtil::microSleep(0, 1);
 
             info.d_channelId = -1;
             info.d_channelDownReadFlag = 0;
@@ -15247,7 +14186,6 @@ void TestDriver::testCase8()
                 MTASSERT(0 == info.d_channelDownReadFlag);
                 MTASSERT(0 == info.d_channelDownWriteFlag);
             }
-            bslmt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tHalf-open shutdown (close read)." << endl;
@@ -15270,7 +14208,6 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
                                         btlso::Flag::e_SHUTDOWN_RECEIVE));
-                bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownReadFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
@@ -15283,7 +14220,6 @@ void TestDriver::testCase8()
                 MTASSERT(1 == info.d_channelDownReadFlag);
                 MTASSERT(1 == info.d_channelDownWriteFlag);
             }
-            bslmt::ThreadUtil::microSleep(0, 1);
 
             if (verbose)
                 cout << "\tHalf-open shutdown (close write)." << endl;
@@ -15306,7 +14242,6 @@ void TestDriver::testCase8()
 
                 ASSERT(0 != mX.shutdown(info.d_channelId,
                                         btlso::Flag::e_SHUTDOWN_SEND));
-                bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));  // 1s
                 MTASSERT(1 == info.d_channelDownWriteFlag);
 
                 ASSERT(0 == mX.shutdown(info.d_channelId,
@@ -15326,7 +14261,7 @@ void TestDriver::testCase8()
 
 }
 
-void TestDriver::testCase7()
+void TestDriver::testCase6()
 {
         // --------------------------------------------------------------------
         // TESTING CONCERN: IMPORT HALF-CLOSED SOCKET PAIR
@@ -15350,7 +14285,7 @@ void TestDriver::testCase7()
            cout << "\nTesting Concern: Import half-closed socket pair"
                 << "\n===============================================" << endl;
 
-        using namespace TEST_CASE_7_NAMESPACE;
+        using namespace TEST_CASE_IMPORT_HALF_CLOSED_CONN;
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::TestAllocator ta2(veryVeryVerbose);
         {
@@ -15375,7 +14310,7 @@ void TestDriver::testCase7()
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
                     bdlf::BindUtil::bindA( &ta
-                                        , &case7ChannelStateCallback
+                                        , &caseChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &barrier));
 
@@ -15428,7 +14363,7 @@ void TestDriver::testCase7()
 
 }
 
-void TestDriver::testCase6()
+void TestDriver::testCase5()
 {
         // --------------------------------------------------------------------
         // TESTING 'import' METHOD
@@ -15455,7 +14390,6 @@ void TestDriver::testCase6()
              cout << "\nTESTING 'import' METHOD."
                   << "\n========================" << endl;
 
-        using namespace TEST_CASE_6_NAMESPACE;
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             bsl::vector<my_ChannelEvent> channelEvents;
@@ -15526,7 +14460,13 @@ void TestDriver::testCase6()
                 socketVecB.push_back(socketB);
             }
 
-            bslmt::ThreadUtil::microSleep(0, 10); // 10 secs should be enough
+            while (1) {
+                bslmt::LockGuard<bslmt::Mutex> lock(&channelEventsMutex);
+                const int NUM_EVENTS = (int) channelEvents.size();
+                if (NUM_EVENTS / 2 >= NUM_SOCKETS) {
+                    break;
+                }
+            }                
 
             int numChannels = mX.numChannels();
             LOOP_ASSERT(numChannels, NUM_SOCKETS == numChannels);
@@ -15610,7 +14550,14 @@ void TestDriver::testCase6()
                 mX.shutdown(backup[i].d_channelId,
                             btlmt::ChannelPool::e_IMMEDIATE);
             }
-            bslmt::ThreadUtil::microSleep(0, 2);
+
+            while (1) {
+                bslmt::LockGuard<bslmt::Mutex> lock(&channelEventsMutex);
+                const int NUM_EVENTS = (int) channelEvents.size();
+                if (NUM_EVENTS >= NUM_SOCKETS) {
+                    break;
+                }
+            }                
 
             numEvents = channelEvents.size();
             if (veryVerbose) { P(numEvents); PV(channelEvents); }
@@ -15632,7 +14579,6 @@ void TestDriver::testCase6()
             for (int i = 0; i < NUM_SOCKETS; ++i) {
                 factory.deallocate(socketVecB[i]);
             }
-            bslmt::ThreadUtil::microSleep(0, 2);
             mX.stop();
         }
         ASSERT(0 <  ta.numAllocations());
@@ -15641,7 +14587,7 @@ void TestDriver::testCase6()
 
 }
 
-void TestDriver::testCase5()
+void TestDriver::testCase4()
 {
         // --------------------------------------------------------------------
         // TESTING ESTABLISHING LISTENING SOCKET - BASIC TEST
@@ -15672,7 +14618,6 @@ void TestDriver::testCase5()
                           << "TESTING 'listen' METHOD" << endl
                           << "=======================" << endl;
 
-        using namespace TEST_CASE_5_NAMESPACE;
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(1);
         config.setMetricsInterval(10.0);
@@ -15781,7 +14726,7 @@ void TestDriver::testCase5()
 
 }
 
-void TestDriver::testCase4()
+void TestDriver::testCase3()
 {
         // --------------------------------------------------------------------
         // TESTING 'connect' METHOD
@@ -15822,286 +14767,13 @@ void TestDriver::testCase4()
         //   btlmt::ChannelPool::connect(...);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTESTING 'connect' METHOD"
-                 << "\n========================" << endl;
+        if (verbose) cout << "\nTESTING 'connect' METHOD"
+                          << "\n========================" << endl;
 
-        using namespace TEST_CASE_4_NAMESPACE;
+        using namespace TEST_CASE_CONNECT;
         bslma::TestAllocator ta(veryVeryVerbose);
-        {
-            enum {
-                NUM_ATTEMPTS = 5,
-                PORT_BASE    = 16253,
-                PORT_RANGE   = 1000,
-                USER_ID      = 0x12345678,
-                QUEUE_SIZE   = 5,
-                TIMEOUT      = 1,     // in seconds
-                DELTA        = 450000 // main thread delay, in microseconds
-            };
 
-            if (veryVerbose) {
-                MTCOUT << "Creating server thread." << MTENDL;
-            }
-            const int PORT = PORT_BASE
-                           + bdlb::HashUtil::hash0(ARGV[0], PORT_RANGE);
-            if (verbose) { P(PORT); }
-
-            btlso::IPv4Address peer("127.0.0.1", PORT);
-
-            case4WorkerInfo info;
-            bslmt::ThreadUtil::Handle  worker;
-            info.d_i           = 0;
-            info.d_portNumber  = PORT;
-            info.d_queueSize   = QUEUE_SIZE;
-            info.d_timeOut     = TIMEOUT;
-            info.d_worker_p    = &worker;
-            ASSERT(0 == bslmt::ThreadUtil::create(&worker,
-                                                  &case4OpenConnectThread,
-                                                  (void *)&info));
-
-            if (veryVerbose) {
-                MTCOUT << "Creating channel pool." << MTENDL;
-            }
-            btlmt::ChannelPoolConfiguration config;
-            config.setMaxThreads(1);
-            config.setMetricsInterval(30.0);
-            config.setMaxConnections(1);
-            config.setReadTimeout(600);    // in seconds
-
-            int channelId = -1;
-            bsls::AtomicInt numFailures(0);
-            bsls::AtomicInt isConnected(0);
-
-            btlmt::ChannelPool *pMX;
-
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdlf::BindUtil::bind( &case4PoolStateCb
-                                       , _1, _2, _3
-                                       , &numFailures
-                                       , &info));
-
-            btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bind( &case4ChannelCb
-                                       , _1, _2, _3, _4
-                                       , &channelId
-                                       , &isConnected
-                                       , &numFailures
-                                       , &info
-                                       , &pMX));
-
-            btlmt::ChannelPool::BlobBasedReadCallback dataCb;
-
-            btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            pMX = &mX;
-            ASSERT(0 == mX.start());
-
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                if (verbose) {
-                    MTCOUT << "\tStarting test iteration "
-                           << i << " (with auto-read)." << MTENDL;
-                }
-
-                isConnected           = 0;
-                numFailures           = 0;
-                info.d_expUserId      = USER_ID + i + 1;
-                info.d_expNumFailures = i;
-                info.d_i              = i;
-                info.d_worker_p       = &worker;
-                if (0 != i) {
-                    // Initial opening server may have failed, do not overwrite
-                    // info in that case.  Otherwise, it may have failed at
-                    // previous iteration, so we need to reset port number.
-                    // Note that port number will be reset to 0 if the callback
-                    // could not open the server in time for the last
-                    // connection attempt.
-
-                    info.d_portNumber = PORT;
-                }
-
-                bslmt::ThreadUtil::microSleep(0, 1);
-                if (veryVerbose) {
-                    MTCOUT << "--->ATTEMPT " << i << ' '
-                           << bdlt::CurrentTime::now()
-                           << " ---------------------------------------"
-                           << MTENDL;
-                }
-                LOOP_ASSERT(i, 0 == mX.connect(peer,
-                                               info.d_expNumFailures + 1,
-                                               bsls::TimeInterval(TIMEOUT),
-                                               info.d_expUserId));
-
-                bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
-                if (0 == info.d_portNumber)
-                {
-                    LOOP2_ASSERT(numFailures, info.d_expNumFailures,
-                                 numFailures == info.d_expNumFailures);
-                    LOOP2_ASSERT(i, isConnected, 3 == isConnected);
-                    // autoRead & channelUp
-                }
-                else {
-                    // If server was not opened by this test driver, it might
-                    // have been opened already: there is no telling if this
-                    // connection should have failed or succeeded.
-
-                    MTCOUT << "WARNING: Did not open server: ";
-                    P(info.d_portNumber);
-                    P_(isConnected);
-                    P_(numFailures); P(info.d_expNumFailures);
-                    cout << MTENDL;
-                }
-                bslmt::ThreadUtil::join(worker);
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-                bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-            }
-            ASSERT(0 == mX.stop());
-        }
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-        if (veryVerbose) { P(ta); }
-
-        if (verbose)
-            cout << "TESTING 'connect' BY NAME\n";
-        {
-            enum {
-                NUM_ATTEMPTS = 5,
-                PORT_BASE    = 16253,
-                PORT_RANGE   = 1000,
-                USER_ID      = 0x12345678,
-                QUEUE_SIZE   = 5,
-                TIMEOUT      = 1,     // in seconds
-                DELTA        = 450000 // main thread delay, in microseconds
-            };
-
-            if (veryVerbose) {
-                MTCOUT << "Creating server thread." << MTENDL;
-            }
-            const int PORT = PORT_BASE
-                           + bdlb::HashUtil::hash0(ARGV[0], PORT_RANGE);
-            if (verbose) { P(PORT); }
-
-            btlso::IPv4Address peer("127.0.0.1", PORT);
-
-            case4WorkerInfo info;
-            bslmt::ThreadUtil::Handle worker;
-            info.d_i           = 0;
-            info.d_portNumber  = PORT;
-            info.d_queueSize   = QUEUE_SIZE;
-            info.d_timeOut     = TIMEOUT;
-            info.d_worker_p    = &worker;
-            ASSERT(0 == bslmt::ThreadUtil::create(&worker,
-                                                  &case4OpenConnectThread,
-                                                  (void *)&info));
-
-            if (veryVerbose) {
-                MTCOUT << "Creating channel pool." << MTENDL;
-            }
-            btlmt::ChannelPoolConfiguration config;
-            config.setMaxThreads(1);
-            config.setMetricsInterval(30.0);
-            config.setMaxConnections(1);
-            config.setReadTimeout(600);    // in seconds
-
-            int channelId = -1;
-            bsls::AtomicInt numFailures(0);
-            bsls::AtomicInt isConnected(0);
-
-            btlmt::ChannelPool *pMX;
-
-            btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdlf::BindUtil::bind( &case4PoolStateCb
-                                       , _1, _2, _3
-                                       , &numFailures
-                                       , &info));
-
-            btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bind( &case4ChannelCb
-                                       , _1, _2, _3, _4
-                                       , &channelId
-                                       , &isConnected
-                                       , &numFailures
-                                       , &info
-                                       , &pMX));
-
-            btlmt::ChannelPool::BlobBasedReadCallback         dataCb;
-
-            btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            pMX = &mX;
-            ASSERT(0 == mX.start());
-
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
-                if (verbose) {
-                    MTCOUT << "\tStarting test iteration "
-                           << i << " (with auto-read)." << MTENDL;
-                }
-
-                isConnected           = 0;
-                numFailures           = 0;
-                info.d_expUserId      = USER_ID + i + 1;
-                info.d_expNumFailures = i;
-                info.d_i              = i;
-                info.d_worker_p       = &worker;
-                if (0 != i) {
-                    // Initial opening server may have failed, do not overwrite
-                    // info in that case.  Otherwise, it may have failed at
-                    // previous iteration, so we need to reset port number.
-                    // Note that port number will be reset to 0 if the callback
-                    // could not open the server in time for the last
-                    // connection attempt.
-
-                    info.d_portNumber = PORT;
-                }
-
-                bslmt::ThreadUtil::microSleep(0, 1);
-                if (veryVerbose) {
-                    MTCOUT << "--->ATTEMPT " << i << ' '
-                           << bdlt::CurrentTime::now()
-                           << " ---------------------------------------"
-                           << MTENDL;
-                }
-                LOOP_ASSERT(i,
-                            0 == mX.connect(
-                          "localhost",
-                          PORT,
-                          info.d_expNumFailures + 1,
-                          bsls::TimeInterval(TIMEOUT),
-                          info.d_expUserId,
-                          (i % 2)
-                         ? btlmt::ChannelPool::e_RESOLVE_ONCE
-                         : btlmt::ChannelPool::e_RESOLVE_AT_EACH_ATTEMPT));
-
-                bslmt::ThreadUtil::microSleep(0, (i + 2) * TIMEOUT);
-                if (0 == info.d_portNumber)
-                {
-                    LOOP2_ASSERT(numFailures, info.d_expNumFailures,
-                                 numFailures == info.d_expNumFailures);
-                    LOOP2_ASSERT(i, isConnected, 3 == isConnected);
-                    // autoRead & channelUp
-                }
-                else {
-                    // If server was not opened by this test driver, it might
-                    // have been opened already: there is no telling if this
-                    // connection should have failed or succeeded.
-
-                    MTCOUT << "WARNING: Did not open server: ";
-                    P(info.d_portNumber);
-                    P_(isConnected);
-                    P_(numFailures); P(info.d_expNumFailures);
-                    cout << MTENDL;
-                }
-                bslmt::ThreadUtil::join(worker);
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-                bslmt::ThreadUtil::yield();
-                bslmt::ThreadUtil::microSleep(0, 2 * TIMEOUT);
-            }
-            ASSERT(0 == mX.stop());
-        }
-        ASSERT(0 == ta.numBytesInUse());
-        ASSERT(0 == ta.numMismatches());
-        if (veryVerbose) { P(ta); }
-
-        if (verbose)
-            cout << "TESTING 'connect' TO NON-EXISTENT HOST\n";
+        if (verbose) cout << "TESTING 'connect' TO NON-EXISTENT HOST\n";
         {
             struct {
                 const char   *d_peerAddress;
@@ -16123,7 +14795,7 @@ void TestDriver::testCase4()
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             const int MAX_NUM_ATTEMPTS = 3;
 
-            const bsls::TimeInterval TIMEOUT(0.5);
+            const bsls::TimeInterval TIMEOUT(0.01);
             const int EXPECTED_SEVERITY = 1;
 
             btlmt::ChannelPoolConfiguration config;
@@ -16143,7 +14815,7 @@ void TestDriver::testCase4()
 
                         btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                                 bdlf::BindUtil::bindA( &ta
-                                                    , &case4ErrorPoolStateCb
+                                                    , &caseErrorPoolStateCb
                                                     , _1, _2, _3
                                                     , DATA[i].d_sourceId
                                                     , EXPECTED_SEVERITY
@@ -16154,7 +14826,7 @@ void TestDriver::testCase4()
 
                         LOOP2_ASSERT(i, j, 0 == mX.start());
                         btlso::IPv4Address peer(DATA[i].d_peerAddress,
-                                               DATA[i].d_peerPort);
+                                                DATA[i].d_peerPort);
                         if (veryVerbose) {
                             MTCOUT << "\nRegistering at "
                                    << bdlt::CurrentTime::now() << MTENDL;
@@ -16166,13 +14838,11 @@ void TestDriver::testCase4()
                                                            DATA[i].d_sourceId);
                         LOOP3_ASSERT(i, j, ret, 0 == ret);
                         while (j + 1 != isInvoked) {
-                            bslmt::ThreadUtil::sleep(TIMEOUT);
                         }
                         if (veryVerbose) {
                             MTCOUT << "Succeded at "
                                 << bdlt::CurrentTime::now() << MTENDL;
                         }
-                        bslmt::ThreadUtil::sleep(TIMEOUT);
                         LOOP2_ASSERT(i, j, j + 1 == isInvoked);
                         if (veryVerbose) { P(isInvoked); }
                         ASSERT(0 == mX.stop());
@@ -16206,22 +14876,17 @@ void TestDriver::testCase4()
                 btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
                 ASSERT(0 == mX.start());
 
-                for (int i = 0; i < MAX_NUM_ATTEMPTS; ++i) {
-                    for (int j = 0; j < NUM_DATA; ++j) {
-                        btlso::IPv4Address peer(DATA[j].d_peerAddress,
-                                               DATA[j].d_peerPort);
-                        if (veryVerbose) {
-                            P_(bdlt::CurrentTime::now()); P_(peer);
-                            P(TIMEOUT);
-                        }
-                        int ret = mX.connect(peer, 1, TIMEOUT,
-                                                           DATA[j].d_sourceId);
-                        LOOP3_ASSERT(i, j, ret, 0 == ret);
+                for (int j = 0; j < NUM_DATA; ++j) {
+                    btlso::IPv4Address peer(DATA[j].d_peerAddress,
+                                            DATA[j].d_peerPort);
+                    if (veryVerbose) {
+                        P_(bdlt::CurrentTime::now()); P_(peer);
+                        P(TIMEOUT);
                     }
-                    bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT + TIMEOUT);
+                    int ret = mX.connect(peer, 1, TIMEOUT, DATA[j].d_sourceId);
+                    LOOP2_ASSERT(j, ret, 0 == ret);
                 }
-
-                bslmt::ThreadUtil::sleep(TIMEOUT + TIMEOUT);
+            
                 ASSERT(0 == mX.stop());
 
                 if (veryVerbose) {
@@ -16236,7 +14901,7 @@ void TestDriver::testCase4()
 
                     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
                             bdlf::BindUtil::bindA( &ta
-                                                , &case4ErrorPoolStateCb
+                                                , &caseErrorPoolStateCb
                                                 , _1, _2, _3
                                                 , DATA[i].d_sourceId
                                                 , EXPECTED_SEVERITY
@@ -16252,7 +14917,6 @@ void TestDriver::testCase4()
                     }
                     LOOP2_ASSERT(i, j, -1 == mX.connect(peer, j + 1, TIMEOUT,
                                                         DATA[i].d_sourceId));
-                    bslmt::ThreadUtil::sleep(TIMEOUT);
                     LOOP2_ASSERT(i, j, 0 == isInvoked);
                 }
             }
@@ -16263,7 +14927,7 @@ void TestDriver::testCase4()
 
 }
 
-void TestDriver::testCase3()
+void TestDriver::testCase2()
 {
         // --------------------------------------------------------------------
         // TESTING 'start' AND 'stop' METHODS
@@ -16301,28 +14965,11 @@ void TestDriver::testCase3()
             ASSERT(0 == mX.start());
             ASSERT(1 == mX.numThreads());
 
-            bslmt::ThreadUtil::microSleep(0, 5);
-
             ASSERT(0 == mX.stop());
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == ta.numBytesInUse());
-
-}
-
-void TestDriver::testCase2()
-{
-        // --------------------------------------------------------------------
-        // TESTING CREATORS
-        //
-        // Concerns:
-        //   - What are the concerns exactly?
-        //
-        // Plan:
-        //
-        // Testing:
-        // --------------------------------------------------------------------
 
 }
 
@@ -16415,7 +15062,7 @@ static void negativeCase1()
 
         if (verbose) {
             cout << "This test case (to be run manually) complements "
-                 << "case 22.\n\n";
+                 << "the stress test case.\n\n";
 
             cout << "Usage: Arguments provided to this test driver are"
                  << " (besides the case number, -1)\n\t<verbosity>"
@@ -16561,6 +15208,206 @@ static void negativeCase2()
         }
 }
 
+static void negativeCase3()
+{
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: Stress test
+        //
+        // Concern:
+        //   We want to exercise the component under stress.
+        //
+        // Plan:
+        //   We will create two groups of 5 threads each.  Each groups will
+        //   have a leader.  The leader will be responsible to open and close a
+        //   channel.  Each thread will send request through the channelId open
+        //   by its group leader.  Every 10 iterations, the group leader
+        //   will close the channel and open another one.  Since the threads
+        //   are not synchronized, their status is unknown so only a very
+        //   superficial error testing will be performed, but the objective of
+        //   this test is mainly to verify that no crashes or memory corruption
+        //   occurs.  We also use a channel pool for the server (reading the
+        //   other end of the channels) and use various parameters for that
+        //   channel pool (incoming message size, number of bytes needed before
+        //   the next data callback).
+        //
+        // Testing:
+        //   Concern: Stress test
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING CONCERN: Stress test."
+                 << "\n=============================" << endl;
+
+        using namespace TEST_CASE_STRESS_TEST;
+
+        typedef btlso::InetStreamSocketFactory<btlso::IPv4Address> Factory;
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+        {
+            if (verbose) cout << "\tSmall message test." << endl
+                              << "\t-------------------" << endl;
+
+            // Small individual messages on the client size, with NUM_THREADS
+            // client, and one server accepting large messages.
+
+            enum {
+#if !defined(BSLS_PLATFORM_CPU_X86) && !defined(BSLS_PLATFORM_CPU_X86_64) \
+ && !defined(BSLS_PLATFORM_OS_AIX)
+                NUM_THREADS        = 10,
+                NUM_ITERS          = 1005,   // never a multiple of 10
+                LARGE_NUM_ITERS    = 10005,  // never a multiple of 10
+#else
+                // This check is due to the fact that we're still trying to
+                // assert the return value of connect and shutdown.  If we
+                // overload the machine too much, they will fail because of the
+                // backlog.  Since it is still nice to check their return
+                // values, we customize the test (our x86 boxes do not have
+                // many CPUs).  Also, AIX is brain-dead and we scale the test
+                // down.
+
+                NUM_THREADS        = 4,
+                NUM_ITERS          = 105,   // never a multiple of 10
+                LARGE_NUM_ITERS    = 1005,  // never a multiple of 10
+
+#endif
+                BUFFER_SIZE        = 1024,
+                SMALL_MSG_SIZE     = 327,
+                MSG_SIZE           = 1024 * 2 + 512,
+                SERVER_SIZE        = 1024 * 32,
+                SERVER_NEEDED      = 1024 * 2 + 128
+            };
+
+            Factory factory(&ta);
+
+            if (verbose) cout << "\t\tAlways invoke data callback." << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, 1,
+                                  &factory, &ta);
+
+            if (verbose) cout << "\n\t\tInvoke data callback after "
+                              << SERVER_NEEDED << " bytes only." << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, SERVER_NEEDED,
+                                  &factory, &ta);
+
+            if (verbose) cout << "\n\t\tInvoke data callback every "
+                              << SMALL_MSG_SIZE << " bytes (msg boundaries)."
+                              << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  2, LARGE_NUM_ITERS,
+                                  BUFFER_SIZE, -SMALL_MSG_SIZE,
+                                  SERVER_SIZE, SERVER_NEEDED,
+                                  &factory, &ta);
+
+            if (verbose) cout << "\n\t\tInvoke data callback every "
+                              << MSG_SIZE << " bytes (msg boundaries)."
+                              << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  2, LARGE_NUM_ITERS,
+                                  BUFFER_SIZE, -MSG_SIZE,
+                                  SERVER_SIZE, SERVER_NEEDED,
+                                  &factory, &ta);
+        }
+        ASSERT(0 <=  ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+        if (veryVerbose) { P(ta); }
+
+#if !defined(BSLS_PLATFORM_OS_AIX)
+        // Bad AIX seems to have problems read and writing from the same
+        // process, takes forever.  Similar cases commented out in case 9.
+        {
+            enum {
+                NUM_THREADS        = 4,
+                NUM_ITERS          = 101,
+                BUFFER_SIZE        = 4096,
+                MSG_SIZE           = 32768 + 50,
+                SERVER_SIZE        = 32768,
+                SERVER_NEEDED      = 32768 + 48
+            };
+
+            if (verbose) cout << endl
+                              << "\tBig buffer test." << endl
+                              << "\t----------------" << endl;
+
+            // Large individual messages on the client size, with NUM_THREADS
+            // client, and one server accepting large messages (of about the
+            // same size).
+
+            Factory factory(&ta);
+
+            if (verbose) cout << "\t\tAlways invoke data callback." << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, 1,
+                                  &factory, &ta);
+
+            if (verbose) cout << "\n\t\tInvoke data callback after "
+                              << SERVER_NEEDED << " bytes only." << endl;
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, SERVER_NEEDED,
+                                  &factory, &ta);
+        }
+        ASSERT(0 <=  ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+        if (veryVerbose) { P(ta); }
+
+        {
+            enum {
+                NUM_THREADS        = 4,
+                NUM_ITERS          = 101,
+                BUFFER_SIZE        = 1024,
+                MSG_SIZE           = 1024 * 16 + 50,
+                SERVER_SIZE        = 1024 * 2,
+                SERVER_NEEDED      = 1024 * 16 + 48
+            };
+
+            if (verbose) cout << endl
+                              << "\tBig message test." << endl
+                              << "\t-----------------" << endl;
+
+            // Large individual messages on the client size, with NUM_THREADS
+            // client, and one server accepting large messages (of about the
+            // same size).
+
+            Factory factory(&ta);
+
+            // Always invoke data callback if data is incoming.
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, 1,
+                                  &factory, &ta);
+
+            // Only invoke data callback when 'SERVER_NEEDED' bytes are
+            // available.
+
+            runTestCaseStressTest(ARGV[0],
+                                  NUM_THREADS, NUM_ITERS,
+                                  BUFFER_SIZE, MSG_SIZE,
+                                  SERVER_SIZE, SERVER_NEEDED,
+                                  &factory, &ta);
+        }
+        ASSERT(0 <=  ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+        if (veryVerbose) { P(ta); }
+#endif
+
+}
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -16587,7 +15434,7 @@ int main(int argc, char **argv)
 
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Ignore SIGPIPE - test driver-wide.  This signal is raised when writing
-    // into a socket whose peer is down.  It creates havoc in test case 22 esp.
+    // into a socket whose peer is down.  It creates havoc in some test cases.
     // but there is no reason it should be raised in any of the other test
     // cases either.
 
@@ -16604,12 +15451,6 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
-      CASE(44);
-      CASE(43);
-      CASE(42);
-      CASE(41);
-      CASE(40);
-      CASE(39);
       CASE(38);
       CASE(37);
       CASE(36);
@@ -16653,6 +15494,9 @@ int main(int argc, char **argv)
       } break;
       case -2: {
         negativeCase2();
+      } break;
+      case -3: {
+        negativeCase3();
       } break;
 #undef CASE
       default: {
