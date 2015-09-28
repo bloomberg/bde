@@ -55,81 +55,88 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 61 components having 10 levels of physical
+ The 'bslmf' package currently has 63 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-10. bslmf_isbitwisemoveable
+  15. bslmf_isbitwisemoveable
 
- 9. bslmf_addcv
-    bslmf_forwardingtype
-    bslmf_haspointersemantics
-    bslmf_isbitwiseequalitycomparable
-    bslmf_istriviallycopyable
-    bslmf_istriviallydefaultconstructible
+  14. bslmf_forwardingtype
+      bslmf_haspointersemantics
+      bslmf_isbitwiseequalitycomparable
+      bslmf_istriviallycopyable
+      bslmf_istriviallydefaultconstructible
 
- 8. bslmf_addconst
-    bslmf_addvolatile
-    bslmf_detectnestedtrait
-    bslmf_isenum
+  13. bslmf_detectnestedtrait
+      bslmf_isenum
 
- 7. bslmf_enableif
-    bslmf_isconvertibletoany
-    bslmf_isfunction
-    bslmf_ispointertomember
-    bslmf_matcharithmetictype
-    bslmf_memberfunctionpointertraits
-    bslmf_nestedtraitdeclaration
-    bslmf_removepointer
+  12. bslmf_isconvertibletoany
+      bslmf_matcharithmetictype
+      bslmf_nestedtraitdeclaration
 
- 6. bslmf_addpointer
-    bslmf_addreference
-    bslmf_functionpointertraits
-    bslmf_if
-    bslmf_isconvertible
-    bslmf_ismemberpointer
+  11. bslmf_isconvertible
 
- 5. bslmf_addlvaluereference
-    bslmf_addrvaluereference
-    bslmf_arraytopointer
-    bslmf_conditional
-    bslmf_isfundamental
-    bslmf_ismemberobjectpointer
-    bslmf_removereference
-    bslmf_typelist
+  10. bslmf_enableif
+      bslmf_ispointertomember
 
- 4. bslmf_isarithmetic
-    bslmf_ismemberfunctionpointer
-    bslmf_ispolymorphic
-    bslmf_issame
-    bslmf_isvoid
-    bslmf_selecttrait
+   9. bslmf_addcv
+      bslmf_isfundamental
+      bslmf_ismemberpointer
 
- 3. bslmf_isclass
-    bslmf_isfloatingpoint
-    bslmf_isintegral
-    bslmf_ispointer
-    bslmf_isreference
-    bslmf_metaint
-    bslmf_removecvq
-    bslmf_switch
+   8. bslmf_addconst
+      bslmf_addvolatile
+      bslmf_isarithmetic
+      bslmf_ismemberobjectpointer
+      bslmf_ispolymorphic
+      bslmf_removepointer
 
- 2. bslmf_isarray
-    bslmf_isconst
-    bslmf_islvaluereference
-    bslmf_ispair
-    bslmf_isrvaluereference
-    bslmf_isvolatile
-    bslmf_nil
-    bslmf_removecv
-    bslmf_tag
+   7. bslmf_isclass
+      bslmf_isfloatingpoint
+      bslmf_isfunction
+      bslmf_isintegral
+      bslmf_ismemberfunctionpointer
+      bslmf_ispointer
+      bslmf_isvoid
+      bslmf_memberfunctionpointertraits
+      bslmf_removecvq
 
- 1. bslmf_assert
-    bslmf_integralconstant
-    bslmf_matchanytype
-    bslmf_removeconst
-    bslmf_removevolatile
+   6. bslmf_addpointer
+      bslmf_addreference
+      bslmf_functionpointertraits
+      bslmf_if
+      bslmf_movableref
+      bslmf_removecv
+
+   5. bslmf_addlvaluereference
+      bslmf_addrvaluereference
+      bslmf_arraytopointer
+      bslmf_conditional
+      bslmf_removeconst
+      bslmf_removereference
+      bslmf_removevolatile
+      bslmf_typelist
+
+   4. bslmf_issame
+      bslmf_selecttrait
+
+   3. bslmf_isreference
+      bslmf_metaint                                      !DEPRECATED!
+      bslmf_switch
+
+   2. bslmf_isarray
+      bslmf_isconst
+      bslmf_islvaluereference
+      bslmf_ispair
+      bslmf_isrvaluereference
+      bslmf_isvolatile
+      bslmf_nil
+      bslmf_tag
+
+   1. bslmf_allocatorargt
+      bslmf_assert
+      bslmf_integralconstant
+      bslmf_matchanytype
 ..
 
 /Component Synopsis
@@ -155,6 +162,9 @@
 : 'bslmf_addvolatile':
 :      Provide a meta-function for adding a 'volatile'-qualifier.
 :
+: 'bslmf_allocatorargt':
+:      Provide a tag type to precede allocator arguments.
+:
 : 'bslmf_arraytopointer':
 :      Provide a meta-function to convert array types to pointer types.
 :
@@ -165,7 +175,7 @@
 :      Provide a compile-time conditional type selector.
 :
 : 'bslmf_detectnestedtrait':
-:      Provide meta-function to test for nested trait.
+:      Provide a facility for defining traits and detecting legacy traits.
 :
 : 'bslmf_enableif':
 :      Provide a utility to set up SFINAE conditions in type deduction.
@@ -278,11 +288,14 @@
 : 'bslmf_memberfunctionpointertraits':
 :      Provide meta-functions to detect member function pointer traits.
 :
-: 'bslmf_metaint':
+: 'bslmf_metaint':                                       !DEPRECATED!
 :      Provide a meta-function to map integral constants to unique types.
 :
+: 'bslmf_movableref':
+:      Provide a vocabulary type to enable move semantics.
+:
 : 'bslmf_nestedtraitdeclaration':
-:      Provide a way within a class to associate the class with traits
+:      Provide a nested declaration to associate a class with a trait.
 :
 : 'bslmf_nil':
 :      Provide a nil type.
@@ -315,5 +328,5 @@
 :      Provide an integral-constant-to-type conversion.
 :
 : 'bslmf_typelist':
-:      Provide a typelist component
+:      Provide a typelist component.
 

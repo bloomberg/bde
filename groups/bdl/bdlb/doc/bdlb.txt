@@ -9,18 +9,36 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 3 components.
+ The 'bdlb' package currently has 6 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
+  2. bdlb_guidutil
+
   1. bdlb_bitutil
-  2. bdlb_guid
-  3. bdlb_guidutil
+     bdlb_cstringequalto
+     bdlb_cstringless
+     bdlb_guid
+     bdlb_randomdevice
 ..
 
 /Component Synopsis
 /------------------
 : 'bdlb_bitutil':
 :      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
+:
+: 'bdlb_cstringequalto':
+:      Provide a standard compatible equality predicate for C-strings.
+:
+: 'bdlb_cstringless':
+:      Provide a standard compatible less-than predicate for C-strings.
+:
 : 'bdlb_guid':
-:      Provide a value-semantic type representing a globally unique identifier.
+:      Provide a value-semantic type for Globally Unique Identifiers.
+:
 : 'bdlb_guidutil':
-:      Provide utilities for dealing with globally unique identifiers.
+:      Provide functions that produce Universally Unique Identifiers.
+:
+: 'bdlb_randomdevice':
+:      Provide a common interface to a system's random number generator.
