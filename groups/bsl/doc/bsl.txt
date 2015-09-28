@@ -43,7 +43,7 @@
 
    9. bsl+bslhdrs
 
-   8. bslstp
+   8. bslstp                                             !DEPRECATED!
 
    7. bslstl
 
@@ -59,7 +59,7 @@
 
    2. bslscm
 
-   1. bslfwd
+   1. bslfwd                                             !DEPRECATED!
       bsls
 ..
  Note that the 'bsl+stdhdrs' package is only a compatibility layer for
@@ -87,11 +87,11 @@
 : 'bsldoc':
 :      Provide documentation of terms and concepts used throughout BDE.
 :
-: 'bslfwd':
+: 'bslfwd':                                              !DEPRECATED!
 :      Provide compatibility for clients using single-level namespace
 :
 : 'bslh':
-:      Provide a framework for hashing types using swapable algorithms.
+:      Provide a framework for hashing types using swappable algorithms.
 :
 : 'bslim':
 :      Provide implementation mechanisms.
@@ -111,7 +111,7 @@
 : 'bslstl':
 :      Provide replacement classes for STL constructs.
 :
-: 'bslstp':
+: 'bslstp':                                              !DEPRECATED!
 :      Provide replacement classes (adopted from STLport) for STL.
 :
 : 'bsltf':
