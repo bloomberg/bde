@@ -117,8 +117,7 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
-#if defined(BTLSO_PLATFORM_WIN_SOCKETS) \
-    || defined(BSLS_PLATFORM_OS_HPUX)
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     typedef int ADDRLEN_T;
 #else
     typedef socklen_t ADDRLEN_T;
@@ -250,7 +249,7 @@ volatile sig_atomic_t globalAlarmCount = 0;
 extern "C" void sigalarm(int)
 {
    ++globalAlarmCount;
-   ::alarm(1);
+   ::ualarm(10, 0);
 }
 #endif
 
@@ -672,17 +671,13 @@ int main(int argc, char *argv[]) {
             ASSERT(resp == 0
                 || resp == btlso::SocketHandle::e_ERROR_TIMEDOUT);
 
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            enum { WAITS = 200 };
-#else
-            enum { WAITS = 100 };
-#endif
+            enum { WAITS = 10 };
 
             for (int x = 0; x < WAITS; ++x) {
-                bsls::TimeInterval twoseconds = bdlt::CurrentTime::now() + 2;
+                bsls::TimeInterval timeout = bdlt::CurrentTime::now() + 0.1;
 
                 if (veryVerbose) { cout << "waitForConnect "; P(resp); }
-                resp = clientSocket->waitForConnect(twoseconds);
+                resp = clientSocket->waitForConnect(timeout);
 
                 if (resp == 0) {
                     status = clientSocket->connectionStatus();
@@ -696,11 +691,6 @@ int main(int argc, char *argv[]) {
                            btlso::SocketHandle::e_ERROR_TIMEDOUT);
                 }
             }
-
-            resp = clientSocket->waitForConnect(negtwoseconds);
-            ASSERT(resp == 0);
-
-            ASSERT(status != 0);
 
             testFactory.deallocate(clientSocket);
         }
@@ -746,11 +736,11 @@ int main(int argc, char *argv[]) {
 
             int status = -1;
 
-            for (int x = 0; x < 100; ++x) {
+            for (int x = 0; x < 10; ++x) {
 
-                bsls::TimeInterval twoseconds = bdlt::CurrentTime::now() + 2;
+                bsls::TimeInterval timeout = bdlt::CurrentTime::now() + 0.1;
 
-                resp = clientSocket->waitForConnect(twoseconds);
+                resp = clientSocket->waitForConnect(timeout);
                 if (veryVerbose) { cout << "waitForConnect "; P(resp); }
 
                 if (resp == 0) {
@@ -1086,7 +1076,7 @@ int main(int argc, char *argv[]) {
              resp = streamSocketA->write(buf2, sizeof(buf2));
              ASSERT(resp == sizeof(buf2));
 
-             bslmt::ThreadUtil::microSleep(500 * 1000);
+             bslmt::ThreadUtil::microSleep(100);
 
              resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
              ASSERT(resp == (sizeof(buf1) + sizeof(buf2)));
@@ -1132,7 +1122,7 @@ int main(int argc, char *argv[]) {
              ASSERT(resp == sizeof(buf3));
              if (veryVerbose) P(resp);
 
-             bslmt::ThreadUtil::microSleep(500 * 1000);
+             bslmt::ThreadUtil::microSleep(100);
 
              resp = streamSocketB->read(rcvbuf, sizeof(rcvbuf));
              ASSERT(resp == (sizeof(buf1) + sizeof(buf2) + sizeof(buf3)));
@@ -1154,7 +1144,7 @@ int main(int argc, char *argv[]) {
                                    << endl;
              int packetSize;
 
-             for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
+             for (packetSize = 500; packetSize < 5505; packetSize += 2501) {
                  // Create a server socket
                  if (veryVerbose) P(packetSize);
 
@@ -1181,7 +1171,7 @@ int main(int argc, char *argv[]) {
                  sigemptyset(&act.sa_mask);
                  act.sa_flags = 0;
                  ::sigaction(SIGALRM, &act, &oact);
-                 ::alarm(1);
+                 ::ualarm(10, 0);
 
                  int totalSent = 0;
 
@@ -1226,7 +1216,7 @@ int main(int argc, char *argv[]) {
 
              int packetSize;
 
-             for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
+             for (packetSize = 500; packetSize < 5505; packetSize += 2501) {
                  // Create a server socket
                  if (veryVerbose) P(packetSize);
 
@@ -1253,7 +1243,7 @@ int main(int argc, char *argv[]) {
                  sigemptyset(&act.sa_mask);
                  act.sa_flags = 0;
                  ::sigaction(SIGALRM, &act, &oact);
-                 ::alarm(1);
+                 ::ualarm(10, 0);
 
                  int totalSent = 0;
 
@@ -1327,7 +1317,7 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-             bslmt::ThreadUtil::microSleep(200 * 1000);
+//              bslmt::ThreadUtil::microSleep(100);
 
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
@@ -1369,7 +1359,7 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-             bslmt::ThreadUtil::microSleep(200 * 1000);
+//              bslmt::ThreadUtil::microSleep(200 * 1000);
 
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
@@ -1398,7 +1388,7 @@ int main(int argc, char *argv[]) {
 
              int packetSize;
 
-             for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
+             for (packetSize = 500; packetSize < 5505; packetSize += 2501) {
                  // Create a server socket
                  if (veryVerbose) P(packetSize);
 
@@ -1483,7 +1473,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-                 bslmt::ThreadUtil::microSleep(1000 * 1000);
+                 bslmt::ThreadUtil::microSleep(1000);
 
                  // Write data and verify that it writes OK
 
@@ -1504,7 +1494,7 @@ int main(int argc, char *argv[]) {
 
              int packetSize;
 
-             for (packetSize = 500; packetSize < 25000; packetSize += 2001) {
+             for (packetSize = 500; packetSize < 5505; packetSize += 2501) {
                  // Create a server socket
                  if (veryVerbose) P(packetSize);
 
@@ -1571,7 +1561,7 @@ int main(int argc, char *argv[]) {
                                  P_(iterations); P_(totalReceived);
                                  P(totalSent);
                              }
-                             bslmt::ThreadUtil::microSleep(100 * 1000);
+                             bslmt::ThreadUtil::microSleep(1000);
                              iterations++;
                          }
                          else break;
@@ -1589,7 +1579,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-                 bslmt::ThreadUtil::microSleep(1000 * 1000);
+                 bslmt::ThreadUtil::microSleep(1000);
 
                  // Write data and verify that it writes OK
 
@@ -1663,39 +1653,39 @@ int main(int argc, char *argv[]) {
         { L_,  RD,    0,     0,     0,     0,     0,         0, TO },
         { L_,  WR,    0,     0,     0,     0,     0,         0, TO },
         { L_,  RW,    0,     0,     0,     0,     0,         0, TO },
-        { L_,  RD,    0,     0,    75,     0,  2000,         0, TO },
-        { L_,  WR,    0,     0,    75,     0,  2000,         0, WR },
-        { L_,  RW,    0,     0,    75,     0,  2000,         0, WR },
-        { L_,  RD,    0,     0,    75,  1000,  2000,         0, RD },
-        { L_,  WR,    0,     0,    75,  1000,  2000,         0, WR },
-        { L_,  RW,    0,     0,    75,  1000,  2000,         0, RW },
+        { L_,  RD,    0,     0,    75,     0,   200,         0, TO },
+        { L_,  WR,    0,     0,    75,     0,   200,         0, WR },
+        { L_,  RW,    0,     0,    75,     0,   200,         0, WR },
+        { L_,  RD,    0,     0,    75,  1000,   200,         0, RD },
+        { L_,  WR,    0,     0,    75,  1000,   200,         0, WR },
+        { L_,  RW,    0,     0,    75,  1000,   200,         0, RW },
         { L_,  RD,    0,     0,     0,  1000,     0,         0, RD },
-        { L_,  WR,    0,     0,     0,  1000,  2000,         0, TO },
-        { L_,  RW,    0,     0,     0,  1000,  2000,         0, RD },
+        { L_,  WR,    0,     0,     0,  1000,   200,         0, WR },
+        { L_,  RW,    0,     0,     0,  1000,   200,         0, RW },
         { L_,  RD,    0,  2000,     0,     0,     0,         0, TO },
         { L_,  WR,    0,  2000,     0,     0,     0,         0, TO },
         { L_,  RW,    0,  2000,     0,     0,     0,         0, TO },
-        { L_,  RD,    0,  2000,    75,     0,  2000,         0, TO },
-        { L_,  WR,    0,  2000,    75,     0,  2000,         0, WR },
-        { L_,  RW,    0,  2000,    75,     0,  2000,         0, WR },
-        { L_,  RD,    0,  2000,    75,  1000,  2000,         0, RD },
-        { L_,  WR,    0,  2000,    75,  1000,  2000,         0, WR },
-        { L_,  RW,    0,  2000,    75,  1000,  2000,         0, RW },
+        { L_,  RD,    0,  2000,    75,     0,   200,         0, TO },
+        { L_,  WR,    0,  2000,    75,     0,   200,         0, WR },
+        { L_,  RW,    0,  2000,    75,     0,   200,         0, WR },
+        { L_,  RD,    0,  2000,    75,  1000,   200,         0, RD },
+        { L_,  WR,    0,  2000,    75,  1000,   200,         0, WR },
+        { L_,  RW,    0,  2000,    75,  1000,   200,         0, RW },
         { L_,  RD,    0,  2000,     0,  1000,     0,         0, RD },
-        { L_,  WR,    0,  2000,     0,  1000,     0,         0, TO },
-        { L_,  RW,    0,  2000,     0,  1000,     0,         0, RD },
-        { L_,  RD,   10,     0,     0,     0,     0,         0, TO },
-        { L_,  WR,   10,     0,     0,     0,     0,         0, TO },
-        { L_,  RW,   10,     0,     0,     0,     0,         0, TO },
-        { L_,  RD,   10,     0,    75,     0,     0,         0, TO },
-        { L_,  WR,   10,     0,    75,     0,     0,         0, WR },
-        { L_,  RW,   10,     0,    75,     0,     0,         0, WR },
-        { L_,  RD,   10,     0,    75,  1000,  2000,         0, RD },
-        { L_,  WR,   10,     0,    75,  1000,  2000,         0, WR },
-        { L_,  RW,   10,     0,    75,  1000,  2000,         0, RW },
-        { L_,  RD,   10,     0,     0,  1000,     0,         0, RD },
-        { L_,  WR,   10,     0,     0,  1000,     0,         0, TO },
-        { L_,  RW,   10,     0,     0,  1000,     0,         0, RD },
+        { L_,  WR,    0,  2000,     0,  1000,     0,         0, WR },
+        { L_,  RW,    0,  2000,     0,  1000,     0,         0, RW },
+        { L_,  RD,    1,     0,     0,     0,     0,         0, TO },
+        { L_,  WR,    1,     0,     0,     0,     0,         0, WR },
+        { L_,  RW,    1,     0,     0,     0,     0,         0, WR },
+        { L_,  RD,    1,     0,    75,     0,     0,         0, TO },
+        { L_,  WR,    1,     0,    75,     0,     0,         0, WR },
+        { L_,  RW,    1,     0,    75,     0,     0,         0, WR },
+        { L_,  RD,    1,     0,    75,  1000,   200,         0, RD },
+        { L_,  WR,    1,     0,    75,  1000,   200,         0, WR },
+        { L_,  RW,    1,     0,    75,  1000,   200,         0, RW },
+        { L_,  RD,    1,     0,     0,  1000,     0,         0, RD },
+        { L_,  WR,    1,     0,     0,  1000,     0,         0, WR },
+        { L_,  RW,    1,     0,     0,  1000,     0,         0, RW },
         { L_,  RD,    0,     0,     0,     0,     0,         1, TO },
         { L_,  WR,    0,     0,     0,     0,     0,         1, TO },
         { L_,  RW,    0,     0,     0,     0,     0,         1, TO },
@@ -1707,8 +1697,8 @@ int main(int argc, char *argv[]) {
         enum {
             NUM_DATA      = sizeof DATA / sizeof *DATA,
 
-            DATASIZE      = 10000,    // total amount of initial data
-            PACKETSIZE    = 2000      // read/write packet size
+            DATASIZE      = 100,    // total amount of initial data
+            PACKETSIZE    = 200     // read/write packet size
         };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1755,7 +1745,6 @@ int main(int argc, char *argv[]) {
                     totalSent += resp;
                 }
 
-                bslmt::ThreadUtil::microSleep(50 * 1000);
                 bsls::TimeInterval interval =
                                              bdlt::CurrentTime::now() - before;
 
@@ -1807,9 +1796,7 @@ int main(int argc, char *argv[]) {
             }
 
            // some platforms require latency between writes and reads
-#if   defined(BSLS_PLATFORM_OS_HPUX)
-            const int sleepTime = 20 * 1000;
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
             const int sleepTime = 1000;
 #else
             const int sleepTime = 0;
@@ -1844,7 +1831,7 @@ int main(int argc, char *argv[]) {
                 P_(timeBefore); P_(timeAfter); P(timeout);
             }
 
-            LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
+            LOOP3_ASSERT(DATA[ti].d_lineNum, resp, DATA[ti].d_expected,
                          resp == DATA[ti].d_expected);
 
 #ifndef BSLS_PLATFORM_OS_CYGWIN
@@ -2184,8 +2171,7 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp == sizeof(buf1));
 
-// #if defined(BSLS_PLATFORM_OS_HPUX) || \
-//     defined(BSLS_PLATFORM_OS_WINDOWS)
+// #if defined(BSLS_PLATFORM_OS_WINDOWS)
 // // Some TCP driver implementations require some delay between write and
 // // read (on the loopback service) in order to recognize I/O events
 // // correctly.
@@ -2224,8 +2210,7 @@ int main(int argc, char *argv[]) {
             resp = serviceSocket->write(buf1, sizeof(buf1));
             ASSERT(resp < 0);
 
-// #if defined(BSLS_PLATFORM_OS_HPUX) || \
-//     defined(BSLS_PLATFORM_OS_WINDOWS)
+// #if defined(BSLS_PLATFORM_OS_WINDOWS)
 // // Some TCP driver implementations require some delay between write and
 // // read (on the loopback service) in order to recognize I/O events
 // // correctly.
@@ -2324,14 +2309,8 @@ int main(int argc, char *argv[]) {
                 typedef btlso::SocketHandle SH;
 
                 if (resp != 0) {
-#if defined(BSLS_PLATFORM_OS_HPUX)
-                    LOOP_ASSERT(resp,SH::e_ERROR_UNCLASSIFIED == resp ||
-                                SH::e_ERROR_CONNDEAD     == resp ||
-                                SH::e_ERROR_INTERRUPTED  == resp);
-#else
                     LOOP_ASSERT(resp,SH::e_ERROR_CONNDEAD     == resp ||
                                 SH::e_ERROR_INTERRUPTED  == resp);
-#endif
                 }
                 else {
                     char buf[1];

@@ -11,13 +11,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
-//@SEE_ALSO:
-//   btlmt_channelpoolconfiguration, btlmt_channelqueuepool
-//
 //@CLASSES:
 //  btlmt::ChannelPool: channel manager
 //
-//@SEE_ALSO: btlmt_channelpoolconfiguration, btlmt_channelqueuepool
+//@SEE_ALSO: btlmt_channelpoolconfiguration, btlmt_sessionpool
 //
 //@DESCRIPTION: This component provides a thread-enabled manager of IPv4-based
 // byte-stream communication channels.  The channels are created automatically
@@ -500,7 +497,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static void monitorPool(bslmt::Mutex              *coutLock,
 //                          const btlmt::ChannelPool&  pool,
-//                          int                       numTimes)
+//                          int                        numTimes)
 //      // Every 10 seconds, output the percent busy of the specified channel
 //      // 'pool' to the standard output, using the specified 'coutLock' to
 //      // synchronizing access to the standard output stream; return to the
@@ -512,7 +509,6 @@ BSLS_IDENT("$Id: $")
 //          cout << "The pool is " << pool.busyMetrics() << "% busy ("
 //              << pool.numThreads() << " threads)." << endl;
 //          coutLock->unlock();
-//          bslmt::ThreadUtil::sleep(bsls::TimeInterval(10*1E6));  // 10 secs
 //      }
 //  }
 //..

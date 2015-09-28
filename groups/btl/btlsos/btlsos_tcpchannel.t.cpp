@@ -388,7 +388,7 @@ static void* threadSignalGenerator(void *arg)
         PT(threadInfo->d_signalIoFlag);
     }
 
-    bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(0.5 * k_SLEEP_TIME);
                                     // The thread waits to make sure the main
                                     // thread is hanging in the dispatch()
                                     // call.
@@ -399,13 +399,13 @@ static void* threadSignalGenerator(void *arg)
             P_T(bslmt::ThreadUtil::self());
             QT(" generated a SIGSYS signal.");
         }
-        bslmt::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(0.4 * k_SLEEP_TIME);
     }
     if (verbose) {
         PT(threadInfo->d_signalIoFlag);
     }
     if (threadInfo->d_signalIoFlag) {  // non-interruptible mode
-        bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(0.5 * k_SLEEP_TIME);
         if (e_WRITE_OP == threadInfo->d_signalIoFlag) {
             char buf[k_HELPER_WRITE];
             memset(buf, 'x', k_HELPER_WRITE);    // to keep purify happy
@@ -481,7 +481,7 @@ static void* threadToCloseSocket(void *arg)
 #ifdef BSLS_PLATFORM_OS_LINUX
     //bslmt::ThreadUtil::microSleep(1 * k_SLEEP_TIME);
 #else
-    bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(0.7 * k_SLEEP_TIME);
 #endif
 
     int ret = btlso::SocketImpUtil::close(threadInfo->d_socketHandle);
@@ -843,7 +843,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the signaling thread
-        bslmt::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(0.2 * k_SLEEP_TIME);
 #endif
     } break;
     #endif
@@ -874,7 +874,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
-        bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(0.7 * k_SLEEP_TIME);
 #endif
     } break;
     case e_CLOSE_OBSERVE: {
@@ -908,7 +908,7 @@ static int testExecutionHelper(btlsos::TcpChannel          *channel,
         ++(*index);
 #ifdef BSLS_PLATFORM_OS_LINUX
         // do not race with the closer thread
-        bslmt::ThreadUtil::microSleep(7 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(0.7 * k_SLEEP_TIME);
 #endif
         //bslmt::ThreadUtil::microSleep(SLEEP_TIME);
 
@@ -973,8 +973,9 @@ int processTest(btlsos::TcpChannel          *channel,
                 #endif
             }
             else {
-                LOOP_ASSERT(commands[i].d_lineNum,
-                            ret == commands[i].d_expReturnValue);
+                LOOP3_ASSERT(commands[i].d_lineNum,
+                             ret, commands[i].d_expReturnValue,
+                             ret == commands[i].d_expReturnValue);
             }
             if (ret != commands[i].d_expReturnValue) {
                 P_T(ret);
@@ -2827,7 +2828,7 @@ int main(int argc, char *argv[]) {
                 // There is not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         5,         0,           0,         0   },
-              {L_,     e_W,         60000,       1,         16383,       0   },
+              {L_,     e_W,         60000,       1,         16384,       0   },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the write method w/o the
