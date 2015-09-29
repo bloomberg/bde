@@ -2672,7 +2672,7 @@ if (veryVerbose)
     // 64-bit 'double' from the wider internal processor FP registers.
 
             volatile double DBL_SECS2 = X.totalSecondsAsDouble();
-            LOOP_ASSERT(LINE, 0.0 == DBL_SECS2
+            LOOP_ASSERT(LINE, (0.0 == DBL_SECS && 0.0 == DBL_SECS2)
                                 || fabs(DBL_SECS / DBL_SECS2 - 1.0) < 1.0e-15);
 
     // The last 'LOOP_ASSERT' is commented out due to a precision problem when
