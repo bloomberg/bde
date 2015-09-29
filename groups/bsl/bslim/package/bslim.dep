@@ -1,5 +1,6 @@
 bsl+bslhdrs
 bsl+stdhdrs
+bsltf
 bslalg
 bslma
 bslmf
