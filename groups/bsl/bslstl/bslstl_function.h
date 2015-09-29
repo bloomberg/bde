@@ -9937,7 +9937,12 @@ template<class TP>
 inline
 const TP* bsl::Function_Rep::target() const BSLS_NOTHROW_SPEC
 {
-    return const_cast<Function_Rep*>(this)->target<TP>();
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    return reinterpret_cast<const TP *>(
+                                const_cast<Function_Rep*>(this)->target<TP>());
+#else
+    const_cast<Function_Rep*>(this)->target<TP>();
+#endif
 }
 
 inline
