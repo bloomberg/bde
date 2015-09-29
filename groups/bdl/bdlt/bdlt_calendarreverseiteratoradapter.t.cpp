@@ -8,6 +8,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <cmath>
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -1105,7 +1107,17 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(ti, v[ti] == *it);
                 *it = x;
+
+#if defined(BSLS_PLATFORM_CPU_X86)                                            \
+ && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+    // This is necessary because on Linux, it seems there is inconsistency in
+    // the narrowing of the value to a 64-bit 'double' from the wider internal
+    // processor FP registers.
+
+                LOOP_ASSERT(ti, fabs(v[ti] / x - 1.0) < 1.0e-15);
+#else
                 LOOP_ASSERT(ti, v[ti] == x);
+#endif
 
                 v[ti] = origV[ti];                 // restore to original state
             }
