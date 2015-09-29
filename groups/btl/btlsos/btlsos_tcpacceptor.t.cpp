@@ -150,7 +150,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 10000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -624,6 +624,8 @@ int main(int argc, char *argv[]) {
             // Note: this is OK *if and only if* it is in the 'main' function.
             bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
             bsls::TimeInterval writeTimeout(5, 0);  // 5 seconds
+
+#if 0
             while (0 == acceptor.isInvalid()) {
                 int status;
                 btlsc::TimedChannel *channel =
@@ -677,6 +679,7 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(acceptor.isInvalid());
             ASSERT(0 == acceptor.close());
+#endif
         }
       } break;
       case 7: {
