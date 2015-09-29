@@ -6,8 +6,6 @@
 
 @AUTHOR Tom Marshall (tmarshal)
 
-@SEE_ALSO:
-
 @DESCRIPTION: The 'ball' package provides a toolkit for logging messages in
  applications and library code.  The logger toolkit has an administration layer
  that allows configuration both at start-up and during program execution, a

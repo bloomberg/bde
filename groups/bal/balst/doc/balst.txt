@@ -97,7 +97,6 @@
  arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
  supplied; 'maxFrames' defaults to at least 1024 (which is more than we
  need), and 'demanglingPreferredFlag' defaults to 'true'.
-
 ..
   static
   void recurseAndPrintStack(int *depth)

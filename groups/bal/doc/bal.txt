@@ -7,9 +7,7 @@
 @AUTHOR: Tom Marshall (tmarshal)
 
 @DESCRIPTION: The 'bal' ("Basic Applications Environment") package group
- contains twelve packages (beyond the required 'balscm' source management
- versioning package -- see 'bdescm' for a general discussion of version
- control).  Those packages provide application-level support services in varied
+ contains packages that provide application-level support services in varied
  areas such as encoders/decoders, timezone support, command-line handling,
  metrics, and logging.
 

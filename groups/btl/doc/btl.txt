@@ -64,33 +64,33 @@
 
 /Package Overview
 /----------------
- The following provides an overview of the 'btl' packages.  The subsections are
- still very brief.  See the respective Package Level documents for more details
- and usage examples.
+ This section provides a brief introduction to some of the packages in 'btl'
+ package group.  See the respective Package Level documents for more details.
 
-/btlmt
-/- - -
- {'btlmt'} provides a multi-threaded framework that supports TCP/IPv4
- transport.  In functionality, 'btlmt' is similar to 'ptdispatch' except that
- there is no support for 'fstsnd' at this time.
+/'btlmt'
+/- - - -
+ The {'btlmt'} package provides a multi-threaded framework that supports
+ TCP/IPv4 transport.  In functionality, 'btlmt' is similar to 'ptdispatch'
+ except that there is no support for 'fstsnd' at this time.
 
-/btls
-/- -
- {'btls'} provides "system level" services that are required by this transport
- package group in a form that is portable across all suported platforms.
- Currently, the package supplies objects and utilities to implement the Unix
- 'iovec' ("scatter/gather") buffer structure in a platform-neutral form.
+/'btls'
+/ - - -
+ The {'btls'} package provides "system level" services that are required by
+ this transport package group in a form that is portable across all suported
+ platforms.  Currently, the package supplies objects and utilities to implement
+ the Unix 'iovec' ("scatter/gather") buffer structure in a platform-neutral
+ form.
 
-/btls5
-/- -
- {'btls5'} provides  connectivity through a network of SOCKS5 proxies with
+/'btls5'
+/- - - -
+ {'btls5'} provides connectivity through a network of SOCKS5 proxies with
  optional username/password authentication.
 
-/btlsc
-/- - -
- {'btlsc'} provides a suite of protocols (i.e., pure abstract interfaces)
- abstracting the general behavior of communications "channels".  All
- abstractions in this package consider stream-based (as opposed to
+/'btlsc'
+/- - - -
+ The {'btlsc'} package provides a suite of protocols (i.e., pure abstract
+ interfaces) abstracting the general behavior of communications "channels".
+ All abstractions in this package consider stream-based (as opposed to
  message-based) transport.  The three general abstractions are called
  "channel", "channel allocator", and "allocator factory".  In our usage,
  "allocator" and "factory" are synonymous; we use different words to avoid
@@ -104,13 +104,13 @@
  above interfaces is available in blocking and non-blocking form, and with and
  without support for timeouts.
 
-/btlso
-/- - -
- {'btlso'} provides relatively low-level support for sockets as well as a
- number of concrete event managers.
+/'btlso'
+/- - - -
+ The {'btlso'} package provides relatively low-level support for sockets as
+ well as a number of concrete event managers.
 
-/btlsos
-/- - -
- {'btlsos'} provides concrete impementations of 'btlsc' channels using TCP/IPv4
- sockets.  Timed and untimed, and blocking and non-blocking versions of generic
- channels, acceptors, and connectors are provided.
+/'btlsos'
+/ - - - -
+ The {'btlsos'} package provides concrete impementations of 'btlsc' channels
+ using TCP/IPv4 sockets.  Timed and untimed, and blocking and non-blocking
+ versions of generic channels, acceptors, and connectors are provided.

@@ -1,11 +1,13 @@
  bdlb.txt
 
-@PURPOSE: Provide utilities classes and functions.
+@PURPOSE: Provide utilities on basic types.
 
 @MNEMONIC: Basic Development Library Basics (bdlb)
 
-@DESCRIPTION: The 'bdlb' package provides various utilities classes and
- functions.
+@DESCRIPTION: The 'bdlb' package provides utility 'struct's in the broad areas
+ of bit manipulation, string handling, random number generations, hashing,
+ variant and nullable types.  Classes are provided for nullable and variant
+ values.
 
 /Hierarchical Synopsis
 /---------------------

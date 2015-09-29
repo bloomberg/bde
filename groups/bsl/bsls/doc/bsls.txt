@@ -292,7 +292,8 @@
 
 /Component Overview
 /------------------
- This section summarizes the components that are available in 'bsls'.
+ This section provides a brief introduction to some of the components in the
+ 'bsls' package.  See the documentation in each component for full details.
 
 /'bsls_alignedbuffer'
 / - - - - - - - - - -

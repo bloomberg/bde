@@ -19,9 +19,8 @@
 :   commands through a pipe-channel to a running process, and (3) registering
 :   callback functions to be invoked upon reception of such commands.
 :
-: o A metric reporting protocol and a value-semantic type to represent
-:   metrics.  Note that the metric reporting facilities provided by 'balb'
-:   have been !DEPRECATED! in lieu of 'baem'.
+: o A multi-process performance reporting mechanism and a value-semantic type to represent
+:   metrics.  Note that the entire {'baem'} package is dedicated to metrics gathering.
 
 /Hierarchical Synopsis
 /---------------------

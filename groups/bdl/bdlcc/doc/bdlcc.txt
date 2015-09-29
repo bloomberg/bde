@@ -15,7 +15,7 @@
  in the presence of multiple threads.
 
  Support for true multi-threading causes some significant interface changes
- when compared to the analogous 'bdec' components.  A thread-safe collection
+ when compared to the analogous 'bdlc' components.  A thread-safe collection
  cannot, in general, guarantee thread safety for its contained objects while
  still allowing access to those objects.  So, for instance, a canonical
  implementation of 'operator[]', yielding a reference to the contained object,
@@ -86,34 +86,9 @@
 
 /Component Overview
 /------------------
-/'bdlcc_queue':
-/- - - - - - -
- The {'bdlcc_queue'} component provides an in-place, indexable, double-ended
- queue.  Clients instantiate a template class, 'bdlcc_Queue<T>', where type 'T'
- is the data type of elements that the queue will hold.  Type 'T' must be
- defined to be copyable either by a copy constructor or by 'T::operator=()';
- class 'bdlcc_Queue' Places no additional requirements on 'T'.
-
-/'bdlcc_timequeue'
-/ - - - - - - - -
- The {'bdlcc_timequeue'} component provides an in-place, indexable queue,
- managed in time order.  Clients instantiate a template class,
- 'bdlcc_TimeQueue<T>', where type 'T' is the data type of elements that the
- queue will hold.  Type 'T' must be defined to be copyable either by a copy
- constructor or by 'T::operator=()'; class 'bdlcc_TimeQueue' places no
- additional requirements on 'T'.
-
- When clients add elements to a 'bdlcc_TimeQueue', they provide both the
- element 'T' to be added and a time value, of type 'bdet_TimeInterval'.
- Elements can be extracted individually in time order using the overloaded
- 'popFront()' member functions; a block of elements can also be popped in a
- single operation, 'popLE()', which pops all elements before a given time
- value.
-
- The 'bdlcc_TimeQueue' is designed to support direct access to individual
- queued elements based upon their 'Handle'.  This means that 'bdlcc_TimeQueue'
- can support frequent additions and removals more efficiently than traditional
- queue structures designed for sequential access.
+ This section provides a brief introduction to some of the components of the
+ 'bdlcc' package.  Full details are available in the documentation of each
+ component.
 
 /'bdlcc_objectcatalog'
 / - - - - - - - - - -
@@ -155,3 +130,32 @@
  a later time without going through destruction and re-creation.  For instance,
  the object constructor may get access to some resource (e.g., a connection)
  and the resource may remain valid after several uses and thus can be reused.
+
+/'bdlcc_queue'
+/- - - - - - -
+ The {'bdlcc_queue'} component provides an in-place, indexable, double-ended
+ queue.  Clients instantiate a template class, 'bdlcc_Queue<T>', where type 'T'
+ is the data type of elements that the queue will hold.  Type 'T' must be
+ defined to be copyable either by a copy constructor or by 'T::operator=()';
+ class 'bdlcc_Queue' Places no additional requirements on 'T'.
+
+/'bdlcc_timequeue'
+/ - - - - - - - -
+ The {'bdlcc_timequeue'} component provides an in-place, indexable queue,
+ managed in time order.  Clients instantiate a template class,
+ 'bdlcc_TimeQueue<T>', where type 'T' is the data type of elements that the
+ queue will hold.  Type 'T' must be defined to be copyable either by a copy
+ constructor or by 'T::operator=()'; class 'bdlcc_TimeQueue' places no
+ additional requirements on 'T'.
+
+ When clients add elements to a 'bdlcc_TimeQueue', they provide both the
+ element 'T' to be added and a time value, of type 'bdet_TimeInterval'.
+ Elements can be extracted individually in time order using the overloaded
+ 'popFront()' member functions; a block of elements can also be popped in a
+ single operation, 'popLE()', which pops all elements before a given time
+ value.
+
+ The 'bdlcc_TimeQueue' class template supports direct access to individual
+ queued elements based upon their 'Handle'.  This means that 'bdlcc_TimeQueue'
+ can support frequent additions and removals more efficiently than traditional
+ queue structures designed for sequential access.

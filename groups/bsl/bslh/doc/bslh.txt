@@ -860,28 +860,29 @@
 
 /Component Overview
 /------------------
- This section summarizes the components that are available in 'bslh'.
- Subsequent sections provide more detail on component selection, performance,
- and usage.
+ This section provides a brief introduction to each of the components in the
+ 'bslh' package.  Full details are available in the documentation of each
+ component.
 
 /'bslh_defaulthashalgorithm'
 /- - - - - - - - - - - - - -
- 'bslh::DefaultHashAlgorithm' provides an unspecified default hashing
- algorithm.  The supplied algorithm is suitable for general purpose use in a
- hash table.  The underlying algorithm is subject to change in future releases.
-
- This class satisfies the requirements for regular 'bslh' hashing algorithms,
- defined in 'bslh_hash.h'.
-
-/'bslh_defaultseededhashalgorithm'
-/- - - - - - - - - - - - - - - - -
- 'bslh::DefaultSeededHashAlgorithm' provides an unspecified default seeded
+ The 'bslh_defaulthashalgorithm' component provides an unspecified default
  hashing algorithm.  The supplied algorithm is suitable for general purpose use
  in a hash table.  The underlying algorithm is subject to change in future
  releases.
 
- This class satisfies the requirements for seeded 'bslh' hashing algorithms,
- defined in 'bslh_seededhash.h'.
+ This class satisfies the requirements for regular 'bslh' hashing algorithms,
+ as defined in 'bslh_hash'.
+
+/'bslh_defaultseededhashalgorithm'
+/- - - - - - - - - - - - - - - - -
+ The 'bslh_defaultseededhashalgorithm' component provides an unspecified
+ default seeded hashing algorithm.  The supplied algorithm is suitable for
+ general purpose use in a hash table.  The underlying algorithm is subject to
+ change in future releases.
+
+ This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
+ defined in 'bslh_seededhash'.
 
 /'bslh_hash'
 /- - - - - -
@@ -895,7 +896,7 @@
 /'bslh_seededhash'
 /- - - - - - - - -
  The {'bslh_seededhash'} component provides a templated struct,
- 'bslh::SeededHash', which provides hashing functionality.  This struct is a
+ 'bslh::SeededHash', which provides hashing functionality.  This 'struct' is a
  drop in replacement for 'bsl::hash'.  It is similar to 'bslh::Hash', however,
  it is meant for hashes that require a seed.  It takes a seed generator and
  uses that to create seeds to give the hashing algorithm.  'bslh::SeededHash'
@@ -913,43 +914,44 @@
  in order for 'SeedGenerator' to produce seeds suitable for a cryptographically
  secure algorithm.
 
- This class satisfies the requirements for a seed generator, defined in
- 'bslh_seededhash.h'.
+ This class satisfies the requirements for a seed generator, as defined in
+ 'bslh_seededhash'.
 
 /'bslh_siphashalgorithm'
 /- - - - - - - - - - - -
- 'bslh::SipHashAlgorithm' implements the SipHash algorithm.  SipHash is an
- algorithm designed for speed and security.  A primary use case for this
- algorithm is to provide an extra line of defense in hash tables (such as the
- underlying implementation of 'unordered_map') against malicious input that
- could cause Denial of Service (DoS) attacks.  It is based on one of the
- finalists for the SHA-3 cryptographic hash standard.  Full details of the hash
- function can be found at 'https://131002.net/siphash/siphash.pdf'.  This
- particular implementation has been derived from Howard Hinnant's work at
+ The 'bslh_siphashalgorithm' component provides an implementation of the
+ SipHash algorithm.  SipHash is an algorithm designed for speed and security.
+ A primary use case for this algorithm is to provide an extra line of defense
+ in hash tables (such as the underlying implementation of 'unordered_map')
+ against malicious input that could cause Denial of Service (DoS) attacks.  It
+ is based on one of the finalists for the SHA-3 cryptographic hash standard.
+ Full details of the hash function can be found at
+ 'https://131002.net/siphash/siphash.pdf'.  This particular implementation has
+ been derived from Howard Hinnant's work at
  'https://github.com/HowardHinnant/hash_append/blob/master/siphash.h' and as
  much of the original code as possible, including comment headers, has been
  preserved.
 
- This class satisfies the requirements for seeded 'bslh' hashing algorithms,
- defined in 'bslh_seededhash.h'.
+ This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
+ defined in 'bslh_seededhash'.
 
 /'bslh_spookyhashalgorithm'
 / - - - - - - - - - - - - -
- 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm by Bob
- Jenkins.  This algorithm is a general purpose algorithm that is known to
- quickly reach good avalanche performance and execute in time that is
- comparable to or faster than other industry standard algorithms such as
- CityHash.  It is a good default choice for hashing values in unordered
- associative containers.  For more information, see
+ The 'bslh_spookyhashalgorithm' component provides an implementation of the
+ SpookyHash algorithm by Bob Jenkins.  This algorithm is a general purpose
+ algorithm that is known to quickly reach good avalanche performance and
+ execute in time that is comparable to or faster than other industry standard
+ algorithms such as CityHash.  It is a good default choice for hashing values
+ in unordered associative containers.  For more information, see
  'http://burtleburtle.net/bob/hash/spooky.html'.
 
  This class satisfies the requirements for regular 'bslh' hashing algorithms
- and seeded 'bslh' hashing algorithms, defined in 'bslh_hash.h' and
- 'bslh_seededhash.h' respectively.
+ and seeded 'bslh' hashing algorithms, as defined in 'bslh_hash' and
+ 'bslh_seededhash' respectively.
 
 /'bslh_spookyhashalgorithmimp'
 /- - - - - - - - - - - - - - -
- 'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation around Bob
- Jenkins canonical SpookyHash implementation.  SpookyHash provides a way to
- hash contiguous data all at once, or non-contiguous data in pieces.  More
- information is available at: 'http://burtleburtle.net/bob/hash/spooky.html'.
+ The 'bslh_spookyhashalgorithmimp' component provides BDE-style encapsulation
+ of Bob Jenkins canonical SpookyHash implementation.  SpookyHash provides a way
+ to hash contiguous data all at once, or non-contiguous data in pieces.  More
+ information is available at 'http://burtleburtle.net/bob/hash/spooky.html'.

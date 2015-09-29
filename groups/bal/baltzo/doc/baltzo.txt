@@ -14,6 +14,12 @@
  "America/New_York", "America/Indiana/Indianapolis", "Europe/Rome",
  "Pacific/Honolulu").
 
+ The {'baetzo_timezoneutil'} component provides functions that, given a a time
+ zone identifier, can provide information about the timezone, can initialize
+ various datetime objects (e.g., 'baetzo::LocalDatetime', 'bdtl::Datetime',
+ 'bdlt::DatetimeTz), and can convert between local datetime values and UTC
+ values.  These functions address the most common usage scenarios.
+
 /Hierarchical Synopsis
 /---------------------
  The 'baltzo' package currently has 19 components having 8 levels of physical
