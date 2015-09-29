@@ -151,7 +151,7 @@ enum {
     k_REMOTE_PORT_NUMBER      = 7,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000
+    k_SLEEP_TIME              = 1000
 };
 
 enum {

@@ -17,6 +17,7 @@
 #include <bsls_asserttest.h>
 #include <bsl_sstream.h>
 #include <btlmt_session.h>                  // for testing only
+#include <btlmt_sessionfactory.h>           // for testing only
 #include <btlmt_sessionpool.h>              // for testing only
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_socketimputil.h>
@@ -221,7 +222,8 @@ struct Session : public btlmt::Session {
 
 class SessionFactory : public btlmt::SessionFactory {
   public:
-    virtual void allocate(btlmt::AsyncChannel *, const Callback& cb)
+    virtual void allocate(btlmt::AsyncChannel                    *,
+                          const btlmt::SessionFactory::Callback&  cb)
     {
         cb(0, new Session);
         if (veryVerbose) { cout << "SessionFactory::allocate" << endl; }
