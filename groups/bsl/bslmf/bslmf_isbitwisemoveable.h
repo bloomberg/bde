@@ -559,6 +559,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
 #endif
@@ -619,15 +623,18 @@ struct IsBitwiseMoveable_Imp
     // component for more details on this heuristic and how to avoid false
     // positives.
 
-private:
+  private:
     static const bool k_NestedBitwiseMoveableTrait =
         DetectNestedTrait<TYPE, IsBitwiseMoveable>::value;
 
-public:
+  public:
     static const bool value = !bsl::is_reference<TYPE>::value
-                          && (  bsl::is_trivially_copyable<TYPE>::value
-                             || sizeof(TYPE) == 1
-                             || k_NestedBitwiseMoveableTrait);
+                           && (bsl::is_trivially_copyable<TYPE>::value
+                            || k_NestedBitwiseMoveableTrait
+                            || sizeof(typename bsl::conditional<
+                                                 bsl::is_function<TYPE>::value,
+                                                 char[2],
+                                                 TYPE>::type) == 1);
 
     typedef bsl::integral_constant<bool, value> type;
 
