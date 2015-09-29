@@ -14,6 +14,8 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -861,7 +863,11 @@ int main(int argc, char *argv[])
                 char buf[BUF_SIZE];
                 memset(buf, 0, sizeof(buf));
                 ostringstream outbuf(bsl::string(buf, BUF_SIZE));
+
+                bsls::Types::Int64 numBlocksTotal =
+                                             defaultAllocator.numBlocksTotal();
                 X.print(outbuf, INDENT, SPACES);
+                ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
 
                 LOOP3_ASSERT(LINE,
                              EXPECTED,
@@ -870,7 +876,6 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(0 == objectAllocator.numBlocksInUse());
-        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
       } break;
@@ -1860,7 +1865,11 @@ int main(int argc, char *argv[])
             char buf[BUF_SIZE];
             memset(buf, 0, sizeof(buf));
             ostringstream outbuf(bsl::string(buf, BUF_SIZE));
+
+            bsls::Types::Int64 numBlocksTotal =
+                                             defaultAllocator.numBlocksTotal();
             outbuf << X;
+            ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
 
             if (veryVeryVerbose) { T_ T_ P_(EXPECTED) P(outbuf.str()) }
             LOOP3_ASSERT(LINE,
@@ -1869,7 +1878,6 @@ int main(int argc, char *argv[])
                          0 == bsl::strcmp(EXPECTED, outbuf.str().c_str()));
         }
         ASSERT(0 == objectAllocator.numBlocksInUse());
-        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
       } break;
