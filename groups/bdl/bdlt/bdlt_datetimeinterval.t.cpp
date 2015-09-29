@@ -29,6 +29,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <cmath>
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -2666,12 +2668,12 @@ if (veryVerbose)
  && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
     // This is necessary because on Linux, for some inexplicable reason, even
     // 'X.totalSecondsAsDouble() == X.totalSecondsAsDouble()' returns 'false'.
-    // Under gcc 4.3.5, it is even necessary to declare 'SECONDS' as
-    // 'volatile', probably in order to force a narrowing of the value to a
+    // This is probably needed in order to force a narrowing of the value to a
     // 64-bit 'double' from the wider internal processor FP registers.
 
             volatile double DBL_SECS2 = X.totalSecondsAsDouble();
-            LOOP_ASSERT(LINE, DBL_SECS == DBL_SECS2);
+            LOOP_ASSERT(LINE, (0.0 == DBL_SECS && 0.0 == DBL_SECS2)
+                                || fabs(DBL_SECS / DBL_SECS2 - 1.0) < 1.0e-15);
 
     // The last 'LOOP_ASSERT' is commented out due to a precision problem when
     // casting from 'double' to 'Int64'.  For example:

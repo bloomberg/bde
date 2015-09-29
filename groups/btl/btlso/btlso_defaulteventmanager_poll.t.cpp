@@ -872,18 +872,6 @@ int main(int argc, char *argv[]) {
                 enum { NUM_PAIR = 4 };
                 btlso::EventManagerTestPair socketPairs[NUM_PAIR];
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-                // For some reason, sockets on HPUX are woozy for the first
-                // ~ 20 ms or so after they're created, after that they seem
-                // to be OK.  In a polling interface, this just means events
-                // will take a few cycles to catch up.  Note that test case
-                // 12 in btlso_eventmanagertester.t.cpp verifies that, though
-                // it takes awhile for the socket to wake up, i/o to it during
-                // that time is at least correct.
-
-                bslmt::ThreadUtil::microSleep(40 * 1000);
-#endif
-
                 for (int j = 0; j < NUM_PAIR; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
                     socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
@@ -906,7 +894,7 @@ int main(int argc, char *argv[]) {
         {
             int nowFailures = 0;  // due to time going backward on some systems
             int intFailures = 0;  // due to unexpected interrupts
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
@@ -965,7 +953,7 @@ int main(int argc, char *argv[]) {
             ShouldntBeCalled shouldntBeCalled;
             int nowFailures = 0;  // due to time going backward on some systems
             int intFailures = 0;  // due to unexpected interrupts
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);

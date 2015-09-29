@@ -222,7 +222,8 @@ struct Session : public btlmt::Session {
 
 class SessionFactory : public btlmt::SessionFactory {
   public:
-    virtual void allocate(btlmt::AsyncChannel *, const Callback& cb)
+    virtual void allocate(btlmt::AsyncChannel                    *,
+                          const btlmt::SessionFactory::Callback&  cb)
     {
         cb(0, new Session);
         if (veryVerbose) { cout << "SessionFactory::allocate" << endl; }

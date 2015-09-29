@@ -150,7 +150,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 1000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -641,6 +641,7 @@ int main(int argc, char *argv[]) {
 //..
 // Go into "infinite" loop, accepting connections and servicing user requests:
 //..
+#if 0
     while (0 == acceptor.isInvalid()) {
         int status;
         btlsc::TimedChannel *channel = acceptor.timedAllocateTimed(
@@ -702,6 +703,7 @@ int main(int argc, char *argv[]) {
 //..
     ASSERT(acceptor.isInvalid());
     ASSERT(0 == acceptor.close());
+#endif
 //..
       } break;
       case 9: {
@@ -1227,7 +1229,7 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
                   interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
@@ -1593,7 +1595,7 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
                   interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
