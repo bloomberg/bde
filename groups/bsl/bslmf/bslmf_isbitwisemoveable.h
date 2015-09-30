@@ -608,8 +608,18 @@ namespace bslmf {
 template <class TYPE>
 struct IsBitwiseMoveable;
 
+template <class TYPE, bool = bsl::is_reference<TYPE>::value
+                          || bsl::is_function<TYPE>::value>
+struct IsBitwiseMoveable_Imp : bsl::false_type {
+    // Function types and reference types are not object types, and so are not
+    // bitwise-movable.  Both categories of types must be explicitly handled by
+    // a distinct template specialization to avoid attempting to instantiate
+    // invalid code, such as 'sizeof(FUNCTION_TYPE)', when computing the trait
+    // result for other (object) types.
+};
+
 template <class TYPE>
-struct IsBitwiseMoveable_Imp
+struct IsBitwiseMoveable_Imp<TYPE, false>
 {
     // Core implementation of the 'IsBitwiseMoveable' trait. A class is
     // detected as being bitwise moveable iff it is trivially copyable or it
@@ -628,13 +638,9 @@ struct IsBitwiseMoveable_Imp
         DetectNestedTrait<TYPE, IsBitwiseMoveable>::value;
 
   public:
-    static const bool value = !bsl::is_reference<TYPE>::value
-                           && (bsl::is_trivially_copyable<TYPE>::value
-                            || k_NestedBitwiseMoveableTrait
-                            || sizeof(typename bsl::conditional<
-                                                 bsl::is_function<TYPE>::value,
-                                                 char[2],
-                                                 TYPE>::type) == 1);
+    static const bool value = bsl::is_trivially_copyable<TYPE>::value
+                           || k_NestedBitwiseMoveableTrait
+                           || sizeof(TYPE) == 1;
 
     typedef bsl::integral_constant<bool, value> type;
 
