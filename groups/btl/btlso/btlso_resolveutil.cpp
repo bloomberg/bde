@@ -502,7 +502,7 @@ int ResolveUtil::getHostnameByAddress(bsl::string        *canonicalHostname,
     saGNI.sin_addr.s_addr = addr;
     saGNI.sin_port = htons(port);
 
-    if (getnameinfo(static_cast<SOCKADDR *>(&saGNI),
+    if (getnameinfo(reinterpret_cast<SOCKADDR *>(&saGNI),
                     sizeof(sockaddr),
                     hostName,
                     sizeof(hostName),

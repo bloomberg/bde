@@ -758,7 +758,7 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesSent;
     rc = ::WSASend(socket,
-                   reinterpret_cast<WSABUF *>(ovec),
+                   reinterpret_cast<WSABUF *>(const_cast<btls::Ovec *>(ovec)),
                    size,
                    &bytesSent,
                    0,
