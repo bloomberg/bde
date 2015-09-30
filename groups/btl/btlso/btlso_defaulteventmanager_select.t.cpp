@@ -18,6 +18,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
