@@ -38,6 +38,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_memory.h>
 #endif
 
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
 namespace BloombergLP {
 
 namespace btlmt {

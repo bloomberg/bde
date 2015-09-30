@@ -168,10 +168,9 @@ typedef btlmt::TcpTimerEventManager Obj;
 
 namespace TEST_CASE_COLLECT_TIME_METRICS {
 
-void waitForASec()
-    // Delay for 1 second
+void waitForSomeTime()
 {
-    bslmt::ThreadUtil::sleep(bsls::TimeInterval(1, 0));
+    bslmt::ThreadUtil::microSleep(10000); // 10 ms
 }
 
 }  // close namespace TEST_CASE_COLLECT_TIME_METRICS
@@ -345,7 +344,7 @@ static void producer(bdlcc::Queue<int>           *workQueue,
     ASSERT(workQueue);
     ASSERT(manager);
 
-    enum { TIME_OFFSET = 5 };   // invoke timer every 5 seconds
+    enum { TIME_OFFSET = 50 };   // invoke timer every 50 milliseconds
 
     int item = bdlt::CurrentTime::now().nanoseconds() / 1000;
 
@@ -356,7 +355,7 @@ static void producer(bdlcc::Queue<int>           *workQueue,
     workQueue->pushBack(item);
 
     bsls::TimeInterval nextNextTime(nextTime);
-    nextNextTime.addSeconds(TIME_OFFSET);
+    nextNextTime.addMilliseconds(TIME_OFFSET);
     bsl::function<void()> callback(
             bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
 
@@ -545,7 +544,7 @@ void timerCallback(int                *isInvokedFlag,
         bsls::TimeInterval deltaLowerBound =
            bsls::TimeInterval(delta.totalSecondsAsDouble() * (1. - TOLERANCE));
         ASSERT(delta >= deltaLowerBound);
-        if (expDelta < delta || veryVerbose) {
+        if (veryVerbose) {
             Q("timerCallback");
             P_(sequenceNumber); P_(now); P(*registrationTime);
             P_(deltaLowerBound); P_(delta); P(expDelta);
@@ -808,17 +807,17 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         enum {
-            TIME_OFFSET         = 5 , // seconds
-            INITIAL_TIME_OFFSET = 1   // seconds
+            TIME_OFFSET         = 50, // milliseconds
+            INITIAL_TIME_OFFSET = 10  // milliseconds
         };
 
         bdlcc::Queue<int> workQueue(&testAllocator);;
         btlmt::TcpTimerEventManager manager(&testAllocator);;
 
         bsls::TimeInterval now = bdlt::CurrentTime::now();
-        now.addSeconds(INITIAL_TIME_OFFSET);
+        now.addMilliseconds(INITIAL_TIME_OFFSET);
         bsls::TimeInterval nextTime(now);
-        nextTime.addSeconds(TIME_OFFSET);
+        nextTime.addMilliseconds(TIME_OFFSET);
 
         bsl::function<void()> callback(bdlf::BindUtil::bind(&producer,
                                                                  &workQueue,
@@ -1285,7 +1284,7 @@ int main(int argc, char *argv[])
                 btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
             Obj mX(&testAllocator);
-            bsl::function<void()> callback(&waitForASec);
+            bsl::function<void()> callback(&waitForSomeTime);
             ASSERT(0 == mX.registerSocketEvent(handles[1],
                                                btlso::EventType::e_READ,
                                                callback));
@@ -1321,7 +1320,7 @@ int main(int argc, char *argv[])
 
             Obj mX(false, &testAllocator);
             const Obj& X = mX;
-            bsl::function<void()> callback(&waitForASec);
+            bsl::function<void()> callback(&waitForSomeTime);
             ASSERT(0 == mX.registerSocketEvent(handles[1],
                                                btlso::EventType::e_READ,
                                                callback));
@@ -1780,10 +1779,10 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-                enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
+                enum { NUM_TIMERS  = 100, NUM_ATTEMPTS = 10 };
                 bsl::vector<bsls::TimeInterval> timeValues(NUM_TIMERS);
-                bsls::TimeInterval offset(3.0);
-                bsls::TimeInterval delta(0.5); // 1/2 seconds
+                bsls::TimeInterval offset(0, 200000);
+                bsls::TimeInterval delta(0, 100000);
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1848,9 +1847,9 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-                enum { NUM_TIMERS  = 10000 };
+                enum { NUM_TIMERS  = 100 };
                 bsls::TimeInterval timeValues[NUM_TIMERS];
-                bsls::TimeInterval delta(0.5); // 1/2 seconds
+                bsls::TimeInterval delta(0, 100000); // 100 milliseconds
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1876,7 +1875,6 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
 
-                bslmt::ThreadUtil::sleep(bsls::TimeInterval(5));
                 ASSERT(0 == X.numTimers());
                 ASSERT(0 == X.numEvents());
             }

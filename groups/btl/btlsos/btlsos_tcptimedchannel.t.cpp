@@ -141,7 +141,11 @@ enum {
     k_DEFAULT_PORT_NUMBER     =  0,
     k_DEFAULT_NUM_CONNECTIONS =  10,
     k_DEFAULT_EQUEUE_SIZE     =  5,
-    k_SLEEP_TIME              =  100000
+#if defined BSLS_PLATFORM_OS_LINUX
+    k_SLEEP_TIME              =  1000
+#else
+    k_SLEEP_TIME              =  10
+#endif
 };
 
 enum { // error code returned from I/O operation
@@ -161,7 +165,7 @@ const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
         const int BUF_WRITE2  = 500;   // the last second buffer vector length
         const int BUF_LIMIT   = 1024;  // to set the snd/rcv buffer size
         const int HELPER_READ = 75000;
-        const int SYS_DEPENDENT_LEN = 65000;
+        const int SYS_DEPENDENT_LEN = 512;
 
     #elif defined(BSLS_PLATFORM_OS_LINUX)
         const int BUF_WRITE   = 20000; // the last buffer length for ioVec/oVec
@@ -633,7 +637,8 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                               command->numToProcess.d_numBytes,
                               *command->d_timeout + bdlt::CurrentTime::now(),
                               command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum, augStatus, command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_RV: {  //
         rCode = channel->readv(ioBuffer,
@@ -1013,6 +1018,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         rCode = 0;
     } break;
     case e_SLEEP: {    //
+        PT(command->numToProcess.d_milliseconds)
         bslmt::ThreadUtil::microSleep(command->numToProcess.d_milliseconds);
         rCode = 0;
     } break;
@@ -1511,8 +1517,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -1977,8 +1983,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -2598,8 +2604,8 @@ int main(int argc, char *argv[]) {
 
         {
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -2943,8 +2949,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -3310,8 +3316,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -3670,8 +3676,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4035,8 +4041,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4401,8 +4407,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4785,8 +4791,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -5136,8 +5142,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
