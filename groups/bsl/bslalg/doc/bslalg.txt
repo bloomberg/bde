@@ -14,13 +14,13 @@
 :   uses-allocator).
 :
 : o Primitive data types and fundamental algorithms that form the basis of
-:   standard library containers (e.g., linked lists, hash tables, Red/ Black
+:   standard library containers (e.g., linked lists, hash tables, Red/Black
 :   trees and deques).
 :
 : o Legacy traits types used to tag user-defined (client) types according to
 :   properties such as whether they use a memory allocator to supply memory
 :   resources, have a trivial default constructor, are POD types, etc.  These
-:   traits types have been superceded by the traits in the 'bslmf' package,
+:   traits types have been superseded by the traits in the 'bslmf' package,
 :   and are implemented in terms of 'bslmf'.
 :
 

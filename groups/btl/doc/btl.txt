@@ -9,10 +9,7 @@
 @DESCRIPTION: The 'btl' ("Basic Transport Environment") package group provides
  a variety of concrete transport (IPC) mechanisms and services that conform to
  a uniform set of pure abstract interfaces.  In addition, 'btl' supplies
- low-level support for sockets and event managers, and a higher-level
- multi-threaded transport framework that is similar in functionality to
- 'ptdispatch'.  As of this release, there is no support in 'btl' for 'fstsend',
- but we expect to add this functionality in the next release.
+ low-level support for sockets and event managers.
 
 /Hierarchical Synopsis
 /---------------------

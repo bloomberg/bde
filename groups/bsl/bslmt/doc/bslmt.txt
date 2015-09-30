@@ -13,7 +13,7 @@
  Thread creation and management of mutually exclusive locks (mutexes) are
  supported in a way that should be familiar to developers with experience
  programming in threads on any common computing platform.  In addition,
- individual components such as 'bcemt_lockguard' and 'bcemt_barrier' manage
+ individual components such as 'bslmt_lockguard' and 'bslmt_barrier' manage
  synchronization concerns through simple, idiomatic object interfaces that make
  client code easy to read and understand.
 

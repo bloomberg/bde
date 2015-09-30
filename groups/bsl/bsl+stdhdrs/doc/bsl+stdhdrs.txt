@@ -45,25 +45,25 @@ A majority of the other headers of this package provide the functionality
 of the corresponding C++ Standard headers. In addition, there are a set of
 POSIX standard headers (most of which simply forward to the platform's
 supplied header):
-:   o 'assert.h'
-:   o 'ctype.h'
-:   o 'errno.h'
-:   o 'float.h'
-:   o 'iso646.h'
-:   o 'limits.h'
-:   o 'locale.h'
-:   o 'math.h'
-:   o 'pthread.h'
-:   o 'setjmp.h'
-:   o 'signal.h'
-:   o 'stdarg.h'
-:   o 'stddef.h'
-:   o 'stdio.h'
-:   o 'stdlib.h'
-:   o 'string.h'
-:   o 'time.h'
-:   o 'wchar.h'
-:   o 'wctype.h'
+: o 'assert.h'
+: o 'ctype.h'
+: o 'errno.h'
+: o 'float.h'
+: o 'iso646.h'
+: o 'limits.h'
+: o 'locale.h'
+: o 'math.h'
+: o 'pthread.h'
+: o 'setjmp.h'
+: o 'signal.h'
+: o 'stdarg.h'
+: o 'stddef.h'
+: o 'stdio.h'
+: o 'stdlib.h'
+: o 'string.h'
+: o 'time.h'
+: o 'wchar.h'
+: o 'wctype.h'
 
 /Supported Modes
 /---------------
@@ -179,18 +179,18 @@ supplied header):
 
 /'bslstl'
 / - - - -
- 'bslstl' contains Bloomberg's implementation of allocators and STL containers.
+ The {'bslstl'} package contains Bloomberg's implementation of allocators and STL containers.
 
 /'bsl+bslhdrs'
 /- - - - - - -
- 'bsl+bslhdrs' contains all the 'bsl_*' headers (corresponding to standard STL
+ The {'bsl+bslhdrs'} package (a non-BDE-conformant package) contains all the 'bsl_*' headers (corresponding to standard STL
  headers, e.g., '<bsl_string.h>' for '<string>').  When included, the files in
  this directory inject native STL symbols from the 'std' namespace into the
  'bsl' namespace, or include the corresponding 'Bloomberg' type.
 
 /'bsl+stdhdrs'
 /- - - - - - -
- 'bsl+stdhdrs' contains all the headers used to intercept the inclusion of
+ The {'bsl+stdhdrs'} package (a non-BDE-conformant package) contains all the headers used to intercept the inclusion of
  standard STL headers.  This directory also contains auxiliary files that
  implement pre-processor logic to support BDE-STL mode, such as
  'bsl_stdhdrs_prologue.h' and 'bsl_stdhdrs_epilogue.h'.

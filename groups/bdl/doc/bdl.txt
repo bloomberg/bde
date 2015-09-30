@@ -4,10 +4,11 @@
 
 @MNEMONIC: Basic Development Library (bdl)
 
-@DESCRIPTION: The 'bdl' ("Basic Development Library") package group currently
- contains system-level utilities and concrete allocators derived from the
- 'bdlma::Allocator' protocol.  In the future, this package group will also
- provide fundation-level services, vocabulary types, and containers.
+@DESCRIPTION: The 'bdl' ("Basic Development Library") package group contains
+ platform-independent system-level utilities, concrete allocators derived from
+ the 'bslma::Allocator' protocol, vocabulary types for date, time, and calendar
+ values, several containers (e.g., packed containers), and a decimal floating
+ point library.
 
 /Hierarchical Synopsis
 /---------------------

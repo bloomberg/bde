@@ -7,10 +7,7 @@
 @AUTHOR: Tom Marshall (tmarshal)
 
 @DESCRIPTION: The 'btlmt' package offers a multi-threaded framework for
- TCP/IPv4 interprocess communication (IPC).  The functionality provided is
- similar to that of the traditional 'ptdispatch' framework, except that, in the
- current release, there is no support for 'fstsnd'; TCP/IPv4 channels are used
- instead.
+ TCP/IPv4 interprocess communication (IPC).
 
 /Hierarchical Synopsis
 /---------------------
