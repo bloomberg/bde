@@ -2,6 +2,3 @@
 
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
-
-!! unix-dgux-*-*-*	_	STL_CXXFLAGS	= $(STL_NATIVEINC)
-!! unix-dgux-*-*-*	_	STL_LDFLAGS     = $(STL_NATIVELIB)
