@@ -680,7 +680,7 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
     DWORD bytesReceived;
     DWORD lpFlags = 0;
     rc = ::WSARecv(socket,
-                   static_cast<WSABUF *>(iovecPtr),
+                   reinterpret_cast<WSABUF *>(iovecPtr),
                    size,
                    &bytesReceived,
                    &lpFlags,
@@ -747,7 +747,7 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesSent;
     rc = ::WSASend(socket,
-                   static_cast<WSABUF *>(ovec),
+                   reinterpret_cast<WSABUF *>(ovec),
                    size,
                    &bytesSent,
                    0,
