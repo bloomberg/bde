@@ -324,10 +324,10 @@
 /Example 1: Celebrating Milestone Dates
 / - - - - - - - - - - - - - - - - - - -
  Date and time calculations are simple in principle but tedious and error-
- prone in practice.  Consequently, people tend to schedule events on dates
- that are easy to calculate -- e.g., first of the month, anniversary dates --
- even though we know that not all months and years express intervals of the
- same length.  Access to a rich set of types and utilities for date and time
+ prone in practice.  Consequently, people tend to schedule events on dates that
+ are easy to calculate -- e.g., first of the month, anniversary dates -- even
+ though we know that not all months and years express intervals of the same
+ length.  Access to a rich set of types and utilities for date and time
  calculations affords us other options.
 
  Suppose we wish to commemorate the 20,000th day since our birth.
@@ -350,9 +350,9 @@
   04OCT2024_00:00:00.000
 ..
  The above value represents UTC date and time values.  We, however, plan to
- celebrate the milestone in New York City.  Thus, we must obtain the local
- time offset in NYC for that future date and use it to calculate the
- milestone (date) in that time zone.
+ celebrate the milestone in New York City.  Thus, we must obtain the local time
+ offset in NYC for that future date and use it to calculate the milestone
+ (date) in that time zone.
 ..
     bsls::TimeInterval     localTimeOffset =
                                  bdlt::LocalTimeOffset::localTimeOffset(dt20k);
@@ -384,9 +384,8 @@
     weekendDays.add(bdlt::DayOfWeek::e_SATURDAY);
     weekendDays.add(bdlt::DayOfWeek::e_SUNDAY);
 ..
- Now, we determine if the target date is a weekend day.  If so, we can plan
- our celebration for that date; otherwise, we will plan for the next weekend
- date.
+ Now, we determine if the target date is a weekend day.  If so, we can plan our
+ celebration for that date; otherwise, we will plan for the next weekend date.
 ..
     bdlt::Date milestone = dtz20kLocal.localDatetime().date();
     bdlt::Date holdDate  = weekendDays.isMember(milestone.dayOfWeek())

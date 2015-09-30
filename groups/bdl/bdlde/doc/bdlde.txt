@@ -82,16 +82,16 @@
  The following snippets of code illustrate a typical use of the 'bdlde_Crc32'
  class.  Each function would typically execute in separate processes or
  potentially on separate machines.  The 'senderExample' function below
- demonstrates how a message sender can write a message and its CRC-32
- checksum to a 'bdlx' output stream.  Note that 'Out' may be a 'typedef'
- of any class that implements the 'bdlx_OutStream' protocol:
+ demonstrates how a message sender can write a message and its CRC-32 checksum
+ to a 'bdlx' output stream.  Note that 'Out' may be a 'typedef' of any class
+ that implements the 'bdlx_OutStream' protocol:
 ..
   void senderExample(Out& output)
       // Write a message and its CRC-32 checksum to the specified 'output'
       // stream.
   {
       // prepare a message
-      std::string message = "This is a test message.";
+      bdl::string message = "This is a test message.";
 
       // generate a checksum for 'message'
       bdlde_Crc32 crc(message.data(), message.length());
@@ -114,7 +114,7 @@
       // stream, and verify the integrity of the message.
   {
       // read the message from 'input'
-      std::string message;
+      bdl::string message;
       input >> message;
 
       // read the checksum from 'input'
@@ -143,7 +143,7 @@
       // Write a message and its MD5 hash to the specified 'output' stream.
   {
       // prepare a message
-      std::string message = "This is a test message.";
+      bdl::string message = "This is a test message.";
 
       // generate a hash for 'message'
       bdlde_Md5 hash(message.data(), message.length());
@@ -158,15 +158,15 @@
  The 'receiverExample' function below illustrates how a message receiver can
  read a message and its MD5 hash from a 'bdlx' input stream, then perform a
  local MD5 computation to verify that the message was received intact.  Note
- that 'In' may be a 'typedef' of any class that implements the
- 'bdlx_InStream' protocol:
+ that 'In' may be a 'typedef' of any class that implements the 'bdlx_InStream'
+ protocol:
 ..
   void receiverExample(In& input)
       // Read a message and its MD5 hash from the specified 'input' stream,
       // and verify the integrity of the message.
   {
       // read the message from 'input'
-      std::string message;
+      bdl::string message;
       input >> message;
 
       // read the hash from 'input'

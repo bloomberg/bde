@@ -7,7 +7,7 @@
 @AUTHOR: Herve Bronnimann
 
 @DESCRIPTION: The 'btlso' package provides relatively low-level support for
-sockets as well as a number of concrete event managers.
+ sockets as well as a number of concrete event managers.
 
 /Hierarchical Synopsis
 /---------------------

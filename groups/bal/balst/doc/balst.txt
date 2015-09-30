@@ -90,13 +90,13 @@
  by calling just the static function
  'balst_StackTracePrintUtil::printStackTrace'.
 
- First, we define a recursive function 'recurseAndPrintStack' that recurses
- to the specified 'depth', then calls
- 'balst_StackTracePrintUtil::printStackTrace' to obtain a stack trace and
- print it to 'cout'.  When we call 'printStackTrace', neither of the optional
- arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
- supplied; 'maxFrames' defaults to at least 1024 (which is more than we
- need), and 'demanglingPreferredFlag' defaults to 'true'.
+ First, we define a recursive function 'recurseAndPrintStack' that recurses to
+ the specified 'depth', then calls 'balst_StackTracePrintUtil::printStackTrace'
+ to obtain a stack trace and print it to 'cout'.  When we call
+ 'printStackTrace', neither of the optional arguments corresponding to
+ 'maxFrames' or 'demanglingPreferredFlag' are supplied; 'maxFrames' defaults to
+ at least 1024 (which is more than we need), and 'demanglingPreferredFlag'
+ defaults to 'true'.
 ..
   static
   void recurseAndPrintStack(int *depth)
@@ -126,7 +126,7 @@
  Now, invoking the main program on AIX produces the following output:
 ..
   (0): BloombergLP::balst_StackTracePrintUtil::.printStackTrace(
-       std::basic_ostream<char,std::char_traits<char> >&,int,bool)+0x170 at
+       bdl::basic_ostream<char,bdl::char_traits<char> >&,int,bool)+0x170 at
        0x1000a2c8 source:balst_stacktraceprintutil.cpp:52 in
        balst_stacktraceprintutil.t.dbg_
   (1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118

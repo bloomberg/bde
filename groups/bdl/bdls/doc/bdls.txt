@@ -5,8 +5,8 @@
 @MNEMONIC: Basic Development Library System-level utilities (bdls)
 
 @DESCRIPTION: The 'bdls' package provides a suite of components for
- platform-independent interactions with operating system for the management
- of memory, files, and pipes.
+ platform-independent interactions with operating system for the management of
+ memory, files, and pipes.
 
 /Hierarchical Synopsis
 /---------------------

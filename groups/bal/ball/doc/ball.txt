@@ -356,11 +356,11 @@
    timestamp    bdet_Datetime   creation date and time           (*Note*)
    processID    int             process id of creator              0
    threadID     int             thread id of creator               0
-   fileName     std::string     file where created  (__FILE__)     ""
+   fileName     bdl::string     file where created  (__FILE__)     ""
    lineNumber   int             line number in file (__LINE__)     0
-   category     std::string     category of logged record          ""
+   category     bdl::string     category of logged record          ""
    severity     int             severity of logged record          0
-   message      std::string     log message text                   ""
+   message      bdl::string     log message text                   ""
 
    Note: The default value given to the timestamp attribute is implementation
          defined.  (See the 'bdet_datetime' component-level documentation for
