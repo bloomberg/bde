@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "Verifying behavior on timeout (no sockets)." << endl;
         {
-            const int NUM_ATTEMPTS = 1000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
         {
             btlso::EventManagerTestPair socketPair;
             bsl::function<void()> nullFunctor;
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
@@ -1056,7 +1056,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tVerifying behavior on timeout (no sockets)." << endl;
         {
-            const int NUM_ATTEMPTS = 1000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -1082,7 +1082,7 @@ int main(int argc, char *argv[])
         {
             btlso::EventManagerTestPair socketPair;
             bsl::function<void()> nullFunctor;
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),

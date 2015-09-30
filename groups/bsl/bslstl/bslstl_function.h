@@ -182,22 +182,6 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDLIB_H
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-// In order to allow inter-converibility between 'bsl::function' and
-// 'bdef_function', we need to bend our leveling rules a bit and
-// forward-declare 'bdef_function'.  The use of this incomplete type assumes,
-// that the structure of 'bdef_function' is identical to that of
-// 'bsl::function', though with a slightly different public interface.  Note,
-// that this is a by-name reference only.  No long-distance friendship is
-// used.
-namespace BloombergLP {
-template <class PROTOTYPE>
-class bdef_Function;
-}  // close enterprise namespace
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 namespace bsl {
 
 // Forward declarations
@@ -328,7 +312,7 @@ class Function_SmallObjectOptimization {
         void                *d_minbuf[6];    // force minimum size
     };
 
-    static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
+    static const size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
         // This value is added to the size of a small stateful functor to
         // indicate that, despite being small, it should not be allocated
         // inplace using the small object optimization (SOO), e.g., because it
@@ -373,9 +357,6 @@ class Function_SmallObjectOptimization {
             // in c++11 mode.
 #endif
 
-        static const bool X = sizeof(TP) > sizeof(InplaceBuffer);
-        static const bool Y = BloombergLP::bslmf::IsBitwiseMoveable<TP>::value;
-        static const bool Z = Function_NothrowWrapperUtil<TP>::IS_WRAPPED;
         static const std::size_t VALUE =
             sizeof(TP) > sizeof(InplaceBuffer)                ? sizeof(TP) :
             BloombergLP::bslmf::IsBitwiseMoveable<TP>::value  ? sizeof(TP) :
@@ -541,7 +522,7 @@ class Function_Rep {
     typedef BloombergLP::bslma::Allocator Allocator;
         // Type alias for convenience.
 
-    static const std::size_t k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE;
+    static const size_t k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE;
         // Constant alias for convenience.
 
     template <class FUNC>
@@ -896,15 +877,6 @@ class function<RET(ARGS...)> :
 
     RET operator()(ARGS...) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&() BSLS_NOTHROW_SPEC;
-        // Return a reference to a modifiable 'bdef_Function' that is an alias
-        // of '*this'.  Note that no copy is made; modifying the object
-        // through the returned object (e.g., by assigning to it) will modify
-        // '*this'.  This operator depends on 'bdef_Function' being a thin
-        // layer on top of 'bsl::function', having identical structure.
-#endif
-
     // ACCESSORS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit  // Explicit conversion available only with C++11
@@ -916,16 +888,6 @@ class function<RET(ARGS...)> :
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&()
-                                                       const BSLS_NOTHROW_SPEC;
-        // Return a reference to a 'bdef_Function' that is an alias of '*this'.
-        // Note that no copy is made; modifying the object through the returned
-        // object (e.g., by assigning to it) will modify '*this'.  This
-        // operator depends on 'bdef_Function' being a thin layer on top of
-        // 'bsl::function', having identical structure.
 #endif
 
 };
@@ -1093,10 +1055,6 @@ class function<RET()> :
 
     RET operator()() const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)()>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -1105,11 +1063,6 @@ class function<RET()> :
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)()>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -1260,10 +1213,6 @@ class function<RET(ARGS_01)> :
 
     RET operator()(ARGS_01) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -1272,11 +1221,6 @@ class function<RET(ARGS_01)> :
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -1436,11 +1380,6 @@ class function<RET(ARGS_01,
     RET operator()(ARGS_01,
                    ARGS_02) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -1449,12 +1388,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -1623,12 +1556,6 @@ class function<RET(ARGS_01,
                    ARGS_02,
                    ARGS_03) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -1637,13 +1564,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -1821,13 +1741,6 @@ class function<RET(ARGS_01,
                    ARGS_03,
                    ARGS_04) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -1836,14 +1749,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -2030,14 +1935,6 @@ class function<RET(ARGS_01,
                    ARGS_04,
                    ARGS_05) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -2046,15 +1943,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -2250,15 +2138,6 @@ class function<RET(ARGS_01,
                    ARGS_05,
                    ARGS_06) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -2267,16 +2146,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -2481,16 +2350,6 @@ class function<RET(ARGS_01,
                    ARGS_06,
                    ARGS_07) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -2499,17 +2358,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -2723,17 +2571,6 @@ class function<RET(ARGS_01,
                    ARGS_07,
                    ARGS_08) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -2742,18 +2579,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -2976,18 +2801,6 @@ class function<RET(ARGS_01,
                    ARGS_08,
                    ARGS_09) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -2996,19 +2809,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -3240,19 +3040,6 @@ class function<RET(ARGS_01,
                    ARGS_09,
                    ARGS_10) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -3261,20 +3048,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -3515,20 +3288,6 @@ class function<RET(ARGS_01,
                    ARGS_10,
                    ARGS_11) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -3537,21 +3296,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10,
-                                                     ARGS_11)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -3801,21 +3545,6 @@ class function<RET(ARGS_01,
                    ARGS_11,
                    ARGS_12) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -3824,22 +3553,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10,
-                                                     ARGS_11,
-                                                     ARGS_12)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -4098,22 +3811,6 @@ class function<RET(ARGS_01,
                    ARGS_12,
                    ARGS_13) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12,
-                                               ARGS_13)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -4122,23 +3819,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10,
-                                                     ARGS_11,
-                                                     ARGS_12,
-                                                     ARGS_13)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -4406,23 +4086,6 @@ class function<RET(ARGS_01,
                    ARGS_13,
                    ARGS_14) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12,
-                                               ARGS_13,
-                                               ARGS_14)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -4431,24 +4094,6 @@ class function<RET(ARGS_01,
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                     ARGS_02,
-                                                     ARGS_03,
-                                                     ARGS_04,
-                                                     ARGS_05,
-                                                     ARGS_06,
-                                                     ARGS_07,
-                                                     ARGS_08,
-                                                     ARGS_09,
-                                                     ARGS_10,
-                                                     ARGS_11,
-                                                     ARGS_12,
-                                                     ARGS_13,
-                                                     ARGS_14)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -5835,10 +5480,6 @@ class function<RET(ARGS...)> :
 
     RET operator()(ARGS...) const;
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&() BSLS_NOTHROW_SPEC;
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
     explicit
     operator bool() const BSLS_NOTHROW_SPEC;
@@ -5847,11 +5488,6 @@ class function<RET(ARGS...)> :
     {
         return UnspecifiedBoolUtil::makeValue(invoker());
     }
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&()
-                                                       const BSLS_NOTHROW_SPEC;
 #endif
 
 };
@@ -10312,29 +9948,6 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     return invoker();
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS...)>*>(this);
-}
-
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS...)>*>(
-            this);
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>
@@ -21099,1039 +20712,6 @@ bsl::function<RET(ARGS_01,
 
 #endif
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class RET>
-inline
-bsl::function<RET()>::
-    operator BloombergLP::bdef_Function<RET(*)()>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)()>*>(this);
-}
-
-template <class RET, class ARGS_01>
-inline
-bsl::function<RET(ARGS_01)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09,
-                                                            ARGS_10)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09,
-                                                            ARGS_10,
-                                                            ARGS_11)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09,
-                                                            ARGS_10,
-                                                            ARGS_11,
-                                                            ARGS_12)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12,
-                     class ARGS_13>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12,
-                  ARGS_13)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12,
-                                               ARGS_13)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09,
-                                                            ARGS_10,
-                                                            ARGS_11,
-                                                            ARGS_12,
-                                                            ARGS_13)>*>(this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12,
-                     class ARGS_13,
-                     class ARGS_14>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12,
-                  ARGS_13,
-                  ARGS_14)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                               ARGS_02,
-                                               ARGS_03,
-                                               ARGS_04,
-                                               ARGS_05,
-                                               ARGS_06,
-                                               ARGS_07,
-                                               ARGS_08,
-                                               ARGS_09,
-                                               ARGS_10,
-                                               ARGS_11,
-                                               ARGS_12,
-                                               ARGS_13,
-                                               ARGS_14)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                            ARGS_02,
-                                                            ARGS_03,
-                                                            ARGS_04,
-                                                            ARGS_05,
-                                                            ARGS_06,
-                                                            ARGS_07,
-                                                            ARGS_08,
-                                                            ARGS_09,
-                                                            ARGS_10,
-                                                            ARGS_11,
-                                                            ARGS_12,
-                                                            ARGS_13,
-                                                            ARGS_14)>*>(this);
-}
-
-
-template <class RET>
-inline
-bsl::function<RET()>::
-     operator const BloombergLP::bdef_Function<RET(*)()>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)()>*>(
-            this);
-}
-
-template <class RET, class ARGS_01>
-inline
-bsl::function<RET(ARGS_01)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09,
-                                                                  ARGS_10)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09,
-                                                                  ARGS_10,
-                                                                  ARGS_11)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09,
-                                                                  ARGS_10,
-                                                                  ARGS_11,
-                                                                  ARGS_12)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12,
-                     class ARGS_13>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12,
-                  ARGS_13)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09,
-                                                                  ARGS_10,
-                                                                  ARGS_11,
-                                                                  ARGS_12,
-                                                                  ARGS_13)>*>(
-            this);
-}
-
-template <class RET, class ARGS_01,
-                     class ARGS_02,
-                     class ARGS_03,
-                     class ARGS_04,
-                     class ARGS_05,
-                     class ARGS_06,
-                     class ARGS_07,
-                     class ARGS_08,
-                     class ARGS_09,
-                     class ARGS_10,
-                     class ARGS_11,
-                     class ARGS_12,
-                     class ARGS_13,
-                     class ARGS_14>
-inline
-bsl::function<RET(ARGS_01,
-                  ARGS_02,
-                  ARGS_03,
-                  ARGS_04,
-                  ARGS_05,
-                  ARGS_06,
-                  ARGS_07,
-                  ARGS_08,
-                  ARGS_09,
-                  ARGS_10,
-                  ARGS_11,
-                  ARGS_12,
-                  ARGS_13,
-                  ARGS_14)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                      ARGS_02,
-                                                      ARGS_03,
-                                                      ARGS_04,
-                                                      ARGS_05,
-                                                      ARGS_06,
-                                                      ARGS_07,
-                                                      ARGS_08,
-                                                      ARGS_09,
-                                                      ARGS_10,
-                                                      ARGS_11,
-                                                      ARGS_12,
-                                                      ARGS_13,
-                                                      ARGS_14)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS_01,
-                                                                  ARGS_02,
-                                                                  ARGS_03,
-                                                                  ARGS_04,
-                                                                  ARGS_05,
-                                                                  ARGS_06,
-                                                                  ARGS_07,
-                                                                  ARGS_08,
-                                                                  ARGS_09,
-                                                                  ARGS_10,
-                                                                  ARGS_11,
-                                                                  ARGS_12,
-                                                                  ARGS_13,
-                                                                  ARGS_14)>*>(
-            this);
-}
-
-#endif
-
-
 template <class RET>
 inline
 bool bsl::operator==(const bsl::function<RET()>& f,
@@ -24043,29 +22623,6 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
     return invoker();
 }
 #endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-    operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&() BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<BloombergLP::bdef_Function<RET(*)(ARGS...)>*>(this);
-}
-
-template <class RET, class... ARGS>
-inline
-bsl::function<RET(ARGS...)>::
-     operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() 
-         const BSLS_NOTHROW_SPEC
-{
-    return
-        *reinterpret_cast<const BloombergLP::bdef_Function<RET(*)(ARGS...)>*>(
-            this);
-}
-#endif
-
 
 template <class RET, class... ARGS>
 inline

@@ -2,6 +2,9 @@
 
 #include <bdlf_bind_test14.h>
 
+// Count
+#define BBT_n 14
+
 // S with parameter count appended
 #define BBT_C(S) S##14
 

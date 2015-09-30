@@ -295,40 +295,40 @@ BSLS_IDENT("$Id: $")
 //      // success, and -1, with no effect on 'result', on error.  The behavior
 //      // is undefined unless '0 <= input'.
 //  {
-//      assert(0 <= input);
+//      ASSERT(0 <= input);
 //
 //      enum {
-//          ERROR_STATUS   = -1,
-//          SUCCESS_STATUS =  0,
-//          TIMEOUT_STATUS =  1
+//          k_ERROR_STATUS   = -1,
+//          k_SUCCESS_STATUS =  0,
+//          k_TIMEOUT_STATUS =  1
 //      };
 //
 //      enum {
-//          WRITE_TIMEOUT = 1,     // seconds
-//          READ_TIMEOUT  = 5      // seconds
+//          k_WRITE_TIMEOUT = 1,     // seconds
+//          k_READ_TIMEOUT  = 5      // seconds
 //      };
 //      bsls::TimeInterval timeNow = bdlt::CurrentTime::now();
-//      bsls::TimeInterval writeTimeout(timeNow + WRITE_TIMEOUT);
-//      bsls::TimeInterval readTimeout(timeNow + READ_TIMEOUT);
+//      bsls::TimeInterval writeTimeout(timeNow + k_WRITE_TIMEOUT);
+//      bsls::TimeInterval readTimeout(timeNow + k_READ_TIMEOUT);
 //
 //      int numBytes = sizeof input;
 //      int writeStatus = channel->timedWrite((const char *)&input,
 //                                             numBytes,
 //                                             writeTimeout);
-//      assert(0 != writeStatus);
+//      ASSERT(0 != writeStatus);
 //
 //      if (writeStatus != numBytes) {
-//          return ERROR_STATUS;                                      // RETURN
+//          return k_ERROR_STATUS;                                    // RETURN
 //      }
 //
 //      int readStatus = channel->timedRead((char *)result,
 //                                          sizeof *result,
 //                                          readTimeout);
 //      if (readStatus != sizeof *result) {
-//          return ERROR_STATUS;                                      // RETURN
+//          return k_ERROR_STATUS;                                    // RETURN
 //      }
 //
-//      return SUCCESS_STATUS;
+//      return k_SUCCESS_STATUS;                                      // RETURN
 //  }
 //
 //  int factorialServer(btlsc::TimedChannel *channel)
@@ -344,43 +344,43 @@ BSLS_IDENT("$Id: $")
 //      // much room to improve.
 //  {
 //      enum {
-//          SUCCESS            =  0,
-//          INVALID_INPUT      = -1,
-//          ERROR_READ         = -2,
-//          ERROR_WRITE        = -3,
-//          ERROR_TIMEOUT      = -4,
-//          ERROR_INTERRUPTED  = -5,
-//          ERROR_UNCLASSIFIED = -6
+//          k_SUCCESS            =  0,
+//          k_INVALID_INPUT      = -1,
+//          k_ERROR_READ         = -2,
+//          k_ERROR_WRITE        = -3,
+//          k_ERROR_TIMEOUT      = -4,
+//          k_ERROR_INTERRUPTED  = -5,
+//          k_ERROR_UNCLASSIFIED = -6
 //      };
 //
 //      enum {
-//          READ_TIME  = 3600, // an hour
-//          WRITE_TIME = 2     // 2 seconds
+//          k_READ_TIME  = 3600, // an hour
+//          k_WRITE_TIME = 2     // 2 seconds
 //      };
 //      bsls::TimeInterval timeNow = bdlt::CurrentTime::now();
-//      const bsls::TimeInterval READ_TIMEOUT(timeNow + READ_TIME),
-//                              WRITE_TIMEOUT(timeNow + WRITE_TIME);
+//      const bsls::TimeInterval k_READ_TIMEOUT(timeNow + k_READ_TIME),
+//                              k_WRITE_TIMEOUT(timeNow + k_WRITE_TIME);
 //
 //      while (1) {
 //          int input, augStatus;
 //          int readStatus = channel->timedRead(&augStatus,
 //                                              (char *)&input,
 //                                              sizeof input,
-//                                              READ_TIMEOUT);
+//                                              k_READ_TIMEOUT);
 //          if (readStatus < 0) {
-//              return ERROR_READ;                                    // RETURN
+//              return k_ERROR_READ;                                  // RETURN
 //          }
 //          if (readStatus != sizeof input) {
 //              if (0 == augStatus) {
-//                  return ERROR_TIMEOUT;                             // RETURN
+//                  return k_ERROR_TIMEOUT;                           // RETURN
 //              }
 //              else if (augStatus > 0) {
-//                  return ERROR_INTERRUPTED;                         // RETURN
+//                  return k_ERROR_INTERRUPTED;                       // RETURN
 //              }
-//              return ERROR_UNCLASSIFIED;                            // RETURN
+//              return k_ERROR_UNCLASSIFIED;                          // RETURN
 //          }
 //          if (input < 0) {
-//              return INVALID_INPUT;                                 // RETURN
+//              return k_INVALID_INPUT;                               // RETURN
 //          }
 //
 //          augStatus = 0;
@@ -388,18 +388,18 @@ BSLS_IDENT("$Id: $")
 //          int writeStatus = channel->timedWrite(&augStatus,
 //                                                (const char *)&result,
 //                                                sizeof input,
-//                                                WRITE_TIMEOUT);
+//                                                k_WRITE_TIMEOUT);
 //          if (writeStatus < 0) {
-//              return ERROR_WRITE;                                   // RETURN
+//              return k_ERROR_WRITE;                                 // RETURN
 //          }
 //          else if (writeStatus != sizeof input){
 //              if (0 == augStatus) {
-//                  return ERROR_TIMEOUT;                             // RETURN
+//                  return k_ERROR_TIMEOUT;                           // RETURN
 //              }
 //              else if (augStatus > 0) {
-//                  return ERROR_INTERRUPTED;                         // RETURN
+//                  return k_ERROR_INTERRUPTED;                       // RETURN
 //              }
-//              return ERROR_UNCLASSIFIED;                            // RETURN
+//              return k_ERROR_UNCLASSIFIED;                          // RETURN
 //          }
 //      }
 //  }

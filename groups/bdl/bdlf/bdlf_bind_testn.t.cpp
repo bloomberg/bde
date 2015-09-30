@@ -146,6 +146,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                    MACROS FOR VARIABLE ARGUMENT LISTS
 // ----------------------------------------------------------------------------
 
+// Count
+#ifndef BBT_n
+#define BBT_n 2
+#endif
+
 // S with parameter count appended
 #ifndef BBT_C
 #define BBT_C(S) S##2
@@ -165,7 +170,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define BBT_FUNCNAn          BBT_C(bdlf::Bind_TestFunctionsNoAlloc::func)
 #define BBT_TESTFUNCAn       BBT_C(AllocTestType::testFunc)
 #define BBT_TESTFUNCNAn      BBT_C(NoAllocTestType::testFunc)
-#define BBT_n                BBT_C()
 
 #define BBT_ALLOCTESTARGn    BBT_N(AllocTestArg)
 #define BBT_In               BBT_N(I)

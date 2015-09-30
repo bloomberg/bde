@@ -608,17 +608,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-
-
-             // BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-
-// GCC 4.6 has support with '-std=c++0x'.
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600\
-   && defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// Feature interactions
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&  \
+   !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // BDE move-emulation for C++03 requires support for alias templates in
+    // order to provide a transparent upgrade to the C++11 syntax that also
+    // supports implicit-move from rvalues.
 #endif
-
-
     //  *** Simulate various C++11 features ***
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
