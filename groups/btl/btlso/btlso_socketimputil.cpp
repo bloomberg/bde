@@ -689,13 +689,14 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesReceived;
     DWORD lpFlags = 0;
-    rc = ::WSARecv(socket,
-                   reinterpret_cast<WSABUF *>(const_cast<void *>(iovecPtr)),
-                   size,
-                   &bytesReceived,
-                   &lpFlags,
-                   0,
-                   0);
+    rc = ::WSARecv(
+               socket,
+               reinterpret_cast<WSABUF *>(const_cast<btls::Iovec *>(iovecPtr)),
+               size,
+               &bytesReceived,
+               &lpFlags,
+               0,
+               0);
     if (0 == rc) {
         rc = bytesReceived;
     }
