@@ -145,9 +145,6 @@ namespace btlso {
                         // struct SocketImpUtil_Util
                         // -------------------------
 
-namespace BloombergLP {
-namespace btlso {
-
 int SocketImpUtil_Util::mapErrorCode(int errorNumber)
 {
     switch (
