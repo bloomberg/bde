@@ -138,6 +138,9 @@ int SocketImpUtil_Util::getErrorCode(void)
 
 // ============================ COMMON FUNCTIONS ==============================
 
+namespace BloombergLP {
+namespace btlso {
+
                         // -------------------------
                         // struct SocketImpUtil_Util
                         // -------------------------
@@ -689,13 +692,14 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesReceived;
     DWORD lpFlags = 0;
-    rc = ::WSARecv(socket,
-                   static_cast<WSABUF *>(iovecPtr),
-                   size,
-                   &bytesReceived,
-                   &lpFlags,
-                   0,
-                   0);
+    rc = ::WSARecv(
+               socket,
+               reinterpret_cast<WSABUF *>(const_cast<btls::Iovec *>(iovecPtr)),
+               size,
+               &bytesReceived,
+               &lpFlags,
+               0,
+               0);
     if (0 == rc) {
         rc = bytesReceived;
     }
@@ -757,7 +761,7 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesSent;
     rc = ::WSASend(socket,
-                   static_cast<WSABUF *>(ovec),
+                   reinterpret_cast<WSABUF *>(const_cast<btls::Ovec *>(ovec)),
                    size,
                    &bytesSent,
                    0,
