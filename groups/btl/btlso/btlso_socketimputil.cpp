@@ -690,7 +690,7 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
     DWORD bytesReceived;
     DWORD lpFlags = 0;
     rc = ::WSARecv(socket,
-                   reinterpret_cast<WSABUF *>(iovecPtr),
+                   reinterpret_cast<WSABUF *>(const_cast<void *>(iovecPtr)),
                    size,
                    &bytesReceived,
                    &lpFlags,
