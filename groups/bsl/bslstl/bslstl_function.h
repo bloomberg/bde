@@ -328,7 +328,7 @@ class Function_SmallObjectOptimization {
         void                *d_minbuf[6];    // force minimum size
     };
 
-    static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
+     enum { k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer) };
         // This value is added to the size of a small stateful functor to
         // indicate that, despite being small, it should not be allocated
         // inplace using the small object optimization (SOO), e.g., because it
@@ -541,7 +541,7 @@ class Function_Rep {
     typedef BloombergLP::bslma::Allocator Allocator;
         // Type alias for convenience.
 
-    static const std::size_t k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE;
+     enum { k_NON_SOO_SMALL_SIZE = Soo::k_NON_SOO_SMALL_SIZE };
         // Constant alias for convenience.
 
     template <class FUNC>

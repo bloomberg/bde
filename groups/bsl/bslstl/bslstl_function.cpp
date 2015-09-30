@@ -13,10 +13,6 @@ const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 
 #endif
 
-const std::size_t bsl::Function_SmallObjectOptimization::k_NON_SOO_SMALL_SIZE;
-
-const std::size_t bsl::Function_Rep::k_NON_SOO_SMALL_SIZE;
-
 void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
                                  Allocator        *alloc,
                                  integral_constant<AllocCategory,
