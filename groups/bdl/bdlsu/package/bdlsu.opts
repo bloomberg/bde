@@ -1,0 +1,4 @@
+*                      _       OPTS_FILE       = bdlsu.opts
+
+#-lsocket needed for bdesu_FileUtil::isRegularFile test
+unix-SunOS              _       MT_LDFLAGS     = -Bdynamic -lpthread -lsocket -Bstatic
