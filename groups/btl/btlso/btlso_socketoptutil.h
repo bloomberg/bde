@@ -545,7 +545,7 @@ SocketOptUtil::getOption(T                    *result,
     return getsockopt(handle,
                       level,
                       option,
-                      static_cast<char *>(result),
+                      reinterpret_cast<char *>(result),
                       &optsize);
 #else
     return getsockopt(handle,
