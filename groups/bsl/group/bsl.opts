@@ -10,13 +10,8 @@
 
 -- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
 -- unix-SunOS-*-*-cc	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
-# obsolete, use 64 'ufid' instead -- remove in future
--- unix-SunOS-*-*-CC64	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
--- unix-SunOS-*-*-CC64	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
 
 !! unix-SunOS-*-*-*        shr SHR_SHLIB_DEPS  = -lCstd -lCrun -lc -lm -lsunmath -lpthread
 !! unix-Linux-*-*-*        shr SHR_SHLIB_DEPS  = -lrt
-!! unix-HP_UX-*-*-*        shr SHR_SHLIB_DEPS  = -lstd_v2 -lCsup -lunwind -lc
 
 windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED
-
