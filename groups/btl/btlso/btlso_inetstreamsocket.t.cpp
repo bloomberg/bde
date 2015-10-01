@@ -1049,6 +1049,7 @@ int main(int argc, char *argv[]) {
                           << "Testing 'write' and 'writev'" << endl
                           << "============================" << endl;
 
+#if 0
         {
              if (veryVerbose) cout << "\n   test write normal data"
                                    << endl;
@@ -1193,10 +1194,7 @@ int main(int argc, char *argv[]) {
                  // Cancel the alarm
 
                  ::sigaction(SIGALRM, &oact, &act);
-
-#ifdef BSLS_PLATFORM_OS_LINUX                 
                  ::alarm(0);
-#endif
 
                  if (veryVerbose) {
                      cout << "        ";
@@ -1271,10 +1269,7 @@ int main(int argc, char *argv[]) {
                  // Cancel the alarm
 
                  ::sigaction(SIGALRM, &oact, &act);
-
-#ifdef BSLS_PLATFORM_OS_LINUX                 
                  ::alarm(0);
-#endif
 
                  if (veryVerbose) {
                      cout << "        ";
@@ -1323,8 +1318,6 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-//              bslmt::ThreadUtil::microSleep(100);
-
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
              // fail (normally after the first or second write).
@@ -1365,7 +1358,7 @@ int main(int argc, char *argv[]) {
 
              testFactory.deallocate(streamSocketB);
 
-//              bslmt::ThreadUtil::microSleep(200 * 1000);
+             bslmt::ThreadUtil::microSleep(100);
 
              // The first write to the socket after the remote socket
              // has been closed may succeed.  Eventually the write will
@@ -1461,7 +1454,7 @@ int main(int argc, char *argv[]) {
                                  P_(iterations); P_(totalReceived);
                                  P(totalSent);
                              }
-                             bslmt::ThreadUtil::microSleep(100 * 1000);
+                             bslmt::ThreadUtil::microSleep(100);
                              iterations++;
                          }
                          else break;
@@ -1479,7 +1472,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-//                  bslmt::ThreadUtil::microSleep(1000);
+                 bslmt::ThreadUtil::microSleep(100);
 
                  // Write data and verify that it writes OK
 
@@ -1567,7 +1560,7 @@ int main(int argc, char *argv[]) {
                                  P_(iterations); P_(totalReceived);
                                  P(totalSent);
                              }
-                             bslmt::ThreadUtil::microSleep(1000);
+                             bslmt::ThreadUtil::microSleep(100);
                              iterations++;
                          }
                          else break;
@@ -1585,7 +1578,7 @@ int main(int argc, char *argv[]) {
 
                  // Latency
 
-                 bslmt::ThreadUtil::microSleep(1000);
+                 bslmt::ThreadUtil::microSleep(100);
 
                  // Write data and verify that it writes OK
 
@@ -1609,6 +1602,7 @@ int main(int argc, char *argv[]) {
 #endif
              }
          }
+#endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1635,6 +1629,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl
                           << "Testing waitForIO" << endl
                           << "=================" << endl;
+#ifndef BSLS_PLATFORM_OS_AIX
 
         const btlso::Flag::IOWaitType RD = btlso::Flag::e_IO_READ;
         const btlso::Flag::IOWaitType WR = btlso::Flag::e_IO_WRITE;
@@ -1664,6 +1659,7 @@ int main(int argc, char *argv[]) {
         { L_,  RW,    0,     0,    75,     0,   200,         0, WR },
         { L_,  RD,    0,     0,    75,  1000,   200,         0, RD },
         { L_,  WR,    0,     0,    75,  1000,   200,         0, WR },
+
 //         { L_,  RW,    0,     0,    75,  1000,   200,         0, RW },
         { L_,  RD,    0,     0,     0,  1000,     0,         0, RD },
         { L_,  WR,    0,     0,     0,  1000,   200,         0, WR },
@@ -1802,7 +1798,7 @@ int main(int argc, char *argv[]) {
             }
 
            // some platforms require latency between writes and reads
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_AIX)
             const int sleepTime = 1000;
 #else
             const int sleepTime = 0;
@@ -1852,6 +1848,7 @@ int main(int argc, char *argv[]) {
             testFactory.deallocate(streamSocketA);
 #endif
         }
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------

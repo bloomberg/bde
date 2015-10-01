@@ -649,7 +649,9 @@ int main(int argc, char *argv[])
                   {   L_,   "IN",         0, 0 },
                   {   L_,   "IY",         0, 0 },
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)                           \
+ || defined(BSLS_PLATFORM_OS_SOLARIS)                           \
+ || defined(BSLS_PLATFORM_OS_AIX)
                   {   L_,   "JN",         0, -1 },
                   {   L_,   "JY",         0, -1 },
 #else
@@ -659,7 +661,8 @@ int main(int argc, char *argv[])
                   {   L_,   "KN",         0, 0 },
                   {   L_,   "KY",         0, 0 },
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_HPUX) \
+#if defined(BSLS_PLATFORM_OS_WINDOWS)                           \
+ || defined(BSLS_PLATFORM_OS_HPUX)                              \
  || defined(BSLS_PLATFORM_OS_SOLARIS)
                   {   L_,   "LN",         0, -1 },
                   {   L_,   "LY",         0, -1 },
