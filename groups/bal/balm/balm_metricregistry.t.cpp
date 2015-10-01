@@ -384,11 +384,11 @@ void ConcurrencyTest::execute()
         // End test iteration.
         d_barrier.wait();
 
-        ASSERT(!(i % 2) == U_CAT->enabled());
-        ASSERT( (i % 2) == CAT_A_1->enabled());
-        ASSERT( (i % 2) == CAT_A_2->enabled());
-        ASSERT( (i % 2) == CAT_B_1->enabled());
-        ASSERT( (i % 2) == CAT_B_2->enabled());
+        ASSERT(!(i % 2) == U_CAT->isEnabled());
+        ASSERT( (i % 2) == CAT_A_1->isEnabled());
+        ASSERT( (i % 2) == CAT_A_2->isEnabled());
+        ASSERT( (i % 2) == CAT_B_1->isEnabled());
+        ASSERT( (i % 2) == CAT_B_2->isEnabled());
 
         ASSERT((Type::Value)NUM_TYPES - 1 ==
                U_METRIC_11.description()->preferredPublicationType());
@@ -515,13 +515,13 @@ int main(int argc, char *argv[])
     const balm::Category *myCategory = registry.getCategory("MyCategory");
           ASSERT(myCategory == idA.category());
           ASSERT(myCategory == idB.category());
-          ASSERT(myCategory->enabled());
+          ASSERT(myCategory->isEnabled());
 //..
 // Finally we use the 'setCategoryEnabled' method to disable the category
 // "MyCategory":
 //..
     registry.setCategoryEnabled(myCategory, false);
-          ASSERT(!myCategory->enabled());
+          ASSERT(!myCategory->isEnabled());
 //..
       if (veryVerbose) {
           registry.print(bsl::cout, 1, 3);
@@ -1314,45 +1314,45 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             const Cat *category = categories[i];
 
-            ASSERT(category->enabled());
-            ASSERT(MX.findCategory(category->name())->enabled());
+            ASSERT(category->isEnabled());
+            ASSERT(MX.findCategory(category->name())->isEnabled());
 
             mX.setCategoryEnabled(category, false);
-            ASSERT(!category->enabled());
-            ASSERT(!MX.findCategory(category->name())->enabled());
+            ASSERT(!category->isEnabled());
+            ASSERT(!MX.findCategory(category->name())->isEnabled());
 
             for (int j = 0; j < NUM_CATEGORIES; ++j) {
                 bool isEnabled = i != j;
-                ASSERT(isEnabled == categories[j]->enabled());
+                ASSERT(isEnabled == categories[j]->isEnabled());
                 ASSERT(isEnabled ==
-                       MX.findCategory(categories[j]->name())->enabled());
+                       MX.findCategory(categories[j]->name())->isEnabled());
             }
 
             mX.setCategoryEnabled(category, true);
-            ASSERT(category->enabled());
-            ASSERT(MX.findCategory(category->name())->enabled());
+            ASSERT(category->isEnabled());
+            ASSERT(MX.findCategory(category->name())->isEnabled());
             for (int j = 0; j < NUM_CATEGORIES; ++j) {
-                ASSERT(categories[j]->enabled());
-                ASSERT(MX.findCategory(categories[j]->name())->enabled());
+                ASSERT(categories[j]->isEnabled());
+                ASSERT(MX.findCategory(categories[j]->name())->isEnabled());
             }
         }
 
         mX.setAllCategoriesEnabled(false);
         for (int i = 0; i < categories.size(); ++i) {
             const Cat *category = categories[i];
-            ASSERT(!category->enabled());
+            ASSERT(!category->isEnabled());
         }
         const Cat *newCat1 = mX.addCategory("newCat1");
-        ASSERT(!newCat1->enabled());
+        ASSERT(!newCat1->isEnabled());
         categories.push_back(newCat1);
 
         mX.setAllCategoriesEnabled(true);
         for (int i = 0; i < categories.size(); ++i) {
             const Cat *category = categories[i];
-            ASSERT(category->enabled());
+            ASSERT(category->isEnabled());
         }
         const Cat *newCat2 = mX.addCategory("newCat2");
-        ASSERT(newCat2->enabled());
+        ASSERT(newCat2->isEnabled());
         categories.push_back(newCat2);
 
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1542,7 +1542,7 @@ int main(int argc, char *argv[])
                 const Cat *cat = mX.getCategory(CATEGORY);
                 ASSERT(0 != cat);
                 ASSERT(0 == bsl::strcmp(cat->name(), CATEGORY));
-                ASSERT(cat->enabled());
+                ASSERT(cat->isEnabled());
 
                 ASSERT(0   == mX.addCategory(CATEGORY));
                 ASSERT(cat == MX.findCategory(CATEGORY));
@@ -1641,7 +1641,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != id.category());
                 ASSERT(0 == bsl::strcmp(id.metricName(), NAME));
                 ASSERT(0 == bsl::strcmp(id.categoryName(), CATEGORY));
-                ASSERT(id.category()->enabled());
+                ASSERT(id.category()->isEnabled());
 
                 ASSERT(!mX.addId(CATEGORY, NAME).isValid());
                 ASSERT(id == MX.findId(CATEGORY, NAME));
@@ -1767,7 +1767,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != id.category());
                 ASSERT(0 == bsl::strcmp(id.metricName(), NAME));
                 ASSERT(0 == bsl::strcmp(id.categoryName(), CATEGORY));
-                ASSERT(id.category()->enabled());
+                ASSERT(id.category()->isEnabled());
 
                 // Attempt to find the id.
                 Id foundId = MX.findId(CATEGORY, NAME);
@@ -1792,7 +1792,7 @@ int main(int argc, char *argv[])
             const Cat *NEW_CAT = mX.addCategory("NewCategory");
             ASSERT(0 != NEW_CAT);
             ASSERT(0 == bsl::strcmp("NewCategory", NEW_CAT->name()));
-            ASSERT(NEW_CAT->enabled());
+            ASSERT(NEW_CAT->isEnabled());
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
@@ -1811,7 +1811,7 @@ int main(int argc, char *argv[])
                 const Cat *cat = mX.addCategory(CATEGORY);
                 ASSERT(0 != cat);
                 ASSERT(0 == bsl::strcmp(cat->name(), CATEGORY));
-                ASSERT(cat->enabled());
+                ASSERT(cat->isEnabled());
 
                 ASSERT(0   == mX.addCategory(CATEGORY));
                 ASSERT(cat == MX.findCategory(CATEGORY));
@@ -1858,8 +1858,8 @@ int main(int argc, char *argv[])
             ASSERT(CA != CB);
             ASSERT(0 == bsl::strcmp(CA->name(), "A"));
             ASSERT(0 == bsl::strcmp(CB->name(), "B"));
-            ASSERT(CA->enabled());
-            ASSERT(CB->enabled());
+            ASSERT(CA->isEnabled());
+            ASSERT(CB->isEnabled());
 
             if (veryVerbose) cout << "\tget categories 'CC' and 'CD' and "
                                   << "verify initial state.\n";

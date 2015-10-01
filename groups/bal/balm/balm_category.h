@@ -55,9 +55,9 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //  assert(0 == bsl::strcmp("B", categoryB.name()));
 //  assert(0 == bsl::strcmp("C", categoryC.name()));
 //
-//  assert( categoryA.enabled());
-//  assert(!categoryB.enabled());
-//  assert( categoryC.enabled());
+//  assert( categoryA.isEnabled());
+//  assert(!categoryB.isEnabled());
+//  assert( categoryC.isEnabled());
 //..
 // Finally, we modify the enablement status of one of the categories, and then
 // write all three categories to the console:
@@ -83,6 +83,10 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 
@@ -104,7 +108,7 @@ class Category {
     // DATA
     const char     *d_name_p;     // name of the category (held, not owned)
 
-    bool            d_enabled;    // whether the category is enabled
+    bsls::AtomicInt d_enabled;    // whether the category is enabled
 
     CategoryHolder *d_holders_p;  // linked list of holders of this category
 
@@ -141,10 +145,10 @@ class Category {
 
     void registerCategoryHolder(CategoryHolder *holder);
         // Load into the specified 'holder' the address of this category, its
-        // 'enabled()' status, and the address of the next holder in the
+        // 'isEnabled()' status, and the address of the next holder in the
         // linked list of category holders maintained by this object
         // (prepending 'holder' to this category's linked list of category
-        // holders).  This category will update 'holder->enabled()' when its
+        // holders).  This category will update 'holder->isEnabled()' when its
         // enabled state changes, and will reset 'holder' (i.e.,
         // 'holder->reset()') when this category is destroyed.  The behavior
         // is undefined unless 'holder' remains valid and *unmodified* (by the
@@ -156,12 +160,9 @@ class Category {
         // Return the address of the non-modifiable null-terminated string
         // containing the name of this category.
 
-    const bool& enabled() const;
-        // Return a reference to the non-modifiable boolean value indicating
-        // whether this category is enabled.  Note that this value is
-        // explicitly returned by reference to allow clients to refer to the
-        // value directly (rather than indirectly, through the owning
-        // category).
+    bool isEnabled() const;
+        // Report whether this category is enabled. This function is fully
+        // thread-safe.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Print this category to the specified output 'stream' in some human
@@ -203,7 +204,7 @@ class CategoryHolder {
   public:
 
     // PUBLIC DATA MEMBERS
-    bool            d_enabled;     // whether the category is enabled
+    int             d_enabled;     // whether the category is enabled
     const Category *d_category_p;  // held category (not owned)
     CategoryHolder *d_next_p;      // next category holder in linked list
 
@@ -235,7 +236,7 @@ class CategoryHolder {
         // Return the address of the non-modifiable category held by this
         // holder.
 
-    bool enabled() const;
+    bool isEnabled() const;
         // Return 'true' if 'category' is valid (i.e., non-null) and enabled,
         // and 'false' otherwise.
 
@@ -276,7 +277,7 @@ const char *Category::name() const
 }
 
 inline
-const bool& Category::enabled() const
+bool Category::isEnabled() const
 {
     return d_enabled;
 }
@@ -312,7 +313,7 @@ const Category *CategoryHolder::category() const
 }
 
 inline
-bool CategoryHolder::enabled() const
+bool CategoryHolder::isEnabled() const
 {
     return d_enabled;
 }

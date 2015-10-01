@@ -37,7 +37,7 @@ using bsl::flush;
 // [ 6] void registerCategoryHolder(balm::CategoryHolder *);
 // ACCESSORS
 // [ 3] const char *name() const;
-// [ 3] bool enabled() const;
+// [ 3] bool isEnabled() const;
 // [ 5] bsl::ostream& print(bsl::ostream& ) const;
 // FREE OPERATORS
 // [ 5] bsl::ostream& operator<<(bsl::ostream& , const balm::Category& );
@@ -50,7 +50,7 @@ using bsl::flush;
 // [ 2] void setNext(balm::CategoryHolder *holder);
 // ACCESSORS
 // [ 2] const balm::Category *category() const;
-// [ 2] bool enabled() const;
+// [ 2] bool isEnabled() const;
 // [ 2] balm::CategoryHolder *next() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -161,9 +161,9 @@ int main(int argc, char *argv[])
     ASSERT(0 == bsl::strcmp("B", categoryB.name()));
     ASSERT(0 == bsl::strcmp("C", categoryC.name()));
 
-    ASSERT( categoryA.enabled());
-    ASSERT(!categoryB.enabled());
-    ASSERT( categoryC.enabled());
+    ASSERT( categoryA.isEnabled());
+    ASSERT(!categoryB.isEnabled());
+    ASSERT( categoryC.isEnabled());
 //..
 // Finally, we modify the enablement status of one of the categories, and then
 // write all three categories to the console.
@@ -209,14 +209,14 @@ int main(int argc, char *argv[])
                 c.registerCategoryHolder(&holders[i]);
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
                 ASSERT(&c   == holders[i].category());
-                ASSERT(true == holders[i].enabled());
+                ASSERT(true == holders[i].isEnabled());
                 ASSERT(next == holders[i].next());
             }
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
                 ASSERT(&c   == holders[i].category());
-                ASSERT(true == holders[i].enabled());
+                ASSERT(true == holders[i].isEnabled());
                 ASSERT(next == holders[i].next());
             }
 
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
                 ASSERT(&c    == holders[i].category());
-                ASSERT(false == holders[i].enabled());
+                ASSERT(false == holders[i].isEnabled());
                 ASSERT(next  == holders[i].next());
             }
 
@@ -234,13 +234,13 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
                 ASSERT(&c   == holders[i].category());
-                ASSERT(true == holders[i].enabled());
+                ASSERT(true == holders[i].isEnabled());
                 ASSERT(next == holders[i].next());
                 }
         }
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             ASSERT(0     == holders[i].category());
-            ASSERT(false == holders[i].enabled());
+            ASSERT(false == holders[i].isEnabled());
             ASSERT(0     == holders[i].next());
         }
       } break;
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
                 Obj w(DATA[j].d_name, DATA[j].d_enabled); const Obj& W = w;
 
                 ASSERT(DATA[i].d_name      == U.name());
-                ASSERT(DATA[i].d_enabled == U.enabled());
+                ASSERT(DATA[i].d_enabled == U.isEnabled());
 
                 // Set the value.
                 u.setName(DATA[j].d_name);
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   explicit balm::Category(const char *name, bool enabled = true);
         //   const char *name() const;
-        //   bool enabled() const;
+        //   bool isEnabled() const;
         // --------------------------------------------------------------------
           {
               if (veryVerbose) cout << "\tTest constructor default args."
@@ -375,8 +375,8 @@ int main(int argc, char *argv[])
               Obj mX("X"); const Obj& MX = mX;
               Obj mY("Y"); const Obj& MY = mY;
 
-              ASSERT(MX.enabled());
-              ASSERT(MY.enabled());
+              ASSERT(MX.isEnabled());
+              ASSERT(MY.isEnabled());
           }
           {
               if (veryVerbose)
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
                   const Obj& MX = mX;
 
                   ASSERT(DATA[i].d_name      == MX.name());
-                  ASSERT(DATA[i].d_enabled == MX.enabled());
+                  ASSERT(DATA[i].d_enabled == MX.isEnabled());
                   ASSERT(0 == defaultAllocator.numBytesInUse());
                   ASSERT(0 == testAlloc.numBytesInUse());
               }
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
         //   void setEnabled(bool enabledFlag);
         //   void setNext(balm::CategoryHolder *holder);
         //   const balm::Category *category() const;
-        //   bool enabled() const;
+        //   bool isEnabled() const;
         //   balm::CategoryHolder *next() const;
         // --------------------------------------------------------------------
 
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
                 const Holder& MX = mX;
 
                 ASSERT(VALUES[i].d_category_p == MX.category());
-                ASSERT(VALUES[i].d_enabled    == MX.enabled());
+                ASSERT(VALUES[i].d_enabled    == MX.isEnabled());
                 ASSERT(VALUES[i].d_next_p     == MX.next());
             }
         }
@@ -490,7 +490,7 @@ int main(int argc, char *argv[])
                 Holder mX = { false, 0, 0 }; const Holder& MX = mX;
 
                 ASSERT(0     == MX.category());
-                ASSERT(false == MX.enabled());
+                ASSERT(false == MX.isEnabled());
                 ASSERT(0     == MX.next());
 
                 mX.setCategory(VALUES[i].d_category_p);
@@ -498,13 +498,13 @@ int main(int argc, char *argv[])
                 mX.setNext(VALUES[i].d_next_p);
 
                 ASSERT(VALUES[i].d_category_p == MX.category());
-                ASSERT(VALUES[i].d_enabled    == MX.enabled());
+                ASSERT(VALUES[i].d_enabled    == MX.isEnabled());
                 ASSERT(VALUES[i].d_next_p     == MX.next());
 
                 mX.reset();
 
                 ASSERT(0     == MX.category());
-                ASSERT(false == MX.enabled());
+                ASSERT(false == MX.isEnabled());
                 ASSERT(0     == MX.next());
             }
         }
@@ -532,25 +532,25 @@ int main(int argc, char *argv[])
         ASSERT(VAL_A == MA.name());
         ASSERT(VAL_B == MB.name());
         ASSERT(VAL_C == MC.name());
-        ASSERT(true  == MA.enabled());
-        ASSERT(true  == MB.enabled());
-        ASSERT(false == MC.enabled());
+        ASSERT(true  == MA.isEnabled());
+        ASSERT(true  == MB.isEnabled());
+        ASSERT(false == MC.isEnabled());
 
         Obj mX(VAL_A);  const Obj& MX = mX;
         ASSERT(VAL_A == MX.name());
-        ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabled());
 
         mX.setName(VAL_B);
         ASSERT(VAL_B == MX.name());
-        ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabled());
 
         mX.setEnabled(false);
         ASSERT(VAL_B == MX.name());
-        ASSERT(false == MX.enabled());
+        ASSERT(false == MX.isEnabled());
 
         mX.setEnabled(true);
         ASSERT(VAL_B == MX.name());
-        ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabled());
 
       } break;
       default: {

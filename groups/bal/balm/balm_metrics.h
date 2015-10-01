@@ -560,7 +560,7 @@ BSLS_IDENT("$Id: $")
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
    }                                                                          \
  } while (0)
@@ -579,7 +579,7 @@ BSLS_IDENT("$Id: $")
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
    }                                                                          \
@@ -608,7 +608,7 @@ BSLS_IDENT("$Id: $")
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -643,7 +643,7 @@ BSLS_IDENT("$Id: $")
        collector4 = Helper::getCollector(CATEGORY, METRIC4);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -684,7 +684,7 @@ BSLS_IDENT("$Id: $")
        collector5 = Helper::getCollector(CATEGORY, METRIC5);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -732,7 +732,7 @@ BSLS_IDENT("$Id: $")
        collector6 = Helper::getCollector(CATEGORY, METRIC6);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -755,7 +755,7 @@ BSLS_IDENT("$Id: $")
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE);                                             \
    }                                                                          \
  } while (0)
@@ -767,7 +767,7 @@ BSLS_IDENT("$Id: $")
              balm::DefaultMetricsManager::instance()->collectorRepository();  \
         balm::Collector *collector = repository.getDefaultCollector(          \
                                                         (CATEGORY), (METRIC));\
-        if (collector->metricId().category()->enabled()) {                    \
+        if (collector->metricId().category()->isEnabled()) {                  \
             collector->update((VALUE));                                       \
         }                                                                     \
     }                                                                         \
@@ -788,7 +788,7 @@ BSLS_IDENT("$Id: $")
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
    }                                                                          \
  } while (0)
@@ -811,7 +811,7 @@ BSLS_IDENT("$Id: $")
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
    }                                                                          \
@@ -840,7 +840,7 @@ BSLS_IDENT("$Id: $")
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -875,7 +875,7 @@ BSLS_IDENT("$Id: $")
        collector4 = Helper::getIntegerCollector(CATEGORY, METRIC4);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -916,7 +916,7 @@ BSLS_IDENT("$Id: $")
        collector5 = Helper::getIntegerCollector(CATEGORY, METRIC5);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -963,7 +963,7 @@ BSLS_IDENT("$Id: $")
        collector6 = Helper::getIntegerCollector(CATEGORY, METRIC6);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE1);                                            \
        collector2->update(VALUE2);                                            \
        collector3->update(VALUE3);                                            \
@@ -989,7 +989,7 @@ do {                                                                          \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
    }                                                                          \
-   if (holder.enabled()) {                                                    \
+   if (holder.isEnabled()) {                                                  \
        collector1->update(VALUE);                                             \
    }                                                                          \
  } while (0)
@@ -1001,7 +1001,7 @@ do {                                                                          \
              balm::DefaultMetricsManager::instance()->collectorRepository();  \
         balm::IntegerCollector *collector =                                   \
                repository.getDefaultIntegerCollector((CATEGORY), (METRIC));   \
-        if (collector->metricId().category()->enabled()) {                    \
+        if (collector->metricId().category()->isEnabled()) {                  \
             collector->update((VALUE));                                       \
         }                                                                     \
     }                                                                         \
@@ -1092,7 +1092,7 @@ do {                                                                          \
         BloombergLP::balm::Metrics_Helper::initializeCategoryHolder(          \
                                                    &HOLDER_NAME, CATEGORY);   \
     }                                                                         \
-    if (HOLDER_NAME.enabled())
+    if (HOLDER_NAME.isEnabled())
 
 // Declare a static pointer to a 'balm::Collector' with the specified
 // 'VARIABLE_NAME' and an initial value of 0.  If the default metrics manager

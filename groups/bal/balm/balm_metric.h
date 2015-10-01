@@ -218,16 +218,8 @@ class Metric {
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
 
-    const bool *d_isEnabled_p;  // is category enabled (held, not owned)
-
     // NOT IMPLEMENTED
     Metric& operator=(Metric& );
-
-    // PRIVATE CONSTANTS
-    static const bool k_NOT_ACTIVE;
-        // A static boolean constant for 'false'.  The data member
-        // 'd_isEnabled_p' is assigned the *address* of this constant if the
-        // 'Metric' object is not supplied a valid collector at construction.
 
   public:
     // CLASS METHODS
@@ -346,8 +338,8 @@ class Metric {
         // inactive if either (1) it was not initialized with a valid metric
         // identifier or (2) the associated metric category has been disabled
         // (see the 'MetricsManager' method 'setCategoryEnabled').  Note that
-        // invoking this method is logically equivalent to the expression
-        // '0 != collector() && metricId().category()->enabled()'.
+        // invoking this method is equivalent to the expression
+        // '0 != collector() && metricId().category()->isEnabled()'.
 };
 
 // ============================================================================
@@ -391,7 +383,7 @@ struct Metric_MacroImp {
         // register the specified 'holder' for 'category'.   Note that
         // '*collector' must be assigned *before* registering 'holder' to
         // ensure that the macros always have a valid 'collector' when
-        // 'holder.enabled()' is 'true'.
+        // 'holder->isEnabled()' is 'true'.
 
     static void getCollector(Collector             **collector,
                              CategoryHolder         *holder,
@@ -405,7 +397,7 @@ struct Metric_MacroImp {
         // metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
-        // valid collector' when 'holder.enabled()' is 'true'.
+        // valid collector' when 'holder->isEnabled()' is 'true'.
 };
 
 // ============================================================================
@@ -445,10 +437,6 @@ Metric::Metric(const char     *category,
                MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
 {
-    // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
-    d_isEnabled_p = d_collector_p
-                  ? &d_collector_p->metricId().category()->enabled()
-                  : &k_NOT_ACTIVE;
 }
 
 inline
@@ -456,23 +444,17 @@ Metric::Metric(const MetricId&  metricId,
                MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
 {
-    // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
-    d_isEnabled_p = d_collector_p
-                  ? &d_collector_p->metricId().category()->enabled()
-                  : &k_NOT_ACTIVE;
 }
 
 inline
 Metric::Metric(Collector *collector)
 : d_collector_p(collector)
-, d_isEnabled_p(&collector->metricId().category()->enabled())
 {
 }
 
 inline
 Metric::Metric(const Metric& original)
 : d_collector_p(original.d_collector_p)
-, d_isEnabled_p(original.d_isEnabled_p)
 {
 }
 
@@ -480,7 +462,7 @@ Metric::Metric(const Metric& original)
 inline
 void Metric::increment()
 {
-    if (*d_isEnabled_p) {
+    if (isActive()) {
         d_collector_p->update(1.0);
     }
 }
@@ -488,7 +470,7 @@ void Metric::increment()
 inline
 void Metric::update(double value)
 {
-    if (*d_isEnabled_p) {
+    if (isActive()) {
         d_collector_p->update(value);
     }
 }
@@ -499,7 +481,7 @@ void Metric::accumulateCountTotalMinMax(int    count,
                                         double min,
                                         double max)
 {
-    if (*d_isEnabled_p) {
+    if (isActive()) {
         d_collector_p->accumulateCountTotalMinMax(count, total, min, max);
     }
 }
@@ -526,7 +508,7 @@ MetricId Metric::metricId() const
 inline
 bool Metric::isActive() const
 {
-    return *d_isEnabled_p;
+    return d_collector_p && d_collector_p->metricId().category()->isEnabled();
 }
 }  // close package namespace
 

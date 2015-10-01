@@ -252,7 +252,7 @@ class StopwatchScopedGuard {
         // Initialize this scoped guard to record elapsed time using the
         // specified 'collector'.  Optionally specify the 'timeUnits' in which
         // to report elapsed time.  If 'collector' is 0 or
-        //'collector->category().enabled() == false', this object will be
+        //'collector->category().isEnabled() == false', this object will be
         // inactive (i.e., will not record any values).  The behavior is
         // undefined unless
         // 'collector == 0 || collector->metricId().isValid()'.  Note that
@@ -274,12 +274,12 @@ class StopwatchScopedGuard {
         // instance has not been created, this object will be inactive (i.e.,
         // it will not record any values); similarly, if the metric's
         // associated category is disabled (i.e.,
-        // 'metricId.category()->enabled()' is 'false'), then this object will
-        // be inactive.  The behavior is undefined unless unless 'metricId' is
-        // a valid id returned by the 'MetricRepository' object owned by the
-        // indicated metrics manager.  Note that 'timeUnits' indicates the
-        // scale of the double value reported by this guard, but does *not*
-        // affect the precision of the elapsed time measurement.
+        // 'metricId.category()->isEnabled()' is 'false'), then this object
+        // will be inactive.  The behavior is undefined unless unless
+        // 'metricId' is a valid id returned by the 'MetricRepository' object
+        // owned by the indicated metrics manager.  Note that 'timeUnits'
+        // indicates the scale of the double value reported by this guard, but
+        // does *not* affect the precision of the elapsed time measurement.
 
     StopwatchScopedGuard(const char     *category,
                          const char     *name,
@@ -345,7 +345,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(Collector *collector,
                                            Units      timeUnits)
 : d_stopwatch()
 , d_timeUnits(timeUnits)
-, d_collector_p((collector && collector->metricId().category()->enabled())
+, d_collector_p((collector && collector->metricId().category()->isEnabled())
                 ? collector
                 : 0)
 {
@@ -363,7 +363,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const MetricId&  metricId,
 {
     Collector *collector = Metric::lookupCollector(metricId, manager);
     d_collector_p = (collector &&
-                     collector->metricId().category()->enabled())
+                     collector->metricId().category()->isEnabled())
                     ? collector : 0;
     if (d_collector_p) {
         d_stopwatch.start();
@@ -380,7 +380,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const MetricId&  metricId,
 {
     Collector *collector = Metric::lookupCollector(metricId, manager);
     d_collector_p = (collector &&
-                     collector->metricId().category()->enabled())
+                     collector->metricId().category()->isEnabled())
                     ? collector : 0;
     if (d_collector_p) {
         d_stopwatch.start();
@@ -398,7 +398,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
     Collector *collector = Metric::lookupCollector(category, name, manager);
 
     d_collector_p = (collector &&
-                     collector->metricId().category()->enabled())
+                     collector->metricId().category()->isEnabled())
                     ? collector : 0;
 
     if (d_collector_p) {
@@ -416,7 +416,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
 , d_collector_p(0)
 {
     Collector *collector = Metric::lookupCollector(category, name, manager);
-    d_collector_p = (collector && collector->metricId().category()->enabled())
+    d_collector_p = (collector && collector->metricId().category()->isEnabled())
                     ? collector : 0;
     if (d_collector_p) {
         d_stopwatch.start();
@@ -426,7 +426,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
 inline
 StopwatchScopedGuard::~StopwatchScopedGuard()
 {
-    if (d_collector_p && d_collector_p->metricId().category()->enabled()) {
+    if (isActive()) {
         d_collector_p->update(d_stopwatch.elapsedTime() * d_timeUnits);
     }
 }
@@ -436,7 +436,7 @@ inline
 bool StopwatchScopedGuard::isActive() const
 {
     return 0 != d_collector_p
-        && d_collector_p->metricId().category()->enabled();
+        && d_collector_p->metricId().category()->isEnabled();
 }
 }  // close package namespace
 

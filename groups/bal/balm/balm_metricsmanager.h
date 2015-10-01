@@ -317,7 +317,7 @@ BSLS_IDENT("$Id: $")
 // test whether the metric is enabled before performing the collection
 // operation.
 //..
-//      // We don't test 'd_eventsPerSecId.category()->enabled())' before
+//      // We don't test 'd_eventsPerSecId.category()->isEnabled())' before
 //      // incrementing 'd_numEvents' because, in this instance, it will not
 //      // improve performance.
 //      ++d_numEvents;
@@ -564,7 +564,7 @@ class MetricsManager {
         // be used later to remove the 'callback'.  The supplied 'callback'
         // will be called to collect metrics from 'category' each time
         // 'category' is published, even if 'category' is disabled (i.e.,
-        // 'category->enabled()' is 'false').  If the 'publish' method is
+        // 'category->isEnabled()' is 'false').  If the 'publish' method is
         // called on 'category' and 'category' is disabled, the 'callback' will
         // be invoked so clients may update any internal state, but the
         // collected metrics will be ignored.  Clients that wish to avoid
