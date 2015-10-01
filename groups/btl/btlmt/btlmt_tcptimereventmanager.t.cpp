@@ -41,7 +41,6 @@
 #endif
 
 using namespace bsl;  // automatically added by script
-
 using namespace BloombergLP;
 
 //=============================================================================
@@ -221,8 +220,8 @@ void
 timerCb(int taskId, Obj *mX)
 {
     bsl::function<void()> functor(bdlf::BindUtil::bind(&timerCb,
-                                                            taskId,
-                                                            mX));
+                                                       taskId,
+                                                       mX));
 
     bsls::TimeInterval now(bdlt::CurrentTime::now());
     bsls::TimeInterval timeout(now);
@@ -254,7 +253,7 @@ extern "C" void *monitorThread(void *arg)
     return arg;
 }
 
-extern "C" void * case100EntryPoint(void *arg)
+extern "C" void * caseStressTestEntryPoint(void *arg)
 {
     int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
@@ -688,7 +687,7 @@ extern "C" void *executeTest(void *arg) {
     return arg;
 }
 
-namespace CASE15 {
+namespace CASE_TEST_FORCED_SOCKET_CLOSURES {
 
 struct ReadDataType {
     btlso::SocketHandle::Handle  d_handle;
@@ -755,7 +754,7 @@ void writeData(WriteDataType *writeDataArgs)
     bslmt::ThreadUtil::microSleep(800, 0);
 }
 
-}  // close namespace CASE15
+}  // close namespace CASE_TEST_FORCED_SOCKET_CLOSURES
 
 int main(int argc, char *argv[])
 {
@@ -881,7 +880,7 @@ int main(int argc, char *argv[])
                           << "=======================================" << endl;
 
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
-        using namespace CASE15;
+        using namespace CASE_TEST_FORCED_SOCKET_CLOSURES;
 
         for (int i = 0; i < 2; ++i) {
             if (verbose) {
@@ -2177,7 +2176,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_TASKS; ++i) {
             LOOP_ASSERT(i, 0 == threadPool.enqueueJob(
-                   (bdlmt::ThreadPoolJobFunc)case100EntryPoint,
+                   (bdlmt::ThreadPoolJobFunc)caseStressTestEntryPoint,
                    (void*)i));
         }
 

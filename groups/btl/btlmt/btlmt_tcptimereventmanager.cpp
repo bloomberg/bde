@@ -46,8 +46,6 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bsl_c_signal.h>              // sigfillset
 #endif
 
-using namespace bsl;  // automatically added by script
-
 namespace BloombergLP {
 
 // Confirm that we use the right size atomic variable for the socket handle in
@@ -1626,7 +1624,7 @@ void TcpTimerEventManager::clearExecuteQueue()
 }
 
 void TcpTimerEventManager::deregisterSocket(
-        const btlso::SocketHandle::Handle& handle)
+                                     const btlso::SocketHandle::Handle& handle)
 {
     if (bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(), d_dispatcher)) {
         d_manager_p->deregisterSocket(handle);
