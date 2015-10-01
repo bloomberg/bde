@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 //  assert(!context->hasAttribute(a2));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BALSCM_VERSION
+#include <balscm_version.h>
 #endif
 
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINER

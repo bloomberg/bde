@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //  INT
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BALSCM_VERSION
+#include <balscm_version.h>
 #endif
 
 #ifndef INCLUDED_BALBER_BERENCODEROPTIONS
