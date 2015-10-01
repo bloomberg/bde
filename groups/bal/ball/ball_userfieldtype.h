@@ -91,7 +91,7 @@ struct UserFieldType {
         e_INT64,
         e_DOUBLE,
         e_STRING,
-        e_DATETIMETZ,
+        e_DATETIMETZ
 
     };
 

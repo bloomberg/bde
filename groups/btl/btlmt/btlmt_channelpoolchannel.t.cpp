@@ -13,7 +13,6 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_barrier.h>
 
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>

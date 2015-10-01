@@ -202,9 +202,9 @@ namespace btlso { template<class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                          // =======================
-                          // class TcpTimedConnector
-                          // =======================
+                         // =======================
+                         // class TcpTimedConnector
+                         // =======================
 
 class TcpTimedConnector : public btlsc::TimedChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
@@ -271,7 +271,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
     // MANIPULATORS
     btlsc::Channel *allocate(int *status, int flags = 0);
         // Allocate a stream-based channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return the address of a channel on success, and
         // 0 otherwise.  On an unsuccessful allocation, load the specified
@@ -288,7 +288,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
 
     btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
         // Allocate a stream-based timed channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return the address of a timed channel on
         // success, and 0 otherwise.  On an unsuccessful allocation, load the
@@ -323,7 +323,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
                                   int                        flags = 0);
         // Allocate a stream-based channel or interrupt after the specified
         // absolute 'timeout' time is reached.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return the address of a channel on success, and
         // 0 otherwise.  On an unsuccessful allocation, load the specified
@@ -347,7 +347,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
                                          int                        flags = 0);
         // Allocate a stream-based timed channel or interrupt after the
         // specified absolute 'timeout' time is reached.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return the address of a timed
         // channel on success, and 0 otherwise.  On an unsuccessful allocation,
@@ -383,7 +383,7 @@ class TcpTimedConnector : public btlsc::TimedChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

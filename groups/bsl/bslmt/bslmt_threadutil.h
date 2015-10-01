@@ -387,93 +387,102 @@ public:
         // 'normalizedSchedulingPriority' is in the range '[ 0.0, 1.0 ]'.
 
     static int create(Handle                  *handle,
+                      ThreadFunction           function,
+                      void                    *userData);
+    static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
                       ThreadFunction           function,
                       void                    *userData);
-        // Create a new thread of program control having the specified
-        // 'attributes' that invokes the specified 'function' with a single
-        // argument specified by 'userData', and load into the specified
-        // 'handle' an identifier that may be used to refer to this thread in
-        // calls to other 'ThreadUtil' methods.  Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // 'handle != 0' and unless 'attributes.stackSize' is either greater
-        // than 0 or unset.  Note that unless explicitly "detached" (by
-        // invoking the 'detach' class method with 'handle') or the
-        // 'BSLMT_CREATE_DETACHED' attribute is specified, a call to 'join'
-        // must be made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the platform-specific values
-        // of default thread stack size vary wildly between platforms; failure
-        // to specify a stack size, either through 'attributes' or
-        // 'Configuration', can lead to non-portable code.
+        // Create a new thread of program control whose entry point will be the
+        // specified 'function', and which will be passed 'userData' as its
+        // sole argument, and load into the specified 'handle' an identifier
+        // that may be used to refer to this thread in calls to other
+        // 'ThreadUtil' methods.  Optionally specify 'attributes' describing
+        // the properties for the new thread to create.  If 'attributes' is not
+        // supplied, a default 'ThreadAttributes' object is used.  Return 0 on
+        // success, and a non-zero value otherwise.  'bslmt::Configuration' is
+        // used to determine the created thread's default stack-size if either
+        // 'attributes' is not supplied or if 'attributes.stackSize()' has the
+        // unset value.  The behavior is undefined unless unless 'attributes',
+        // if specified, has a 'stackSize' that is either greater than 0 or
+        // 'e_UNSET_STACK_SIZE'.  Note that unless the created thread is
+        // explicitly "detached" (by invoking the 'detach' class method with
+        // 'handle') or the 'k_CREATE_DETACHED' attribute is specified, a call
+        // to 'join' must be made to reclaim any system resources associated
+        // with the newly-created thread.  Also note that users are encouraged
+        // to either explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration', because the
+        // default stack size is surprisingly small on some platforms.
 
-    static int create(Handle         *handle,
-                      ThreadFunction  function,
-                      void           *userData);
-        // Create a new thread of program control having default attributes
-        // (e.g., "stack size", "scheduling priority", etc) provided by either
-        // 'Configuration' or platform-specific default attributes that invokes
-        // the specified 'function' with a single argument specified by
-        // 'userData', and load into the specified 'handle' an identifier that
-        // may be used to refer to this thread in calls to other 'ThreadUtil'
-        // methods.  Return 0 on success, and a non-zero value otherwise.  The
-        // behavior is undefined unless 'handle != 0'.  Note that unless
-        // explicitly "detached" (by invoking 'detach(*handle)'), a call to
-        // 'join' must be made to reclaim any system resources associated with
-        // the newly-created thread.  Also note that the platform-specific
-        // values of default thread stack size vary wildly between platforms;
-        // failure to specify a stack size, either through a 'ThreadAttributes'
-        // object or through 'Configuration', can lead to non-portable code.
 
     template <class INVOKABLE>
     static int create(Handle                  *handle,
+                      const INVOKABLE&         function);
+    template <class INVOKABLE>
+    static int create(Handle                  *handle,
                       const ThreadAttributes&  attributes,
-                      const INVOKABLE&         function,
-                      bslma::Allocator        *allocator = 0);
-        // Create a new thread of program control having the specified
-        // 'attributes' that invokes the specified 'function' object, and load
-        // into the specified 'handle' an identifier that may be used to refer
-        // to this thread in calls to other 'ThreadUtil' methods.  Use the
-        // optionally specified 'allocator' to create a copy of 'function' to
-        // be used by the thread.  If no 'allocator' is specified, the global
-        // allocator is used'.  Return 0 on success and a non-zero value
-        // otherwise.  The behavior is undefined unless 'handle != 0', unless
-        // 'allocator' is thread-safe, and unless 'attributes.stackSize' is
-        // either greater than 0 or unset.  'INVOKABLE' shall be a
-        // copy-constructible type having the equivalent of
-        // 'void operator()()'.  Note that unless explicitly "detached" (by
-        // invoking 'detach(*handle)') or the 'BSLMT_CREATE_DETACHED' attribute
-        // is specified, a call to 'join' must be made to reclaim any system
-        // resources associated with the newly-created thread.  Also note that
-        // the lifetime of 'allocator', if specified, must exceed the lifetime
-        // of the thread.  Also note that the platform-specific values of
-        // default thread stack size vary wildly between platforms; failure to
-        // specify a stack size, either through 'attributes' or
-        // 'Configuration', can lead to non-portable code.
+                      const INVOKABLE&         function);
+        // Create a new thread of program control whose entry point will invoke
+        // the the specified 'function' object, and load into the specified
+        // 'handle' an identifier that may be used to refer to this thread in
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread to create.
+        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
+        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // 'function' shall be a reference to a type, 'INVOKABLE', that can be
+        // copy-constructed, and where the expression '(void)function()' will
+        // execute a function call (i.e., either a 'void()()' function, or a
+        // functor object implementing 'void operator()()').
+        // 'bslmt::Configuration' is used to determine the created thread's
+        // default stack-size if either 'attributes' is not supplied or if
+        // 'attributes.stackSize()' has the unset value.  The behavior is
+        // undefined unless unless 'attributes', if specified, has a
+        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
+        // Note that unless the created thread is explicitly "detached" (by
+        // invoking the 'detach' class method with 'handle') or the
+        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
+        // made to reclaim any system resources associated with the
+        // newly-created thread.  Also note that users are encouraged to either
+        // explicitly provide a stack size attribute, or configure a
+        // 'bslmt'-wide default using 'bslmt::Configuration',  because the 
+        // default stack size is surprisingly small on some platforms.
 
     template <class INVOKABLE>
-    static int create(Handle           *handle,
-                      const INVOKABLE&  function,
-                      bslma::Allocator *allocator = 0);
-        // Create a new thread of program control having default attributes
-        // (e.g., "stack size", "scheduling priority", etc) provided by either
-        // 'Configuration' or platform-specific default attributes that invokes
-        // the specified 'function' object, and load into the specified
+    static int createWithAllocator(Handle                  *handle,
+                                   const INVOKABLE&         function,
+                                   bslma::Allocator        *allocator);
+    template <class INVOKABLE>
+    static int createWithAllocator(Handle                  *handle,
+                                   const ThreadAttributes&  attributes,
+                                   const INVOKABLE&         function,
+                                   bslma::Allocator        *allocator);
+        // Create a new thread of program control whose entry point will invoke
+        // the the specified 'function' object (using the specified 'allocator'
+        // to supply memory to copy 'function'), and load into the specified
         // 'handle' an identifier that may be used to refer to this thread in
-        // calls to other 'ThreadUtil' methods.  Use the optionally specified
-        // 'allocator' to create a copy of 'function' to be used by the thread.
-        // If no 'allocator' is specified, the global allocator is used'.
-        // Return 0 on success, and a non-zero value otherwise.  The behavior
-        // is undefined unless 'handle != 0' and unless 'allocator' is
-        // thread-safe.  'INVOKABLE' shall be a copy-constructible type having
-        // the equivalent of 'void operator()()'.  Note that unless explicitly
-        // "detached" (by invoking 'detach(*handle)'), a call to 'join' must be
+        // calls to other 'ThreadUtil' methods.  Optionally specify
+        // 'attributes' describing the properties for the new thread to create.
+        // If 'attributes' is not supplied, a default 'ThreadAttributes' object
+        // is used.  Return 0 on success, and a non-zero value otherwise.
+        // 'function' shall be a reference to a type, 'INVOKABLE', that can be
+        // copy-constructed, and where the expression '(void)function()' will
+        // execute a function call (i.e., either a 'void()()' function, or a
+        // functor object implementing 'void operator()()').
+        // 'bslmt::Configuration' is used to determine the created thread's
+        // default stack-size if either 'attributes' is not supplied or if
+        // 'attributes.stackSize()' has the unset value.  The behavior is
+        // undefined unless unless 'attributes', if specified, has a
+        // 'stackSize' that is either greater than 0 or 'e_UNSET_STACK_SIZE'.
+        // Note that unless the created thread is explicitly "detached" (by
+        // invoking the 'detach' class method with 'handle') or the
+        // 'k_CREATE_DETACHED' attribute is specified, a call to 'join' must be
         // made to reclaim any system resources associated with the
-        // newly-created thread.  Also note that the lifetime of 'allocator',
-        // if specified, must exceed the lifeetime of the thread.  Also note
-        // that the platform-specific values of default thread stack size vary
-        // wildly between platforms; failure to specify a stack size, either
-        // through a 'ThreadAttributes' object or through 'Configuration', can
-        // lead to non-portable code.
+        // newly-created thread.  Also note that the lifetime of 'allocator'
+        // must exceed the lifetime of the thread.  Also note that users are
+        // encouraged to either explicitly provide a stack size attribute, or
+        // configure a 'bslmt'-wide default using 'bslmt::Configuration',
+        // because the default stack size is surprisingly small on some
+        // platforms.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
@@ -714,10 +723,33 @@ int bslmt::ThreadUtil::create(Handle         *handle,
 
 template <class INVOKABLE>
 inline
+int bslmt::ThreadUtil::create(Handle           *handle,
+                              const INVOKABLE&  function) 
+{
+    return createWithAllocator(handle,
+                               function,
+                               bslma::Default::globalAllocator());
+}
+
+template <class INVOKABLE>
+inline
 int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
-                              const INVOKABLE&         function,
-                              bslma::Allocator        *allocator) {
+                              const INVOKABLE&         function) 
+{
+    return createWithAllocator(handle,
+                               attributes, 
+                               function,
+                               bslma::Default::globalAllocator());
+}
+
+template <class INVOKABLE>
+inline
+int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
+                                           const ThreadAttributes&  attributes,
+                                           const INVOKABLE&         function,
+                                           bslma::Allocator        *allocator) 
+{
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
     EntryPointFunctorAdapterUtil::allocateAdapter(
                                    &threadData,
@@ -734,9 +766,10 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
 
 template <class INVOKABLE>
 inline
-int bslmt::ThreadUtil::create(Handle           *handle,
-                              const INVOKABLE&  function,
-                              bslma::Allocator *allocator) {
+int bslmt::ThreadUtil::createWithAllocator(Handle           *handle,
+                                           const INVOKABLE&  function,
+                                           bslma::Allocator *allocator)
+{
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
     EntryPointFunctorAdapterUtil::allocateAdapter(
                                    &threadData,

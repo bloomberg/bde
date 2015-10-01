@@ -418,7 +418,7 @@ SocketOptUtil::setOption(SocketHandle::Handle  handle,
     if (0 == setsockopt(handle,
                         level,
                         option,
-                        static_cast<char *>(&value),
+                        reinterpret_cast<char *>(const_cast<T *>(&value)),
                         sizeof value)) {
         return 0;                                                     // RETURN
     }
@@ -472,7 +472,8 @@ SocketOptUtil::getOption(T                    *result,
     if (0 == getsockopt(handle,
                         level,
                         option,
-                        static_cast<char *>(result),
+                        static_cast<char *>(const_cast<void *>(
+                                            static_cast<const void *>(result))),
                         &optsize)) {
         return 0;                                                     // RETURN
     }
@@ -545,7 +546,7 @@ SocketOptUtil::getOption(T                    *result,
     return getsockopt(handle,
                       level,
                       option,
-                      static_cast<char *>(result),
+                      reinterpret_cast<char *>(result),
                       &optsize);
 #else
     return getsockopt(handle,

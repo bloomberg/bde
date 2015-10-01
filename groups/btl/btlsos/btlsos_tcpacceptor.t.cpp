@@ -28,6 +28,9 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
+#include <bsl_iostream.h>
+#include <bsl_vector.h>
+
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
@@ -35,13 +38,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
-#include <bsl_iostream.h>
-#include <bsl_vector.h>
-
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -150,7 +150,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 10000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -624,6 +624,8 @@ int main(int argc, char *argv[]) {
             // Note: this is OK *if and only if* it is in the 'main' function.
             bsls::TimeInterval readTimeout(30, 0);  // 30 seconds
             bsls::TimeInterval writeTimeout(5, 0);  // 5 seconds
+
+#if 0
             while (0 == acceptor.isInvalid()) {
                 int status;
                 btlsc::TimedChannel *channel =
@@ -677,6 +679,7 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(acceptor.isInvalid());
             ASSERT(0 == acceptor.close());
+#endif
         }
       } break;
       case 7: {
@@ -748,7 +751,7 @@ int main(int argc, char *argv[]) {
 
                   bsls::TimeInterval timeout(0, 5), time(60, 0);
                   int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===================>
@@ -924,7 +927,7 @@ int main(int argc, char *argv[]) {
           }
           {
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               struct {
                   int                   d_lineNum;
@@ -1202,7 +1205,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1608,7 +1611,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1964,7 +1967,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   LOOP_ASSERT(i, 0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2070,7 +2073,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   ASSERT(0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>

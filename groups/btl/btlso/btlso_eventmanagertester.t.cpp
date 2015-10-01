@@ -16,6 +16,7 @@
 #include <bdlt_currenttime.h>
 
 #include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 

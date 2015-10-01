@@ -9,10 +9,11 @@
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>   // 'bsl::transform'
 
-#include <bsl_cctype.h>      // 'bsl::tolower'
+#include <ctype.h>           // 'tolower', 'toupper'
 #include <bsl_cstdlib.h>     // 'bsl::atoi'
 #include <bsl_cstdio.h>      // 'bsl::sprintf'
 #include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
+
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #include <bsl_c_string.h>    // 'bsl::_stricmp', 'bsl::_strnicmp'
@@ -1839,7 +1840,7 @@ int main(int argc, char *argv[])
         //: 1 This case uses the Ad-Hoc Data Selection Method and the
         //:   Array-Based Implementation Technique.
         //:
-        //: 2 To address concern 1, we use 'bsl::tolower' or 'bsl::toupper' to
+        //: 2 To address concern 1, we use 'tolower' or 'toupper' to
         //:   convert the supplied test strings to lower/upper cases.  Then we
         //:   compare them with the results of 'toLower' and 'toUpper' to make
         //:   sure they match.
@@ -1914,7 +1915,7 @@ int main(int argc, char *argv[])
                 bsl::transform(lowerStr.begin(),
                                lowerStr.end(),
                                lowerStr.begin(),
-                               static_cast<int(*)(int)>(bsl::tolower));
+                               ::tolower);
                 LOOP_ASSERT(i, lowerStr == stdString);
                 LOOP_ASSERT(i, lowerStr == cstring);
                 LOOP_ASSERT(i, strncmp(lowerStr.c_str(), nonNullString,
@@ -1941,7 +1942,7 @@ int main(int argc, char *argv[])
                 bsl::transform(upperStr.begin(),
                                upperStr.end(),
                                upperStr.begin(),
-                               static_cast<int(*)(int)>(bsl::toupper));
+                               toupper);
                 LOOP_ASSERT(i, upperStr == stdString);
                 LOOP_ASSERT(i, upperStr == cstring);
                 LOOP_ASSERT(i, strncmp(upperStr.c_str(), nonNullString,

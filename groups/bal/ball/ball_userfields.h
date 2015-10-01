@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // identifier (for the purpose of illustration, these are simply constants):
 //..
 //    static const char    *TEST_USER = "testUser";
-//    static const int64_t  TEST_TASK = 4315;
+//    static const bsl::int64_t  TEST_TASK = 4315;
 //
 //    fields->appendString(TEST_USER);
 //    fields->appendInt64(TEST_TASK);
@@ -104,6 +104,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
 #endif
 
 namespace BloombergLP {
@@ -164,7 +168,7 @@ class UserFields {
     void appendNull();
         // Append an element having the unset value to this object.
 
-    void appendInt64(int64_t value);
+    void appendInt64(bsl::int64_t value);
     void appendDouble(double value);
     void appendString(bslstl::StringRef value);
     void appendDatetimeTz(const bdlt::DatetimeTz& value);
@@ -304,7 +308,7 @@ void UserFields::appendNull()
 }
 
 inline
-void UserFields::appendInt64(int64_t value)
+void UserFields::appendInt64(bsl::int64_t value)
 {
     d_values.emplace_back(value);
 }

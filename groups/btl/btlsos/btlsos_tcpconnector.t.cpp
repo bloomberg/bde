@@ -43,10 +43,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -159,7 +159,7 @@ enum {
     k_REMOTE_PORT_NUMBER      = 7,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 1000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -730,7 +730,7 @@ int main(int argc, char *argv[]) {
 
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -813,7 +813,7 @@ int main(int argc, char *argv[]) {
                       ASSERT(0 == connector.isInvalid());
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -982,7 +982,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1101,7 +1101,7 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+{L_, 'A',   e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>
@@ -1414,7 +1414,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1527,14 +1527,14 @@ int main(int argc, char *argv[]) {
   // Solaris and AIX will incorrectly return very quickly from this call to
   // connect.  The other platforms would timeout at some point but it would
   // have taken a very long time.
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+  {L_, 'A', e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 #endif
 };
 #else
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+  {L_, 'A', e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>
@@ -1802,7 +1802,7 @@ int main(int argc, char *argv[]) {
                   connector.setPeer(actualAddress);
                   LOOP_ASSERT(i, 0 == connector.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -1906,7 +1906,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
               for (int i = 0; i < NUM_VALUES; ++i) { // different connectors

@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(btls5_networkconnector_cpp, "$Id$ $CSID$")
 
 #include <btls5_negotiator.h>
-#include <btls5_networkdescriptionutil.h>
+#include <btls5_networkdescriptionutil.h>  // for testing only
 #include <btls5_testserver.h>              // for testing only
 
 #include <bslmt_lockguard.h>

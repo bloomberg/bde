@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 
@@ -107,9 +106,9 @@ enum {
 
 namespace btlsos {
 
-                   // =====================================
-                   // class btesos_TcpTimedCbConnector_RReg
-                   // =====================================
+                  // =====================================
+                  // class btesos_TcpTimedCbConnector_RReg
+                  // =====================================
 
 class TcpTimedCbConnector_Reg {
 
@@ -294,9 +293,9 @@ TcpTimedCbConnector_Reg::timedCallback() const {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                         // -------------------------
-                         // class TcpTimedCbConnector
-                         // -------------------------
+                        // -------------------------
+                        // class TcpTimedCbConnector
+                        // -------------------------
 
 // PRIVATE MANIPULATORS
 
@@ -333,7 +332,7 @@ int TcpTimedCbConnector::initiateTimedConnection(
 
     if ( s == btlso::SocketHandle::e_ERROR_WOULDBLOCK ||
         (s == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-         0 == (flags & btesc_Flag::k_ASYNC_INTERRUPT)))
+         0 == (flags & btlsc::Flag::k_ASYNC_INTERRUPT)))
     {
         if (enqueueRequest) {
             TcpTimedCbConnector_Reg *cb =
@@ -381,7 +380,7 @@ int TcpTimedCbConnector::initiateTimedConnection(
         return e_SUCCESS;                                             // RETURN
     }
     if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-        BSLS_ASSERT(btesc_Flag::k_ASYNC_INTERRUPT & flags);
+        BSLS_ASSERT(btlsc::Flag::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
         return e_SUCCESS;                                             // RETURN
     }
@@ -423,7 +422,7 @@ int TcpTimedCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
 
     if ( s == btlso::SocketHandle::e_ERROR_WOULDBLOCK ||
         (s == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-         0 == (flags & btesc_Flag::k_ASYNC_INTERRUPT)))
+         0 == (flags & btlsc::Flag::k_ASYNC_INTERRUPT)))
     {
         if (createRequest) {
             TcpTimedCbConnector_Reg *cb =
@@ -467,7 +466,7 @@ int TcpTimedCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
         return e_SUCCESS;                                             // RETURN
     }
     if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-        BSLS_ASSERT(btesc_Flag::k_ASYNC_INTERRUPT & flags);
+        BSLS_ASSERT(btlsc::Flag::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
         return e_SUCCESS;                                             // RETURN
     }

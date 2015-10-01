@@ -411,7 +411,9 @@ BSLS_IDENT("$Id: $")
 //          // dates applied to 'calendar' are within its valid range and
 //          // there exists at least one business day within 'month'.
 //      {
-//          BSLS_ASSERT(bdlt::Date::isValid(year, month, targetDay));
+//          BSLS_ASSERT(bdlt::Date::isValidYearMonthDay(year,
+//                                                      month,
+//                                                      targetDay));
 //
 //          // Efficiency is important so we will minimize the number of
 //          // conversions between year/month/day and 'bdlt::Date' objects.

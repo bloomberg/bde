@@ -167,10 +167,11 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(factory);
 //      assert(manager);
-//      d_allocateFunctor
-//          = bsl::function<void(btlsc::TimedCbChannel*, int)>(
-//                    bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this),
-//                    basicAllocator);
+//      d_allocateFunctor = bsl::function<void(btlsc::TimedCbChannel *, int)>(
+//          bsl::allocator_arg_t(),
+//          bsl::allocator<bsl::function<void(btlsc::TimedCbChannel *, int)> >(
+//              basicAllocator),
+//          bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this));
 //  }
 //
 //  my_EchoServer::~my_EchoServer() {
@@ -450,9 +451,9 @@ namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlso { class TimerEventManager; }
 namespace btlsos {class TcpCbAcceptor_Reg; // component-local class declaration
 
-                            // ===================
-                            // class TcpCbAcceptor
-                            // ===================
+                           // ===================
+                           // class TcpCbAcceptor
+                           // ===================
 
 class TcpCbAcceptor : public btlsc::CbChannelAllocator {
     // This class implements a 'btesc'-style callback-based channel allocator
@@ -558,7 +559,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt the allocation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'callback' will not be invoked).
@@ -580,7 +581,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'timedCallback' will not be
@@ -677,7 +678,7 @@ class TcpCbAcceptor : public btlsc::CbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

@@ -49,9 +49,9 @@ enum {
     e_SUCCESS       =  0
 };
 
-                          // =======================
-                          // local function allocate
-                          // =======================
+                         // =======================
+                         // local function allocate
+                         // =======================
 
 template <class RESULT>
 inline
@@ -81,7 +81,7 @@ static RESULT *allocate(int                                     *status,
             return NULL;                                              // RETURN
         }
 
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 
@@ -102,9 +102,9 @@ namespace btlsos {
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                             // -----------------
-                             // class TcpAcceptor
-                             // -----------------
+                            // -----------------
+                            // class TcpAcceptor
+                            // -----------------
 
 // CREATORS
 TcpAcceptor::TcpAcceptor(

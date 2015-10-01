@@ -299,10 +299,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
 #endif
@@ -321,6 +317,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_UTILITY
@@ -347,14 +347,14 @@ class EventScheduler {
 
   private:
     // PRIVATE TYPES
-    typedef bsl::pair<bdlf::Function<void(*)()>, bsls::TimeInterval>
+    typedef bsl::pair<bsl::function<void()>, bsls::TimeInterval>
                                                            RecurringEventData;
 
     typedef bdlcc::SkipList<bsls::Types::Int64,
-                          RecurringEventData>              RecurringEventQueue;
+                            RecurringEventData>            RecurringEventQueue;
 
     typedef bdlcc::SkipList<bsls::Types::Int64,
-                          bdlf::Function<void(*)()> >       EventQueue;
+                            bsl::function<void()> >        EventQueue;
 
     // FRIENDS
     friend class EventSchedulerEventHandle;
@@ -371,7 +371,7 @@ class EventScheduler {
 
     typedef EventSchedulerRecurringEventHandle RecurringEventHandle;
 
-    typedef bdlf::Function<void (*)(const bdlf::Function<void (*)()>&)>
+    typedef bsl::function<void(const bsl::function<void()>&)>
                                                Dispatcher;
         // Defines a type alias for the dispatcher functor type.
 
@@ -584,11 +584,11 @@ class EventScheduler {
         // documentation).  The behavior is undefined if this method is invoked
         // from the dispatcher thread.
 
-    void scheduleEvent(const bsls::TimeInterval&         time,
-                       const bdlf::Function<void(*)()>&  callback);
-    void scheduleEvent(EventHandle                      *event,
-                       const bsls::TimeInterval&         time,
-                       const bdlf::Function<void(*)()>&  callback);
+    void scheduleEvent(const bsls::TimeInterval&     time,
+                       const bsl::function<void()>&  callback);
+    void scheduleEvent(EventHandle                  *event,
+                       const bsls::TimeInterval&     time,
+                       const bsl::function<void()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'time'.  Load into the optionally specified 'event' a handle that
         // can be used to cancel the event (by invoking 'cancelEvent').  The
@@ -598,9 +598,9 @@ class EventScheduler {
         // Note that 'time' may be in the past, in which case the event will be
         // executed as soon as possible.
 
-    void scheduleEventRaw(Event                            **event,
-                          const bsls::TimeInterval&          time,
-                          const bdlf::Function<void(*)()>&   callback);
+    void scheduleEventRaw(Event                        **event,
+                          const bsls::TimeInterval&      time,
+                          const bsl::function<void()>&   callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'time'.  Load into the specified 'event' pointer a handle that can
         // be used to cancel the event (by invoking 'cancelEvent').  The 'time'
@@ -611,14 +611,14 @@ class EventScheduler {
         // it is no longer needed.
 
     void scheduleRecurringEvent(
-           const bsls::TimeInterval&        interval,
-           const bdlf::Function<void(*)()>& callback,
-           const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
+               const bsls::TimeInterval&    interval,
+               const bsl::function<void()>& callback,
+               const bsls::TimeInterval&    startTime = bsls::TimeInterval(0));
     void scheduleRecurringEvent(
-          RecurringEventHandle             *event,
-          const bsls::TimeInterval&         interval,
-          const bdlf::Function<void(*)()>&  callback,
-          const bsls::TimeInterval&         startTime = bsls::TimeInterval(0));
+              RecurringEventHandle         *event,
+              const bsls::TimeInterval&     interval,
+              const bsl::function<void()>&  callback,
+              const bsls::TimeInterval&     startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally specified 'startTime'.  If 'startTime' is not specified,
@@ -631,10 +631,10 @@ class EventScheduler {
         // undefined if 'interval' is exactly 0 seconds.
 
     void scheduleRecurringEventRaw(
-         RecurringEvent                   **event,
-         const bsls::TimeInterval&          interval,
-         const bdlf::Function<void(*)()>&   callback,
-         const bsls::TimeInterval&          startTime = bsls::TimeInterval(0));
+             RecurringEvent               **event,
+             const bsls::TimeInterval&      interval,
+             const bsl::function<void()>&   callback,
+             const bsls::TimeInterval&      startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', with the first event dispatched at the
         // optionally specified 'startTime'.  If 'startTime' is not specified,
@@ -708,7 +708,7 @@ class EventSchedulerEventHandle
 
     // PRIVATE TYPES
     typedef bdlcc::SkipList<bsls::Types::Int64,
-                          bdlf::Function<void(*)()> > EventQueue;
+                            bsl::function<void()> > EventQueue;
 
     // DATA
     EventQueue::PairHandle  d_handle;
@@ -757,7 +757,7 @@ class EventSchedulerRecurringEventHandle
     // be used in any method which expects these.
 
     // PRIVATE TYPES
-    typedef bsl::pair<bdlf::Function<void(*)()>, bsls::TimeInterval>
+    typedef bsl::pair<bsl::function<void()>, bsls::TimeInterval>
                                                      RecurringEventData;
     typedef bdlcc::SkipList<bsls::Types::Int64,
                           RecurringEventData>        RecurringEventQueue;
@@ -933,8 +933,8 @@ int EventScheduler::cancelEvent(const RecurringEvent *handle)
 }
 
 inline
-void EventScheduler::scheduleEvent(const bsls::TimeInterval&        time,
-                                   const bdlf::Function<void(*)()>& callback)
+void EventScheduler::scheduleEvent(const bsls::TimeInterval&    time,
+                                   const bsl::function<void()>& callback)
 {
     scheduleEventRaw(0, time, callback);
 }
@@ -956,9 +956,9 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 
 inline
 void EventScheduler::scheduleRecurringEvent(
-                                    const bsls::TimeInterval&        interval,
-                                    const bdlf::Function<void(*)()>& callback,
-                                    const bsls::TimeInterval&        startTime)
+                                        const bsls::TimeInterval&    interval,
+                                        const bsl::function<void()>& callback,
+                                        const bsls::TimeInterval&    startTime)
 {
     scheduleRecurringEventRaw(0, interval, callback, startTime);
 }

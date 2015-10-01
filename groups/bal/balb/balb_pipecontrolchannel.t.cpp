@@ -30,7 +30,7 @@
 #include <bsls_timeinterval.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <bsl_csignal.h>
+#include <bsl_c_signal.h>
 #include <bsl_cstdio.h>
 
 #include <fcntl.h>

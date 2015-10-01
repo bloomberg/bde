@@ -105,9 +105,9 @@ enum {
 
 namespace btlsos {
 
-                        // ============================
-                        // class TcpTimedCbAcceptor_Reg
-                        // ============================
+                       // ============================
+                       // class TcpTimedCbAcceptor_Reg
+                       // ============================
 
 class TcpTimedCbAcceptor_Reg {
     // This class stores either a callback or a timed callback, and allows to
@@ -294,12 +294,12 @@ const bsls::TimeInterval& TcpTimedCbAcceptor_Reg::timeout() const {
 }
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                          // ------------------------
-                          // class TcpTimedCbAcceptor
-                          // ------------------------
+                         // ------------------------
+                         // class TcpTimedCbAcceptor
+                         // ------------------------
 
 // PRIVATE MANIPULATORS
 void TcpTimedCbAcceptor::acceptCb()
@@ -350,8 +350,8 @@ void TcpTimedCbAcceptor::acceptCb()
     }
     else {  // Existing connection - find out what happened
         if (status == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-            d_currentRequest_p->flags() & btesc_Flag::k_ASYNC_INTERRUPT) {
-            d_currentRequest_p->invoke(btesc_Flag::k_ASYNC_INTERRUPT);
+            d_currentRequest_p->flags() & btlsc::Flag::k_ASYNC_INTERRUPT) {
+            d_currentRequest_p->invoke(btlsc::Flag::k_ASYNC_INTERRUPT);
         }
         else {
             if (status != btlso::SocketHandle::e_ERROR_WOULDBLOCK) {

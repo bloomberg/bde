@@ -326,6 +326,7 @@ class ChannelPool {
             // . . .
         }
         d_entries.push_back(entry);
+        return 0;
     }
 
     int my_AsyncChannel::write(const btlb::Blob& blob,

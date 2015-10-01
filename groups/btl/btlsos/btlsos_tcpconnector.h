@@ -179,9 +179,9 @@ namespace btlso { template <class ADDRESS> class StreamSocketFactory; }
 namespace btlso { template <class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                             // ==================
-                             // class TcpConnector
-                             // ==================
+                            // ==================
+                            // class TcpConnector
+                            // ==================
 
 class TcpConnector : public btlsc::ChannelAllocator {
     // This class implements a 'btesc'-style timed channel allocator for
@@ -247,7 +247,7 @@ class TcpConnector : public btlsc::ChannelAllocator {
     // MANIPULATORS
     btlsc::Channel *allocate(int *status, int flags = 0);
         // Allocate a stream-based channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return the address of a channel on success, and
         // 0 otherwise.  On an unsuccessful allocation, load the specified
@@ -264,7 +264,7 @@ class TcpConnector : public btlsc::ChannelAllocator {
 
     btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
         // Allocate a stream-based timed channel.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt this operation; by default, such
         // events are ignored.  Return the address of a timed channel on
         // success, and 0 otherwise.  On an unsuccessful allocation, load the
@@ -311,7 +311,7 @@ class TcpConnector : public btlsc::ChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 // MANIPULATORS

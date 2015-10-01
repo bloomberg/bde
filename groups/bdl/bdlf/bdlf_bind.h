@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha), Herve Bronnimann (hbronnimann)
 //
-//@SEE_ALSO: bdlf_memfn, bdlf_function, bdlf_placeholder
+//@SEE_ALSO: bdlf_memfn, bdlf_placeholder
 //
 //@DESCRIPTION: This component provides a parameterized binder mechanism,
 // 'bdlf::Bind', that is a functor object that binds an invocable object or
@@ -1022,37 +1022,6 @@ template <class LIST> struct Bind_CalcParameterMask;
 template <class FUNC, class ARGS, int INDEX, int OFFSET>
                                              struct Bind_MapParameter;
 template <class RET, class FUNC, class LIST> struct Bind_ImplSelector;
-
-                           // =================================
-                           // struct Bind_AreAllBitwiseMoveable
-                           // =================================
-
-template <class A1 = int,  class A2  = int, class A3 = int,  class A4  = int,
-          class A5 = int,  class A6  = int, class A7 = int,  class A8  = int,
-          class A9 = int,  class A10 = int, class A11 = int, class A12 = int,
-          class A13 = int, class A14 = int>
-struct Bind_AreAllBitwiseMoveable {
-    // This metafunction will yield a 'VALUE' member constant of true if
-    // 'bslmf::IsBitwiseMoveable' is true for all of the specified template
-    // parameters 'A1' through 'A14'; otherwise a 'VALUE' of false.  Note that
-    // this metafunction can be instantiated with zero to 14 parameters,
-    // yielding true for if instantiated with zero parameters.
-
-    enum { VALUE = (bslmf::IsBitwiseMoveable<A1>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A2>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A3>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A4>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A5>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A6>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A7>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A8>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A9>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A10>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A11>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A12>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A13>::VALUE &&
-                    bslmf::IsBitwiseMoveable<A14>::VALUE) };
-};
 
                         // ==========================
                         // class Bind_BoundTupleValue
@@ -5354,7 +5323,8 @@ struct Bind_BoundTuple2 : bslmf::TypeList2<A1,A2>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple2, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5387,7 +5357,9 @@ struct Bind_BoundTuple3 : bslmf::TypeList3<A1,A2,A3>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple3, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5424,7 +5396,10 @@ struct Bind_BoundTuple4 : bslmf::TypeList4<A1,A2,A3,A4>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple4, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5465,7 +5440,11 @@ struct Bind_BoundTuple5 : bslmf::TypeList5<A1,A2,A3,A4,A5>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple5, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5510,7 +5489,12 @@ struct Bind_BoundTuple6 : bslmf::TypeList6<A1,A2,A3,A4,A5,A6>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple6, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5559,7 +5543,13 @@ struct Bind_BoundTuple7 : bslmf::TypeList7<A1,A2,A3,A4,A5,A6,A7>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple7, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5614,7 +5604,14 @@ struct Bind_BoundTuple8 : bslmf::TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple8, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,A8>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5673,7 +5670,15 @@ struct Bind_BoundTuple9 : bslmf::TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple9, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,A8,A9>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1> d_a1;
@@ -5736,8 +5741,16 @@ struct Bind_BoundTuple10 : bslmf::TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple10, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
-                                         A8,A9,A10>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE &&
+        bslmf::IsBitwiseMoveable<A10>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5804,8 +5817,17 @@ struct Bind_BoundTuple11
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple11, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
-                                         A8,A9,A10,A11>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE &&
+        bslmf::IsBitwiseMoveable<A10>::VALUE &&
+        bslmf::IsBitwiseMoveable<A11>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5876,8 +5898,18 @@ struct Bind_BoundTuple12
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple12, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
-                                         A8,A9,A10,A11,A12>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE &&
+        bslmf::IsBitwiseMoveable<A10>::VALUE &&
+        bslmf::IsBitwiseMoveable<A11>::VALUE &&
+        bslmf::IsBitwiseMoveable<A12>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -5953,8 +5985,19 @@ struct Bind_BoundTuple13
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple13, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
-                                         A8,A9,A10,A11,A12,A13>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE &&
+        bslmf::IsBitwiseMoveable<A10>::VALUE &&
+        bslmf::IsBitwiseMoveable<A11>::VALUE &&
+        bslmf::IsBitwiseMoveable<A12>::VALUE &&
+        bslmf::IsBitwiseMoveable<A13>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;
@@ -6034,8 +6077,20 @@ struct Bind_BoundTuple14
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
         Bind_BoundTuple14, bslmf::IsBitwiseMoveable,
-        (Bind_AreAllBitwiseMoveable<A1,A2,A3,A4,A5,A6,A7,
-                                         A8,A9,A10,A11,A12,A13,A14>::VALUE));
+        bslmf::IsBitwiseMoveable<A1>::VALUE &&
+        bslmf::IsBitwiseMoveable<A2>::VALUE &&
+        bslmf::IsBitwiseMoveable<A3>::VALUE &&
+        bslmf::IsBitwiseMoveable<A4>::VALUE &&
+        bslmf::IsBitwiseMoveable<A5>::VALUE &&
+        bslmf::IsBitwiseMoveable<A6>::VALUE &&
+        bslmf::IsBitwiseMoveable<A7>::VALUE &&
+        bslmf::IsBitwiseMoveable<A8>::VALUE &&
+        bslmf::IsBitwiseMoveable<A9>::VALUE &&
+        bslmf::IsBitwiseMoveable<A10>::VALUE &&
+        bslmf::IsBitwiseMoveable<A11>::VALUE &&
+        bslmf::IsBitwiseMoveable<A12>::VALUE &&
+        bslmf::IsBitwiseMoveable<A13>::VALUE &&
+        bslmf::IsBitwiseMoveable<A14>::VALUE);
 
     // INSTANCE DATA
     Bind_BoundTupleValue<A1>  d_a1;

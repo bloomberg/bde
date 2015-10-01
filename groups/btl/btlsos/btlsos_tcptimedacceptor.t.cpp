@@ -29,18 +29,17 @@
 
 #include <bsls_platform.h>
 
+#include <bsl_iostream.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
-#include <bsl_iostream.h>
-
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -150,7 +149,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 1000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -641,6 +640,7 @@ int main(int argc, char *argv[]) {
 //..
 // Go into "infinite" loop, accepting connections and servicing user requests:
 //..
+#if 0
     while (0 == acceptor.isInvalid()) {
         int status;
         btlsc::TimedChannel *channel = acceptor.timedAllocateTimed(
@@ -702,6 +702,7 @@ int main(int argc, char *argv[]) {
 //..
     ASSERT(acceptor.isInvalid());
     ASSERT(0 == acceptor.close());
+#endif
 //..
       } break;
       case 9: {
@@ -773,7 +774,7 @@ int main(int argc, char *argv[]) {
 
                   bsls::TimeInterval timeout(0, 5), time(60, 0);
                   int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===================>
@@ -951,7 +952,7 @@ int main(int argc, char *argv[]) {
           }
           {
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               struct {
                   int                   d_lineNum;
@@ -1227,10 +1228,10 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1593,10 +1594,10 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1961,7 +1962,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2047,41 +2048,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
    0    },
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
    0    },
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
+  {L_, 'C', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
    0    },
 
 };
@@ -2184,7 +2185,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
    0    };
 // ===================>
 
@@ -2387,7 +2388,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2474,41 +2475,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,   0,        1,          1,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
    0    },
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
    0    },
 
 };
@@ -2611,7 +2612,7 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A',  CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
    0    };
 // ===================>
 
@@ -2764,7 +2765,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   LOOP_ASSERT(i, 0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2872,7 +2873,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   ASSERT(0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>

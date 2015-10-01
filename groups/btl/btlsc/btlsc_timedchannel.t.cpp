@@ -1,866 +1,922 @@
 // btlsc_timedchannel.t.cpp                                           -*-C++-*-
-
 #include <btlsc_timedchannel.h>
 
-#include <btlsc_flag.h>
+#include <btlsc_flag.h>          // for testing only
 
-#include <bsls_timeinterval.h>
+#include <bdls_testutil.h>
+
 #include <bdlt_currenttime.h>
+
+#include <bsls_protocoltest.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
-//                              OVERVIEW
-// We are testing a pure protocol class.  We need to verify that a concrete
-// derived class (1) can be invoked and (2) the method calls are forwarded
-// appropriately when invoked through the protocol.  We create a sample
-// derived class that provides a dummy implementation of the base class
-// virtual methods.  We then verify that when a method is called through a
-// base class instance pointer the appropriate method in the derived class
-// instance is invoked.
+//                              Overview
+//                              --------
+// The component under test defines a protocol class the purpose of which is to
+// provide an interface for loading calendars.
+//
+// Global Concerns:
+//: o The test driver is robust w.r.t. reuse in other, similar components.
+//: o It is possible to create a concrete implementation the protocol.
 //-----------------------------------------------------------------------------
-// [ 1] virtual ~btlsc::TimedChannel()
-// [ 1] virtual int read(...)
-// [ 1] virtual int timedRead(...)
-// [ 1] virtual int readv(...)
-// [ 1] virtual int timedReadv(...)
-// [ 1] virtual int readRaw(...)
-// [ 1] virtual int timedReadRaw(...)
-// [ 1] virtual int readvRaw(...)
-// [ 1] virtual int timedReadvRaw(...)
-// [ 1] virtual int bufferedRead(...)
-// [ 1] virtual int timedBufferedRead(...)
-// [ 1] virtual int bufferedReadRaw(...)
-// [ 1] virtual int timedBufferedReadRaw(...)
-// [ 1] virtual int write(...)
-// [ 1] virtual int timedWrite(...)
-// [ 1] virtual int writeRaw(...)
-// [ 1] virtual int timedWriteRaw(...)
-// [ 1] virtual int writev(...)
-// [ 1] virtual int timedWritev(...)
-// [ 1] virtual int writevRaw(const btls::Ovec *buffers, ...)
-// [ 1] virtual int writevRaw(const btls::Iovec *buffers, ...)
-// [ 1] virtual int timedWritevRaw(const btls::Ovec *buffers, ...)
-// [ 1] virtual int timedWritevRaw(const btls::Iovec *buffers, ...)
-// [ 1] virtual void invalidate()
-// [ 1] virtual int isInvalid()
+// CREATORS
+// [ 1] virtual ~TimedChannel();
+//
+// MANIPULATORS
+// [ 1] virtual int read(char *, int, int = 0) = 0;
+// [ 1] virtual int read(int *, char *, int, int = 0) = 0;
+// [ 1] virtual int timedRead(char *, int, const TI&, int = 0) = 0;
+// [ 1] virtual int timedRead(int *, char *, int, const TI&, int = 0) = 0;
+// [ 1] virtual int readv(const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int readv(int *, const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int timedReadv(const Iovec *, int, const TI&, int= 0) = 0;
+// [ 1] virtual int timedReadv(int *, CIovec *, int, const TI&, int=0)= 0;
+// [ 1] virtual int readRaw(char *, int, int = 0) = 0;
+// [ 1] virtual int readRaw(int *, char *, int, int = 0) = 0;
+// [ 1] virtual int timedReadRaw(char *, int, const TI&, int = 0) = 0;
+// [ 1] virtual int timedReadRaw(int *, char *, int, const TI&, int=0)= 0;
+// [ 1] virtual int readvRaw(const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int readvRaw(int *, const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int timedReadvRaw(int *, CIovec *, int, TI&, int = 0) = 0;
+// [ 1] virtual int timedReadvRaw(const Iovec *, int, const TI&, int=0)=0;
+// [ 1] virtual int bufferedRead(const char **, int, int = 0) = 0;
+// [ 1] virtual int bufferedRead(int *, const char **, int, int = 0) = 0;
+// [ 1] virtual int timedBufferedRead(const char **, int, TI&, int=0) = 0;
+// [ 1] virtual int timedBufferedRead(int *, Cchar **, int, TI&, int=0)=0;
+// [ 1] virtual int bufferedReadRaw(const char **, int, int = 0) = 0;
+// [ 1] virtual int bufferedReadRaw(int *, const char **, int, int=0) = 0;
+// [ 1] virtual int timedBufferedReadRaw(const char**, int, TI&, int=0)=0;
+// [ 1] virtual int timedBufferedReadRaw(int*, Cchar**, int, TI&,int=0)=0;
+// [ 1] virtual int write(const char *, int, int = 0) = 0;
+// [ 1] virtual int write(int *, const char *, int, int = 0) = 0;
+// [ 1] virtual int timedWrite(int *, const char *, int, TI&, int= 0) = 0;
+// [ 1] virtual int timedWrite(const char *, int, const TI&, int = 0) = 0;
+// [ 1] virtual int writeRaw(const char *, int, int = 0) = 0;
+// [ 1] virtual int writeRaw(int *, const char *, int, int = 0) = 0;
+// [ 1] virtual int timedWriteRaw(int *, const char *, int, TI&, int=0)=0;
+// [ 1] virtual int timedWriteRaw(const char *, int, const TI&, int=0)= 0;
+// [ 1] virtual int writev(const Ovec *, int, int = 0) = 0;
+// [ 1] virtual int writev(const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int writev(int *, const Ovec *, int, int = 0) = 0;
+// [ 1] virtual int writev(int *, const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int timedWritev(const Ovec *, int, const TI&, int =0) = 0;
+// [ 1] virtual int timedWritev(const Iovec *, int, const TI&, int=0) = 0;
+// [ 1] virtual int timedWritev(int *, const Ovec *, int, TI&, int=0) = 0;
+// [ 1] virtual int timedWritev(int *, const Iovec *, int, TI&, int=0)= 0;
+// [ 1] virtual int writevRaw(const Ovec *, int, int = 0) = 0;
+// [ 1] virtual int writevRaw(const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int writevRaw(int *, const Ovec *, int, int = 0) = 0;
+// [ 1] virtual int writevRaw(int *, const Iovec *, int, int = 0) = 0;
+// [ 1] virtual int timedWritevRaw(const Ovec *, int, const TI&, int=0)=0;
+// [ 1] virtual int timedWritevRaw(const Iovec *, int, TI&, int = 0) = 0;
+// [ 1] virtual int timedWritevRaw(int *, COvec *, int, TI&, int = 0) = 0;
+// [ 1] virtual int timedWritevRaw(int *, CIovec *, int, TI&, int= 0) = 0;
+// [ 1] virtual void invalidate() = 0;
+//
+// ACCESSORS
+// [ 1] virtual int isInvalid() const = 0;
 //-----------------------------------------------------------------------------
-// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
-//=============================================================================
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-static int testStatus = 0;
-static void aSsErT(int c, const char *s, int i)
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define PS(X) cout << #X " = \n" << (X) << endl; // Print identifier and value.
-#define T_()  cout << "\t" << flush;          // Print a tab (w/o newline)
+
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P            BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                           CONCRETE DERIVED TYPE
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-class MyTimedChannel : public btlsc::TimedChannel {
-    // Test class used to verify protocol.
 
-    int d_fun;  // holds code describing (non-const) function:
-                //    1 read(...);
-                //    2 read(int *augStatus, ...);
-                //    3 timedRead(...);
-                //    4 timedRead(int *augStatus, ...);
-                //    5 readv(...);
-                //    6 readv(int *augStatus, ...);
-                //    7 timedReadv(int *augStatus, ...);
-                //    8 timedReadv(...);
-                //    9 readRaw(...);
-                //   10 readRaw(int *augStatus, ...);
-                //   11 timedReadRaw(...);
-                //   12 timedReadRaw(int *augStatus, ...);
-                //   13 readvRaw(...);
-                //   14 readvRaw(int *augStatus, ...);
-                //   15 timedReadvRaw(...);
-                //   16 timedReadvRaw(int *augStatus, ...);
-                //   17 bufferedRead(...);
-                //   18 bufferedRead(int *augStatus, ...);
-                //   19 timedBufferedRead(...);
-                //   20 timedBufferedRead(int *augStatus, ...);
-                //   21 bufferedReadRaw(...);
-                //   22 bufferedReadRaw(int *augStatus, ...);
-                //   23 timedBufferedReadRaw(...);
-                //   24 timedBufferedReadRaw(int *augStatus, ...);
-                //   25 write(...);
-                //   26 write(int *augStatus, ...);
-                //   27 timedWrite(...);
-                //   28 timedWrite(int *augStatus, ...);
-                //   29 writeRaw(...);
-                //   30 writeRaw(int *augStatus, ...);
-                //   31 timedWriteRaw(...);
-                //   32 timedWriteRaw(int *augStatus, ...);
-                //   33 writev(const btls::Ovec*, ...);
-                //   34 writev(const btls::Iovec*, ...);
-                //   35 writev(int *augStatus, const btls::Ovec*, ...);
-                //   36 writev(int *augStatus, const btls::Iovec*, ...);
-                //   37 timedWritev(const btls::Ovec*, ...);
-                //   38 timedWritev(const btls::Iovec*, ...);
-                //   39 timedWritev(int *augStatus, const btls::Ovec*, ...);
-                //   40 timedWritev(int *augStatus, const btls::Iovec*, ...);
-                //   41 writevRaw(const btls::Ovec *, ...);
-                //   42 writevRaw(const btls::Iovec *, ...);
-                //   43 writevRaw(int *augStatus, const btls::Ovec *, ...);
-                //   44 writevRaw(int *augStatus, const btls::Iovec *, ...);
-                //   45 timedWritevRaw(const btls::Ovec *, ...);
-                //   46 timedWritevRaw(const btls::Iovec *, ...);
-                //   47 timedWritevRaw(int *augStatus, const btls::Ovec*, ..);
-                //   48 timedWritevRaw(int *augStatus, const btls::Iovec*,..);
-                //   49 invalidate();
-                //   50 isInvalid();
+namespace {
 
-    int d_flags;      // last value of flags passed
+typedef btlsc::TimedChannel ProtocolClass;
 
-    int d_valid;      // Is this object instance valid?
+struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
+    int read(char *, int, int = 0)                       { return markDone(); }
 
-  private: // not implemented
-    MyTimedChannel(const MyTimedChannel&);
-    MyTimedChannel& operator=(const MyTimedChannel& );
+    int read(int *, char *, int, int = 0)                { return markDone(); }
 
-  public:
-    MyTimedChannel() : d_fun(0),   d_flags(0), d_valid(1) { }
-    ~MyTimedChannel() { }
+    int timedRead(char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int read(char *buffer,
-                     int   numBytes,
-                     int   flags = 0)
-    { d_fun = 1; d_flags = flags; return -1; }
+    int timedRead(int *, char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int read(int  *augStatus,
-                     char *buffer,
-                     int   numBytes,
-                     int   flags = 0)
-    { d_fun = 2; d_flags = flags; return -1; }
+    int readv(const btls::Iovec *, int, int = 0)         { return markDone(); }
 
-    virtual int timedRead(char                     *buffer,
-                          int                       numBytes,
-                          const bsls::TimeInterval&  timeout,
-                          int                       flags = 0)
-    { d_fun = 3; d_flags = flags; return -1; }
+    int readv(int *, const btls::Iovec *, int, int = 0)  { return markDone(); }
 
-    virtual int timedRead(int                      *augStatus,
-                          char                     *buffer,
-                          int                       numBytes,
-                          const bsls::TimeInterval&  timeout,
-                          int                       flags = 0)
-    { d_fun = 4; d_flags = flags; return -1; }
+    int timedReadv(const btls::Iovec *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return markDone(); }
 
-    virtual int readv(const btls::Iovec *buffer,
-                      int               numBytes,
-                      int               flags = 0)
-    { d_fun = 5; d_flags = flags; return -1; }
+    int timedReadv(int *,
+                   const btls::Iovec *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return markDone(); }
 
-    virtual int readv(int              *augStatus,
-                      const btls::Iovec *buffer,
-                      int               numBytes,
-                      int               flags = 0)
-    { d_fun = 6; d_flags = flags; return -1; }
+    int readRaw(char *, int, int = 0)                    { return markDone(); }
 
-    virtual int timedReadv(const btls::Iovec         *buffer,
-                           int                       numBytes,
-                           const bsls::TimeInterval&  timeout,
-                           int                       flags = 0)
-    { d_fun = 7; d_flags = flags; return -1; }
+    int readRaw(int *, char *, int, int = 0)             { return markDone(); }
 
-    virtual int timedReadv(int                      *augStatus,
-                           const btls::Iovec         *buffer,
-                           int                       numBytes,
-                           const bsls::TimeInterval&  timeout,
-                           int                       flags = 0)
-    { d_fun = 8; d_flags = flags; return -1; }
+    int timedReadRaw(char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int readRaw(char *buffer,
-                        int   numBytes,
-                        int   flags = 0)
-    { d_fun = 9; d_flags = flags; return -1; }
+    int timedReadRaw(int *, char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int readRaw(int  *augStatus,
-                        char *buffer,
-                        int   numBytes,
-                        int   flags = 0)
-    { d_fun = 10; d_flags = flags; return -1; }
+    int readvRaw(const btls::Iovec *, int, int = 0)      { return markDone(); }
 
-    virtual int timedReadRaw(char                     *buffer,
-                             int                       numBytes,
-                             const bsls::TimeInterval&  timeout,
-                             int                       flags = 0)
-    { d_fun = 11; d_flags = flags; return -1; }
+    int readvRaw(int *, const btls::Iovec *, int, int = 0)
+                                                         { return markDone(); }
 
-    virtual int timedReadRaw(int                      *augStatus,
-                             char                     *buffer,
-                             int                       numBytes,
-                             const bsls::TimeInterval&  timeout,
-                             int                       flags = 0)
-    { d_fun = 12; d_flags = flags; return -1; }
+    int timedReadvRaw(int *,
+                      const btls::Iovec *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return markDone(); }
 
-    virtual int readvRaw(const btls::Iovec *buffers,
-                         int               numBuffers,
-                         int               flags = 0)
-    { d_fun = 13; d_flags = flags; return -1; }
+    int timedReadvRaw(const btls::Iovec *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return markDone(); }
 
-    virtual int readvRaw(int              *augStatus,
-                         const btls::Iovec *buffers,
-                         int               numBuffers,
-                         int               flags = 0)
-    { d_fun = 14; d_flags = flags; return -1; }
+    int bufferedRead(const char **, int, int = 0)        { return markDone(); }
 
-    virtual int timedReadvRaw(const btls::Iovec         *buffers,
-                              int                       numBuffers,
-                              const bsls::TimeInterval&  timeout,
-                              int                       flags = 0)
-    { d_fun = 15; d_flags = flags; return -1; }
+    int bufferedRead(int *, const char **, int, int = 0) { return markDone(); }
 
-    virtual int timedReadvRaw(int                      *augStatus,
-                              const btls::Iovec         *buffers,
-                              int                       numBuffers,
-                              const bsls::TimeInterval&  timeout,
-                              int                       flags = 0)
-    { d_fun = 16; d_flags = flags; return -1; }
+    int timedBufferedRead(const char **,
+                          int,
+                          const bsls::TimeInterval&,
+                          int = 0)                       { return markDone(); }
 
-    virtual int bufferedRead(const char **buffer,
-                             int          numBytes,
-                             int          flags = 0)
-    { d_fun = 17; d_flags = flags; return -1; }
+    int timedBufferedRead(int *,
+                          const char **,
+                          int,
+                          const bsls::TimeInterval&,
+                          int = 0)                       { return markDone(); }
 
-    virtual int bufferedRead(int         *augStatus,
-                             const char **buffer,
-                             int          numBytes,
-                             int          flags = 0)
-    { d_fun = 18; d_flags = flags; return -1; }
+    int bufferedReadRaw(const char **, int, int = 0)     { return markDone(); }
 
-    virtual int timedBufferedRead(const char              **buffer,
-                                  int                       numBytes,
-                                  const bsls::TimeInterval&  timeout,
-                                  int                       flags = 0)
-    { d_fun = 19; d_flags = flags; return -1; }
+    int bufferedReadRaw(int *, const char **, int, int = 0)
+                                                         { return markDone(); }
 
-    virtual int timedBufferedRead(int                      *augStatus,
-                                  const char              **buffer,
-                                  int                       numBytes,
-                                  const bsls::TimeInterval&  timeout,
-                                  int                       flags = 0)
-    { d_fun = 20; d_flags = flags; return -1; }
+    int timedBufferedReadRaw(const char **,
+                             int,
+                             const bsls::TimeInterval&,
+                             int = 0)                    { return markDone(); }
 
-    virtual int bufferedReadRaw(const char **buffer,
-                                int          numBytes,
-                                int          flags = 0)
-    { d_fun = 21; d_flags = flags; return -1; }
+    int timedBufferedReadRaw(int *,
+                             const char **,
+                             int,
+                             const bsls::TimeInterval&,
+                             int = 0)                    { return markDone(); }
 
-    virtual int bufferedReadRaw(int                      *augStatus,
-                                const char              **buffer,
-                                int                       numBytes,
-                                int                       flags = 0)
-    { d_fun = 22; d_flags = flags; return -1; }
+    int write(const char *, int, int = 0)                { return markDone(); }
 
-    virtual int timedBufferedReadRaw(const char              **buffer,
-                                     int                       numBytes,
-                                     const bsls::TimeInterval&  timeout,
-                                     int                       flags = 0)
-    { d_fun = 23; d_flags = flags; return -1; }
+    int write(int *, const char *, int, int = 0)         { return markDone(); }
 
-    virtual int timedBufferedReadRaw(int                      *augStatus,
-                                     const char              **buffer,
-                                     int                       numBytes,
-                                     const bsls::TimeInterval&  timeout,
-                                     int                       flags = 0)
-    { d_fun = 24; d_flags = flags; return -1; }
+    int timedWrite(int *,
+                   const char *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return markDone(); }
 
-    virtual int write(const char *buffer,
-                      int         numBytes,
-                      int         flags = 0)
-    { d_fun = 25; d_flags = flags; return -1; }
+    int timedWrite(const char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int write(int        *augStatus,
-                      const char *buffer,
-                      int         numBytes,
-                      int         flags = 0)
-    { d_fun = 26; d_flags = flags; return -1; }
+    int writeRaw(const char *, int, int = 0)             { return markDone(); }
 
-    virtual int timedWrite(const char               *buffer,
-                           int                       numBytes,
-                           const bsls::TimeInterval&  timeout,
-                           int                       flags = 0)
-    { d_fun = 27; d_flags = flags; return -1; }
+    int writeRaw(int *, const char *, int, int = 0)      { return markDone(); }
 
-    virtual int timedWrite(int                      *augStatus,
-                           const char               *buffer,
-                           int                       numBytes,
-                           const bsls::TimeInterval&  timeout,
-                           int                       flags = 0)
-    { d_fun = 28; d_flags = flags; return -1; }
+    int timedWriteRaw(int *,
+                      const char *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return markDone(); }
 
-    virtual int writeRaw(const char *buffer,
-                         int         numBytes,
-                         int         flags = 0)
-    { d_fun = 29; d_flags = flags; return -1; }
+    int timedWriteRaw(const char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return markDone(); }
 
-    virtual int writeRaw(int        *augStatus,
-                         const char *buffer,
-                         int         numBytes,
-                         int         flags = 0)
-    { d_fun = 30; d_flags = flags; return -1; }
+    int writev(const btls::Ovec *, int, int = 0)         { return markDone(); }
 
-    virtual int timedWriteRaw(const char               *buffer,
-                              int                       numBytes,
-                              const bsls::TimeInterval&  timeout,
-                              int                       flags = 0)
-    { d_fun = 31; d_flags = flags; return -1; }
+    int writev(const btls::Iovec *, int, int = 0)        { return markDone(); }
 
-    virtual int timedWriteRaw(int                      *augStatus,
-                             const char               *buffer,
-                             int                       numBytes,
-                             const bsls::TimeInterval&  timeout,
-                             int                       flags = 0)
-    { d_fun = 32; d_flags = flags; return -1; }
+    int writev(int *, const btls::Ovec *, int, int = 0)  { return markDone(); }
 
-    virtual int writev(const btls::Ovec *buffers,
-                       int              numBuffers,
-                       int              flags = 0)
-    { d_fun = 33; d_flags = flags; return -1; }
+    int writev(int *, const btls::Iovec *, int, int = 0) { return markDone(); }
 
-    virtual int writev(const btls::Iovec *buffers,
-                       int               numBuffers,
-                       int               flags = 0)
-    { d_fun = 34; d_flags = flags; return -1; }
+    int timedWritev(const btls::Ovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return markDone(); }
 
-    virtual int writev(int             *augStatus,
-                       const btls::Ovec *buffers,
-                       int              numBuffers,
-                       int              flags = 0)
-    { d_fun = 35; d_flags = flags; return -1; }
+    int timedWritev(const btls::Iovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return markDone(); }
 
-    virtual int writev(int              *augStatus,
-                       const btls::Iovec *buffers,
-                       int               numBuffers,
-                       int               flags = 0)
-    { d_fun = 36; d_flags = flags; return -1; }
+    int timedWritev(int *,
+                    const btls::Ovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return markDone(); }
 
-    virtual int timedWritev(const btls::Ovec         *buffers,
-                            int                      numBuffers,
-                            const bsls::TimeInterval& timeout,
-                            int                      flags = 0)
-    { d_fun = 37; d_flags = flags; return -1; }
+    int timedWritev(int *,
+                    const btls::Iovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return markDone(); }
 
-    virtual int timedWritev(const btls::Iovec         *buffers,
-                            int                       numBuffers,
-                            const bsls::TimeInterval&  timeout,
-                            int                       flags = 0)
-    { d_fun = 38; d_flags = flags; return -1; }
+    int writevRaw(const btls::Ovec *, int, int = 0)      { return markDone(); }
 
-    virtual int timedWritev(int                      *augStatus,
-                            const btls::Ovec          *buffers,
-                            int                       numBuffers,
-                            const bsls::TimeInterval&  timeout,
-                            int                       flags = 0)
-    { d_fun = 39; d_flags = flags; return -1; }
+    int writevRaw(const btls::Iovec *, int, int = 0)     { return markDone(); }
 
-    virtual int timedWritev(int                      *augStatus,
-                            const btls::Iovec         *buffers,
-                            int                       numBuffers,
-                            const bsls::TimeInterval&  timeout,
-                            int                       flags = 0)
-    { d_fun = 40; d_flags = flags; return -1; }
+    int writevRaw(int *, const btls::Ovec *, int, int = 0)
+                                                         { return markDone(); }
 
-    virtual int writevRaw(const btls::Ovec *buffers,
-                          int              numBuffers,
-                          int              flags = 0)
-    { d_fun = 41; d_flags = flags; return -1; }
+    int writevRaw(int *, const btls::Iovec *, int, int = 0)
+                                                         { return markDone(); }
 
-    virtual int writevRaw(const btls::Iovec *buffers,
-                          int               numBuffers,
-                          int               flags = 0)
-    { d_fun = 42; d_flags = flags; return -1; }
+    int timedWritevRaw(const btls::Ovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return markDone(); }
 
-    virtual int writevRaw(int             *augStatus,
-                          const btls::Ovec *buffers,
-                          int              numBuffers,
-                          int              flags = 0)
-    { d_fun = 43; d_flags = flags; return -1; }
+    int timedWritevRaw(const btls::Iovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return markDone(); }
 
-    virtual int writevRaw(int              *augStatus,
-                          const btls::Iovec *buffers,
-                          int               numBuffers,
-                          int               flags = 0)
-    { d_fun = 44; d_flags = flags; return -1; }
+    int timedWritevRaw(int *,
+                       const btls::Ovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return markDone(); }
 
-    virtual int timedWritevRaw(const btls::Ovec          *buffers,
-                               int                       numBuffers,
-                               const bsls::TimeInterval&  timeout,
-                               int                       flags = 0)
-    { d_fun = 45; d_flags = flags; return -1; }
+    int timedWritevRaw(int *,
+                       const btls::Iovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return markDone(); }
 
-    virtual int timedWritevRaw(const btls::Iovec         *buffers,
-                               int                       numBuffers,
-                               const bsls::TimeInterval&  timeout,
-                               int                       flags = 0)
-    { d_fun = 46; d_flags = flags; return -1; }
+    void invalidate()                                    {        markDone(); }
 
-    virtual int timedWritevRaw(int                      *augStatus,
-                               const btls::Ovec          *buffers,
-                               int                       numBuffers,
-                               const bsls::TimeInterval&  timeout,
-                               int                       flags = 0)
-    { d_fun = 47; d_flags = flags; return -1; }
-
-    virtual int timedWritevRaw(int                      *augStatus,
-                               const btls::Iovec         *buffers,
-                               int                       numBuffers,
-                               const bsls::TimeInterval&  timeout,
-                               int                       flags = 0)
-    { d_fun = 48; d_flags = flags; return -1; }
-
-    virtual void invalidate()
-    { d_fun = 49; d_valid = 0; }
-
-    virtual int isInvalid() const
-    {
-      MyTimedChannel *const tmp = const_cast<MyTimedChannel* > (this);
-      tmp-> d_fun = 50;
-      return !d_valid;
-    }
-
-    // non-virtual functions for testing
-    int fun()   const { return d_fun; }
-    int flags() const { return d_flags; }
-    int valid() const { return d_valid; }
+    int isInvalid() const                                { return markDone(); }
 };
 
-   // The help function for the server is to calculate the factorial value.
-   int factorial(int base)
-   {
-       if (1 >= base) {
-           return 1;                                                  // RETURN
-       }
-       else {
-           return base * factorial(base - 1);                         // RETURN
-       }
+}  // close unnamed namespace
+
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Usage
+///-----
+// The 'btlsc' style of channel interface is used to transmit sequences of
+// specified size across some concrete channel implementation.  In this example
+// we demonstrate how to implement a remote procedure call (RPC) to a factorial
+// function taking an 'int' and returning a 'double'.  For simplicity, we will
+// assume that both the 'int' and 'double' formats are binary compatible across
+// client and server platforms.
+//..
+    double factorial(int number)
+        // Return the factorial of the specified integral 'number' as a value
+        // of type 'double'.  The behavior is undefined unless '0 <= number'.
+        // Note that this helper function is provided for the server to
+        // calculate the factorial value.
+    {
+        if (0 == number) {
+            return 1;                                                 // RETURN
+        }
+        else {
+            return number * factorial(number - 1);                    // RETURN
+        }
     }
 
-    int factorialClient(double *result, int input, btlsc::TimedChannel *channel)
+    int factorialClient(double              *result,
+                        int                  input,
+                        btlsc::TimedChannel *channel)
         // Load into the specified 'result' the factorial of the specified
-        // input using the specified channel (which is assumed to be connected
-        // to an appropriate factorial service).  Return 0 on success and -1,
-        // with no effect on 'result', on error.  The behavior is undefined
-        // unless 0 <= input.
+        // 'input' using the specified 'channel' (which is assumed to be
+        // connected to an appropriate factorial service).  Return 0 on
+        // success, and -1, with no effect on 'result', on error.  The behavior
+        // is undefined unless '0 <= input'.
     {
-        ASSERT (0 <= input);
+        ASSERT(0 <= input);
+
         enum {
-            ERROR_STATUS = -1,
-            SUCCESS_STATUS = 0,
-            TIMEOUT_STATUS = +1
+            k_ERROR_STATUS   = -1,
+            k_SUCCESS_STATUS =  0,
+            k_TIMEOUT_STATUS =  1
         };
 
         enum {
-            WRITE_TIMEOUT = 1,
-            READ_TIMEOUT  = 5
+            k_WRITE_TIMEOUT = 1,     // seconds
+            k_READ_TIMEOUT  = 5      // seconds
         };
         bsls::TimeInterval timeNow = bdlt::CurrentTime::now();
-        bsls::TimeInterval writeTimeout(timeNow + WRITE_TIMEOUT);
-        bsls::TimeInterval readTimeout(timeNow + READ_TIMEOUT);
+        bsls::TimeInterval writeTimeout(timeNow + k_WRITE_TIMEOUT);
+        bsls::TimeInterval readTimeout(timeNow + k_READ_TIMEOUT);
 
         int numBytes = sizeof input;
         int writeStatus = channel->timedWrite((const char *)&input,
-                                              numBytes,
-                                              writeTimeout);
+                                               numBytes,
+                                               writeTimeout);
         ASSERT(0 != writeStatus);
 
         if (writeStatus != numBytes) {
-            return ERROR_STATUS;                                      // RETURN
+            return k_ERROR_STATUS;                                    // RETURN
         }
 
         int readStatus = channel->timedRead((char *)result,
                                             sizeof *result,
                                             readTimeout);
         if (readStatus != sizeof *result) {
-            return ERROR_STATUS;                                      // RETURN
+            return k_ERROR_STATUS;                                    // RETURN
         }
 
-        return SUCCESS_STATUS;
+        return k_SUCCESS_STATUS;                                      // RETURN
     }
 
     int factorialServer(btlsc::TimedChannel *channel)
-        // Repeatedly read integer sequences from the specified
-        // channel.  Return -1 if the read operation fails.
-        // When a read succeeds, interpret the byte sequence as an
-        // integer value in host-byte order.  Return 0 if that value is
-        // negative.  Otherwise, calculate the factorial of the (non-negative)
-        // integer and write the result to 'channel' as a sequence of bytes
-        // representing a 'double' in the host's native format.
+        // Repeatedly read integer sequences from the specified 'channel'.
+        // When a read succeeds, interpret the byte sequence as an integer
+        // value in host-byte order.  Return -1 if that value is negative.
+        // Otherwise, calculate the factorial of the (non-negative) integer and
+        // write back the result to 'channel' as a sequence of bytes
+        // representing a 'double' in the host's native format.  Return a
+        // negative value if any write operation doesn't succeed (refer to the
+        // following 'enum' values for specific errors).  Note that this
+        // implementation is just to show how a channel could be used; there is
+        // much room to improve.
     {
         enum {
-            WRITE_ERROR   = -2,
-            READ_ERROR    = -1,
-            SUCCESS       =  0,
-            WRITE_TIMEOUT =  1
+            k_SUCCESS            =  0,
+            k_INVALID_INPUT      = -1,
+            k_ERROR_READ         = -2,
+            k_ERROR_WRITE        = -3,
+            k_ERROR_TIMEOUT      = -4,
+            k_ERROR_INTERRUPTED  = -5,
+            k_ERROR_UNCLASSIFIED = -6
         };
 
-        enum { TIMEOUT = 2 };
+        enum {
+            k_READ_TIME  = 3600, // an hour
+            k_WRITE_TIME = 2     // 2 seconds
+        };
         bsls::TimeInterval timeNow = bdlt::CurrentTime::now();
-        bsls::TimeInterval timeout(timeNow + TIMEOUT);
+        const bsls::TimeInterval k_READ_TIMEOUT(timeNow + k_READ_TIME),
+                                k_WRITE_TIMEOUT(timeNow + k_WRITE_TIME);
 
         while (1) {
-            int input;
-            int readStatus = channel->timedRead((char *) &input,
+            int input, augStatus;
+            int readStatus = channel->timedRead(&augStatus,
+                                                (char *)&input,
                                                 sizeof input,
-                                                timeout);
+                                                k_READ_TIMEOUT);
+            if (readStatus < 0) {
+                return k_ERROR_READ;                                  // RETURN
+            }
             if (readStatus != sizeof input) {
-                return READ_ERROR;                                    // RETURN
+                if (0 == augStatus) {
+                    return k_ERROR_TIMEOUT;                           // RETURN
+                }
+                else if (augStatus > 0) {
+                    return k_ERROR_INTERRUPTED;                       // RETURN
+                }
+                return k_ERROR_UNCLASSIFIED;                          // RETURN
             }
-
             if (input < 0) {
-                return SUCCESS;                                       // RETURN
+                return k_INVALID_INPUT;                               // RETURN
             }
 
+            augStatus = 0;
             double result = factorial(input);
-            int writeStatus = channel->timedWrite((const char *)&result,
+            int writeStatus = channel->timedWrite(&augStatus,
+                                                  (const char *)&result,
                                                   sizeof input,
-                                                  timeout);
-            if (writeStatus != sizeof input) {
-                return WRITE_ERROR;                                   // RETURN
+                                                  k_WRITE_TIMEOUT);
+            if (writeStatus < 0) {
+                return k_ERROR_WRITE;                                 // RETURN
+            }
+            else if (writeStatus != sizeof input){
+                if (0 == augStatus) {
+                    return k_ERROR_TIMEOUT;                           // RETURN
+                }
+                else if (augStatus > 0) {
+                    return k_ERROR_INTERRUPTED;                       // RETURN
+                }
+                return k_ERROR_UNCLASSIFIED;                          // RETURN
             }
         }
     }
+//..
+
+class MyTimedChannel : public ProtocolClass {
+
+  public:
+    int read(char *, int, int = 0)                       { return -1; }
+
+    int read(int *, char *, int, int = 0)                { return -1; }
+
+    int timedRead(char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int timedRead(int *, char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int readv(const btls::Iovec *, int, int = 0)         { return -1; }
+
+    int readv(int *, const btls::Iovec *, int, int = 0)  { return -1; }
+
+    int timedReadv(const btls::Iovec *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return -1; }
+
+    int timedReadv(int *,
+                   const btls::Iovec *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return -1; }
+
+    int readRaw(char *, int, int = 0)                    { return -1; }
+
+    int readRaw(int *, char *, int, int = 0)             { return -1; }
+
+    int timedReadRaw(char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int timedReadRaw(int *, char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int readvRaw(const btls::Iovec *, int, int = 0)      { return -1; }
+
+    int readvRaw(int *, const btls::Iovec *, int, int = 0)
+                                                         { return -1; }
+
+    int timedReadvRaw(int *,
+                      const btls::Iovec *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return -1; }
+
+    int timedReadvRaw(const btls::Iovec *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return -1; }
+
+    int bufferedRead(const char **, int, int = 0)        { return -1; }
+
+    int bufferedRead(int *, const char **, int, int = 0) { return -1; }
+
+    int timedBufferedRead(const char **,
+                          int,
+                          const bsls::TimeInterval&,
+                          int = 0)                       { return -1; }
+
+    int timedBufferedRead(int *,
+                          const char **,
+                          int,
+                          const bsls::TimeInterval&,
+                          int = 0)                       { return -1; }
+
+    int bufferedReadRaw(const char **, int, int = 0)     { return -1; }
+
+    int bufferedReadRaw(int *, const char **, int, int = 0)
+                                                         { return -1; }
+
+    int timedBufferedReadRaw(const char **,
+                             int,
+                             const bsls::TimeInterval&,
+                             int = 0)                    { return -1; }
+
+    int timedBufferedReadRaw(int *,
+                             const char **,
+                             int,
+                             const bsls::TimeInterval&,
+                             int = 0)                    { return -1; }
+
+    int write(const char *, int, int = 0)                { return -1; }
+
+    int write(int *, const char *, int, int = 0)         { return -1; }
+
+    int timedWrite(int *,
+                   const char *,
+                   int,
+                   const bsls::TimeInterval&,
+                   int = 0)                              { return -1; }
+
+    int timedWrite(const char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int writeRaw(const char *, int, int = 0)             { return -1; }
+
+    int writeRaw(int *, const char *, int, int = 0)      { return -1; }
+
+    int timedWriteRaw(int *,
+                      const char *,
+                      int,
+                      const bsls::TimeInterval&,
+                      int = 0)                           { return -1; }
+
+    int timedWriteRaw(const char *, int, const bsls::TimeInterval&, int = 0)
+                                                         { return -1; }
+
+    int writev(const btls::Ovec *, int, int = 0)         { return -1; }
+
+    int writev(const btls::Iovec *, int, int = 0)        { return -1; }
+
+    int writev(int *, const btls::Ovec *, int, int = 0)  { return -1; }
+
+    int writev(int *, const btls::Iovec *, int, int = 0) { return -1; }
+
+    int timedWritev(const btls::Ovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return -1; }
+
+    int timedWritev(const btls::Iovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return -1; }
+
+    int timedWritev(int *,
+                    const btls::Ovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return -1; }
+
+    int timedWritev(int *,
+                    const btls::Iovec *,
+                    int,
+                    const bsls::TimeInterval&,
+                    int = 0)                             { return -1; }
+
+    int writevRaw(const btls::Ovec *, int, int = 0)      { return -1; }
+
+    int writevRaw(const btls::Iovec *, int, int = 0)     { return -1; }
+
+    int writevRaw(int *, const btls::Ovec *, int, int = 0)
+                                                         { return -1; }
+
+    int writevRaw(int *, const btls::Iovec *, int, int = 0)
+                                                         { return -1; }
+
+    int timedWritevRaw(const btls::Ovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return -1; }
+
+    int timedWritevRaw(const btls::Iovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return -1; }
+
+    int timedWritevRaw(int *,
+                       const btls::Ovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return -1; }
+
+    int timedWritevRaw(int *,
+                       const btls::Iovec *,
+                       int,
+                       const bsls::TimeInterval&,
+                       int = 0)                          { return -1; }
+
+    void invalidate()                                    {            }
+
+    int isInvalid() const                                { return -1; }
+};
 
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+int main(int argc, char *argv[])
+{
+    const int         test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool     verbose = argc > 2;
+    const bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // USAGE EXAMPLE
+        //
+        // Concerns:
         //   The usage example provided in the component header file must
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Test the code provided in the component header file as a client.
-        //   Create an object of 'MyTimedChannel', invoke the function under
-        //   test by passing the 'MyTimedChannel' object to the function.
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
         // Testing:
-        //   USAGE EXAMPLE: factorialClient();
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting Usage Example 2"
-                          << "\n=======================" << endl;
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
         {
             if (veryVerbose) {
-              cout << "Usage example as the factorialClient" << endl
-                   << "====================================" << endl;
+                cout << "Usage example as the 'factorialClient'." << endl
+                     << "=======================================" << endl;
             }
+
             MyTimedChannel myTimedChannel;
-            int input = 5;
-            double result = 0;
+            int            input  = 5;
+            double         result = 0;
+
             int ret = factorialClient(&result, input, &myTimedChannel);
             ASSERT(0 > ret);
         }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
-        //
-        // Plan:
-        //   Test the code provided in the component header file as a client.
-        //   Create an object of 'MyTimedChannel', invoke the function under
-        //   test by passing the 'MyTimedChannel' object to the function.
-        // Testing:
-        //   USAGE EXAMPLE: factorialServer();
-        // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting Usage Example 1"
-                          << "\n=======================" << endl;
+
         {
             if (veryVerbose) {
-              cout << "Usage example as the factorialServer" << endl
-                   << "====================================" << endl;
+                cout << "Usage example as the 'factorialServer'." << endl
+                     << "=======================================" << endl;
             }
-            MyTimedChannel myTimedChannel;
-            int ret = factorialServer(&myTimedChannel);
 
+            MyTimedChannel myTimedChannel;
+
+            int ret = factorialServer(&myTimedChannel);
             ASSERT(0 > ret);
         }
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
-        //   All we need to do is make sure that a concrete subclass of the
-        //   'btlsc::TimedChannel' class compiles and links when all virtual
-        //   functions are defined.
+        //   Ensure this class is a properly defined protocol.
+        //
+        // Concerns:
+        //: 1 The protocol is abstract: no objects of it can be created.
+        //:
+        //: 2 The protocol has no data members.
+        //:
+        //: 3 The protocol has a virtual destructor.
+        //:
+        //: 4 All methods of the protocol are pure virtual.
+        //:
+        //: 5 All methods of the protocol are publicly accessible.
+        //
+        // Plan:
+        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
+        //:   of the protocol.
+        //:
+        //: 2 Create an object of the 'bsls::ProtocolTest' class template
+        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
+        //:   that:
+        //:
+        //:   1 The protocol is abstract. (C-1)
+        //:
+        //:   2 The protocol has no data members. (C-2)
+        //:
+        //:   3 The protocol has a virtual destructor. (C-3)
+        //:
+        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
+        //:   non-creator methods of the protocol are:
+        //:
+        //:   1 virtual, (C-4)
+        //:
+        //:   2 publicly accessible. (C-5)
+        //
         // Testing:
-        //   virtual ~btlsc::TimedChannel(...)
-        //   virtual int read(...)
-        //   virtual int timedRead(...)
-        //   virtual int readv(...)
-        //   virtual int timedReadv(...)
-        //   virtual int readRaw(...)
-        //   virtual int timedReadRaw(...)
-        //   virtual int readvRaw(...)
-        //   virtual int timedReadvRaw(...)
-        //   virtual int bufferedRead(...)
-        //   virtual int timedBufferedRead(...)
-        //   virtual int bufferedReadRaw(...)
-        //   virtual int timedBufferedReadRaw(...)
-        //   virtual int write(...)
-        //   virtual int timedWrite(...)
-        //   virtual int writev(...)
-        //   virtual int timedWritev(...)
-        //   virtual int writeRaw(...)
-        //   virtual int timedWriteRaw(...)
-        //   virtual int writevRaw(const btls::Ovec *buffers, ...)
-        //   virtual int writevRaw(const btls::Iovec *buffers, ...)
-        //   virtual int timedWritevRaw(const btls::Ovec *buffers, ...)
-        //   virtual int timedWritevRaw(const btls::Iovec *buffers, ...)
-        //   virtual void invalidate(...)
-        //   virtual int isInvalid(...)
-        //   virtual int isInvalidWrite(...)
+        //   virtual ~TimedChannel();
+        //   virtual int read(char *, int, int = 0) = 0;
+        //   virtual int read(int *, char *, int, int = 0) = 0;
+        //   virtual int timedRead(char *, int, const TI&, int = 0) = 0;
+        //   virtual int timedRead(int *, char *, int, const TI&, int = 0) = 0;
+        //   virtual int readv(const Iovec *, int, int = 0) = 0;
+        //   virtual int readv(int *, const Iovec *, int, int = 0) = 0;
+        //   virtual int timedReadv(const Iovec *, int, const TI&, int= 0) = 0;
+        //   virtual int timedReadv(int *, CIovec *, int, const TI&, int=0)= 0;
+        //   virtual int readRaw(char *, int, int = 0) = 0;
+        //   virtual int readRaw(int *, char *, int, int = 0) = 0;
+        //   virtual int timedReadRaw(char *, int, const TI&, int = 0) = 0;
+        //   virtual int timedReadRaw(int *, char *, int, const TI&, int=0)= 0;
+        //   virtual int readvRaw(const Iovec *, int, int = 0) = 0;
+        //   virtual int readvRaw(int *, const Iovec *, int, int = 0) = 0;
+        //   virtual int timedReadvRaw(int *, CIovec *, int, TI&, int = 0) = 0;
+        //   virtual int timedReadvRaw(const Iovec *, int, const TI&, int=0)=0;
+        //   virtual int bufferedRead(const char **, int, int = 0) = 0;
+        //   virtual int bufferedRead(int *, const char **, int, int = 0) = 0;
+        //   virtual int timedBufferedRead(const char **, int, TI&, int=0) = 0;
+        //   virtual int timedBufferedRead(int *, Cchar **, int, TI&, int=0)=0;
+        //   virtual int bufferedReadRaw(const char **, int, int = 0) = 0;
+        //   virtual int bufferedReadRaw(int *, const char **, int, int=0) = 0;
+        //   virtual int timedBufferedReadRaw(const char**, int, TI&, int=0)=0;
+        //   virtual int timedBufferedReadRaw(int*, Cchar**, int, TI&,int=0)=0;
+        //   virtual int write(const char *, int, int = 0) = 0;
+        //   virtual int write(int *, const char *, int, int = 0) = 0;
+        //   virtual int timedWrite(int *, const char *, int, TI&, int= 0) = 0;
+        //   virtual int timedWrite(const char *, int, const TI&, int = 0) = 0;
+        //   virtual int writeRaw(const char *, int, int = 0) = 0;
+        //   virtual int writeRaw(int *, const char *, int, int = 0) = 0;
+        //   virtual int timedWriteRaw(int *, const char *, int, TI&, int=0)=0;
+        //   virtual int timedWriteRaw(const char *, int, const TI&, int=0)= 0;
+        //   virtual int writev(const Ovec *, int, int = 0) = 0;
+        //   virtual int writev(const Iovec *, int, int = 0) = 0;
+        //   virtual int writev(int *, const Ovec *, int, int = 0) = 0;
+        //   virtual int writev(int *, const Iovec *, int, int = 0) = 0;
+        //   virtual int timedWritev(const Ovec *, int, const TI&, int =0) = 0;
+        //   virtual int timedWritev(const Iovec *, int, const TI&, int=0) = 0;
+        //   virtual int timedWritev(int *, const Ovec *, int, TI&, int=0) = 0;
+        //   virtual int timedWritev(int *, const Iovec *, int, TI&, int=0)= 0;
+        //   virtual int writevRaw(const Ovec *, int, int = 0) = 0;
+        //   virtual int writevRaw(const Iovec *, int, int = 0) = 0;
+        //   virtual int writevRaw(int *, const Ovec *, int, int = 0) = 0;
+        //   virtual int writevRaw(int *, const Iovec *, int, int = 0) = 0;
+        //   virtual int timedWritevRaw(const Ovec *, int, const TI&, int=0)=0;
+        //   virtual int timedWritevRaw(const Iovec *, int, TI&, int = 0) = 0;
+        //   virtual int timedWritevRaw(int *, COvec *, int, TI&, int = 0) = 0;
+        //   virtual int timedWritevRaw(int *, CIovec *, int, TI&, int= 0) = 0;
+        //   virtual void invalidate() = 0;
+        //   virtual int isInvalid() const = 0;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
 
-        // Ensure that an instance of the derived class can be created.
-        MyTimedChannel myC;
-        btlsc::TimedChannel& c = myC;
-        ASSERT(1 == myC.valid());
+        if (verbose) cout << "\nCreate a test object.\n";
 
-        if (verbose) cout << "\nTesting protocol interface"
-                          << "\n==========================" << endl;
-        {
-            // Invoke different methods via the base class reference and check
-            // if the derived class method is invoked.
+        bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 
-            // Flags to indicate that async interrupts are allowed.
-            int myFlags = btesc_Flag::k_ASYNC_INTERRUPT;
-            int augStatus = 0;
-            bsls::TimeInterval timeout(bdlt::CurrentTime::now());
-            ASSERT(0 == myC.flags());
+        if (verbose) cout << "\nVerify that the protocol is abstract.\n";
 
-            c.read(0, 0);
-            ASSERT(1 == myC.fun()); ASSERT(0 == myC.flags());
-            c.read(0, 0, myFlags);
-            ASSERT(1 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.read(&augStatus, 0, 0, myFlags);
-            ASSERT(2 == myC.fun()); ASSERT(myFlags == myC.flags());
+        ASSERT(testObj.testAbstract());
 
-            c.timedRead(0, 0, timeout);
-            ASSERT(3 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedRead(0, 0, timeout, myFlags);
-            ASSERT(3 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedRead(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(4 == myC.fun()); ASSERT(myFlags == myC.flags());
+        if (verbose) cout << "\nVerify that there are no data members.\n";
 
-            c.readv(0, 0);
-            ASSERT(5 == myC.fun()); ASSERT(0 == myC.flags());
-            c.readv(0, 0, myFlags);
-            ASSERT(5 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.readv(&augStatus, 0, 0, myFlags);
-            ASSERT(6 == myC.fun()); ASSERT(myFlags == myC.flags());
+        ASSERT(testObj.testNoDataMembers());
 
-            c.timedReadv(0, 0, timeout);
-            ASSERT(7 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedReadv(0, 0, timeout, myFlags);
-            ASSERT(7 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedReadv(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(8 == myC.fun()); ASSERT(myFlags == myC.flags());
+        if (verbose) cout << "\nVerify that the destructor is virtual.\n";
 
-            c.readRaw(0, 0);
-            ASSERT(9 == myC.fun()); ASSERT(0 == myC.flags());
-            c.readRaw(0, 0, myFlags);
-            ASSERT(9 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.readRaw(&augStatus, 0, 0, myFlags);
-            ASSERT(10 == myC.fun()); ASSERT(myFlags == myC.flags());
+        ASSERT(testObj.testVirtualDestructor());
 
-            c.timedReadRaw(0, 0, timeout);
-            ASSERT(11 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedReadRaw(0, 0, timeout, myFlags);
-            ASSERT(11 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedReadRaw(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(12 == myC.fun()); ASSERT(myFlags == myC.flags());
+        if (verbose) cout << "\nVerify that methods are public and virtual.\n";
 
-            c.readvRaw(0, 0);
-            ASSERT(13 == myC.fun()); ASSERT(0 == myC.flags());
-            c.readvRaw(0, 0, myFlags);
-            ASSERT(13 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.readvRaw(&augStatus, 0, 0, myFlags);
-            ASSERT(14 == myC.fun()); ASSERT(myFlags == myC.flags());
+        const btls::Iovec *pIovec = 0;
+        const btls::Ovec  *pOvec  = 0;
 
-            c.timedReadvRaw(0, 0, timeout);
-            ASSERT(15 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedReadvRaw(0, 0, timeout, myFlags);
-            ASSERT(15 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedReadvRaw(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(16 == myC.fun()); ASSERT(myFlags == myC.flags());
+        const bsls::TimeInterval TI;
 
-            c.bufferedRead(0, 0);
-            ASSERT(17 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedRead(0, 0, myFlags);
-            ASSERT(17 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.bufferedRead(&augStatus, 0, 0, myFlags);
-            ASSERT(18 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, read(0, 0, 0));
 
-            c.timedBufferedRead(0, 0, timeout);
-            ASSERT(19 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedBufferedRead(0, 0, timeout, myFlags);
-            ASSERT(19 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedBufferedRead(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(20 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, read(0, 0, 0, 0));
 
-            c.bufferedReadRaw(0, 0);
-            ASSERT(21 == myC.fun()); ASSERT(0 == myC.flags());
-            c.bufferedReadRaw(0, 0, myFlags);
-            ASSERT(21 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.bufferedReadRaw(&augStatus, 0, 0, myFlags);
-            ASSERT(22 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedRead(0, 0, TI, 0));
 
-            c.timedBufferedReadRaw(0, 0, timeout);
-            ASSERT(23 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedBufferedReadRaw(0, 0, timeout, myFlags);
-            ASSERT(23 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedBufferedReadRaw(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(24 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedRead(0, 0, 0, TI, 0));
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readv(pIovec, 0, 0));
 
-            c.write(0, 0);
-            ASSERT(25 == myC.fun()); ASSERT(0 == myC.flags());
-            c.write(0, 0, myFlags);
-            ASSERT(25 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.write(&augStatus, 0, 0, myFlags);
-            ASSERT(26 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readv(0, pIovec, 0, 0));
 
-            c.timedWrite(0, 0, timeout);
-            ASSERT(27 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWrite(0, 0, timeout, myFlags);
-            ASSERT(27 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedWrite(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(28 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadv(pIovec, 0, TI, 0));
 
-            c.writeRaw(0, 0);
-            ASSERT(29 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writeRaw(0, 0, myFlags);
-            ASSERT(29 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.writeRaw(&augStatus, 0, 0, myFlags);
-            ASSERT(30 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadv(0, pIovec, 0, TI, 0));
 
-            c.timedWriteRaw(0, 0, timeout);
-            ASSERT(31 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWriteRaw(0, 0, timeout, myFlags);
-            ASSERT(31 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedWriteRaw(&augStatus, 0, 0, timeout, myFlags);
-            ASSERT(32 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readRaw(0, 0, 0));
 
-            c.writev(static_cast<const btls::Ovec *> (0), 0);
-            ASSERT(33 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writev(static_cast<const btls::Ovec *> (0), 0, myFlags);
-            ASSERT(33 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readRaw(0, 0, 0, 0));
 
-            c.writev(static_cast<const btls::Iovec *> (0), 0);
-            ASSERT(34 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writev(static_cast<const btls::Iovec *> (0), 0, myFlags);
-            ASSERT(34 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadRaw(0, 0, TI, 0));
 
-            c.writev(&augStatus, static_cast<const btls::Ovec *> (0), 0,
-                                                                 myFlags);
-            ASSERT(35 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.writev(&augStatus, static_cast<const btls::Iovec *> (0), 0,
-                                                                 myFlags);
-            ASSERT(36 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadRaw(0, 0, 0, TI, 0));
 
-            c.timedWritev(static_cast<const btls::Ovec *> (0), 0, timeout);
-            ASSERT(37 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWritev(static_cast<const btls::Ovec *> (0), 0,
-                                                           timeout, myFlags);
-            ASSERT(37 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readvRaw(pIovec, 0, 0));
 
-            c.timedWritev(static_cast<const btls::Iovec *> (0), 0, timeout);
-            ASSERT(38 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWritev(static_cast<const btls::Iovec *> (0), 0,
-                                                           timeout, myFlags);
-            ASSERT(38 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, readvRaw(0, pIovec, 0, 0));
 
-            c.timedWritev(&augStatus, static_cast<const btls::Ovec *> (0), 0,
-                                                           timeout,  myFlags);
-            ASSERT(39 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedWritev(&augStatus, static_cast<const btls::Iovec *> (0), 0,
-                                                           timeout,  myFlags);
-            ASSERT(40 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadvRaw(0, pIovec, 0, TI, 0));
 
-            c.writevRaw(static_cast<const btls::Ovec *> (0), 0);
-            ASSERT(41 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writevRaw(static_cast<const btls::Ovec *> (0), 0, myFlags);
-            ASSERT(41 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedReadvRaw(pIovec, 0, TI, 0));
 
-            c.writevRaw(static_cast<const btls::Iovec *> (0), 0);
-            ASSERT(42 == myC.fun()); ASSERT(0 == myC.flags());
-            c.writevRaw(static_cast<const btls::Iovec *> (0), 0, myFlags);
-            ASSERT(42 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedRead(0, 0, 0));
 
-            c.writevRaw(&augStatus, static_cast<const btls::Ovec *> (0), 0,
-                                                                 myFlags);
-            ASSERT(43 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.writevRaw(&augStatus, static_cast<const btls::Iovec *> (0), 0,
-                                                                 myFlags);
-            ASSERT(44 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedRead(0, 0, 0, 0));
 
-            c.timedWritevRaw(static_cast<const btls::Ovec *> (0), 0, timeout);
-            ASSERT(45 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWritevRaw(static_cast<const btls::Ovec *> (0), 0,
-                                                           timeout, myFlags);
-            ASSERT(45 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedBufferedRead(0, 0, TI, 0));
 
-            c.timedWritevRaw(static_cast<const btls::Iovec *> (0), 0, timeout);
-            ASSERT(46 == myC.fun()); ASSERT(0 == myC.flags());
-            c.timedWritevRaw(static_cast<const btls::Iovec *> (0), 0,
-                                                           timeout, myFlags);
-            ASSERT(46 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedBufferedRead(0, 0, 0, TI, 0));
 
-            c.timedWritevRaw(&augStatus, static_cast<const btls::Ovec *> (0),
-                                                     0, timeout,  myFlags);
-            ASSERT(47 == myC.fun()); ASSERT(myFlags == myC.flags());
-            c.timedWritevRaw(&augStatus, static_cast<const btls::Iovec *> (0),
-                                                     0, timeout,  myFlags);
-            ASSERT(48 == myC.fun()); ASSERT(myFlags == myC.flags());
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedReadRaw(0, 0, 0));
 
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        BSLS_PROTOCOLTEST_ASSERT(testObj, bufferedReadRaw(0, 0, 0, 0));
 
-            ASSERT(0 == myC.isInvalid()); // non-virtual test method
-            c.invalidate();               ASSERT(49 == myC.fun());
-            ASSERT(1 == c.isInvalid());   ASSERT(50 == myC.fun());
-        }
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedBufferedReadRaw(0, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedBufferedReadRaw(0, 0, 0, TI,
+                                                               0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, write(0, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, write(0, 0, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWrite(0, 0, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWrite(0, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writeRaw(0, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writeRaw(0, 0, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWriteRaw(0, 0, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWriteRaw(0, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writev(pOvec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writev(pIovec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writev(0, pOvec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writev(0, pIovec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritev(pOvec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritev(pIovec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritev(0, pOvec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritev(0, pIovec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(pOvec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(pIovec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(0, pOvec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, writevRaw(0, pIovec, 0, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritevRaw(pOvec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritevRaw(pIovec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritevRaw(0, pOvec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, timedWritevRaw(0, pIovec, 0, TI, 0));
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, invalidate());
+
+        BSLS_PROTOCOLTEST_ASSERT(testObj, isInvalid());
 
       } break;
       default: {

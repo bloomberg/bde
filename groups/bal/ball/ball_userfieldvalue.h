@@ -118,7 +118,7 @@ class UserFieldValue {
     // 'ball::UserFieldType::e_VOID').
 
     // TYPES
-    typedef bdlb::Variant<int64_t,
+    typedef bdlb::Variant<bsl::int64_t,
                           double,
                           bsl::string,
                           bdlt::DatetimeTz> ValueVariant;
@@ -140,7 +140,7 @@ class UserFieldValue {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit UserFieldValue(int64_t                  value,
+    explicit UserFieldValue(bsl::int64_t             value,
                             bslma::Allocator        *basicAllocator = 0);
     explicit UserFieldValue(double                   value,
                             bslma::Allocator        *basicAllocator = 0);
@@ -159,16 +159,17 @@ class UserFieldValue {
                 bslma::Allocator *basicAllocator = 0,
                 typename bsl::enable_if<
                      bsl::is_integral<INTEGRAL_TYPE>::value>::type * = 0)
-    : d_value(static_cast<int64_t>(value), basicAllocator) {}
+    : d_value(static_cast<bsl::int64_t>(value), basicAllocator) {}
         // Create a user field value having the specified integral 'value'.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
         //
         // Note that this constructor is provided to disambiguate between
-        // constructors taking 'double' and 'int64_t' when supplied a integer
-        // that is not of type 'int64_t'.  Note also that the implementation
-        // is (temporarily) provided inline to avoid issues with MSVC 2008.
+        // constructors taking 'double' and 'bsl::int64_t' when supplied a
+        // integer that is not of type 'bsl::int64_t'.  Note also that the
+        // implementation is (temporarily) provided inline to avoid issues with
+        // MSVC 2008.
 
     UserFieldValue(const UserFieldValue&  original,
                    bslma::Allocator      *basicAllocator = 0);
@@ -189,7 +190,7 @@ class UserFieldValue {
         // Set this object to the unset value.  After this operation 'type'
         // will be 'ball::UserFieldType::e_VOID'.
 
-    void setInt64(int64_t value);
+    void setInt64(bsl::int64_t value);
         // Set this object to the specified 'value'.  After this operation,
         // 'type' is 'ball::UserFieldType::e_INT64'.
 
@@ -223,7 +224,7 @@ class UserFieldValue {
         // Return the type of this user field value.  The type
         // 'ball::UserFieldValue::e_VOID' represents the unset value.
 
-    const int64_t& theInt64() const;
+    const bsl::int64_t& theInt64() const;
         // Return a reference providing non-modifiable access to the 64-bit
         // integer value of this object.  The behavior is undefined unless
         // 'type' is 'ball::UserFieldType::e_INT64'.
@@ -316,7 +317,8 @@ UserFieldValue::UserFieldValue(bslma::Allocator *basicAllocator)
 }
 
 inline
-UserFieldValue::UserFieldValue(int64_t value, bslma::Allocator *basicAllocator)
+UserFieldValue::UserFieldValue(bsl::int64_t value,
+                               bslma::Allocator *basicAllocator)
 : d_value(value, basicAllocator)
 {
 }
@@ -364,7 +366,7 @@ void UserFieldValue::reset()
 }
 
 inline
-void UserFieldValue::setInt64(int64_t value)
+void UserFieldValue::setInt64(bsl::int64_t value)
 {
     d_value.assign(value);
 }
@@ -415,7 +417,7 @@ ball::UserFieldType::Enum UserFieldValue::type() const
           return ball::UserFieldType::e_VOID;                         // RETURN
       } break;
       case 1: {
-          BSLS_ASSERT_SAFE(d_value.is<int64_t>());
+          BSLS_ASSERT_SAFE(d_value.is<bsl::int64_t>());
           return ball::UserFieldType::e_INT64;                        // RETURN
       } break;
       case 2: {
@@ -441,10 +443,10 @@ ball::UserFieldType::Enum UserFieldValue::type() const
 }
 
 inline
-const int64_t& UserFieldValue::theInt64() const
+const bsl::int64_t& UserFieldValue::theInt64() const
 {
-    BSLS_ASSERT_SAFE(d_value.is<int64_t>());
-    return d_value.the<int64_t>();
+    BSLS_ASSERT_SAFE(d_value.is<bsl::int64_t>());
+    return d_value.the<bsl::int64_t>();
 }
 
 inline

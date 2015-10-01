@@ -9,7 +9,6 @@
 #include <bslmt_barrier.h>
 
 #include <bdlb_random.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlb_bitutil.h>
 

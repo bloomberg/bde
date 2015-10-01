@@ -4,8 +4,6 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlf_function.h>
-
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>

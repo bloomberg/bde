@@ -339,11 +339,12 @@ BSLS_IDENT("$Id: $")
 //
 //     // Create a timer callback.
 //
-//     btlso::TimerEventManager::Callback myTimerCb(bdlf::BindUtil::bind(
+//  btlso::TimerEventManager::Callback myTimerCb;
+//  myTimerCb = bdlf::BindUtil::bind(
 //           bdlf::MemFnUtil::memFn(&my_TimedSocketMultiplexer::timerCb, this),
 //           socketEvent,
 //           userCb,
-//           myTimerCb));
+//           myTimerCb);
 //
 //     // Create an event callback.
 //

@@ -39,8 +39,11 @@
 #endif
 
 #include <signal.h>
+
+#ifdef BSLS_PLATFORM_UNIX
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>   // for 'CHAR_BIT'
+#include <bsl_functional.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -207,7 +208,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
 }  // close package namespace
 
 static
-void defaultDispatcherFunction(const bdlf::Function<void(*)()>& callback) {
+void defaultDispatcherFunction(const bsl::function<void()>& callback) {
     callback();
 }
 
@@ -465,9 +466,9 @@ void TimerEventScheduler::stop()
 }
 
 TimerEventScheduler::Handle
-TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&        time,
-                                   const bdlf::Function<void(*)()>& callback,
-                                   const EventKey&                  key)
+TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&    time,
+                                   const bsl::function<void()>& callback,
+                                   const EventKey&              key)
 {
     Handle handle;
     {
@@ -582,9 +583,9 @@ void TimerEventScheduler::cancelAllEvents(bool wait)
 }
 
 TimerEventScheduler::Handle
-TimerEventScheduler::startClock(const bsls::TimeInterval&        interval,
-                                const bdlf::Function<void(*)()>& callback,
-                                const bsls::TimeInterval&        startTime)
+TimerEventScheduler::startClock(const bsls::TimeInterval&    interval,
+                                const bsl::function<void()>& callback,
+                                const bsls::TimeInterval&    startTime)
 {
     BSLS_ASSERT(0 != interval);
 

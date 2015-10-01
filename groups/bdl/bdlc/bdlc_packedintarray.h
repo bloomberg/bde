@@ -198,9 +198,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_STDINT
-#include <stdint.h>
-#define INCLUDED_STDINT
+#ifndef INCLUDED_BSL_CSTDINT
+#include <bsl_cstdint.h>
 #endif
 
 
@@ -254,54 +253,54 @@ struct PackedIntArrayImp_Signed {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
-    // 'int64_t'.  Specifically, it defines the types used to store the array's
-    // data, methods needed to externalize and unexternalize the array, and a
-    // method to determine the storage size to use for a given value.
+    // 'bsl::int64_t'.  Specifically, it defines the types used to store the
+    // array's data, methods needed to externalize and unexternalize the array,
+    // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  int8_t OneByteStorageType;
-    typedef int16_t TwoByteStorageType;
-    typedef int32_t FourByteStorageType;
-    typedef int64_t EightByteStorageType;
+    typedef  bsl::int8_t OneByteStorageType;
+    typedef bsl::int16_t TwoByteStorageType;
+    typedef bsl::int32_t FourByteStorageType;
+    typedef bsl::int64_t EightByteStorageType;
 
     // CLASS METHODS
     template <class STREAM>
-    static void bdexGet8(STREAM& stream, int8_t& variable);
+    static void bdexGet8(STREAM& stream, bsl::int8_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet16(STREAM& stream, int16_t& variable);
+    static void bdexGet16(STREAM& stream, bsl::int16_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet32(STREAM& stream, int32_t& variable);
+    static void bdexGet32(STREAM& stream, bsl::int32_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet64(STREAM& stream, int64_t& variable);
+    static void bdexGet64(STREAM& stream, bsl::int64_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut8(STREAM& stream, int8_t value);
+    static void bdexPut8(STREAM& stream, bsl::int8_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut16(STREAM& stream, int16_t value);
+    static void bdexPut16(STREAM& stream, bsl::int16_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut32(STREAM& stream, int32_t value);
+    static void bdexPut32(STREAM& stream, bsl::int32_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut64(STREAM& stream, int64_t value);
+    static void bdexPut64(STREAM& stream, bsl::int64_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
@@ -317,54 +316,54 @@ struct PackedIntArrayImp_Unsigned {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
-    // 'uint64_t'.  Specifically, it defines the types used to store the
+    // 'bsl::uint64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
-    typedef  uint8_t OneByteStorageType;
-    typedef uint16_t TwoByteStorageType;
-    typedef uint32_t FourByteStorageType;
-    typedef uint64_t EightByteStorageType;
+    typedef  bsl::uint8_t OneByteStorageType;
+    typedef bsl::uint16_t TwoByteStorageType;
+    typedef bsl::uint32_t FourByteStorageType;
+    typedef bsl::uint64_t EightByteStorageType;
 
     // CLASS METHODS
     template <class STREAM>
-    static void bdexGet8(STREAM& stream, uint8_t& variable);
+    static void bdexGet8(STREAM& stream, bsl::uint8_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet16(STREAM& stream, uint16_t& variable);
+    static void bdexGet16(STREAM& stream, bsl::uint16_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet32(STREAM& stream, uint32_t& variable);
+    static void bdexGet32(STREAM& stream, bsl::uint32_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexGet64(STREAM& stream, uint64_t& variable);
+    static void bdexGet64(STREAM& stream, bsl::uint64_t& variable);
         // Read from the specified 'stream' the specified 'variable' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut8(STREAM& stream, uint8_t value);
+    static void bdexPut8(STREAM& stream, bsl::uint8_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut16(STREAM& stream, uint16_t value);
+    static void bdexPut16(STREAM& stream, bsl::uint16_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut32(STREAM& stream, uint32_t value);
+    static void bdexPut32(STREAM& stream, bsl::uint32_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
     template <class STREAM>
-    static void bdexPut64(STREAM& stream, uint64_t value);
+    static void bdexPut64(STREAM& stream, bsl::uint64_t value);
         // Write to the specified 'stream' the specified 'value' as per the
         // requirements of the BDEX protocol.
 
@@ -717,10 +716,10 @@ struct PackedIntArrayImpType {
                                || bsl::is_same<TYPE, unsigned long int>::value
                                || bsl::is_same<TYPE,
                                                bsls::Types::Uint64>::value
-                               || bsl::is_same<TYPE, uint8_t>::value
-                               || bsl::is_same<TYPE, uint16_t>::value
-                               || bsl::is_same<TYPE, uint32_t>::value
-                               || bsl::is_same<TYPE, uint64_t>::value,
+                               || bsl::is_same<TYPE, bsl::uint8_t>::value
+                               || bsl::is_same<TYPE, bsl::uint16_t>::value
+                               || bsl::is_same<TYPE, bsl::uint32_t>::value
+                               || bsl::is_same<TYPE, bsl::uint64_t>::value,
                                PackedIntArrayImp<PackedIntArrayImp_Unsigned>,
                                PackedIntArrayImp<PackedIntArrayImp_Signed> >
                                                                 ::Type Type;
@@ -1345,57 +1344,60 @@ void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b);
                       // -------------------------------
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, int8_t& variable)
+void PackedIntArrayImp_Signed::bdexGet8(STREAM& stream, bsl::int8_t& variable)
 {
     char v;
     stream.getInt8(v);
-    variable = static_cast<int8_t>(v);
+    variable = static_cast<bsl::int8_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet16(STREAM& stream, int16_t& variable)
+void PackedIntArrayImp_Signed::bdexGet16(STREAM& stream,
+                                         bsl::int16_t& variable)
 {
     short v;
     stream.getInt16(v);
-    variable = static_cast<int16_t>(v);
+    variable = static_cast<bsl::int16_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet32(STREAM& stream, int32_t& variable)
+void PackedIntArrayImp_Signed::bdexGet32(STREAM& stream,
+                                         bsl::int32_t& variable)
 {
     int v;
     stream.getInt32(v);
-    variable = static_cast<int32_t>(v);
+    variable = static_cast<bsl::int32_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexGet64(STREAM& stream, int64_t& variable)
+void PackedIntArrayImp_Signed::bdexGet64(STREAM& stream,
+                                         bsl::int64_t& variable)
 {
     bsls::Types::Int64 v;
     stream.getInt64(v);
-    variable = static_cast<int64_t>(v);
+    variable = static_cast<bsl::int64_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexPut8(STREAM& stream, int8_t value)
+void PackedIntArrayImp_Signed::bdexPut8(STREAM& stream, bsl::int8_t value)
 {
     stream.putInt8(static_cast<int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexPut16(STREAM& stream, int16_t value)
+void PackedIntArrayImp_Signed::bdexPut16(STREAM& stream, bsl::int16_t value)
 {
     stream.putInt16(static_cast<int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexPut32(STREAM& stream, int32_t value)
+void PackedIntArrayImp_Signed::bdexPut32(STREAM& stream, bsl::int32_t value)
 {
     stream.putInt32(static_cast<int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, int64_t value)
+void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, bsl::int64_t value)
 {
     stream.putInt64(static_cast<bsls::Types::Int64>(value));
 }
@@ -1405,57 +1407,61 @@ void PackedIntArrayImp_Signed::bdexPut64(STREAM& stream, int64_t value)
                      // ---------------------------------
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream, uint8_t& variable)
+void PackedIntArrayImp_Unsigned::bdexGet8(STREAM& stream,
+                                          bsl::uint8_t& variable)
 {
     unsigned char v;
     stream.getUint8(v);
-    variable = static_cast<uint8_t>(v);
+    variable = static_cast<bsl::uint8_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet16(STREAM& stream, uint16_t& variable)
+void PackedIntArrayImp_Unsigned::bdexGet16(STREAM& stream,
+                                           bsl::uint16_t& variable)
 {
     unsigned short v;
     stream.getUint16(v);
-    variable = static_cast<uint16_t>(v);
+    variable = static_cast<bsl::uint16_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet32(STREAM& stream, uint32_t& variable)
+void PackedIntArrayImp_Unsigned::bdexGet32(STREAM& stream,
+                                           bsl::uint32_t& variable)
 {
     unsigned int v;
     stream.getUint32(v);
-    variable = static_cast<uint32_t>(v);
+    variable = static_cast<bsl::uint32_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexGet64(STREAM& stream, uint64_t& variable)
+void PackedIntArrayImp_Unsigned::bdexGet64(STREAM& stream,
+                                           bsl::uint64_t& variable)
 {
     bsls::Types::Uint64 v;
     stream.getUint64(v);
-    variable = static_cast<uint64_t>(v);
+    variable = static_cast<bsl::uint64_t>(v);
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexPut8(STREAM& stream, uint8_t value)
+void PackedIntArrayImp_Unsigned::bdexPut8(STREAM& stream, bsl::uint8_t value)
 {
     stream.putUint8(static_cast<unsigned int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexPut16(STREAM& stream, uint16_t value)
+void PackedIntArrayImp_Unsigned::bdexPut16(STREAM& stream, bsl::uint16_t value)
 {
     stream.putUint16(static_cast<unsigned int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexPut32(STREAM& stream, uint32_t value)
+void PackedIntArrayImp_Unsigned::bdexPut32(STREAM& stream, bsl::uint32_t value)
 {
     stream.putUint32(static_cast<unsigned int>(value));
 }
 
 template <class STREAM>
-void PackedIntArrayImp_Unsigned::bdexPut64(STREAM& stream, uint64_t value)
+void PackedIntArrayImp_Unsigned::bdexPut64(STREAM& stream, bsl::uint64_t value)
 {
     stream.putUint64(static_cast<bsls::Types::Uint64>(value));
 }

@@ -13,6 +13,7 @@
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdint.h>
 
 namespace BloombergLP {
 namespace {
@@ -81,7 +82,7 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
                                          bslma::Allocator *basicAllocator)
 : d_freeList(0)
 , d_sizeMask(bdlb::BitUtil::roundUpToBinaryPower(
-                                      static_cast<uint32_t>(poolSize + 1)) - 1)
+                                 static_cast<bsl::uint32_t>(poolSize + 1)) - 1)
 , d_nodes(poolSize, bslma::Default::allocator(basicAllocator))
 , d_dataOffset(bsl::max((int)sizeof(Node),
                   bsls::AlignmentUtil::calculateAlignmentFromSize(objectSize)))

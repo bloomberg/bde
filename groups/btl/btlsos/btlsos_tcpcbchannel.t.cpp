@@ -30,7 +30,9 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
+#endif
 
 #ifdef BSLS_PLATFORM_CMP_SUN
 #include <signal.h>
@@ -668,16 +670,15 @@ static void writeCallback(int                          status,
     // Callback function for a write request to indicate the execution of a
     // read request and to notify the user if it succeeds, partially completes,
     // fails or needs to issue other requests.
-
 {
-    ASSERT(expStatus == status);
-    ASSERT(augStatus == expAugStatus);
+    LOOP2_ASSERT(expStatus, status, expStatus == status);
+    LOOP2_ASSERT(augStatus, expAugStatus, augStatus == expAugStatus);
 
     if (veryVerbose) {
         P_(status);   P(augStatus);
         P_(expStatus); P(expAugStatus);
-
     }
+
     if (expStatus == status) {
         if (veryVerbose) {
             cout << "The status and expStatus matched." << endl;
@@ -3531,7 +3532,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor8,1,16383,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -3618,7 +3619,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo8,1,16383,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -4377,7 +4378,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir8,1,16383,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "R30000",          0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "R40000",          0,       0,      0,       0,  e_NON_VEC,    ""  },
@@ -4466,7 +4467,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi8,1,16383,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }

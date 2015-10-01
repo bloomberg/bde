@@ -93,9 +93,9 @@ enum {
 
 namespace btlsos {
 
-                      // ================================
-                      // class btesos_TcpCbConnector_RReg
-                      // ================================
+                     // ================================
+                     // class btesos_TcpCbConnector_RReg
+                     // ================================
 
 class TcpCbConnector_Reg {
 
@@ -242,9 +242,9 @@ TcpCbConnector_Reg::timedCallback() const
 //                           END LOCAL DEFINITIONS
 // ============================================================================
 
-                            // --------------------
-                            // class TcpCbConnector
-                            // --------------------
+                           // --------------------
+                           // class TcpCbConnector
+                           // --------------------
 
 // PRIVATE MANIPULATORS
 
@@ -271,7 +271,7 @@ int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
 
     if ( s == btlso::SocketHandle::e_ERROR_WOULDBLOCK ||
         (s == btlso::SocketHandle::e_ERROR_INTERRUPTED &&
-         0 == (flags & btesc_Flag::k_ASYNC_INTERRUPT)))
+         0 == (flags & btlsc::Flag::k_ASYNC_INTERRUPT)))
     {
         if (createRequest) {
             TcpCbConnector_Reg *cb =
@@ -305,7 +305,7 @@ int TcpCbConnector::initiateConnection(const CALLBACK_TYPE& callback,
         return 0;                                                     // RETURN
     }
     if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
-        BSLS_ASSERT(btesc_Flag::k_ASYNC_INTERRUPT & flags);
+        BSLS_ASSERT(btlsc::Flag::k_ASYNC_INTERRUPT & flags);
         callback(NULL, 1);
         return 0;                                                     // RETURN
     }

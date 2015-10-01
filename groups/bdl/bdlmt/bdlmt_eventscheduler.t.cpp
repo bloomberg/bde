@@ -30,6 +30,7 @@
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_memory.h>
@@ -811,7 +812,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 
 namespace EVENTSCHEDULER_TEST_CASE_20 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply executes the specified
     // 'functor'.
 {
@@ -1239,7 +1240,7 @@ namespace EVENTSCHEDULER_TEST_CASE_9 {
 
 namespace EVENTSCHEDULER_TEST_CASE_8 {
 
-void dispatcherFunction(bdlf::Function<void(*)()> functor)
+void dispatcherFunction(bsl::function<void()> functor)
     // This is a dispatcher function that simply executes the specified
     // 'functor'.
 {

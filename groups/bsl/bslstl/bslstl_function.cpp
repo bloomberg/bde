@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_platform.h>
+
 #ifdef BDE_BUILD_TARGET_EXC
 
 const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
@@ -13,9 +15,11 @@ const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 
 #endif
 
+#ifndef BSLS_PLATFORM_CMP_MSVC
 const std::size_t bsl::Function_SmallObjectOptimization::k_NON_SOO_SMALL_SIZE;
 
 const std::size_t bsl::Function_Rep::k_NON_SOO_SMALL_SIZE;
+#endif
 
 void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
                                  Allocator        *alloc,

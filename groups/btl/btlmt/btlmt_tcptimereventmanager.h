@@ -123,18 +123,17 @@ BSLS_IDENT("$Id: $")
 //      assert(workQueue);
 //      assert(manager);
 //
-//      enum { TIME_OFFSET = 5 };   // invoke timer every 5 seconds
+//      enum { TIME_OFFSET = 50 };   // invoke timer every 50 milliseconds
 //
 //      int item = bdlt::CurrentTime::now().nanoseconds() / 1000;
 //      workQueue->pushBack(item);
 //
 //      bsls::TimeInterval nextNextTime(nextTime);
-//      nextNextTime.addSeconds(TIME_OFFSET);
-//      bsl::function<void()> callback(bdlf::BindUtil::bind(
-//                                                              &producer,
-//                                                              workQueue,
-//                                                              manager,
-//                                                              nextNextTime));
+//      nextNextTime.addMilliseconds(TIME_OFFSET);
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(&producer,
+//                                                          workQueue,
+//                                                          manager,
+//                                                          nextNextTime));
 //
 //      void *timerId = manager->registerTimer(nextTime, callback);
 //      assert(timerId);
@@ -146,21 +145,22 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main() {
 //      enum {
-//         TIME_OFFSET         = 5 , // seconds
-//         INITIAL_TIME_OFFSET = 1   // seconds
+//          TIME_OFFSET         = 50, // milliseconds
+//          INITIAL_TIME_OFFSET = 10  // milliseconds
 //      };
-//      bdlcc::Queue<int> workQueue;
-//      btlmt::TcpTimerEventManager manager;
-//      bsls::TimeInterval now = bdlt::CurrentTime::now();
-//      now.addSeconds(INITIAL_TIME_OFFSET);
-//      bsls::TimeInterval nextTime(now);
-//      nextTime.addSeconds(TIME_OFFSET);
 //
-//      bsl::function<void()> callback(bdlf::BindUtil::bind(
-//                                                              &producer,
-//                                                              &workQueue,
-//                                                              &manager,
-//                                                              nextNextTime));
+//      bdlcc::Queue<int> workQueue(&testAllocator);;
+//      btlmt::TcpTimerEventManager manager(&testAllocator);;
+//
+//      bsls::TimeInterval now = bdlt::CurrentTime::now();
+//      now.addMilliseconds(INITIAL_TIME_OFFSET);
+//      bsls::TimeInterval nextTime(now);
+//      nextTime.addMilliseconds(TIME_OFFSET);
+//
+//      bsl::function<void()> callback(bdlf::BindUtil::bind(&producer,
+//                                                          &workQueue,
+//                                                          &manager,
+//                                                          nextNextTime));
 //
 //      void *timerId = manager.registerTimer(now, callback);
 //      assert(timerId);

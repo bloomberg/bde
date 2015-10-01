@@ -72,7 +72,7 @@ RESULT *allocate(int                                            *status,
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
         }
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
@@ -129,7 +129,7 @@ RESULT *timedAllocate(
                 factory->deallocate(socket);
                 return NULL;                                          // RETURN
             }
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 *status = 1;  // Any positive number satisfies the contract.
                 factory->deallocate(socket);
                 return NULL;                                          // RETURN
@@ -143,7 +143,7 @@ RESULT *timedAllocate(
             factory->deallocate(socket);
             return NULL;                                              // RETURN
         }
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket);
             return NULL;                                              // RETURN
@@ -156,9 +156,9 @@ RESULT *timedAllocate(
 
 namespace btlsos {
 
-                         // =========================
-                         // class TcpTimedCbConnector
-                         // =========================
+                        // =========================
+                        // class TcpTimedCbConnector
+                        // =========================
 
 // CREATORS
 TcpTimedConnector::TcpTimedConnector(

@@ -223,10 +223,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
 #endif

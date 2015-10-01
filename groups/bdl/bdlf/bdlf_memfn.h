@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@SEE_ALSO: bdlf_function, bdlf_bind
+//@SEE_ALSO: bdlf_bind
 //
 //@DESCRIPTION: This component provides a member function pointer wrapper
 // that wraps a member function pointer such that it can be invoked in

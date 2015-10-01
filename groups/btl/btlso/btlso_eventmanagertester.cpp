@@ -16,7 +16,6 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bslalg_scalarprimitives.h>
@@ -25,6 +24,7 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsl_algorithm.h>  // max
 #include <bsl_fstream.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -32,6 +32,7 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>                             // abort
+#include <bsl_cstring.h>  // memset
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 

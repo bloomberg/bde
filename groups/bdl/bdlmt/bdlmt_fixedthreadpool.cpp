@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bdlt_currenttime.h>
 
@@ -18,6 +17,8 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
+
+#include <bsl_functional.h>
 
 namespace {
 
@@ -173,8 +174,8 @@ int FixedThreadPool::startNewThread()
     pthread_sigmask(SIG_BLOCK, &d_blockSet, &oldset);
 #endif
 
-    bdlf::Function<void(*)()> workerThreadFunc = bdlf::MemFnUtil::memFn(
-            &FixedThreadPool::workerThread, this);
+    bsl::function<void()> workerThreadFunc =
+                  bdlf::MemFnUtil::memFn(&FixedThreadPool::workerThread, this);
 
     int rc = d_threadGroup.addThread(workerThreadFunc, d_threadAttributes);
 

@@ -115,7 +115,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 1000,
     e_VALID                   = 0,
     e_INVALID                 = -1
 };
@@ -471,7 +471,7 @@ void *echoClientThread(void *arg) {
 }
 
 // ----------------------------------------------------------------------------
-//                        USAGE EXAMPLE: Data stream
+//                         USAGE EXAMPLE: Data stream
 // ----------------------------------------------------------------------------
 
 ///Dual control and data channels

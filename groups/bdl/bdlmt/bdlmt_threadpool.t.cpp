@@ -7,7 +7,6 @@
 
 #include <bslma_testallocator.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsls_platform.h>
@@ -26,6 +25,7 @@
 #include <bsl_cstdio.h>           // For FILE in usage example
 #include <bsl_cstdlib.h>          // for atoi
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -49,7 +49,7 @@ using namespace bsl;  // automatically added by script
 //
 // [3 ] bdlmt::ThreadPool(const bslmt::Attributes&,int , int , int );
 // [3 ] ~bdlmt::ThreadPool();
-// [  ] int enqueueJob(bdlf::Function<void (*)()>);
+// [  ] int enqueueJob(bsl::function<void()>);
 // [4 ] int enqueueJob(ThreadPoolJobFunc , void *);
 // [4 ] void start();
 // [4 ] void stop();
@@ -440,7 +440,7 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 // The 'void' pointer argument provides a generic way of passing in user data,
 // without regard to the data type.  Clients who prefer better or more explicit
 // type safety may wish to use the Functor Interface instead.  This interface
-// uses the 'bdlf::Function' component to provide type-safe wrappers that
+// uses the 'bsl::function' component to provide type-safe wrappers that
 // can match argument number and type for a C++ free function or member
 // function.
 //
@@ -518,8 +518,8 @@ namespace THREADPOOL_USAGE_EXAMPLE {
             job.d_mutex   = &mutex;
             job.d_outList = &outFileList;
 
-            bdlf::Function<void (*)()> jobHandle
-                = bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
+            bsl::function<void()> jobHandle =
+                          bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
             pool.enqueueJob(jobHandle);
         }
 //..
@@ -611,7 +611,7 @@ Test13Object::Test13Object(bslmt::Barrier *barrier_p, Obj *threadPool_p)
 
 Test13Object::~Test13Object()
 {
-    bdlf::Function<void (*)(void)> job =
+    bsl::function<void()> job =
                        bdlf::BindUtil::bind(&testJobFunction13_2, d_barrier_p);
     ASSERT(0 == d_threadPool_p->enqueueJob(job));
 }
@@ -937,7 +937,7 @@ int main(int argc, char *argv[])
 
             const Obj& X = mX;
 
-            bdlf::Function<void (*)()> noop(&noopFunc);
+            bsl::function<void()> noop(&noopFunc);
 
             STARTPOOL(mX);
             ASSERT(0 == mX.enqueueJob(noop));
@@ -961,8 +961,8 @@ int main(int argc, char *argv[])
 
             int result = 0;
 
-            bdlf::Function<void (*)()> count =
-                bdlf::BindUtil::bind(&counter, &result, 2000000);
+            bsl::function<void()> count =
+                              bdlf::BindUtil::bind(&counter, &result, 2000000);
 
             STARTPOOL(mX);
             ASSERT(0 == mX.resetPercentBusy());

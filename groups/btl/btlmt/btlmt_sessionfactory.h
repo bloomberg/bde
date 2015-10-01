@@ -30,8 +30,16 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
 #endif
 
 namespace BloombergLP {
@@ -51,7 +59,7 @@ class SessionFactory {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(int, Session*)> Callback;
+    typedef bsl::function<void(int, Session*)> Callback;
        // The signature of a function to be called after a new session is
        // allocated.  The first argument is taken to indicate the status of the
        // allocation - 0 if successful, nonzero otherwise.  The second argument

@@ -6,8 +6,6 @@ BSLS_IDENT_RCSID(ball_loggermanagerconfiguration_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
-#include <bdlf_function.h>
-
 #include <bslma_default.h>
 
 #include <bsl_ostream.h>

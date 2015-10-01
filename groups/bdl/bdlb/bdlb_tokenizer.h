@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide access to user-described tokens via string references.
 //
 //@CLASSES:
-//  TokenizerIterator: input iterator for user-delimited tokens within a string
-//  Tokenizer: lexer for tokens defined via *hard* and/or *soft* delimiters
+//  bdlb::Tokenizer: lexer for tokens defined via hard and/or soft delimiters
+//  bdlb::TokenizerIterator: input iterator for delimited tokens in a string
 //
 //@SEE_ALSO: bslstl_stringref
 //
@@ -426,7 +426,7 @@ class Tokenizer_Data {
     // This component-private class is used to hold delimiter information.
     // Each 'Tokenizer' object will have, as a private data member, an object
     // of this class,  and will pass the address of that member to the
-    // (private) constructor of each 'TockenIterator' object it issues:
+    // (private) constructor of each 'TockenizerIterator' object it issues:
     //..
     //  +--------------------------------------+
     //  |   ,--------------.                   |
@@ -560,13 +560,13 @@ bool operator==(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
     // same value if both of them are pointing to the same token within the
     // same tokenized string or if they both point past the tokenized string.
     // The behaviour is undefined unless the iterators returned by the same
-    // 'Tokenizer' object or if the underlying input has been modified or
+    // 'Tokenizer' object, or if the underlying input has been modified or
     // destroyed since any of those objects were created.
 
 bool operator!=(const TokenizerIterator& lhs, const TokenizerIterator& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  The behaviour is undefined unless
-    // the iterators returned by the same 'Tokenizer' object or if the
+    // the iterators returned by the same 'Tokenizer' object, or if the
     // underlying input has been modified or destroyed since any of those
     // objects were created.
 
@@ -604,12 +604,12 @@ class Tokenizer {
     // PRIVATE MANIPULATORS
     void resetImpl(const char *input, const char *endOfInput);
         // Rebind this object to refer to the specified sequence of 'input'
-        // characters ending at the specified "endOfInput" pointer.
-        // The state of the tokenizer following this call is *as* *if* it had
-        // been constructed with 'input' and its current sets of *soft* and
-        // *hard* delimiter characters.  Note that the behavior is also
-        // undefined if this object is used in any way (other than to reset or
-        // destroy it) after its underlying 'input' string is modified.
+        // characters ending at the specified 'endOfInput' pointer.  The state
+        // of the tokenizer following this call is *as* *if* it had been
+        // constructed with 'input' and its current sets of *soft* and *hard*
+        // delimiter characters.  Note that the behavior is undefined if this
+        // object is used in any way (other than to reset or destroy it) after
+        // its underlying 'input' string is modified.
 
   private:
     // NOT IMPLEMENTED
@@ -676,41 +676,38 @@ class Tokenizer {
     void reset(const char *input);
     void reset(const bslstl::StringRef& input);
         // Rebind this object to refer to the specified sequence of 'input'
-        // characters.  The state of the iterator following this call is *as*
+        // characters.  The state of the tokenizer following this call is *as*
         // *if* it had been constructed with 'input' and its current sets of
         // *soft* and *hard* delimiter characters.  Note that the behavior is
-        // also undefined if this object is used in any way (other than to
-        // reset or destroy it) after its underlying 'input' string is
-        // modified.
+        // undefined if this object is used in any way (other than to reset or
+        // destroy it) after its underlying 'input' string is modified.
 
     // ACCESSORS
     bool hasPreviousSoft() const;
         // Return 'true' if the previous delimiter (or *leader*) contains a
         // *soft* delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the underlying input has been modified or
+        // undefined if the underlying input itself has been modified or
         // destroyed since this object was most recently reset (or created).
 
     bool hasTrailingSoft() const;
         // Return 'true' if the current (trailing) delimiter contains a *soft*
         // delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the iteration state of this object is initially
-        // valid, or if the underlying input has been modified or destroyed
-        // since this object was most recently reset (or created).
+        // undefined if the iteration state of this object is initially
+        // invalid, or if the underlying input itself has been modified or
+        // destroyed since this object was most recently reset (or created).
 
     bool isPreviousHard() const;
         // Return 'true' if the previous delimiter contains a *hard-delimiter*
-        // character, and 'false' otherwise.  Note that this method will always
-        // return 'false' on a newly constructed (or reset) object.  The
-        // returned reference remains valid so long as the underlying input
-        // string is not modified or destroyed -- irrespective of the state (or
-        // existence) of this object.
+        // character, and 'false' otherwise.  The behavior is undefined if the
+        // underlying input itself has been modified or destroyed since this
+        // object was most recently reset (or created).
 
     bool isTrailingHard() const;
         // Return 'true' if the current (trailing) delimiter contains a *hard*
         // delimiter character, and 'false' otherwise.  The behavior is
-        // undefined unless the iteration state of this object is initially
-        // valid, or if the underlying input has been modified or destroyed
-        // since this object was most recently reset (or created).
+        // undefined if the iteration state of this object is initially
+        // invalid, or if the underlying input itself has been modified or
+        // destroyed since this object was most recently reset (or created).
 
     bool isValid() const;
         // Return 'true' if the iteration state of this object is valid, and
@@ -722,7 +719,7 @@ class Tokenizer {
     bslstl::StringRef previousDelimiter() const;
         // Return a reference to the non-modifiable previous delimiter (or
         // *leader*) in the input string.  The behavior is undefined unless the
-        //  underlying input has been modified or destroyed since this object
+        // underlying input has been modified or destroyed since this object
         // was most recently reset (or created).
 
     bslstl::StringRef token() const;

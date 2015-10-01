@@ -1,0 +1,2 @@
+# BALTZO overrides for default.opts
+windows            _       CXXLINK          = advapi32.lib

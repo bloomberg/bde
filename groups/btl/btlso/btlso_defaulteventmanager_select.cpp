@@ -10,6 +10,7 @@ BSLS_IDENT_RCSID(btlso_defaulteventmanager_select_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 
 #include <bsls_assert.h>
+#include <bsl_algorithm.h>
 #include <bsl_cerrno.h>
 #include <bsl_cstring.h>
 

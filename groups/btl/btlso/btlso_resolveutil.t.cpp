@@ -521,8 +521,7 @@ int main(int argc, char *argv[])
                                         0
                                       };
             #else // defined BSLS_PLATFORM_OS_WINDOWS
-                // Cannot come up with any multi-homed hosts
-                // resolvable on BLP CORP PCs! TBD FIXME
+                // Cannot come up with any multi-homed resolvable hosts.
 
         const char* sundev1[] = { "172.17.1.20",    0 };
         const char* sundev5[] = { "10.126.159.229", 0 };
@@ -837,8 +836,7 @@ int main(int argc, char *argv[])
                                     0
                                   };
         #else // defined BSLS_PLATFORM_OS_WINDOWS
-            // Cannot come up with any multi-homed hosts
-            // resolvable on BLP CORP PCs! TBD: FIXME!
+            // Cannot come up with any multi-homed resolvable hosts.
 
             const char* sundev31[] = { "172.17.5.196",   0 };
             const char* sundev5[]  = { "10.126.159.229", 0 };
@@ -1113,8 +1111,7 @@ int main(int argc, char *argv[])
 
             const char *me[]      = { "127.0.0.1", 0 };
         #ifdef BSLS_PLATFORM_OS_UNIX
-            // Cannot come up with any multi-homed hosts
-            // resolvable on BLP CORP LINUX machines! TBD FIXME
+            // Cannot come up with any multi-homed resolvable hosts.
 
             const char *applix[]  = { "86.0.0.32",
                                   #if !defined(BSLS_PLATFORM_OS_LINUX) \
@@ -1152,8 +1149,7 @@ int main(int argc, char *argv[])
                                     0
                                   };
         #else // defined BSLS_PLATFORM_OS_WINDOWS
-            // Cannot come up with any multi-homed hosts
-            // resolvable on BLP CORP PCs! TBD FIXME
+            // Cannot come up with any multi-homed resolvable hosts.
 
             const char* sundev1[] = { "172.17.1.20",    0 };
             const char* sundev5[] = { "10.126.159.229", 0 };

@@ -237,7 +237,7 @@ BSLS_IDENT("$Id: $")
 // The 'void' pointer argument provides a generic way of passing in user data,
 // without regard to the data type.  Clients who prefer better or more explicit
 // type safety may wish to use the Functor Interface instead.  This interface
-// uses 'bdlf::Function' to provide type-safe wrappers that can match argument
+// uses 'bsl::function' to provide type-safe wrappers that can match argument
 // number and type for a C++ free function or member function.
 //
 // To illustrate the Functor Interface, we will make two small changes to the
@@ -266,12 +266,12 @@ BSLS_IDENT("$Id: $")
 //           job.d_mutex   = &mutex;
 //           job.d_outList = &outFileList;
 //
-//           bdlf::Function<void (*)()> jobHandle =
+//           bsl::function<void()> jobHandle =
 //                         bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
 //           pool.enqueueJob(jobHandle);
 //       }
 //..
-// Use of 'bdlf::Function' and 'bdlf::BindUtil' is described in the 'bdef'
+// Use of 'bsl::function' and 'bdlf::BindUtil' is described in the 'bdef'
 // package documentation.  For this example, it is important to note that
 // 'jobHandle' is a functor object, and that 'bdlf::BindUtil::bind' populates
 // that functor object with a function pointer (to the 'void' function
@@ -330,16 +330,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -368,8 +368,8 @@ class FixedThreadPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void(*)()> Job;
-    typedef bdlcc::FixedQueue<Job>    Queue;
+    typedef bsl::function<void()>  Job;
+    typedef bdlcc::FixedQueue<Job> Queue;
 
     enum {
         e_STOP
@@ -518,7 +518,7 @@ class FixedThreadPool {
         // queuing is currently disabled.  Note that this function can block if
         // the underlying fixed queue has reached full capacity; use
         // 'tryEnqueueJob' instead for non-blocking.  The behavior is undefined
-        // unless 'functor' is not "unset".  See 'bdlf_function' for more
+        // unless 'functor' is not "unset".  See 'bsl::function' for more
         // information on functors.
 
     int enqueueJob(FixedThreadPoolJobFunc function, void *userData);

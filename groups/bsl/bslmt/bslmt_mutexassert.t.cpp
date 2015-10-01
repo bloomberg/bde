@@ -9,6 +9,7 @@
 #include <bsls_atomic.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>

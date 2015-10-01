@@ -248,7 +248,7 @@ BSLS_IDENT("$Id: $")
 // The 'void' pointer argument provides a generic way of passing in user data,
 // without regard to the data type.  Clients who prefer better or more explicit
 // type safety may wish to use the Functor Interface instead.  This interface
-// uses the 'bdlf::Function' component to provide type-safe wrappers that can
+// uses the 'bsl::function' component to provide type-safe wrappers that can
 // match argument number and type for a C++ free function or member function.
 //
 // To illustrate the Functor Interface, we will make two small changes to the
@@ -322,7 +322,7 @@ BSLS_IDENT("$Id: $")
 //          job.d_mutex   = &mutex;
 //          job.d_outList = &outFileList;
 //
-//          bdlf::Function<void (*)()> jobHandle =
+//          bsl::function<void()> jobHandle =
 //                        bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
 //          pool.enqueueJob(jobHandle);
 //      }
@@ -370,10 +370,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_functionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
 #endif
@@ -390,6 +386,10 @@ BSLS_IDENT("$Id: $")
     #ifndef INCLUDED_BSL_CSIGNAL
     #include <bsl_csignal.h>              // sigfillset
     #endif
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -423,7 +423,7 @@ class ThreadPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void(*)()> Job;
+    typedef bsl::function<void()> Job;
 
   private:
     // PRIVATE DATA
@@ -548,7 +548,7 @@ class ThreadPool {
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  The behavior is undefined unless
-        // 'functor' is not "unset".  See 'bdlf_function' for more information
+        // 'functor' is not "unset".  See 'bsl::function' for more information
         // on functors.
 
     int enqueueJob(ThreadPoolJobFunc function, void *userData);

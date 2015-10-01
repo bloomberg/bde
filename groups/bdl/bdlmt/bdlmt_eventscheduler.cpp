@@ -13,6 +13,7 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_functional.h>
 #include <bsl_vector.h>
 
 // Implementation note: When casting, we often cast through 'void *' or
@@ -22,7 +23,7 @@ namespace BloombergLP {
 
 // STATIC FUNCTIONS
 static inline
-void defaultDispatcherFunction(const bdlf::Function<void (*)()>& callback)
+void defaultDispatcherFunction(const bsl::function<void()>& callback)
 {
     callback();
 }
@@ -267,9 +268,9 @@ void EventScheduler::stop()
 }
 
 void
-EventScheduler::scheduleEvent(EventHandle                       *event,
-                              const bsls::TimeInterval&          time,
-                              const bdlf::Function<void (*)()>&  callback)
+EventScheduler::scheduleEvent(EventHandle                  *event,
+                              const bsls::TimeInterval&     time,
+                              const bsl::function<void()>&  callback)
 {
     bool newTop;
 
@@ -284,10 +285,9 @@ EventScheduler::scheduleEvent(EventHandle                       *event,
     }
 }
 
-void EventScheduler::scheduleEventRaw(
-                                  Event                             **event,
-                                  const bsls::TimeInterval&           time,
-                                  const bdlf::Function<void (*)()>&   callback)
+void EventScheduler::scheduleEventRaw(Event                        **event,
+                                      const bsls::TimeInterval&      time,
+                                      const bsl::function<void()>&   callback)
 {
     bool newTop;
 
@@ -303,11 +303,10 @@ void EventScheduler::scheduleEventRaw(
 }
 
 void
-EventScheduler::scheduleRecurringEvent(
-                                  RecurringEventHandle              *event,
-                                  const bsls::TimeInterval&          interval,
-                                  const bdlf::Function<void (*)()>&  callback,
-                                  const bsls::TimeInterval&          startTime)
+EventScheduler::scheduleRecurringEvent(RecurringEventHandle         *event,
+                                       const bsls::TimeInterval&     interval,
+                                       const bsl::function<void()>&  callback,
+                                       const bsls::TimeInterval&     startTime)
 {
     BSLS_ASSERT(0 != interval);
 
@@ -334,10 +333,10 @@ EventScheduler::scheduleRecurringEvent(
 
 void
 EventScheduler::scheduleRecurringEventRaw(
-                                 RecurringEvent                    **event,
-                                 const bsls::TimeInterval&           interval,
-                                 const bdlf::Function<void (*)()>&   callback,
-                                 const bsls::TimeInterval&           startTime)
+                                      RecurringEvent               **event,
+                                      const bsls::TimeInterval&      interval,
+                                      const bsl::function<void()>&   callback,
+                                      const bsls::TimeInterval&      startTime)
 {
     BSLS_ASSERT(0 != interval);
 

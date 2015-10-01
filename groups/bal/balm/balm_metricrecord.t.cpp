@@ -8,6 +8,7 @@
 
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
+#include <bsl_limits.h>
 
 #include <bslim_testutil.h>
 
@@ -199,6 +200,42 @@ int main(int argc, char *argv[])
     Desc mE(&cA, "E"); const Desc *ME = &mE;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING DEFAULT VALUES
+        //
+        // Concerns:
+        //   The hand-coded literals supplied for '(k_)DEFAULT_*' match the
+        //   corresponding values provided by 'bsl::numeric_limits'.
+        //
+        // Plan:
+        //   Compare the values of the '(k_)DEFAULT_*' constants with the
+        //   values returned by 'bsl::numeric_limits'.
+        //
+        // Testing:
+        //   CONCERN: DEFAULT VALUES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Default Values"
+                          << "\n======================" << endl;
+
+        ASSERTV(balm::MetricRecord::k_DEFAULT_MIN,
+                balm::MetricRecord::k_DEFAULT_MIN
+                    == bsl::numeric_limits<double>::infinity());
+        ASSERTV(balm::MetricRecord::k_DEFAULT_MAX,
+                balm::MetricRecord::k_DEFAULT_MAX
+                    == -bsl::numeric_limits<double>::infinity());
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        ASSERTV(balm::MetricRecord::DEFAULT_MIN,
+                balm::MetricRecord::DEFAULT_MIN
+                    == bsl::numeric_limits<double>::infinity());
+        ASSERTV(balm::MetricRecord::DEFAULT_MAX,
+                balm::MetricRecord::DEFAULT_MAX
+                    == -bsl::numeric_limits<double>::infinity());
+#endif
+
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE

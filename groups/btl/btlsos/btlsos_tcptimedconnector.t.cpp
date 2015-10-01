@@ -35,10 +35,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -151,7 +151,7 @@ enum {
     k_REMOTE_PORT_NUMBER      = 7,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000
+    k_SLEEP_TIME              = 1000
 };
 
 enum {
@@ -719,7 +719,7 @@ int main(int argc, char *argv[]) {
 
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -801,7 +801,7 @@ int main(int argc, char *argv[]) {
                       ASSERT(0 == connector.isInvalid());
                       bsls::TimeInterval timeout(0, 5), time(60, 0);
                       int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                       TestCommand DATA[] =
 // ===================>
@@ -967,7 +967,7 @@ int main(int argc, char *argv[]) {
               bsls::TimeInterval timeout(2, 1000), time(120, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1392,7 +1392,7 @@ int main(int argc, char *argv[]) {
               bsls::TimeInterval timeout(2, 1000), time(120, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1821,7 +1821,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2250,7 +2250,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2634,7 +2634,7 @@ int main(int argc, char *argv[]) {
                   connector.setPeer(actualAddress);
                   LOOP_ASSERT(i, 0 == connector.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2737,7 +2737,7 @@ int main(int argc, char *argv[]) {
               time += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
               for (int i = 0; i < NUM_VALUES; i++) { // different connectors
