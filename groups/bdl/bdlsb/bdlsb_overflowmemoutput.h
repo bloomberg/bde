@@ -10,31 +10,33 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an overflowable output 'streambuf' using a client buffer.
 //
 //@CLASSES:
-// bdlsb::OverflowMemOutput: overflowable output 'streambuf' using client
-// memory
-//
-//@AUTHOR: Guillaume Morin (gmorin1), Robert Day (rday7)
+// bdlsb::OverflowMemOutput: overflowable output stream buffer
 //
 //@SEE_ALSO: bdlsb_fixedmemoutput, bdlsb_overflowmemoutstreambuf
 //
-//@DESCRIPTION: This component implements the output portion of the
+//@DESCRIPTION: This component provides a mechanism,
+// 'bdlsb::OverflowMemOutput', that implements the output portion of the
 // 'bsl::basic_streambuf' protocol using a user-supplied memory buffer and a
-// dynamically allocated overflow buffer which is used when the client-supplied
-// buffer runs out.  As with 'bdlsb_overflowmemoutstreambuf', users supply the
-// character buffer at construction.  Unlike 'bdlsb_overflowmemoutstreambuf',
-// they can no longer reinitialize the stream buffer with a different character
-// buffer by calling the 'pubsetbuf' method; instead, if that buffer runs out,
-// the 'bdlsb::OverflowMemOutput' will allocate another buffer (see "Overflow
-// Buffer" below).  The only difference between this component and
-// 'bdlsb_overflowmemoutstreambuf' is that the class 'bdlsb::OverflowMemOutput'
-// does *not* derive from 'bsl::streambuf' and does not support locales.
-// Nevertheless, method names correspond to the protocol-specified method
-// names; refer/to the C++ Standard, Sect.  27.5.2, for a full specification of
-// the 'bsl::basic_streambuf' interface.
+// managed, allocator-supplied overflow buffer that is created when the
+// client-supplied buffer runs out.  Method names necessarily correspond to the
+// protocol-specified method names.  As with 'bdlsb_overflowmemoutstreambuf',
+// clients supply the character buffer at construction.  Unlike
+// 'bdlsb_fixedmemoutput', they can no longer reinitialize the stream buffer
+// with a different character buffer by calling the 'pubsetbuf' method;
+// instead, if that buffer runs out, the 'bdlsb::OverflowMemOutput' will
+// allocate another buffer (see "Overflow Buffer" below).  The only difference
+// between this component and 'bdlsb_overflowmemoutstreambuf' is that the class
+// 'bdlsb::OverflowMemOutput' does *not* derive from 'bsl::streambuf' and does
+// not support locales.  This is advantageous for performance reasons, as the
+// overhead of the initialization and virtual function calls of a
+// 'bsl::streambuf' can be undesirable.  The 'bdlsb::OverflowMemOutput' is
+// designed to be used by generic template code that must be instantiated on a
+// type that matches the interface of 'bsl::streambuf', but does not require an
+// actual 'bsl::streambuf', in particular 'bslx_genericoutstream'.
 //
 ///Overflow Buffer
 ///---------------
-// This output streambuf will use the initial buffer (supplied at construction)
+// This output stream buffer uses the initial buffer (supplied at construction)
 // as its output buffer.  If an overflow of the initial buffer were to occur,
 // an additional buffer (the overflow buffer) will be allocated.  If this
 // overflow buffer ever becomes full, it will be automatically grown.  The
@@ -53,143 +55,61 @@ BSLS_IDENT("$Id: $")
 // services, and leaving the formatting to the client stream.  The standard C++
 // IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
-// layer and the stream buffer layer.  The BDE streaming library for 'bdex',
-// including all of 'bdesb', follows this model.
+// layer and the stream buffer layer.  The BDE streaming library for 'blsx',
+// including all of 'bdlsb', follows this model.
 //
 ///Usage
 ///-----
-// This example demonstrates use of a stream buffer by a stream, in this case a
-// stream with simple formatting requirements -- namely, capitalizing all
-// character data that passes through its management.  (To simplify the
-// example, we do not include the functions for streaming non-character data.)
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlsb::OverflowMemOutput'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates instantiating a template,
+// 'bslx::GenericOutStream', on a 'bdlsb::OverflowMemOutput' object and using
+// the 'bslx::GenericOutStream' object to stream out some data.
+//
+// First, we create a stream buffer, 'streamBuf', and supply it stack allocated
+// memory as its initial buffer:
 //..
-//  // my_capitalizingstream.h
+//  enum { k_STREAMBUF_CAPACITY = 8 };
 //
-//  class my_CapitalizingStream {
-//      // This class capitalizes character data....
-//
-//      // PRIVATE TYPES
-//      enum { k_STREAMBUF_CAPACITY = 10 };
-//
-//      // DATA
-//      char                     *d_buffer;      // initial buffer (owned)
-//      bdlsb::OverflowMemOutput *d_streamBuf;   // stream buffer (owned)
-//      bslma::Allocator         *d_allocator_p; // allocator (held, not owned)
-//
-//      // FRIENDS
-//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                               const bsl::string&     data);
-//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                               const char            *data);
-//      friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                               char                   data);
-//    public:
-//      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_CapitalizingStream,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
-//
-//      // CREATORS
-//      my_CapitalizingStream(bslma::Allocator *allocator = 0);
-//          // Create a stream that capitalizes everything.
-//
-//      ~my_CapitalizingStream();
-//          // Destroy this object.
-//
-//      // ACCESSORS
-//      const bdlsb::OverflowMemOutput *streamBuf() {
-//          return d_streamBuf;
-//      }
-//          // Return the stream buffer used by this stream.  Note that this
-//          // function is for debugging only.
-//  };
-//
-//  // FREE OPERATORS
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    const bsl::string&      data);
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    const char             *data);
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    char                    data);
-//      // Write the specified 'data' in capitalized form to the
-//      // specified 'stream'....
+//  char                     buffer[k_STREAMBUF_CAPACITY];
+//  bdlsb::OverflowMemOutput streamBuf(buffer, k_STREAMBUF_CAPACITY);
 //..
-// As is typical, the streaming operators are made friends of the class.  We
-// use the 'transform' algorithm to convert all string characters to upper-
-// case.
+// Then, we create an instance of 'bslx::GenericOutStream' using 'streamBuf',
+// with an arbitrary value for its 'versionSelector', and serialize some data:
 //..
-//  // my_capitalizingstream.cpp
-//  #include <bsl_algorithm.h>
-//
-//  my_CapitalizingStream::my_CapitalizingStream(
-//                                            bslma::Allocator *basicAllocator)
-//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
-//  {
-//      d_buffer = reinterpret_cast<char*>(
-//                              d_allocator_p->allocate(k_STREAMBUF_CAPACITY));
-//
-//      d_streamBuf = new(*d_allocator_p) bdlsb::OverflowMemOutput(
-//                                                        d_buffer,
-//                                                        k_STREAMBUF_CAPACITY,
-//                                                        d_allocator_p);
-//  }
-//
-//  my_CapitalizingStream::~my_CapitalizingStream()
-//  {
-//      d_allocator_p->deleteObjectRaw(d_streamBuf);
-//      d_allocator_p->deleteObjectRaw(d_buffer);
-//  }
-//
-//  // FREE OPERATORS
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                    const bsl::string&     data)
-//  {
-//      bsl::string tmp(data);
-//      bsl::transform(tmp.begin(),
-//                     tmp.end(),
-//                     tmp.begin(),
-//                     (int(*)(int))bsl::toupper);
-//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
-//      return stream;
-//  }
-//
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-//                                    const char             *data)
-//  {
-//      bsl::string tmp(data);
-//      bsl::transform(tmp.begin(),
-//                     tmp.end(),
-//                     tmp.begin(),
-//                     (int(*)(int))bsl::toupper);
-//      stream.d_streamBuf->sputn(tmp.data(), tmp.length());
-//      return stream;
-//  }
-//
-//  my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                    char                   data)
-//  {
-//       stream.d_streamBuf->sputc(bsl::toupper(data));
-//       stream.d_streamBuf->pubsync();
-//       return stream;
-//  }
+//  bslx::GenericOutStream<bdlsb::OverflowMemOutput> outStream(&streamBuf,
+//                                                             20150707);
+//  int MAGIC = 0x1812;
+//  outStream.putInt32(MAGIC);
+//  outStream.putInt32(MAGIC+1);
 //..
-// Given the above two functions, we can now write 'main', as follows:
+// Next, we verify that the data was correctly serialized and completely filled
+// initial buffer supplied at the stream buffer construction:
 //..
-//  bslma::TestAllocator allocator;
-//
-//  {
-//      my_CapitalizingStream cs(&allocator);
-//      cs << "Hello" << ' ' << "world." << '\0';
-//
-//      assert(10 == cs.streamBuf()->dataLengthInInitialBuffer());
-//      assert(0 == strncmp("HELLO WORL", cs.streamBuf()->initialBuffer(),
-//                          cs.streamBuf()->dataLengthInInitialBuffer()));
-//      assert(3 == cs.streamBuf()->dataLengthInOverflowBuffer());
-//      assert(0 == strncmp("D.", cs.streamBuf()->overflowBuffer(),
-//                          cs.streamBuf()->dataLengthInOverflowBuffer()));
-//  }
-//
-//  ASSERT(0 <  allocator.numAllocations());
-//  ASSERT(0 == allocator.numBytesInUse());
+//  assert(outStream.isValid());
+//  assert(8 == streamBuf.dataLength());
+//  assert(0 == bsl::memcmp(streamBuf.initialBuffer(),
+//                          "\x00\x00\x18\x12\x00\x00\x18\x13",
+//                          8));
+//  assert(0 == bsl::memcmp(buffer, "\x00\x00\x18\x12\x00\x00\x18\x13", 8));
+//  assert(0 == streamBuf.overflowBuffer());
+//  assert(0 == streamBuf.overflowBufferSize());
+//..
+// Then, we serialize some more data to trigger allocation of the internal
+// overflow buffer:
+//..
+//  outStream.putString(bsl::string("test"));
+//..
+// Finally, we verify that the additional data was serialized correctly and
+// landed into dynamically allocated overflow buffer:
+//..
+//  assert(outStream.isValid());
+//  assert(13 == streamBuf.dataLength());
+//  assert(0  != streamBuf.overflowBuffer());
+//  assert(5  == streamBuf.dataLengthInOverflowBuffer());
+//  assert(0  == bsl::memcmp(streamBuf.overflowBuffer(), "\x04test", 5));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -200,6 +120,18 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
 #endif
@@ -208,55 +140,49 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_BSL_LOCALE
-#include <bsl_locale.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
-#include <bsl_streambuf.h>
-#endif
-
 namespace BloombergLP {
 namespace bdlsb {
 
-                          // =======================
-                          // class OverflowMemOutput
-                          // =======================
+                       // =======================
+                       // class OverflowMemOutput
+                       // =======================
 
 class OverflowMemOutput {
-    // This class, like 'OverflowMemOutStreamBuf', implements the output
+    // This class, like 'bdlsb::OverflowMemOutStreamBuf', implements the output
     // functionality of the 'bsl::basic_streambuf' interface, using a
-    // client-supplied buffer and client-supplied allocator if additional
-    // memory is needed.  It has an interface similar to
-    // 'OverflowMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
-    // Thus, it is suitable for use as template parameter to
-    // 'bslx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
-    // that this class is not designed to be derived from.
-
-    // PRIVATE TYPES
-    typedef bsl::ios_base ios_base;
+    // client-supplied buffer and allocator-supplied overflow buffer if
+    // additional memory is needed.  It has an interface similar to
+    // 'bdlsb::OverflowMemOutStreamBuf' but does *not* inherit from
+    // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
+    // 'bslx::GenericByteOutStream' (but not to 'bslx::ByteOutStream' or
+    // 'bslx::ByteOutStreamFormatter').  Note that this class is not designed
+    // to be derived from.
 
     // DATA
+
     // The order of the data members is determined by our usage pattern for
     // cache efficiency.  Do not reorder them.
 
-    int   d_dataLength;            // total data length
+    bsl::size_t       d_dataLength;            // total data length
 
-    char *d_put_p;                 // current put pointer
+    char             *d_put_p;                 // current put pointer
 
-    char *d_initialBuffer_p;       // user-supplied buffer (held, not owned)
+    char             *d_initialBuffer_p;       // user-supplied buffer (held,
+                                               // not owned)
 
-    int   d_initialBufferSize;     // size of 'd_initialBuffer_p' buffer
+    bsl::size_t       d_initialBufferSize;     // size of 'd_initialBuffer_p'
+                                               // buffer
 
-    bool  d_inOverflowBufferFlag;  // true if 'pptr' points into the overflow
-                                   // buffer
+    bool              d_inOverflowBufferFlag;  // true if 'd_put_p' points into
+                                               // the overflow buffer
 
-    char *d_overflowBuffer_p;      // overflow buffer (owned)
+    char             *d_overflowBuffer_p;      // overflow buffer (owned)
 
-    int   d_overflowBufferSize;    // size of 'd_overflowBuffer_p' buffer
+    bsl::size_t       d_overflowBufferSize;    // size of 'd_overflowBuffer_p'
+                                               // buffer
 
-    bslma::Allocator
-         *d_allocator_p;           // memory allocator (held, not owned)
+    bslma::Allocator *d_allocator_p;           // memory allocator (held, not
+                                               // owned)
 
     // NOT IMPLEMENTED
     OverflowMemOutput(const OverflowMemOutput&);
@@ -264,141 +190,124 @@ class OverflowMemOutput {
 
   private:
     // PRIVATE MANIPULATORS
-    void grow(int numBytes);
-        // Replace the overflow buffer with another buffer larger by at least
-        // the specified 'numBytes', by growing geometrically by a factor of
-        // two, and preserve the bytes that are in use by the overflow buffer,
-        // as determined by the 'd_dataLength'.  Note that 'd_put_p' is not
-        // updated at this time, and may be pointing to deallocated memory when
-        // this returns.
+    void grow(bsl::size_t numBytes, bool copyOrigin = true);
+        // Replace the overflow buffer with another buffer, larger then the
+        // current buffer by at least the specified 'numBytes', by growing
+        // geometrically by a factor of two.  Optionally specify a 'copyOrigin'
+        // indicating whether the content of the overflow buffer should be
+        // copied into new location.  Note that 'd_put_p' is not updated, and
+        // may be pointing to deallocated memory when the method returns.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(OverflowMemOutput,
+                                   bslma::UsesBslmaAllocator);
+
     // TYPES
-    typedef bsl::streambuf::traits_type traits_type;
+    typedef char                    char_type;
+    typedef bsl::char_traits<char>  traits_type;
+    typedef traits_type::int_type   int_type;
+    typedef traits_type::pos_type   pos_type;
+    typedef traits_type::off_type   off_type;
 
     // CREATORS
     OverflowMemOutput(char             *buffer,
-                            int               length,
-                            bslma::Allocator *basicAllocator = 0);
-        // Create an empty stream buffer that uses the specified 'buffer' as an
-        // initial output buffer of the specified 'length' (in bytes).
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that this stream buffer does not assume ownership of
-        // 'buffer'.
+                      bsl::size_t       length,
+                      bslma::Allocator *basicAllocator = 0);
+        // Create an 'OverflowMemOutput' using the specified 'buffer' of the
+        // specified 'length' as the initial output buffer.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The behavior is
+        // undefined unless 'buffer != 0 && length > 0'.  Note that this stream
+        // buffer does not assume ownership of 'buffer'.
 
     ~OverflowMemOutput();
         // Destroy this stream buffer.
 
     // MANIPULATORS
-                             // *** 27.5.2.2.1 locales ***
-
-    bsl::locale pubimbue(const bsl::locale& loc);
-        // Return loc unconditionally.
-
                              // *** 27.5.2.2.2 buffer and positioning ***
 
-    bsl::streambuf *pubsetbuf(char *buffer, bsl::streamsize size);
-        // Return '0' unconditionally.
+    pos_type pubseekoff(off_type                offset,
+                        bsl::ios_base::seekdir  way,
+                        bsl::ios_base::openmode which = bsl::ios_base::out);
+        // Set the position indicator to the relative specified 'offset' from
+        // the base position indicated by the specified 'way' and return the
+        // resulting absolute position on success or pos_type(-1) on failure.
+        // Optionally specify 'which' area of the stream buffer.  The seek
+        // operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if the resulting absolute position is less
+        // than zero.
 
-    bsl::streampos pubseekoff(
-                      bsl::streamoff     off,
-                      ios_base::seekdir  way,
-                      ios_base::openmode which = ios_base::in | ios_base::out);
-        // Set the location from which the next I/O operation indicated by the
-        // specified 'which' mode will occur to the specified 'offset' position
-        // from the location indicated by the specified 'fixedPosition'.
-        // Return the new position on success, and 'bsl::streampos(-1)'
-        // otherwise.  Note that 'offset' may be negative.  Also note that this
-        // method will fail if 'mode & bsl::ios_base::in' is not 0.
+    pos_type pubseekpos(pos_type                position,
+                        bsl::ios_base::openmode which = bsl::ios_base::out);
+        // Set the position indicator to the specified 'position' and return
+        // the resulting absolute position on success or pos_type(-1) on
+        // failure.  Optionally specify 'which' area of the stream buffer.  The
+        // 'seekpos' operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if 'position' is less then zero.
 
-    bsl::streampos pubseekpos(
-             bsl::streampos     position,
-             ios_base::openmode mode = bsl::ios_base::in | bsl::ios_base::out);
-        // Set the location from which the next I/O operation indicated by the
-        // specified 'mode' will occur to the specified 'position'.  Return
-        // 'position' on success, and 'bsl::streampos(-1)' otherwise.  Note
-        // that this method will fail if 'mode & bsl::ios_base::in' is not 0.
+    OverflowMemOutput *pubsetbuf(char *buffer, bsl::streamsize length);
+        // Reinitialize this stream buffer to use the specified character
+        // 'buffer' having the specified 'length'.  Return a pointer providing
+        // modifiable access to this stream buffer.  This stream buffer does
+        // not support reinitialization of the internal character buffer.
 
     int pubsync();
-        // Synchronize this stream buffer.
-
-                             // *** 27.5.2.2.4 get area ***
-
-    bsl::streamsize in_avail();
-        // Return '0' unconditionally.
-
-    int snextc();
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
-
-    int sbump();
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
-
-    int sgetc();
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
-
-    bsl::streamsize sgetn(char *s, bsl::streamsize n);
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
-
-    int sputbackc(char c);
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
-
-    int sungetc();
-        // Return 'bsl::streambuf::traits_type::eof()' unconditionally.
+        // Synchronize this stream buffer with associated character sequence.
+        // Operation has no effect.  Return '0' unconditionally.
 
                              // *** 27.5.2.2.5 put area ***
 
-    int sputc(char character);
-        // Store the specified 'character' at the current put position and
-        // increase the put pointer of this stream buffer.
+    int_type sputc(char c);
+        // Write the specified character 'c' at the current write position and
+        // advance write position of this buffer.  Return 'c', or
+        // 'traits_type::eof()' if the end of the write buffer is reached.
 
-    bsl::streamsize sputn(const char *s, bsl::streamsize n);
-        // Put the specified 'numChars' from the specified 'source' to the
-        // stream.  Return the number of characters successfully put.  The
-        // behavior is undefined unless '0 <= numChars'.
+    bsl::streamsize sputn(const char *source, bsl::streamsize length);
+        // Write the specified 'length' characters from the specified 'source'
+        // to this buffer.  Return the number of characters written, which is
+        // either 'length' or the distance from the current write position to
+        // the end of the write buffer, whichever is smaller, and move the
+        // write cursor position by this amount.  The behaviour is undefined
+        // unless 'source != 0 || length > 0'.
 
     // ACCESSORS
-    int dataLength() const;
-        // Return the number of bytes that was written to this object.
+    bsl::size_t dataLength() const;
+        // Return the number of bytes that have been written to this object.
 
-    int dataLengthInOverflowBuffer() const;
-        // Return the length of the data in the overflow buffer, i.e., 0 if
-        // there is no overflow buffer, or 'dataLength() - initialBufferSize()'
-        // if there is one.
-
-    int dataLengthInInitialBuffer() const;
+    bsl::size_t dataLengthInInitialBuffer() const;
         // Return the length of data in the initial buffer, i.e.,
         // 'dataLength()' if there is no overflow buffer, or
         // 'initialBufferSize()' if there is one.
 
-    const char *initialBuffer() const;
-        // Return a pointer to the non-modifiable buffer specified at
-        // construction.
+    bsl::size_t dataLengthInOverflowBuffer() const;
+        // Return the length of the data in the overflow buffer, i.e., 0 if
+        // there is no overflow buffer, or 'dataLength() - initialBufferSize()'
+        // if there is one.
 
-    int initialBufferSize() const;
-        // Return the size of the initial buffer.
+    const char *initialBuffer() const;
+        // Return a pointer providing non-modifiable access to the character
+        // buffer held by this stream buffer (specified at construction).
+
+    bsl::size_t initialBufferSize() const;
+        // Return the size of the initial buffer held by this stream buffer.
 
     const char *overflowBuffer() const;
-        // Return a pointer to the non-modifiable overflow buffer if there is
-        // one, or 0 otherwise.
+        // Return a pointer providing non-modifiable access to the overflow
+        // buffer if there is one, or 0 otherwise.
 
-    int overflowBufferSize() const;
+    bsl::size_t overflowBufferSize() const;
         // Return the size of the overflow buffer, or 0 if there is no overflow
         // buffer.
-
-                             // *** 27.5.2.2.1 locales ***
-
-    bsl::locale getloc() const;
-        // return 'bsl::locale()' unconditionally.
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // class OverflowMemOutput
-                          // -----------------------
+                       // -----------------------
+                       // class OverflowMemOutput
+                       // -----------------------
 
 // CREATORS
 inline
@@ -409,16 +318,16 @@ OverflowMemOutput::~OverflowMemOutput()
 
 // MANIPULATORS
 inline
-bsl::streambuf *OverflowMemOutput::pubsetbuf(char *, bsl::streamsize)
+OverflowMemOutput::pos_type
+OverflowMemOutput::pubseekpos(pos_type position, bsl::ios_base::openmode which)
 {
-    return 0;
+    return pubseekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 inline
-bsl::streampos OverflowMemOutput::pubseekpos(bsl::streampos          position,
-                                             bsl::ios_base::openmode which)
+OverflowMemOutput *OverflowMemOutput::pubsetbuf(char *, bsl::streamsize)
 {
-    return pubseekoff(bsl::streamoff(position), bsl::ios_base::beg, which);
+    return this;
 }
 
 inline
@@ -427,77 +336,23 @@ int OverflowMemOutput::pubsync()
     return 0;
 }
 
-inline
-bsl::streamsize OverflowMemOutput::in_avail()
-{
-    return 0;
-}
-
-inline
-int OverflowMemOutput::snextc()
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
-inline
-int OverflowMemOutput::sbump()
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
-inline
-int OverflowMemOutput::sgetc()
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
-inline
-bsl::streamsize OverflowMemOutput::sgetn(char *, bsl::streamsize)
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
-inline
-int OverflowMemOutput::sputbackc(char)
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
-inline
-int OverflowMemOutput::sungetc()
-{
-    return bsl::streambuf::traits_type::eof();
-}
-
 // ACCESSORS
 inline
-int OverflowMemOutput::dataLength() const
+bsl::size_t OverflowMemOutput::dataLength() const
 {
     return d_dataLength;
 }
 
 inline
-int OverflowMemOutput::dataLengthInOverflowBuffer() const
-{
-    return d_inOverflowBufferFlag ? d_dataLength - d_initialBufferSize : 0;
-}
-
-inline
-int OverflowMemOutput::dataLengthInInitialBuffer() const
+bsl::size_t OverflowMemOutput::dataLengthInInitialBuffer() const
 {
     return d_inOverflowBufferFlag ? d_initialBufferSize : d_dataLength;
 }
 
 inline
-const char *OverflowMemOutput::overflowBuffer() const
+bsl::size_t OverflowMemOutput::dataLengthInOverflowBuffer() const
 {
-    return d_overflowBuffer_p;
-}
-
-inline
-int OverflowMemOutput::overflowBufferSize() const
-{
-    return d_overflowBufferSize;
+    return d_inOverflowBufferFlag ? d_dataLength - d_initialBufferSize : 0;
 }
 
 inline
@@ -507,12 +362,24 @@ const char *OverflowMemOutput::initialBuffer() const
 }
 
 inline
-int OverflowMemOutput::initialBufferSize() const
+bsl::size_t OverflowMemOutput::initialBufferSize() const
 {
     return d_initialBufferSize;
 }
-}  // close package namespace
 
+inline
+const char *OverflowMemOutput::overflowBuffer() const
+{
+    return d_overflowBuffer_p;
+}
+
+inline
+bsl::size_t OverflowMemOutput::overflowBufferSize() const
+{
+    return d_overflowBufferSize;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
