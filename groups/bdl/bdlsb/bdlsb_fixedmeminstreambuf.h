@@ -12,16 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlsb::FixedMemInStreamBuf: input stream buffer using client memory
 //
-//@AUTHOR: Lea Fester (lfester)
-//
 //@SEE_ALSO: bdlsb_fixedmemoutstreambuf, bdlsb_memoutstreambuf
 //
-//@DESCRIPTION: This component implements the input portion of the
-// 'bsl::basic_streambuf' protocol using a client-supplied memory buffer.
-// Method names necessarily correspond to the protocol-specified method names.
-// Clients supply the character buffer at stream buffer construction, and can
-// later reinitialize the stream buffer with a different character buffer by
-// calling the 'pubsetbuf' method.
+//@DESCRIPTION: This component defines a class, 'bdlsb::FixedMemInStreamBuf',
+// that implements the input portion of the 'bsl::basic_streambuf' protocol
+// using a client-supplied memory buffer.  Method names necessarily correspond
+// to the protocol-specified method names.  Clients supply the character buffer
+// at stream buffer construction, and can later reinitialize the stream buffer
+// with a different character buffer by calling the 'pubsetbuf' method.
 //
 // This component provides none of the output-related functionality of
 // 'basic_streambuf' (see Streaming Architecture, below), nor does it use
@@ -31,152 +29,90 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard C++
-// IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard
+// C++ IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
-// including all of 'bdesb', follows this model.
+// including all of 'bdlsb', follows this model.
 //
-///Usage Example
-///-------------
-// This example demonstrates use of a stream buffer by a stream, in this case a
-// stream that breaks up space-delimited strings into individual words.  It
-// thus gives the clients the ability to read one (English) word at a time,
-// using a natural streaming interface.
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-// This example is deliberately simple, and does not check for multiple spaces
-// between words, nor other possible error inputs.
+///Example 1: Basic usage of the 'bdlsb::FixedMemInStreamBuf'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdlsb::FixedMemInStreamBuf' can be used in situations when you already
+// have an array of bytes in memory and you'd like to wrap it in an input
+// stream to extract data in a formatted manner.  A
+// 'bdlsb::FixedMemInStreamBuf' object refers to an externally managed buffer
+// that is supplied either at construction, or using the 'pubsetbuf' method of
+// the 'bsl::streambuf' base-class.
+//
+// First, we create an array of characters to provide data that needs to be
+// parsed, and construct 'bdlsb::FixedMemInStreamBuf' on that array:
 //..
-// // my_wordstreamer.h
-//
-// class my_WordStreamer {
-//     // This class tokenizes white-space delimited input into distinct
-//     // words.
-//
-//    enum { k_LINE_SIZE_REQUEST = 512 };
-//
-//    basic_streambuf<char, char_traits<char> > *d_streamBuf;
-//                                              // buffer to read from
-//    char                      *d_currentLine; // local cache to store a line
-//    int                        d_lineLength;  // length of current line
-//    int                        d_cursor;      // character position
-//
-//    friend my_WordStreamer& operator>>(my_WordStreamer& stream,
-//                                       bsl::string&     word);
-//    friend my_WordStreamer& operator>>(my_WordStreamer&  stream,
-//                                       char             *word);
-//
-//  public:
-//    // CREATORS
-//    my_WordStreamer(basic_streambuf<char, char_traits<char> > *streamBuf);
-//        // Create a WordStreamer....
-//
-//    ~my_WordStreamer();
-//        // Destroy this object.
-// };
+//  {
+//      const char *inputText = "1 1 2 3 5 8 13 21";
+//      bdlsb::FixedMemInStreamBuf buffer(inputText, strlen(inputText));
 //..
-// The client passes to the stream on construction a
-// 'basic_streambuf<char, char_traits<char> > *', one that in this examples
-// wraps an underlying character buffer.  The buffer might, for example, have
-// been obtained by a messaging-middleware callback, and be the output of some
-// process that is communicating from across the network.
-//..
-// // my_wordstreamer.cpp
+// Notice that 'bdlsb::FixedMemInStreamBuf' can be used with buffers referring
+// to stack memory or to heap memory.
 //
-// // CREATORS
-// my_WordStreamer::my_WordStreamer(
-//                       basic_streambuf<char, char_traits<char> > *streamBuf)
-//  : d_streamBuf(streamBuf)
-//  , d_cursor(0)
-//  , d_currentLine(new char[k_LINE_SIZE_REQUEST])
-// {
-//     d_lineLength = streamBuf->sgetn(d_currentLine, k_LINE_SIZE_REQUEST);
-// }
+// Then, we use 'buffer' to construct a 'bsl::istream':
+//..
+//      bsl::istream stream(&buffer);
+//..
+// Finally, we can input the data from the stream in a formatted manner:
+//..
+//      int value;
+//      while (stream >> value) {
+//          cout << "Value is: " << value << endl;
+//      }
+//  }
+//..
 //
-// my_WordStreamer::~my_WordStreamer()
-// {
-//    delete [] d_currentLine;
-// }
-//..
-// The following operator breaks off a single word and reads it into an
-// 'bsl::string'.
-//..
-// my_WordStreamer& operator>>(my_WordStreamer& stream, bsl::string& word)
-// {
-//     if (stream.d_cursor < stream.d_lineLength) {
-//         // See if we can find another word
-//         for (int i = stream.d_cursor; i < stream.d_lineLength; ++i) {
-//             if (' ' == stream.d_currentLine[i]) {
-//                 word.assign(&(stream.d_currentLine[stream.d_cursor]),
-//                              i - stream.d_cursor);
-//                 stream.d_cursor = i + 1;
-//                 return stream;
-//             }
-//         }
-//     }
-//..
-// Note that if a 'bdlsb::FixedMemInStreamBuf' is the underlying character
-// source for the 'WordStreamer', once it has read past the number of
-// characters contained by the stream buffer, no replenishment is possible.
-// However, if the initial 'k_LINE_SIZE_REQUEST' is smaller than the number of
-// characters stored by the buffer, repeated requests can succeed (until the
-// character store is exhausted); furthermore, when using other stream buffers,
-// replenishment may be possible.
-//..
-//     // No word in existing buffer.  See if we can replenish/add.
-//     word.assign(&(stream.d_currentLine[stream.d_cursor]),
-//                stream.d_lineLength - stream.d_cursor); // copy over existing
-//     while (1) {
-//         stream.d_lineLength = stream.d_streamBuf->sgetn(
-//                           stream.d_currentLine, stream.k_LINE_SIZE_REQUEST);
-//         stream.d_cursor = 0;
-//         if (0 == stream.d_lineLength) {
-//             word.clear();
-//             return stream;
-//         }
+///Example 2: Scanning input data
+/// - - - - - - - - - - - - - - -
+// This example illustrates scanning of the input stream buffer for particular
+// pattern ( digits, in our case ) and then using stream to read out found
+// number.
 //
-//         for (int i = 0; i < stream.d_lineLength; ++i) {
-//
-//             // Found the word.  Copy & exit.
-//             if (' ' == stream.d_currentLine[i]) {
-//                 word.append(stream.d_currentLine, i - 1);
-//                 stream.d_cursor = i + 1;
-//                 return stream;
-//             }
-//             // Else copy and, after forcing an underflow, continue.
-//             word.append(stream.d_currentLine, stream.d_lineLength);
-//         }
-//     }
-// }
+// First, we create an array of characters to provide data that needs to be
+// parsed, and construct 'bdlsb::FixedMemInStreamBuf' on that array:
 //..
-// The following 'main' is a simple exercise demonstrating 'my_WordStreamer'
-// use.
+//  {
+//      const char *inputText = "The answer is: 42.";
+//      bdlsb::FixedMemInStreamBuf buffer(inputText, strlen(inputText));
 //..
-// // my_app.m.cpp
-//
-// int main(int argc, char **argv) {
-//
-//     char *text = "If concrete objects reside in such a library ";
-//     bdlsb::FixedMemInStreamBuf sb(text, strlen(text));
-//     my_WordStreamer ws(&sb);
-//
-//     do {
-//         ws >> nextWord;
-//         cout << "Next word is: " << nextWord << endl;
-//     } while (nextWord[0] != 0);
-// }
+// Then, we use 'buffer' to construct a 'bsl::istream' that will be used later
+// to read found number:
 //..
-// The resulting output is:
+//      bsl::istream stream(&buffer);
 //..
-// Next word is: If
-// Next word is: concrete
-// Next word is: objects
-// Next word is: reside
-// Next word is: in
-// Next word is: such
-// Next word is: a
-// Next word is: library
-// Next word is:
+// Next, we scan input buffer one character at a time searching for the first
+// digit:
+//..
+//      char ch;
+//      do {
+//          ch = buffer.sbumpc();
+//
+//          if ( (ch >= '0') && (ch <= '9') ) {
+//..
+// Now, when the digit character is found, we return the first digit into the
+// input stream buffer for subsequent read:
+//..
+//              buffer.sputbackc(ch);
+//              int n;
+//..
+// Finally, we read out the whole number:
+//..
+//              stream >> n;
+//              assert( 42 == n );
+//              cout << "The answer is " << n << " indeed..." << endl;
+//              break;
+//          }
+//      } while ( ch != EOF );
+//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -191,10 +127,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>  // for 'bsl::min'
-#endif
-
 #ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>       // for 'bsl::streamsize'
 #endif
@@ -203,16 +135,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDLIB
-#include <bsl_cstdlib.h>
-#endif
-
 #ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_LOCALE
-#include <bsl_locale.h>
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
@@ -223,127 +147,121 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                         // =========================
-                         // class FixedMemInStreamBuf
-                         // =========================
+                       // =========================
+                       // class FixedMemInStreamBuf
+                       // =========================
 
 class FixedMemInStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
-    // protocol, using client-supplied, 'char *' memory.
+    // protocol, using client-supplied 'char *' memory.
 
     // DATA
-    char *d_buffer_p;  // buffer (held, not owned)
-    int   d_length;    // length of buffer
+    char            *d_buffer_p;      // buffer (held, not owned)
+    bsl::size_t      d_bufferSize;    // length of buffer
 
     // NOT IMPLEMENTED
     FixedMemInStreamBuf(const FixedMemInStreamBuf&);
     FixedMemInStreamBuf& operator=(const FixedMemInStreamBuf&);
 
-    // Disable the "alternative interface" from base class.
-    // NOT IMPLEMENTED
-    char_type *_M_eback() const;
-    char_type *_M_gptr()  const;
-    char_type *_M_egptr() const;
-    void _M_gbump(int);
-    void _M_setg(char_type *, char_type *, char_type *);
-
-    // Disable the output-related functionality from base class.
-    // NOT IMPLEMENTED
-    int pubsync();
-    int_type sputc(char_type);
-    bsl::streamsize sputn(const char_type *, bsl::streamsize);
-    bsl::streamsize _M_sputnc(char_type, bsl::streamsize);
-    bsl::locale pubimbue(const bsl::locale&);
-    bsl::locale getloc() const;
-
   protected:
     // PROTECTED MANIPULATORS
-    virtual int_type pbackfail(int_type character);
-        // Ensure that this method is not invoked as a consequence of a
-        // 'sputbackc' call.  Return without doing anything on success, and
-        // assert on failure.
-
     virtual pos_type seekoff(
                             off_type                offset,
-                            bsl::ios_base::seekdir  fixedPosition,
+                            bsl::ios_base::seekdir  way,
                             bsl::ios_base::openmode which = bsl::ios_base::in);
-        // Set the location from which the next input will be read to the
-        // specified 'offset' from the location indicated by the specified
-        // 'fixedPosition', unless the specified 'which' does not include the
-        // flag 'bsl::ios_base::in'.  Return the location from which input will
-        // be next read if 'which' includes the flag 'bsl::ios_base::in', and
-        // 'char_traits<char>::pos_type(char_traits<char>::off_type(-1))'
-        // otherwise.  'offset' may be negative.  If 'which' includes the flag
-        // 'bsl::ios_base::in' then the behavior is undefined unless 0 <=
-        // 'fixedPosition' + 'offset' < length().
+        // Set the position indicator to the relative specified 'offset' from
+        // the base position indicated by the specified 'way' and return the
+        // resulting absolute position on success or pos_type(-1) on failure.
+        // Optionally specify 'which' area of the stream buffer.  The seek
+        // operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::in' or if the resulting absolute position is less
+        // than zero or greater than the value returned by 'length'.
 
     virtual pos_type seekpos(
-                            pos_type                offset,
+                            pos_type                position,
                             bsl::ios_base::openmode which = bsl::ios_base::in);
-        // Set the location from which the next input will be read to the
-        // specified 'position', unless the specified 'which' does not include
-        // the flag 'bsl::ios_base::in'.  Return 'position' if 'which' includes
-        // the flag 'bsl::ios_base::in', and
-        // 'char_traits<char>::pos_type(char_traits<char>::off_type(-1))'
-        // otherwise.  If 'which' includes the flag 'bsl::ios_base::in' then
-        // the behavior is undefined unless 0 <= 'position' < length().
+        // Set the position indicator to the specified 'position' and return
+        // the resulting absolute position on success or pos_type(-1) on
+        // failure.  Optionally specify 'which' area of the stream buffer.  The
+        // 'seekpos' operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::in' or if position is less then zero or greater
+        // than the value returned by 'length'.
 
+    virtual FixedMemInStreamBuf *setbuf(char  *buffer, bsl::streamsize length);
     FixedMemInStreamBuf *setbuf(const char *buffer, bsl::streamsize length);
-    FixedMemInStreamBuf *setbuf(char *buffer, bsl::streamsize length);
         // Reinitialize this stream buffer to use the specified character
-        // 'buffer' having the specified 'length'.  Return the address of this
-        // modifiable stream buffer.  Upon reinitialization for use of the new
-        // buffer, neither the content nor the next input location is
-        // preserved.  Note that 'buffer' is held but not owned.
+        // 'buffer' having the specified 'length'.  Return the pointer
+        // providing modifiable access the this stream buffer.  The behavior is
+        // undefined unless 'buffer != 0 && length > 0' or 'length == 0'.  Upon
+        // re-initialization for use of the new buffer, neither the content nor
+        // the next input position indicator are preserved.  Note that 'buffer'
+        // is held but not owned.
 
     virtual bsl::streamsize showmanyc();
-        // Return the number of characters currently available for reading from
-        // this stream buffer, or -1 if there are none.
+        // Return the number of characters currently available for reading
+        // from this stream buffer, or -1 if there are none.
 
     virtual bsl::streamsize xsgetn(char_type       *destination,
-                                   bsl::streamsize  numChars);
-        // Read the specified 'numChars' to the specified 'destination'.
-        // Return the number of characters successfully read.  The behavior is
-        // undefined unless 0 <= 'numChars'.
+                                   bsl::streamsize  length);
+        // Read the specified 'length' number of characters into the specified
+        // 'destination'.  Return the number of characters successfully read.
+        // The behavior is undefined unless '0 <= length'.
 
   public:
     // CREATORS
-    FixedMemInStreamBuf(const char *buffer, bsl::streamsize length);
-        // Create a 'FixedMemInStreamBuf' using the specified 'buffer' of the
-        // specified 'length'.  The behavior is undefined unless '0 < length'.
+    FixedMemInStreamBuf(const char *buffer, bsl::size_t length);
+        // Create a 'FixedMemInStreamBuf' that provides access to the character
+        // sequence in the specified 'buffer' of the specified 'length'.  The
+        // behavior is undefined unless 'buffer != 0 && length > 0' or
+        // 'length == 0'.
 
     ~FixedMemInStreamBuf();
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    FixedMemInStreamBuf *pubsetbuf(char *buffer, bsl::streamsize length);
-    virtual FixedMemInStreamBuf *pubsetbuf(const char      *buffer,
-                                           bsl::streamsize  length);
+    FixedMemInStreamBuf *pubsetbuf(char            *buffer,
+                                   bsl::streamsize  length);
+    FixedMemInStreamBuf *pubsetbuf(const char      *buffer,
+                                   bsl::streamsize  length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
-        // modifiable stream buffer.  Upon reinitialization for use of the new
-        // buffer, neither the content nor the next input location is
-        // preserved.  Note that 'buffer' is held but not owned.
+        // modifiable stream buffer.  The behavior is undefined unless
+        // 'buffer != 0 && length > 0' or 'length == 0'.  Upon reinitialization
+        // for use of the new buffer, neither the content nor the next input
+        // position indicator is preserved.  Note that 'buffer' is held but not
+        // owned.
 
     // ACCESSORS
     const char *data() const;
         // Return the address of the non-modifiable character buffer held by
         // this stream buffer.
 
-    bsl::streamsize length() const;
-        // Return the number of characters available in this stream buffer.
+    bsl::size_t length() const;
+        // Return the number of characters from the current input position to
+        // the end of the stream buffer.  The function returns the same value
+        // as 'seekoff(0, bsl::ios_base::beg)'.  The length is modified by a
+        // call to 'seekpos', 'seekoff' or by reading characters from the
+        // buffer.
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                         // -------------------------
-                         // class FixedMemInStreamBuf
-                         // -------------------------
+                       // -------------------------
+                       // class FixedMemInStreamBuf
+                       // -------------------------
 
 // PROTECTED MANIPULATORS
-// coverity[bad_override]
+inline
+FixedMemInStreamBuf::pos_type
+FixedMemInStreamBuf::seekpos(pos_type                position,
+                             bsl::ios_base::openmode which)
+{
+    return seekoff(static_cast<off_type>(position), bsl::ios_base::beg, which);
+}
+
+
 inline
 FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(char            *buffer,
                                                  bsl::streamsize  length)
@@ -353,16 +271,15 @@ FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(char            *buffer,
     BSLS_ASSERT_SAFE(0 <= length);
 
     // Reset pointers and length.
-    d_buffer_p = buffer;
-    d_length   = (int)length;
-    setg(d_buffer_p, d_buffer_p, d_buffer_p + d_length);
+    d_buffer_p    = buffer;
+    d_bufferSize  = static_cast<bsl::size_t>(length);
+    setg(d_buffer_p, d_buffer_p, d_buffer_p + d_bufferSize);
     return this;
 }
 
 inline
-FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(
-                                                       const char      *buffer,
-                                                       bsl::streamsize  length)
+FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(const char      *buffer,
+                                                 bsl::streamsize  length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -373,7 +290,7 @@ FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(
 inline
 bsl::streamsize FixedMemInStreamBuf::showmanyc()
 {
-    int numChars = (int)(egptr() - gptr());
+    bsl::streamsize numChars = egptr() - gptr();
     if (0 == numChars) {
         return -1;                                                    // RETURN
     }
@@ -382,29 +299,30 @@ bsl::streamsize FixedMemInStreamBuf::showmanyc()
 
 inline
 bsl::streamsize FixedMemInStreamBuf::xsgetn(char_type       *destination,
-                                                  bsl::streamsize  numChars)
+                                            bsl::streamsize  length)
 {
     BSLS_ASSERT_SAFE(destination);
-    BSLS_ASSERT_SAFE(0 <= numChars);
+    BSLS_ASSERT_SAFE(0 <= length);
 
-    bsl::streamsize remainingChars = egptr() - gptr();
-    int canCopy = (int)bsl::min(remainingChars, numChars);
+    bsl::streamsize charsLeft = egptr() - gptr();
+
+    bsl::streamsize canCopy = charsLeft < length ? charsLeft : length;
+
     bsl::memcpy(destination, gptr(), canCopy);
-    gbump(canCopy);
+    gbump(static_cast<int>(canCopy));
     return canCopy;
 }
 
 // CREATORS
 inline
-FixedMemInStreamBuf::FixedMemInStreamBuf(const char      *buffer,
-                                                     bsl::streamsize  length)
+FixedMemInStreamBuf::FixedMemInStreamBuf(const char  *buffer,
+                                         bsl::size_t  length)
 : d_buffer_p(const_cast<char *>(buffer))
-, d_length((int)length)
+, d_bufferSize(length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
 
-    setg(d_buffer_p, d_buffer_p, d_buffer_p + length);
+    setg(d_buffer_p, d_buffer_p, d_buffer_p + d_bufferSize);
 }
 
 inline
@@ -414,9 +332,8 @@ FixedMemInStreamBuf::~FixedMemInStreamBuf()
 
 // MANIPULATORS
 inline
-FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(
-                                                       const char     *buffer,
-                                                       bsl::streamsize length)
+FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(const char     *buffer,
+                                                    bsl::streamsize length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -425,15 +342,13 @@ FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(
 }
 
 inline
-FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(
-                                                      char           *buffer,
-                                                      bsl::streamsize length)
+FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(char           *buffer,
+                                                    bsl::streamsize length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
     BSLS_ASSERT_SAFE(0 <= length);
 
-    return static_cast<FixedMemInStreamBuf *>(
-                             this->bsl::streambuf::pubsetbuf(buffer, length));
+    return setbuf(buffer, length);
 }
 
 // ACCESSORS
@@ -444,12 +359,12 @@ const char *FixedMemInStreamBuf::data() const
 }
 
 inline
-bsl::streamsize FixedMemInStreamBuf::length() const
+bsl::size_t FixedMemInStreamBuf::length() const
 {
     return egptr() - gptr();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
