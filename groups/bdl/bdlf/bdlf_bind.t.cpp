@@ -1175,7 +1175,7 @@ using namespace bdlf::PlaceHolders;
 // allocator guard, which will re-route any default allocation to the
 // 'defaultAllocator':
 //..
-        bslma::TestAllocator defaultAllocator;
+        bslma::TestAllocator defaultAllocator("Default", globalVerbose);
         bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
         const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
@@ -1192,11 +1192,11 @@ using namespace bdlf::PlaceHolders;
 // from the default allocator:
 //..
         ASSERT(NUM_ALLOCS != allocator.numAllocations());
-#ifndef BSLS_PLATFORM_CMP_MSVC
+//#ifndef BSLS_PLATFORM_CMP_MSVC
         // MSVC 2005 does NOT use the RVO, so bindA does a copy construction
         // with the default allocator.
         ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
-#endif
+//#endif
 
 //..
 // We repeat the same calls using 'bindS' below:
@@ -1208,7 +1208,10 @@ using namespace bdlf::PlaceHolders;
 // from the default allocator:
 //..
         ASSERT(NUM_ALLOCS != allocator.numAllocations());
-        ASSERT(2 * NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+//#ifndef BSLS_PLATFORM_CMP_MSVC
+        ASSERTV(NUM_DEFAULT_ALLOCS,   defaultAllocator.numAllocations(),
+                NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
+//#endif
     }
 //..
 
