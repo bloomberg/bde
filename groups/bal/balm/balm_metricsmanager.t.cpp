@@ -1442,7 +1442,7 @@ void ConcurrencyTest::runTest()
 // test whether the metric is enabled before performing the collection
 // operation.
 //..
-        // We don't test 'd_eventsPerSecId.category()->isEnabled())' before
+        // We don't test 'd_eventsPerSecId.category()->enabled())' before
         // incrementing 'd_numEvents' because, in this instance, it will not
         // improve performance.
         ++d_numEvents;
@@ -2397,26 +2397,26 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             const Category *CAT = registry.getCategory(CATEGORIES[i]);
-            ASSERT(CAT->isEnabled());
+            ASSERT(CAT->enabled());
             mX.setCategoryEnabled(CAT, false);
-            ASSERT(!CAT->isEnabled());
+            ASSERT(!CAT->enabled());
             mX.setCategoryEnabled(CAT, true);
-            ASSERT(CAT->isEnabled());
+            ASSERT(CAT->enabled());
 
             mX.setCategoryEnabled(CATEGORIES[i], false);
-            ASSERT(!CAT->isEnabled());
+            ASSERT(!CAT->enabled());
             mX.setCategoryEnabled(CATEGORIES[i], true);
-            ASSERT(CAT->isEnabled());
+            ASSERT(CAT->enabled());
         }
 
         mX.setAllCategoriesEnabled(false);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            ASSERT(!registry.getCategory(CATEGORIES[i])->isEnabled());
+            ASSERT(!registry.getCategory(CATEGORIES[i])->enabled());
         }
 
         mX.setAllCategoriesEnabled(true);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            ASSERT(registry.getCategory(CATEGORIES[i])->isEnabled());
+            ASSERT(registry.getCategory(CATEGORIES[i])->enabled());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
       } break;
@@ -3957,9 +3957,9 @@ int main(int argc, char *argv[])
         int handle1 = mX.registerCollectionCallback(CAT_B, CB_B.function());
         int handle2 = mX.registerCollectionCallback(CAT_C, CB_C.function());
 
-        ASSERT(CAT_A->isEnabled());
-        ASSERT(CAT_B->isEnabled());
-        ASSERT(CAT_C->isEnabled());
+        ASSERT(CAT_A->enabled());
+        ASSERT(CAT_B->enabled());
+        ASSERT(CAT_C->enabled());
 
         mX.publish(CAT_A);
 
@@ -3975,9 +3975,9 @@ int main(int argc, char *argv[])
 
         mX.setCategoryEnabled(CAT_A, false);
 
-        ASSERT(!CAT_A->isEnabled());
-        ASSERT( CAT_B->isEnabled());
-        ASSERT( CAT_C->isEnabled());
+        ASSERT(!CAT_A->enabled());
+        ASSERT( CAT_B->enabled());
+        ASSERT( CAT_C->enabled());
 
         mX.publish(CAT_A);
 
@@ -4005,9 +4005,9 @@ int main(int argc, char *argv[])
 
         mX.setCategoryEnabled(CAT_A, true);
 
-        ASSERT(CAT_A->isEnabled());
-        ASSERT(CAT_B->isEnabled());
-        ASSERT(CAT_C->isEnabled());
+        ASSERT(CAT_A->enabled());
+        ASSERT(CAT_B->enabled());
+        ASSERT(CAT_C->enabled());
 
         bsl::set<const balm::Category *> exclude(Z);
         exclude.insert(CAT_B);

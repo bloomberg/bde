@@ -22,7 +22,7 @@ void Metric_MacroImp::getCollector(Collector      **collector,
                                    const char      *metric)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
-    // that the macros have a valid 'collector' when 'holder->isEnabled()' is
+    // that the macros have a valid 'collector' when 'holder->enabled()' is
     // 'true'.
     MetricsManager *manager = DefaultMetricsManager::instance();
     *collector = manager->collectorRepository().getDefaultCollector(category,
@@ -39,7 +39,7 @@ void Metric_MacroImp::getCollector(
                               PublicationType::Value  preferredPublicationType)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
-    // that the macros have a valid 'collector' when 'holder->isEnabled()' is
+    // that the macros have a valid 'collector' when 'holder->enabled()' is
     // 'true'.
     MetricsManager *manager = DefaultMetricsManager::instance();
     *collector = manager->collectorRepository().getDefaultCollector(category,

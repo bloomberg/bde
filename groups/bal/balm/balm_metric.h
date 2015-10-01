@@ -339,7 +339,7 @@ class Metric {
         // identifier or (2) the associated metric category has been disabled
         // (see the 'MetricsManager' method 'setCategoryEnabled').  Note that
         // invoking this method is equivalent to the expression
-        // '0 != collector() && metricId().category()->isEnabled()'.
+        // '0 != collector() && metricId().category()->enabled()'.
 };
 
 // ============================================================================
@@ -383,7 +383,7 @@ struct Metric_MacroImp {
         // register the specified 'holder' for 'category'.   Note that
         // '*collector' must be assigned *before* registering 'holder' to
         // ensure that the macros always have a valid 'collector' when
-        // 'holder->isEnabled()' is 'true'.
+        // 'holder->enabled()' is 'true'.
 
     static void getCollector(Collector             **collector,
                              CategoryHolder         *holder,
@@ -397,7 +397,7 @@ struct Metric_MacroImp {
         // metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
-        // valid collector' when 'holder->isEnabled()' is 'true'.
+        // valid collector' when 'holder->enabled()' is 'true'.
 };
 
 // ============================================================================
@@ -508,7 +508,7 @@ MetricId Metric::metricId() const
 inline
 bool Metric::isActive() const
 {
-    return d_collector_p && d_collector_p->metricId().category()->isEnabled();
+    return d_collector_p && d_collector_p->metricId().category()->enabled();
 }
 }  // close package namespace
 

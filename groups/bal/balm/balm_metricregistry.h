@@ -364,7 +364,7 @@ class MetricRegistry {
         // in the linked list of category holders maintained by 'category'
         // (prepending 'holder' to the linked list of category holders for
         // 'category').  The supplied 'category' will update the value returned
-        // by 'holder->isEnabled()' when its enabled state changes, and will
+        // by 'holder->enabled()' when its enabled state changes, and will
         // reset 'holder' (i.e., 'holder->reset()') when 'category' is
         // destroyed.  The behavior is undefined unless 'holder' remains valid
         // and *unmodified* (by the client) for the lifetime of this object.

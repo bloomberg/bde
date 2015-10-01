@@ -55,9 +55,9 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //  assert(0 == bsl::strcmp("B", categoryB.name()));
 //  assert(0 == bsl::strcmp("C", categoryC.name()));
 //
-//  assert( categoryA.isEnabled());
-//  assert(!categoryB.isEnabled());
-//  assert( categoryC.isEnabled());
+//  assert( categoryA.enabled());
+//  assert(!categoryB.enabled());
+//  assert( categoryC.enabled());
 //..
 // Finally, we modify the enablement status of one of the categories, and then
 // write all three categories to the console:
@@ -145,10 +145,10 @@ class Category {
 
     void registerCategoryHolder(CategoryHolder *holder);
         // Load into the specified 'holder' the address of this category, its
-        // 'isEnabled()' status, and the address of the next holder in the
+        // 'enabled()' status, and the address of the next holder in the
         // linked list of category holders maintained by this object
         // (prepending 'holder' to this category's linked list of category
-        // holders).  This category will update 'holder->isEnabled()' when its
+        // holders).  This category will update 'holder->enabled()' when its
         // enabled state changes, and will reset 'holder' (i.e.,
         // 'holder->reset()') when this category is destroyed.  The behavior
         // is undefined unless 'holder' remains valid and *unmodified* (by the
@@ -160,7 +160,7 @@ class Category {
         // Return the address of the non-modifiable null-terminated string
         // containing the name of this category.
 
-    bool isEnabled() const;
+    bool enabled() const;
         // Report whether this category is enabled. This function is fully
         // thread-safe.
 
@@ -204,7 +204,7 @@ class CategoryHolder {
   public:
 
     // PUBLIC DATA MEMBERS
-    int             d_enabled;     // whether the category is enabled
+    bool            d_enabled;     // whether the category is enabled
     const Category *d_category_p;  // held category (not owned)
     CategoryHolder *d_next_p;      // next category holder in linked list
 
@@ -236,7 +236,7 @@ class CategoryHolder {
         // Return the address of the non-modifiable category held by this
         // holder.
 
-    bool isEnabled() const;
+    bool enabled() const;
         // Return 'true' if 'category' is valid (i.e., non-null) and enabled,
         // and 'false' otherwise.
 
@@ -277,7 +277,7 @@ const char *Category::name() const
 }
 
 inline
-bool Category::isEnabled() const
+bool Category::enabled() const
 {
     return d_enabled;
 }
@@ -313,7 +313,7 @@ const Category *CategoryHolder::category() const
 }
 
 inline
-bool CategoryHolder::isEnabled() const
+bool CategoryHolder::enabled() const
 {
     return d_enabled;
 }

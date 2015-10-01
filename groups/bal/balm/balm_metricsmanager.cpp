@@ -564,7 +564,7 @@ void MetricsManager_PublicationHelper::publish(
     // records for those categories.
     ConstForwardCategoryIterator catIt;
     for (catIt = categoriesBegin; catIt != categoriesEnd; ++catIt) {
-        if (!(*catIt)->isEnabled()) {
+        if (!(*catIt)->enabled()) {
             continue;
         }
         bsl::shared_ptr<bsl::vector<MetricRecord> > records;
@@ -1021,7 +1021,7 @@ void MetricsManager::collectSample(MetricSample              *sample,
 
     const Category * const *category = categories;
     for ( ; category != categories + numCategories; ++category) {
-        if (!(*category)->isEnabled()) {
+        if (!(*category)->enabled()) {
             continue;
         }
 
