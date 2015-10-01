@@ -361,14 +361,13 @@ int Socks5Session::readMessage(
 {
     using namespace bdlf::PlaceHolders;
     btlmt::AsyncChannel::BlobBasedReadCallback cb =
-                      bdlf::BindUtil::bindA(d_allocator_p,
-                                            &Socks5Session::readMessageCb<MSG>,
-                                            this,
-                                            _1,
-                                            _2,
-                                            _3,
-                                            _4,
-                                            func);
+                       bdlf::BindUtil::bind(&Socks5Session::readMessageCb<MSG>,
+                                             this,
+                                             _1,
+                                             _2,
+                                             _3,
+                                             _4,
+                                             func);
 
     int rc = d_channel_p->read(sizeof(MSG), cb);
     return rc;

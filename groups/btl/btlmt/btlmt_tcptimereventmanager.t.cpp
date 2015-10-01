@@ -97,12 +97,13 @@ using namespace BloombergLP;
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
-static int verbose = 0,
-           veryVerbose = 0,
-           veryVeryVerbose = 0;
+static bool         verbose = false,
+                veryVerbose = false,
+            veryVeryVerbose = false,
+        veryVeryVeryVerbose = false;
 
 bslmt::Mutex         coutMutex;
-bslma::TestAllocator defaultAllocator;
+bslma::TestAllocator defaultAllocator("default");
 
 static void aSsErT(int c, const char *s, int i)
 {
@@ -398,7 +399,8 @@ void *registerThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta("TestAllocator: registerThread",
+                                veryVeryVeryVerbose);
         const btlso::TimerEventManager::Callback callback(
                        bsl::allocator_arg_t(),
                        bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
@@ -420,7 +422,8 @@ void *registerThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
-        bslma::TestAllocator ta;
+        bslma::TestAllocator ta("TestAllocator: registerThread loop",
+                                veryVeryVeryVerbose);
         const btlso::TimerEventManager::Callback callback(
                        bsl::allocator_arg_t(),
                        bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
@@ -483,7 +486,8 @@ void *deregisterThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         LOOP_ASSERT(i, testPairs[i].isValid());
     }
-    bslma::TestAllocator ta;
+    bslma::TestAllocator ta("TestAllocator: deregisterThread",
+                            veryVeryVeryVerbose);
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
         const btlso::TimerEventManager::Callback callback(
@@ -563,7 +567,9 @@ extern "C" void *testTimersThread(void *arg) {
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     void *timerIds[NUM_TIMERS];
 
-    bslma::TestAllocator scratchAllocator;
+    ASSERT(0 == defaultAllocator.numBytesInUse());
+
+    bslma::TestAllocator scratchAllocator("scratch", veryVeryVeryVerbose);
     for (int i = 0; i < NUM_TIMERS; ++i) {
         int offset = i % 2 ? i : -i;
         offset *= 10 * 1000 * 1000;  // make it milliseconds, at most +/- 100ms
@@ -573,10 +579,14 @@ extern "C" void *testTimersThread(void *arg) {
         bsls::TimeInterval expDelta = i % 2 ? delta : bsls::TimeInterval(0);
         expDelta += bsls::TimeInterval(0.25);
         bsl::function<void()> functor(
-                bsl::allocator_arg_t(),
-                bsl::allocator<bsl::function<void()> >(&scratchAllocator),
-                bdlf::BindUtil::bind(&timerCallback, &flags[i],
-                                    &timeValues[i], expDelta, -i, true));
+                     bsl::allocator_arg_t(),
+                     bsl::allocator<bsl::function<void()> >(&scratchAllocator),
+                     bdlf::BindUtil::bind(&timerCallback,
+                                          &flags[i],
+                                          &timeValues[i],
+                                           expDelta,
+                                           -i,
+                                           true));
 
         timerIds[i] = mX->registerTimer(timeValues[i], functor);
     }
@@ -759,15 +769,16 @@ void writeData(WriteDataType *writeDataArgs)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test
          << " STARTED " << bdlt::CurrentTime::utc() << endl;;
 
-    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator("testAllocator", veryVeryVeryVerbose);
 
     testAllocator_p = &testAllocator;
     int rc = btlso::SocketImpUtil::startup();
@@ -811,8 +822,8 @@ int main(int argc, char *argv[])
             INITIAL_TIME_OFFSET = 10  // milliseconds
         };
 
-        bdlcc::Queue<int> workQueue(&testAllocator);;
-        btlmt::TcpTimerEventManager manager(&testAllocator);;
+        bdlcc::Queue<int> workQueue(&testAllocator);
+        btlmt::TcpTimerEventManager manager(&testAllocator);
 
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         now.addMilliseconds(INITIAL_TIME_OFFSET);
@@ -1176,7 +1187,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(soFar, soFar < DELTA);
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Default for case 13",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 const int rc = mX.rescheduleTimer(
@@ -1801,7 +1813,8 @@ int main(int argc, char *argv[])
                          << " timers." << endl;
                 }
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Default for case 5",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 for (int i = 0; i < NUM_ATTEMPTS; ++i) {
@@ -2015,7 +2028,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Test case 2, da: 1",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
@@ -2032,7 +2046,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Test case 2, da: 2",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.disable());
@@ -2049,7 +2064,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 ==  mX.isEnabled());
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Test case 2, da: 3",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
@@ -2068,7 +2084,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Test case 2, da: 4",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());
@@ -2088,7 +2105,8 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);
                 LOOP_ASSERT(i, 0 == mX.isEnabled());
 
-                bslma::TestAllocator da;
+                bslma::TestAllocator da("Test case 2, da: 5",
+                                        veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 LOOP_ASSERT(i, 0 == mX.enable());

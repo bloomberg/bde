@@ -1083,11 +1083,9 @@ int TcpTimerEventManager::reinitializeControlChannel()
     bslmt::ThreadAttributes   attributes;
     attributes.setDetachedState(bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
-    bsl::function<void()> initiateReadFunctor =
-        bsl::function<void()>(bdlf::BindUtil::bindA(
-                             d_allocator_p,
+    bsl::function<void()> initiateReadFunctor(bdlf::BindUtil::bind(
                              &TcpTimerEventManager::initiateControlChannelRead,
-                             this));
+                              this));
 
     rc = bslmt::ThreadUtil::create(&handle, attributes, initiateReadFunctor);
     BSLS_ASSERT_OPT(0 == rc);
