@@ -10,9 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a basic output stream buffer using a client buffer.
 //
 //@CLASSES:
-// bdlsb::FixedMemOutput: basic output stream buffer using client memory
-//
-//@AUTHOR: Herve Bronnimann (hbronnimann)
+//  bdlsb::FixedMemOutput: basic output stream buffer using client memory
 //
 //@SEE_ALSO: bdlsb_fixedmemoutstreambuf
 //
@@ -25,16 +23,47 @@ BSLS_IDENT("$Id: $")
 // 'bdlsb_fixedmemoutstreambuf' is that the class 'bdlsb::FixedMemOutput' does
 // *not* derive from a 'bsl::streambuf' and does not support locales.  This is
 // advantageous for performance reasons, as the overhead of the initialization
-// and virtual function calls of a 'bsl::streambuf' can be undesirable.  It is
-// especially designed for streaming a very small amount of information into a
-// fixed-length buffer using a 'bslx::GenericOutStream' when the output is
-// guaranteed not to exceed the length of the buffer.
+// and virtual function calls of a 'bsl::streambuf' can be undesirable.  The
+// 'bdlsb::FixedMemOutput' is designed to be used by generic template code that
+// must be instantiated on a type that matches the interface of
+// 'bsl::streambuf', but does not require an actual 'bsl::streambuf', in
+// particular 'bslx_genericoutstream'.
 //
 ///Usage
 ///-----
-// See the 'bdlsb_fixedmemoutstreambuf' component for an identical usage
-// example, where every occurrence of 'bdlsb::FixedMemOutStreamBuf' can be
-// substituted for 'bdlsb::FixedMemOutput'.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlsb::FixedMemOutput'
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates instantiating a template, bslx::GenericOutStream',
+// on a 'bdlsb::FixedMemOutput' object and using the 'bslx::GenericOutStream'
+// object to stream out some data.
+//
+// First, we create an object of our stream buffer:
+//..
+//  enum { k_STREAMBUF_CAPACITY = 30 };
+//
+//  char                  buffer[k_STREAMBUF_CAPACITY];
+//  bdlsb::FixedMemOutput streamBuf(buffer, k_STREAMBUF_CAPACITY);
+//..
+// Then, we create an instance of 'bslx::GenericOutStream' using 'streamBuf',
+// with an arbitrary value for its 'versionSelector', and externalize some
+// values:
+//..
+//  bslx::GenericOutStream<bdlsb::FixedMemOutput> outStream(&streamBuf,
+//                                                          20150707);
+//  outStream.putInt32(1);
+//  outStream.putInt32(2);
+//  outStream.putInt8('c');
+//  outStream.putString(bsl::string("hello"));
+//..
+// Finally, we compare the contents of the buffer to the expected value:
+//..
+//  assert(15 == streamBuf.length());
+//  assert( 0 == bsl::memcmp(streamBuf.data(),
+//                           "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
+//                           15));
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -88,12 +117,12 @@ namespace bdlsb {
                               // ==============
 
 class FixedMemOutput {
-    // This class, like 'FixedMemOutStreamBuf', implements the output
+    // This class, like 'bdlsb::FixedMemOutStreamBuf', implements the output
     // functionality of the 'basic_streambuf' interface, using client-supplied
     // 'char *' memory.  It has an identical interface to
-    // 'FixedMemOutStreamBuf' but does *not* inherit from 'bsl::streambuf'.
-    // Thus, it is suitable for use as template parameter to
-    // 'bdlx::GenericOutStream' (but not to 'bslx::StreamBufOutStream').  Note
+    // 'bdlsb::FixedMemOutStreamBuf' but does *not* inherit from
+    // 'bsl::streambuf'.  Thus, it is suitable for use as template parameter to
+    // 'bslx::GenericOutStream' (but not to 'bslx::StreambufOutStream').  Note
     // that this class is not designed to be derived from.
 
   public:
@@ -108,22 +137,10 @@ class FixedMemOutput {
     // PRIVATE TYPE
     typedef bsls::Types::IntPtr              IntPtr;
 
-    // PRIVATE CLASS METHODS
-    static int_type eof() { return traits_type::eof(); }
-
     // PRIVATE DATA MEMBERS
     char            *d_buffer_p;  // output buffer
     bsl::streamsize  d_capacity;  // length of output buffer
     pos_type         d_pos;       // output cursor
-
-    // PRIVATE MANIPULATORS
-
-    // NOTE: MSVC 13.10.3077 breaks if 'traits_type' is used in the default arg
-    int_type overflow(int_type c = bsl::char_traits<char>::eof());
-        // Return 'c' to indicate success, except when
-        // 'traits::eq_int_type(c,traits::eof())' returns true, in which case
-        // return 'traits::not_eof(c)'.  (From note 278, p.  634 of the C++
-        // standard ISO/IEC 14882:2003(E).)
 
     // NOT IMPLEMENTED
     FixedMemOutput(const FixedMemOutput&);
@@ -134,8 +151,8 @@ class FixedMemOutput {
     FixedMemOutput(char *buffer, bsl::streamsize length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
-        // unless 'buffer' is not zero and '0 < length'.  Note that 'buffer' is
-        // held but not owned.
+        // unless 'length == 0' or 'length > 0 && buffer != 0'.
+        // Note that 'buffer' is held but not owned.
 
     //! ~FixedMemOutput();
         // Destroy this stream buffer.  Note that this method's definition is
@@ -143,34 +160,50 @@ class FixedMemOutput {
 
     // MANIPULATORS
     char *data();
-        // Return the address of the modifiable character buffer held by this
-        // stream buffer.
+        // Return a pointer providing modifiable access to the character buffer
+        // held by this stream buffer (supplied at construction).
 
                              // *** 27.5.2.2.1 locales: ***
 
     bsl::locale pubimbue(const bsl::locale& loc);
+        // Associate the specified locale 'loc' to this stream buffer.
+        // Operation has no effect, because locales are not supported by this
+        // component.  Return default constructed bsl::locale object.
 
                              // *** 27.5.2.2.2 buffer and positioning: ***
 
-    FixedMemOutput *pubsetbuf(char *buffer, bsl::streamsize length);
+    FixedMemOutput *pubsetbuf(char            *buffer,
+                              bsl::streamsize  length);
         // Reset the internal buffer of this stream to the specified 'buffer'
         // of the specified 'length'.  Note that the next write operation will
         // start at the beginning of 'buffer'.
 
-    pos_type pubseekoff(
-       off_type                offset,
-       bsl::ios_base::seekdir  fixedPosition,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
-        // Move the current write cursor position by the specified 'offset'.
+    pos_type pubseekoff(off_type                offset,
+                        bsl::ios_base::seekdir  fixedPosition,
+                        bsl::ios_base::openmode which =
+                            bsl::ios_base::in | bsl::ios_base::out);
+        // Set the position indicator to the relative specified 'offset' from
+        // the base position indicated by the specified 'fixedPosition' and
+        // return the resulting absolute position on success or pos_type(-1)
+        // on failure.  Optionally specify 'which' area of the stream buffer.
+        // The seek operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if the resulting absolute position is less
+        // than zero or greater than the value returned by 'length'.
 
-    pos_type pubseekpos(
-       pos_type                position,
-       bsl::ios_base::openmode which = bsl::ios_base::in | bsl::ios_base::out);
-        // Move the current write cursor position to the specified 'position'.
+    pos_type pubseekpos(pos_type                position,
+                        bsl::ios_base::openmode which =
+                            bsl::ios_base::in | bsl::ios_base::out);
+        // Set the position indicator to the specified 'position' and return
+        // the resulting absolute position on success or pos_type(-1) on
+        // failure.  Optionally specify 'which' area of the stream buffer.  The
+        // 'seekpos' operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if position is less then zero or greater
+        // than the value returned by 'length'.
 
     int pubsync();
-        // No-ops.  Note that locales are not supported by this component and
-        // also that the stream is always kept in sync (no buffered output).
+        // Synchronizes the controlled character sequence (the buffers) with
+        // the associated character sequence.  Operation has no effect, because
+        // the stream is always kept in sync (no buffered output).  Return 0.
 
                              // *** 27.5.2.2.5 Put area: ***
 
@@ -190,32 +223,19 @@ class FixedMemOutput {
         // Return the size in bytes of the buffer held by this stream buffer.
 
     const char *data() const;
-        // Return the address of the non-modifiable character buffer held by
-        // this stream buffer.
+        // Return a pointer providing non-modifiable access to the character
+        // buffer held by this stream buffer (supplied at construction).
 
     bsl::streamsize length() const;
         // Return the number of characters from the beginning of the buffer to
-        // the current write position.  This function returns the same value as
-        // 'seekoff(0, bsl::ios_base::end)'.  The length is modified by a call
-        // to 'seekpos' or 'seekoff' and reset to zero by a call to
-        // 'pubsetbuf'.
+        // the current write position.
 
                              // *** 27.5.2.2.1 locales: ***
 
     bsl::locale getloc() const;
-        // Return the current default locale.  Note that locales are not
-        // supported by this component.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    bsl::streamsize bufSize() const;
-        // Return the number of characters in the buffer held by this stream
-        // buffer.  See 'length', below, for the span of bytes actually
-        // written.
-        //
-        // DEPRECATED: Use the 'capacity' method instead.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+        // Return the current default locale.  Operation has no effect, because
+        // locales are not supported by this component.  Return default
+        // constructed bsl::locale object.
 
 };
 
@@ -223,23 +243,14 @@ class FixedMemOutput {
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                              // ==============
+                              // --------------
                               // FixedMemOutput
-                              // ==============
-
-// PRIVATE MANIPULATORS
-inline
-FixedMemOutput::int_type FixedMemOutput::overflow(int_type c)
-{
-    return traits_type::eq_int_type(c,traits_type::eof())
-           ? traits_type::not_eof(c)
-           : c;
-}
+                              // --------------
 
 // CREATORS
 inline
 FixedMemOutput::FixedMemOutput(char            *buffer,
-                                           bsl::streamsize  length)
+                               bsl::streamsize  length)
 : d_buffer_p(buffer)
 , d_capacity(length)
 , d_pos(0)
@@ -256,8 +267,14 @@ char *FixedMemOutput::data()
 }
 
 inline
+bsl::locale FixedMemOutput::pubimbue(const bsl::locale&)
+{
+    return bsl::locale();
+}
+
+inline
 FixedMemOutput *FixedMemOutput::pubsetbuf(char            *buffer,
-                                                      bsl::streamsize  length)
+                                          bsl::streamsize  length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -270,16 +287,9 @@ FixedMemOutput *FixedMemOutput::pubsetbuf(char            *buffer,
 }
 
 inline
-bsl::locale FixedMemOutput::pubimbue(const bsl::locale&)
-{
-    return bsl::locale();
-}
-
-inline
 int FixedMemOutput::pubsync()
 {
     // Nothing to do, the buffer is always up to date.
-
     return 0;
 }
 
@@ -296,7 +306,7 @@ FixedMemOutput::int_type FixedMemOutput::sputc(char c)
 
 inline
 bsl::streamsize FixedMemOutput::sputn(const char      *s,
-                                            bsl::streamsize  length)
+                                      bsl::streamsize  length)
 {
     BSLS_ASSERT_SAFE(s);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -335,21 +345,8 @@ bsl::streamsize FixedMemOutput::length() const
 {
     return bsl::streamsize(d_pos);
 }
+
 }  // close package namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-namespace bdlsb {
-
-inline
-bsl::streamsize FixedMemOutput::bufSize() const
-{
-    return d_capacity;
-}
-}  // close package namespace
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 }  // close enterprise namespace
 
 #endif
