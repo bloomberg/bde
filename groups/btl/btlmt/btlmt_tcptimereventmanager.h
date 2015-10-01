@@ -396,7 +396,7 @@ class TcpTimerEventManager : public btlso::TimerEventManager {
                                                       // state changes via
                                                       // 'enable' and 'disable'
 
-    bsl::function<void()>     d_dispatchThreadEntryPoint;
+    bsl::function<void()>          d_dispatchThreadEntryPoint;
                                                       // functor containing the
                                                       // dispatch thread's
                                                       // entry point

@@ -424,8 +424,8 @@ static void bufferedReadCallback(const char                  *buf,
     // completes, fails or needs to issue other requests.
 {
     ASSERT(buffer);
-    ASSERT(expStatus == status);
-    ASSERT(augStatus == expAugStatus);
+    LOOP2_ASSERT(expStatus, status, expStatus == status);
+    LOOP2_ASSERT(augStatus, expAugStatus, augStatus == expAugStatus);
     if (veryVerbose) {
         Q("BUFFERED READ CALLBACK");
         P_(status); P(expStatus);
@@ -8672,14 +8672,6 @@ int main(int argc, char *argv[])
  {L_, "dr0",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
- { // Issue 2 requests, then dispatch: test if a request can be done right away
-   // when there is enough data in the channel's read buffer.
- {L_, "rbrt2,(20,100),0,0,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
- {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
- {L_, "rbrt5,(20,100),0,0,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
- {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
-  {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
- },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
  {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rbrt4,(50,100),0,4,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
@@ -9240,14 +9232,6 @@ int main(int argc, char *argv[])
  { L_,  "dr0",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
   { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
  },
- { // Issue 2 requests, then dispatch: test if a request can be dispatched only
-   // due to timeout, without retrieving any data.
- { L_,  "rbt2,(200,10),0,0,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
- { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
- { L_,  "rbt5,(200,10),0,0,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
- { L_,  "dr1",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
-  { L_,   0,                      0,   0,    0,   0,    0,  e_NVEC, ""        }
- },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
  { L_,  "W11",                   0,   0,    0,   0,    0,  e_NVEC, ""        },
  { L_,  "rbt4,(50,100),0,4,0",   1,   2,    0,   2,    1,  e_NVEC, ""        },
@@ -9371,22 +9355,33 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, 0 == ret);
                     }
                     LOOP_ASSERT(LINE, 0 <= length);
-                    LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead ==
+                    LOOP3_ASSERT(LINE, SCRIPTS[i][j].d_numPendingRead,
+                                 channel.numPendingReadOperations(),
+                                 SCRIPTS[i][j].d_numPendingRead ==
                                           channel.numPendingReadOperations());
 
                     LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numPendingWrite ==
                                           channel.numPendingWriteOperations());
 
                     if (channel.readEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numReadEvent ==
+                        LOOP3_ASSERT(LINE,
+                                     SCRIPTS[i][j].d_numReadEvent,
+                                     channel.readEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numReadEvent ==
                                      channel.readEventManager()->numEvents());
                         LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numTimers ==
                                      channel.readEventManager()->numTimers());
                     }
                     if (channel.writeEventManager()) {
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numWriteEvent ==
+                        LOOP3_ASSERT(LINE,
+                                     SCRIPTS[i][j].d_numWriteEvent,
+                                     channel.writeEventManager()->numEvents(),
+                                     SCRIPTS[i][j].d_numWriteEvent ==
                                      channel.writeEventManager()->numEvents());
-                        LOOP_ASSERT(LINE, SCRIPTS[i][j].d_numTimers ==
+                        LOOP3_ASSERT(LINE,
+                                     SCRIPTS[i][j].d_numTimers,
+                                     channel.writeEventManager()->numTimers(),
+                                     SCRIPTS[i][j].d_numTimers ==
                                      channel.writeEventManager()->numTimers());
                     }
                     if (veryVerbose) {

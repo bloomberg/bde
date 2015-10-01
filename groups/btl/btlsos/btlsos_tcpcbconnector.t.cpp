@@ -1141,34 +1141,34 @@ int main(int argc, char *argv[])
                 //..
 
                 TestCommand commands[][k_MAX_COMMANDS] =
-                #ifdef BSLS_PLATFORM_OS_SOLARIS
-                  // On Solaris, non-blocking connects to the loopback succeed
-                  // right away so we do not need a dispatch call.  This is
-                  // absolutely not guaranteed by POSIX though.
-                    //A     B    C   D   E   F   G   H   I   J   K     L
-                    //-     -    -   -   -   -   -   -   -   -   -     -
-                {
-                  { // There's no channel established before calling
-                    // invalidate().
-                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0,   e_VALID },
-                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                  },
-                  { // There's one channel established before calling
-                    // invalidate().
-                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  1,  0,   e_VALID },
-                   { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
-                   { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
-                   { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
-                   { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
-                   { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
-                   { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
-                  },
-                };
-                #else
+//                 #ifdef BSLS_PLATFORM_OS_SOLARIS
+//                   // On Solaris, non-blocking connects to the loopback succeed
+//                   // right away so we do not need a dispatch call.  This is
+//                   // absolutely not guaranteed by POSIX though.
+//                     //A     B    C   D   E   F   G   H   I   J   K     L
+//                     //-     -    -   -   -   -   -   -   -   -   -     -
+//                 {
+//                   { // There's no channel established before calling
+//                     // invalidate().
+//                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  0,  0,   e_VALID },
+//                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                   },
+//                   { // There's one channel established before calling
+//                     // invalidate().
+//                    { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  1,  0,   e_VALID },
+//                    { L_,  'I',  0,  0,  0,  0,  0,  0,  0,  1,  0,   e_VALID },
+//                    { L_,  'R',  1,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+//                    { L_,  'R',  1,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+//                    { L_,  'R',  0,  1,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+//                    { L_,  'R',  0,  0,  0,  0,  0,  0,  0,  1,  0, e_INVALID },
+//                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
+//                   },
+//                 };
+//                 #else
                 {
                     // Because there are many items listed in the table for
                     // each test command, the following document specify which
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
                    { L_,   0,   0,  0,  0,  0,  0,  0,  0,  0,  0, e_INVALID },
                   },
                 };
-                #endif
+//                 #endif
 
                 const int NUM_COMMANDS_SET = sizeof commands
                                            / sizeof *commands;
@@ -1326,18 +1326,18 @@ int main(int argc, char *argv[])
                 //..
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM_OS_SOLARIS
-                  // On Solaris, non-blocking connects to the loopback succeed
-                  // right away so we do not need a dispatch call.  This is
-                  // absolutely not guaranteed by POSIX though.
-                  //
-                  //A     B    C   D   E   F   G   H   I   J   K   L
-                  //-     -    -   -   -   -   -   -   -   -   -   -
-                {
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  1,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  2,  0, e_VALID },
-                };
-                #else // windows platform
+//                 #ifdef BSLS_PLATFORM_OS_SOLARIS
+//                   // On Solaris, non-blocking connects to the loopback succeed
+//                   // right away so we do not need a dispatch call.  This is
+//                   // absolutely not guaranteed by POSIX though.
+//                   //
+//                   //A     B    C   D   E   F   G   H   I   J   K   L
+//                   //-     -    -   -   -   -   -   -   -   -   -   -
+//                 {
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+//                 };
+//                 #else // windows platform
                 {
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
@@ -1400,7 +1400,7 @@ int main(int argc, char *argv[])
                   { L_,  'D',  0,  0,  0,  0,   0,  0,  0,  5,  0, e_VALID },
 
                 };
-                #endif
+//                 #endif
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
@@ -1490,25 +1490,25 @@ int main(int argc, char *argv[])
                 //..
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM_OS_SOLARIS
-                  // On Solaris, non-blocking connects to the loopback succeed
-                  // right away so we do not need a dispatch call.  This is
-                  // absolutely not guaranteed by POSIX though.
-                  //
-                  //A    B    C   D   E   F   G   H   I   J   K    L
-                  //-    -    -   -   -   -   -   -   -   -   -    -
-                {
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
+//                 #ifdef BSLS_PLATFORM_OS_SOLARIS
+//                   // On Solaris, non-blocking connects to the loopback succeed
+//                   // right away so we do not need a dispatch call.  This is
+//                   // absolutely not guaranteed by POSIX though.
+//                   //
+//                   //A    B    C   D   E   F   G   H   I   J   K    L
+//                   //-    -    -   -   -   -   -   -   -   -   -    -
+//                 {
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
-                };
-                #else
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
+//                 };
+//                 #else
                 {
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
@@ -1566,7 +1566,7 @@ int main(int argc, char *argv[])
                   { L_,  'D',  1,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
                   { L_,  'D',  1,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
-                #endif
+//                 #endif
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
@@ -1655,26 +1655,26 @@ int main(int argc, char *argv[])
                 //..
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM_OS_SOLARIS
-                  // On Solaris, non-blocking connects to the loopback succeed
-                  // right away so we do not need a dispatch call.  This is
-                  // absolutely not guaranteed by POSIX though.
-                  //
-                  //A     B    C   D   E   F   G   H   I   J   K    L
-                  //-     -    -   -   -   -   -   -   -   -   -    -
-                {
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
+//                 #ifdef BSLS_PLATFORM_OS_SOLARIS
+//                   // On Solaris, non-blocking connects to the loopback succeed
+//                   // right away so we do not need a dispatch call.  This is
+//                   // absolutely not guaranteed by POSIX though.
+//                   //
+//                   //A     B    C   D   E   F   G   H   I   J   K    L
+//                   //-     -    -   -   -   -   -   -   -   -   -    -
+//                 {
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
 
-                };
-                #else
+//                 };
+//                 #else
                 {
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
@@ -1731,7 +1731,7 @@ int main(int argc, char *argv[])
                   { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
                   { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
-                #endif
+//                 #endif
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
@@ -1823,24 +1823,24 @@ int main(int argc, char *argv[])
                 //..
 
                 TestCommand commands[] =
-                #ifdef BSLS_PLATFORM_OS_SOLARIS
-                  // On Solaris, non-blocking connects to the loopback succeed
-                  // right away so we do not need a dispatch call.  This is
-                  // absolutely not guaranteed by POSIX though.
-                  //A     B    C   D   E   F   G   H   I   J   K    L
-                  //-     -    -   -   -   -   -   -   -   -   -    -
-                {
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
-                  { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
-                  { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
+//                 #ifdef BSLS_PLATFORM_OS_SOLARIS
+//                   // On Solaris, non-blocking connects to the loopback succeed
+//                   // right away so we do not need a dispatch call.  This is
+//                   // absolutely not guaranteed by POSIX though.
+//                   //A     B    C   D   E   F   G   H   I   J   K    L
+//                   //-     -    -   -   -   -   -   -   -   -   -    -
+//                 {
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  1,  0, e_VALID },
+//                   { L_,  'R',  0,  0,  0,  1,  0,  0,  0,  2,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  3,  0, e_VALID },
+//                   { L_,  'R',  0,  1,  0,  1,  0,  0,  0,  4,  0, e_VALID },
 
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
-                  { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
-                  { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
-                };
-                #else
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  5,  0, e_VALID },
+//                   { L_,  'R',  1,  0,  0,  1,  0,  0,  0,  6,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  7,  0, e_VALID },
+//                   { L_,  'R',  1,  1,  0,  1,  0,  0,  0,  8,  0, e_VALID },
+//                 };
+//                 #else
                 {
                   // Because there are many items listed in the table for each
                   // test command, the following document specify which column
@@ -1897,7 +1897,7 @@ int main(int argc, char *argv[])
                   { L_,  'D',  0,  0,  0,  1,  0,  1,  0, 11,  0, e_VALID },
                   { L_,  'D',  0,  0,  0,  1,  0,  0,  0, 12,  0, e_VALID },
                 };
-                #endif
+//             #endif
 
                 const int NUM_COMMANDS = sizeof commands / sizeof *commands;
 
@@ -1926,12 +1926,16 @@ int main(int argc, char *argv[])
                                                             &numConnections,
                                                             &manager,
                                                             &commands[i], 0));
-                    LOOP_ASSERT(i, commands[i].d_expNumEvents ==
+                    LOOP3_ASSERT(i, commands[i].d_expNumEvents,
+                                 manager.numEvents(),
+                                 commands[i].d_expNumEvents ==
                                                  manager.numEvents());
                     LOOP_ASSERT(i, commands[i].d_expNumTimers ==
                                                  manager.numTimers());
 
-                    LOOP_ASSERT(i, commands[i].d_expNumChannels ==
+                    LOOP3_ASSERT(i, commands[i].d_expNumChannels,
+                                connector.numChannels(),
+                                commands[i].d_expNumChannels ==
                                                  connector.numChannels());
                     if (veryVerbose) {
                         P_T(i);

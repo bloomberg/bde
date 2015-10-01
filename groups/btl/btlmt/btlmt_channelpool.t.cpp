@@ -9969,7 +9969,7 @@ void TestDriver::testCase27()
             bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
         }
 
-        bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(2));
 
         const string& DATA = server.data();
 
