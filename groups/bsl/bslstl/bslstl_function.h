@@ -9160,6 +9160,7 @@ bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
                         // -----------------------
 
 template <class ALLOC>
+inline
 void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
 {
     d_funcManager_p = other.d_funcManager_p;
@@ -9181,6 +9182,7 @@ void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
 }
 
 template <class FUNC, bool IS_INPLACE>
+inline
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
@@ -9270,6 +9272,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 }
 
 template <class ALLOC>
+inline
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
                                      Function_Rep  *rep,
@@ -9393,6 +9396,7 @@ void *bsl::Function_Rep::initRep(std::size_t                 sooFuncSize,
 }
 
 template <class ALLOC>
+inline
 void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                                  const ALLOC& alloc,
                                  integral_constant<AllocCategory,
@@ -9492,6 +9496,7 @@ bool bsl::Function_Rep::equalAlloc(const bsl::allocator<TP>& alloc,
 }
 
 template <class ALLOC>
+inline
 bool bsl::Function_Rep::equalAlloc(const ALLOC&,
               integral_constant<AllocCategory,e_ERASED_STATELESS_ALLOC>)  const
 {
@@ -9507,6 +9512,7 @@ bool bsl::Function_Rep::equalAlloc(const ALLOC&,
 }
 
 template <class ALLOC>
+inline
 bool bsl::Function_Rep::equalAlloc(const ALLOC& alloc,
                integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>) const
 {
@@ -9529,6 +9535,7 @@ bool bsl::Function_Rep::equalAlloc(const ALLOC& alloc,
 }
 
 template <class ALLOC, bsl::Function_Rep::AllocCategory ATP>
+inline
 void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
                                 const ALLOC&                          alloc,
                                 integral_constant<AllocCategory, ATP> atp)
@@ -9559,6 +9566,7 @@ bsl::Function_Rep::Function_Rep()
 }
 
 template<class TP>
+inline
 TP* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
 {
     if ((! d_funcManager_p) || target_type() != typeid(TP)) {
@@ -9596,6 +9604,7 @@ BloombergLP::bslma::Allocator *bsl::Function_Rep::allocator() const
 // PRIVATE STATIC MEMBER FUNCTIONS
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -9612,6 +9621,7 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -9629,6 +9639,7 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -9641,6 +9652,7 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
@@ -9673,6 +9685,7 @@ bsl::function<RET(ARGS...)>::invoker() const
 
 // CREATORS
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -9683,6 +9696,7 @@ bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -9702,6 +9716,7 @@ bsl::function<RET(ARGS...)>::function(const function& other)
 
 template <class RET, class... ARGS>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     using namespace BloombergLP;
@@ -9721,6 +9736,7 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
     setInvoker(NULL);
@@ -9731,6 +9747,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
@@ -9752,6 +9769,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 
 template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       FUNC         func)
@@ -9778,6 +9796,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
     moveInit(other);
@@ -9785,6 +9804,7 @@ bsl::function<RET(ARGS...)>::function(function&& other)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       function&&   other)
@@ -9821,6 +9841,7 @@ bsl::function<RET(ARGS...)>::~function()
 
 // MANIPULATORS
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
@@ -9841,6 +9862,7 @@ bsl::function<RET(ARGS...)>::operator=(function& rhs)
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 {
@@ -9859,6 +9881,7 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 
 template <class RET, class... ARGS>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 {
@@ -9903,6 +9926,7 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 {
@@ -9918,6 +9942,7 @@ bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 //     BSLS_NOTHROW_SPEC
 
 template <class RET, class... ARGS>
+inline
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -9996,6 +10021,7 @@ void bsl::swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 
 template <class RET>
 template <class FUNC>
+inline
 RET bsl::function<RET()>::functionPtrInvoker(const Function_Rep *rep)
 {
     FUNC f = reinterpret_cast<FUNC>(rep->d_objbuf.d_func_p);
@@ -10005,6 +10031,7 @@ RET bsl::function<RET()>::functionPtrInvoker(const Function_Rep *rep)
 
 template <class RET, class ARGS_01>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01)>::functionPtrInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
@@ -10017,6 +10044,7 @@ RET bsl::function<RET(ARGS_01)>::functionPtrInvoker(const Function_Rep *rep,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02)>::functionPtrInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -10034,6 +10062,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03)>::functionPtrInvoker(const Function_Rep *rep,
@@ -10056,6 +10085,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10083,6 +10113,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10115,6 +10146,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10152,6 +10184,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10194,6 +10227,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10241,6 +10275,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10293,6 +10328,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10350,6 +10386,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10412,6 +10449,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10479,6 +10517,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10551,6 +10590,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10615,6 +10655,7 @@ RET bsl::function<RET(ARGS_01,
 
 template <class RET>
 template <class FUNC>
+inline
 RET bsl::function<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
 {
     using namespace BloombergLP;
@@ -10628,6 +10669,7 @@ RET bsl::function<RET()>::memFuncPtrInvoker(const Function_Rep *rep)
 
 template <class RET, class ARGS_01>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
@@ -10643,6 +10685,7 @@ RET bsl::function<RET(ARGS_01)>::memFuncPtrInvoker(const Function_Rep *rep,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02)>::memFuncPtrInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -10663,6 +10706,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03)>::memFuncPtrInvoker(const Function_Rep *rep,
@@ -10688,6 +10732,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10718,6 +10763,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10753,6 +10799,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10793,6 +10840,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10838,6 +10886,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10888,6 +10937,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -10943,6 +10993,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11003,6 +11054,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11068,6 +11120,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11138,6 +11191,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11213,6 +11267,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11280,6 +11335,7 @@ RET bsl::function<RET(ARGS_01,
 
 template <class RET>
 template <class FUNC>
+inline
 RET bsl::function<RET()>::inplaceFunctorInvoker(const Function_Rep *rep)
 {
     FUNC& f = reinterpret_cast<FUNC&>(rep->d_objbuf);
@@ -11289,6 +11345,7 @@ RET bsl::function<RET()>::inplaceFunctorInvoker(const Function_Rep *rep)
 
 template <class RET, class ARGS_01>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01)>::inplaceFunctorInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
 {
@@ -11300,6 +11357,7 @@ RET bsl::function<RET(ARGS_01)>::inplaceFunctorInvoker(const Function_Rep *rep,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02)>::inplaceFunctorInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01,
@@ -11315,6 +11373,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03)>::inplaceFunctorInvoker(const Function_Rep *rep,
@@ -11334,6 +11393,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11357,6 +11417,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11384,6 +11445,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11415,6 +11477,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11450,6 +11513,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11489,6 +11553,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11532,6 +11597,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11579,6 +11645,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11630,6 +11697,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11685,6 +11753,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11744,6 +11813,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -11794,6 +11864,7 @@ RET bsl::function<RET(ARGS_01,
 
 template <class RET>
 template <class FUNC>
+inline
 RET
 bsl::function<RET()>::outofplaceFunctorInvoker(const Function_Rep *rep)
 {
@@ -11803,6 +11874,7 @@ bsl::function<RET()>::outofplaceFunctorInvoker(const Function_Rep *rep)
 
 template <class RET, class ARGS_01>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01)>::outofplaceFunctorInvoker(const Function_Rep *rep,
             typename BloombergLP::bslmf::ForwardingType<ARGS_01>::Type args_01)
@@ -11814,6 +11886,7 @@ bsl::function<RET(ARGS_01)>::outofplaceFunctorInvoker(const Function_Rep *rep,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::outofplaceFunctorInvoker(const Function_Rep *rep,
@@ -11829,6 +11902,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -11848,6 +11922,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -11871,6 +11946,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -11898,6 +11974,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -11929,6 +12006,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -11964,6 +12042,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12003,6 +12082,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12046,6 +12126,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12093,6 +12174,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12144,6 +12226,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12199,6 +12282,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -12258,6 +12342,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS_01,
                   ARGS_02,
@@ -13049,6 +13134,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 bsl::function<RET()>::function() BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -13059,6 +13145,7 @@ bsl::function<RET()>::function() BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>::function() BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -13070,6 +13157,7 @@ bsl::function<RET(ARGS_01)>::function() BSLS_NOTHROW_SPEC
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function() BSLS_NOTHROW_SPEC
 {
@@ -13083,6 +13171,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function() BSLS_NOTHROW_SPEC
@@ -13098,6 +13187,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13115,6 +13205,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13134,6 +13225,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13155,6 +13247,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13178,6 +13271,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13203,6 +13297,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13230,6 +13325,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13259,6 +13355,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13290,6 +13387,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13323,6 +13421,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13358,6 +13457,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13382,6 +13482,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 bsl::function<RET()>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -13392,6 +13493,7 @@ bsl::function<RET()>::function(nullptr_t) BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -13403,6 +13505,7 @@ bsl::function<RET(ARGS_01)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
@@ -13416,6 +13519,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(nullptr_t) BSLS_NOTHROW_SPEC
@@ -13431,6 +13535,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13448,6 +13553,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13467,6 +13573,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13488,6 +13595,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13511,6 +13619,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13536,6 +13645,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13563,6 +13673,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13592,6 +13703,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13623,6 +13735,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13656,6 +13769,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -13691,6 +13805,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14019,6 +14134,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class FUNC>
+inline
 bsl::function<RET()>::function(FUNC func)
 {
     using namespace BloombergLP;
@@ -14038,6 +14154,7 @@ bsl::function<RET()>::function(FUNC func)
 
 template <class RET, class ARGS_01>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01)>::function(FUNC func)
 {
     using namespace BloombergLP;
@@ -14058,6 +14175,7 @@ bsl::function<RET(ARGS_01)>::function(FUNC func)
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(FUNC func)
 {
@@ -14080,6 +14198,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(FUNC func)
@@ -14104,6 +14223,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14130,6 +14250,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14158,6 +14279,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14188,6 +14310,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14220,6 +14343,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14254,6 +14378,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14290,6 +14415,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14328,6 +14454,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14368,6 +14495,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14410,6 +14538,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14454,6 +14583,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14487,6 +14617,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class ALLOC>
+inline
 bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc)
 {
     setInvoker(NULL);
@@ -14497,6 +14628,7 @@ bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc)
 
 template <class RET, class ARGS_01>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc)
 {
     setInvoker(NULL);
@@ -14508,6 +14640,7 @@ bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc)
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(allocator_arg_t, const ALLOC& alloc)
 {
@@ -14521,6 +14654,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(allocator_arg_t, const ALLOC& alloc)
@@ -14536,6 +14670,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14553,6 +14688,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14572,6 +14708,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14593,6 +14730,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14616,6 +14754,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14641,6 +14780,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14668,6 +14808,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14697,6 +14838,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14728,6 +14870,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14761,6 +14904,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14796,6 +14940,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14820,6 +14965,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class ALLOC>
+inline
 bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
@@ -14831,6 +14977,7 @@ bsl::function<RET()>::function(allocator_arg_t, const ALLOC& alloc,
 
 template <class RET, class ARGS_01>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
@@ -14843,6 +14990,7 @@ bsl::function<RET(ARGS_01)>::function(allocator_arg_t, const ALLOC& alloc,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
@@ -14857,6 +15005,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(allocator_arg_t, const ALLOC& alloc,
@@ -14873,6 +15022,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14891,6 +15041,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14911,6 +15062,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14933,6 +15085,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14957,6 +15110,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -14983,6 +15137,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15011,6 +15166,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15041,6 +15197,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15073,6 +15230,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15107,6 +15265,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15143,6 +15302,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15501,6 +15661,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET()>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       FUNC         func)
@@ -15525,6 +15686,7 @@ bsl::function<RET()>::function(allocator_arg_t,
 
 template <class RET, class ARGS_01>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       FUNC         func)
@@ -15550,6 +15712,7 @@ bsl::function<RET(ARGS_01)>::function(allocator_arg_t,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
@@ -15577,6 +15740,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(allocator_arg_t,
@@ -15606,6 +15770,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15637,6 +15802,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15670,6 +15836,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15705,6 +15872,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15742,6 +15910,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15781,6 +15950,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15822,6 +15992,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15865,6 +16036,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15910,6 +16082,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -15957,6 +16130,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16006,6 +16180,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16045,12 +16220,14 @@ bsl::function<RET(ARGS_01,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class RET>
+inline
 bsl::function<RET()>::function(function&& other)
 {
     moveInit(other);
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>::function(function&& other)
 {
     moveInit(other);
@@ -16058,6 +16235,7 @@ bsl::function<RET(ARGS_01)>::function(function&& other)
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(function&& other)
 {
@@ -16067,6 +16245,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(function&& other)
@@ -16078,6 +16257,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16091,6 +16271,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16106,6 +16287,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16123,6 +16305,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16142,6 +16325,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16163,6 +16347,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16186,6 +16371,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16211,6 +16397,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16238,6 +16425,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16267,6 +16455,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16298,6 +16487,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16319,6 +16509,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class ALLOC>
+inline
 bsl::function<RET()>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       function&&   other)
@@ -16335,6 +16526,7 @@ bsl::function<RET()>::function(allocator_arg_t,
 
 template <class RET, class ARGS_01>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       function&&   other)
@@ -16352,6 +16544,7 @@ bsl::function<RET(ARGS_01)>::function(allocator_arg_t,
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
@@ -16371,6 +16564,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>::function(allocator_arg_t,
@@ -16392,6 +16586,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16415,6 +16610,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16440,6 +16636,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16467,6 +16664,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16496,6 +16694,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16527,6 +16726,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16560,6 +16760,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16595,6 +16796,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16632,6 +16834,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16671,6 +16874,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -16712,6 +16916,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17106,6 +17311,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 bsl::function<RET()>&
 bsl::function<RET()>::operator=(const function& rhs)
 {
@@ -17115,6 +17321,7 @@ bsl::function<RET()>::operator=(const function& rhs)
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>&
 bsl::function<RET(ARGS_01)>::operator=(const function& rhs)
 {
@@ -17125,6 +17332,7 @@ bsl::function<RET(ARGS_01)>::operator=(const function& rhs)
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>&
 bsl::function<RET(ARGS_01,
@@ -17138,6 +17346,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>&
@@ -17154,6 +17363,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17173,6 +17383,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17195,6 +17406,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17220,6 +17432,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17248,6 +17461,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17279,6 +17493,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17313,6 +17528,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17350,6 +17566,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17390,6 +17607,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17433,6 +17651,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17479,6 +17698,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -17911,6 +18131,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 bsl::function<RET()>&
 bsl::function<RET()>::operator=(function&& rhs)
 {
@@ -17925,6 +18146,7 @@ bsl::function<RET()>::operator=(function&& rhs)
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>&
 bsl::function<RET(ARGS_01)>::operator=(function&& rhs)
 {
@@ -17940,6 +18162,7 @@ bsl::function<RET(ARGS_01)>::operator=(function&& rhs)
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>&
 bsl::function<RET(ARGS_01,
@@ -17958,6 +18181,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>&
@@ -17979,6 +18203,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18003,6 +18228,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18030,6 +18256,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18060,6 +18287,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18093,6 +18321,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18129,6 +18358,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18168,6 +18398,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18210,6 +18441,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18255,6 +18487,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18303,6 +18536,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18354,6 +18588,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18398,6 +18633,7 @@ bsl::function<RET(ARGS_01,
 
 template <class RET>
 template<class FUNC>
+inline
 bsl::function<RET()>&
 bsl::function<RET()>::operator=(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
@@ -18439,6 +18675,7 @@ bsl::function<RET()>::operator=(
 
 template <class RET, class ARGS_01>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01)>&
 bsl::function<RET(ARGS_01)>::operator=(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
@@ -18481,6 +18718,7 @@ bsl::function<RET(ARGS_01)>::operator=(
 template <class RET, class ARGS_01,
                      class ARGS_02>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>&
 bsl::function<RET(ARGS_01,
@@ -18526,6 +18764,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>&
@@ -18574,6 +18813,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18625,6 +18865,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18679,6 +18920,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18736,6 +18978,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18796,6 +19039,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18859,6 +19103,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18925,6 +19170,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -18994,6 +19240,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19066,6 +19313,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19141,6 +19389,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19219,6 +19468,7 @@ template <class RET, class ARGS_01,
                      class ARGS_13,
                      class ARGS_14>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19286,6 +19536,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 bsl::function<RET()>&
 bsl::function<RET()>::operator=(nullptr_t)
 {
@@ -19295,6 +19546,7 @@ bsl::function<RET()>::operator=(nullptr_t)
 }
 
 template <class RET, class ARGS_01>
+inline
 bsl::function<RET(ARGS_01)>&
 bsl::function<RET(ARGS_01)>::operator=(nullptr_t)
 {
@@ -19305,6 +19557,7 @@ bsl::function<RET(ARGS_01)>::operator=(nullptr_t)
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02)>&
 bsl::function<RET(ARGS_01,
@@ -19318,6 +19571,7 @@ bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03)>&
@@ -19334,6 +19588,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19353,6 +19608,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19375,6 +19631,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19400,6 +19657,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19428,6 +19686,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19459,6 +19718,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19493,6 +19753,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19530,6 +19791,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19570,6 +19832,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19613,6 +19876,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19659,6 +19923,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 bsl::function<RET(ARGS_01,
                   ARGS_02,
                   ARGS_03,
@@ -19696,6 +19961,7 @@ bsl::function<RET(ARGS_01,
 
 
 template <class RET>
+inline
 RET bsl::function<RET()>::operator()() const
 {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -19714,6 +19980,7 @@ RET bsl::function<RET()>::operator()() const
 }
 
 template <class RET, class ARGS_01>
+inline
 RET bsl::function<RET(ARGS_01)>::operator()(ARGS_01 args_01) const
 {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -19733,6 +20000,7 @@ RET bsl::function<RET(ARGS_01)>::operator()(ARGS_01 args_01) const
 
 template <class RET, class ARGS_01,
                      class ARGS_02>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02)>::operator()(ARGS_01 args_01,
                                             ARGS_02 args_02) const
@@ -19757,6 +20025,7 @@ RET bsl::function<RET(ARGS_01,
 template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03)>::operator()(ARGS_01 args_01,
@@ -19786,6 +20055,7 @@ template <class RET, class ARGS_01,
                      class ARGS_02,
                      class ARGS_03,
                      class ARGS_04>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -19820,6 +20090,7 @@ template <class RET, class ARGS_01,
                      class ARGS_03,
                      class ARGS_04,
                      class ARGS_05>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -19859,6 +20130,7 @@ template <class RET, class ARGS_01,
                      class ARGS_04,
                      class ARGS_05,
                      class ARGS_06>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -19903,6 +20175,7 @@ template <class RET, class ARGS_01,
                      class ARGS_05,
                      class ARGS_06,
                      class ARGS_07>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -19952,6 +20225,7 @@ template <class RET, class ARGS_01,
                      class ARGS_06,
                      class ARGS_07,
                      class ARGS_08>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20006,6 +20280,7 @@ template <class RET, class ARGS_01,
                      class ARGS_07,
                      class ARGS_08,
                      class ARGS_09>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20065,6 +20340,7 @@ template <class RET, class ARGS_01,
                      class ARGS_08,
                      class ARGS_09,
                      class ARGS_10>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20129,6 +20405,7 @@ template <class RET, class ARGS_01,
                      class ARGS_09,
                      class ARGS_10,
                      class ARGS_11>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20198,6 +20475,7 @@ template <class RET, class ARGS_01,
                      class ARGS_10,
                      class ARGS_11,
                      class ARGS_12>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20272,6 +20550,7 @@ template <class RET, class ARGS_01,
                      class ARGS_11,
                      class ARGS_12,
                      class ARGS_13>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -20351,6 +20630,7 @@ template <class RET, class ARGS_01,
                      class ARGS_12,
                      class ARGS_13,
                      class ARGS_14>
+inline
 RET bsl::function<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
@@ -22308,6 +22588,7 @@ void bsl::swap(bsl::function<RET(ARGS_01,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -22319,6 +22600,7 @@ RET bsl::function<RET(ARGS...)>::functionPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -22333,6 +22615,7 @@ RET bsl::function<RET(ARGS...)>::memFuncPtrInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
 {
@@ -22343,6 +22626,7 @@ RET bsl::function<RET(ARGS...)>::inplaceFunctorInvoker(const Function_Rep *rep,
 
 template <class RET, class... ARGS>
 template <class FUNC>
+inline
 RET
 bsl::function<RET(ARGS...)>::outofplaceFunctorInvoker(const Function_Rep *rep,
                typename BloombergLP::bslmf::ForwardingType<ARGS>::Type... args)
@@ -22371,6 +22655,7 @@ bsl::function<RET(ARGS...)>::invoker() const
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -22381,6 +22666,7 @@ bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
     using namespace BloombergLP;
@@ -22400,6 +22686,7 @@ bsl::function<RET(ARGS...)>::function(const function& other)
 
 template <class RET, class... ARGS>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
     using namespace BloombergLP;
@@ -22419,6 +22706,7 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
     setInvoker(NULL);
@@ -22429,6 +22717,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
@@ -22450,6 +22739,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 
 template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       FUNC         func)
@@ -22475,6 +22765,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
     moveInit(other);
@@ -22482,6 +22773,7 @@ bsl::function<RET(ARGS...)>::function(function&& other)
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       function&&   other)
@@ -22511,6 +22803,7 @@ bsl::function<RET(ARGS...)>::~function()
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
@@ -22530,6 +22823,7 @@ bsl::function<RET(ARGS...)>::operator=(function& rhs)
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 {
@@ -22547,6 +22841,7 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 
 template <class RET, class... ARGS>
 template<class FUNC>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
@@ -22587,6 +22882,7 @@ bsl::function<RET(ARGS...)>::operator=(
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 {
@@ -22597,6 +22893,7 @@ bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 
 
 template <class RET, class... ARGS>
+inline
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
 #ifdef BDE_BUILD_TARGET_EXC

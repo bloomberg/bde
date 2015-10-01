@@ -656,7 +656,7 @@ static void recordCb(void *context,
     result->push_back(event);
 }
 
-extern "C" void *executeTest(void *arg) {
+void *executeCPPTest(void *arg) {
     enum { NUM_EXECUTES = 1000 };
     Obj *mX = (Obj*)arg;
     ASSERT(mX);
@@ -686,6 +686,10 @@ extern "C" void *executeTest(void *arg) {
         P(results[NUM_EXECUTES - 1].d_timestamp);
     }
     return arg;
+}
+
+extern "C" void *executeTest(void *arg) {
+    return executeCPPTest(arg);
 }
 
 namespace CASE15 {
