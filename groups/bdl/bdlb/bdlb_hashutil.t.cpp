@@ -18,7 +18,7 @@
 #include <bsl_cstring.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -979,17 +979,22 @@ int main(int argc, char *argv[])
                 { L_,                  0,                 0,    257,      0 },
                 { L_,                 -1,                -1,    257,      0 },
                 { L_,                  0,        2147483647,    257,    128 },
-                { L_,                 -1,        0x80000000,    257,    129 },
+                { L_,                 -1,
+                               static_cast<int>(0x80000000),    257,    129 },
                 { L_,                  0,                 0,  65537,      0 },
                 { L_,                 -1,                -1,  65537,      0 },
                 { L_,                  0,        2147483647,  65537,  32768 },
-                { L_,                 -1,        0x80000000,  65537,  32769 },
+                { L_,                 -1,
+                               static_cast<int>(0x80000000),  65537,  32769 },
                 { L_,         2147483647,                 0,  65537,  32768 },
                 { L_,         0x12345678,                 0,  65537,  17476 },
-                { L_,         0x12345678,        0x90ABCDEF,  65537,  63745 },
+                { L_,         0x12345678,
+                               static_cast<int>(0x90ABCDEF),  65537,  63745 },
                 { L_,         0x23453453,        0x33253452,  65537,  62008 },
-                { L_,         0x99999999,        0x99999999,  65537,      0 },
-                { L_,         0xFFFFFFFF,        0xFFFFFFFF,  65537,      0 },
+                { L_,   static_cast<int>(0x99999999),
+                               static_cast<int>(0x99999999),  65537,      0 },
+                { L_,   static_cast<int>(0xFFFFFFFF),
+                               static_cast<int>(0xFFFFFFFF),  65537,      0 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

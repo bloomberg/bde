@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
         const Obj VD(AD, VALUES_B);
         const Obj VE(AE, VALUES_C);
 
-        const int NUM_VALUES = 8;
+        const int NUM_VALUES = 6;
         const Obj VALUES[NUM_VALUES] = { VU, VA, VB, VC, VD, VE };
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

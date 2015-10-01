@@ -80,8 +80,8 @@ struct servent *getservbyname_r(const char        *name,
     static BloombergLP::bslmt::Mutex                         mutex;
     BloombergLP::bslmt::LockGuard<BloombergLP::bslmt::Mutex> lockguard(&mutex);
 
-    struct servent *server = getservbyname(static_cast<char *>(name),
-                                           static_cast<char *>(proto));
+    struct servent *server = getservbyname(const_cast<char *>(name),
+                                           const_cast<char *>(proto));
     if (0 == server) {
         return 0;                                                     // RETURN
     }
@@ -473,7 +473,7 @@ int ResolveUtil::getHostnameByAddress(bsl::string        *canonicalHostname,
         static bslmt::Mutex            mutex;
         bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
 
-        hp = gethostbyaddr(static_cast<char *>(&addr),
+        hp = gethostbyaddr(reinterpret_cast<char *>(&addr),
                            sizeof (struct in_addr),
                            AF_INET);
 

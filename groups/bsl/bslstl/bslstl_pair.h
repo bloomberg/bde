@@ -286,6 +286,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif

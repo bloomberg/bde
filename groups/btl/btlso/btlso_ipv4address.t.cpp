@@ -2,13 +2,13 @@
 
 #include <btlso_ipv4address.h>
 
-#include <bslx_instreamfunctions.h>      // for testing only
-#include <bslx_outstreamfunctions.h>     // for testing only
-#include <bslx_testinstream.h>           // for testing only
-#include <bslx_testoutstream.h>          // for testing only
-#include <bslx_testinstreamexception.h>  // for testing only
-#include <bslx_byteoutstream.h>          // for testing only
-#include <bslx_byteinstream.h>           // for testing only
+#include <bslx_instreamfunctions.h>
+#include <bslx_outstreamfunctions.h>
+#include <bslx_testinstream.h>
+#include <bslx_testoutstream.h>
+#include <bslx_testinstreamexception.h>
+#include <bslx_byteoutstream.h>
+#include <bslx_byteinstream.h>
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -25,7 +25,7 @@
 #include <bsl_strstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                                   TEST PLAN
@@ -438,15 +438,22 @@ int main(int argc, char *argv[])
                 // format a.b.c.d
 
                 { L_,  htonl(0x00000000UL), "0.0.0.0"          ,     0 },
-                { L_,  htonl(0x7fbfdfefUL), "127.191.0xdF.0357",    58 },
-                { L_,  htonl(0x7fbfdfefUL), "127.191.0337.0xEf",    58 },
-                { L_,  htonl(0xef7fbfdfUL), "239.0x7f.0277.223",   976 },
-                { L_,  htonl(0xef7fbfdfUL), "239.0177.0xbf.223",   976 },
-                { L_,  htonl(0xdfef7fbfUL), "0xdf.0357.127.191",  8142 },
-                { L_,  htonl(0xdfef7fbfUL), "0337.0xEf.127.191",  8142 },
+                { L_,  static_cast<int>(htonl(0x7fbfdfefUL)),
+                                            "127.191.0xdF.0357",    58 },
+                { L_,  static_cast<int>(htonl(0x7fbfdfefUL)),
+                                            "127.191.0337.0xEf",    58 },
+                { L_,  static_cast<int>(htonl(0xef7fbfdfUL)),
+                                            "239.0x7f.0277.223",   976 },
+                { L_,  static_cast<int>(htonl(0xef7fbfdfUL)),
+                                            "239.0177.0xbf.223",   976 },
+                { L_,  static_cast<int>(htonl(0xdfef7fbfUL)),
+                                            "0xdf.0357.127.191",  8142 },
+                { L_,  static_cast<int>(htonl(0xdfef7fbfUL)),
+                                            "0337.0xEf.127.191",  8142 },
                 { L_,  htonl(0xbfdfef7fUL), "0277.223.239.0x7f", 10364 },
                 { L_,  htonl(0xbfdfef7fUL), "0xBf.223.239.0177", 10364 },
-                { L_,  htonl(0xffffffffUL), "255.255.255.255"  , 30000 },
+                { L_,  static_cast<int>(htonl(0xffffffffUL)),
+                                            "255.255.255.255"  , 30000 },
                 { L_,  htonl(0xc7aca914UL), "199.172.169.20"   , 65535 },
 
                 // format a.b.c
@@ -850,9 +857,11 @@ int main(int argc, char *argv[])
                 //line     ip      port ver len format
                 //---- ----------  ---- --- --- -------------------------
                 { L_,  0x00000000, 10,  0,  0, ""                        },
-                { L_,  0xffffffff,  8,  0,  0, ""                        },
+                { L_,  static_cast<int>(0xffffffff),
+                                    8,  0,  0, ""                        },
                 { L_,  0x00000000, 10,  1,  6, "\x00\x00\x00\x00\x00\x0a"},
-                { L_,  0xffffffff,  8,  1,  6, "\xff\xff\xff\xff\x00\x08"}
+                { L_,  static_cast<int>(0xffffffff),
+                                    8,  1,  6, "\xff\xff\xff\xff\x00\x08"}
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1263,15 +1272,19 @@ int main(int argc, char *argv[])
 
                 { L_,  htonl(0x00000000UL), "0.0.0.0"        ,     0 ,
                                             "0.0.0.0:0"               },
-                { L_,  htonl(0x7fbfdfefUL), "127.191.223.239",    58 ,
+                { L_,  static_cast<int>(htonl(0x7fbfdfefUL)),
+                                            "127.191.223.239",    58 ,
                                             "127.191.223.239:58"      },
-                { L_,  htonl(0xef7fbfdfUL), "239.127.191.223",   976 ,
+                { L_,  static_cast<int>(htonl(0xef7fbfdfUL)),
+                                            "239.127.191.223",   976 ,
                                             "239.127.191.223:976"     },
-                { L_,  htonl(0xdfef7fbfUL), "223.239.127.191",  8142 ,
+                { L_,  static_cast<int>(htonl(0xdfef7fbfUL)),
+                                            "223.239.127.191",  8142 ,
                                             "223.239.127.191:8142"    },
                 { L_,  htonl(0xbfdfef7fUL), "191.223.239.127", 10364 ,
                                             "191.223.239.127:10364"   },
-                { L_,  htonl(0xffffffffUL), "255.255.255.255", 30000 ,
+                { L_,  static_cast<int>(htonl(0xffffffffUL)),
+                                            "255.255.255.255", 30000 ,
                                             "255.255.255.255:30000"   },
                 { L_,  htonl(0xc7aca914UL), "199.172.169.20" , 65535 ,
                                             "199.172.169.20:65535"    }
@@ -1380,12 +1393,18 @@ int main(int argc, char *argv[])
                 // format a.b.c.d
 
                 { L_,  htonl(0x00000000UL), "0.0.0.0"          ,     0 },
-                { L_,  htonl(0x7fbfdfefUL), "127.191.0xdF.0357",    58 },
-                { L_,  htonl(0x7fbfdfefUL), "127.191.0337.0xEf",    58 },
-                { L_,  htonl(0xef7fbfdfUL), "239.0x7f.0277.223",   976 },
-                { L_,  htonl(0xef7fbfdfUL), "239.0177.0xbf.223",   976 },
-                { L_,  htonl(0xdfef7fbfUL), "0xdf.0357.127.191",  8142 },
-                { L_,  htonl(0xdfef7fbfUL), "0337.0xEf.127.191",  8142 },
+                { L_,  static_cast<int>(htonl(0x7fbfdfefUL)),
+                                            "127.191.0xdF.0357",    58 },
+                { L_,  static_cast<int>(htonl(0x7fbfdfefUL)),
+                                            "127.191.0337.0xEf",    58 },
+                { L_,  static_cast<int>(htonl(0xef7fbfdfUL)),
+                                            "239.0x7f.0277.223",   976 },
+                { L_,  static_cast<int>(htonl(0xef7fbfdfUL)),
+                                            "239.0177.0xbf.223",   976 },
+                { L_,  static_cast<int>(htonl(0xdfef7fbfUL)),
+                                            "0xdf.0357.127.191",  8142 },
+                { L_,  static_cast<int>(htonl(0xdfef7fbfUL)),
+                                            "0337.0xEf.127.191",  8142 },
                 { L_,  htonl(0xbfdfef7fUL), "0277.223.239.0x7f", 10364 },
                 { L_,  htonl(0xbfdfef7fUL), "0xBf.223.239.0177", 10364 },
                 { L_,  htonl(0xc7aca914UL), "199.172.169.20"   , 65535 },

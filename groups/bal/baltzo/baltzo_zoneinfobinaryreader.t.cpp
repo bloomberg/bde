@@ -3472,7 +3472,9 @@ int main(int argc, char *argv[])
         { L_,           -1,                   -1LL },
         { L_,   0x01234567,           0x01234567LL },
         { L_,   0x76543210,           0x76543210LL },
-        { L_,      INT_MIN,   0xFFFFFFFF7C558180LL },  // "01/01/0000 00:00:00"
+        { L_,      INT_MIN,
+                          static_cast<bsls::Types::Int64>(0xFFFFFFFF7C558180LL)
+                                                   },  // "01/01/0000 00:00:00"
         { L_,      INT_MAX,         0x3AFFF4417FLL },  // "12/31/9999 23:59:59"
 
         };
