@@ -12,11 +12,15 @@ BSLS_IDENT_RCSID(bdlsb_fixedmemoutstreambuf_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlsb {
 
+                           // --------------------------
+                           // class FixedMemOutStreamBuf
+                           // --------------------------
+
 // PROTECTED MANIPULATORS
 FixedMemOutStreamBuf::pos_type
 FixedMemOutStreamBuf::seekoff(off_type                offset,
-                                    bsl::ios_base::seekdir  fixedPosition,
-                                    bsl::ios_base::openmode which)
+                              bsl::ios_base::seekdir  fixedPosition,
+                              bsl::ios_base::openmode which)
 {
     // This is an output buffer only, so cannot "seek" in "get" area.
     if (!(which & bsl::ios_base::out)) {
@@ -24,13 +28,13 @@ FixedMemOutStreamBuf::seekoff(off_type                offset,
     }
 
     // Compute offset from current position.  In this stream, pptr() defines
-    // both the current position and the end of the logical byte stream.  Thus,
-    // bsl::ios_base::curr and bsl::ios_base::end are handled identically.
+    // both the current position and the end of the logical byte stream.
+    // Thus, bsl::ios_base::curr and bsl::ios_base::end are handled
+    // identically.
     off_type currOffset = (bsl::ios_base::beg == fixedPosition ?
                            offset - length() : offset);
 
-    // currOffset id invalid if it is positive or has an absolute-value >
-    // length.
+    // currOffset validity check
     if (currOffset > 0 || -currOffset > length()) {
         return pos_type(-1);                                          // RETURN
     }
@@ -42,12 +46,12 @@ FixedMemOutStreamBuf::seekoff(off_type                offset,
 
 FixedMemOutStreamBuf::pos_type
 FixedMemOutStreamBuf::seekpos(pos_type                position,
-                                    bsl::ios_base::openmode which)
+                              bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
