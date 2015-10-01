@@ -1169,8 +1169,9 @@ int processTest(btlsos::TcpTimedChannel     *channel,
                 LOOP_ASSERT(commands[i].d_lineNum, ret > 0);
             }
             else {
-                LOOP_ASSERT(commands[i].d_lineNum,
-                                ret == commands[i].d_expReturnValue);
+                LOOP3_ASSERT(commands[i].d_lineNum, ret,
+                             commands[i].d_expReturnValue,
+                             ret == commands[i].d_expReturnValue);
             }
         }
         else if (commands[i].d_command < k_WRITE_FUNCTIONS){
@@ -7461,7 +7462,6 @@ int main(int argc, char *argv[]) {
                 // is a "raw" operation.
               {L_,   e_RBRA,          50,         0,         1,         0, 0 },
               {L_, e_HELP_WRITE,      20,         0,        20,         0, 0 },
-              {L_,   e_RBRA,          50,         0,        20,         0, 0 },
             },
             // Commands set 6: Establish a channel and make the expected number
             // of bytes of data available in the channel's internal buffer,
