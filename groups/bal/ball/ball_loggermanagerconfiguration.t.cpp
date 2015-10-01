@@ -14,6 +14,8 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen()
+#include <bsl_functional.h>
+
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -33,10 +35,9 @@ using namespace bsl;  // automatically added by script
 //    ball::LMC   ball::LoggerManagerConfiguration
 //    ball::LMD   ball::LoggerManagerDefaults
 //    Descriptors ball::UserFieldsSchema
-//    Populator   bdlf::Function<void(*)(UserFields*,const Descriptors&)>
-//    CNF         bdlf::Function<void (*)(bsl::string *, const char *)>
-//    DTC         bdlf::Function<
-//                           void (*)(int *, int *, int *, int *, const char*)>
+//    Populator   bsl::function<void(UserFields*,const Descriptors&)>
+//    CNF         bsl::function<void(bsl::string *, const char *)>
+//    DTC         bsl::function<void(int *, int *, int *, int *, const char*)>
 //..
 //-----------------------------------------------------------------------------
 // [ 1] ball::LoggerManagerConfiguration();
@@ -132,11 +133,10 @@ typedef ball::UserFieldsSchema           Descriptors;
 
 
 // Functor typedefs
-typedef bdlf::Function<void (*)(ball::UserFields *,
-                                const ball::UserFieldsSchema&)> PopCb;
-
-typedef bdlf::Function<void (*)(bsl::string *, const char *)> CnfCb;
-typedef bdlf::Function<void (*)(int *, int *, int *, int *, const char*)> DtCb;
+typedef bsl::function<void(ball::UserFields *, const ball::UserFieldsSchema&)>
+                                                                         PopCb;
+typedef bsl::function<void(bsl::string *, const char *)>                 CnfCb;
+typedef bsl::function<void(int *, int *, int *, int *, const char*)>     DtCb;
 
 
 //=============================================================================

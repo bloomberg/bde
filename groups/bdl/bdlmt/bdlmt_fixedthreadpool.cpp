@@ -4,9 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 #include <bdlt_currenttime.h>
 
@@ -18,6 +17,8 @@ BSLS_IDENT_RCSID(bdlmt_fixedthreadpool_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <bsl_c_signal.h>              // sigfillset
 #endif
+
+#include <bsl_functional.h>
 
 namespace {
 
@@ -96,7 +97,7 @@ void FixedThreadPool::drainQueue()
 
 void FixedThreadPool::waitWorkerThreads()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
 
     while (d_numThreadsReady != d_numThreads) {
         d_threadsReadyCond.wait(&d_gateMutex);
@@ -105,7 +106,7 @@ void FixedThreadPool::waitWorkerThreads()
 
 void FixedThreadPool::releaseWorkerThreads()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
     d_numThreadsReady = 0;
     ++d_gateCount;
     d_gateCond.broadcast();
@@ -115,7 +116,7 @@ void FixedThreadPool::releaseWorkerThreads()
 
 void FixedThreadPool::interruptWorkerThreads()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex); // acquire barrier
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex); // acquire barrier
 
     int numThreadsWaiting = d_numThreadsWaiting;
 
@@ -132,7 +133,7 @@ void FixedThreadPool::workerThread()
 
     while (1) {
         {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_gateMutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_gateMutex);
 
             ++d_numThreadsReady;
             d_threadsReadyCond.signal();
@@ -173,8 +174,8 @@ int FixedThreadPool::startNewThread()
     pthread_sigmask(SIG_BLOCK, &d_blockSet, &oldset);
 #endif
 
-    bdlf::Function<void(*)()> workerThreadFunc = bdlf::MemFnUtil::memFn(
-            &FixedThreadPool::workerThread, this);
+    bsl::function<void()> workerThreadFunc =
+                  bdlf::MemFnUtil::memFn(&FixedThreadPool::workerThread, this);
 
     int rc = d_threadGroup.addThread(workerThreadFunc, d_threadAttributes);
 
@@ -190,7 +191,7 @@ int FixedThreadPool::startNewThread()
 // CREATORS
 
 FixedThreadPool::FixedThreadPool(
-                             const bdlqq::ThreadAttributes&  threadAttributes,
+                             const bslmt::ThreadAttributes&  threadAttributes,
                              int                             numThreads,
                              int                             maxNumPendingJobs,
                              bslma::Allocator               *basicAllocator)
@@ -268,7 +269,7 @@ int FixedThreadPool::tryEnqueueJob(const Job& functor)
 
 void FixedThreadPool::drain()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
 
     if (e_RUN == d_control.loadRelaxed()) {
         d_control = e_DRAIN;
@@ -291,7 +292,7 @@ void FixedThreadPool::drain()
 
 void FixedThreadPool::shutdown()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
 
     if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();
@@ -310,7 +311,7 @@ void FixedThreadPool::shutdown()
 
 int FixedThreadPool::start()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
 
     if (e_STOP != d_control.loadRelaxed()) {
         return 0;                                                     // RETURN
@@ -340,7 +341,7 @@ int FixedThreadPool::start()
 
 void FixedThreadPool::stop()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_metaMutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_metaMutex);
 
     if (e_RUN == d_control.loadRelaxed()) {
         d_queue.disable();

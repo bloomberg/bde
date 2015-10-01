@@ -7,11 +7,11 @@
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -111,8 +111,8 @@ class Dispatcher
     balb::ControlManager* d_manager_p; //held
     FunctionVector  d_functions;
     int             d_iterations;
-    bdlqq::Mutex     d_mutex;
-    bdlqq::Barrier   d_barrier;
+    bslmt::Mutex     d_mutex;
+    bslmt::Barrier   d_barrier;
 
   public:
     Dispatcher(int iterations, balb::ControlManager* manager_p)
@@ -121,7 +121,7 @@ class Dispatcher
 
     void addFunction(const string& function)
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
         d_functions.push_back(bsl::make_pair(function, 0));
     }
 
@@ -130,7 +130,7 @@ class Dispatcher
         return d_functions[i].second;
     }
 
-    bdlqq::Barrier* barrier()
+    bslmt::Barrier* barrier()
     {
         return &d_barrier;
     }
@@ -139,7 +139,7 @@ class Dispatcher
     {
         d_barrier.wait();
         for (int i = 1; i < d_iterations; ++i) {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             for (FunctionVector::iterator j = d_functions.begin();
                  j != d_functions.end();
                  ++j)
@@ -150,7 +150,7 @@ class Dispatcher
         }
         d_barrier.wait();
         {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             for (FunctionVector::iterator j = d_functions.begin();
                  j != d_functions.end();
                  ++j)
@@ -260,11 +260,11 @@ int main(int argc, char *argv[])
             manager.registerHandler("FOOBAR", "", "", Incrementer(&counts[0]));
             dispatcher.addFunction("FOOBAR zippy");
 
-            bdlqq::ThreadAttributes detached;
-            bdlqq::ThreadUtil::Handle dummy;
+            bslmt::ThreadAttributes detached;
+            bslmt::ThreadUtil::Handle dummy;
             detached.setDetachedState(
-                                   bdlqq::ThreadAttributes::e_CREATE_DETACHED);
-            ASSERT(0 == bdlqq::ThreadUtil::create(&dummy,
+                                   bslmt::ThreadAttributes::e_CREATE_DETACHED);
+            ASSERT(0 == bslmt::ThreadUtil::create(&dummy,
                                                   detached,
                                                   bdlf::BindUtil::bind(
                                                               &Dispatcher::run,

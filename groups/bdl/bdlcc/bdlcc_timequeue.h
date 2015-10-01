@@ -166,10 +166,10 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<my_Connection*>      d_connections;
 //      bdlcc::TimeQueue<my_Connection*> d_timeQueue;
 //      int                              d_ioTimeout;
-//      bdlqq::Mutex                     d_timerMonitorMutex;
-//      bdlqq::Condition                 d_timerChangedCond;
-//      bdlqq::ThreadUtil::Handle        d_connectionThreadHandle;
-//      bdlqq::ThreadUtil::Handle        d_timerThreadHandle;
+//      bslmt::Mutex                     d_timerMonitorMutex;
+//      bslmt::Condition                 d_timerChangedCond;
+//      bslmt::ThreadUtil::Handle        d_connectionThreadHandle;
+//      bslmt::ThreadUtil::Handle        d_timerThreadHandle;
 //      volatile bool                    d_done;
 //
 //    protected:
@@ -242,8 +242,8 @@ BSLS_IDENT("$Id: $")
 //  my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
 //  : d_timeQueue(basicAllocator)
 //  , d_ioTimeout(ioTimeout)
-//  , d_connectionThreadHandle(bdlqq::ThreadUtil::invalidHandle())
-//  , d_timerThreadHandle(bdlqq::ThreadUtil::invalidHandle())
+//  , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
+//  , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
 //  {
 //  }
 //
@@ -251,11 +251,11 @@ BSLS_IDENT("$Id: $")
 //  {
 //      d_done = true;
 //      d_timerChangedCond.broadcast();
-//      if (bdlqq::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
-//          bdlqq::ThreadUtil::join(d_connectionThreadHandle);
+//      if (bslmt::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
+//          bslmt::ThreadUtil::join(d_connectionThreadHandle);
 //      }
-//      if (bdlqq::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
-//          bdlqq::ThreadUtil::join(d_timerThreadHandle);
+//      if (bslmt::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
+//          bslmt::ThreadUtil::join(d_timerThreadHandle);
 //      }
 //  }
 //..
@@ -274,7 +274,7 @@ BSLS_IDENT("$Id: $")
 //                                              connection,
 //                                              &isNewTop);
 //      if (isNewTop) {
-//          bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+//          bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
 //          d_timerChangedCond.signal();
 //      }
 //  }
@@ -335,7 +335,7 @@ BSLS_IDENT("$Id: $")
 //                                              connection,
 //                                              &isNewTop);
 //      if (isNewTop) {
-//          bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+//          bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
 //          d_timerChangedCond.signal();
 //      }
 //  }
@@ -350,7 +350,7 @@ BSLS_IDENT("$Id: $")
 //      while (!d_done) {
 //          bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
 //          {
-//              bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+//              bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
 //              bsls::TimeInterval minTime;
 //              int newLength;
 //
@@ -387,22 +387,22 @@ BSLS_IDENT("$Id: $")
 // Function 'start' spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bdlqq::ThreadUtil::create', which expects a function pointer
+// 'start' calls 'bslmt::ThreadUtil::create', which expects a function pointer
 // to a function with the standard "C" callback signature
 // 'void *fn(void *data)'.  This non-member function will call back into the
 // 'my_Server' object immediately.
 //..
 //  int my_Server::start()
 //  {
-//      bdlqq::ThreadAttributes attr;
+//      bslmt::ThreadAttributes attr;
 //
-//      if (bdlqq::ThreadUtil::create(&d_connectionThreadHandle, attr,
+//      if (bslmt::ThreadUtil::create(&d_connectionThreadHandle, attr,
 //                                   &my_connectionMonitorThreadEntry,
 //                                   this)) {
 //          return -1;                                                // RETURN
 //      }
 //
-//      if (bdlqq::ThreadUtil::create(&d_timerThreadHandle, attr,
+//      if (bslmt::ThreadUtil::create(&d_timerThreadHandle, attr,
 //                                   &my_timerMonitorThreadEntry,
 //                                   this)) {
 //          return -1;                                                // RETURN
@@ -541,7 +541,7 @@ BSLS_IDENT("$Id: $")
 //          bsl::cout << "Opening connection " << connection2 << endl;
 //      }
 //
-//      bdlqq::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
+//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
 //
 //      // Simulate transmission...
 //      const int  length = 1024;
@@ -556,7 +556,7 @@ BSLS_IDENT("$Id: $")
 //      // Wait for timeout to occur, otherwise session gets destroyed from
 //      // stack too early.
 //
-//      bdlqq::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
+//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
 //  }
 //..
 // The program that would exercise this test server would simply consist of:
@@ -567,7 +567,7 @@ BSLS_IDENT("$Id: $")
 //      mX.start();
 //
 //      // Wait sufficiently long to observe all events.
-//      bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
+//      bslmt::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
 //
 //      return 0;
 //  }
@@ -590,12 +590,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -779,7 +779,7 @@ class TimeQueue {
     const int                d_indexIterationMask;
     const int                d_indexIterationInc;
 
-    mutable bdlqq::Mutex      d_mutex;          // used for synchronizing
+    mutable bslmt::Mutex      d_mutex;          // used for synchronizing
                                                 // access
                                                // to this queue
 
@@ -1252,7 +1252,7 @@ typename TimeQueue<DATA>:: Handle TimeQueue<DATA>::add(
                                           int                       *newLength)
 
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     Node *node;
     if (d_nextFreeNode_p) {
@@ -1331,7 +1331,7 @@ int TimeQueue<DATA>::popFront(TimeQueueItem<DATA> *buffer,
                               int                 *newLength,
                               bsls::TimeInterval  *newMinTime)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     MapIter it = d_map.begin();
 
     if (d_map.end() == it) {
@@ -1379,7 +1379,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
                             int                               *newLength,
                             bsls::TimeInterval                *newMinTime)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     MapIter it = d_map.begin();
 
@@ -1431,7 +1431,7 @@ void TimeQueue<DATA>::popLE(const bsls::TimeInterval&          time,
 {
     BSLS_ASSERT(0 <= maxTimers);
 
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     MapIter it = d_map.begin();
 
@@ -1502,7 +1502,7 @@ int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
                             bsls::TimeInterval               *newMinTime,
                             TimeQueueItem<DATA>              *item)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
     if (index < 0 || index >= (int)d_nodeArray.size()) {
         return 1;                                                     // RETURN
@@ -1556,7 +1556,7 @@ int TimeQueue<DATA>::remove(typename TimeQueue<DATA>::Handle  handle,
 template <class DATA>
 void TimeQueue<DATA>::removeAll(bsl::vector<TimeQueueItem<DATA> > *buffer)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     MapIter it = d_map.begin();
 
     Node *begin = 0;
@@ -1606,7 +1606,7 @@ int TimeQueue<DATA>::update(typename TimeQueue<DATA>::Handle  handle,
                             const bsls::TimeInterval&         newTime,
                             int                              *isNewTop)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
 
     if (index < 0 || (unsigned) index >= d_nodeArray.size()) {
@@ -1674,7 +1674,7 @@ bool TimeQueue<DATA>::isRegisteredHandle(
                                     typename TimeQueue<DATA>::Handle handle,
                                     const Key&                       key) const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     int index = (handle & d_indexMask) - 1;
 
     if ( 0 > index || index >= (int)d_nodeArray.size()) {
@@ -1693,7 +1693,7 @@ template <class DATA>
 inline
 int TimeQueue<DATA>::minTime(bsls::TimeInterval *buffer) const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     if (d_map.empty()) {
         return 1;                                                     // RETURN

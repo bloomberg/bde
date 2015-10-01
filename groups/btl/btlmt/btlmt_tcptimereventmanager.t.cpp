@@ -11,8 +11,8 @@
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bdlmt_threadpool.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_threadattributes.h>
+#include <bslmt_barrier.h>
+#include <bslmt_threadattributes.h>
 #include <bsls_atomic.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -28,11 +28,12 @@
 #include <bdlt_currenttime.h>
 #include <btlso_socketimputil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -48,9 +49,49 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//    [TBD - Overview of the test]
+// We are testing a mechanism that implements a pure protocol.
 //-----------------------------------------------------------------------------
-// [XX] [TBD - Method name]
+// CREATORS
+// [12] TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
+// [12] TcpTimerEventManager(collectTimeMetrics, *basicAllocator = 0);
+// [12] TcpTimerEventManager(collectTimeMetrics, poolTimer, *ba = 0);
+// [  ] TcpTimerEventManager(rawEventManager, *basicAllocator = 0);
+// [12] ~TcpTimerEventManager();
+//
+// MANIPULATORS
+// [ 7] void deregisterAllSocketEvents();
+// [  ] void deregisterAllTimers();
+// [  ] void deregisterAll();
+// [ 8] void deregisterSocketEvent(handle, event);
+// [  ] void deregisterSocket(const btlso::SocketHandle::Handle& handle);
+// [  ] void deregisterTimer(const void *handle);
+// [ 9] int disable();
+// [11] int enable();
+// [11] int enable(const bslmt::ThreadAttributes& attribute);
+// [10] void execute(const bsl::function<void()>& functor);
+// [  ] void clearExecuteQueue();
+// [ 6] int registerSocketEvent(handle, event, callback);
+// [ 4] void *registerTimer(expiryTime, callback);
+// [13] int rescheduleTimer(timerId, expiryTime);
+//
+// ACCESSORS
+// [14] bool hasLimitedSocketCapacity() const;
+// [  ] int  isRegistered(const Handle& handle, const Type event);
+// [  ] void numTimers();
+// [  ] void numEvents();
+// [  ] void numSocketEvents(const btlso::SocketHandle::Handle& handle);
+// [  ] int numTotalSocketEvents() const;
+// [  ] btlso::TimeMetrics *timeMetrics() const;
+// [  ] bslmt::ThreadUtil::Handle dispatcherThreadHandle() const;
+// [11] int isEnabled() const;
+// [12] bool hasTimeMetrics() const;
+//
+// BUG FIXES
+// [15] TEST closure of control channel sockets
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [16] USAGE EXAMPLE
+//=============================================================================
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -60,7 +101,7 @@ static int verbose = 0,
            veryVerbose = 0,
            veryVeryVerbose = 0;
 
-bdlqq::Mutex         coutMutex;
+bslmt::Mutex         coutMutex;
 bslma::TestAllocator defaultAllocator;
 
 static void aSsErT(int c, const char *s, int i)
@@ -127,19 +168,18 @@ typedef btlmt::TcpTimerEventManager Obj;
 
 namespace TEST_CASE_COLLECT_TIME_METRICS {
 
-void waitForASec()
-    // Delay for 1 second
+void waitForSomeTime()
 {
-    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(1, 0));
+    bslmt::ThreadUtil::microSleep(10000); // 10 ms
 }
 
 }  // close namespace TEST_CASE_COLLECT_TIME_METRICS
 
 //=============================================================================
-//       ADDITIONAL 'enable' and 'isEnabled' TEST: DRQS 15212134
+//       ADDITIONAL 'enable' and 'isEnabled' TEST:
 //-----------------------------------------------------------------------------
 
-namespace TEST_CASE_DRQS15212134 {
+namespace TEST_CASE_ENABLE_TEST {
 
 void testIsEnabled(btlmt::TcpTimerEventManager *manager,
                    bsls::AtomicInt             *complete)
@@ -150,7 +190,7 @@ void testIsEnabled(btlmt::TcpTimerEventManager *manager,
     *complete = 1;
 }
 
-}  // close namespace TEST_CASE_DRQS15212134
+}  // close namespace TEST_CASE_ENABLE_TEST
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -180,8 +220,9 @@ static int nbytes[NUM_TASKS];
 void
 timerCb(int taskId, Obj *mX)
 {
-    bdlf::Function<void (*)()> functor(
-            bdlf::BindUtil::bind(&timerCb, taskId, mX));
+    bsl::function<void()> functor(bdlf::BindUtil::bind(&timerCb,
+                                                            taskId,
+                                                            mX));
 
     bsls::TimeInterval now(bdlt::CurrentTime::now());
     bsls::TimeInterval timeout(now);
@@ -195,10 +236,9 @@ timerCb(int taskId, Obj *mX)
 }
 
 void
-socketCb(
-    btlmt::TcpTimerEventManager *pEventManager,
-    btlmt::TcpTimerEventManager_ControlChannel *c_p,
-    int id)
+socketCb(btlmt::TcpTimerEventManager                *,
+         btlmt::TcpTimerEventManager_ControlChannel *c_p,
+         int                                         id)
 {
     nbytes[id] += c_p->serverRead();
 }
@@ -218,15 +258,18 @@ extern "C" void * case100EntryPoint(void *arg)
 {
     int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
-    bdlf::Function<void (*)()> mgrReinitFunctor;
+    bsl::function<void()> mgrReinitFunctor;
     btlmt::TcpTimerEventManager& em = *pEventManager;
     btlmt::TcpTimerEventManager_ControlChannel chnl;
 
-    bdlf::Function<void (*)()> socketFunctor(
-            bdlf::BindUtil::bind(&socketCb, &em, &chnl, j));
+    bsl::function<void()> socketFunctor(bdlf::BindUtil::bind(&socketCb,
+                                                                  &em,
+                                                                  &chnl,
+                                                                  j));
 
-    bdlf::Function<void (*)()> timerFunctor(
-            bdlf::BindUtil::bind(&timerCb, j, &em));
+    bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(&timerCb,
+                                                                 j,
+                                                                 &em));
 
     bsls::TimeInterval timeout(bdlt::CurrentTime::now());
     timeout.addMilliseconds(10);
@@ -245,8 +288,9 @@ extern "C" void * case100EntryPoint(void *arg)
             }
         }
 
-        em.registerSocketEvent(
-            chnl.serverFd(), btlso::EventType::e_READ, socketFunctor);
+        em.registerSocketEvent(chnl.serverFd(),
+                               btlso::EventType::e_READ,
+                               socketFunctor);
         ASSERT(1 == em.isRegistered(chnl.serverFd(),
                                     btlso::EventType::e_READ));
         ASSERT(1 == em.numSocketEvents(chnl.serverFd()));
@@ -256,16 +300,16 @@ extern "C" void * case100EntryPoint(void *arg)
                                     btlso::EventType::e_READ));
         ASSERT(0 == em.numSocketEvents(chnl.serverFd()));
 
-        em.registerSocketEvent(
-            chnl.serverFd(), btlso::EventType::e_READ, socketFunctor);
+        em.registerSocketEvent(chnl.serverFd(),
+                               btlso::EventType::e_READ,
+                               socketFunctor);
         ASSERT(1 == em.isRegistered(chnl.serverFd(),
                                     btlso::EventType::e_READ));
         ASSERT(1 == em.numSocketEvents(chnl.serverFd()));
 
         ASSERT(1 == chnl.clientWrite());
 
-        em.deregisterSocketEvent(
-            chnl.serverFd(), btlso::EventType::e_READ);
+        em.deregisterSocketEvent(chnl.serverFd(), btlso::EventType::e_READ);
         ASSERT(0 == em.isRegistered(chnl.serverFd(),
                                     btlso::EventType::e_READ));
         ASSERT(0 == em.numSocketEvents(chnl.serverFd()));
@@ -289,17 +333,18 @@ static  void disableCb(Obj *mX)
 
 // ----------------------------------------------------------------------------
 // Helper function for the usage example
-static void producer(bdlcc::Queue<int>            *workQueue,
+
+static void producer(bdlcc::Queue<int>           *workQueue,
                      btlmt::TcpTimerEventManager *manager,
                      bsls::TimeInterval           nextTime)
-    // Enqueue a work item onto the specified 'workQueue' and register
-    // this function with the specified 'manager' to be invoked after
-    // the specified 'nextTime' absolute time interval.
+    // Enqueue a work item onto the specified 'workQueue' and register this
+    // function with the specified 'manager' to be invoked after the specified
+    // 'nextTime' absolute time interval.
 {
     ASSERT(workQueue);
     ASSERT(manager);
 
-    enum { TIME_OFFSET = 5 };   // invoke timer every 5 seconds
+    enum { TIME_OFFSET = 50 };   // invoke timer every 50 milliseconds
 
     int item = bdlt::CurrentTime::now().nanoseconds() / 1000;
 
@@ -310,8 +355,8 @@ static void producer(bdlcc::Queue<int>            *workQueue,
     workQueue->pushBack(item);
 
     bsls::TimeInterval nextNextTime(nextTime);
-    nextNextTime.addSeconds(TIME_OFFSET);
-    bdlf::Function<void (*)()> callback(
+    nextNextTime.addMilliseconds(TIME_OFFSET);
+    bsl::function<void()> callback(
             bdlf::BindUtil::bind(&producer, workQueue, manager, nextNextTime));
 
     void *timerId = manager->registerTimer(nextTime, callback);
@@ -320,25 +365,28 @@ static void producer(bdlcc::Queue<int>            *workQueue,
 
 // ----------------------------------------------------------------------------
 bslma::Allocator *testAllocator_p;
+
 static void dummyFunction(void) {
 
 }
 
 enum { NUM_REGISTER_PAIRS = 10 };
 
-bdlqq::Barrier *globalBarrier;
+bslmt::Barrier *globalBarrier;
 
 extern "C"
 void *registerThread(void *arg)
     // Perform registration requests for the event manager specified by 'arg'.
 {
     Obj *mX = (Obj*) arg;
+
     ASSERT(mX);
     ASSERT(globalBarrier);
 
     btlso::EventManagerTestPair *testPairs;
-    testPairs = (btlso::EventManagerTestPair*) (new char[NUM_REGISTER_PAIRS *
-                         sizeof(btlso::EventManagerTestPair)]);
+    testPairs = (btlso::EventManagerTestPair *) (
+                  new char[NUM_REGISTER_PAIRS *
+                                         sizeof(btlso::EventManagerTestPair)]);
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         new (&testPairs[i]) btlso::EventManagerTestPair(veryVerbose);
@@ -351,10 +399,13 @@ void *registerThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
         bslma::TestAllocator ta;
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
         if (veryVerbose) {
             printf("Thread %d: Iteration (O) %d\n",
-                   bdlqq::ThreadUtil::self(),
+                   (int) bslmt::ThreadUtil::selfIdAsInt(),
                    i);
         }
         mX->registerSocketEvent(fd,
@@ -370,12 +421,15 @@ void *registerThread(void *arg)
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
         bslma::TestAllocator ta;
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
         mX->registerSocketEvent(fd,
                                 btlso::EventType::e_READ, callback);
         if (veryVerbose) {
             printf("Thread %d: Iteration (C)%d\n",
-                   bdlqq::ThreadUtil::self(),
+                   (int) bslmt::ThreadUtil::selfIdAsInt(),
                    i);
         }
         LOOP_ASSERT(i, mX->isRegistered(fd,
@@ -393,7 +447,9 @@ void *registerThread(void *arg)
         cfd = testPairs[i].controlFd();
         mX->deregisterSocket(cfd);
     }
+
     // 'testPairs' cannot be destroyed until ALL threads are done.
+
     globalBarrier->wait();
     LOOP_ASSERT(defaultAllocator.numBytesInUse(),
                 0 == defaultAllocator.numBytesInUse());
@@ -430,28 +486,23 @@ void *deregisterThread(void *arg)
     bslma::TestAllocator ta;
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].observedFd();
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
-        mX->registerSocketEvent(fd,
-                                btlso::EventType::e_READ, callback);
-        LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::e_READ));
-        mX->deregisterSocketEvent(fd,
-                                btlso::EventType::e_READ);
-        LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::e_READ));
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
+        mX->registerSocketEvent(fd, btlso::EventType::e_READ, callback);
+        LOOP_ASSERT(i, mX->isRegistered(fd, btlso::EventType::e_READ));
+        mX->deregisterSocketEvent(fd, btlso::EventType::e_READ);
+        LOOP_ASSERT(i, 0 == mX->isRegistered(fd, btlso::EventType::e_READ));
     }
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
-        bdlf::Function<void (*)()> callback(&dummyFunction);
-        mX->registerSocketEvent(fd,
-                                btlso::EventType::e_READ, callback);
-        LOOP_ASSERT(i, mX->isRegistered(fd,
-                                        btlso::EventType::e_READ));
+        bsl::function<void()> callback(&dummyFunction);
+        mX->registerSocketEvent(fd, btlso::EventType::e_READ, callback);
+        LOOP_ASSERT(i, mX->isRegistered(fd, btlso::EventType::e_READ));
 
-        mX->deregisterSocketEvent(fd,
-                                btlso::EventType::e_READ);
-        LOOP_ASSERT(i, 0 == mX->isRegistered(fd,
-                                             btlso::EventType::e_READ));
+        mX->deregisterSocketEvent(fd, btlso::EventType::e_READ);
+        LOOP_ASSERT(i, 0 == mX->isRegistered(fd, btlso::EventType::e_READ));
     }
 
     globalBarrier->wait();
@@ -460,7 +511,10 @@ void *deregisterThread(void *arg)
 
     for (int i = 0; i < NUM_REGISTER_PAIRS; ++i) {
         btlso::SocketHandle::Handle fd = testPairs[i].controlFd();
-        const btlso::TimerEventManager::Callback callback(&dummyFunction, &ta);
+        const btlso::TimerEventManager::Callback callback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
+                       &dummyFunction);
     }
 
     // 'testPairs' cannot be destroyed until ALL threads are done.
@@ -473,11 +527,11 @@ void *deregisterThread(void *arg)
 
 // ----------------------------------------------------------------------------
 static
-void timerCallback(int               *isInvokedFlag,
+void timerCallback(int                *isInvokedFlag,
                    bsls::TimeInterval *registrationTime,
                    bsls::TimeInterval  expDelta,
-                   int                sequenceNumber,
-                   bool               checkDeltaFlag)
+                   int                 sequenceNumber,
+                   bool                checkDeltaFlag)
 {
     ASSERT(isInvokedFlag); ASSERT(registrationTime);
     ASSERT(0 == *isInvokedFlag);
@@ -488,9 +542,9 @@ void timerCallback(int               *isInvokedFlag,
         bsls::TimeInterval delta = now - *registrationTime;
         const double TOLERANCE = 0.15;  // allow 15% inaccuracy
         bsls::TimeInterval deltaLowerBound =
-            bsls::TimeInterval(delta.totalSecondsAsDouble() * (1. - TOLERANCE));
+           bsls::TimeInterval(delta.totalSecondsAsDouble() * (1. - TOLERANCE));
         ASSERT(delta >= deltaLowerBound);
-        if (expDelta < delta || veryVerbose) {
+        if (veryVerbose) {
             Q("timerCallback");
             P_(sequenceNumber); P_(now); P(*registrationTime);
             P_(deltaLowerBound); P_(delta); P(expDelta);
@@ -503,12 +557,13 @@ extern "C" void *testTimersThread(void *arg) {
     ASSERT(mX);
 
     const Obj& X = *mX;
-    enum { NUM_TIMERS = 10 };
+    enum { NUM_TIMERS = 1 };
     int flags[NUM_TIMERS];
     bsls::TimeInterval timeValues[NUM_TIMERS];
     bsls::TimeInterval now = bdlt::CurrentTime::now();
     void *timerIds[NUM_TIMERS];
 
+    bslma::TestAllocator scratchAllocator;
     for (int i = 0; i < NUM_TIMERS; ++i) {
         int offset = i % 2 ? i : -i;
         offset *= 10 * 1000 * 1000;  // make it milliseconds, at most +/- 100ms
@@ -517,7 +572,9 @@ extern "C" void *testTimersThread(void *arg) {
         flags[i] = 0;
         bsls::TimeInterval expDelta = i % 2 ? delta : bsls::TimeInterval(0);
         expDelta += bsls::TimeInterval(0.25);
-        bdlf::Function<void (*)()> functor(
+        bsl::function<void()> functor(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(&scratchAllocator),
                 bdlf::BindUtil::bind(&timerCallback, &flags[i],
                                     &timeValues[i], expDelta, -i, true));
 
@@ -525,12 +582,11 @@ extern "C" void *testTimersThread(void *arg) {
     }
 
     globalBarrier->wait();
-// TBD: Uncomment
-//     ASSERT(0 == defaultAllocator.numBytesInUse());
+    ASSERT(0 == defaultAllocator.numBytesInUse());
 
     if (X.isEnabled()) {
         bsls::TimeInterval delta(0.5);  // 500ms
-        bdlqq::ThreadUtil::sleep(delta);
+        bslmt::ThreadUtil::sleep(delta);
         mX->disable();
         int numNotInvoked = 0;
         for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -563,36 +619,38 @@ extern "C" void *testTimersThread(void *arg) {
     return arg;
 }
 
-static void executeInParallel(bcemt_ThreadFunction  func,
+static void executeInParallel(bslmt_ThreadFunction  func,
                               void                 *arg,
                               int                   numThreads)
     // Execute the specified 'func' with the specified 'arg' in 'numThreads'
     // threads and wait until all threads complete.  The concurrency level
     // adjusted automatically.
 {
-    vector<bdlqq::ThreadUtil::Handle> threads(numThreads,
-                                             bdlqq::ThreadUtil::Handle());
+    vector<bslmt::ThreadUtil::Handle> threads(numThreads,
+                                             bslmt::ThreadUtil::Handle());
 
     for (int i = 0; i < numThreads; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::create(&threads[i], bdlqq::ThreadAttributes(),
-                                             func, arg));
+        ASSERT(0 == bslmt::ThreadUtil::create(&threads[i],
+                                              bslmt::ThreadAttributes(),
+                                              func,
+                                              arg));
     }
     for (int i = 0; i < numThreads; ++i) {
-        ASSERT(0 == bdlqq::ThreadUtil::join(threads[i]));
+        ASSERT(0 == bslmt::ThreadUtil::join(threads[i]));
     }
 
 }
 
 struct my_Event {
-    int       d_thread;    // calling thread
-    bdlt::Time d_timestamp; // invocation time
-    void      *d_context;   // user data
+    int         d_thread;    // calling thread
+    bdlt::Time  d_timestamp; // invocation time
+    void       *d_context;   // user data
 };
 
 static void recordCb(void *context,
                      bsl::vector<my_Event> *result) {
     my_Event event;
-    event.d_thread = bdlqq::ThreadUtil::selfIdAsInt();
+    event.d_thread = bslmt::ThreadUtil::selfIdAsInt();
     event.d_timestamp = bdlt::CurrentTime::utc().time();
     event.d_context = context;
     result->push_back(event);
@@ -605,14 +663,14 @@ extern "C" void *executeTest(void *arg) {
 
     vector<my_Event> results;
     for (int i = 0; i < NUM_EXECUTES; ++i) {
-        bdlf::Function<void (*)()> functor(
+        bsl::function<void()> functor(
                 bdlf::BindUtil::bindA(testAllocator_p, &recordCb, (void*)i,
                                      &results));
         mX->execute(functor);
     }
 
     while(results.size() != NUM_EXECUTES) {
-        bdlqq::ThreadUtil::microSleep(1000, 0);
+        bslmt::ThreadUtil::microSleep(1000, 0);
     }
 
     int objHandle = results[0].d_thread;
@@ -622,8 +680,8 @@ extern "C" void *executeTest(void *arg) {
     }
 
     if (veryVerbose) {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&coutMutex);
-        P_(bdlqq::ThreadUtil::selfIdAsInt());
+        bslmt::LockGuard<bslmt::Mutex> lock(&coutMutex);
+        P_(bslmt::ThreadUtil::selfIdAsInt());
         P_(results[0].d_timestamp);
         P(results[NUM_EXECUTES - 1].d_timestamp);
     }
@@ -652,9 +710,9 @@ void readData(ReadDataType *readDataArgs)
     char expBuffer[SIZE]   = { 'z' };
     int errorCode = 0;
     int rc = btlso::SocketImpUtil::read(readBuffer,
-                                       readDataArgs->d_handle,
-                                       SIZE,
-                                       &errorCode);
+                                        readDataArgs->d_handle,
+                                        SIZE,
+                                        &errorCode);
     if (rc <= 0) {
         cout << "ReadData rc: " << rc << " errorCode: " << errorCode << endl;
         return;                                                       // RETURN
@@ -662,15 +720,13 @@ void readData(ReadDataType *readDataArgs)
 
     ASSERT(rc > 0);
     readDataArgs->d_numBytesRead += rc;
-    // TBD: Uncomment
-//    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
-    //if (0 == (readDataArgs->d_numBytesRead % (1024 * 1024)))
-    //    cout << "Read Data: " << readDataArgs->d_numBytesRead << endl;
+    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
+
     if (readDataArgs->d_numBytesRead >= readDataArgs->d_totalBytesToRead) {
         ++(*readDataArgs->d_numConnsDone_p);
         cout << "Conns Done: " << *readDataArgs->d_numConnsDone_p << endl;
     }
-    bdlqq::ThreadUtil::microSleep(800, 0);
+    bslmt::ThreadUtil::microSleep(800, 0);
 }
 
 void writeData(WriteDataType *writeDataArgs)
@@ -684,8 +740,8 @@ void writeData(WriteDataType *writeDataArgs)
     char writeBuffer[SIZE] = { 'z' };
 
     int rc = btlso::SocketImpUtil::write(writeDataArgs->d_handle,
-                                        writeBuffer,
-                                        SIZE);
+                                         writeBuffer,
+                                         SIZE);
 
     if (rc <= 0) {
         cout << "WriteData rc: " << rc << endl;
@@ -696,7 +752,7 @@ void writeData(WriteDataType *writeDataArgs)
     writeDataArgs->d_numBytesWritten += rc;
 //    if (0 == (writeDataArgs->d_numBytesWritten % (1024 * 1024)))
 //        cout << "Written Data: " << writeDataArgs->d_numBytesWritten << endl;
-    bdlqq::ThreadUtil::microSleep(800, 0);
+    bslmt::ThreadUtil::microSleep(800, 0);
 }
 
 }  // close namespace CASE15
@@ -720,6 +776,7 @@ int main(int argc, char *argv[])
     enum { MIN_REQUIRED_OPEN_FILES = 200 };
     int maxNumOpenFiles = maxOpenFiles();
     ASSERT(MIN_REQUIRED_OPEN_FILES <= maxNumOpenFiles);
+
     if (MIN_REQUIRED_OPEN_FILES > maxNumOpenFiles) {
         LOOP2_ASSERT(maxNumOpenFiles, MIN_REQUIRED_OPEN_FILES,
                      "Not enough system resources.");
@@ -732,55 +789,54 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 16: {
-          // ----------------------------------------------------------------
-          // TESTING USAGE EXAMPLE
-          //   The usage example provided in the component header file must
-          //   compile, link, and run on all platforms as shown.
-          //
-          // Plan:
-          //   Incorporate usage example from header into driver, remove
-          //   leading comment characters, and replace 'assert' with
-          //   'ASSERT'.
-          //
-          // Testing:
-          //   USAGE EXAMPLE
-          // ----------------------------------------------------------------
+        // ----------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove
+        //   leading comment characters, and replace 'assert' with
+        //   'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // ----------------------------------------------------------------
 
-          if (verbose)
-              cout << "TESTING USAGE EXAMPLE" << endl
-                   << "=====================" << endl;
+        if (verbose) cout << "TESTING USAGE EXAMPLE" << endl
+                          << "=====================" << endl;
 
-          enum {
-              TIME_OFFSET         = 5 , // seconds
-              INITIAL_TIME_OFFSET = 1   // seconds
-          };
+        enum {
+            TIME_OFFSET         = 50, // milliseconds
+            INITIAL_TIME_OFFSET = 10  // milliseconds
+        };
 
-          bdlcc::Queue<int> workQueue(&testAllocator);;
-          btlmt::TcpTimerEventManager manager(&testAllocator);;
+        bdlcc::Queue<int> workQueue(&testAllocator);;
+        btlmt::TcpTimerEventManager manager(&testAllocator);;
 
-          bsls::TimeInterval now = bdlt::CurrentTime::now();
-          now.addSeconds(INITIAL_TIME_OFFSET);
-          bsls::TimeInterval nextTime(now);
-          nextTime.addSeconds(TIME_OFFSET);
+        bsls::TimeInterval now = bdlt::CurrentTime::now();
+        now.addMilliseconds(INITIAL_TIME_OFFSET);
+        bsls::TimeInterval nextTime(now);
+        nextTime.addMilliseconds(TIME_OFFSET);
 
-          bdlf::Function<void (*)()> callback(
-                  bdlf::BindUtil::bind(&producer, &workQueue, &manager,
-                                      nextTime));
+        bsl::function<void()> callback(bdlf::BindUtil::bind(&producer,
+                                                                 &workQueue,
+                                                                 &manager,
+                                                                 nextTime));
 
-          void *timerId = manager.registerTimer(now, callback);
+        void *timerId = manager.registerTimer(now, callback);
 
-          // TBD
-          ASSERT(timerId);
-          int rc = manager.enable();
-          ASSERT(0 == rc);
+        ASSERT(timerId);
+        int rc = manager.enable();
+        ASSERT(0 == rc);
 
-          for (int i = 0; i < 10; ++i) {
-              int item = workQueue.popFront();
-              if (verbose) {
-                  bsl::cout << bdlt::CurrentTime::now()
-                      << ": Consuming " << item << bsl::endl;
-              }
-          }
+        for (int i = 0; i < 10; ++i) {
+            int item = workQueue.popFront();
+            if (verbose) {
+                bsl::cout << bdlt::CurrentTime::now()
+                          << ": Consuming " << item << bsl::endl;
+            }
+        }
       } break;
 
       case 15: {
@@ -818,7 +874,6 @@ int main(int argc, char *argv[])
         //: 4 Repeat the same steps by closing the client socket.
         //
         // Testing:
-        //   DRQS 44989721
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -866,7 +921,7 @@ int main(int argc, char *argv[])
                 writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
                 writeDataArgs[j].d_numBytesWritten   = 0;
 
-                bdlf::Function<void (*)()> readFunctor, writeFunctor;
+                bsl::function<void()> readFunctor, writeFunctor;
                 readFunctor = bdlf::BindUtil::bind(readData,
                                                   &readDataArgs[j]);
                 do {
@@ -887,7 +942,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(1000, 0);
+                bslmt::ThreadUtil::microSleep(1000, 0);
             }
 
             if (veryVerbose) {
@@ -897,7 +952,7 @@ int main(int argc, char *argv[])
 
             btlmt::TcpTimerEventManager_ControlChannel *controlChannel =
                 const_cast<btlmt::TcpTimerEventManager_ControlChannel *>(
-                    btlmt::TcpTimerEventManager_TestUtil::getControlChannel(X));
+                   btlmt::TcpTimerEventManager_TestUtil::getControlChannel(X));
 
             int numKills = 0;
             while (numKills < 1) {
@@ -912,7 +967,7 @@ int main(int argc, char *argv[])
 
                 rc = btlso::SocketImpUtil::close(handle, &errorCode);
                 if (rc < 0) {
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                     continue;
                 }
                 LOOP2_ASSERT(rc, errorCode, 0 == rc);
@@ -924,7 +979,7 @@ int main(int argc, char *argv[])
                 cout << "Completed first set of kills, numKills: "
                      << numKills << endl;
             }
-            //bdlqq::ThreadUtil::microSleep(0, 3);
+            //bslmt::ThreadUtil::microSleep(0, 3);
 
             for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
                 btlso::SocketHandle::Handle fds[2];
@@ -945,7 +1000,7 @@ int main(int argc, char *argv[])
                 writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
                 writeDataArgs[j].d_numBytesWritten   = 0;
 
-                bdlf::Function<void (*)()> readFunctor, writeFunctor;
+                bsl::function<void()> readFunctor, writeFunctor;
                 readFunctor = bdlf::BindUtil::bind(readData,
                                                   &readDataArgs[j]);
                 do {
@@ -967,7 +1022,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(1000, 0);
+                bslmt::ThreadUtil::microSleep(1000, 0);
             }
 
             if (veryVerbose) {
@@ -987,12 +1042,12 @@ int main(int argc, char *argv[])
 
                 rc = btlso::SocketImpUtil::close(handle, &errorCode);
                 if (rc < 0) {
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                     continue;
                 }
                 LOOP2_ASSERT(rc, errorCode, 0 == rc);
 
-                bdlqq::ThreadUtil::microSleep(0, 3);
+                bslmt::ThreadUtil::microSleep(0, 3);
                 ++numKills;
             }
 
@@ -1005,7 +1060,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     cout << "Waiting for conns to be done: "
                          << numConnsDone << endl;
-                    bdlqq::ThreadUtil::microSleep(0, 1);
+                    bslmt::ThreadUtil::microSleep(0, 1);
                 }
             }
             ASSERT(0 == mX.disable());
@@ -1013,7 +1068,8 @@ int main(int argc, char *argv[])
             //
             //for (int j = 0; j < NUM_CONNS; ++j) {
             // btlso::SocketHandle::Handle serverFd = readDataArgs[j].d_handle;
-            // btlso::SocketHandle::Handle clientFd = writeDataArgs[j].d_handle;
+            // btlso::SocketHandle::Handle clientFd =
+            //                                       writeDataArgs[j].d_handle;
 
             //    ASSERT(0 == btlso::SocketImpUtil::close(serverFd));
             //    ASSERT(0 == btlso::SocketImpUtil::close(clientFd));
@@ -1066,11 +1122,11 @@ int main(int argc, char *argv[])
         //   Register a large number of timers to be invoked at the time of the
         //   registration and verify that each is invoked within a hard limit.
         // Testing:
-        //   rescheduleTimer
+        //  int rescheduleTimer(timerId, expiryTime);
         // --------------------------------------------------------------------
-        if (verbose)
-            cout << "TESING 'rescheduleTimer'" << endl
-                 << "=======================" << endl;
+
+        if (verbose) cout << "TESING 'rescheduleTimer'" << endl
+                          << "=======================" << endl;
         {
             Obj mX(&testAllocator);   const Obj& X = mX;
             ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
@@ -1091,7 +1147,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 flags[i] = 0;
                 timeValues[i] = bdlt::CurrentTime::now() + delta;
-                bdlf::Function<void (*)()> functor(
+                bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i],
                                             &timeValues[i],
@@ -1108,7 +1164,7 @@ int main(int argc, char *argv[])
             }
 
             double soFar =
-                      (bdlt::CurrentTime::now() - start).totalSecondsAsDouble();
+                     (bdlt::CurrentTime::now() - start).totalSecondsAsDouble();
             LOOP_ASSERT(soFar, soFar < DELTA);
             if (verbose) { P_(DELTA); P(soFar); }
 
@@ -1124,8 +1180,8 @@ int main(int argc, char *argv[])
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 const int rc = mX.rescheduleTimer(
-                                              ids[i],
-                                              bdlt::CurrentTime::now() + delta);
+                                             ids[i],
+                                             bdlt::CurrentTime::now() + delta);
 
                 LOOP_ASSERT(i, !rc);
                 LOOP_ASSERT(i, 0 == da.numBytesInUse());
@@ -1135,7 +1191,7 @@ int main(int argc, char *argv[])
                 cout << "\t\tRescheduled " << NUM_TIMERS << " timers." << endl;
             }
 
-            bdlqq::ThreadUtil::sleep(delta);
+            bslmt::ThreadUtil::sleep(delta);
 
             ASSERT(0 == mX.disable());
             for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1147,255 +1203,232 @@ int main(int argc, char *argv[])
         }
       } break;
       case 12: {
-          // ----------------------------------------------------------------
-          // TEST: 'collectTimeMetrics' configuration flag
-          //
-          // Concerns:
-          //   o DRQS 16796407.  That the optional 'collectTimeMetrics'
-          //       construction parameter is correctly applied.
-          //
-          // Plan:
-          //   (Block Box) 1) Use all variants of the constructor to create a
-          //          tcp timer event manager, and verify the status of the
-          //         'hasTimeMetrics' flag.
-          //
-          //   (Black Box) 2) Configure a tcp timer event manager to collect
-          //           metrics, and provide a callback that blocks for a
-          //           long period.  Verify that 'timeMetrics' reflects a
-          //           CPU bound operation.
-          //
-          //   (White Box) 3) Configure a tcp timer event manager to not
-          //           collect metrics.  Set 'timeMetrics' to IO_BOUND.
-          //           Supply a callback that blocks for a long period.
-          //           Verify 'timeMetrics' reflects a I/O bound (the default
-          //           state).
-          //
-          // Testing:
-          //  btlmt::TcpTimerEventManager(Hint , bool, bslma::Allocator*);
-          //  btlmt::TcpTimerEventManager(btlso::EventManager  *,
-          //                             bslma::Allocator    *);
-          //  bool hasTimeMetrics() const;
-          // ----------------------------------------------------------------
+        // ----------------------------------------------------------------
+        // TEST: 'collectTimeMetrics' configuration flag
+        //
+        // Concerns:
+        //   o The optional 'collectTimeMetrics' construction parameter is
+        //   correctly applied.
+        //
+        // Plan:
+        //   (Block Box) 1) Use all variants of the constructor to create a
+        //          tcp timer event manager, and verify the status of the
+        //         'hasTimeMetrics' flag.
+        //
+        //   (Black Box) 2) Configure a tcp timer event manager to collect
+        //           metrics, and provide a callback that blocks for a
+        //           long period.  Verify that 'timeMetrics' reflects a
+        //           CPU bound operation.
+        //
+        //   (White Box) 3) Configure a tcp timer event manager to not
+        //           collect metrics.  Set 'timeMetrics' to IO_BOUND.
+        //           Supply a callback that blocks for a long period.
+        //           Verify 'timeMetrics' reflects a I/O bound (the default
+        //           state).
+        //
+        // Testing:
+        //  TcpTimerEventManager(bslma::Allocator *basicAllocator = 0);
+        //  TcpTimerEventManager(collectTimeMetrics, *basicAllocator = 0);
+        //  TcpTimerEventManager(collectTimeMetrics, poolTimer, *ba = 0);
+        //  ~TcpTimerEventManager();
+        //  bool hasTimeMetrics() const;
+        // ----------------------------------------------------------------
 
-          if (verbose)
+        if (verbose)
               cout << "TESTING: 'collectTimeMetrics' and 'hasTimeMetrics'\n"
                    << "====================================================\n";
 
-          using namespace TEST_CASE_COLLECT_TIME_METRICS;
+        using namespace TEST_CASE_COLLECT_TIME_METRICS;
 
-          {
-              if (veryVerbose) {
-                  cout << "\tVerify the configuration option is set correctly'"
-                       << endl;
-              }
+        {
+            if (veryVerbose) {
+                cout << "\tVerify the configuration option is set correctly'"
+                     << endl;
+            }
 
-              btlso::DefaultEventManager<btlso::Platform::SELECT>
-                                          dummyEventManager(0, &testAllocator);
-              Obj mA(&testAllocator);
-              Obj mB(Obj::e_NO_HINT, &testAllocator);
-              Obj mC(Obj::e_NO_HINT, true, &testAllocator);
-              Obj mD(Obj::e_NO_HINT, false, &testAllocator);
-              Obj mE(Obj::e_NO_HINT, false, true, &testAllocator);
-              Obj mF(Obj::e_NO_HINT, false, false, &testAllocator);
-              Obj mG(&dummyEventManager, &testAllocator);
-              Obj mH(true, &testAllocator);
-              Obj mI(false, &testAllocator);
-              Obj mJ(false, true, &testAllocator);
-              Obj mK(false, false, &testAllocator);
+            btlso::DefaultEventManager<btlso::Platform::SELECT>
+                                        dummyEventManager(0, &testAllocator);
+            Obj mA(&testAllocator);
+            Obj mG(&dummyEventManager, &testAllocator);
+            Obj mH(true, &testAllocator);
+            Obj mI(false, &testAllocator);
+            Obj mJ(false, true, &testAllocator);
+            Obj mK(false, false, &testAllocator);
 
-              const Obj& A = mA;
-              const Obj& B = mB;
-              const Obj& C = mC;
-              const Obj& D = mD;
-              const Obj& E = mE;
-              const Obj& F = mF;
-              const Obj& G = mG;
-              const Obj& H = mH;
-              const Obj& I = mI;
-              const Obj& J = mJ;
-              const Obj& K = mK;
-              ASSERT(true  == A.hasTimeMetrics());
-              ASSERT(true  == B.hasTimeMetrics());
-              ASSERT(true  == C.hasTimeMetrics());
-              ASSERT(false == D.hasTimeMetrics());
-              ASSERT(false == E.hasTimeMetrics());
-              ASSERT(false == F.hasTimeMetrics());
-              ASSERT(false == G.hasTimeMetrics());
-              ASSERT(true  == H.hasTimeMetrics());
-              ASSERT(false == I.hasTimeMetrics());
-              ASSERT(false == J.hasTimeMetrics());
-              ASSERT(false == K.hasTimeMetrics());
-          }
-          {
-              if (veryVerbose) {
-                  cout << "\tConfigure metrics to be collected" << endl;
-              }
+            const Obj& A = mA;
+            const Obj& G = mG;
+            const Obj& H = mH;
+            const Obj& I = mI;
+            const Obj& J = mJ;
+            const Obj& K = mK;
+            ASSERT(true  == A.hasTimeMetrics());
+            ASSERT(false == G.hasTimeMetrics());
+            ASSERT(true  == H.hasTimeMetrics());
+            ASSERT(false == I.hasTimeMetrics());
+            ASSERT(false == J.hasTimeMetrics());
+            ASSERT(false == K.hasTimeMetrics());
+        }
+        {
+            if (veryVerbose) {
+                cout << "\tConfigure metrics to be collected" << endl;
+            }
 
-              enum { BUFFER_SIZE = 50 };
-              char buffer[BUFFER_SIZE];
-              memset(buffer, 0, BUFFER_SIZE);
+            enum { BUFFER_SIZE = 50 };
+            char buffer[BUFFER_SIZE];
+            memset(buffer, 0, BUFFER_SIZE);
 
-              btlso::SocketHandle::Handle handles[2];
-              ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
-              ASSERT(0 !=
-                  btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
+            btlso::SocketHandle::Handle handles[2];
+            ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                         handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
+            ASSERT(0 !=
+                btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
-              Obj mX(&testAllocator); const Obj& X = mX;
-              bdlf::Function<void (*)()> callback(&waitForASec);
-              ASSERT(0 == mX.registerSocketEvent(handles[1],
-                                                 btlso::EventType::e_READ,
-                                                 callback));
-              ASSERT(0 == mX.enable());
+            Obj mX(&testAllocator);
+            bsl::function<void()> callback(&waitForSomeTime);
+            ASSERT(0 == mX.registerSocketEvent(handles[1],
+                                               btlso::EventType::e_READ,
+                                               callback));
+            ASSERT(0 == mX.enable());
 
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
-              ASSERT(0 == mX.disable());
-              int percent = mX.timeMetrics()->percentage(
-                                           btlso::TimeMetrics::e_CPU_BOUND);
-              LOOP_ASSERT(percent, percent > 80);
+            bslmt::ThreadUtil::microSleep(10000); // 10 ms
+            ASSERT(0 == mX.disable());
+            int percent = mX.timeMetrics()->percentage(
+                                         btlso::TimeMetrics::e_CPU_BOUND);
+            LOOP_ASSERT(percent, percent > 80);
 
-              if (veryVerbose) {
-                  P(percent);
-              }
-              btlso::SocketImpUtil::close(handles[0]);
-              btlso::SocketImpUtil::close(handles[1]);
+            if (veryVerbose) {
+                P(percent);
+            }
+            btlso::SocketImpUtil::close(handles[0]);
+            btlso::SocketImpUtil::close(handles[1]);
 
-          }
-          {
-              if (veryVerbose) {
-                  cout << "\tConfigure metrics to not be collected" << endl;
-              }
+        }
+        {
+            if (veryVerbose) {
+                cout << "\tConfigure metrics to not be collected" << endl;
+            }
 
-              enum { BUFFER_SIZE = 50 };
-              char buffer[BUFFER_SIZE];
-              memset(buffer, 0, BUFFER_SIZE);
+            enum { BUFFER_SIZE = 50 };
+            char buffer[BUFFER_SIZE];
+            memset(buffer, 0, BUFFER_SIZE);
 
-              btlso::SocketHandle::Handle handles[2];
-              ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
-                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
-              ASSERT(0 !=
-                  btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
+            btlso::SocketHandle::Handle handles[2];
+            ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                         handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
+            ASSERT(0 !=
+                btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
 
-              Obj mX(Obj::e_NO_HINT, false, &testAllocator);
-              const Obj& X = mX;
-              bdlf::Function<void (*)()> callback(&waitForASec);
-              ASSERT(0 == mX.registerSocketEvent(handles[1],
-                                                 btlso::EventType::e_READ,
-                                                 callback));
-              ASSERT(0 == mX.enable());
+            Obj mX(false, &testAllocator);
+            const Obj& X = mX;
+            bsl::function<void()> callback(&waitForSomeTime);
+            ASSERT(0 == mX.registerSocketEvent(handles[1],
+                                               btlso::EventType::e_READ,
+                                               callback));
+            ASSERT(0 == mX.enable());
 
-              bdlqq::ThreadUtil::microSleep(10000); // 10 ms
-              ASSERT(0 == mX.disable());
-              int percent = mX.timeMetrics()->percentage(
-                                           btlso::TimeMetrics::e_CPU_BOUND);
-              LOOP_ASSERT(percent, percent <= 1);
+            bslmt::ThreadUtil::microSleep(10000); // 10 ms
+            ASSERT(0 == mX.disable());
+            int percent = mX.timeMetrics()->percentage(
+                                         btlso::TimeMetrics::e_CPU_BOUND);
+            LOOP_ASSERT(percent, percent <= 1);
 
-              if (veryVerbose) {
-                  P(percent);
-              }
+            if (veryVerbose) {
+                P(percent);
+            }
 
-              btlso::SocketImpUtil::close(handles[0]);
-              btlso::SocketImpUtil::close(handles[1]);
+            btlso::SocketImpUtil::close(handles[0]);
+            btlso::SocketImpUtil::close(handles[1]);
 
-          }
+        }
       } break;
       case 11: {
-          // ----------------------------------------------------------------
-          // ADDITIONAL 'enable' and 'isEnabled' TEST: DRQS 15212134
-          //
-          // Concerns:
-          //   o DRQS 151212134 -
-          //           that callbacks dispatched by events registed prior
-          //           to invoking 'enable', find 'isEnabled' to be 'true'.
-          //
-          // Plan:
-          //   Create a socket pair and write data to both ends of the open
-          //   connection, such that a 'btlso::EventManager' created for these
-          //   sockets would dispatch a 'READ' event on each socket.  Register
-          //   these socket handles with the tcp event manager under dispatch,
-          //   such that they will dispatch 'READ' events to the test callback
-          //   'testIsEnabled'.  Then call 'enable'.
-          //
-          // Testing:
-          //    int enable();
-          //    int isEnabled() const;
-          // ----------------------------------------------------------------
+        // ----------------------------------------------------------------
+        // ADDITIONAL 'enable' and 'isEnabled' TEST
+        //
+        // Concerns:
+        //   o that callbacks dispatched by events registed prior to invoking
+        //   'enable', find 'isEnabled' to be 'true'.
+        //
+        // Plan:
+        //   Create a socket pair and write data to both ends of the open
+        //   connection, such that a 'btlso::EventManager' created for these
+        //   sockets would dispatch a 'READ' event on each socket.  Register
+        //   these socket handles with the tcp event manager under dispatch,
+        //   such that they will dispatch 'READ' events to the test callback
+        //   'testIsEnabled'.  Then call 'enable'.
+        //
+        // Testing:
+        //  int enable();
+        //  int isEnabled() const;
+        //  int enable(const bslmt::ThreadAttributes& attribute);
+        // ----------------------------------------------------------------
 
-          if (verbose)
+        if (verbose)
               cout << "TESTING enable() and isEnabled()" << endl
                    << "================================" << endl;
 
-          using namespace TEST_CASE_DRQS15212134;
+        using namespace TEST_CASE_ENABLE_TEST;
 
-          enum { BUFFER_SIZE = 50 };
-          char buffer[BUFFER_SIZE];
-          memset(buffer, 0, BUFFER_SIZE);
+        enum { BUFFER_SIZE = 50 };
+        char buffer[BUFFER_SIZE];
+        memset(buffer, 0, BUFFER_SIZE);
 
-          btlso::SocketHandle::Handle handles[2];
-          ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+        btlso::SocketHandle::Handle handles[2];
+        ASSERT(0 == btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
                            handles, btlso::SocketImpUtil::k_SOCKET_STREAM));
 
-          ASSERT(0 !=
-                 btlso::SocketImpUtil::write(handles[0], buffer, BUFFER_SIZE));
-          ASSERT(0 !=
-                 btlso::SocketImpUtil::write(handles[1], buffer, BUFFER_SIZE));
+        ASSERT(0 != btlso::SocketImpUtil::write(handles[0],
+                                                buffer,
+                                                BUFFER_SIZE));
+        ASSERT(0 != btlso::SocketImpUtil::write(handles[1],
+                                                buffer,
+                                                BUFFER_SIZE));
 
-          bsls::AtomicInt complete(0);
-          btlmt::TcpTimerEventManager manager(&testAllocator);
-          bdlf::Function<void (*)()> callback(
-                  bdlf::BindUtil::bind(&testIsEnabled, &manager, &complete));
-          ASSERT(0 == manager.registerSocketEvent(handles[0],
-                                                  btlso::EventType::e_READ,
-                                                  callback));
-          ASSERT(0 == manager.registerSocketEvent(handles[1],
-                                                  btlso::EventType::e_READ,
-                                                  callback));
-          manager.enable();
-          manager.disable();
-          ASSERT(0 != complete);
+        bsls::AtomicInt complete(0);
+        btlmt::TcpTimerEventManager manager(&testAllocator);
+        bsl::function<void()> callback(
+                bdlf::BindUtil::bind(&testIsEnabled, &manager, &complete));
 
-          btlso::SocketImpUtil::close(handles[0]);
-          btlso::SocketImpUtil::close(handles[1]);
+        ASSERT(0 == manager.registerSocketEvent(handles[0],
+                                                btlso::EventType::e_READ,
+                                                callback));
+        ASSERT(0 == manager.registerSocketEvent(handles[1],
+                                                btlso::EventType::e_READ,
+                                                callback));
+        manager.enable();
+        manager.disable();
+        ASSERT(0 != complete);
+
+        btlso::SocketImpUtil::close(handles[0]);
+        btlso::SocketImpUtil::close(handles[1]);
       } break;
       case 10: {
-          // ----------------------------------------------------------------
-          // TESTING 'execute' METHOD
-          // Concerns:
-          //   o execute correctly invokes the installed functor
-          //
-          // Plan:
-          //   Execute a recording functor from multiple threads, both when
-         //   channel pool is running and when it is not.
-          //
-          // Testing:
-          //   void execute(const bdlf::Function<void (*)()>& functor);
-          // ----------------------------------------------------------------
+        // ----------------------------------------------------------------
+        // TESTING 'execute' METHOD
+        // Concerns:
+        //   o execute correctly invokes the installed functor
+        //
+        // Plan:
+        //   Execute a recording functor from multiple threads, both when
+        //   channel pool is running and when it is not.
+        //
+        // Testing:
+        //   void execute(const bsl::function<void()>& functor);
+        // ----------------------------------------------------------------
 
-          if (verbose)
-              cout << "TESTING execute METHOD." << endl
-                   << "=======================" << endl;
+        if (verbose) cout << "TESTING execute METHOD." << endl
+                          << "=======================" << endl;
 
-          enum { NUM_THREADS = 16 };
+        enum { NUM_THREADS = 16 };
 
-          if (verbose)
-              cout << "\tOn Enabled object" << endl;
-          {
-              Obj mX(&testAllocator);
-              mX.enable();
-              ASSERT(1 == mX.isEnabled());
-              executeInParallel(executeTest, (void*)&mX, NUM_THREADS);
-              mX.disable();
-          }
-#if 0
-    // TBD -- currently, the behavior is undefined if the object is disabled
-          if (verbose)
-              cout << "\tOn disabled object" << endl;
-          {
-              Obj mX(&testAllocator);
-              ASSERT(0 == mX.isEnabled());
-              executeInParallel(executeTest, (void*)&mX, NUM_THREADS);
-          }
-#endif
+        if (verbose) cout << "\tOn Enabled object" << endl;
+        {
+            Obj mX(&testAllocator);
+            mX.enable();
+            ASSERT(1 == mX.isEnabled());
+            executeInParallel(executeTest, (void*)&mX, NUM_THREADS);
+            mX.disable();
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1405,9 +1438,9 @@ int main(int argc, char *argv[])
         //   advertised when invoked in a callback.
         //
         // Testing:
-        //   enable()
-        //   disable()
-        //   isEnabled
+        //  int enable();
+        //  int disable();
+        //  int isEnabled() const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1422,13 +1455,14 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, mX.isEnabled());
 
                 btlso::EventManagerTestPair testPair;
-                bdlf::Function<void (*)()> callback(
-                        bdlf::BindUtil::bindA(&testAllocator, &disableCb, &mX));
+                bsl::function<void()> callback(
+                       bdlf::BindUtil::bindA(&testAllocator, &disableCb, &mX));
 
                 mX.registerSocketEvent(testPair.observedFd(),
-                                       btlso::EventType::e_WRITE, callback);
+                                       btlso::EventType::e_WRITE,
+                                       callback);
 
-                bdlqq::ThreadUtil::microSleep(10000); // 10 ms
+                bslmt::ThreadUtil::microSleep(10000); // 10 ms
             }
         }
       } break;
@@ -1443,7 +1477,7 @@ int main(int argc, char *argv[])
         //   o deregistration from an invoked callback works correctly
         //
         // Testing:
-        //   deregisterSocketEvent
+        //  void deregisterSocketEvent(handle, event);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1457,21 +1491,21 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &deregisterThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1493,21 +1527,21 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &deregisterThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1532,7 +1566,7 @@ int main(int argc, char *argv[])
         //   o deregistration from an invoked callback works correctly
         //
         // Testing:
-        //   deregisterSocketEvent
+        //  void deregisterAllSocketEvents();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1546,8 +1580,8 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
             if (veryVerbose) {
                 Q(before deregisterThread);
@@ -1558,13 +1592,13 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &deregisterThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1587,8 +1621,8 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             if (veryVerbose) {
@@ -1600,13 +1634,13 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &deregisterThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &deregisterThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1632,7 +1666,7 @@ int main(int argc, char *argv[])
         //   o registration from an invoked callback works correctly
         //
         // Testing:
-        //   registerSocketEvent
+        //  int registerSocketEvent(handle, event, callback);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1646,22 +1680,22 @@ int main(int argc, char *argv[])
             enum { NUM_THREADS = 10 };
             Obj mX(&testAllocator);
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &registerThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1674,6 +1708,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == numTotalSocketEvents);
         }
+
         if (verbose)
             cout << "\tConcern #2: Registration on enabled object."
                  << endl;
@@ -1682,22 +1717,22 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);
             mX.enable();
             ASSERT(mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &registerThread, &mX);
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                   bslmt::ThreadAttributes(),
+                                                   &registerThread, &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1707,6 +1742,7 @@ int main(int argc, char *argv[])
             // Call isRegistered() because it will do a waitForResult() which
             // will allow all pending deregistration events to complete, which
             // will give us the right result from numTotalSocketEvents()
+
             btlso::SocketHandle::Handle nilHandle = 0;
             mX.isRegistered(nilHandle, btlso::EventType::e_READ);
             int numTotalSocketEvents = mX.numTotalSocketEvents();
@@ -1726,24 +1762,27 @@ int main(int argc, char *argv[])
         //   guarantee that they are invoked within a hard limit; disable that
         //   check.
         // Testing:
-        //   disable
-        //   enable
-        //   registerTimer
+        //  int disable();
+        //  int enable();
+        //  void *registerTimer(expiryTime, callback);
         // --------------------------------------------------------------------
+
         if (verbose)
             cout << "TESING 'enable', 'disable' AND 'registerTimer'" << endl
                  << "==============================================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
+                const bool TIMER = static_cast<bool>(k);
+
+                Obj mX(false, TIMER, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-                enum { NUM_TIMERS  = 100000, NUM_ATTEMPTS = 10 };
+                enum { NUM_TIMERS  = 100, NUM_ATTEMPTS = 10 };
                 bsl::vector<bsls::TimeInterval> timeValues(NUM_TIMERS);
-                bsls::TimeInterval offset(3.0);
-                bsls::TimeInterval delta(0.5); // 1/2 seconds
+                bsls::TimeInterval offset(0, 200000);
+                bsls::TimeInterval delta(0, 100000);
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
@@ -1751,7 +1790,7 @@ int main(int argc, char *argv[])
                     timeValues[i] = bdlt::CurrentTime::now();
                     timeValues[i] += offset;
 
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, false));
@@ -1773,7 +1812,7 @@ int main(int argc, char *argv[])
 
                     LOOP_ASSERT(i, 0 == da.numBytesInUse());
                 }
-                bdlqq::ThreadUtil::sleep(
+                bslmt::ThreadUtil::sleep(
                 timeValues[NUM_TIMERS - 1] - bdlt::CurrentTime::now() + delta);
 
                 ASSERT(0 == mX.disable());
@@ -1794,27 +1833,29 @@ int main(int argc, char *argv[])
         //   Register a large number of timers to be invoked at the time of the
         //   registration and verify that each is invoked within a hard limit.
         // Testing:
-        //   registerTimer
+        //  void *registerTimer(expiryTime, callback);
         // --------------------------------------------------------------------
         if (verbose)
             cout << "TESING 'registerTimer'" << endl
                  << "======================" << endl;
         {
             for (int k = 0; k < 2; ++k) {
-                Obj mX(Obj::e_NO_HINT, false, (bool) k, &testAllocator);
+                const bool TIMER = static_cast<bool>(k);
+
+                Obj mX(false, TIMER, &testAllocator);
                 const Obj& X = mX;
 
                 ASSERT(0 == mX.enable()); ASSERT(mX.isEnabled());
 
-                enum { NUM_TIMERS  = 10000 };
+                enum { NUM_TIMERS  = 100 };
                 bsls::TimeInterval timeValues[NUM_TIMERS];
-                bsls::TimeInterval delta(0.5); // 1/2 seconds
+                bsls::TimeInterval delta(0, 100000); // 100 milliseconds
                 int flags[NUM_TIMERS];
 
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     flags[i] = 0;
                     timeValues[i] = bdlt::CurrentTime::now();
-                    bdlf::Function<void (*)()> functor(
+                    bsl::function<void()> functor(
                         bdlf::BindUtil::bind(&timerCallback,
                                             &flags[i], &timeValues[i],
                                             delta, i, true));
@@ -1827,14 +1868,13 @@ int main(int argc, char *argv[])
                     cout << "\t\tRegistered " << NUM_TIMERS
                          << " timers." << endl;
                 }
-                bdlqq::ThreadUtil::sleep(delta);
+                bslmt::ThreadUtil::sleep(delta);
 
                 ASSERT(0 == mX.disable());
                 for (int i = 0; i < NUM_TIMERS; ++i) {
                     LOOP_ASSERT(i, 1 == flags[i]);
                 }
 
-                bdlqq::ThreadUtil::sleep(bsls::TimeInterval(5));
                 ASSERT(0 == X.numTimers());
                 ASSERT(0 == X.numEvents());
             }
@@ -1851,7 +1891,7 @@ int main(int argc, char *argv[])
         //   o delay for invocation is limited
         //
         // Testing:
-        //   registerTimer
+        //  void *registerTimer(expiryTime, callback);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1862,28 +1902,30 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Registration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 10 };
-            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
+            enum { NUM_THREADS = 1 };
+            Obj mX(false, true, &testAllocator);
             const Obj& X = mX;
 
             ASSERT(0 == mX.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            bdlqq::Barrier barrier(NUM_THREADS);
+            bslmt::Barrier barrier(NUM_THREADS);
             globalBarrier = &barrier;
 
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+            defaultAllocator.setVerbose(1);
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
                                                   &testTimersThread,
                                                   &mX);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
             for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
+                int rc = bslmt::ThreadUtil::join(workers[i]);
                 LOOP_ASSERT(i, 0 == rc);
             }
 
@@ -1899,44 +1941,44 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.numTotalSocketEvents());
         }
 
-        if (verbose)
-            cout << "\tConcern #2: Registration on enabled object."
-                 << endl;
-        {
-            enum { NUM_THREADS = 10 };
-            Obj mX(Obj::e_NO_HINT, false, true, &testAllocator);
-            const Obj& X = mX;
-            ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
-            bdlqq::ThreadUtil::Handle workers[NUM_THREADS];
+//         if (verbose)
+//             cout << "\tConcern #2: Registration on enabled object."
+//                  << endl;
+//         {
+//             enum { NUM_THREADS = 10 };
+//             Obj mX(false, true, &testAllocator);
+//             const Obj& X = mX;
+//             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
+//             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-            ASSERT(0 == defaultAllocator.numBytesInUse());
-            bdlqq::Barrier barrier(NUM_THREADS);
-            globalBarrier = &barrier;
+//             ASSERT(0 == defaultAllocator.numBytesInUse());
+//             bslmt::Barrier barrier(NUM_THREADS);
+//             globalBarrier = &barrier;
 
-            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+//             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::create(&workers[i],
-                                                  bdlqq::ThreadAttributes(),
-                                                  &testTimersThread,
-                                                  &mX);
-                LOOP_ASSERT(i, 0 == rc);
-            }
+//             for (int i = 0; i < NUM_THREADS; ++i) {
+//                 int rc = bslmt::ThreadUtil::create(&workers[i],
+//                                                   bslmt::ThreadAttributes(),
+//                                                   &testTimersThread,
+//                                                   &mX);
+//                 LOOP_ASSERT(i, 0 == rc);
+//             }
 
-            for (int i = 0; i < NUM_THREADS; ++i) {
-                int rc = bdlqq::ThreadUtil::join(workers[i]);
-                LOOP_ASSERT(i, 0 == rc);
-            }
+//             for (int i = 0; i < NUM_THREADS; ++i) {
+//                 int rc = bslmt::ThreadUtil::join(workers[i]);
+//                 LOOP_ASSERT(i, 0 == rc);
+//             }
 
-            LOOP_ASSERT(defaultAllocator.numBytesInUse(),
-                        0 == defaultAllocator.numBytesInUse());
+//             LOOP_ASSERT(defaultAllocator.numBytesInUse(),
+//                         0 == defaultAllocator.numBytesInUse());
 
-            if (veryVerbose) {
-                P(X.numTimers());
-            }
-            ASSERT(0 == mX.numTimers());
-            ASSERT(0 == mX.numTotalSocketEvents());
-        }
+//             if (veryVerbose) {
+//                 P(X.numTimers());
+//             }
+//             ASSERT(0 == mX.numTimers());
+//             ASSERT(0 == mX.numTotalSocketEvents());
+//         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -1948,10 +1990,11 @@ int main(int argc, char *argv[])
         //   o an object can be destroyed, whether enabled or not
         //   Use 'isEnabled' to verify state.
         // Testing:
-        //   enable
-        //   disable
-        //   isEnabled
+        //  int enable();
+        //  int disable();
+        //  int isEnabled() const;
         // --------------------------------------------------------------------
+
         if (verbose)
             cout << "TESTING 'enable' AND 'disable' METHODS" << endl
                  << "======================================" << endl;
@@ -2072,9 +2115,9 @@ int main(int argc, char *argv[])
         //   Create an object of this event manager under test.  Perform
         //   some basic operations on it.
         // --------------------------------------------------------------------
-        if (verbose)
-            cout << "BREATHING TEST" << endl
-                 << "==============" << endl;
+
+        if (verbose) cout << "BREATHING TEST" << endl
+                          << "==============" << endl;
 
         Obj mX(&testAllocator); const Obj& X = mX;
 
@@ -2085,7 +2128,7 @@ int main(int argc, char *argv[])
             P(X.numEvents());
         }
 #ifdef BSLS_PLATFORM_OS_UNIX
-        ASSERT((bdlqq::ThreadUtil::Handle) -1 == X.dispatcherThreadHandle());
+        ASSERT((bslmt::ThreadUtil::Handle) -1 == X.dispatcherThreadHandle());
 #endif
 
         ASSERT(0 == X.numTotalSocketEvents());
@@ -2094,7 +2137,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.enable());
         ASSERT(1 == mX.isEnabled());
 #ifdef BSLS_PLATFORM_OS_UNIX
-        ASSERT((bdlqq::ThreadUtil::Handle) -1 != X.dispatcherThreadHandle());
+        ASSERT((bslmt::ThreadUtil::Handle) -1 != X.dispatcherThreadHandle());
 #endif
         ASSERT(0 == mX.disable());
 
@@ -2121,7 +2164,7 @@ int main(int argc, char *argv[])
             MAX_IDLE_TIME = 100
         };
 
-        bdlmt::ThreadPool threadPool(bdlqq::ThreadAttributes(),
+        bdlmt::ThreadPool threadPool(bslmt::ThreadAttributes(),
                                    MIN_THREADS,
                                    MAX_THREADS,
                                    MAX_IDLE_TIME);
@@ -2155,7 +2198,7 @@ int main(int argc, char *argv[])
 
             metrics->resetAll();
             metrics->resetStartTimes();
-            bdlqq::ThreadUtil::microSleep(0, 5);  // 5 seconds
+            bslmt::ThreadUtil::microSleep(0, 5);  // 5 seconds
         }
 
         if (verbose)

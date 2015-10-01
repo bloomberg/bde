@@ -217,9 +217,9 @@ namespace BloombergLP {
 namespace btlso { template<class ADDRESS> class StreamSocket; }
 namespace btlsos {
 
-                           // =====================
-                           // class TcpTimedChannel
-                           // =====================
+                          // =====================
+                          // class TcpTimedChannel
+                          // =====================
 
 class TcpTimedChannel : public btlsc::TimedChannel {
     // This class implements 'btlsc::TimedChannel' protocol over TCP/IP
@@ -931,7 +931,7 @@ class TcpTimedChannel : public btlsc::TimedChannel {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

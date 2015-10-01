@@ -29,21 +29,21 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlf {
 template <int I>
 struct PlaceHolder {
-    enum {
-        value = I
-
-            // ARB: backup value not needed (based on OpenGrok search)
-            // VALUE never was part of the intended interface, and is not used.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , VALUE = value
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-    };
+    BSLMF_NESTED_TRAIT_DECLARATION(PlaceHolder, bslmf::IsBitwiseMoveable);
+    enum { VALUE = I };
 };
 
 namespace PlaceHolders {

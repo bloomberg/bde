@@ -527,12 +527,12 @@ BSLS_IDENT("$Id: $")
 //        static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
 //        ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //..
 // and the following wraps the 'inheritThresholdLevels' function within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
 //        ball::LoggerManager::DefaultThresholdLevelsCallback
 //                                 thresholdsCallback(&inheritThresholdLevels);
@@ -873,16 +873,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -891,6 +887,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MAP
@@ -933,8 +933,7 @@ class Logger {
         // log record.  Note that the user-defined fields of each record must
         // be type-consistent with the schema of the user populator callback.
 
-    typedef bdlf::Function<void (*)(Transmission::Cause)>
-                                                     PublishAllTriggerCallback;
+    typedef bsl::function<void(Transmission::Cause)> PublishAllTriggerCallback;
         // 'PublishAllTriggerCallback' is the type of the functor that is
         // invoked with the publication cause to publish all record buffers of
         // all loggers that are allocated by the logger manager.
@@ -963,7 +962,7 @@ class Logger {
 
     int                   d_scratchBufferSize;  // message buffer size (bytes)
 
-    bdlqq::Mutex          d_scratchBufferMutex; // ensure thread-safety of
+    bslmt::Mutex          d_scratchBufferMutex; // ensure thread-safety of
                                                 // message buffer
 
     LoggerManagerConfiguration::LogOrder
@@ -1107,7 +1106,7 @@ class Logger {
     void removeAll();
         // Remove all log records from the record buffer of this logger.
 
-    char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
+    char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer of this logger used for formatting
         // messages is available.  Return the address of the modifiable buffer
         // to which this thread of execution has exclusive access, load the
@@ -1192,7 +1191,7 @@ class LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
-    bdlqq::RWMutex         d_defaultThresholdsLock;
+    bslmt::RWMutex         d_defaultThresholdsLock;
                                          // 'd_defaultThresholdsLock' protector
 
     ThresholdAggregate
@@ -1222,7 +1221,7 @@ class LoggerManager {
     bsl::set<Logger *>
                            d_loggers;            // set of *allocated* loggers
 
-    bdlqq::RWMutex         d_loggersLock;        // 'd_loggers' protector
+    bslmt::RWMutex         d_loggersLock;        // 'd_loggers' protector
 
     RecordBuffer          *d_recordBuffer_p;     // holds record buffer (owned)
 
@@ -1241,7 +1240,7 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    bdlqq::RWMutex         d_defaultLoggersLock; // registry lock
+    bslmt::RWMutex         d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
                            d_logOrder;           // logging order
@@ -1358,7 +1357,7 @@ class LoggerManager {
         // undefined unless 'record' was obtained by a call to the
         // 'LoggerManager::getRecord' method.
 
-    static char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the static buffer used for formatting messages
         // is available.  Return the address of the modifiable buffer to which
         // this thread of execution has exclusive access, load the address of

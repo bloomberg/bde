@@ -13,13 +13,14 @@
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsl_c_stdlib.h>     // atoi()
+#include <bsl_cstring.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -41,27 +42,26 @@ using namespace bsl;  // automatically added by script
 // but a new set of data to test this specific event manager component.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 3] btlso::DefaultEventManager
-// [ 3] ~btlso::DefaultEventManager
+// [ 2] btlso::DefaultEventManager
+// [ 2] ~btlso::DefaultEventManager
 //
 // MANIPULATORS
-// [11] registerSocketEvent
-// [12] deregisterSocketEvent
-// [13] deregisterSocket
-// [14] deregisterAll
-// [15] dispatch
+// [10] registerSocketEvent
+// [11] deregisterSocketEvent
+// [12] deregisterSocket
+// [13] deregisterAll
+// [14] dispatch
 //
 // ACCESSORS
-// [17] canRegisterSockets
-// [17] hasLimitedSocketCapacity
-// [10] numSocketEvents
-// [10] numEvents
-// [10] isRegistered
+// [16] canRegisterSockets
+// [16] hasLimitedSocketCapacity
+// [ 9] numSocketEvents
+// [ 9] numEvents
+// [ 9] isRegistered
 //-----------------------------------------------------------------------------
-// [18] USAGE
-// [16] TESTING CONCERN: exception set on windows (DRQS 11464834)
+// [17] USAGE
+// [15] TESTING CONCERN: exception set on windows
 // [ 1] BREATHING TEST
-// [ 2] Assumptions about 'select' system call
 // [-4] TESTING PERFORMANCE 'registerSocketEvent'
 // [-3] TESTING PERFORMANCE 'dispatch'
 // [-2] TESTING PERFORMANCE 'registerSocketEvent'
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
                                  btlso::TimeMetrics::e_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 18: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
       } break;
 
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'dispatchCallbacks'
         //   Dispatching signaled user callbacks works correctly even if one
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 17: {
+      case 16: {
         // -----------------------------------------------------------------
         // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
         //
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(mX.canRegisterSockets());
 
-                bdlf::Function<void (*)()> cb1, cb2;
+                bsl::function<void()> cb1, cb2;
                 int rc = mX.registerSocketEvent(
                                           (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!mX.canRegisterSockets());
 
-                bdlf::Function<void (*)()> cb1, cb2;
+                bsl::function<void()> cb1, cb2;
                 ASSERT_FAIL(mX.registerSocketEvent(
                                           (btlso::SocketHandle::Handle) handle,
                                            btlso::EventType::e_READ,
@@ -509,9 +509,9 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 15: {
         // -----------------------------------------------------------------
-        // TESTING CONCERN: exception set on windows (DRQS 11464834)
+        // TESTING CONCERN: exception set on windows
         //   Connecting to a port that is not listened on, should trigger a
         //   write/connect event.  On windows, however, it selects the
         //   exception set instead of the write set.
@@ -524,12 +524,11 @@ int main(int argc, char *argv[])
         //   selects an exception set and invokes the appropriate callback.
         //
         // Testing:
-        //   CONCERN: EXCEPTION SET ON WINDOWS (DRQS 11464834)
+        //   CONCERN: EXCEPTION SET ON WINDOWS
         // -----------------------------------------------------------------
-        if (verbose)
-            cout << endl
-                << "TESTING exception set on windows (DRQS 11464834)." << endl
-                << "=================================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING exception set on windows." << endl
+                          << "=================================" << endl;
 
         {
             Obj mX(&timeMetric, &testAllocator);
@@ -537,7 +536,7 @@ int main(int argc, char *argv[])
             btlso::SocketHandle::Handle sendSocket;
             int        errorCode;
 
-            bdlf::Function<void (*)()> connectCallback;
+            bsl::function<void()> connectCallback;
             const int NUM_ATTEMPTS = 100;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 errorCode = 0;
@@ -589,10 +588,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 15: {
-// TBD FIX ME
-#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS) && \
-    !defined(BSLS_PLATFORM_OS_HPUX)
+      case 14: {
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -684,7 +680,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "Verifying behavior on timeout (no sockets)." << endl;
         {
-            const int NUM_ATTEMPTS = 1000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -709,8 +705,8 @@ int main(int argc, char *argv[])
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
-            const int NUM_ATTEMPTS = 5000;
+            bsl::function<void()> nullFunctor;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
@@ -733,9 +729,8 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif
       } break;
-      case 14: {
+      case 13: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterAll' FUNCTION:
         //   It must be verified that the application of 'deregisterAll'
@@ -765,7 +760,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 13: {
+      case 12: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
         //   All possible transitions from other state to 0 must be
@@ -787,17 +782,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING 'deregisterSocket'" << endl
                                   << "==========================" << endl;
         {
-#ifndef BSLS_PLATFORM_CPU_64_BIT
-            // This test fails on 64 bit platforms.  @FIXME @TODO @TBD
-
             Obj mX(&timeMetric, &testAllocator);
             btlso::EventManagerTester::testDeregisterSocket(&mX, controlFlag);
-#endif
         }
 
       } break;
 
-      case 12: {
+      case 11: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocketEvent' FUNCTION:
         //   All possible deregistration transitions must be exhaustively
@@ -869,7 +860,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 10: {
         // -----------------------------------------------------------------
         // TESTING 'registerSocketEvent' FUNCTION:
         //   The main concern about this function is to ensure full coverage
@@ -946,7 +937,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 10: {
+      case 9: {
         // -----------------------------------------------------------------
         // TESTING ACCESSORS:
         //   The main concern about this function is to ensure full coverage
@@ -976,10 +967,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 9: {
-// TBD FIX ME
-#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_SOLARIS) && \
-    !defined(BSLS_PLATFORM_OS_HPUX)
+      case 8: {
         // -----------------------------------------------------------------
         // TESTING 'dispatch' FUNCTION:
         //   The goal is to ensure that 'dispatch' invokes the callback
@@ -1068,7 +1056,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tVerifying behavior on timeout (no sockets)." << endl;
         {
-            const int NUM_ATTEMPTS = 1000;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 bsls::TimeInterval deadline = bdlt::CurrentTime::now();
@@ -1093,8 +1081,8 @@ int main(int argc, char *argv[])
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
-            const int NUM_ATTEMPTS = 5000;
+            bsl::function<void()> nullFunctor;
+            const int NUM_ATTEMPTS = 50;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
@@ -1118,9 +1106,8 @@ int main(int argc, char *argv[])
                 }
             }
         }
-#endif
       } break;
-      case 8: {
+      case 7: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterAll' FUNCTION:
         //   It must be verified that the application of 'deregisterAll'
@@ -1149,7 +1136,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 6: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
         //   All possible transitions from other state to 0 must be
@@ -1178,7 +1165,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 5: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocketEvent' FUNCTION:
         //   All possible deregistration transitions must be exhaustively
@@ -1253,7 +1240,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 4: {
         // -----------------------------------------------------------------
         // TESTING 'registerSocketEvent' FUNCTION:
         //   The main concern about this function is to ensure full coverage
@@ -1332,9 +1319,8 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
       } break;
-      case 4: {
+      case 3: {
         // -----------------------------------------------------------------
         // TESTING ACCESSORS:
         //   The main concern about this function is to ensure full coverage
@@ -1366,7 +1352,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 2: {
         // -----------------------------------------------------------------
         // VERIFYING ASSUMPTIONS REGARDING 'select' SYSTEM CALL
         // Concerns:
@@ -1447,15 +1433,13 @@ int main(int argc, char *argv[])
             maxFd = testPairs[i].observedFd() + 1;
 #endif
 
-// TBD: Uncomment
-//             LOOP_ASSERT(i, mX.canBeRegistered(testPairs[i].observedFd()));
             FD_ZERO(&readSet); FD_ZERO(&writeSet);
             FD_SET(testPairs[i].observedFd(), &readSet);
             FD_SET(testPairs[i].observedFd(), &writeSet);
 
-            // Fix test failure (DRQS 16736357). Ensure the data written above
-            // is ready to be read, by calling select and not providing a write
-            // set.
+            // Fix test failure.  Ensure the data written above is ready to be
+            // read, by calling select and not providing a write set.
+
             int selectReturnValue = ::select(maxFd,
                                              &readSet,
                                              NULL,
@@ -1499,12 +1483,6 @@ int main(int argc, char *argv[])
             for (int j = 0; j <= i; ++j) {
                 FD_CLR(testPairs[j].controlFd(), &testSet);
             }
-// TBD: Uncomment
-//             LOOP_ASSERT (i, 0 ==
-// //--------------------------^
-// Obj::compareFdSets(testSet, controlSet));
-// //--------------------------^
-
         }
 
         if (veryVerbose) cout << "\tAddressing concern #3." << endl;
@@ -1562,119 +1540,6 @@ int main(int argc, char *argv[])
         //--v
         }
 
-      } break;
-      case 2: {
-        // -----------------------------------------------------------------
-        // TESTING 'compareFdSets' and 'canBeRegistered' CLASS METHODS
-        // Concerns:
-        //   o the function behaves correctly on the sets having the same
-        //     elements in the same order
-        //   o the function behaves correctly on the sets having the same
-        //     elements in different order
-        //   o the function behaves correctly on the sets having different
-        //     elements
-        //
-        // Methodology:
-        //   Use table-driven approach using integers cast to socket
-        //   handles for testing 'compareFdSets'
-        //   Use white-box knowledge about different platforms in order
-        //   to test 'canBeRegistered' method.
-        //
-        // Testing:
-        //   Obj::compareFdSets(...)
-        //   Obj::canBeRegistered(...)
-        // -----------------------------------------------------------------
-
-#if 0
-        if (verbose) cout << endl
-            << "TESTING 'compareFdSets' and 'canBeRegistered' CLASS METHODS."
-            << endl
-            << "============================================================"
-            << endl;
-
-        enum {
-            MAX_HANDLES = 100
-        };
-
-        struct {
-            int                        d_lineNo;
-            btlso::SocketHandle::Handle d_set1[MAX_HANDLES];
-            int                        d_lengthSet1;
-            btlso::SocketHandle::Handle d_set2[MAX_HANDLES];
-            int                        d_lengthSet2;
-            int                        d_expected;
-        } DATA[] = {
-            // Summary length  of 0
-            { L_, {},        0, {},        0,    0     },
-
-            // Summary length  of 1
-            { L_, {1      }, 1, {},        0,    1     },
-            { L_, {},        0, {1      }, 1,    1     },
-
-            // Summary length  of 2
-            { L_, {},        0, {1, 2   }, 2,    1     },
-            { L_, {1, 2   }, 2, {},        0,    1     },
-            { L_, {1      }, 1, {1      }, 1,    0     },
-            { L_, {0      }, 1, {1      }, 1,    1     },
-
-            // Summary length  of 3
-            { L_, {},    0,     {1,2,3  }, 3,    1     },
-            { L_, {1      }, 1, {1,2    }, 2,    1     },
-            { L_, {1,2    }, 2, {2      }, 1,    1     },
-            { L_, {1,2,3  }, 3, {       }, 0,    1     },
-
-            // Summary length  of 4
-            { L_, {},    0,     {1,2,3,4}, 4,    1     },
-            { L_, {1      }, 1, {1,2,3  }, 3,    1     },
-            { L_, {1,2    }, 2, {2,3    }, 2,    1     },
-            { L_, {1,2    }, 2, {1,2    }, 2,    0     },
-            { L_, {1,2    }, 2, {2,1    }, 2,    0     },
-            { L_, {1,2,3  }, 3, {1      }, 1,    1     },
-            { L_, {1,2,3  }, 3, {1      }, 1,    1     },
-            { L_, {1,2,3,4}, 4, {       }, 0,    1     },
-
-        };
-
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-        for (int i = 0; i < NUM_DATA; ++i) {
-            fd_set set1, set2;
-            FD_ZERO(&set1); FD_ZERO(&set2);
-            for (int j = 0; j < DATA[i].d_lengthSet1; ++j) {
-                if (veryVerbose) {
-                    P_(DATA[i].d_set1[j]);
-                }
-                FD_SET(DATA[i].d_set1[j], &set1);
-            }
-            if (veryVerbose) P("");
-
-            for (int j = 0; j < DATA[i].d_lengthSet2; ++j) {
-                if (veryVerbose) {
-                    P_(DATA[i].d_set2[j]);
-                }
-                FD_SET(DATA[i].d_set2[j], &set2);
-            }
-            if (veryVerbose) P("");
-
-            LOOP_ASSERT(DATA[i].d_lineNo, DATA[i].d_expected ==
-            Obj::compareFdSets(set1, set2));
-
-        }
-        if (verbose)
-        cout << "\t Testing 'canBeRegistered' method." << endl;
-        {
-#ifdef BTLSO_PLATFORM_WIN_SOCKETS
-            btlso::SocketHandle::Handle testHandle = 0xAB;
-            Obj mX(0, &testAllocator);
-            ASSERT(1 == mX.canBeRegistered(testHandle));
-#endif
-#ifdef BTLSO_PLATFORM_BSD_SOCKETS
-            enum { GOOD_HANDLE = 0, BAD_HANDLE = FD_SETSIZE };
-            Obj mX(0, &testAllocator);
-            ASSERT(1 == mX.canBeRegistered(GOOD_HANDLE));
-            ASSERT(0 == mX.canBeRegistered(BAD_HANDLE));
-#endif
-        }
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

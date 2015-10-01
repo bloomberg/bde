@@ -9,10 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise moveable.
 //
+//@DEPRECATED: See 'bslmf_isbitwisemoveable'.
+//
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseMoveable: bit-wise moveable trait
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_isbitwisemoveable
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //

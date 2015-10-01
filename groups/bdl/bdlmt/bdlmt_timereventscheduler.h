@@ -225,24 +225,20 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
@@ -259,6 +255,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -301,7 +301,7 @@ class TimerEventScheduler {
     struct ClockData {
         // This structure encapsulates the data associated with a clock.
 
-        bdlf::Function<void(*)()> d_callback;          // associated callback
+        bsl::function<void()>     d_callback;          // associated callback
 
         bsls::TimeInterval        d_periodicInterval;  // associated periodic
                                                        // interval
@@ -318,10 +318,12 @@ class TimerEventScheduler {
                                      bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        ClockData(const bdlf::Function<void(*)()>&  callback,
-                  const bsls::TimeInterval&         interval,
-                  bslma::Allocator                 *basicAllocator = 0)
-        : d_callback(callback, basicAllocator)
+        ClockData(const bsl::function<void()>&  callback,
+                  const bsls::TimeInterval&     interval,
+                  bslma::Allocator             *basicAllocator = 0)
+        : d_callback(bsl::allocator_arg_t(),
+                     bsl::allocator<bsl::function<void()> >(basicAllocator),
+                     callback)
         , d_periodicInterval(interval)
         , d_isCancelled(false)
         , d_handle(0)
@@ -330,7 +332,9 @@ class TimerEventScheduler {
 
         ClockData(const ClockData&  original,
                   bslma::Allocator *basicAllocator = 0)
-        : d_callback(original.d_callback, basicAllocator)
+        : d_callback(bsl::allocator_arg_t(),
+                     bsl::allocator<bsl::function<void()> >(basicAllocator),
+                     original.d_callback)
         , d_periodicInterval(original.d_periodicInterval)
         , d_isCancelled(original.d_isCancelled)
         , d_handle(original.d_handle)
@@ -338,10 +342,10 @@ class TimerEventScheduler {
         }
     };
 
-    typedef bsl::shared_ptr<ClockData>                       ClockDataPtr;
-    typedef bdlcc::TimeQueue<ClockDataPtr>                   ClockTimeQueue;
-    typedef bdlcc::TimeQueueItem<bdlf::Function<void(*)()> > EventItem;
-    typedef bdlcc::TimeQueue<bdlf::Function<void(*)()> >     EventTimeQueue;
+    typedef bsl::shared_ptr<ClockData>                   ClockDataPtr;
+    typedef bdlcc::TimeQueue<ClockDataPtr>               ClockTimeQueue;
+    typedef bdlcc::TimeQueueItem<bsl::function<void()> > EventItem;
+    typedef bdlcc::TimeQueue<bsl::function<void()> >     EventTimeQueue;
 
   public:
     // TYPES
@@ -349,11 +353,10 @@ class TimerEventScheduler {
         // Defines a type alias for a handle that identifies a scheduled clock
         // or event.
 
-    typedef bdlf::Function<void (*)(const bdlf::Function<void (*)()>&)>
-                                                                    Dispatcher;
+    typedef bsl::function<void(const bsl::function<void()>&)> Dispatcher;
         // Defines a type alias for the dispatcher functor type.
 
-    typedef bdlcc::TimeQueue<bdlf::Function<void(*)()> >::Key EventKey;
+    typedef bdlcc::TimeQueue<bsl::function<void()> >::Key     EventKey;
         // Defines a type alias for a user-supplied key for identifying events.
 
     // CONSTANTS
@@ -383,14 +386,14 @@ class TimerEventScheduler {
     bdlcc::ObjectCatalog<ClockDataPtr>
                       d_clocks;             // catalog of clocks
 
-    bdlqq::Mutex      d_mutex;              // mutex used to control access to
+    bslmt::Mutex      d_mutex;              // mutex used to control access to
                                             // this timer event scheduler
 
-    bdlqq::Condition  d_condition;          // condition variable used to
+    bslmt::Condition  d_condition;          // condition variable used to
                                             // control access to this timer
                                             // event scheduler
 
-    bdlqq::ThreadUtil::Handle
+    bslmt::ThreadUtil::Handle
                       d_dispatcherThread;   // handle of the dispatcher thread
 
     Dispatcher        d_dispatcherFunctor;  // functor used to dispatch events
@@ -551,7 +554,7 @@ class TimerEventScheduler {
         // stopped by invoking 'stop'.  Note that any event whose time has
         // already passed is pending and will be dispatched immediately.
 
-    int start(const bdlqq::ThreadAttributes& threadAttributes);
+    int start(const bslmt::ThreadAttributes& threadAttributes);
         // Start dispatching events on this scheduler, using the specified
         // 'threadAttributes' for the dispatcher thread, except the DETACHED
         // attribute will always be overridden to be joinable.  Return 0 on
@@ -570,9 +573,9 @@ class TimerEventScheduler {
         // scheduler that is to be stopped.  This scheduler can be restarted by
         // invoking 'start'.
 
-    Handle scheduleEvent(const bsls::TimeInterval&        time,
-                         const bdlf::Function<void(*)()>& callback,
-                         const EventKey&                  key = EventKey(0));
+    Handle scheduleEvent(const bsls::TimeInterval&    time,
+                         const bsl::function<void()>& callback,
+                         const EventKey&              key = EventKey(0));
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'time' and return a handle that can be used to cancel the 'callback'
         // (by invoking 'cancelEvent').  Optionally specify 'key' to uniquely
@@ -625,9 +628,9 @@ class TimerEventScheduler {
         // to avoid deadlock.
 
     Handle startClock(
-           const bsls::TimeInterval&        interval,
-           const bdlf::Function<void(*)()>& callback,
-           const bsls::TimeInterval&        startTime = bsls::TimeInterval(0));
+               const bsls::TimeInterval&    interval,
+               const bsl::function<void()>& callback,
+               const bsls::TimeInterval&    startTime = bsls::TimeInterval(0));
         // Schedule a recurring event that invokes the specified 'callback' at
         // every specified 'interval', starting at the optionally specified
         // 'startTime'.  Return an identifier that can be use to cancel the

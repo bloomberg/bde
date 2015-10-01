@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //    bdlmt::MultipriorityThreadPool: mechanism to parallelize prioritized jobs
 //
-//@SEE_ALSO: bdlqq_threadutil
+//@SEE_ALSO: bslmt_threadutil
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -63,9 +63,9 @@ BSLS_IDENT("$Id: $")
 //
 // Finally an application can specify the attributes of the worker threads in a
 // thread pool (e.g., guard size or stack size), by optionally supplying an
-// appropriately configured 'bdlqq::ThreadAttributes' object.  (See the
-// 'bdlqq_threadutil' component-level documentation for a description of the
-// 'bdlqq::ThreadAttributes' class.)  Note that the field pertaining to whether
+// appropriately configured 'bslmt::ThreadAttributes' object.  (See the
+// 'bslmt_threadutil' component-level documentation for a description of the
+// 'bslmt::ThreadAttributes' class.)  Note that the field pertaining to whether
 // the worker threads should be detached or joinable is ignored.
 //
 ///Thread Safety
@@ -112,7 +112,7 @@ BSLS_IDENT("$Id: $")
 //
 //   extern "C" void *urgentJob(void *)
 //   {
-//       bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
+//       bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
 //
 //       ++urgentJobsDone;
 //
@@ -121,7 +121,7 @@ BSLS_IDENT("$Id: $")
 //
 //   extern "C" void *lessUrgentJob(void *)
 //   {
-//       bdlqq::ThreadUtil::microSleep(10000);          // 10 mSec
+//       bslmt::ThreadUtil::microSleep(10000);          // 10 mSec
 //
 //       ++lessUrgentJobsDone;
 //
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //           pool.enqueueJob(&urgentJob, (void *) 0, 0);         // urgent
 //       }
 //
-//       bdlqq::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
+//       bslmt::ThreadUtil::sleep(finishTime - bdlt::CurrentTime::now());
 //       pool.shutdown();
 //
 //       bsl::cout << "Jobs done: urgent: " << urgentJobsDone <<
@@ -201,12 +201,12 @@ BSLS_IDENT("$Id: $")
 //
 //   bool          doneFlag;                 // set this flag to signal
 //                                           // other jobs that we're done
-//   bdlqq::Barrier doneBarrier(2);           // we wait on this barrier
+//   bslmt::Barrier doneBarrier(2);           // we wait on this barrier
 //                                           // to signal the main thread
 //                                           // that we're done
 //
 //   struct Functor {
-//       static bdlqq::Mutex s_mutex;
+//       static bslmt::Mutex s_mutex;
 //       int                d_numToScan;
 //       int                d_priority;
 //       int                d_limit;
@@ -285,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //           // Everything up to 'd_limit' that has not been marked
 //           // non-prime is prime.
 //
-//           bdlqq::LockGuard<bdlqq::Mutex> guard(&s_mutex);
+//           bslmt::LockGuard<bslmt::Mutex> guard(&s_mutex);
 //
 //           for (int i = maxPrimeFound + 1; d_limit > i; ++i) {
 //               if (isStillPrime[i]) {
@@ -326,7 +326,7 @@ BSLS_IDENT("$Id: $")
 //           }
 //       }
 //   };
-//   bdlqq::Mutex Functor::s_mutex;
+//   bslmt::Mutex Functor::s_mutex;
 //..
 // and in the main program:
 //..
@@ -373,28 +373,24 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_multipriorityqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADGROUP
-#include <bdlqq_threadgroup.h>
+#ifndef INCLUDED_BSLMT_THREADGROUP
+#include <bslmt_threadgroup.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -419,6 +415,10 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlmt {
@@ -435,7 +435,7 @@ class MultipriorityThreadPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void(*)()> ThreadFunctor;
+    typedef bsl::function<void()> ThreadFunctor;
         // 'ThreadFunctor' is an alias for a function object that is invokable
         // (with no arguments) and returns 'void'; its use is similar to that
         // of a C-style function pointer and optional 'void *' data pointer
@@ -451,11 +451,11 @@ class MultipriorityThreadPool {
 
   private:
     // DATA
-    bdlqq::Mutex            d_mutex;      // mutex for worker threads as they
+    bslmt::Mutex            d_mutex;      // mutex for worker threads as they
                                           // analyze state, and for methods
                                           // that manipulate that state
 
-    bdlqq::Mutex            d_metaMutex;  // mutex for '[start|stop]Threads',
+    bslmt::Mutex            d_metaMutex;  // mutex for '[start|stop]Threads',
                                           // '[suspend|resume]Processing',
                                           // 'drainJobs'; this mutex gets
                                           // locked much less frequently than
@@ -465,11 +465,11 @@ class MultipriorityThreadPool {
     bdlcc::MultipriorityQueue<ThreadFunctor>
                             d_queue;      // pending job queue
 
-    bdlqq::ThreadAttributes d_threadAttributes;
+    bslmt::ThreadAttributes d_threadAttributes;
                                           // user-supplied attributes of all
                                           // the threads this pool spawns
 
-    bdlqq::ThreadGroup      d_threadGroup;
+    bslmt::ThreadGroup      d_threadGroup;
                                           // thread group managing our threads
 
     const int               d_numThreads;
@@ -498,17 +498,17 @@ class MultipriorityThreadPool {
                                           // number of threads currently
                                           // processing jobs
 
-    bdlqq::Condition        d_allThreadsStartedCondition;
+    bslmt::Condition        d_allThreadsStartedCondition;
                                           // broadcast when number of started
                                           // threads reaches 'd_numThreads',
                                           // watched during starting
 
-    bdlqq::Condition        d_allThreadsSuspendedCondition;
+    bslmt::Condition        d_allThreadsSuspendedCondition;
                                           // broadcast when number of started
                                           // threads reaches 'd_numThreads',
                                           // watched during starting
 
-    bdlqq::Condition        d_resumeCondition;
+    bslmt::Condition        d_resumeCondition;
                                           // broadcast when suspended threads
                                           // are to resume
 
@@ -534,7 +534,7 @@ class MultipriorityThreadPool {
     MultipriorityThreadPool(
                            int                             numThreads,
                            int                             numPriorities,
-                           const bdlqq::ThreadAttributes&  threadAttributes,
+                           const bslmt::ThreadAttributes&  threadAttributes,
                            bslma::Allocator               *basicAllocator = 0);
         // Create a multi-priority thread pool capable of concurrently
         // executing the specified 'numThreads' "jobs" with associated integer
@@ -563,7 +563,7 @@ class MultipriorityThreadPool {
         // that the queue was in the disabled state).  The behavior is
         // undefined unless '0 <= priority < numPriorities()'.
 
-    int enqueueJob(bcemt_ThreadFunction  jobFunction,
+    int enqueueJob(bslmt_ThreadFunction  jobFunction,
                    void                 *jobData,
                    int                   priority);
         // Add a job to the queue of this multi-priority thread pool indicated

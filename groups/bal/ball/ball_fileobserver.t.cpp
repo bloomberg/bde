@@ -13,19 +13,20 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_tokenizer.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_localtimeoffset.h>
-#include <bdlf_function.h>
 #include <bdls_testutil.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
+
+#include <bslstl_stringref.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -134,7 +135,6 @@ static void aSsErT2(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X)  { aSsErT( !(X), #X, __LINE__); }
 #define ASSERT2(X) { aSsErT2(!(X), #X, __LINE__); }
 
 // ============================================================================
@@ -228,7 +228,7 @@ void removeFilesByPrefix(const char *prefix)
     HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
     if (hFind != INVALID_HANDLE_VALUE) {
         fileNames.push_back(findFileData.cFileName);
-        while(FindNextFile(hFind, &findFileData)) {
+        while (FindNextFile(hFind, &findFileData)) {
             fileNames.push_back(findFileData.cFileName);
         }
         FindClose(hFind);
@@ -510,9 +510,11 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result)
     ASSERT(ascii)
 
-    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-        if (itr().length() > 0) {
-            result->push_back(itr());
+    for (bdlb::Tokenizer itr(bslstl::StringRef(ascii),
+                             bslstl::StringRef(""),
+                             bslstl::StringRef("\n")); itr.isValid(); ++itr) {
+        if (itr.token().length() > 0) {
+            result->push_back(itr.token());
         }
     }
 }
@@ -738,7 +740,7 @@ int main(int argc, char *argv[])
                 TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
 
                 bdlt::Datetime result1 = bdlt::CurrentTime::utc();
-                bdlqq::ThreadUtil::microSleep(0, 2); // two seconds
+                bslmt::ThreadUtil::microSleep(0, 2); // two seconds
                 bdlt::Datetime result2 = bdlt::CurrentTime::utc();
 
                 LOOP_ASSERT(i, utcDatetime == result1);
@@ -875,11 +877,11 @@ int main(int argc, char *argv[])
         getDatetimeField(&datetimeField, logfilename, logRecordCount);
         expectedDatetimeField.str("");
         expectedDatetimeField << testUtcDatetime;
-  
+
         if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(), 
+        ASSERTV(expectedDatetimeField.str(),
                 datetimeField,
                 expectedDatetimeField.str() == datetimeField);
         ASSERTV(expectedLoadCount ==
@@ -892,8 +894,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_
                            P_(expectedDatetimeField.str())
                            P(datetimeField) }
-        ASSERTV(expectedDatetimeField.str(), 
-                datetimeField, 
+        ASSERTV(expectedDatetimeField.str(),
+                datetimeField,
                 expectedDatetimeField.str() == datetimeField);
 
         ASSERTV(expectedLoadCount ==
@@ -1051,7 +1053,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
 
@@ -1065,7 +1067,7 @@ int main(int argc, char *argv[])
             cb.reset();
 
             mX.disableLifetimeRotation();
-            bdlqq::ThreadUtil::microSleep(0, 6);
+            bslmt::ThreadUtil::microSleep(0, 6);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
@@ -1256,7 +1258,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -1302,7 +1304,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -1350,7 +1352,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -1461,7 +1463,7 @@ int main(int argc, char *argv[])
                 mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                                                          X.rotationLifetime());
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -1487,7 +1489,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -1508,7 +1510,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 mX.forceRotation();
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -1537,7 +1539,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
@@ -1547,7 +1549,7 @@ int main(int argc, char *argv[])
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
 
-                    bdlqq::ThreadUtil::microSleep(200 * 1000);
+                    bslmt::ThreadUtil::microSleep(200 * 1000);
                 }
 
                 glob_t globbuf;
@@ -1580,7 +1582,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0 ; i < 30; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                    bdlqq::ThreadUtil::microSleep(50 * 1000);
+                    bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
                 // Verify that no rotation occurred.
@@ -1641,7 +1643,7 @@ int main(int argc, char *argv[])
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                        X.rotationLifetime());
 
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -1667,7 +1669,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -2186,7 +2188,7 @@ int main(int argc, char *argv[])
             multiplexObserver.registerObserver(&mX);
 
             BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-            
+
             if (veryVerbose) {
                 cerr << fn << endl;
                 cerr << fileName << endl;
@@ -2220,7 +2222,7 @@ int main(int argc, char *argv[])
                     getline(coutFs, coutLine);
 
                     ASSERTV(coutLine, line, coutLine == line);
-                    bsl::cerr << "coutLine: '" << coutLine << "'" << endl 
+                    bsl::cerr << "coutLine: '" << coutLine << "'" << endl
                               << "line: '" << line << "'" <<endl;
                 }
                 ++linesNum;

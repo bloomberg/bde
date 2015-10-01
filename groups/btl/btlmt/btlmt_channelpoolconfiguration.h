@@ -7,73 +7,78 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a constrained-attribute class for channel pools.
+//@PURPOSE: Provide a class for configuring channel pools.
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
 //@CLASSES:
-// btlmt::ChannelPoolConfiguration: configuration parameters for a channel pool
+//  btlmt::ChannelPoolConfiguration: configuration parameters for channel pool
 //
-//@DESCRIPTION: This component provides a constrained-attribute class that
-// contains a set of attributes (objects and parameters) of particular use to
-// channel pools.  The constraints are actively maintained by the class.  In
-// particular, the "set" methods for constrained values will fail if their
-// arguments are not consistent with the constraints.  Also, the constructor
-// does not take any constrained arguments, but rather sets those values to
-// valid defaults unconditionally.  This behavior avoids "silent failures",
-// since the constructor cannot explicitly return a status value.
+//@DESCRIPTION: This component provides a constrained-attribute class,
+// 'btlmt::ChannelPoolConfiguration', that contains a set of attributes
+// (objects and parameters) of particular use to channel pools.  The
+// constraints are actively maintained by the class.  In particular, the "set"
+// methods for constrained values will fail if their arguments are not
+// consistent with the constraints.  Also, the constructor does not take any
+// constrained arguments, but rather sets those values to valid defaults
+// unconditionally.  This behavior avoids "silent failures", since the
+// constructor cannot explicitly return a status value.
 //
 // The attributes contained by a 'btlmt::ChannelPoolConfiguration' object and
 // the attribute constraints are given, respectively, in two tables below.  The
 // attributes are as follows:
 //..
-//   TYPE             NAME                DESCRIPTION
-//   --------------   --------------      --------------------------------
-//   int              maxConnections      maximum number of connections
-//                                        that can be managed by a channel
-//                                        pool.
-//   int              maxThreads          maximum number of threads managed
-//                                        by a channel pool
-//   double           readTimeout         timeout for "read" operations; if
-//                                        this value is 0, the read timeout
-//                                        will be disabled
-//   double           metricsInterval     periodic-update interval for metrics
-//   int              minMessageSizeOut   output message strategy hint
-//   int              typMessageSizeOut   output message strategy hint
-//   int              maxMessageSizeOut   output message strategy hint
-//   int              minMessageSizeIn    input message strategy hint
-//   int              typMessageSizeIn    input message strategy hint
-//   int              maxMessageSizeIn    input message strategy hint
-//   int              writeCacheLowWat    High and low watermarks (in
-//   int              writeCacheHiWat     bytes) for a channel's write
-//                                        cache.  Once high watermark
-//                                        is reached, the channel pool
-//                                        will no longer accept messages
-//                                        for the channel until there
-//                                        is write space available.
-//                                        A channel state callback will
-//                                        result once the cached data size
-//                                        is lower than the low watermark
-//                                        value.
-//   int              threadStackSize     the stack size of threads
-//                                        managed by this pool in bytes.
-//   bool             collectTimeMetrics  indicates whether the configured
-//                                        channel pool will collect metrics.
-//                                        If this value is 'true', the channel
-//                                        pool will collect metrics
-//                                        categorizing the time spent
-//                                        processing data, and if this value
-//                                        is 'false', those metrics will not
-//                                        be collected.  The default value is
-//                                        'true'.
+//   TYPE    NAME                DESCRIPTION                            DEFAULT
+//   ----    --------------      --------------------------------       -------
+//   int     maxConnections      maximum number of connections             1024
+//                               that can be managed by a channel
+//                               pool.
 //
-// DEPRECATED (no longer used by channel pool):
+//   int     maxThreads          the number of threads managed                1
+//                               by a channel pool
 //
-//   int              workloadThreshold   threshold of the workload for an
-//                                        event manager after which
-//                                        a new thread will be created,
-//                                        or an alert generated if
-//                                        no new thread can be created.
+//   double  readTimeout         timeout for "read" operations; if           30
+//                               this value is 0, the read timeout
+//                               will be disabled
+//
+//   double  metricsInterval     periodic-update interval for                30
+//                               metrics
+//
+//   int     minMessageSizeOut   output message strategy hint                 1
+//
+//   int     typMessageSizeOut   output message strategy hint                 1
+//
+//   int     maxMessageSizeOut   output message strategy hint              1 MB
+//
+//   int     minMessageSizeIn    input message strategy hint                  1
+//
+//   int     typMessageSizeIn    input message strategy hint                  1
+//
+//   int     maxMessageSizeIn    input message strategy hint               1024
+//
+//   int     writeCacheLowWat    High and low watermarks (in                  0
+//   int     writeCacheHiWat     bytes) for a channel's write              1 MB
+//                               cache.  Once high watermark
+//                               is reached, the channel pool
+//                               will no longer accept messages
+//                               for the channel until there
+//                               is write space available.
+//                               A channel state callback will
+//                               result once the cached data size
+//                               is lower than the low watermark
+//                               value.
+//
+//   int     threadStackSize     the stack size of threads                 1 MB
+//                               managed by this pool in bytes.
+//
+//   bool    collectTimeMetrics  indicates whether the configured          true
+//                               channel pool will collect metrics.
+//                               If this value is 'true', the channel
+//                               pool will collect metrics
+//                               categorizing the time spent
+//                               processing data, and if this value
+//                               is 'false', those metrics will not
+//                               be collected.
 //..
 // The constraints are as follows:
 //..
@@ -100,8 +105,6 @@ BSLS_IDENT("$Id: $")
 //   +--------------------+---------------------------------------------+
 //   | threadStackSize    | 0 <= threadStackSize                        |
 //   +--------------------+---------------------------------------------+
-//   | workloadThreshold  | 0 <= workloadThreshold                      |
-//   +--------------------+---------------------------------------------+
 //..
 //
 ///Thread Safety
@@ -111,14 +114,18 @@ BSLS_IDENT("$Id: $")
 // Note that any of the contained user-defined callbacks may be invoked from
 // *any* thread, and the user must account for that.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // The following snippets of code illustrate how to use a
 // 'btlmt::ChannelPoolConfiguration' object.  First, create a configuration
-// object 'cpc'.  Note that it is necessarily configured to valid but
+// object 'cpc'.  Note that it is necessarily configured to have valid but
 // unpublished defaults.
 //..
-//    btlmt::ChannelPoolConfiguration cpc;
+//  btlmt::ChannelPoolConfiguration cpc;
 //..
 // Next, set each attribute.  Note that each of the "in" and "out" message size
 // triplets must be set atomically (i.e., with a single three-argument "set"
@@ -126,49 +133,48 @@ BSLS_IDENT("$Id: $")
 // triplet of arguments is not valid, and so each method returns a status
 // value.
 //..
-//    assert(0 == cpc.setIncomingMessageSizes(1, 2, 3));
-//    assert(1 == cpc.minIncomingMessageSize());
-//    assert(2 == cpc.typicalIncomingMessageSize());
-//    assert(3 == cpc.maxIncomingMessageSize());
+//  assert(0 == cpc.setIncomingMessageSizes(1, 2, 3));
+//  assert(1 == cpc.minIncomingMessageSize());
+//  assert(2 == cpc.typicalIncomingMessageSize());
+//  assert(3 == cpc.maxIncomingMessageSize());
 //
-//    assert(0 == cpc.setOutgoingMessageSizes(4, 5, 6));
-//    assert(4 == cpc.minOutgoingMessageSize());
-//    assert(5 == cpc.typicalOutgoingMessageSize());
-//    assert(6 == cpc.maxOutgoingMessageSize());
+//  assert(0 == cpc.setOutgoingMessageSizes(4, 5, 6));
+//  assert(4 == cpc.minOutgoingMessageSize());
+//  assert(5 == cpc.typicalOutgoingMessageSize());
+//  assert(6 == cpc.maxOutgoingMessageSize());
 //
-//    assert(0 == cpc.setMaxConnections(100));
-//    assert(100 == cpc.maxConnections());
+//  assert(0   == cpc.setMaxConnections(100));
+//  assert(100 == cpc.maxConnections());
 //
-//    assert(0 == cpc.setMaxThreads(200));
-//    assert(200 == cpc.maxThreads());
+//  assert(0   == cpc.setMaxThreads(200));
+//  assert(200 == cpc.maxThreads());
 //
-//    assert(0 == cpc.setWriteCacheWatermarks(0, 1024));
-//    assert(0 == cpc.writeCacheLowWatermark());
-//    assert(1024 == cpc.writeCacheHiWatermark());
+//  assert(0    == cpc.setWriteCacheWatermarks(0, 1024));
+//  assert(0    == cpc.writeCacheLowWatermark());
+//  assert(1024 == cpc.writeCacheHiWatermark());
 //
-//    assert(0 == cpc.setReadTimeout(3.5));
-//    assert(3.5 == cpc.readTimeout());
+//  assert(0   == cpc.setReadTimeout(3.5));
+//  assert(3.5 == cpc.readTimeout());
 //
-//    assert(0 == cpc.setMetricsInterval(5.25));
-//    assert(5.25 == cpc.metricsInterval());
+//  assert(0    == cpc.setMetricsInterval(5.25));
+//  assert(5.25 == cpc.metricsInterval());
 //
-//    assert(0 == cpc.setThreadStackSize(1024));
-//    assert(1024 == cpc.threadStackSize());
-//
+//  assert(0    == cpc.setThreadStackSize(1024));
+//  assert(1024 == cpc.threadStackSize());
 //..
 // The configuration object is now validly configured with our choice of
 // parameters.  If, however, we attempt to set an invalid configuration, the
 // "set" method will fail (with a non-zero return status), and the
 // configuration will be left unchanged.
 //..
-//    assert(0 != cpc.setIncomingMessageSizes(8, 4, 256));
-//    assert(1 == cpc.minIncomingMessageSize());
-//    assert(2 == cpc.typicalIncomingMessageSize());
-//    assert(3 == cpc.maxIncomingMessageSize());
+//  assert(0 != cpc.setIncomingMessageSizes(8, 4, 256));
+//  assert(1 == cpc.minIncomingMessageSize());
+//  assert(2 == cpc.typicalIncomingMessageSize());
+//  assert(3 == cpc.maxIncomingMessageSize());
 //..
 // Finally, we can print the configuration value to 'stdout'.
 //..
-//    cout << cpc;
+//  cout << cpc;
 //..
 // This produces the following (multi-line) output:
 //..
@@ -194,10 +200,6 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
 #endif
@@ -210,22 +212,27 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_valuetypefunctions.h>
 #endif
 
-#ifndef INCLUDED_BDLT_TIMEINTERVAL
-#include <bsls_timeinterval.h>
-#endif
-
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#include <bsls_timeinterval.h>
+#endif
+
 namespace BloombergLP {
 
+namespace btlmt {
 
-namespace btlmt {class Message;
+class Message;
 
-                   // ====================================
+                   // ==============================
                    // class ChannelPoolConfiguration
-                   // ====================================
+                   // ==============================
 
 class ChannelPoolConfiguration {
     // This class provides constrained configuration parameters for a channel
@@ -253,14 +260,20 @@ class ChannelPoolConfiguration {
     int                   d_maxConnections;    // maximum number of connections
                                                // that can be managed by a
                                                // channel pool.
+
     int                   d_maxThreads;        // maximum number of threads
                                                // managed by a channel pool
 
     int                   d_writeCacheLowWat;  // watermarks for the write
+
     int                   d_writeCacheHiWat;   // buffer for a managed channel
 
     // Timeouts
-    double                d_readTimeout;
+    double                d_readTimeout;       // timeout interval to wait for
+                                               // before informing clients
+                                               // if data is not available to
+                                               // be read
+
     double                d_metricsInterval;   // periodic-update interval for
                                                // metrics
 
@@ -281,7 +294,7 @@ class ChannelPoolConfiguration {
     bool                  d_collectTimeMetrics;
 
     friend bsl::ostream& operator<<(bsl::ostream&,
-                         const ChannelPoolConfiguration&);
+                                    const ChannelPoolConfiguration&);
 
     friend bool operator==(const ChannelPoolConfiguration&,
                            const ChannelPoolConfiguration&);
@@ -290,103 +303,147 @@ class ChannelPoolConfiguration {
     // TYPES
     enum {
         k_NUM_ATTRIBUTES = 14 // the number of attributes in this class
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     enum {
         e_ATTRIBUTE_INDEX_MAX_CONNECTIONS      = 0,
             // index for 'MaxConnections' attribute
+
         e_ATTRIBUTE_INDEX_MAX_THREADS          = 1,
             // index for 'MaxThreads' attribute
+
         e_ATTRIBUTE_INDEX_READ_TIMEOUT         = 2,
             // index for 'ReadTimeout' attribute
+
         e_ATTRIBUTE_INDEX_METRICS_INTERVAL     = 3,
             // index for 'MetricsInterval' attribute
+
         e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = 4,
             // index for 'MinMessageSizeOut' attribute
+
         e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = 5,
             // index for 'TypMessageSizeOut' attribute
+
         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = 6,
             // index for 'MaxMessageSizeOut' attribute
+
         e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  = 7,
             // index for 'MinMessageSizeIn' attribute
+
         e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  = 8,
             // index for 'TypMessageSizeIn' attribute
+
         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  = 9,
             // index for 'MaxMessageSizeIn' attribute
+
         e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  = 10,
             // index for 'WriteCacheLowWat' attribute
+
         e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   = 11,
             // index for 'WriteCacheHiWat' attribute
+
         e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
+
         e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
             // index for 'CollectTimeMetrics' attribute
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_INDEX_MAX_CONNECTIONS = e_ATTRIBUTE_INDEX_MAX_CONNECTIONS
-      , ATTRIBUTE_INDEX_MAX_THREADS = e_ATTRIBUTE_INDEX_MAX_THREADS
-      , ATTRIBUTE_INDEX_READ_TIMEOUT = e_ATTRIBUTE_INDEX_READ_TIMEOUT
-      , ATTRIBUTE_INDEX_METRICS_INTERVAL = e_ATTRIBUTE_INDEX_METRICS_INTERVAL
-      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT
-      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT
-      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT
-      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN
-      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN
-      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN
-      , ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT
-      , ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT
-      , ATTRIBUTE_INDEX_THREAD_STACK_SIZE = e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE
-      , ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS
+      , ATTRIBUTE_INDEX_MAX_CONNECTIONS      =
+                                              e_ATTRIBUTE_INDEX_MAX_CONNECTIONS
+      , ATTRIBUTE_INDEX_MAX_THREADS          = e_ATTRIBUTE_INDEX_MAX_THREADS
+      , ATTRIBUTE_INDEX_READ_TIMEOUT         = e_ATTRIBUTE_INDEX_READ_TIMEOUT
+      , ATTRIBUTE_INDEX_METRICS_INTERVAL     =
+                                             e_ATTRIBUTE_INDEX_METRICS_INTERVAL
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT =
+                                         e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT =
+                                         e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT =
+                                         e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT
+      , ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN  =
+                                          e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN  =
+                                          e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN  =
+                                          e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT  =
+                                          e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT   =
+                                           e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_INDEX_THREAD_STACK_SIZE    =
+                                            e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE
+      , ATTRIBUTE_INDEX_COLLECT_TIME_METRICS =
+                                         e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
     enum {
         e_ATTRIBUTE_ID_MAX_CONNECTIONS         = 1,
             // id for 'MaxConnections' attribute
+
         e_ATTRIBUTE_ID_MAX_THREADS             = 2,
             // id for 'MaxThreads' attribute
+
         e_ATTRIBUTE_ID_READ_TIMEOUT            = 3,
             // id for 'ReadTimeout' attribute
+
         e_ATTRIBUTE_ID_METRICS_INTERVAL        = 4,
             // id for 'MetricsInterval' attribute
+
         e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT    = 5,
             // id for 'MinMessageSizeOut' attribute
+
         e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT    = 6,
             // id for 'TypMessageSizeOut' attribute
+
         e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT    = 7,
             // id for 'MaxMessageSizeOut' attribute
+
         e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN     = 8,
             // id for 'MinMessageSizeIn' attribute
+
         e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN     = 9,
             // id for 'TypMessageSizeIn' attribute
+
         e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN     = 10,
             // id for 'MaxMessageSizeIn' attribute
+
         e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT     = 11,
             // id for 'WriteCacheLowWat' attribute
+
         e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT      = 12,
             // id for 'WriteCacheHiWat' attribute
+
         e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
+
         e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
             // id for 'CollectTimeMetrics' attribute
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , ATTRIBUTE_ID_MAX_CONNECTIONS = e_ATTRIBUTE_ID_MAX_CONNECTIONS
-      , ATTRIBUTE_ID_MAX_THREADS = e_ATTRIBUTE_ID_MAX_THREADS
-      , ATTRIBUTE_ID_READ_TIMEOUT = e_ATTRIBUTE_ID_READ_TIMEOUT
-      , ATTRIBUTE_ID_METRICS_INTERVAL = e_ATTRIBUTE_ID_METRICS_INTERVAL
+      , ATTRIBUTE_ID_MAX_CONNECTIONS      = e_ATTRIBUTE_ID_MAX_CONNECTIONS
+      , ATTRIBUTE_ID_MAX_THREADS          = e_ATTRIBUTE_ID_MAX_THREADS
+      , ATTRIBUTE_ID_READ_TIMEOUT         = e_ATTRIBUTE_ID_READ_TIMEOUT
+      , ATTRIBUTE_ID_METRICS_INTERVAL     = e_ATTRIBUTE_ID_METRICS_INTERVAL
       , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT
       , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT
       , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT
-      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN
-      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN
-      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN
-      , ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT
-      , ATTRIBUTE_ID_WRITE_CACHE_HI_WAT = e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT
-      , ATTRIBUTE_ID_THREAD_STACK_SIZE = e_ATTRIBUTE_ID_THREAD_STACK_SIZE
+      , ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN  = e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN  = e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN  = e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN
+      , ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT  = e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT
+      , ATTRIBUTE_ID_WRITE_CACHE_HI_WAT   = e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT
+      , ATTRIBUTE_ID_THREAD_STACK_SIZE    = e_ATTRIBUTE_ID_THREAD_STACK_SIZE
       , ATTRIBUTE_ID_COLLECT_TIME_METRICS = e_ATTRIBUTE_ID_COLLECT_TIME_METRICS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
 
   public:
@@ -420,8 +477,7 @@ class ChannelPoolConfiguration {
         // Create a channel pool configuration constrained-attribute object
         // having valid default values for all attributes.
 
-    ChannelPoolConfiguration(
-                              const ChannelPoolConfiguration& original);
+    ChannelPoolConfiguration(const ChannelPoolConfiguration& original);
         // Create a channel pool configuration constrained-attribute object
         // having the value of the specified 'original' object.
 
@@ -430,69 +486,51 @@ class ChannelPoolConfiguration {
         // object.
 
     // MANIPULATORS
-    ChannelPoolConfiguration&
-                          operator=(const ChannelPoolConfiguration& rhs);
+    ChannelPoolConfiguration& operator=(const ChannelPoolConfiguration& rhs);
         // Assign to this channel pool configuration constrained-attribute
         // object the value of the specified 'rhs' object.
 
     int setIncomingMessageSizes(int min, int typical, int max);
         // Set the triplet of incoming-message-size attributes of this object
         // to the specified 'min', 'typical', and 'max' values if
-        // 0 <= min <= typical <= max.  Return 0 on success, and a non-zero
+        // '0 <= min <= typical <= max'.  Return 0 on success, and a non-zero
         // value (with no effect on the state of this object) otherwise.
 
     int setOutgoingMessageSizes(int min, int typical, int max);
         // Set the triplet of outgoing-message-size attributes of this object
         // to the specified 'min', 'typical', and 'max' values if
-        // 0 <= min <= typical <= max.  Return 0 on success, and a non-zero
+        // '0 <= min <= typical <= max'.  Return 0 on success, and a non-zero
         // value (with no effect on the state of this object) otherwise.
 
     int setMaxConnections(int maxConnections);
         // Set the maximum number of connections attribute of this object to
-        // the specified 'maxConnections' if 0 <= maxConnections.  Return 0 on
-        // success, and a non-zero value (with no effect on the state of this
-        // object) otherwise.
+        // the specified 'maxConnections' if '0 <= maxConnections'.  Return 0
+        // on success, and a non-zero value (with no effect on the state of
+        // this object) otherwise.
 
     int setMaxThreads(int maxThreads);
         // Set the maximum number of threads attribute of this object to the
-        // specified 'maxThreads' if 0 <= maxThreads.  Return 0 on success, and
-        // a non-zero value (with no effect on the state of this object)
+        // specified 'maxThreads' if '0 <= maxThreads'.  Return 0 on success,
+        // and a non-zero value (with no effect on the state of this object)
         // otherwise.
-
-    int setMaxWriteCache(int numBytes);
-        // Set the maximum write cache size attribute of this object to the
-        // specified 'numBytes' if 0 <= numBytes.  Return 0 on success, and a
-        // non-zero value (with no effect on the state of this object)
-        // otherwise.
-        //
-        // *OBSOLETE* Use 'setWriteCacheWatermarks' instead.
 
    int setMetricsInterval(double metricsInterval);
         // Set the metrics interval attribute of this object to the specified
-        // 'metricsInterval' value if 0 <= metricsInterval.  Return 0 on
+        // 'metricsInterval' value if '0 <= metricsInterval'.  Return 0 on
         // success, and a non-zero value (with no effect on the state of this
         // object) otherwise.
 
     int setReadTimeout(double readTimeout);
         // Set the read timeout attribute of this object to the specified
-        // 'readTimeout' value if 0 <= readTimeout.  Return 0 on success, and a
-        // non-zero value (with no effect on the state of this object)
+        // 'readTimeout' value if '0 <= readTimeout'.  Return 0 on success, and
+        // a non-zero value (with no effect on the state of this object)
         // otherwise.  A value of 0 will disable the read timeout.
 
     int setThreadStackSize(int stackSize);
         // Set the thread stack size attribute of this object to the specified
-        // 'stackSize' value if 0 <= stackSize.  Return 0 on success, and a
+        // 'stackSize' value if '0 <= stackSize'.  Return 0 on success, and a
         // non-zero value (with no effect on the state of this object)
         // otherwise.
-
-    int setWorkloadThreshold(int threshold);
-        // Set the workload threshold attribute of this object to the specified
-        // 'threshold' value if 0 <= threshold.  Return 0 on success, and a
-        // non-zero value (with no effect on the state of this object)
-        // otherwise.
-        //
-        // *DEPRECATED* Workload thresholds are now ignored by the channel
-        // pool, since all threads are statically created.
 
     int setWriteCacheWatermarks(int lowWatermark, int hiWatermark);
         // Set the write cache watermarks to specified 'lowWatermark' and
@@ -570,12 +608,6 @@ class ChannelPoolConfiguration {
         // pool cannot use that estimate of work-load when it attempts to
         // distribute work amongst its managed threads.
 
-    int maxWriteCache() const;
-        // Return the maximum write cache size (in bytes) attribute of this
-        // object.
-        //
-        // *OBSOLETE* Use 'writeCacheHiWatermark' instead.
-
     const double& metricsInterval() const;
         // Return the metrics interval attribute of this object.
 
@@ -583,15 +615,11 @@ class ChannelPoolConfiguration {
         // Return the read timeout attribute of this object.  A value of 0
         // indicates the read timeout should be disabled.
 
-    int workloadThreshold() const;
-        // Return the workload threshold attribute of this object.
-        //
-        // *DEPRECATED* Workload thresholds are now ignored by the channel
-        // pool, since all threads are statically created.
-
     int writeCacheLowWatermark() const;
+        // Return the low watermark for the write cache.
+
     int writeCacheHiWatermark() const;
-        // Return the watermarks for the write cache.
+        // Return the high watermark for the write cache.
 
     int threadStackSize() const;
         // Return the thread stack size attribute of this object.
@@ -644,7 +672,7 @@ bool operator!=(const ChannelPoolConfiguration& lhs,
     // not have the same value if one or more respective attributes differ in
     // values.
 
-bsl::ostream& operator<<(bsl::ostream&                         output,
+bsl::ostream& operator<<(bsl::ostream&                   output,
                          const ChannelPoolConfiguration& configuration);
     // Write the specified 'configuration' value to the specified 'output'
     // stream in a reasonable multi-line format.
@@ -653,14 +681,14 @@ bsl::ostream& operator<<(bsl::ostream&                         output,
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // ------------------------------------
+                   // ------------------------------
                    // class ChannelPoolConfiguration
-                   // ------------------------------------
+                   // ------------------------------
 // MANIPULATORS
 inline
 int ChannelPoolConfiguration::setIncomingMessageSizes(int min,
-                                                            int typical,
-                                                            int max)
+                                                      int typical,
+                                                      int max)
 {
     if (0 <= min && min <= typical && typical <= max) {
         d_minMessageSizeIn = min;
@@ -673,8 +701,8 @@ int ChannelPoolConfiguration::setIncomingMessageSizes(int min,
 
 inline
 int ChannelPoolConfiguration::setOutgoingMessageSizes(int min,
-                                                            int typical,
-                                                            int max)
+                                                      int typical,
+                                                      int max)
 {
     if (0 <= min && min <= typical && typical <= max) {
         d_minMessageSizeOut = min;
@@ -706,18 +734,7 @@ int ChannelPoolConfiguration::setMaxThreads(int maxThreads)
 }
 
 inline
-int ChannelPoolConfiguration::setMaxWriteCache(int numBytes)
-{
-    if (0 <= numBytes) {
-        d_writeCacheHiWat = numBytes;
-        return 0;                                                     // RETURN
-    }
-    return -1;
-}
-
-inline
-int ChannelPoolConfiguration::setThreadStackSize(
-     int stackSize)
+int ChannelPoolConfiguration::setThreadStackSize(int stackSize)
 {
     if (0 <= stackSize) {
         d_threadStackSize = stackSize;
@@ -727,8 +744,8 @@ int ChannelPoolConfiguration::setThreadStackSize(
 }
 
 inline
-int ChannelPoolConfiguration::setWriteCacheWatermarks(
-     int lowWatermark, int hiWatermark)
+int ChannelPoolConfiguration::setWriteCacheWatermarks(int lowWatermark,
+                                                      int hiWatermark)
 {
     if (0 <= lowWatermark && lowWatermark <= hiWatermark) {
         d_writeCacheLowWat = lowWatermark;
@@ -739,8 +756,7 @@ int ChannelPoolConfiguration::setWriteCacheWatermarks(
 }
 
 inline
-int ChannelPoolConfiguration::setMetricsInterval(
-                                             double metricsInterval)
+int ChannelPoolConfiguration::setMetricsInterval(double metricsInterval)
 {
     if (0 <= metricsInterval) {
         d_metricsInterval = metricsInterval;
@@ -761,12 +777,6 @@ ChannelPoolConfiguration::setReadTimeout(double readTimeout)
 }
 
 inline
-int ChannelPoolConfiguration::setWorkloadThreshold(int threshold)
-{
-    return (0 <= threshold) ? 0 : 1;
-}
-
-inline
 int ChannelPoolConfiguration::setCollectTimeMetrics(
                                                    bool collectTimeMetricsFlag)
 {
@@ -775,8 +785,7 @@ int ChannelPoolConfiguration::setCollectTimeMetrics(
 }
 
 template <class MANIPULATOR>
-int ChannelPoolConfiguration::manipulateAttributes(
-                                                      MANIPULATOR& manipulator)
+int ChannelPoolConfiguration::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -798,68 +807,79 @@ int ChannelPoolConfiguration::manipulateAttributes(
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_metricsInterval,
-                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+    ret = manipulator(
+                     &d_metricsInterval,
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+    ret = manipulator(
+                 &d_minMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+    ret = manipulator(
+                 &d_typMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+    ret = manipulator(
+                 &d_maxMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+    ret = manipulator(
+                  &d_minMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+    ret = manipulator(
+                  &d_typMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+    ret = manipulator(
+                  &d_maxMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+    ret = manipulator(
+                  &d_writeCacheLowWat,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+    ret = manipulator(
+                   &d_writeCacheHiWat,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+    ret = manipulator(
+                    &d_threadStackSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_collectTimeMetrics,
-                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+    ret = manipulator(
+                 &d_collectTimeMetrics,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -868,81 +888,94 @@ int ChannelPoolConfiguration::manipulateAttributes(
 }
 
 template <class MANIPULATOR>
-int ChannelPoolConfiguration::manipulateAttribute(
-                                                      MANIPULATOR& manipulator,
-                                                      int          id)
+int ChannelPoolConfiguration::manipulateAttribute(MANIPULATOR& manipulator,
+                                                  int          id)
 {
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
-        return manipulator(&d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+        return manipulator(
+                      &d_maxConnections,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_THREADS: {
-        return manipulator(&d_maxThreads,
-                            ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
+        return manipulator(
+                          &d_maxThreads,
+                          ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_THREADS]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_READ_TIMEOUT: {
-        return manipulator(&d_readTimeout,
-                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
+        return manipulator(
+                         &d_readTimeout,
+                         ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_TIMEOUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
-        return manipulator(&d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+        return manipulator(
+                     &d_metricsInterval,
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
-        return manipulator(&d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+        return manipulator(
+                 &d_minMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
-        return manipulator(&d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+        return manipulator(
+                 &d_typMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
-        return manipulator(&d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+        return manipulator(
+                 &d_maxMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
-        return manipulator(&d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+        return manipulator(
+                  &d_minMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
-        return manipulator(&d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+        return manipulator(
+                  &d_typMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
-        return manipulator(&d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+        return manipulator(
+                  &d_maxMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
-        return manipulator(&d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+        return manipulator(
+                  &d_writeCacheLowWat,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
-        return manipulator(&d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+        return manipulator(
+                   &d_writeCacheHiWat,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
-        return manipulator(&d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+        return manipulator(
+                    &d_threadStackSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
-        return manipulator(&d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+        return manipulator(
+                 &d_collectTimeMetrics,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
 
@@ -953,15 +986,14 @@ int ChannelPoolConfiguration::manipulateAttribute(
 
 template <class MANIPULATOR>
 inline
-int ChannelPoolConfiguration::manipulateAttribute(
-                                                     MANIPULATOR&  manipulator,
-                                                     const char   *name,
-                                                     int           nameLength)
+int ChannelPoolConfiguration::manipulateAttribute(MANIPULATOR&  manipulator,
+                                                  const char   *name,
+                                                  int           nameLength)
 {
     enum { k_NOT_FOUND = -1 };
 
-    const bdlat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
+                                                                   nameLength);
     if (0 == attributeInfo) {
         return k_NOT_FOUND;                                           // RETURN
     }
@@ -1019,12 +1051,6 @@ int ChannelPoolConfiguration::maxThreads() const
 }
 
 inline
-int ChannelPoolConfiguration::maxWriteCache() const
-{
-    return d_writeCacheHiWat;
-}
-
-inline
 const double& ChannelPoolConfiguration::metricsInterval() const
 {
     return d_metricsInterval;
@@ -1037,16 +1063,9 @@ const double& ChannelPoolConfiguration::readTimeout() const
 }
 
 inline
-bsl::ostream& ChannelPoolConfiguration::
-                                          streamOut(bsl::ostream& stream) const
+bsl::ostream& ChannelPoolConfiguration::streamOut(bsl::ostream& stream) const
 {
     return stream << *this;
-}
-
-inline
-int ChannelPoolConfiguration::workloadThreshold() const
-{
-    return 100;
 }
 
 inline
@@ -1098,44 +1117,51 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+    ret = accessor(
+                 d_minMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+    ret = accessor(
+                 d_typMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+    ret = accessor(
+                 d_maxMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_minMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+    ret = accessor(
+                  d_minMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_typMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+    ret = accessor(
+                  d_typMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_maxMessageSizeIn,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+    ret = accessor(
+                  d_maxMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_writeCacheLowWat,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+    ret = accessor(
+                  d_writeCacheLowWat,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1152,8 +1178,9 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+    ret = accessor(
+                 d_collectTimeMetrics,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1163,15 +1190,15 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
 
 template <class ACCESSOR>
 int
-ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
-                                                                          const
+ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id) const
 {
     enum { k_NOT_FOUND = -1 };
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_CONNECTIONS: {
-        return accessor(d_maxConnections,
-                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
+        return accessor(
+                      d_maxConnections,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_THREADS: {
@@ -1185,58 +1212,69 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_METRICS_INTERVAL: {
-        return accessor(d_metricsInterval,
-                       ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
+        return accessor(
+                     d_metricsInterval,
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_METRICS_INTERVAL]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_OUT: {
-        return accessor(d_minMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
+        return accessor(
+                 d_minMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_OUT: {
-        return accessor(d_typMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
+        return accessor(
+                 d_typMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_OUT: {
-        return accessor(d_maxMessageSizeOut,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
+        return accessor(
+                 d_maxMessageSizeOut,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_OUT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MIN_MESSAGE_SIZE_IN: {
-        return accessor(d_minMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
+        return accessor(
+                  d_minMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MIN_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_TYP_MESSAGE_SIZE_IN: {
-        return accessor(d_typMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
+        return accessor(
+                  d_typMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TYP_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_MAX_MESSAGE_SIZE_IN: {
-        return accessor(d_maxMessageSizeIn,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
+        return accessor(
+                  d_maxMessageSizeIn,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_MESSAGE_SIZE_IN]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_WRITE_CACHE_LOW_WAT: {
-        return accessor(d_writeCacheLowWat,
-                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
+        return accessor(
+                  d_writeCacheLowWat,
+                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_LOW_WAT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_WRITE_CACHE_HI_WAT: {
-        return accessor(d_writeCacheHiWat,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
+        return accessor(
+                   d_writeCacheHiWat,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRITE_CACHE_HI_WAT]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_THREAD_STACK_SIZE: {
-        return accessor(d_threadStackSize,
-                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
+        return accessor(
+                    d_threadStackSize,
+                    ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_COLLECT_TIME_METRICS: {
-        return accessor(d_collectTimeMetrics,
-                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+        return accessor(
+                 d_collectTimeMetrics,
+                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
 
@@ -1248,26 +1286,27 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id)
 template <class ACCESSOR>
 inline
 int ChannelPoolConfiguration::accessAttribute(ACCESSOR&   accessor,
-                                                    const char *name,
-                                                    int         nameLength)
-                                                                          const
+                                              const char *name,
+                                              int         nameLength) const
 {
     enum { k_NOT_FOUND = -1 };
 
-     const bdlat_AttributeInfo *attributeInfo =
-           lookupAttributeInfo(name, nameLength);
+     const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(
+                                                                   name,
+                                                                   nameLength);
      if (0 == attributeInfo) {
         return k_NOT_FOUND;                                           // RETURN
      }
 
      return accessAttribute(accessor, attributeInfo->d_id);
 }
+
 }  // close package namespace
 
 // FREE OPERATORS
 inline
 bool btlmt::operator!=(const ChannelPoolConfiguration& lhs,
-                const ChannelPoolConfiguration& rhs)
+                       const ChannelPoolConfiguration& rhs)
 {
     return !(lhs == rhs);
 }

@@ -13,7 +13,6 @@
 
 #include <btls_iovec.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
@@ -31,6 +30,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -39,8 +39,11 @@
 #endif
 
 #include <signal.h>
+
+#ifdef BSLS_PLATFORM_UNIX
 #include <sys/socket.h>
 #include <unistd.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -995,12 +998,12 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
           case 'R':
                                // close receive
               ret = channel->socket()->shutdown(
-                                               bteso_Flag::e_SHUTDOWN_RECEIVE);
+                                              btlso::Flag::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
               break;
           case 'S':
                                // close receive
-              ret = channel->socket()->shutdown(bteso_Flag::e_SHUTDOWN_SEND);
+              ret = channel->socket()->shutdown(btlso::Flag::e_SHUTDOWN_SEND);
               ASSERT(0 == ret);
 
               break;
@@ -1033,7 +1036,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
       case 'r': {
           int readLen, optFlag = 0, milliSec = 0, nanoSec = 0,
               expStatus, expAugStatus;
-          bdlf::Function<void (*)(int, int)> callback;
+          bsl::function<void(int, int)> callback;
 
           switch (*(script+1)) {
             case 'b': {
@@ -1647,7 +1650,7 @@ static int gg(btlsos::TcpTimedCbChannel   *channel,
                 ASSERT(expRet == ret || channel->isInvalidRead());
                 if (veryVerbose) {
                     cout << "rManager ret: " << ret << ", isinvalid: "
-                         << channel->isInvalidWrite() << endl;
+                         << channel->isInvalidRead() << endl;
                 }
                 break;
             case 'w':
@@ -1784,7 +1787,7 @@ int main(int argc, char *argv[])
       case 26: {
 // TBD FIX ME
           { // to avoid compiler warning until this is fixed:
-              bdlf::Function<void (*)(int, int, int, int)> callback1(
+              bsl::function<void(int, int, int, int)> callback1(
                             bdlf::BindUtil::bind(&myReadCallback, 0, 0, 0, 0));
           }
 #if 0
@@ -1886,7 +1889,7 @@ int main(int argc, char *argv[])
             int optFlag1 = 0;
             char readBuf1[20] = "\0";
 
-            bdlf::Function<void (*)(int, int)> callback1(
+            bsl::function<void(int, int)> callback1(
                     bdlf::BindUtil::bind(&myReadCallback, readLen1, 0));
             // We also want to set a timeout value which is relative to the
             // current system time.
@@ -1909,7 +1912,7 @@ int main(int argc, char *argv[])
             int readLen2 = 9;
             int optFlag2 = 0;
             char readBuf2[20] = "\0";
-            bdlf::Function<void (*)(int, int)> callback2(
+            bsl::function<void(int, int)> callback2(
                     bdlf::BindUtil::bind(&myReadCallback, readLen2, 0));
             // We also want to set a timeout value which is relative to the
             // current system time.
@@ -3173,7 +3176,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -3866,7 +3869,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -4466,7 +4469,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -5067,7 +5070,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -5600,7 +5603,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -6198,7 +6201,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -6747,7 +6750,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -7359,7 +7362,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -7904,7 +7907,7 @@ int main(int argc, char *argv[])
                         P(channel.readEventManager()->numTimers());
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[i][j].d_expData);
@@ -8069,8 +8072,8 @@ int main(int argc, char *argv[])
  {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvrt3,(255,100),0,7,0",  1,    2,    0,   2,    1,  e_NVEC,  ""       },
  {L_, "rvrt2,(255,100),0,3,0",  2,    2,    0,   2,    1,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "1234567"},
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_IOVEC, "1234567"},
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "890"    },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
@@ -8078,9 +8081,9 @@ int main(int argc, char *argv[])
  {L_, "W5",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvrt2,(255,20),0,3,0",   1,    2,    0,   2,    1,  e_NVEC,  ""       },
  {L_, "rvrt3,(255,10),0,2,0",   2,    2,    0,   2,    1,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "123"    },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_IOVEC, "123"    },
 
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "45"     },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "45"     },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
 #endif
@@ -8100,14 +8103,14 @@ int main(int argc, char *argv[])
  {L_, "W10",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "rvrt2,(250,100),0,3,0,{rvrt3,(250,100),1,7,0}",
                                 1,    2,    0,   2,    1,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "123"    },
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_IOVEC, "123"    },
    {L_, "rvrt2,(250,100),1,3,0,{r4,0,4,0; rvrt4,(250,100),1,13,0}",
                                 2,    2,    0,   2,    1,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    2,    0,   2,    1,  IOVEC, "4567890"},
+ {L_, "dr1",                    1,    2,    0,   2,    1,  e_IOVEC, "4567890"},
  {L_, "W20",                    1,    2,    0,   2,    1,  e_NVEC,  ""       },
-   {L_, "dr1",                    2,    1,    0,   1,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    2,    1,    0,   1,    0,  e_IOVEC, "123"    },
  {L_, "dr1",                    1,    2,    0,   2,    1,  e_NVEC,  "4567"   },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
+   {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC,
                                                            "890abcdefghij"   },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
@@ -8331,28 +8334,28 @@ int main(int argc, char *argv[])
    // properly.
  {L_, "W4",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
  {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if the request can retrieve
    // specified length of data from the channel.
  {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "1234567"},
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 1 request, then dispatch: test if a read request can be finished
    // properly when enough data in the pipe.
  {L_, "W20",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr4,0,13,0",            1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
+   {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC,
                                                           "1234567890abcd"   },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
@@ -8362,24 +8365,24 @@ int main(int argc, char *argv[])
  {L_, "rvr4,0,0,-1",            1,    1,    0,   1,    0,  e_NVEC,  ""       },
  {L_, "cr",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr3,1,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "1234567"},
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "1234567"},
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Issue 2 requests, then dispatch: test if a request can be done right away
    // when there is enough data in the channel's read buffer.
  {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rb2,0,2,0",              1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "123"    },
  {L_, "rvr3,0,7,0",             0,    0,    0,   0,    0,  e_NVEC,  ""       },
-   {L_, "dr0",                    0,    0,    0,   0,    0,  IOVEC, "4567890"},
+ {L_, "dr0",                    0,    0,    0,   0,    0,  e_IOVEC, "4567890"},
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when enough data in the pipe:
  {L_, "W11",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr3,0,7,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
  {L_, "rvr2,0,3,0",             2,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "1234567"},
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "890"    },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "1234567"},
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "890"    },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch when no enough data in the channel's
@@ -8387,9 +8390,9 @@ int main(int argc, char *argv[])
  {L_, "W5",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
  {L_, "rvr3,0,2,0",             2,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "123"    },
 
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC, "45"     },
+ {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC, "45"     },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
  { // Enqueue 2 requests, then dispatch: test if the different type of read
@@ -8397,7 +8400,7 @@ int main(int argc, char *argv[])
  {L_, "W3",                     0,    0,    0,   0,    0,  e_NVEC,  ""       },
  {L_, "rvr2,0,3,0",             1,    1,    0,   1,    0,  e_NVEC,  ""       },
  {L_, "rb5,0,5,0",              2,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "123"    },
  {L_, "W5",                     1,    1,    0,   1,    0,  e_NVEC,  ""       },
  {L_, "dr1",                    0,    0,    0,   0,    0,  e_NVEC,  "12345"  },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
@@ -8407,14 +8410,14 @@ int main(int argc, char *argv[])
  {L_, "W10",                    0,    0,    0,   0,    0,  e_NVEC,  ""       },
    {L_, "rvr2,0,3,0,{rvr3,1,7,0}",
                                 1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "123"    },
    {L_, "rvr2,1,3,0,{r4,0,4,0; rvr4,1,13,0}",
                                 2,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    1,    1,    0,   1,    0,  IOVEC, "4567890"},
+ {L_, "dr1",                    1,    1,    0,   1,    0,  e_IOVEC, "4567890"},
  {L_, "W20",                    1,    1,    0,   1,    0,  e_NVEC,  ""       },
-   {L_, "dr1",                    2,    1,    0,   1,    0,  IOVEC, "123"    },
+ {L_, "dr1",                    2,    1,    0,   1,    0,  e_IOVEC, "123"    },
  {L_, "dr1",                    1,    1,    0,   1,    0,  e_NVEC,  "4567"   },
-   {L_, "dr1",                    0,    0,    0,   0,    0,  IOVEC,
+   {L_, "dr1",                    0,    0,    0,   0,    0,  e_IOVEC,
                                                            "890abcdefghij"   },
   {L_,  0,                       0,    0,    0,   0,    0,  e_NVEC,  ""       }
  },
@@ -8524,7 +8527,7 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
@@ -10008,7 +10011,7 @@ int main(int argc, char *argv[])
                         P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
@@ -10314,7 +10317,7 @@ int main(int argc, char *argv[])
                         P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
@@ -10653,7 +10656,7 @@ int main(int argc, char *argv[])
                         P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
@@ -10956,7 +10959,7 @@ int main(int argc, char *argv[])
                         P_(buf); P(SCRIPTS[i][j].d_expData);
                         cout << endl;
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);
@@ -12596,10 +12599,10 @@ int main(int argc, char *argv[])
                                                  &testAllocator);
                 // Verify the initial state values.
                 #ifndef  BSLS_PLATFORM_OS_WINDOWS
-                bteso_Flag::BlockingMode bm;
+                btlso::Flag::BlockingMode bm;
                 LOOP_ASSERT(i, 0 == sSocket->blockingMode(&bm));
                 LOOP_ASSERT(i,
-                        bteso_Flag::e_NONBLOCKING_MODE
+                        btlso::Flag::e_NONBLOCKING_MODE
                         == bm);
                 #endif
 
@@ -12650,10 +12653,10 @@ int main(int argc, char *argv[])
                         }
                         else if ('R' == *command) {
                             memset(readBuf, '\0', sizeof readBuf);
-                            bteso_Flag::BlockingMode bm;
+                            btlso::Flag::BlockingMode bm;
                             LOOP_ASSERT(LINE, 0 == sSocket->blockingMode(&bm));
                             cSocket->setBlockingMode(
-                                    bteso_Flag::e_NONBLOCKING_MODE);
+                                    btlso::Flag::e_NONBLOCKING_MODE);
                             int toRead = length;
                             while (toRead > 0) {
                                 ret = cSocket->read(readBuf, toRead);
@@ -12700,7 +12703,7 @@ if (SCRIPTS[j].d_numPendingRead != channel.numPendingReadOperations())
   {     P_(i);  P(j);   P(channel.numPendingReadOperations()); }
 if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
   {      P_(i);  P(j);  P(channel.numPendingWriteOperations()); }
-                    if (SCRIPTS[j].d_operationType == IOVEC) {
+                    if (SCRIPTS[j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[j].d_operationType,
                                              buffer.d_readIovecBuf,
                                              SCRIPTS[j].d_expData);
@@ -12823,7 +12826,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
     { L_, "dr1",               5,   2,   0,    0,   1,  0, e_NVEC, "56784"   },
     { L_, "W7",                5,   2,   0,    0,   1,  0, e_NVEC, ""        },
     { L_, "dr1",               4,   1,   0,    0,   0,  0, e_NVEC, "5678123" },
-     { L_, "dr1",               3,   1,   0,    0,   0,  0, IOVEC,"456"     },
+    { L_, "dr1",               3,   1,   0,    0,   0,  0, e_IOVEC,"456"     },
 
     { L_, "W20",               3,   1,   0,    0,   0,  0, e_NVEC, ""        },
     { L_, "W20",               3,   1,   0,    0,   0,  0, e_NVEC, ""        },
@@ -12959,7 +12962,7 @@ if (SCRIPTS[j].d_numPendingWrite != channel.numPendingWriteOperations())
                         LOOP_ASSERT(LINE, SCRIPTS[i][j].d_writeTimers ==
                                      channel.writeEventManager()->numTimers());
                     }
-                    if (SCRIPTS[i][j].d_operationType == IOVEC) {
+                    if (SCRIPTS[i][j].d_operationType == e_IOVEC) {
                         helpAssertVecData(i, j, SCRIPTS[i][j].d_operationType,
                                           buffer.d_readIovecBuf,
                                           SCRIPTS[i][j].d_expData);

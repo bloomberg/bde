@@ -10,13 +10,12 @@
 
 #include <btlsc_timedcbchannel.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlt_currenttime.h>
 
@@ -24,7 +23,7 @@
 
 #include <bslma_testallocator.h>
 
-#include <bdlqq_mutex.h>
+#include <bslmt_mutex.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -36,7 +35,9 @@
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>     // 'strcmp'
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -119,7 +120,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -139,8 +140,8 @@ struct ConnectionInfo {
      btlso::IPv4Address                            *d_server;
      int                                           d_numConnections;
      int                                           d_sleepTime;
-  //  bdlqq::Mutex                                  *d_mutex_p;
-  //  bdlqq::Condition    *d_cv_p;
+  //  bslmt::Mutex                                  *d_mutex_p;
+  //  bslmt::Condition    *d_cv_p;
 };
 
 enum {
@@ -166,11 +167,11 @@ class my_EchoServer {
     bsls::TimeInterval           d_readTimeout;
     bsls::TimeInterval           d_writeTimeout;
 
-    bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-                                d_allocateFunctor;
+    bsl::function<void(btlsc::TimedCbChannel*, int)>
+                                 d_allocateFunctor;
 
-    bslma::Allocator           *d_allocator_p;
-    char                        d_buffer[k_READ_SIZE];
+    bslma::Allocator            *d_allocator_p;
+    char                         d_buffer[k_READ_SIZE];
 
     void allocateCb(btlsc::TimedCbChannel *channel, int status);
         // Invoked by the socket event manager when a connection is accepted.
@@ -216,10 +217,11 @@ my_EchoServer::my_EchoServer(
 {
     ASSERT(factory);
     ASSERT(manager);
-    d_allocateFunctor
-        = bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>(
-                bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this)
-              , basicAllocator);
+    d_allocateFunctor = bsl::function<void(btlsc::TimedCbChannel *, int)>(
+        bsl::allocator_arg_t(),
+        bsl::allocator<bsl::function<void(btlsc::TimedCbChannel *, int)> >(
+                                                               basicAllocator),
+        bdlf::MemFnUtil::memFn(&my_EchoServer::allocateCb, this));
 }
 
 my_EchoServer::~my_EchoServer() {
@@ -230,7 +232,7 @@ my_EchoServer::~my_EchoServer() {
 void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
     if (channel) {
         // Accepted a connection.  Issue a read raw request.
-        bdlf::Function<void (*)(int, int)> callback(
+        bsl::function<void(int, int)> callback(
                 bdlf::BindUtil::bindA(
                         d_allocator_p
                       , &my_EchoServer::readCb
@@ -281,7 +283,7 @@ void my_EchoServer::bufferedReadCb(const char            *buffer,
          << " read " << status << " bytes." << endl;
     ASSERT(channel);
     if (0 < status) {
-        bdlf::Function<void (*)(int, int)> callback(
+        bsl::function<void(int, int)> callback(
                 bdlf::BindUtil::bindA(
                         d_allocator_p
                       , &my_EchoServer::writeCb
@@ -297,7 +299,7 @@ void my_EchoServer::bufferedReadCb(const char            *buffer,
             return;                                                   // RETURN
         }
         // Re-register read request
-        bdlf::Function<void (*)(const char *, int, int)> readCallback(
+        bsl::function<void(const char *, int, int)> readCallback(
                 bdlf::BindUtil::bindA(
                     d_allocator_p
                   , &my_EchoServer::bufferedReadCb
@@ -334,7 +336,7 @@ void my_EchoServer::readCb(int                    status,
          << " read " << status << " bytes." << endl;
     ASSERT(channel);
     if (0 < status) {
-        bdlf::Function<void (*)(int, int)> callback(
+        bsl::function<void(int, int)> callback(
                 bdlf::BindUtil::bindA(
                         d_allocator_p
                       , &my_EchoServer::writeCb
@@ -350,7 +352,7 @@ void my_EchoServer::readCb(int                    status,
             return;                                                   // RETURN
         }
         // Re-register read request
-        bdlf::Function<void (*)(int, int)> readCallback(
+        bsl::function<void(int, int)> readCallback(
                 bdlf::BindUtil::bindA(
                         d_allocator_p
                       , &my_EchoServer::readCb
@@ -710,7 +712,7 @@ void my_TickReporter::readCb(const char            *buffer,
             ::myPrintTick(bsl::cout, buffer, msgSize);
         }
         if (1 == curNumTicks) {
-            bdlf::Function<void (*)()> timerFunctor(
+            bsl::function<void()> timerFunctor(
                     bdlf::BindUtil::bind(
                         &my_TickReporter::timeCb
                       , this
@@ -779,7 +781,7 @@ void my_TickReporter::timeCb(int                 lastNumTicks,
     cout << "The read rate is " << (int) (numTicks / numSeconds)
          << " Ticks/second." << endl << endl;
 
-    bdlf::Function<void (*)()> timerFunctor(
+    bsl::function<void()> timerFunctor(
             bdlf::BindUtil::bind(
                     &my_TickReporter::timeCb
                   , this
@@ -889,7 +891,7 @@ static void *threadToConnect(void *arg)
         P_T(info.d_numConnections);
         PT(info.d_sleepTime);
     }
-    bdlqq::ThreadUtil::microSleep(info.d_sleepTime);
+    bslmt::ThreadUtil::microSleep(info.d_sleepTime);
     // bslma::TestAllocator is not thread-safe, so need to provide a new one
     // for the thread.
     bslma::TestAllocator threadTestAllocator;
@@ -1039,7 +1041,7 @@ int main(int argc, char *argv[])
             my_TickReporter reporter(bsl::cout, &acceptor, &sem);
 
             while (0 != sem.numEvents()) {
-                sem.dispatch(bteso_Flag::k_ASYNC_INTERRUPT);
+                sem.dispatch(btlso::Flag::k_ASYNC_INTERRUPT);
             }
         }
       } break;
@@ -1139,8 +1141,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
                     int totalConnections = VALUES[i].d_numConnections +
@@ -1151,7 +1153,7 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1162,8 +1164,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1177,8 +1178,7 @@ int main(int argc, char *argv[])
                                   0 == acceptor.allocate(cb));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1211,8 +1211,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1226,8 +1225,7 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                           bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                   int)>
+                           bsl::function<void(btlsc::TimedCbChannel*, int)>
                                cb(bdlf::BindUtil::bind( &acceptCb
                                                      , _1, _2
                                                      , &acceptor
@@ -1271,8 +1269,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -1,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1291,8 +1288,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -1,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1318,7 +1314,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels are still valid.
                     LOOP_ASSERT(i, totalConnections == acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1366,8 +1362,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
 
@@ -1377,7 +1373,7 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1387,8 +1383,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1402,8 +1397,7 @@ int main(int argc, char *argv[])
                                   0 == acceptor.allocate(cb));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1436,8 +1430,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 0, expStatus = -1,
                             cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1451,8 +1444,7 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1480,8 +1472,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -2,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1500,8 +1491,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 0, expStatus = -2,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1527,7 +1517,7 @@ int main(int argc, char *argv[])
                     }
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, connections == acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1575,8 +1565,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
                     // We will try establish another connection after the
@@ -1589,7 +1579,7 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 10000000);
@@ -1601,8 +1591,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1619,8 +1608,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1654,8 +1642,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 0, expStatus = -1,
                                cancelFlag = 0, closeFlag = 0;
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1669,8 +1656,7 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1707,8 +1693,7 @@ int main(int argc, char *argv[])
                             cancelFlag = 1;
                         }
                         if (!timeoutChannel) {
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -1722,8 +1707,7 @@ int main(int argc, char *argv[])
                               0 == acceptor.timedAllocate(cb, timeout));
                         }
                         else {
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -1751,7 +1735,7 @@ int main(int argc, char *argv[])
                     // Now expected number of channels have been established.
                     LOOP_ASSERT(i, VALUES[i].d_numConnections + 1 ==
                                    acceptor.numChannels());
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -1835,8 +1819,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -1848,7 +1832,7 @@ int main(int argc, char *argv[])
                           k_DEFAULT_SLEEP_TIME,
                         };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout1(0,  10),
@@ -1867,8 +1851,8 @@ int main(int argc, char *argv[])
 
                             if (VALUES[i][j].d_channelFlag) {
                                 // a 'btlsos::TcpTimedCbChannel'
-                                bdlf::Function< void (*)(btlsc::TimedCbChannel*
-                                             , int)> cb;
+                                bsl::function<void(btlsc::TimedCbChannel*,
+                                                   int)> cb;
 
                                 if (VALUES[i][j].d_timeoutFlag) {
                                     validChannel = 0;
@@ -1896,9 +1880,7 @@ int main(int argc, char *argv[])
                             }
                             else {
                                 // a 'btlsos::TcpCbChannel'
-                                bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                        int)>
-                                                                            cb;
+                                bsl::function<void(btlsc::CbChannel*, int)> cb;
                                 if (VALUES[i][j].d_timeoutFlag) {
                                     validChannel = 0;
                                     cb = bdlf::BindUtil::bind(
@@ -1927,7 +1909,7 @@ int main(int argc, char *argv[])
                         } break;
                         case 'D': {
                             manager.dispatch(0);
-                            bdlqq::ThreadUtil::microSleep(
+                            bslmt::ThreadUtil::microSleep(
                                                     k_DEFAULT_SLEEP_TIME * 2);
                         } break;
                         default:
@@ -1950,7 +1932,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
 
@@ -1995,8 +1977,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -2007,7 +1989,7 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     bsls::TimeInterval timeout(50, 100000);
@@ -2017,7 +1999,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                        bsl::function<void(btlsc::TimedCbChannel*, int)>
                             cb(bdlf::BindUtil::bind( &acceptCb
                                                   , _1, _2
                                                   , &acceptor
@@ -2036,8 +2018,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2069,7 +2050,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2113,8 +2094,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -2125,7 +2106,7 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                    int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                        attributes,
                                                        threadToConnect,
                                                        &connectInfo);
@@ -2138,7 +2119,7 @@ int main(int argc, char *argv[])
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                        bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                        bsl::function<void(btlsc::CbChannel*, int)> cb(
                                 bdlf::BindUtil::bind( &acceptCb
                                                    , _1, _2
                                                    , &acceptor
@@ -2158,8 +2139,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2190,7 +2170,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2234,8 +2214,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -2246,14 +2226,14 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                        bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+                        bsl::function<void(btlsc::TimedCbChannel*, int)>
                             cb(bdlf::BindUtil::bind( &acceptCb
                                                   , _1, _2
                                                   , &acceptor
@@ -2272,8 +2252,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                                 cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::TimedCbChannel*,
-                                                    int)>
+                            bsl::function<void(btlsc::TimedCbChannel*, int)>
                                 cb(bdlf::BindUtil::bind( &acceptCb
                                                       , _1, _2
                                                       , &acceptor
@@ -2304,7 +2283,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2348,8 +2327,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -2360,14 +2339,14 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                        bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                        bsl::function<void(btlsc::CbChannel*, int)> cb(
                                 bdlf::BindUtil::bind( &acceptCb
                                                    , _1, _2
                                                    , &acceptor
@@ -2385,8 +2364,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2417,7 +2395,7 @@ int main(int argc, char *argv[])
                         QT("The total number of channels established: ");
                         PT(acceptor.numChannels());
                     }
-                    bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                    bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;
@@ -2465,8 +2443,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == acceptor.open(serverAddress,
                                               k_DEFAULT_EQUEUE_SIZE));
 
-                    bdlqq::ThreadUtil::Handle threadHandle;
-                    bdlqq::ThreadAttributes attributes;
+                    bslmt::ThreadUtil::Handle threadHandle;
+                    bslmt::ThreadAttributes attributes;
                     int connections = 0;
 
                     btlso::IPv4Address serverAddr(acceptor.address());
@@ -2477,14 +2455,14 @@ int main(int argc, char *argv[])
                                                    k_DEFAULT_SLEEP_TIME
                                                  };
 
-                    bdlqq::ThreadUtil::create(&threadHandle, attributes,
+                    bslmt::ThreadUtil::create(&threadHandle, attributes,
                                              threadToConnect, &connectInfo);
 
                     for (int j = 0; j < VALUES[i].d_initRequests; ++j) {
                         int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                        bdlf::Function<void (*)(btlsc::CbChannel*, int)> cb(
+                        bsl::function<void(btlsc::CbChannel*, int)> cb(
                                 bdlf::BindUtil::bind( &acceptCb
                                                    , _1, _2
                                                    , &acceptor
@@ -2502,8 +2480,7 @@ int main(int argc, char *argv[])
                             int channelFlag = 1, expStatus = 0,
                             cancelFlag = 0, closeFlag = 0;
 
-                            bdlf::Function<void (*)(btlsc::CbChannel*,
-                                                    int)> cb(
+                            bsl::function<void(btlsc::CbChannel*, int)> cb(
                                     bdlf::BindUtil::bind( &acceptCb
                                                        , _1, _2
                                                        , &acceptor
@@ -2540,7 +2517,7 @@ int main(int argc, char *argv[])
                     if (verbose) {
                         PT(acceptor.address().ipAddress());
                     }
-                     bdlqq::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
+                     bslmt::ThreadUtil::microSleep(k_DEFAULT_SLEEP_TIME * 2);
                 }
             }
         } break;

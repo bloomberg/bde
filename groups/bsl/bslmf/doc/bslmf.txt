@@ -21,29 +21,28 @@
  both.  For instance, in order to evaluate whether two types are the same, one
  could write a meta-function predicate (evaluating to 0 or 1) as follows:
 ..
-    template <class U, class V>
-    struct IsSame {
-        // This 'struct' provides a meta function parameterized by two types
-        // 'U' and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same
-        // type, in which case it takes 'VALUE == 1'.
+  template <class U, class V>
+  struct IsSame {
+      // This 'struct' provides a meta function parameterized by two types 'U'
+      // and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same type,
+      // in which case it takes 'VALUE == 1'.
 
-        // PUBLIC TYPES
-        enum { VALUE = 0 };
-        typedef bslmf_MetaInt<VALUE>  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 0 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
 
-    // SPECIALIZATIONS
-    template <class T>
-    struct IsSame<T, T> {
-        // This specialization of the 'IsSame' meta function is parameterized
-        // by a single type 'T' and is selected if the two parameters of
-        // 'IsSame', 'U' and 'V', are both equal to 'T'.  It takes
-        // 'VALUE == 1'.
+  // SPECIALIZATIONS
+  template <class T>
+  struct IsSame<T, T> {
+      // This specialization of the 'IsSame' meta function is parameterized by
+      // a single type 'T' and is selected if the two parameters of 'IsSame',
+      // 'U' and 'V', are both equal to 'T'.  It takes 'VALUE == 1'.
 
-        // PUBLIC TYPES
-        enum { VALUE = 1 };
-        typedef bslmf_MetaInt<VALUE>  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 1 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
 ..
  Note the use of a 'bslmf_MetaInt' nested type usually employed for function
  dispatching.  See the 'bslmf_issame' component-level documentation for a more
@@ -316,4 +315,3 @@
 :
 : 'bslmf_typelist':
 :      Provide a typelist component
-

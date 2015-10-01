@@ -193,16 +193,16 @@ BSLS_IDENT("$Id: $")
 #include <ball_thresholdaggregate.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_READLOCKGUARD
-#include <bdlqq_readlockguard.h>
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_READERWRITERLOCK
-#include <bdlqq_readerwriterlock.h>
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#include <bslmt_readerwriterlock.h>
 #endif
 
 #ifndef INCLUDED_BDLB_CSTRINGLESS
@@ -261,13 +261,13 @@ class CategoryManager {
     RuleSet                    d_ruleSet;       // rule set that contains
                                                      // all registered rules
 
-    bdlqq::Mutex                     d_ruleSetMutex;  // serialize access to
+    bslmt::Mutex                     d_ruleSetMutex;  // serialize access to
                                                      // 'd_ruleset'
 
     bsl::vector<Category *>    d_categories;    // providing random-access
                                                      // to categories
 
-    mutable bdlqq::ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
+    mutable bslmt::ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
                                                      // category map
 
     bslma::Allocator               *d_allocator_p;   // memory allocator (held,
@@ -411,7 +411,7 @@ class CategoryManager {
     void removeAllRules();
         // Remove every rule from the set of rules maintained by this object.
 
-    bdlqq::Mutex& rulesetMutex();
+    bslmt::Mutex& rulesetMutex();
         // Return a reference to the modifiable mutex that is used to guard
         // against concurrent accesses to the rule set.  A lock to the
         // returned mutex should be acquired before accessing the properties
@@ -487,12 +487,12 @@ CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
 inline
 Category& CategoryManager::operator[](int index)
 {
-    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     return *d_categories[index];
 }
 
 inline
-bdlqq::Mutex& CategoryManager::rulesetMutex()
+bslmt::Mutex& CategoryManager::rulesetMutex()
 {
     return d_ruleSetMutex;
 }
@@ -500,7 +500,7 @@ bdlqq::Mutex& CategoryManager::rulesetMutex()
 template <class CATEGORY_VISITOR>
 void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
 {
-    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     for (bsl::vector<Category *>::iterator it = d_categories.begin();
          it != d_categories.end();
          ++it) {
@@ -518,7 +518,7 @@ int CategoryManager::ruleSequenceNumber() const
 inline
 int CategoryManager::length() const
 {
-    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     const int length = static_cast<int>(d_categories.size());
     return length;
 }
@@ -526,7 +526,7 @@ int CategoryManager::length() const
 inline
 const Category& CategoryManager::operator[](int index) const
 {
-    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     const Category& category = *d_categories[index];
     return category;
 }
@@ -540,7 +540,7 @@ const RuleSet& CategoryManager::ruleSet() const
 template <class CATEGORY_VISITOR>
 void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
 {
-    bdlqq::ReadLockGuard<bdlqq::ReaderWriterLock> guard(&d_registryLock);
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
     for (bsl::vector<Category *>::const_iterator it = d_categories.begin();
          it != d_categories.end();
          ++it) {

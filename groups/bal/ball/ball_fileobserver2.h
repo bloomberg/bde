@@ -216,12 +216,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLS_FDSTREAMBUF
@@ -250,6 +246,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_FSTREAM
 #include <bsl_fstream.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -284,13 +284,12 @@ class FileObserver2 : public Observer {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(bsl::ostream&, const Record&)>
-                                                              LogRecordFunctor;
+    typedef bsl::function<void(bsl::ostream&, const Record&)> LogRecordFunctor;
         // 'LogRecordFunctor' defines the type of the functor used for
         // formatting log records to a stream.
 
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)(int, const bsl::string&)>
+    typedef bsl::function<void(int, const bsl::string&)>
                                                         OnFileRotationCallback;
         // An 'OnFileRotationCallback' is an alias for a user-supplied callback
         // function that is invoked after the file observer attempts to rotate
@@ -337,7 +336,7 @@ class FileObserver2 : public Observer {
                                                        // in local time (UTC
                                                        // otherwise)
 
-    mutable bdlqq::Mutex   d_mutex;                    // serialize operations
+    mutable bslmt::Mutex   d_mutex;                    // serialize operations
 
     int                    d_rotationSize;             // maximum log file size
                                                        // before rotation
@@ -358,7 +357,7 @@ class FileObserver2 : public Observer {
     OnFileRotationCallback d_onRotationCb;             // user-callback for
                                                        // file rotation
 
-    mutable bdlqq::Mutex   d_rotationCbMutex;          // serialize access to
+    mutable bslmt::Mutex   d_rotationCbMutex;          // serialize access to
                                                        // 'd_onRotationCb';
                                                        // required because
                                                        // callback must be

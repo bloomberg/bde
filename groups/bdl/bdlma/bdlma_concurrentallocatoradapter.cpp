@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentallocatoradapter_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 namespace BloombergLP {
 namespace bdlma {
@@ -21,13 +21,13 @@ ConcurrentAllocatorAdapter::~ConcurrentAllocatorAdapter()
 // MANIPULATORS
 void *ConcurrentAllocatorAdapter::allocate(size_type numBytes)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
+    bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
     return d_allocator_p->allocate(numBytes);
 }
 
 void ConcurrentAllocatorAdapter::deallocate(void *address)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(d_mutex_p);
+    bslmt::LockGuard<bslmt::Mutex> guard(d_mutex_p);
     d_allocator_p->deallocate(address);
 }
 }  // close package namespace

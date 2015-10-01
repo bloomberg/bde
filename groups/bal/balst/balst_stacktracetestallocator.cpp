@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 #include <balst_stacktrace.h>
 #include <balst_stacktraceutil.h>
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 #include <bslma_allocator.h>
 #include <bslma_mallocfreeallocator.h>
@@ -21,8 +21,10 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>
 #include <bsl_vector.h>
 #include <bsl_utility.h>
@@ -257,8 +259,10 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
-                                  : &bslma::MallocFreeAllocator::singleton())
+, d_failureHandler(bsl::allocator_arg_t(),
+                   bsl::allocator<FailureHandler>(basicAllocator
+                                   ? basicAllocator
+                                   : &bslma::MallocFreeAllocator::singleton()))
 , d_maxRecordedFrames(k_DEFAULT_NUM_RECORDED_FRAMES + k_IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(k_DEFAULT_NUM_RECORDED_FRAMES))
 , d_ostream(&bsl::cerr)
@@ -284,8 +288,10 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_blocks(0)
 , d_mutex()
 , d_name("<unnamed>")
-, d_failureHandler(basicAllocator ? basicAllocator
-                                  : &bslma::MallocFreeAllocator::singleton())
+, d_failureHandler(bsl::allocator_arg_t(),
+                   bsl::allocator<FailureHandler>(basicAllocator
+                                   ? basicAllocator
+                                   : &bslma::MallocFreeAllocator::singleton()))
 , d_maxRecordedFrames(numRecordedFrames + k_IGNORE_FRAMES)
 , d_traceBufferLength(getTraceBufferLength(numRecordedFrames))
 , d_ostream(&bsl::cerr)
@@ -325,7 +331,7 @@ void *StackTraceTestAllocator::allocate(size_type size)
         return 0;                                                     // RETURN
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     // The underlying allocator might align the block differently depending on
     // the size passed.  The alignment must be large enough to accommodate the
@@ -398,7 +404,7 @@ void StackTraceTestAllocator::deallocate(void *address)
 
     BlockHeader *blockHdr = (BlockHeader *) address - 1;
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (checkBlockHeader(blockHdr)) {
         guard.release()->unlock();
@@ -422,7 +428,7 @@ void StackTraceTestAllocator::deallocate(void *address)
 
 void StackTraceTestAllocator::release()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     for (BlockHeader *blockHdr = d_blocks;
                                      blockHdr; blockHdr = blockHdr->d_next_p) {
@@ -457,9 +463,9 @@ void StackTraceTestAllocator::setDemanglingPreferredFlag(bool value)
 }
 
 void StackTraceTestAllocator::setFailureHandler(
-                                        const bdlf::Function<void (*)()>& func)
+                                             const bsl::function<void()>& func)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     d_failureHandler = func;
 }
@@ -468,7 +474,7 @@ void StackTraceTestAllocator::setName(const char *name)
 {
     BSLS_ASSERT(0 != name);
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     d_name = name;
 }
@@ -477,7 +483,7 @@ void StackTraceTestAllocator::setOstream(bsl::ostream *ostream)
 {
     BSLS_ASSERT(0 != ostream);
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     d_ostream = ostream;
 }
@@ -488,7 +494,7 @@ void StackTraceTestAllocator::reportBlocksInUse(bsl::ostream *ostream) const
     typedef bsl::vector<const void *>    StackTraceVec;
     typedef bsl::map<StackTraceVec, int> StackTraceVecMap;
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (0 == ostream) {
         ostream = d_ostream;

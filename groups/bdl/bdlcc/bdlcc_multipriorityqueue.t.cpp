@@ -4,15 +4,13 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlf_function.h>
-
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_semaphore.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_semaphore.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 
 #include <bsls_atomic.h>
 #include <bsls_types.h>
@@ -93,7 +91,7 @@ namespace {
 
 int testStatus = 0;
 
-bdlqq::Mutex coutMutex;
+bslmt::Mutex coutMutex;
 
 #define COUT  { coutMutex.lock(); bsl::cout
 #define CERR  { coutMutex.lock(); bsl::cerr
@@ -283,12 +281,12 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
         }
     }
 //..
-// The 'myConsumerThread' function below is a callback for 'bdlqq::ThreadUtil',
-// which requires a "C" signature.  'bdlqq::ThreadUtil::create()' expects a
+// The 'myConsumerThread' function below is a callback for 'bslmt::ThreadUtil',
+// which requires a "C" signature.  'bslmt::ThreadUtil::create()' expects a
 // pointer to this function, and provides that function pointer to the
 // newly-created thread.  The new thread then executes this function.
 //
-// Since 'bdlqq::ThreadUtil::create()' uses the familiar "C" convention of
+// Since 'bslmt::ThreadUtil::create()' uses the familiar "C" convention of
 // passing a 'void' pointer, our function simply casts that pointer to our
 // required type ('bdlcc::MultipriorityQueue<MyWorkRequest> *'), and then
 // delegates to the queue-specific function 'myConsumer' (above):
@@ -311,7 +309,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 //
 // Finally, the 'myProducer' function "joins" each consumer thread, which
 // ensures that the thread itself will terminate correctly (see the
-// 'bdlqq_threadutil' component-level documentation for details):
+// 'bslmt_threadutil' component-level documentation for details):
 //..
     void myProducer()
     {
@@ -331,10 +329,10 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 
         ASSERT(0 < k_NUM_THREADS
             && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
-        bdlqq::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
+        bslmt::ThreadUtil::Handle consumerHandles[k_MAX_CONSUMER_THREADS];
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::create(&consumerHandles[i],
+            bslmt::ThreadUtil::create(&consumerHandles[i],
                                      myConsumerThread,
                                      &queue);
         }
@@ -362,7 +360,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
         // Join all of the consumer threads back with the main thread.
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::join(consumerHandles[i]);
+            bslmt::ThreadUtil::join(consumerHandles[i]);
         }
     }
 //..
@@ -419,7 +417,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
         char      d_eventText[k_MAX_EVENT_TEXT];
     };
 //..
-// As noted in the previous example, 'bdlqq::ThreadUtil::create()' spawns a new
+// As noted in the previous example, 'bslmt::ThreadUtil::create()' spawns a new
 // thread, which invokes a simple "C" function taking a 'void' pointer.  In the
 // previous example, we simply converted that 'void' pointer into a pointer to
 // 'bdlcc::MultipriorityQueue<MyWorkRequest>'.
@@ -471,7 +469,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
     }
 //..
 // The callback function 'myWorkerThread' (below) invoked by
-// 'bdlqq::ThreadUtil::create' takes the traditional 'void' pointer.  The
+// 'bslmt::ThreadUtil::create' takes the traditional 'void' pointer.  The
 // expected data is the composite structure 'MyWorkerData'.  The callback
 // function casts the 'void' pointer to the application-specific data type and
 // then uses the referenced object to construct a call to the 'myWorker'
@@ -505,7 +503,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 
         ASSERT(0 < k_NUM_THREADS
             && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
-        bdlqq::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
+        bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
         // Create 'k_NUM_THREADS' threads, each having a unique "worker id".
 
@@ -513,7 +511,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             workerData[i].d_queue = &queue;
             workerData[i].d_workerId = i;
-            bdlqq::ThreadUtil::create(&workerHandles[i],
+            bslmt::ThreadUtil::create(&workerHandles[i],
                                      myWorkerThread,
                                      &workerData[i]);
         }
@@ -531,7 +529,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
                       << ev.d_eventText << bsl::endl;
             if (MyEvent::e_TASK_COMPLETE == ev.d_type) {
                 ++nStop;
-                bdlqq::ThreadUtil::join(workerHandles[ev.d_workerId]);
+                bslmt::ThreadUtil::join(workerHandles[ev.d_workerId]);
             }
         }
     }
@@ -604,7 +602,7 @@ struct ProducerThread {
     static int             s_numPriorities;
     static int             s_numItemsPerProducer;
     static bsls::AtomicInt  s_pushVal;
-    static bdlqq::Barrier  *s_barrier;
+    static bslmt::Barrier  *s_barrier;
     static Obj            *s_queue_p;
     static int             s_removeMask;
 
@@ -639,7 +637,7 @@ struct ProducerThread {
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
 bsls::AtomicInt  ProducerThread::s_pushVal(0);
-bdlqq::Barrier  *ProducerThread::s_barrier;
+bslmt::Barrier  *ProducerThread::s_barrier;
 Obj            *ProducerThread::s_queue_p;
 int             ProducerThread::s_removeMask;
 
@@ -665,7 +663,7 @@ struct ConsumerThread {
         k_ILLEGAL_VAL = INT_MAX
     };
 
-    static bdlqq::Barrier  *s_barrier;
+    static bslmt::Barrier  *s_barrier;
     static Obj             *s_queue_p;
     static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
@@ -700,7 +698,7 @@ struct ConsumerThread {
         return 0;
     }
 };
-bdlqq::Barrier  *ConsumerThread::s_barrier;
+bslmt::Barrier  *ConsumerThread::s_barrier;
 Obj             *ConsumerThread::s_queue_p;
 OutPair         *ConsumerThread::s_outPairVec;
 bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
@@ -719,7 +717,7 @@ struct ProducerThread {
     static int             s_numPriorities;
     static int             s_numItemsPerProducer;
     static bsls::AtomicInt  s_pushVal;
-    static bdlqq::Barrier  *s_barrier;
+    static bslmt::Barrier  *s_barrier;
     static Iobj           *s_queue_p;
 
     int operator()() {
@@ -748,7 +746,7 @@ struct ProducerThread {
 int             ProducerThread::s_numPriorities;
 int             ProducerThread::s_numItemsPerProducer;
 bsls::AtomicInt  ProducerThread::s_pushVal(0);
-bdlqq::Barrier  *ProducerThread::s_barrier;
+bslmt::Barrier  *ProducerThread::s_barrier;
 Iobj           *ProducerThread::s_queue_p;
 
 struct OutPair {
@@ -773,7 +771,7 @@ struct ConsumerThread {
         k_ILLEGAL_VAL = INT_MAX
     };
 
-    static bdlqq::Barrier  *s_barrier;
+    static bslmt::Barrier  *s_barrier;
     static Iobj            *s_queue_p;
     static OutPair         *s_outPairVec;
     static bsls::AtomicInt *s_outPairVecIdx;
@@ -805,7 +803,7 @@ struct ConsumerThread {
         return 0;
     }
 };
-bdlqq::Barrier  *ConsumerThread::s_barrier;
+bslmt::Barrier  *ConsumerThread::s_barrier;
 Iobj           *ConsumerThread::s_queue_p;
 OutPair        *ConsumerThread::s_outPairVec;
 bsls::AtomicInt *ConsumerThread::s_outPairVecIdx;
@@ -827,7 +825,7 @@ struct TestFunctor7 {
     };
 
     Obj *d_pMX;
-    bdlqq::Barrier *d_barrier;
+    bslmt::Barrier *d_barrier;
     Element d_e;
     int     d_priority;
 
@@ -836,7 +834,7 @@ struct TestFunctor7 {
         d_priority = k_GARBAGE_VALUE;
     }
 
-    TestFunctor7(Obj *pMX, bdlqq::Barrier *barrier)
+    TestFunctor7(Obj *pMX, bslmt::Barrier *barrier)
     : d_pMX(pMX)
     , d_barrier(barrier)
     {
@@ -1436,7 +1434,7 @@ int main(int argc, char *argv[])
 
         Obj mX(k_NUM_PRIORITIES, &ta);     const Obj& X = mX;
 
-        bdlqq::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
+        bslmt::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
 
         ProducerThread::s_numPriorities       =  k_NUM_PRIORITIES;
         ProducerThread::s_numItemsPerProducer =  k_NUM_ITEMS_PER_PRODUCER;
@@ -1445,7 +1443,7 @@ int main(int argc, char *argv[])
         ProducerThread::s_queue_p             = &mX;
         ProducerThread::s_removeMask          =  k_REMOVE_MASK;
 
-        bdlqq::Barrier  consumerBarrier(k_NUM_CONSUMERS + 1);
+        bslmt::Barrier  consumerBarrier(k_NUM_CONSUMERS + 1);
         bsls::AtomicInt outPairVecIdx(0);
 
         OutPair *outPairVec =
@@ -1466,14 +1464,14 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == Element::s_allocCount);
 
-        bdlqq::ThreadGroup consumerGroup;
+        bslmt::ThreadGroup consumerGroup;
         consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
             COUT << "Consumers spawned" << ENDL;
         }
 
-        bdlqq::ThreadGroup producerGroup;
+        bslmt::ThreadGroup producerGroup;
         producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
@@ -1484,8 +1482,8 @@ int main(int argc, char *argv[])
 
         // try to give consumers a change to block on pop, ready to go
         for (int i = 0; k_NUM_CONSUMERS + k_NUM_PRODUCERS > i; ++i) {
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(10 * 1000);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(10 * 1000);
         }
 
         testStartedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
@@ -1621,7 +1619,7 @@ int main(int argc, char *argv[])
             numItemsPerProducer = 120000;
         }
 
-        bdlqq::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
+        bslmt::Barrier producerBarrier(k_NUM_PRODUCERS + 1);
 
         ProducerThread::s_numPriorities       =  k_NUM_PRIORITIES;
         ProducerThread::s_numItemsPerProducer =  numItemsPerProducer;
@@ -1629,7 +1627,7 @@ int main(int argc, char *argv[])
         ProducerThread::s_barrier             = &producerBarrier;
         ProducerThread::s_queue_p             = &mX;
 
-        bdlqq::Barrier   consumerBarrier(k_NUM_CONSUMERS + 1);
+        bslmt::Barrier   consumerBarrier(k_NUM_CONSUMERS + 1);
         bsl::size_t      outPairVecNumBytes = sizeof(OutPair) * k_NUM_PRODUCERS
                                                          * numItemsPerProducer;
         OutPair        *outPairVec = (OutPair *)
@@ -1646,14 +1644,14 @@ int main(int argc, char *argv[])
         ProducerThread producer;
         ConsumerThread consumer;
 
-        bdlqq::ThreadGroup consumerGroup;
+        bslmt::ThreadGroup consumerGroup;
         consumerGroup.addThreads(consumer, k_NUM_CONSUMERS);
 
         if (veryVerbose) {
             COUT << "Consumers spawned" << ENDL;
         }
 
-        bdlqq::ThreadGroup producerGroup;
+        bslmt::ThreadGroup producerGroup;
         producerGroup.addThreads(producer, k_NUM_PRODUCERS);
 
         if (veryVerbose) {
@@ -1664,8 +1662,8 @@ int main(int argc, char *argv[])
 
         // try to give consumers a change to block on pop, ready to go
         for (int i = 0; k_NUM_CONSUMERS + k_NUM_PRODUCERS > i; ++i) {
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(10 * 1000);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(10 * 1000);
         }
 
         testStartedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
@@ -1786,28 +1784,28 @@ int main(int argc, char *argv[])
         }
 
         Obj mX(&ta);
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
 
         TestFunctor7 tf7(&mX, &barrier);
-        bdlqq::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::Handle handle;
 
-        bdlqq::ThreadUtil::create(&handle, tf7);
+        bslmt::ThreadUtil::create(&handle, tf7);
 
         barrier.wait(); // wait while it tries to pop from the empty queue
 
         for (int j = 0; 4 > j; ++j) {
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(1000 * 50);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(1000 * 50);
         }
         mX.pushBack(tf7.k_FIRST_PUSHVAL, tf7.k_PUSH_PRIORITY);
 
         for (int j = 0; 4 > j; ++j) {
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(1000 * 50);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(1000 * 50);
         }
         mX.pushBack(tf7.k_SECOND_PUSHVAL, tf7.k_PUSH_PRIORITY);
 
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::join(handle);
       }  break;
       case 6: {
         // --------------------------------------------------------------------

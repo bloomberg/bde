@@ -226,7 +226,7 @@ BSLS_IDENT("$Id: $")
 //          MAX_IDLE    = 100  // use a very short idle time since new jobs
 //                             // arrive only at startup
 //      };
-//      bdlqq::ThreadAttributes           defaultAttrs;
+//      bslmt::ThreadAttributes           defaultAttrs;
 //      bdlmt::MultiQueueThreadPool pool(defaultAttrs,
 //                                     MIN_THREADS, MAX_THREADS, MAX_IDLE,
 //                                     basicAllocator);
@@ -270,7 +270,7 @@ BSLS_IDENT("$Id: $")
 //              const bsl::string&        file = *it;
 //              const bsl::string&        word = *jt;
 //              RegistryValue&            rv   = profileRegistry[word];
-//              bdlf::Function<void (*)()> job  =
+//              bsl::function<void()> job  =
 //                 bdlf::BindUtil::bind(&my_SearchCb, rv.second, file.c_str());
 //              int rc = pool.enqueueJob(rv.first, job);
 //              LOOP_ASSERT(word, 0 == rc);
@@ -316,8 +316,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -336,17 +336,17 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
 #endif
 
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
 namespace BloombergLP {
 
-namespace bdlqq { class Barrier; }
+namespace bslmt { class Barrier; }
 
 namespace bdlmt {
                       // ================================
@@ -360,7 +360,7 @@ class MultiQueueThreadPool_Queue {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> Job;
+    typedef bsl::function<void()> Job;
 
   private:
     // TYPES
@@ -462,7 +462,7 @@ class MultiQueueThreadPool_QueueContext {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> QueueProcessorCb;
+    typedef bsl::function<void()> QueueProcessorCb;
         // This type defines a callback functor that is enqueued to the thread
         // pool, and used to process elements of a specific queue.  The queue
         // ID must be bound to the functor at the time of its instantiation.
@@ -518,8 +518,8 @@ class MultiQueueThreadPool {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)()> Job;
-    typedef bdlf::Function<void(*)()> CleanupFunctor;
+    typedef bsl::function<void()> Job;
+    typedef bsl::function<void()> CleanupFunctor;
 
   private:
     // TYPES
@@ -547,7 +547,7 @@ class MultiQueueThreadPool {
     bdlcc::ObjectCatalog<MultiQueueThreadPool_QueueContext*>
                       d_queueRegistry;      // registry of queue contexts
 
-    mutable bdlqq::RWMutex
+    mutable bslmt::RWMutex
                       d_registryLock;       // synchronizes registry access
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
@@ -572,7 +572,7 @@ class MultiQueueThreadPool {
 
     void deleteQueueCb(int                    id,
                        const CleanupFunctor&  cleanupFunctor,
-                       bdlqq::Barrier        *barrier);
+                       bslmt::Barrier        *barrier);
         // Remove the queue associated with the specified 'id' from the queue
         // registry, execute the specified 'cleanupFunctor', wait on the
         // specified 'barrier', and then delete the referenced queue.
@@ -593,7 +593,7 @@ class MultiQueueThreadPool {
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    MultiQueueThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
+    MultiQueueThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                          int                             minThreads,
                          int                             maxThreads,
                          int                             maxIdleTime,

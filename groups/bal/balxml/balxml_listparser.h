@@ -133,10 +133,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
 #endif
@@ -147,6 +143,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
@@ -171,7 +175,8 @@ class ListParser {
   public:
     // TYPES
     typedef int (*ParseElementFunction)(ElementType*, const char*, int);
-    typedef bdlf::Function<ParseElementFunction> ParseElementCallback;
+    typedef bsl::function<int(ElementType*, const char*, int)>
+                                                          ParseElementCallback;
 
   private:
     // PRIVATE DATA MEMBERS
@@ -249,7 +254,7 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 
     bdlat_ArrayFunctions::resize(d_object_p, i + 1);
 
-    typedef bdlf::Function<int(*)(ElementType*)> Functor;
+    typedef bsl::function<int(ElementType*)> Functor;
 
     using bdlf::PlaceHolders::_1;
 
@@ -277,7 +282,9 @@ ListParser<TYPE>::ListParser(ParseElementCallback  parseElementCallback,
                              bslma::Allocator     *basicAllocator)
 : d_characters(basicAllocator)
 , d_object_p(0)
-, d_parseElementCallback(parseElementCallback, basicAllocator)
+, d_parseElementCallback(bsl::allocator_arg_t(),
+                         bsl::allocator<ParseElementCallback>(basicAllocator),
+                         parseElementCallback)
 {
 }
 

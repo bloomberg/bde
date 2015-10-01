@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@SEE_ALSO: bdlf_function, bdlf_bind
+//@SEE_ALSO: bdlf_bind
 //
 //@DESCRIPTION: This component provides a member function pointer wrapper
 // that wraps a member function pointer such that it can be invoked in
@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 // Member function wrappers are commonly used as function objects for standard
 // algorithms.
 //
-// The first wrapper, 'bdlf::MemFn', contains a member function pointer and must
-// be invoked with the first argument being a pointer or reference to the
+// The first wrapper, 'bdlf::MemFn', contains a member function pointer and
+// must be invoked with the first argument being a pointer or reference to the
 // instance on which the function should be invoked, with the remaining
 // arguments passed as arguments to the member function; that is, a wrapper
 // 'memFn' containing a pointer to a given 'memberFunction' can be invoked as
@@ -69,8 +69,8 @@ BSLS_IDENT("$Id: $")
 //      func(objectPtr, 100, "Hello");
 //  }
 //..
-// In the 'bdlf::MemFnInstance' case, the wrapper needs to contain the object as
-// well, so it must be created at every function call:
+// In the 'bdlf::MemFnInstance' case, the wrapper needs to contain the object
+// as well, so it must be created at every function call:
 //..
 //  void doSomethingWithMemFnInstance(MyObject *objectPtr)
 //  {
@@ -126,22 +126,22 @@ BSLS_IDENT("$Id: $")
 //      MyConnection *nextAvailable() const;
 //  };
 //..
-// The 'nextAvailable' function returns the next 'MyConnection' object that
-// is available.  The 'find_if' algorithm is used to search the list for the
-// first 'MyConnection' object that is available.  'find_if' invokes the
-// provided function object for each item in the list until a 'true' result is
-// returned, or the end of the list is reached.  A 'bdlf::MemFn' object bound to
-// the 'MyConnection::isAvailable' member function is used as the test
-// functor.  Note that the type of this object is never spelled out, it is
-// built on the fly using the 'bdlf::MemFnUtil' utility before being passed as a
-// functor to the 'bsl::find_if' algorithm:
+// The 'nextAvailable' function returns the next 'MyConnection' object that is
+// available.  The 'find_if' algorithm is used to search the list for the first
+// 'MyConnection' object that is available.  'find_if' invokes the provided
+// function object for each item in the list until a 'true' result is returned,
+// or the end of the list is reached.  A 'bdlf::MemFn' object bound to the
+// 'MyConnection::isAvailable' member function is used as the test functor.
+// Note that the type of this object is never spelled out, it is built on the
+// fly using the 'bdlf::MemFnUtil' utility before being passed as a functor to
+// the 'bsl::find_if' algorithm:
 //..
 //  MyConnection *MyConnectionManager::nextAvailable() const
 //  {
 //      MyConnectionList::const_iterator it =
-//             bsl::find_if(d_list.begin(),
-//                          d_list.end(),
-//                          bdlf::MemFnUtil::memFn(&MyConnection::isAvailable));
+//          bsl::find_if(d_list.begin(),
+//                       d_list.end(),
+//                       bdlf::MemFnUtil::memFn(&MyConnection::isAvailable));
 //      return it == d_list.end() ? 0 : *it;
 //  }
 //..
@@ -167,6 +167,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include <bslalg_typetraitbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
@@ -346,14 +350,14 @@ class MemFn {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MemFn,
-                                 bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseCopyable);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     explicit
     MemFn(PROTOTYPE func);
-        // Create a member function pointer wrapper holding the address of
-        // the specified 'func' member function having the parameterized
+        // Create a member function pointer wrapper holding the address of the
+        // specified 'func' member function having the parameterized
         // 'PROTOTYPE'.
 
     MemFn(const MemFn<PROTOTYPE>& original);
@@ -422,7 +426,7 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
+                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -434,7 +438,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const
+                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
+                                 A6 a6) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -446,8 +451,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                          A7 a7) const
+                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
+                                 A7 a7) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -459,8 +464,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7,
-                          A8 a8) const
+                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
+                                 A7 a7, A8 a8) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -473,8 +478,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7,
-                          A8 a8, A9 a9) const
+                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
+                                 A7 a7, A8 a8, A9 a9) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -487,8 +492,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4  a4, A5  a5, A6  a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10) const
+                                 A1 a1, A2 a2, A3 a3, A4  a4, A5  a5, A6  a6,
+                                 A7 a7, A8 a8, A9 a9, A10 a10) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -501,8 +506,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6  a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const
+                                 A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6  a6,
+                                 A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -515,9 +520,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11,
-                          A12 a12) const
+                                A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
+                                A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
+                                A12 a12) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -530,9 +535,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1  a1, A2  a2, A3  a3, A4  a4,  A5  a5,  A6  a6,
-                          A7  a7, A8  a8, A9  a9, A10 a10, A11 a11, A12 a12,
-                          A13 a13) const
+                                A1  a1,  A2  a2,  A3  a3, A4 a4, A5  a5,
+                                A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
+                                A11 a11, A12 a12, A13 a13) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -545,9 +550,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                          A1  a1,  A2  a2, A3  a3, A4  a4,  A5  a5,  A6  a6,
-                          A7  a7,  A8  a8, A9  a9, A10 a10, A11 a11, A12 a12,
-                          A13 a13, A14 a14) const
+                                A1  a1,  A2  a2,  A3  a3,  A4  a4, A5  a5,
+                                A6  a6,  A7  a7,  A8  a8,  A9  a9, A10 a10,
+                                A11 a11, A12 a12, A13 a13, A14 a14) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified argument 'a1' up
@@ -605,7 +610,7 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -617,7 +622,7 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -629,7 +634,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
+                                       A6 a6) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -641,8 +647,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                          A7 a7) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
+                                       A6 a6, A7 a7) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -654,8 +660,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7,
-                          A8 a8) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
+                                       A6 a6, A7 a7, A8 a8) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -668,8 +674,8 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7,
-                          A8 a8, A9 a9) const
+                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
+                                       A6 a6, A7 a7, A8 a8, A9 a9) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -682,8 +688,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4  a4, A5  a5, A6  a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10) const
+                                      A1  a1, A2 a2, A3 a3, A4 a4, A5  a5,
+                                      A6  a6, A7 a7, A8 a8, A9 a9,
+                                      A10 a10) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -696,8 +703,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1 a1, A2 a2, A3 a3, A4  a4, A5  a5, A6  a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const
+                                      A1  a1, A2 a2, A3 a3, A4 a4, A5  a5,
+                                      A6  a6, A7 a7, A8 a8, A9 a9, A10 a10,
+                                      A11 a11) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -710,9 +718,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
-                          A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
-                          A12 a12) const
+                                      A1  a1,  A2  a2, A3 a3, A4 a4, A5  a5,
+                                      A6  a6,  A7  a7, A8 a8, A9 a9, A10 a10,
+                                      A11 a11, A12 a12) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -725,9 +733,9 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
-                          A7  a7, A8 a8, A9 a9, A10 a10, A11 a11, A12 a12,
-                          A13 a13) const
+                                      A1  a1,  A2  a2,  A3  a3, A4 a4, A5  a5,
+                                      A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
+                                      A11 a11, A12 a12, A13 a13) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -740,9 +748,10 @@ class MemFn {
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                          A1  a1,  A2  a2, A3 a3, A4  a4,  A5  a5,  A6  a6,
-                          A7  a7,  A8  a8, A9 a9, A10 a10, A11 a11, A12 a12,
-                          A13 a13, A14 a14) const
+                                      A1  a1,  A2  a2,  A3  a3,  A4  a4,
+                                      A5  a5,  A6  a6,  A7  a7,  A8  a8,
+                                      A9  a9,  A10 a10, A11 a11, A12 a12,
+                                      A13 a13, A14 a14) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
         // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
@@ -846,20 +855,22 @@ class MemFnInstance {
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
+                                 bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
     MemFnInstance(PROTOTYPE         func,
-                       const INSTANCE&   object,
-                       bslma::Allocator *basicAllocator = 0);
+                  const INSTANCE&   object,
+                  bslma::Allocator *basicAllocator = 0);
         // Create a member function pointer wrapper around the specified 'func'
         // member function pointer of the parameterized 'PROTOTYPE', that is
-        // invokable on the specified 'object' instance of the parameterized
+        // invocable on the specified 'object' instance of the parameterized
         // 'INSTANCE'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     MemFnInstance(const MemFnInstance&  original,
-                       bslma::Allocator          *basicAllocator = 0);
+                  bslma::Allocator     *basicAllocator = 0);
         // Create a member function pointer wrapper around the same member
         // function and instance pointed to by the specified 'original' object.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
@@ -894,14 +905,14 @@ class MemFnInstance {
                           A7 a7, A8 a8, A9 a9, A10 a10) const;
     ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
                           A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11,
+    ResultType operator()(A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
+                          A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
                           A12 a12) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11,
+    ResultType operator()(A1  a1,  A2  a2, A3 a3, A4  a4,  A5  a5, A6 a6,
+                          A7  a7,  A8  a8, A9 a9, A10 a10, A11 a11,
                           A12 a12, A13 a13) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11,
+    ResultType operator()(A1  a1,  A2  a2,  A3  a3, A4  a4,  A5  a5, A6 a6,
+                          A7  a7,  A8  a8,  A9  a9, A10 a10, A11 a11,
                           A12 a12, A13 a13, A14 a14) const;
         // Invoke the member function pointer held by this wrapper on the
         // provided object with the specified 'a1' up to 'aN' as arguments,
@@ -915,8 +926,8 @@ class MemFnInstance {
                               // ================
 
 struct MemFnUtil {
-    // The methods provided in this utility are used for constructing
-    // 'MemFn' and 'MemFnInstance' objects from function pointers.
+    // The methods provided in this utility are used for constructing 'MemFn'
+    // and 'MemFnInstance' objects from function pointers.
 
     // CLASS METHODS
     template <class PROTOTYPE>
@@ -929,11 +940,11 @@ struct MemFnUtil {
     template <class PROTOTYPE, class INSTANCE>
     static
     MemFnInstance<PROTOTYPE, INSTANCE> memFn(PROTOTYPE       func,
-                                                  const INSTANCE& object);
-        // Return a 'MemFnInstance' member function wrapper that
-        // encapsulates the specified 'func' member function pointer of the
-        // parameterized 'PROTOTYPE' and the specified 'object' instance of the
-        // parameterized 'INSTANCE' type.
+                                             const INSTANCE& object);
+        // Return a 'MemFnInstance' member function wrapper that encapsulates
+        // the specified 'func' member function pointer of the parameterized
+        // 'PROTOTYPE' and the specified 'object' instance of the parameterized
+        // 'INSTANCE' type.
 };
 
 // ============================================================================
@@ -967,8 +978,8 @@ MemFn<PROTOTYPE>::MemFn(const MemFn<PROTOTYPE>& original)
 template <class PROTOTYPE, class INSTANCE>
 inline
 MemFnInstance<PROTOTYPE, INSTANCE>::MemFnInstance(
-        const MemFnInstance<PROTOTYPE, INSTANCE>&  original,
-        bslma::Allocator                               *basicAllocator)
+                     const MemFnInstance<PROTOTYPE, INSTANCE>&  original,
+                     bslma::Allocator                          *basicAllocator)
 : d_func_p(original.d_func_p)
 , d_obj(original.d_obj, bslma::Default::allocator(basicAllocator))
 {

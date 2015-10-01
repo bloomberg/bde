@@ -6,8 +6,8 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
 #include <btlso_ipv4address.h>
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_mutex.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
@@ -77,8 +77,8 @@ struct servent *getservbyname_r(const char        *name,
     // Return 'result' with all entries filled in upon success, and 0 if
     // 'getservbyname' fails.
 {
-    static BloombergLP::bdlqq::Mutex                         mutex;
-    BloombergLP::bdlqq::LockGuard<BloombergLP::bdlqq::Mutex> lockguard(&mutex);
+    static BloombergLP::bslmt::Mutex                         mutex;
+    BloombergLP::bslmt::LockGuard<BloombergLP::bslmt::Mutex> lockguard(&mutex);
 
     struct servent *server = getservbyname(static_cast<char *>(name),
                                            static_cast<char *>(proto));
@@ -470,8 +470,8 @@ int ResolveUtil::getHostnameByAddress(bsl::string        *canonicalHostname,
 #elif defined(BSLS_PLATFORM_OS_UNIX)
     // Standard call cannot be assumed to be re-entrant (it often is not).
     {
-        static bdlqq::Mutex            mutex;
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&mutex);
+        static bslmt::Mutex            mutex;
+        bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
 
         hp = gethostbyaddr(static_cast<char *>(&addr),
                            sizeof (struct in_addr),
@@ -502,7 +502,7 @@ int ResolveUtil::getHostnameByAddress(bsl::string        *canonicalHostname,
     saGNI.sin_addr.s_addr = addr;
     saGNI.sin_port = htons(port);
 
-    if (getnameinfo(static_cast<SOCKADDR *>(&saGNI),
+    if (getnameinfo(reinterpret_cast<SOCKADDR *>(&saGNI),
                     sizeof(sockaddr),
                     hostName,
                     sizeof(hostName),

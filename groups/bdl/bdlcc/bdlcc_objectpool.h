@@ -146,17 +146,17 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      my_DatabaseConnection()
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+//          bslmt::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
 //      }
 //
 //      ~my_DatabaseConnection()
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+//          bslmt::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
 //      }
 //
 //      void executeQuery(Query *query)
 //      {
-//          bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+//          bslmt::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
 //          (void)query;
 //      }
 //  };
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  bsls::AtomicInt numQueries(0);
-//  bdlqq::ThreadGroup tg;
+//  bslmt::ThreadGroup tg;
 //
 //  tg.addThreads(bdlf::BindUtil::bind(&serverThread,
 //                                     &numQueries,
@@ -266,10 +266,10 @@ BSLS_IDENT("$Id: $")
 //
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
 //      my_Query *query = getClientQuery();
-//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//      bslmt::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
 //  }
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
-//      bdlqq::ThreadUtil::join(threads[i]);
+//      bslmt::ThreadUtil::join(threads[i]);
 //  }
 //..
 ///Modified 'queryHandler'
@@ -309,16 +309,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_factory.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -327,10 +327,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
@@ -377,6 +373,14 @@ BSLS_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlcc {
 
@@ -390,7 +394,7 @@ struct ObjectPoolFunctors {
     // specifies the default 'CREATOR' parameter type for 'ObjectPool'.
 
     // PUBLIC TYPES
-    typedef bdlf::Function<void(*)(void*, bslma::Allocator*)> DefaultCreator;
+    typedef bsl::function<void(void *, bslma::Allocator *)> DefaultCreator;
         // The default 'CREATOR' parameter type for the 'ObjectPool' class
         // template.
 
@@ -459,7 +463,7 @@ struct ObjectPoolFunctors {
 template <class TYPE, class OTHERTYPE>
 class ObjectPool_CreatorConverter {
     // The purpose of this private class is to avoid ambiguity between
-    // different template instantiations of 'bdlf::Function' accepted by the
+    // different template instantiations of 'bsl::function' accepted by the
     // constructors of 'ObjectPool'.  It should not be used directly.
     //
     // This version of the converter ignores the parameterized 'OTHERTYPE'.  It
@@ -479,9 +483,9 @@ class ObjectPool_CreatorConverter {
 
 template <>
 class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
-                                       bdlf::Function<void(*)(void*)> > {
+                                  bsl::function<void(void *)> > {
     // The purpose of this private class is to avoid ambiguity between
-    // different template instantiations of bdlf::Function accepted by the
+    // different template instantiations of bsl::function accepted by the
     // constructors of 'ObjectPool'.  It should not be used directly.
     //
     // This version of the converter is a full template specialization for the
@@ -491,12 +495,11 @@ class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
     // This usage is *DEPRECATED* and provided only for backward compatibility.
 
     // DATA
-    const bdlf::Function<void(*)(void*)>& d_creator;
+    const bsl::function<void(void *)>& d_creator;
 
   public:
     // CREATORS
-    ObjectPool_CreatorConverter(const bdlf::Function<void(*)(void*)>&
-                                                                     creator);
+    ObjectPool_CreatorConverter(const bsl::function<void(void *)>& creator);
 
     // ACCESSORS
     ObjectPoolFunctors::DefaultCreator creator() const;
@@ -549,16 +552,16 @@ class ObjectPool_CreatorProxy {
 
 // SPECIALIZATIONS
 template <class OTHERTYPE>
-class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                   OTHERTYPE> {
+class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE> {
     // This partial specialization of the 'ObjectPool_CreatorProxy' class
     // template provides a default constructor that creates a proxied
-    // 'bdlf::Function' object that invokes the default constructor of the
+    // 'bsl::function' object that invokes the default constructor of the
     // parameterized 'OTHERTYPE' with placement 'new'.
 
     // PRIVATE TYPES
-    typedef ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                    OTHERTYPE> MyType;
+    typedef
+    ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+                                                                        MyType;
 
     // DATA
     ObjectPoolFunctors::DefaultCreator d_object;
@@ -770,7 +773,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     bslma::Allocator      *d_allocator_p;          // held, not owned
 
-    bdlqq::Mutex           d_mutex;                // pool replenishment
+    bslmt::Mutex           d_mutex;                // pool replenishment
                                                    // serializer
 
     // NOT IMPLEMENTED
@@ -862,13 +865,13 @@ class ObjectPool : public bdlma::Factory<TYPE> {
 
     template <class ANYPROTO>
     explicit
-    ObjectPool(const bdlf::Function<ANYPROTO>&  objectCreator,
-               int                              growBy,
-               bslma::Allocator                *basicAllocator = 0);
+    ObjectPool(const bsl::function<ANYPROTO>&  objectCreator,
+               int                             growBy,
+               bslma::Allocator               *basicAllocator = 0);
     template <class ANYPROTO>
     explicit
-    ObjectPool(const bdlf::Function<ANYPROTO>&  objectCreator,
-               bslma::Allocator                *basicAllocator = 0);
+    ObjectPool(const bsl::function<ANYPROTO>&  objectCreator,
+               bslma::Allocator               *basicAllocator = 0);
         // *DEPRECATED* Use a creator of the parameterized 'CREATOR' type.
 
     virtual ~ObjectPool();
@@ -1060,13 +1063,13 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-                               const bdlf::Function<ANYPROTO>&  objectCreator,
-                               bslma::Allocator                *basicAllocator)
+                                const bsl::function<ANYPROTO>&  objectCreator,
+                                bslma::Allocator               *basicAllocator)
 : d_freeObjectsList(0)
-, d_objectCreator(ObjectPool_CreatorConverter<CREATOR,
-                                                   bdlf::Function<ANYPROTO> >(
-                                                     objectCreator).creator(),
-                  basicAllocator)
+, d_objectCreator(
+      ObjectPool_CreatorConverter<CREATOR, bsl::function<ANYPROTO> >(
+                                                      objectCreator).creator(),
+      basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_numReplenishObjects(-1)
 , d_blockList(0)
@@ -1079,14 +1082,14 @@ ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
 template <class TYPE, class CREATOR, class RESETTER>
 template <class ANYPROTO>
 ObjectPool<TYPE, CREATOR, RESETTER>::ObjectPool(
-                               const bdlf::Function<ANYPROTO>&  objectCreator,
-                               int                              growBy,
-                               bslma::Allocator                *basicAllocator)
+                                const bsl::function<ANYPROTO>&  objectCreator,
+                                int                             growBy,
+                                bslma::Allocator               *basicAllocator)
 : d_freeObjectsList(0)
-, d_objectCreator(ObjectPool_CreatorConverter<CREATOR,
-                                                   bdlf::Function<ANYPROTO> >(
-                                                     objectCreator).creator(),
-                  basicAllocator)
+, d_objectCreator(
+      ObjectPool_CreatorConverter<CREATOR, bsl::function<ANYPROTO> >(
+                                                      objectCreator).creator(),
+      basicAllocator)
 , d_objectResetter(basicAllocator)
 , d_numReplenishObjects(growBy)
 , d_blockList(0)
@@ -1140,7 +1143,7 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             p = d_freeObjectsList;
             if (!p) {
                 replenish();
@@ -1225,7 +1228,7 @@ template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::increaseCapacity(int numObjects)
 {
     if (numObjects > 0) {
-       bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+       bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
        addObjects(numObjects);
     }
 }
@@ -1282,7 +1285,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *object)
 template <class TYPE, class CREATOR, class RESETTER>
 void ObjectPool<TYPE, CREATOR, RESETTER>::reserveCapacity(int numObjects)
 {
-   bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+   bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
    numObjects -= d_numObjects;
    if (numObjects > 0) {
       addObjects(numObjects);
@@ -1326,23 +1329,23 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::deleteObject(TYPE *object)
 template <class TYPE, class OTHERTYPE>
 inline
 ObjectPool_CreatorConverter<TYPE, OTHERTYPE>::
-              ObjectPool_CreatorConverter(const TYPE& creator)
+ObjectPool_CreatorConverter(const TYPE& creator)
 : d_creator(creator)
 {
 }
 
 template <class TYPE, class OTHERTYPE>
 inline
-const TYPE& ObjectPool_CreatorConverter<TYPE, OTHERTYPE>::creator() const
+const TYPE& ObjectPool_CreatorConverter<TYPE, OTHERTYPE>
+::creator() const
 {
     return d_creator;
 }
 
 inline
 ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
-                            bdlf::Function<void(*)(void*)> >::
-                            ObjectPool_CreatorConverter(
-                                const bdlf::Function<void(*)(void*)> & creator)
+                            bsl::function<void(void *)> >::
+ObjectPool_CreatorConverter(const bsl::function<void(void *)>& creator)
 : d_creator(creator)
 {
 }
@@ -1354,10 +1357,8 @@ ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
 // CLASS METHODS
 template <class OTHERTYPE>
 inline
-void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                                  OTHERTYPE>::defaultConstruct(
-                                                   void             *arena,
-                                                   bslma::Allocator *allocator)
+void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+::defaultConstruct(void *arena, bslma::Allocator *allocator)
 {
     bslalg::ScalarPrimitives::defaultConstruct((OTHERTYPE*)arena, allocator);
 }
@@ -1365,8 +1366,8 @@ void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
 // CREATORS
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-            ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
+ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
+::ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
 {
     bslalg::ScalarPrimitives::defaultConstruct(&d_object.object(),
                                                basicAllocator);
@@ -1374,9 +1375,8 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
 
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
-                      ObjectPool_CreatorProxy(const TYPE&       other,
-                                              bslma::Allocator *basicAllocator)
+ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
+::ObjectPool_CreatorProxy(const TYPE& other, bslma::Allocator *basicAllocator)
 {
     bslalg::ScalarPrimitives::copyConstruct(&d_object.object(),
                                             other,
@@ -1385,34 +1385,38 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::
 
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::~ObjectPool_CreatorProxy()
+ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
+::~ObjectPool_CreatorProxy()
 {
     bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
 }
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                           OTHERTYPE>::ObjectPool_CreatorProxy(
-                                              bslma::Allocator *basicAllocator)
-: d_object(&MyType::defaultConstruct, basicAllocator)
+ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+::ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
+: d_object(bsl::allocator_arg_t(),
+           bsl::allocator<ObjectPoolFunctors::DefaultCreator>(basicAllocator),
+           &MyType::defaultConstruct)
 {
 }
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                                           OTHERTYPE>::ObjectPool_CreatorProxy(
+ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+::ObjectPool_CreatorProxy(
                      const ObjectPoolFunctors::DefaultCreator&  rhs,
                      bslma::Allocator                          *basicAllocator)
-: d_object(rhs, basicAllocator)
+: d_object(bsl::allocator_arg_t(),
+           bsl::allocator<ObjectPoolFunctors::DefaultCreator>(basicAllocator),
+           rhs)
 {
 }
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                             OTHERTYPE>::~ObjectPool_CreatorProxy()
+ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+::~ObjectPool_CreatorProxy()
 {
 }
 
@@ -1427,8 +1431,8 @@ TYPE& ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::object()
 template <class OTHERTYPE>
 inline
 ObjectPoolFunctors::DefaultCreator&
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator,
-                             OTHERTYPE>::object()
+ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+::object()
 {
     return d_object;
 }

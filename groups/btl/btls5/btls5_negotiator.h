@@ -42,10 +42,10 @@ BSLS_IDENT("$Id: $")
 //  void socks5Callback(btls5::Negotiator::NegotiationStatus  result,
 //                      const btls5::DetailedStatus&          error,
 //                      int                                  *state,
-//                      bdlqq::Mutex                         *stateLock,
-//                      bdlqq::Condition                     *stateChanged)
+//                      bslmt::Mutex                         *stateLock,
+//                      bslmt::Condition                     *stateChanged)
 //  {
-//      bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
+//      bslmt::LockGuard<bslmt::Mutex> lock(stateLock);
 //      if (btls5::Negotiator::e_SUCCESS == result) {
 //          *state = 0;
 //      } else {
@@ -67,8 +67,8 @@ BSLS_IDENT("$Id: $")
 // Then, we declare the variable for communicating the response, with a mutex
 // and a condition variable to protect access to it from different threads:
 //..
-//      bdlqq::Mutex     stateLock;
-//      bdlqq::Condition stateChanged;
+//      bslmt::Mutex     stateLock;
+//      bslmt::Condition stateChanged;
 //      int              state = 1;  // 'state == 1' means negotiation is
 //                                   // still in progress.
 //..
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 // Now, we wait until the negotiation ends and 'socks5Callback' updates the
 // 'state' variable:
 //..
-//      bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
+//      bslmt::LockGuard<bslmt::Mutex> lock(&stateLock);
 //      while (1 == state) {
 //          stateChanged.wait(&stateLock);
 //      }
@@ -138,16 +138,16 @@ BSLS_IDENT("$Id: $")
 #include <btlso_streamsocket.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLT_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -192,8 +192,8 @@ class Negotiator {
         e_ERROR          = -2   // any other error
     };
 
-    typedef bdlf::Function<void(*)(Negotiator::NegotiationStatus,
-                                   const DetailedStatus&)>
+    typedef bsl::function<void(Negotiator::NegotiationStatus,
+                               const DetailedStatus&)>
                                                       NegotiationStateCallback;
         // A callback of this type is invoked when a SOCKS5 negotiation is
         // complete.  If the specified 'status' is 0 the connection has been

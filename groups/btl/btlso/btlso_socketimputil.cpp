@@ -11,8 +11,6 @@ BSLS_IDENT_RCSID(btlso_socketimputil_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_stdio.h>
 
-namespace BloombergLP {
-
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
 
 // ========================= WINDOWS SPECIFIC CODE ============================
@@ -27,6 +25,7 @@ namespace BloombergLP {
 // create a macro to access that field here
 #define SI_SADDR(x)   (x).sin_addr.S_un.S_addr
 
+namespace BloombergLP {
 namespace btlso {
 
                         // --------------------
@@ -81,6 +80,7 @@ int SocketImpUtil::startup(int *errorCode)
 }
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #else
 
@@ -111,6 +111,7 @@ int SocketImpUtil::startup(int *errorCode)
 #define INADDR_NONE   0xFFFFFFFF
 #endif
 
+namespace BloombergLP {
 namespace btlso {
 
 // dummy implementations of startup and cleanup for UNIX
@@ -130,7 +131,15 @@ int SocketImpUtil_Util::getErrorCode(void)
     return errno;
 }
 
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
 // ============================ COMMON FUNCTIONS ==============================
+
+namespace BloombergLP {
+namespace btlso {
 
                         // -------------------------
                         // struct SocketImpUtil_Util
@@ -138,12 +147,14 @@ int SocketImpUtil_Util::getErrorCode(void)
 
 int SocketImpUtil_Util::mapErrorCode(int errorNumber)
 {
-
-
-#endif
-
+    switch (
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
-    switch (errorNumber) {
+            errorNumber
+#else
+            BSLS_PERFORMANCEHINT_PREDICT_EXPECT(errorNumber, EAGAIN)
+#endif
+                                                                    ) {
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS)
       // Windows (WINSOCK) specific socket error codes
       // WSAEWOULDBLOCK is the most likely error for common use.
 
@@ -170,7 +181,7 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
       }
       case WSAEACCES:                                           // FALL THROUGH
       case WSAEADDRINUSE:                                       // FALL THROUGH
-      case WSAEADDRNOTAVAIL                                     // FALL THROUGH
+      case WSAEADDRNOTAVAIL:                                    // FALL THROUGH
       case WSAEISCONN:                                          // FALL THROUGH
       case WSAELOOP:                                            // FALL THROUGH
       case WSAEMFILE:                                           // FALL THROUGH
@@ -216,7 +227,6 @@ int SocketImpUtil_Util::mapErrorCode(int errorNumber)
         return btlso::SocketHandle::e_ERROR_UNCLASSIFIED;             // RETURN
       }
 #else
-    switch (BSLS_PERFORMANCEHINT_PREDICT_EXPECT(errorNumber, EAGAIN)) {
 #if EAGAIN!=EWOULDBLOCK
       case EAGAIN:
 #endif
@@ -679,13 +689,14 @@ int btlso::SocketImpUtil::readv(const btls::Iovec                  *iovecPtr,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesReceived;
     DWORD lpFlags = 0;
-    rc = ::WSARecv(socket,
-                   static_cast<WSABUF *>(iovecPtr),
-                   size,
-                   &bytesReceived,
-                   &lpFlags,
-                   0,
-                   0);
+    rc = ::WSARecv(
+               socket,
+               reinterpret_cast<WSABUF *>(const_cast<btls::Iovec *>(iovecPtr)),
+               size,
+               &bytesReceived,
+               &lpFlags,
+               0,
+               0);
     if (0 == rc) {
         rc = bytesReceived;
     }
@@ -747,7 +758,7 @@ int btlso::SocketImpUtil::writev(const btlso::SocketHandle::Handle&  socket,
 #if defined(BTLSO_PLATFORM_WIN_SOCKETS)
     DWORD bytesSent;
     rc = ::WSASend(socket,
-                   static_cast<WSABUF *>(ovec),
+                   reinterpret_cast<WSABUF *>(const_cast<btls::Ovec *>(ovec)),
                    size,
                    &bytesSent,
                    0,

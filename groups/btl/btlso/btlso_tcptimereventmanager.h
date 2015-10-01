@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //      btlso::SocketHandle::Handle  d_server;   // socket handle to monitor
 //      btlso::TcpTimerEventManager *d_manager_p;// targeted event manager
 //      const char                   d_byte;     // control byte
-//      bdlf::Function<void (*)()>   d_command;  // user command.
+//      bsl::function<void()>        d_command;  // user command.
 //
 //    private:
 //      void readCb();
@@ -152,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      my_CommandMediator(btlso::TcpTimerEventManager *manager,
-//                         bdlf::Function<void (*)()>   command,
+//                         bsl::function<void()>        command,
 //                         bslma::Allocator            *basicAllocator = 0);
 //          // Create a mediator attached to the specified 'manager' and
 //          // the specified 'command', which will be invoked from 'manager''s
@@ -184,7 +184,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  my_CommandMediator::my_CommandMediator(
 //                                 btlso::TcpTimerEventManager *manager,
-//                                 bdlf::Function<void (*)()>   command,
+//                                 bsl::function<void()>        command,
 //                                 bslma::Allocator            *basicAllocator)
 //  : d_manager_p(manager)
 //  , d_byte(0xAF)
@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
 //      d_client = handles[0];
 //      d_server = handles[1];
 //
-//      bdlf::Function<void (*)()> functor(
+//      bsl::function<void()> functor(
 //              bdlf::MemFnUtil::memFn(&my_CommandMediator::readCb, this),
 //              basicAllocator);
 //      d_manager_p->registerSocketEvent(d_server, btlso::EventType::e_READ,
@@ -253,8 +253,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_timequeue.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -292,7 +292,7 @@ class TcpTimerEventManager : public TimerEventManager
     };
 
   private:
-    bdlcc::TimeQueue<bdlf::Function<void (*)()> >
+    bdlcc::TimeQueue<bsl::function<void()> >
                         d_timers;          // registered timers
 
     EventManager       *d_manager_p;       // socket event manager

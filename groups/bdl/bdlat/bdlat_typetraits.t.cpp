@@ -77,25 +77,30 @@ namespace BloombergLP {
 
 struct my_ClassWithNoTraits {
     // Class with no declared traits.
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 
 // choice types
 
 struct my_ClassWithBasicChoiceTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CHOICE_TRAITS(my_ClassWithBasicChoiceTraits)
 
 struct my_ClassWithBasicChoiceAllocTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(
                          my_ClassWithBasicChoiceAllocTraits)
 
 struct my_ClassWithBasicChoiceBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(
                          my_ClassWithBasicChoiceBitwiseTraits)
 
 struct my_ClassWithBasicChoiceAllocBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                          my_ClassWithBasicChoiceAllocBitwiseTraits)
@@ -103,20 +108,24 @@ BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
 // sequence types
 
 struct my_ClassWithBasicSequenceTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_SEQUENCE_TRAITS(my_ClassWithBasicSequenceTraits)
 
 struct my_ClassWithBasicSequenceAllocTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(
                            my_ClassWithBasicSequenceAllocTraits)
 
 struct my_ClassWithBasicSequenceBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicSequenceBitwiseTraits)
 
 struct my_ClassWithBasicSequenceAllocBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicSequenceAllocBitwiseTraits)
@@ -124,11 +133,13 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
 // enumeration types
 
 struct my_EnumWithNoTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
     enum Value { enumerator };
     // Enumeration with no declared traits.
 };
 
 struct my_EnumWithBasicEnumTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
     enum Value { enumerator };
 };
 BDLAT_DECL_ENUMERATION_TRAITS(my_EnumWithBasicEnumTraits)
@@ -136,20 +147,24 @@ BDLAT_DECL_ENUMERATION_TRAITS(my_EnumWithBasicEnumTraits)
 // customized types
 
 struct my_ClassWithBasicCustomizedTypeTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(my_ClassWithBasicCustomizedTypeTraits)
 
 struct my_ClassWithBasicCustomizedTypeAllocTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(
                                  my_ClassWithBasicCustomizedTypeAllocTraits)
 
 struct my_ClassWithBasicCustomizedTypeBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicCustomizedTypeBitwiseTraits)
 
 struct my_ClassWithBasicCustomizedTypeAllocBitwiseTraits {
+    char d_s[2];  // Defeat the sizeof(1) TypeTraitBitwiseMoveable assumption.
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicCustomizedTypeAllocBitwiseTraits)

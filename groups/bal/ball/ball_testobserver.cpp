@@ -23,7 +23,7 @@ TestObserver::~TestObserver()
 void TestObserver::publish(const Record&  record,
                            const Context& context)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     d_record  = record;
     d_context = context;

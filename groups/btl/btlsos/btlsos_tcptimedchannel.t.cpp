@@ -18,9 +18,9 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 #include <bsls_timeinterval.h>
@@ -33,10 +33,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #include <signal.h>
-#include <unistd.h>
 
 #undef ERR
 
@@ -121,7 +121,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -141,7 +141,11 @@ enum {
     k_DEFAULT_PORT_NUMBER     =  0,
     k_DEFAULT_NUM_CONNECTIONS =  10,
     k_DEFAULT_EQUEUE_SIZE     =  5,
-    k_SLEEP_TIME              =  100000
+#if defined BSLS_PLATFORM_OS_LINUX
+    k_SLEEP_TIME              =  1000
+#else
+    k_SLEEP_TIME              =  10
+#endif
 };
 
 enum { // error code returned from I/O operation
@@ -161,7 +165,7 @@ const int MAX_BUF     = 99000;     // the biggest length of a buffer for write
         const int BUF_WRITE2  = 500;   // the last second buffer vector length
         const int BUF_LIMIT   = 1024;  // to set the snd/rcv buffer size
         const int HELPER_READ = 75000;
-        const int SYS_DEPENDENT_LEN = 65000;
+        const int SYS_DEPENDENT_LEN = 512;
 
     #elif defined(BSLS_PLATFORM_OS_LINUX)
         const int BUF_WRITE   = 20000; // the last buffer length for ioVec/oVec
@@ -236,7 +240,7 @@ enum {
 
 struct ConnectInfo {
      // Use this struct to pass information to the helper thread.
-     bdlqq::ThreadUtil::Handle    d_tid;         // the id of the thread to
+     bslmt::ThreadUtil::Handle    d_tid;         // the id of the thread to
                                                 // which a signal's delivered
 
      btlso::SocketHandle::Handle  d_socketHandle;
@@ -403,10 +407,10 @@ static void* threadSignalGenerator(void *arg)
     }
 
     if (e_IBM_WRITE == threadInfo->d_ioType) {
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10,0));
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(10,0));
     }
     else {
-        bdlqq::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
                                      // The thread waits to make sure the main
                                      // thread is hanging in an I/O call.
     }
@@ -414,14 +418,14 @@ static void* threadSignalGenerator(void *arg)
     for (int i = 0; i < threadInfo->d_signals; ++i) {
         pthread_kill(threadInfo->d_tid, SIGSYS);
         if (verbose) {
-            PT(bdlqq::ThreadUtil::self());
+            PT(bslmt::ThreadUtil::self());
             QT(" generated a SIGSYS signal.");
         }
-        bdlqq::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
     }
 
     if (threadInfo->d_signalIoFlag) {  // non-interruptible mode
-        bdlqq::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(2 * k_SLEEP_TIME);
         if (e_WRITE_OP == threadInfo->d_signalIoFlag) {
             char buf[e_HELPER_WRITE];
             memset(buf, 'x', e_HELPER_WRITE);    // to keep purify happy
@@ -431,13 +435,13 @@ static void* threadSignalGenerator(void *arg)
                                                  sizeof buf);
 
             if (veryVerbose) {
-                PT(bdlqq::ThreadUtil::self());
+                PT(bslmt::ThreadUtil::self());
                 QT(" writes to socket: ");
                 P_T(len);  PT(threadInfo->d_socketHandle);
             }
             if (e_HELPER_WRITE != len) {
                 if (veryVerbose) {
-                    P_T(bdlqq::ThreadUtil::self());
+                    P_T(bslmt::ThreadUtil::self());
                     QT("Error: Failed in writing right number of bytes"
                        " to the socket:");
                     PT(threadInfo->d_socketHandle);
@@ -460,15 +464,15 @@ static void* threadSignalGenerator(void *arg)
 #endif
 
             if (veryVerbose) {
-                P_T(bdlqq::ThreadUtil::self());
+                P_T(bslmt::ThreadUtil::self());
                 QT(" reads from socket: ");
                 P_T(len);  PT(threadInfo->d_socketHandle);
             }
-            bdlqq::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
+            bslmt::ThreadUtil::microSleep(4 * k_SLEEP_TIME);
         }
     }
 
-    bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
     if (veryVerbose) {
         QT("Signal generator exits now.");
     }
@@ -486,7 +490,7 @@ static void* threadToCloseSocket(void *arg)
         QT("thread to close the socket: ");
         PT(threadInfo->d_socketHandle);
     }
-    bdlqq::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
 
     int ret = btlso::SocketImpUtil::close(threadInfo->d_socketHandle);
 
@@ -586,7 +590,7 @@ void fillBuffers(VECBUFFER *vectorBuffers, int numBuffers, char ch)
 static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                TestCommand                 *command,
                                btlso::SocketHandle::Handle *socketPair,
-                               bdlqq::ThreadUtil::Handle   *threadHandle,
+                               bslmt::ThreadUtil::Handle   *threadHandle,
                                char                        *buffer,
                                const btls::Iovec           *ioBuffer,
                                const btls::Ovec            *oBuffer,
@@ -633,7 +637,8 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                               command->numToProcess.d_numBytes,
                               *command->d_timeout + bdlt::CurrentTime::now(),
                               command->flag.d_interruptFlags);
-        LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
+        LOOP3_ASSERT(command->d_lineNum, augStatus, command->d_expStatus,
+                     augStatus == command->d_expStatus);
     } break;
     case e_RV: {  //
         rCode = channel->readv(ioBuffer,
@@ -697,7 +702,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                       command->numToProcess.d_numBytes,
                                       command->flag.d_interruptFlags);
         if (command->d_expStatus > 0) {
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_RBA: {  //
@@ -709,7 +714,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                       command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
         if (command->d_expStatus > 0) {
-             ASSERT(0 == buffer);
+             ASSERT(0 == cbuffer);
         }
     } break;
     case e_TRB: {  //
@@ -719,7 +724,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 *command->d_timeout + bdlt::CurrentTime::now(),
                                  command->flag.d_interruptFlags);
         if (command->d_expStatus >= 0) { // It's interrupted or timeout
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_TRBA: {  //
@@ -732,7 +737,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                                 command->flag.d_interruptFlags);
         LOOP_ASSERT(command->d_lineNum, augStatus == command->d_expStatus);
         if (command->d_expStatus > 0) {
-            LOOP_ASSERT(command->d_lineNum, 0 == buffer);
+            LOOP_ASSERT(command->d_lineNum, 0 == cbuffer);
         }
     } break;
     case e_RVR: {  //
@@ -1013,14 +1018,15 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         rCode = 0;
     } break;
     case e_SLEEP: {    //
-        bdlqq::ThreadUtil::microSleep(command->numToProcess.d_milliseconds);
+        PT(command->numToProcess.d_milliseconds)
+        bslmt::ThreadUtil::microSleep(command->numToProcess.d_milliseconds);
         rCode = 0;
     } break;
 
     #ifdef BSLS_PLATFORM_OS_UNIX
     case e_SIGNAL: {
         // Create a thread to generate signals.
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
         ConnectInfo *info = 0;
         info = (ConnectInfo *) testAllocator.allocate(sizeof (ConnectInfo));
@@ -1032,13 +1038,13 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         info->d_signalIoFlag = command->flag.d_signalIoFlag;
         info->d_ioType = ioType;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadSignalGenerator,
                                            info);
         ASSERT(0 == ret);
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         if (ret) {
             if (verbose) {
                 QT("Thread creation failed, return value: ");
@@ -1049,7 +1055,7 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
     #endif
     case e_CLOSE_CONTROL: {
         // Create a thread to close the control socket (the peer socket).
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
         ConnectInfo *info = 0;
         info = (ConnectInfo *) testAllocator.allocate(sizeof (ConnectInfo));
@@ -1061,8 +1067,8 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         info->d_signalIoFlag = command->flag.d_interruptFlags;
         info->d_ioType = ioType;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
                                            info);
@@ -1073,10 +1079,10 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
                 PT(ret);
             }
         }
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
     } break;
     case e_CLOSE_OBSERVE: {
-        bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+        bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
         ConnectInfo *info = 0;
         info = (ConnectInfo *) testAllocator.allocate(sizeof (ConnectInfo));
@@ -1088,8 +1094,8 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         info->d_signalIoFlag = command->flag.d_interruptFlags;
         info->d_ioType = ioType;
 
-        bdlqq::ThreadAttributes attributes;
-        int ret = bdlqq::ThreadUtil::create(threadHandle,
+        bslmt::ThreadAttributes attributes;
+        int ret = bslmt::ThreadUtil::create(threadHandle,
                                            attributes,
                                            threadToCloseSocket,
                                            info);
@@ -1103,9 +1109,9 @@ static int testExecutionHelper(btlsos::TcpTimedChannel     *channel,
         // This is necessary to "wait" for the child thread to extract the
         // passed data.
 #ifdef BSLS_PLATFORM_OS_LINUX
-        bdlqq::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(5 * k_SLEEP_TIME);
 #else
-        bdlqq::ThreadUtil::microSleep(SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
 #endif
 
     } break;
@@ -1140,7 +1146,7 @@ int processTest(btlsos::TcpTimedChannel     *channel,
     // specified 'oBuffer' corresponding to the request.  Return 0 on success,
     // and a non-zero value otherwise.
 {
-    bdlqq::ThreadUtil::Handle threadHandle;
+    bslmt::ThreadUtil::Handle threadHandle;
     int ret = 0, numErrors = 0;
 
     for (int i = 0; i < k_MAX_CMD; i++) { // different test data
@@ -1194,9 +1200,9 @@ int processTest(btlsos::TcpTimedChannel     *channel,
             P_T(ret);
             PT(commands[i].d_expReturnValue);
         }
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
     }
-    bdlqq::ThreadUtil::join(threadHandle);
+    bslmt::ThreadUtil::join(threadHandle);
 
     return numErrors;
 }
@@ -1510,9 +1516,9 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -1976,9 +1982,9 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -2597,9 +2603,9 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -2942,9 +2948,9 @@ int main(int argc, char *argv[]) {
 
         {
 
-            bsls::TimeInterval timeout1(0, 2 * SLEEP_TIME),
-                              timeout2(2, 0),
-                              longTime(120, 0);
+            bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][MAX_CMD] =
   //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
   //----   -------    --------  --------------  ------  ----------  -------
@@ -3310,8 +3316,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -3670,8 +3676,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4035,8 +4041,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4401,8 +4407,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -4785,8 +4791,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -5136,8 +5142,8 @@ int main(int argc, char *argv[]) {
         {
 
             bsls::TimeInterval timeout1(0, 2 * k_SLEEP_TIME),
-                              timeout2(3, 0),
-                              longTime(120, 0);
+                              timeout2(1, 0),
+                              longTime(2, 0);
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
    //line   command    numToUse  interruptFlags  expRet  expAugStat  timeout
    //----   -------    --------  --------------  ------  ----------  -------
@@ -5476,7 +5482,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            TestCommand COMMANDS_SET[][MAX_CMD] =
+            TestCommand COMMANDS_SET[][k_MAX_CMD] =
             //line   command    numToUse   interruptFlags   expRet   expAugStat
             //----   -------    --------   --------------   ------   ----------
 //==========>
@@ -5945,17 +5951,20 @@ int main(int argc, char *argv[]) {
                                                        // test endpoint, while
                                                        // handles[1] is the
                                                        // control endpoint.
-                char buf0[WVECBUF_LEN1], buf1[k_VECBUF_LEN3] = "\0",
-                     buf2[WVECBUF_LEN20] = "\0", buf3[WVECBUF_LEN60] = "\0",
+                char buf0[k_WVECBUF_LEN1],
+                     buf1[k_VECBUF_LEN3] = "\0",
+                     buf2[k_WVECBUF_LEN20] = "\0",
+                     buf3[k_WVECBUF_LEN60] = "\0",
 
                      #ifdef BSLS_PLATFORM_OS_SOLARIS
-                     buf4[WVECBUF_LEN80] = "\0",
-                     buf5[WVECBUF_LEN8K] = "\0",
+                     buf4[k_WVECBUF_LEN80] = "\0",
+                     buf5[k_WVECBUF_LEN8K] = "\0",
                      #else
-                     buf4[WVECBUF_LEN500] = "\0",
-                     buf5[WVECBUF_LEN1K] = "\0",
+                     buf4[k_WVECBUF_LEN500] = "\0",
+                     buf5[k_WVECBUF_LEN1K] = "\0",
                      #endif
-                     buf6[WVECBUF_LEN16K] = "\0", buf7[WVECBUF_LEN32K] = "\0";
+                     buf6[k_WVECBUF_LEN16K] = "\0",
+                     buf7[k_WVECBUF_LEN32K] = "\0";
 
                 btls::Ovec ovecBuffer[k_MAX_VECBUF];
                 ovecBuffer[0].setBuffer(buf0, sizeof buf0);
@@ -6498,8 +6507,8 @@ int main(int argc, char *argv[]) {
                 char buf0[k_WVECBUF_LEN1], buf1[k_VECBUF_LEN3] = "\0",
                     buf2[k_WVECBUF_LEN20] = "\0", buf3[k_WVECBUF_LEN60] = "\0",
                      #ifdef BSLS_PLATFORM_OS_SOLARIS
-                         buf4[WVECBUF_LEN80] = "\0",
-                         buf5[WVECBUF_LEN8K] = "\0",
+                         buf4[k_WVECBUF_LEN80] = "\0",
+                         buf5[k_WVECBUF_LEN8K] = "\0",
                      #else
                          buf4[k_WVECBUF_LEN500] = "\0",
                          buf5[k_WVECBUF_LEN1K] = "\0",

@@ -20,10 +20,10 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -578,6 +578,7 @@ int main(int argc, char *argv[])
       case 8: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
+        //
         // Concern:
         //   o  Deregistration from a callback of the same socket is handled
         //      correctly
@@ -585,10 +586,12 @@ int main(int argc, char *argv[])
         //      correctly
         //   o  Deregistration from a callback of one of the _previous_
         //      sockets and subsequent socket registration is handled
-        //      correctly - see DRQS 8134027
+        //      correctly
+        //
         // Plan:
         //   Create custom set of scripts for each concern and exercise them
         //   using 'btlso::EventManagerTester'.
+        //
         // Testing:
         //   int deregisterSocket();
         // -----------------------------------------------------------------
@@ -731,14 +734,11 @@ int main(int argc, char *argv[])
             cout << "Standard test for 'dispatch'" << endl
                  << "============================" << endl;
         {
-// TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_SOLARIS
             Obj mX(&timeMetric, &testAllocator);
 
             int fails = btlso::EventManagerTester::testDispatch(&mX,
                                                                controlFlag);
             ASSERT(0 == fails);
-#endif
         }
 
         if (verbose)
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
                  << endl;
         {
             SocketPair pair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             int failures = 0;  // due to time going backward on some systems
             const int NUM_ATTEMPTS = 5000;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {

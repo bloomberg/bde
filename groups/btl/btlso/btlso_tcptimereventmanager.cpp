@@ -17,11 +17,11 @@ BSLS_IDENT_RCSID(btlso_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bdlt_currenttime.h>
 
 #include <bdlcc_timequeue.h>
-#include <bdlf_function.h>
 
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_functional.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -131,7 +131,7 @@ int TcpTimerEventManager::dispatch(int flags)
         ret = d_manager_p->dispatch(minTime, flags);
         bsls::TimeInterval now = bdlt::CurrentTime::now();
         if (now >= minTime) {
-            bsl::vector<bdlcc::TimeQueueItem<bdlf::Function<void (*)()> > >
+            bsl::vector<bdlcc::TimeQueueItem<bsl::function<void()> > >
                                                        requests(d_allocator_p);
             d_timers.popLE(now, &requests);
             int numTimers = requests.size();

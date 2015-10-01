@@ -5,34 +5,35 @@
 #include <balst_stackaddressutil.h>
 #include <balst_stacktrace.h>
 
-#include <bdlqq_threadutil.h>
-
-#include <bdlf_function.h>
-#include <bdlma_sequentialallocator.h>
-#include <bsls_timeinterval.h>
-#include <bdlt_currenttime.h>
 #include <bdlb_string.h>
+
+#include <bdlma_sequentialallocator.h>
+
+#include <bdlt_currenttime.h>
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslmt_threadutil.h>
+
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-
+#include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#include <ctype.h>
 
 #ifndef BSLS_PLATFORM_OS_CYGWIN
 
@@ -924,7 +925,7 @@ static
 void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 {
     if (--*depth <= 0) {
-        bdlf::Function<void(*)(bool, bool)> func = &case_5_top;
+        bsl::function<void(bool, bool)> func = &case_5_top;
         func(demangle, useTestAllocator);
     }
     else {
@@ -1677,14 +1678,14 @@ int main(int argc, char *argv[])
         namespace TC1 = BALST_STACKTRACEUTIL_TEST_CASE_10;
         namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
 
-        bdlf::Function<void (*)()> func = &TC::loopForFourSeconds;
-        bdlqq::ThreadUtil::Handle handles[2];
+        bsl::function<void()> func = &TC::loopForFourSeconds;
+        bslmt::ThreadUtil::Handle handles[2];
         for (int i = 0; i < 2; ++i) {
-            int rc = bdlqq::ThreadUtil::create(&handles[i], func);
+            int rc = bslmt::ThreadUtil::create(&handles[i], func);
             ASSERT(0 == rc);
         }
         for (int i = 0; i < 2; ++i) {
-            int rc = bdlqq::ThreadUtil::join(handles[i]);
+            int rc = bslmt::ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
       } break;

@@ -20,27 +20,26 @@
 
 #include <bsls_timeinterval.h>
 
-#include <bdlqq_barrier.h>                  // Barrier
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>                  // Barrier
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>            // thread-safe allocator
 
 #include <bsls_platform.h>
 
+#include <bsl_iostream.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
-#include <bsl_iostream.h>
-
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -127,7 +126,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //-----------------------------------------------------------------------------
-bdlqq::Mutex  d_mutex;   // for i/o synchronization in all threads
+bslmt::Mutex  d_mutex;   // for i/o synchronization in all threads
 
 #define PT(X) d_mutex.lock(); P(X); d_mutex.unlock();
 #define QT(X) d_mutex.lock(); Q(X); d_mutex.unlock();
@@ -150,7 +149,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 100000,
+    k_SLEEP_TIME              = 1000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2
@@ -163,7 +162,7 @@ enum {
 
 struct ConnectionInfo {
      // Use this struct to pass information to the helper thread.
-     bdlqq::ThreadUtil::Handle d_tid;        // the id of the thread to
+     bslmt::ThreadUtil::Handle d_tid;        // the id of the thread to
                                             // which a signal's delivered
      btlso::IPv4Address *d_server;
      int                d_numConnections;   // the maximum number of
@@ -171,7 +170,7 @@ struct ConnectionInfo {
      const struct TestCommand * d_commands; // commands executed by the main
                                             // thread
      int                d_numCommands;     // nb of commands executed
-     bdlqq::Barrier      * d_barrier; // barrier to sync the two threads
+     bslmt::Barrier      * d_barrier; // barrier to sync the two threads
 };
 
 struct TestCommand {
@@ -286,26 +285,26 @@ void* threadAsClient(void *arg)
         // XXX This is still slightly racy .. we'd like to be sure that the
         // helper thread is in the accept() call, hence the yield and sleep.
         info.d_barrier->wait();
-        bdlqq::ThreadUtil::yield();
-        bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
 
         if (info.d_commands[i].d_signal) {
 #ifdef BSLS_PLATFORM_OS_UNIX
             pthread_kill(info.d_tid, SIGSYS);
             if (verbose) {
-                P_T(bdlqq::ThreadUtil::self());
+                P_T(bslmt::ThreadUtil::self());
                 QT(" generated a SIGSYS signal to ");
                 PT(info.d_tid);
             }
             // reasonable spinning
             while (syncWithSigHandler == 0)
-                bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+                bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
             ASSERT(syncWithSigHandler == 1);
             syncWithSigHandler = 0;
 #endif
             // XXX RACE AGAIN, but we do not have any choice
-            bdlqq::ThreadUtil::yield();
-            bdlqq::ThreadUtil::microSleep(k_SLEEP_TIME);
+            bslmt::ThreadUtil::yield();
+            bslmt::ThreadUtil::microSleep(k_SLEEP_TIME);
         }
 
         // XXX at this point if the helper thread has left accept BUT has not
@@ -366,7 +365,7 @@ static void* threadToCloseServer(void *arg)
         }
         return 0;                                                     // RETURN
     }
-    bdlqq::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
+    bslmt::ThreadUtil::microSleep(3 * k_SLEEP_TIME);
 
     int ret = btlso::SocketImpUtil::close(serverSocket->handle());
 
@@ -398,7 +397,7 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
                                const TestCommand             *command,
                                bsl::vector<btlsc::Channel*>  *channels,
                                btlsc::Channel               **newChannel,
-                               bdlqq::Barrier                *syncBarrier)
+                               bslmt::Barrier                *syncBarrier)
     // Process the specified 'command' to invoke some function of the specified
     // 'acceptor'.  If the 'command' is to "allocate" a new channel, the
     // specified 'status' will be passed to the "allocate" function and the
@@ -480,7 +479,7 @@ static int testExecutionHelper(btlsos::TcpTimedAcceptor      *acceptor,
 
 static
 int processTest(btlsos::TcpTimedAcceptor          *acceptor,
-                bdlqq::ThreadUtil::ThreadFunction  threadFunction,
+                bslmt::ThreadUtil::ThreadFunction  threadFunction,
                 bsl::vector<btlsc::Channel*>      *channels,
                 const TestCommand                 *commands,
                 int                                numCommands,
@@ -497,12 +496,12 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
 {
     btlso::IPv4Address serverAddr(acceptor->address());
 
-    bdlqq::ThreadUtil::Handle threadHandle;
+    bslmt::ThreadUtil::Handle threadHandle;
 
     // Create a thread to be a client.
-    bdlqq::ThreadUtil::Handle tid = bdlqq::ThreadUtil::self();
+    bslmt::ThreadUtil::Handle tid = bslmt::ThreadUtil::self();
 
-    bdlqq::Barrier syncBarrier(2);
+    bslmt::Barrier syncBarrier(2);
     ConnectionInfo connectInfo = { tid,
                                    &serverAddr,
                                    expNumChannels,
@@ -511,8 +510,8 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
                                    &syncBarrier
                                  };
 
-    bdlqq::ThreadAttributes attributes;
-    int ret = bdlqq::ThreadUtil::create(&threadHandle, attributes,
+    bslmt::ThreadAttributes attributes;
+    int ret = bslmt::ThreadUtil::create(&threadHandle, attributes,
                                        threadFunction, &connectInfo);
     ASSERT(0 == ret);
     if (ret) {
@@ -558,7 +557,7 @@ int processTest(btlsos::TcpTimedAcceptor          *acceptor,
             PT(acceptor->numChannels());
         }
     }
-    bdlqq::ThreadUtil::join(threadHandle);
+    bslmt::ThreadUtil::join(threadHandle);
     return ret;
 }
 
@@ -641,6 +640,7 @@ int main(int argc, char *argv[]) {
 //..
 // Go into "infinite" loop, accepting connections and servicing user requests:
 //..
+#if 0
     while (0 == acceptor.isInvalid()) {
         int status;
         btlsc::TimedChannel *channel = acceptor.timedAllocateTimed(
@@ -702,6 +702,7 @@ int main(int argc, char *argv[]) {
 //..
     ASSERT(acceptor.isInvalid());
     ASSERT(0 == acceptor.close());
+#endif
 //..
       } break;
       case 9: {
@@ -773,7 +774,7 @@ int main(int argc, char *argv[]) {
 
                   bsls::TimeInterval timeout(0, 5), time(60, 0);
                   int non_interrupt = 0,
-                      interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                      interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===================>
@@ -951,7 +952,7 @@ int main(int argc, char *argv[]) {
           }
           {
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               struct {
                   int                   d_lineNum;
@@ -1227,10 +1228,10 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1401,9 +1402,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -1593,10 +1594,10 @@ int main(int argc, char *argv[]) {
               };
               // Register a signal handler for "SIGSYS".
 
-              bsls::TimeInterval timeout(0, 5), time(5, 0);
+              bsls::TimeInterval timeout(0, 5), time(1, 0);
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -1766,9 +1767,9 @@ int main(int argc, char *argv[]) {
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -1961,7 +1962,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2047,41 +2048,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED,  0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          2,
    0    },
-  {L_, 'D', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
+  {L_, 'D', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          3,
    0    },
-  {L_, 'A',  CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, INFINITED,  0,        1,          4,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          5,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C', T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
+  {L_, 'C', e_T_CHANNEL,  non_interrupt, INFINITED,  0,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  interruptible, INFINITED, -2,        0,          6,
    0    },
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED, -2,        0,          6,
    0    },
 
 };
@@ -2184,13 +2185,13 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A', T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
+  {L_, 'A', e_T_CHANNEL,  non_interrupt, INFINITED,  -3,      0,      existing,
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -2387,7 +2388,7 @@ int main(int argc, char *argv[]) {
               timeout += bdlt::CurrentTime::now();
 
               int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -2474,41 +2475,41 @@ int main(int argc, char *argv[]) {
 //signal
 //-----
   // A channel is established.
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,   0,        1,          1,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,   0,        1,          1,
    0    },
 
   // Multiple channels can be established: concern (4), (5).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          3,
    0    },
 
   // Now deallocate a channel: concern (6).
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          2,
    0    },
-  {L_, 'D',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
+  {L_, 'D',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          1,
    0    },
 
   // Establish a new channel after the above deallocate: concern (6).
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          2,
    0    },
 
   // Can still establish channels after calling other "allocate": concern (7).
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          3,
    0    },
-  {L_, 'A', T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
+  {L_, 'A', e_T_CHANNEL, non_interrupt, INFINITED,   0,        1,          4,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          5,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,   0,        1,          6,
    0    },
 
   // Close the 'acceptor' can't establish any more channels: concern (8).
-  {L_, 'C',  CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
+  {L_, 'C',  e_CHANNEL,  non_interrupt, INFINITED,   0,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  interruptible, INFINITED,  -2,        0,          6,
    0    },
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
+  {L_, 'A',  e_CHANNEL,  non_interrupt, INFINITED,  -2,        0,          6,
    0    },
 
 };
@@ -2611,13 +2612,13 @@ int main(int argc, char *argv[]) {
 //---- --- -----------  -------------  ------- ------- ------------ ----------
 //signal
 //-----
-  {L_, 'A',  CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
+  {L_, 'A',  e_CHANNEL,   non_interrupt, &timeout,  -3,      0,      existing,
    0    };
 // ===================>
 
-                      bdlqq::ThreadUtil::Handle threadHandle;
-                      bdlqq::ThreadAttributes attributes;
-                      int ret = bdlqq::ThreadUtil::create(&threadHandle,
+                      bslmt::ThreadUtil::Handle threadHandle;
+                      bslmt::ThreadAttributes attributes;
+                      int ret = bslmt::ThreadUtil::create(&threadHandle,
                                                          attributes,
                                                          threadToCloseServer,
                                                          server);
@@ -2764,7 +2765,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   LOOP_ASSERT(i, 0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>
@@ -2872,7 +2873,7 @@ int main(int argc, char *argv[]) {
                                             VALUES[i].d_queueSize));
                   ASSERT(0 == acceptor.isInvalid());
                   int non_interrupt = 0,
-                  interruptible = btesc_Flag::k_ASYNC_INTERRUPT;
+                  interruptible = btlsc::Flag::k_ASYNC_INTERRUPT;
 
                   TestCommand DATA[] =
 // ===============>

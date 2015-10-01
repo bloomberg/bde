@@ -14,8 +14,10 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 #include <bsl_vector.h>
 
 #include <bsl_cstdio.h>      // sprintf
@@ -785,9 +787,9 @@ int main(int argc, char *argv[])
         //   vectors, each containing the line number, a specification and an
         //   expected output.  For each test vector, construct an independent
         //   object 'mX' and configure it using the tested generator function
-        //   'gg'.  Create an 'ostrstream' object and use 'print' to stream a
-        //   constant reference to 'mX'.  Finally, compare the contents of the
-        //   stream object with the expected output.
+        //   'gg'.  Create an 'ostringstream' object and use 'print' to stream
+        //   a constant reference to 'mX'.  Finally, compare the contents of
+        //   the stream object with the expected output.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream, int lvl, int sp) const;
@@ -860,15 +862,20 @@ int main(int argc, char *argv[])
 
                 char buf[BUF_SIZE];
                 memset(buf, 0, sizeof(buf));
-                ostrstream outbuf(buf, BUF_SIZE);
-                X.print(outbuf, INDENT, SPACES);
+                ostringstream outbuf(bsl::string(buf, BUF_SIZE));
 
-                LOOP3_ASSERT(LINE, EXPECTED, buf,
-                                              0 == bsl::strcmp(EXPECTED, buf));
+                bsls::Types::Int64 numBlocksTotal =
+                                             defaultAllocator.numBlocksTotal();
+                X.print(outbuf, INDENT, SPACES);
+                ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
+
+                LOOP3_ASSERT(LINE,
+                             EXPECTED,
+                             outbuf.str(),
+                             0 == bsl::strcmp(EXPECTED, outbuf.str().c_str()));
             }
         }
         ASSERT(0 == objectAllocator.numBlocksInUse());
-        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
       } break;
@@ -1805,9 +1812,9 @@ int main(int argc, char *argv[])
         //   vectors, with each vector having a specification and an expected
         //   output.  For each test vector, construct an independent object
         //   'mX' and configure it using the generator function 'gg'.  Create
-        //   an 'ostrstream' object, and use 'operator<<' to stream a constant
-        //   reference to 'mX'.  Finally, compare the contents of the
-        //   'ostrstream' object with the expected output.
+        //   an 'ostringstream' object, and use 'operator<<' to stream a
+        //   constant reference to 'mX'.  Finally, compare the contents of the
+        //   'ostringstream' object with the expected output.
         //
         // Testing:
         //   bsl::ostream& operator<<(bsl::ostream& output, const IndexClerk&);
@@ -1857,14 +1864,20 @@ int main(int argc, char *argv[])
 
             char buf[BUF_SIZE];
             memset(buf, 0, sizeof(buf));
-            ostrstream outbuf(buf, BUF_SIZE);
-            outbuf << X;
+            ostringstream outbuf(bsl::string(buf, BUF_SIZE));
 
-            if (veryVeryVerbose) { T_ T_ P_(EXPECTED) P(buf) }
-            LOOP3_ASSERT(LINE, EXPECTED, buf, 0 == bsl::strcmp(EXPECTED, buf));
+            bsls::Types::Int64 numBlocksTotal =
+                                             defaultAllocator.numBlocksTotal();
+            outbuf << X;
+            ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
+
+            if (veryVeryVerbose) { T_ T_ P_(EXPECTED) P(outbuf.str()) }
+            LOOP3_ASSERT(LINE,
+                         EXPECTED,
+                         buf,
+                         0 == bsl::strcmp(EXPECTED, outbuf.str().c_str()));
         }
         ASSERT(0 == objectAllocator.numBlocksInUse());
-        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
 
       } break;

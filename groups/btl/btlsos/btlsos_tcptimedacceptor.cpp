@@ -77,7 +77,7 @@ RESULT *allocate(int                                     *status,
             return NULL;                                              // RETURN
         }
 
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             socket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 
@@ -131,7 +131,7 @@ RESULT *timedAllocate(int                                     *status,
             *status = -3; // Any negative number satisfies the contract.
             return NULL;                                              // RETURN
         }
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             return NULL;                                              // RETURN
         }
@@ -151,12 +151,12 @@ RESULT *timedAllocate(int                                     *status,
 namespace btlsos {
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                           // ----------------------
-                           // class TcpTimedAcceptor
-                           // ----------------------
+                          // ----------------------
+                          // class TcpTimedAcceptor
+                          // ----------------------
 
 // CREATORS
 TcpTimedAcceptor::TcpTimedAcceptor(
@@ -228,8 +228,8 @@ void TcpTimedAcceptor::deallocate(btlsc::Channel *channel) {
     }
     BSLS_ASSERT(s);
 
+    channel->invalidate();
     d_factory_p->deallocate(s);
-    channel->~Channel();
 
     bsl::vector<btlsc::Channel*>::iterator idx =
                bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);

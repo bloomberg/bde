@@ -15,10 +15,11 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
+
 #include <bdlt_currenttime.h>
 #include <bdlt_datetimeutil.h>
 #include <bdlt_epochutil.h>
@@ -32,12 +33,14 @@
 #include <bdlt_currenttime.h>
 #include <bslim_testutil.h>
 
+#include <bslstl_stringref.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
-#include <bdlb_strtokenrefiter.h>
+#include <bdlb_tokenizer.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -610,9 +613,11 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     ASSERT(result);
     ASSERT(ascii);
 
-    for (bdlb::StrTokenRefIter itr(ascii, 0, "\n"); itr; ++itr) {
-        if (itr().length() > 0) {
-            result->push_back(itr());
+    for (bdlb::Tokenizer itr(bslstl::StringRef(ascii),
+                             bslstl::StringRef(""),
+                             bslstl::StringRef("\n")); itr.isValid(); ++itr) {
+        if (itr.token().length() > 0) {
+            result->push_back(itr.token());
         }
     }
 }
@@ -653,8 +658,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator allocator; bslma::TestAllocator *Z = &allocator;
-    bslma::TestAllocator defaultAllocator;
+    bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
+    bslma::TestAllocator *Z = &allocator;
+    bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
@@ -794,7 +800,7 @@ int main(int argc, char *argv[])
                 TestCurrentTimeCallback::setUtcDatetime(utcDatetime);
 
                 bdlt::Datetime result1 = bdlt::CurrentTime::utc();
-                bdlqq::ThreadUtil::microSleep(0, 2); // two seconds
+                bslmt::ThreadUtil::microSleep(0, 2); // two seconds
                 bdlt::Datetime result2 = bdlt::CurrentTime::utc();
 
                 LOOP_ASSERT(i, utcDatetime == result1);
@@ -889,7 +895,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1032,6 +1038,7 @@ int main(int argc, char *argv[])
         mX.disableFileLogging();
         FileUtil::remove(logfilename.c_str());
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1058,7 +1065,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1085,6 +1092,8 @@ int main(int argc, char *argv[])
 
         mX.disableFileLogging();
         FileUtil::remove(BASENAME.c_str());
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1121,7 +1130,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1155,7 +1164,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1178,7 +1187,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1205,7 +1214,7 @@ int main(int argc, char *argv[])
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
 
@@ -1213,6 +1222,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1264,7 +1274,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Test infrastructure setup" << endl;
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -1300,12 +1310,12 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test normal rotation" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
@@ -1315,14 +1325,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test delayed logging" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 5);
+            bslmt::ThreadUtil::microSleep(0, 5);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
             LOOP_ASSERT(cb.numInvocations(), 2 == cb.numInvocations());
@@ -1333,14 +1343,14 @@ int main(int argc, char *argv[])
                            "Test rotation between scheduled rotations" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 1);
+            bslmt::ThreadUtil::microSleep(0, 1);
 
             mX.forceRotation();
 
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
 
-            bdlqq::ThreadUtil::microSleep(0, 2);
+            bslmt::ThreadUtil::microSleep(0, 2);
 
             BALL_LOG_TRACE << "log" << BALL_LOG_END;
 
@@ -1352,7 +1362,7 @@ int main(int argc, char *argv[])
                        "Test disabling file logging between rotations" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
 
             mX.disableFileLogging();
 
@@ -1367,7 +1377,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
         {
             cb.reset();
-            bdlqq::ThreadUtil::microSleep(0, 3);
+            bslmt::ThreadUtil::microSleep(0, 3);
 
             mX.disableTimeIntervalRotation();
 
@@ -1376,6 +1386,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1402,7 +1413,7 @@ int main(int argc, char *argv[])
                                               ball::Severity::e_OFF,
                                               ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
 
@@ -1459,6 +1470,8 @@ int main(int argc, char *argv[])
                          FileUtil::exists(cb.rotatedFileName().c_str()));
             }
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1487,7 +1500,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta); const Obj& X = mX;
 
@@ -1529,6 +1542,8 @@ int main(int argc, char *argv[])
 
             ASSERT(1 == FileUtil::exists(cb.rotatedFileName()));
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1620,7 +1635,7 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string> files(Z);
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 bsl::string logName;
                 ASSERT(X.isFileLoggingEnabled(&logName));
@@ -1661,7 +1676,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 mX.forceRotation();
                 ASSERT(1       == cb.numInvocations());
@@ -1707,7 +1722,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1728,7 +1743,7 @@ int main(int argc, char *argv[])
             buffer[1] = 0;  // Don't need to write much for time-based rotation
 
             for (int i = 0; i < 3; ++i) {
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
 
                 publishRecord(&mX, buffer);
 
@@ -1818,7 +1833,7 @@ int main(int argc, char *argv[])
 
         if (veryVeryVerbose) { P(processId) }
 
-         bslma::TestAllocator ta(veryVeryVeryVerbose);
+         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -1959,7 +1974,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, LOGNAME.c_str(),
                              1 == FileUtil::exists(LOGNAME.c_str()));
 
-                bdlqq::ThreadUtil::microSleep(0, 1);
+                bslmt::ThreadUtil::microSleep(0, 1);
                 mX.forceRotation();
 
                 mX.disableFileLogging();
@@ -2098,6 +2113,8 @@ int main(int argc, char *argv[])
                 FileUtil::remove(logFilename.c_str());
             }
         }
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2116,7 +2133,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         ball::LoggerManagerConfiguration configuration;
 
@@ -2206,6 +2223,8 @@ int main(int argc, char *argv[])
             cout << "Skipping case 4 on Windows and Cygwin..." << endl;
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2226,7 +2245,7 @@ int main(int argc, char *argv[])
         //   int removeExcessLogFiles();
         // --------------------------------------------------------------------
 
-        static bslma::TestAllocator ta(veryVeryVeryVerbose);
+        static bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         ball::LoggerManagerConfiguration configuration;
 
         // Publish synchronously all messages regardless of their severity.
@@ -2271,7 +2290,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2316,7 +2335,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2363,7 +2382,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0 ; i < 20; ++i) {
                 BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bdlqq::ThreadUtil::microSleep(1000 * 1000);
+                bslmt::ThreadUtil::microSleep(1000 * 1000);
             }
 
             glob_t globbuf;
@@ -2433,7 +2452,7 @@ int main(int argc, char *argv[])
                                               configuration);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             bsl::string filename = tempFileName(veryVerbose);
@@ -2479,7 +2498,7 @@ int main(int argc, char *argv[])
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                        X.rotationLifetime());
 
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -2505,7 +2524,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -2526,7 +2545,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 mX.forceRotation();
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
@@ -2555,7 +2574,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
-                bdlqq::ThreadUtil::microSleep(0, 2);
+                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERT(0 == X.rotationSize());
                 mX.rotateOnSize(1);
                 ASSERT(1 == X.rotationSize());
@@ -2565,7 +2584,7 @@ int main(int argc, char *argv[])
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
 
-                    bdlqq::ThreadUtil::microSleep(200 * 1000);
+                    bslmt::ThreadUtil::microSleep(200 * 1000);
                 }
 
                 glob_t globbuf;
@@ -2589,7 +2608,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0 ; i < 15; ++i) {
                     BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                    bdlqq::ThreadUtil::microSleep(50 * 1000);
+                    bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
                 // Verify that no rotation occurred.
@@ -2651,7 +2670,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
                        X.rotationLifetime());
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
                 BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
 
@@ -2677,7 +2696,7 @@ int main(int argc, char *argv[])
                 ASSERT(4 == linesNum);
 
                 mX.disableLifetimeRotation();
-                bdlqq::ThreadUtil::microSleep(0, 4);
+                bslmt::ThreadUtil::microSleep(0, 4);
                 BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
 
                 // Check that no rotation occurred.
@@ -2701,6 +2720,8 @@ int main(int argc, char *argv[])
             multiplexObserver.deregisterObserver(&mX);
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2741,7 +2762,7 @@ int main(int argc, char *argv[])
         //   bdlt::DatetimeInterval localTimeOffset();
         // --------------------------------------------------------------------
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 // TBD fix this for Windows !!!
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #if (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)\
@@ -3253,6 +3274,8 @@ int main(int argc, char *argv[])
 #endif
         }
 #endif
+
+        ball::LoggerManager::shutDownSingleton();
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -3276,7 +3299,7 @@ int main(int argc, char *argv[])
                                                      ball::Severity::e_OFF,
                                                      ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
         Obj mX(&ta);  const Obj& X = mX;
         ball::LoggerManager::initSingleton(&mX, configuration);
@@ -3301,6 +3324,7 @@ int main(int argc, char *argv[])
 
         //FileUtil::remove(BASENAME.c_str());
 
+        ball::LoggerManager::shutDownSingleton();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -78,7 +78,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {
 
 class Date;

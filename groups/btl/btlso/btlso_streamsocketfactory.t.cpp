@@ -6,7 +6,6 @@
 
 #include <bsl_memory.h>
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bslma_managedptr.h>
 

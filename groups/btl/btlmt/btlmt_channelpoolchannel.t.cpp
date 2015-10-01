@@ -9,11 +9,10 @@
 #include <btlb_blob.h>
 #include <btlb_blobutil.h>
 #include <bslma_testallocator.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
 
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
@@ -31,23 +30,24 @@
 
 #include <bsl_c_stdlib.h>     // atoi()
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 //=============================================================================
 //                             TEST PLAN
-// Create concrete implementations of the btlmt::Session, and
-// btlmt::SessionFactory protocols and instantiate them.
-//
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver simply verifies that a concrete instance of btlmt::Session
-// and btlmt::SessionFactory can be implement and instantiated.
+// The component under test provides, 'btlmt::ChannelPoolChannel', a concrete
+// implementation of the 'btlmt::AsyncChannel'.  We verify that an object of
+// this class compiles and links to confirm that all of the base class virtual
+// methods are implemented.
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// [1 ] BREATHING TEST
+// [ 1] BREATHING TEST
+// [ 2] USAGE EXAMPLE
+
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -112,7 +112,241 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //          USAGE example from header(with assert replaced with ASSERT)
 //-----------------------------------------------------------------------------
+
+int encrypt(btlb::Blob *, const btlb::Blob&)
+{
+    return 0;
+}
+
+int decrypt(btlb::Blob *, const btlb::Blob&)
+{
+    return 0;
+}
+
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
+///Example 1: Implementing a secure channel type
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This 'class', 'btlmt::ChannelPoolChannel', provides a concrete
+// implementation of the 'btlmt::AsyncChannel' protocol for a network
+// connection type that once connected to the peer allows asynchronous read and
+// write operations.
+//
+// In this usage example we will implement a secure channel type,
+// 'my_SecureChannel' that encrypts data written by the user and decrypts
+// incoming data before providing it to the user.  This type uses
+// 'btlmt::ChannelPoolChannel' to perform the read and write on the underlying
+// connection while implementing encryption/decryption on top of it.  For the
+// brevity of this example, we will elide some portions of the class
+// implementation including error checking for connection closure and
+// synchronizing access to a 'my_SecureChannel' across multiple threads.
+//
+// First, we provide the class definition:
+//..
+    class my_SecureChannel : public btlmt::AsyncChannel {
+        // This 'class' provides a concrete implementation of
+        // 'btlmt::AsyncChannel'.
+//
+        // DATA
+        btlmt::ChannelPoolChannel *d_channel_p;
+        btlb::BlobBufferFactory   *d_blobFactory_p;
+        btlb::Blob                 d_decryptedBlob;
+//
+      public:
+//..
+// Next, we specify the interface of this class:
+//..
+        // CREATORS
+        my_SecureChannel(btlmt::ChannelPoolChannel *channel,
+                         btlb::BlobBufferFactory   *blobFactory);
+            // Create a 'my_SecureChannel' concrete implementation reading from
+            // and writing to the channel referenced by the specified
+            // 'channelPoolChannel'.
+
+        virtual ~my_SecureChannel();
+            // Destroy this channel.
+
+        // MANIPULATORS
+        virtual int read(int                          numBytes,
+                         const BlobBasedReadCallback& readCallback);
+            // Initiate an asynchronous read operation on this channel, or
+            // append this request to the currently pending requests if an
+            // asynchronous read operation was already initiated.  When at
+            // least the specified 'numBytes' of data are available after all
+            // previous requests have been processed, if any, the specified
+            // 'readCallback' will be invoked (with
+            // 'btlmt::AsyncChannel::e_SUCCESS').  Return 0 on success, and a
+            // non-zero value otherwise.  On error, the return value *may*
+            // equal to one of the enumerators in 'ChannelStatus::Enum'.
+
+        virtual int timedRead(int                          numBytes,
+                              const bsls::TimeInterval&    timeOut,
+                              const BlobBasedReadCallback& readCallback);
+            // Initiate an asynchronous timed read operation on this channel,
+            // or append this request to the currently pending requests if an
+            // asynchronous read operation was already initiated, with an
+            // associated specified absolute 'timeOut'.  When at least the
+            // specified 'numBytes' of data are available after all previous
+            // requests have been processed, if any, or when the 'timeOut' is
+            // reached, the specified 'readCallback' will be invoked (with
+            // either 'btlmt::AsyncChannel::e_SUCCESS' or
+            // 'btlmt::AsyncChannel::e_TIMEOUT', respectively).  Return 0 on
+            // success, and a non-zero value otherwise.  On error, the return
+            // value *may* equal to one of the enumerators in
+            // 'ChannelStatus::Enum'.
+
+        virtual int write(const btlb::Blob& blob,
+                          int               highWaterMark = INT_MAX);
+            // Enqueue the specified 'blob' message to be written to this
+            // channel.  Optionally provide 'highWaterMark' to specify the
+            // maximum data size that can be enqueued.  If 'highWaterMark' is
+            // not specified then 'INT_MAX' is used.  Return 0 on success, and
+            // a non-zero value otherwise.  On error, the return value *may*
+            // equal to one of the enumerators in 'ChannelStatus::Enum'.  Note
+            // that success does not imply that the data has been written or
+            // will be successfully written to the underlying stream used by
+            // this channel.  Also note that in addition to 'highWatermark'
+            // the enqueued portion must also be less than a high watermark
+            // value supplied at the construction of this channel for the
+            // write to succeed.
+
+        virtual int setSocketOption(int option, int level, int value);
+            // Set the specified 'option' (of the specified 'level') socket
+            // option on this channel to the specified 'value'.  Return 0 on
+            // success and a non-zero value otherwise.  (See
+            // 'btlso_socketoptutil' for the list of commonly supported
+            // options.)
+
+        virtual void cancelRead();
+            // Cancel all pending 'read' or 'timedRead' requests, and invoke
+            // their read callbacks with a 'btlmt::AsyncChannel::e_CANCELED'
+            // status.  Note that if the channel is active, the read callbacks
+            // are invoked in the thread in which the channel's data callbacks
+            // are invoked, else they are invoked in the thread calling
+            // 'cancelRead'.
+
+        virtual void close();
+            // Shutdown this channel, and cancel all pending requests.  Note
+            // that this call will result in the shutdown of the channel pool
+            // channel associated with the channel, and will not invoke the
+            // pending read requests.
+
+        void blobBasedReadCb(
+                       int                                         result,
+                       int                                        *numNeeded,
+                       btlb::Blob                                 *blob,
+                       int                                         channelId,
+                       btlmt::AsyncChannel::BlobBasedReadCallback  callback);
+            // This method is invoked in response to a blob based channel pool
+            // channel data callback on 'channelId'.
+
+        // ACCESSORS
+        virtual btlso::IPv4Address localAddress() const;
+            // Return the address of the "local" end of the channel.
+
+        virtual btlso::IPv4Address peerAddress() const;
+            // Return the address of the "remote" end of the channel.
+    };
+//..
+// Then, we provide the function implementations:
+//..
+    my_SecureChannel::my_SecureChannel(btlmt::ChannelPoolChannel *channel,
+                                       btlb::BlobBufferFactory   *blobFactory)
+    : d_channel_p(channel)
+    , d_blobFactory_p(blobFactory)
+    , d_decryptedBlob(d_blobFactory_p)
+    {
+    }
+
+    my_SecureChannel::~my_SecureChannel()
+    {
+    }
+
+    int my_SecureChannel::read(int                          numBytes,
+                               const BlobBasedReadCallback& readCallback)
+    {
+        return timedRead(numBytes, bsls::TimeInterval(), readCallback);
+    }
+
+    int my_SecureChannel::timedRead(int                          numBytes,
+                                    const bsls::TimeInterval&    timeOut,
+                                    const BlobBasedReadCallback& readCallback)
+    {
+        btlmt::AsyncChannel::BlobBasedReadCallback callback =
+            bdlf::BindUtil::bind(&my_SecureChannel::blobBasedReadCb,
+                                 this,
+                                 bdlf::PlaceHolders::_1,
+                                 bdlf::PlaceHolders::_2,
+                                 bdlf::PlaceHolders::_3,
+                                 bdlf::PlaceHolders::_4,
+                                 readCallback);
+
+        return d_channel_p->timedRead(numBytes, timeOut, callback);
+    }
+
+    int my_SecureChannel::write(const btlb::Blob& blob,
+                                int               highWaterMark)
+    {
+        btlb::Blob encryptedBlob(d_blobFactory_p);
+
+        // Encrypt data in 'blob' and load into 'encryptedBlob' (elided for
+        // brevity)
+
+        encrypt(&encryptedBlob, blob);
+
+        return d_channel_p->write(blob, highWaterMark);
+    }
+
+    int my_SecureChannel::setSocketOption(int option, int level, int value)
+    {
+        return d_channel_p->setSocketOption(option, level, value);
+    }
+
+    void my_SecureChannel::cancelRead()
+    {
+        return d_channel_p->cancelRead();
+    }
+
+    void my_SecureChannel::close()
+    {
+        return d_channel_p->close();
+    }
+
+    void my_SecureChannel::blobBasedReadCb(
+                         int                                         result,
+                         int                                        *numNeeded,
+                         btlb::Blob                                 *blob,
+                         int                                         channelId,
+                         btlmt::AsyncChannel::BlobBasedReadCallback  callback)
+    {
+        btlb::Blob decryptedBlob(d_blobFactory_p);
+
+        // Decrypt data from 'blob' and load into 'decryptedBlob' (elided for
+        // brevity)
+
+        decrypt(&decryptedBlob, *blob);
+
+        btlb::BlobUtil::append(&d_decryptedBlob, decryptedBlob);
+
+        callback(result, numNeeded, &d_decryptedBlob, channelId);
+
+        blob->removeAll();
+    }
+
+    // ACCESSORS
+    btlso::IPv4Address my_SecureChannel::localAddress() const
+    {
+        return d_channel_p->localAddress();
+    }
+
+    btlso::IPv4Address my_SecureChannel::peerAddress() const
+    {
+        return d_channel_p->peerAddress();
+    }
+//..
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -124,10 +358,10 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex  coutMutex;
+static bslmt::Mutex  coutMutex;
 
 #define MTCOUT   { coutMutex.lock(); cout \
-                                        << bdlqq::ThreadUtil::selfIdAsInt()   \
+                                        << bslmt::ThreadUtil::selfIdAsInt()   \
                                         << ": "
 #define MTENDL   endl << bsl::flush ;  coutMutex.unlock(); }
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -186,7 +420,7 @@ class DataReader {
     int                  d_msgId;           // message id
     int                  d_msgLength;       // message length
     bsl::string          d_data;            // actual data
-    mutable bdlqq::Mutex d_mutex;           // mutex for data
+    mutable bslmt::Mutex d_mutex;           // mutex for data
 
   public:
     // CREATORS
@@ -226,15 +460,15 @@ class my_Server {
     // This class implements a multi-user multi-threaded server.
 
     // DATA
-    typedef bsl::map<int, Obj *>    ChannelMap;           // Channel Map
-                                                          // typedef
+    typedef bsl::map<int, Obj *>    ChannelMap;            // Channel Map
+                                                           // typedef
 
     btlmt::ChannelPoolConfiguration  d_config;             // pool
                                                            // configuration
 
-    bdlqq::Mutex                     d_mapMutex;           // map lock
+    bslmt::Mutex                     d_mapMutex;           // map lock
 
-    mutable bdlqq::Mutex             d_idxMutex;           // idx lock
+    mutable bslmt::Mutex             d_idxMutex;           // idx lock
 
     ChannelMap                       d_channelMap;         // channel map
 
@@ -247,7 +481,7 @@ class my_Server {
                                                            // this server
                                                            // is listening
 
-    btlb::PooledBlobBufferFactory  d_blobBufferFactory;  // blob buffer
+    btlb::PooledBlobBufferFactory    d_blobBufferFactory;  // blob buffer
                                                            // factory
 
     bdlma::ConcurrentPoolAllocator   d_spAllocator;        // smart pointers
@@ -369,7 +603,7 @@ void DataReader::blobBasedReadCb(int         state,
                << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     const int INT_SIZE = static_cast<int>(sizeof(int));
     if (-1 == d_msgId) {
@@ -445,25 +679,25 @@ void DataReader::blobBasedReadCb(int         state,
 // ACCESSORS
 const bsl::string& DataReader::data() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_data;
 }
 
 int DataReader::msgId() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_msgId;
 }
 
 int DataReader::msgLength() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_msgLength;
 }
 
 bool DataReader::done() const
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return (int) d_data.size() == d_msgLength;
 }
 
@@ -484,7 +718,7 @@ void my_Server::channelStateCb(int   channelId,
                << " State: " << state << MTENDL;
     }
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
 
     switch (state) {
@@ -537,9 +771,9 @@ void my_Server::poolStateCb(int reason, int source, int)
 void my_Server::blobBasedReadCb(int        *numNeeded,
                                 btlb::Blob *msg,
                                 int         channelId,
-                                void       *userData)
+                                void       *)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter == d_channelMap.end()) {
         if (veryVerbose) {
@@ -555,9 +789,8 @@ void my_Server::blobBasedReadCb(int        *numNeeded,
 }
 
 // CREATORS
-my_Server::my_Server(
-                const btlmt::ChannelPoolConfiguration&  config,
-                bslma::Allocator                       *basicAllocator)
+my_Server::my_Server(const btlmt::ChannelPoolConfiguration&  config,
+                     bslma::Allocator                       *basicAllocator)
 : d_config(config)
 , d_channelMap(basicAllocator)
 , d_channelPool_p(0)
@@ -567,16 +800,20 @@ my_Server::my_Server(
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     btlmt::ChannelPool::ChannelStateChangeCallback channelStateFunctor(
-            bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this)
-          , d_allocator_p);
+        bsl::allocator_arg_t(),
+        bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
+                                                                d_allocator_p),
+        bdlf::MemFnUtil::memFn(&my_Server::channelStateCb, this));
 
     btlmt::ChannelPool::PoolStateChangeCallback poolStateFunctor(
-            bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this)
-          , d_allocator_p);
+           bsl::allocator_arg_t(),
+           bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
+                                                                d_allocator_p),
+           bdlf::MemFnUtil::memFn(&my_Server::poolStateCb, this));
 
     btlmt::ChannelPool::BlobBasedReadCallback dataFunctor =
-            bdlf::MemFnUtil::memFn(&my_Server::blobBasedReadCb,
-                                  this);
+                            bdlf::MemFnUtil::memFn(&my_Server::blobBasedReadCb,
+                                                   this);
 
     d_channelPool_p = new (*d_allocator_p)
                                      btlmt::ChannelPool(channelStateFunctor,
@@ -590,9 +827,10 @@ my_Server::my_Server(
     btlso::IPv4Address endpoint;
     endpoint.setPortNumber(d_portNumber);
     d_channelPool_p->listen(endpoint, 5, 1);
-    const btlso::IPv4Address *address = d_channelPool_p->serverAddress(1);
-    if (address) {
-        d_portNumber = address->portNumber();
+    btlso::IPv4Address address;
+    const int rc = d_channelPool_p->getServerAddress(&address, 1);
+    if (!rc) {
+        d_portNumber = address.portNumber();
     }
 }
 
@@ -608,14 +846,14 @@ my_Server::~my_Server()
 // ACCESSORS
 Obj *my_Server::channel(int index)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard1(&d_idxMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard1(&d_idxMutex);
     if (index >= (int) d_channelIdxMap.size()) {
         return 0;                                                     // RETURN
     }
     int channelId = d_channelIdxMap[index];
     guard1.release()->unlock();
 
-    bdlqq::LockGuard<bdlqq::Mutex> guard2(&d_mapMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard2(&d_mapMutex);
     ChannelMap::iterator iter = d_channelMap.find(channelId);
     if (iter != d_channelMap.end()) {
         return iter->second;                                          // RETURN
@@ -643,7 +881,7 @@ void TestData::run()
     Obj *channel = 0;
     while (!channel) {
         channel = d_server_p->channel(d_threadId);
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 
     btlmt::AsyncChannel::BlobBasedReadCallback blobBasedCb =
@@ -658,7 +896,7 @@ void TestData::run()
     }
 
     while (!d_reader.done()) {
-        bdlqq::ThreadUtil::yield();
+        bslmt::ThreadUtil::yield();
     }
 }
 
@@ -687,13 +925,14 @@ int main(int argc, char *argv[])
         //   as expected.
         //
         // Plan:
+        //
         // Testing:
         // --------------------------------------------------------------------
 
       }break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'read' destroys the passed callback - DRQS 32546982
+        // TESTING 'read' destroys the passed callback
         //
         // Plan:
         //
@@ -930,11 +1169,11 @@ int main(int argc, char *argv[])
         my_Server                server(config, &ta);
         const btlso::IPv4Address ADDRESS("127.0.0.1", server.portNumber());
 
-        IPv4Factory              factory(&ta);
-        bsl::vector<TestData>    tests(NUM_DATA);
-        bdlqq::ThreadUtil::Handle  handles[NUM_DATA];
-        bsl::vector<bsl::string> expData(NUM_DATA);
-        bsl::vector<Socket *>    sockets(NUM_DATA);
+        IPv4Factory               factory(&ta);
+        bsl::vector<TestData>     tests(NUM_DATA);
+        bslmt::ThreadUtil::Handle handles[NUM_DATA];
+        bsl::vector<bsl::string>  expData(NUM_DATA);
+        bsl::vector<Socket *>     sockets(NUM_DATA);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const bsl::string EXP_DATA = DATA[i].d_expData;
@@ -946,7 +1185,7 @@ int main(int argc, char *argv[])
             test.d_server_p  = &server;
             test.d_numCbs    = NUM_CBS;
             test.d_callbacks = DATA[i].d_cbDetails;
-            bdlqq::ThreadUtil::create(&handles[i],  threadFunction, &test);
+            bslmt::ThreadUtil::create(&handles[i],  threadFunction, &test);
 
             sockets[i] = socket;
             expData[i] = EXP_DATA;
@@ -986,12 +1225,12 @@ int main(int argc, char *argv[])
                 else {
                     ++incr;
                 }
-                bdlqq::ThreadUtil::microSleep(100);
+                bslmt::ThreadUtil::microSleep(100);
             }
         }
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            ASSERT(0 == bdlqq::ThreadUtil::join(handles[i]));
+            ASSERT(0 == bslmt::ThreadUtil::join(handles[i]));
         }
 
         for (int i = 0; i < NUM_DATA; ++i) {

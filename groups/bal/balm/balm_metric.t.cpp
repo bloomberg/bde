@@ -9,11 +9,13 @@
 #include <bslma_testallocator.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
 #include <bsls_stopwatch.h>
+
+#include <bsl_functional.h>
 #include <bsl_ostream.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
@@ -149,7 +151,7 @@ class MetricConcurrencyTest {
     bdlmt::FixedThreadPool   d_pool;
     balm::Metric           *d_metric;
     balm::MetricRegistry   *d_registry;
-    bdlqq::Barrier          d_barrier;
+    bslmt::Barrier          d_barrier;
     bslma::Allocator      *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -263,10 +265,10 @@ void MetricConcurrencyTest::execute()
 
 void MetricConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                            d_allocator_p,
-                                            &MetricConcurrencyTest::execute,
-                                            this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
+                                               d_allocator_p,
+                                               &MetricConcurrencyTest::execute,
+                                               this);
 
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);

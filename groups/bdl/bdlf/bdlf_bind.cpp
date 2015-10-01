@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(bdlf_bind_cpp,"$Id$ $CSID$")
 
 #include <bdlf_bind_test.h>  // for testing only
-#include <bdlf_function.h>   // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

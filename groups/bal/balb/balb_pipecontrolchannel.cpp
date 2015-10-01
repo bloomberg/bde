@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(balb_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_iterator.h>
 #include <bsl_iostream.h>
+#include <bsl_memory.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 //  Should not be defining project-level configuration macros inside a cpp file
@@ -423,10 +424,12 @@ namespace balb {
 
 PipeControlChannel::PipeControlChannel(const ControlCallback&  callback,
                                        bslma::Allocator       *basicAllocator)
-: d_callback(callback, bslma::Default::allocator(basicAllocator))
+: d_callback(bsl::allocator_arg_t(),
+             bsl::allocator<ControlCallback>(basicAllocator),
+             callback)
 , d_pipeName(bslma::Default::allocator(basicAllocator))
 , d_buffer(bslma::Default::allocator(basicAllocator))
-, d_thread(bdlqq::ThreadUtil::invalidHandle())
+, d_thread(bslmt::ThreadUtil::invalidHandle())
 , d_isRunningFlag(false)
 , d_isPipeOpen(false)
 {
@@ -489,7 +492,7 @@ int PipeControlChannel::start(const bsl::string& pipeName)
     d_pipeName      = pipeName;
     d_isRunningFlag = d_isPipeOpen = true;
 
-    int rc = bdlqq::ThreadUtil::create(
+    int rc = bslmt::ThreadUtil::create(
          &d_thread,
          bdlf::BindUtil::bind(&PipeControlChannel::backgroundProcessor, this));
     if (rc != 0) {
@@ -510,7 +513,7 @@ void PipeControlChannel::shutdown()
         return;                                                       // RETURN
     }
 
-    if (bdlqq::ThreadUtil::self() == d_thread) {
+    if (bslmt::ThreadUtil::self() == d_thread) {
         // When 'shutdown' is called from the same thread as the background
         // thread perform a synchronous shutdown.
         d_isRunningFlag = false;
@@ -552,9 +555,9 @@ void PipeControlChannel::dispatchMessageUpTo(
 
 void PipeControlChannel::stop()
 {
-    if (bdlqq::ThreadUtil::invalidHandle() != d_thread) {
-        bdlqq::ThreadUtil::join(d_thread);
-        d_thread = bdlqq::ThreadUtil::invalidHandle();
+    if (bslmt::ThreadUtil::invalidHandle() != d_thread) {
+        bslmt::ThreadUtil::join(d_thread);
+        d_thread = bslmt::ThreadUtil::invalidHandle();
     }
 
     d_isRunningFlag = false;

@@ -68,10 +68,6 @@ BSLS_IDENT("$Id: $")
 #include <btlsc_cbchannel.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -82,6 +78,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -98,9 +98,9 @@ namespace btlsos {class TcpCbChannel_RReg;  // Component local class
 
 class TcpCbChannel_WReg;  // Component local class declaration
 
-                             // ==================
-                             // class TcpCbChannel
-                             // ==================
+                            // ==================
+                            // class TcpCbChannel
+                            // ==================
 
 class TcpCbChannel : public btlsc::CbChannel {
     // This class implements a 'btesc'-style (non-timed) callback-based channel
@@ -131,14 +131,14 @@ class TcpCbChannel : public btlsc::CbChannel {
     bsl::deque<TcpCbChannel_WReg *>
                                  d_writeRequests;
 
-    bdlf::Function<void (*)()>    d_bufferedReadFunctor;
-    bdlf::Function<void (*)()>    d_readFunctor;
+    bsl::function<void()>        d_bufferedReadFunctor;
+    bsl::function<void()>        d_readFunctor;
 
-    bdlf::Function<void (*)()>    d_bufferedWriteFunctor;
-    bdlf::Function<void (*)()>    d_writeFunctor;
+    bsl::function<void()>        d_bufferedWriteFunctor;
+    bsl::function<void()>        d_writeFunctor;
 
-    bdlma::Pool                   d_rrequestPool; // read requests' pool
-    bdlma::Pool                   d_wrequestPool; // write requests' pool
+    bdlma::Pool                  d_rrequestPool; // read requests' pool
+    bdlma::Pool                  d_wrequestPool; // write requests' pool
     bslma::Allocator            *d_allocator_p;
 
     int                          d_isInvalidReadFlag;
@@ -241,10 +241,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // from this channel into the specified 'buffer'; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'readCallback' will not be invoked).
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'readCallback' will not be invoked).
         //
         // When invoked, the 'readCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -275,10 +275,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // 'd_length' fields of each 'Iovec' structure; execute the specified
         // 'readCallback' functor after this read operation terminates.  If the
         // optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'readCallback' will not be invoked).
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'readCallback' will not be invoked).
         //
         // When invoked, 'readCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -308,7 +308,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // specified 'numBytes' from this channel into the specified 'buffer';
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'readCallback' will not be invoked).
@@ -343,7 +343,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // bytes as defined by the 'd_length' fields of each 'Iovec' structure;
         // execute the specified 'readCallback' functor after this read
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'readCallback' will not be invoked).
@@ -377,10 +377,11 @@ class TcpCbChannel : public btlsc::CbChannel {
         // from this channel into a channel-supplied buffer; execute the
         // specified 'bufferedReadCallback' functor after this read operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'bufferedReadCallback' will not be invoked).
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'bufferedReadCallback' will not be
+        // invoked).
         //
         // When invoked, 'bufferedReadCallback' is passed the address of a
         // non-modifiable character "buffer", an integer "status", and a second
@@ -409,7 +410,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // specified 'numBytes' from this channel into a channel-supplied
         // buffer; execute the specified 'bufferedReadCallback' functor after
         // this read operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'bufferedReadCallback' will not be
@@ -447,10 +448,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // from the specified 'buffer' to this channel; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'writeCallback' will not be invoked).
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'writeCallback' will not be invoked).
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -478,7 +479,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // specified 'numBytes' from the specified 'buffer' to this channel;
         // execute the specified 'writeCallback' functor after this write
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt this operation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'writeCallback' will not be invoked).
@@ -518,10 +519,10 @@ class TcpCbChannel : public btlsc::CbChannel {
         // 'd_length' fields of each 'Ovec' (or 'Iovec') structure; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'writeCallback' will not be invoked).
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'writeCallback' will not be invoked).
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -557,7 +558,7 @@ class TcpCbChannel : public btlsc::CbChannel {
         // numbers of bytes as defined by the 'd_length' fields of each 'Ovec'
         // (or 'Iovec') structure; execute the specified 'writeCallback'
         // functor after this write operation terminates.  If the optionally
-        // specified 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // specified 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt this operation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case
@@ -592,13 +593,13 @@ class TcpCbChannel : public btlsc::CbChannel {
         // from the specified 'buffer' to this channel; execute the specified
         // 'writeCallback' functor after this write operation terminates.  If
         // the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'writeCallback' will not be invoked).  Note that the
-        // contents of 'buffer' need not be preserved after this method returns
-        // (except for the purpose of initiating a retry in the event that this
-        // operation results in a partial write.
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'writeCallback' will not be invoked).  Note
+        // that the contents of 'buffer' need not be preserved after this
+        // method returns (except for the purpose of initiating a retry in the
+        // event that this operation results in a partial write.
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -632,13 +633,14 @@ class TcpCbChannel : public btlsc::CbChannel {
         // 'd_length' fields of each 'Ovec' (or 'Iovec') structure; execute the
         // specified 'writeCallback' functor after this write operation
         // terminates.  If the optionally specified 'flags' incorporates
-        // 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events" are permitted
-        // to interrupt this operation; by default, such events are ignored.
-        // Return 0 on successful initiation, and a non-zero value otherwise
-        // (in which case 'writeCallback' will not be invoked).  Note that
-        // neither 'buffers' nor the data to which it refers need be preserved
-        // after this method returns (except for the purpose of initiating a
-        // retry in the event that this operation results in a partial write.
+        // 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events" are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case 'writeCallback' will not be invoked).  Note
+        // that neither 'buffers' nor the data to which it refers need be
+        // preserved after this method returns (except for the purpose of
+        // initiating a retry in the event that this operation results in a
+        // partial write.
         //
         // When invoked, 'writeCallback' is passed an integer "status" and a
         // second integer "augStatus" (which is meaningful only upon an
@@ -748,7 +750,7 @@ class TcpCbChannel : public btlsc::CbChannel {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

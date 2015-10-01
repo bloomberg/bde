@@ -10,11 +10,10 @@
 #include <btlso_platform.h>
 #include <btlso_flag.h>
 
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -24,6 +23,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -500,7 +500,7 @@ int main(int argc, char *argv[]) {
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -615,6 +615,7 @@ int main(int argc, char *argv[]) {
       case 8: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
+        //
         // Concern:
         //   o  Deregistration from a callback of the same socket is handled
         //      correctly
@@ -622,10 +623,12 @@ int main(int argc, char *argv[]) {
         //      correctly
         //   o  Deregistration from a callback of one of the _previous_
         //      sockets and subsequent socket registration is handled
-        //      correctly - see DRQS 8134027
+        //      correctly
+        //
         // Plan:
         //   Create custom set of scripts for each concern and exercise them
         //   using 'btlso::EventManagerTester'.
+        //
         // Testing:
         //   int deregisterSocket();
         // -----------------------------------------------------------------
@@ -869,18 +872,6 @@ int main(int argc, char *argv[]) {
                 enum { NUM_PAIR = 4 };
                 btlso::EventManagerTestPair socketPairs[NUM_PAIR];
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-                // For some reason, sockets on HPUX are woozy for the first
-                // ~ 20 ms or so after they're created, after that they seem
-                // to be OK.  In a polling interface, this just means events
-                // will take a few cycles to catch up.  Note that test case
-                // 12 in btlso_eventmanagertester.t.cpp verifies that, though
-                // it takes awhile for the socket to wake up, i/o to it during
-                // that time is at least correct.
-
-                bdlqq::ThreadUtil::microSleep(40 * 1000);
-#endif
-
                 for (int j = 0; j < NUM_PAIR; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
                     socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
@@ -903,7 +894,7 @@ int main(int argc, char *argv[]) {
         {
             int nowFailures = 0;  // due to time going backward on some systems
             int intFailures = 0;  // due to unexpected interrupts
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);
@@ -962,7 +953,7 @@ int main(int argc, char *argv[]) {
             ShouldntBeCalled shouldntBeCalled;
             int nowFailures = 0;  // due to time going backward on some systems
             int intFailures = 0;  // due to unexpected interrupts
-            const int NUM_ATTEMPTS = 5000;
+            const int NUM_ATTEMPTS = 50;
             double waitFrac = 0.010 / NUM_ATTEMPTS;
             for (int i = 0; i < NUM_ATTEMPTS; ++i) {
                 Obj mX(&timeMetric, &testAllocator);

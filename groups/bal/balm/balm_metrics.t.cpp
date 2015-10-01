@@ -6,7 +6,7 @@
 #include <balm_publisher.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 
 #include <bdlf_bind.h>
@@ -16,10 +16,12 @@
 #include <bsls_assert.h>
 
 #include <bsls_stopwatch.h>
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
+
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <ball_observer.h>
@@ -279,7 +281,7 @@ class StandardMacroConcurrencyTest {
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
-    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslmt::Barrier          d_barrier;
     Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -409,10 +411,10 @@ void StandardMacroConcurrencyTest::execute()
 
 void StandardMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                 d_allocator_p,
-                                 &StandardMacroConcurrencyTest::execute,
-                                 this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                        d_allocator_p,
+                                        &StandardMacroConcurrencyTest::execute,
+                                        this);
 
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
@@ -427,7 +429,7 @@ class DynamicMacroConcurrencyTest {
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
-    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslmt::Barrier          d_barrier;
     Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -514,10 +516,10 @@ void DynamicMacroConcurrencyTest::execute()
 
 void DynamicMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                        d_allocator_p,
-                                        &DynamicMacroConcurrencyTest::execute,
-                                        this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                         d_allocator_p,
+                                         &DynamicMacroConcurrencyTest::execute,
+                                         this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -535,9 +537,9 @@ class TlsMacroConcurrencyTest {
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
-    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslmt::Barrier          d_barrier;
     Corp::bslma::Allocator       *d_allocator_p;
-    Corp::bdlqq::Mutex            d_mutex;
+    Corp::bslmt::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
         // Execute a single test.
@@ -720,10 +722,10 @@ void TlsMacroConcurrencyTest::execute()
 
 void TlsMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                 d_allocator_p,
-                                 &TlsMacroConcurrencyTest::execute,
-                                 this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                             d_allocator_p,
+                                             &TlsMacroConcurrencyTest::execute,
+                                             this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -738,7 +740,7 @@ class StandardIntMacroConcurrencyTest {
 
     // DATA
     Corp::bdlmt::FixedThreadPool   d_pool;
-    Corp::bdlqq::Barrier           d_barrier;
+    Corp::bslmt::Barrier           d_barrier;
     Corp::bslma::Allocator        *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -870,10 +872,10 @@ void StandardIntMacroConcurrencyTest::execute()
 
 void StandardIntMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                    d_allocator_p,
-                                    &StandardIntMacroConcurrencyTest::execute,
-                                    this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                     d_allocator_p,
+                                     &StandardIntMacroConcurrencyTest::execute,
+                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -887,7 +889,7 @@ class DynamicIntMacroConcurrencyTest {
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
-    Corp::bdlqq::Barrier          d_barrier;
+    Corp::bslmt::Barrier          d_barrier;
     Corp::bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
@@ -996,7 +998,7 @@ void DynamicIntMacroConcurrencyTest::execute()
 
 void DynamicIntMacroConcurrencyTest::runTest()
 {
-    Corp::bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
                                       d_allocator_p,
                                       &DynamicIntMacroConcurrencyTest::execute,
                                       this);
@@ -1016,9 +1018,9 @@ class TlsIntMacroConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
-    bdlqq::Barrier          d_barrier;
+    bslmt::Barrier          d_barrier;
     bslma::Allocator       *d_allocator_p;
-    bdlqq::Mutex            d_mutex;
+    bslmt::Mutex            d_mutex;
     // PRIVATE MANIPULATORS
     void execute();
         // Execute a single test.
@@ -1200,10 +1202,10 @@ void TlsIntMacroConcurrencyTest::execute()
 
 void TlsIntMacroConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = Corp::bdlf::BindUtil::bindA(
-                                        d_allocator_p,
-                                        &TlsIntMacroConcurrencyTest::execute,
-                                        this);
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
+                                          d_allocator_p,
+                                          &TlsIntMacroConcurrencyTest::execute,
+                                          this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1935,7 +1937,7 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK("C", "Us", TU::k_MICROSECONDS);
                 BALM_METRICS_TIME_BLOCK("C", "Ns", TU::k_NANOSECONDS);
 
-                Corp::bdlqq::ThreadUtil::sleep(
+                Corp::bslmt::ThreadUtil::sleep(
                                           Corp::bsls::TimeInterval(50 * .001));
 
                 sw.stop();
@@ -2022,7 +2024,7 @@ int main(int argc, char *argv[])
                 BALM_METRICS_TIME_BLOCK("A", "1", TU::k_SECONDS);
                 ASSERT(BALM::MetricRecord(idA) == recordVal(cA));
 
-                Corp::bdlqq::ThreadUtil::microSleep(50000, 0);
+                Corp::bslmt::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 
@@ -2038,9 +2040,9 @@ int main(int argc, char *argv[])
 
                 BALM_METRICS_DYNAMIC_TIME_BLOCK("B", "2", TU::k_SECONDS);
                 ASSERT(BALM::MetricRecord(idB) == recordVal(cB));
-                Corp::bdlqq::ThreadUtil::microSleep(500, 0);
+                Corp::bslmt::ThreadUtil::microSleep(500, 0);
 
-                Corp::bdlqq::ThreadUtil::microSleep(50000, 0);
+                Corp::bslmt::ThreadUtil::microSleep(50000, 0);
                 timer.stop();
             }
 

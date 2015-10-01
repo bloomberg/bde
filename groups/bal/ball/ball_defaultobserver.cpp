@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(ball_defaultobserver_cpp,"$Id$ $CSID$")
 #include <ball_userfieldvalue.h>
 #include <bdlt_datetime.h>
 
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 
 
@@ -35,7 +35,7 @@ DefaultObserver::~DefaultObserver()
 // MANIPULATORS
 void DefaultObserver::publish(const Record&  record, const Context&)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     const RecordAttributes& fixedFields = record.fixedFields();
 

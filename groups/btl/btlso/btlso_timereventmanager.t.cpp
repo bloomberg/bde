@@ -6,11 +6,11 @@
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_unordered_map.h>
 #include <bsl_utility.h>
@@ -183,7 +183,7 @@ class my_TimedSocketMultiplexer {
     // This class implements a subset of a socket event multiplexer that
     // supports the registration of timed socket events and associated
     // callbacks.  Specifically, this class allows a user specified
-    // 'bdlf::Function<void (*)(my_TimedSocketMultiplexer::CallbackCode)>'
+    // 'bsl::function<void(my_TimedSocketMultiplexer::CallbackCode)>'
     // functor to be registered via the 'registerTimedSocketEvent' method.
     // This functor is invoked with an argument of
     // 'my_TimedSocketMultiplexer::SOCKET_EVENT' if the socket event occurs
@@ -218,9 +218,9 @@ class my_TimedSocketMultiplexer {
     // Private methods 'eventCb' and 'timerCb' are internal callback member
     // functions registered with 'btlso::TimerEventManager'.
 
-    void eventCb(const btlso::Event&                           socketEvent,
-                 const bdlf::Function<void (*)(CallbackCode)>& userCb,
-                 const btlso::TimerEventManager::Callback&     internalCb);
+    void eventCb(const btlso::Event&                       socketEvent,
+                 const bsl::function<void(CallbackCode)>&  userCb,
+                 const btlso::TimerEventManager::Callback& internalCb);
         // Callback registered with 'btlso::TimerEventManager', which is
         // invoked to indicate the occurrence of the specified socket event
         // 'socketEvent'.  This method cancels the current timer and registers
@@ -230,9 +230,9 @@ class my_TimedSocketMultiplexer {
         // user specified callback 'userCb' with the argument
         // 'my_TimedSocketMultiplexer::e_SOCKET_EVENT'.
 
-    void timerCb(const btlso::Event&                           socketEvent,
-                 const bdlf::Function<void (*)(CallbackCode)>& userCb,
-                 const btlso::TimerEventManager::Callback&     internalCb);
+    void timerCb(const btlso::Event&                       socketEvent,
+                 const bsl::function<void(CallbackCode)>&  userCb,
+                 const btlso::TimerEventManager::Callback& internalCb);
         // Callback registered with 'btlso::TimerEventManager', which is
         // invoked to indicate the expiry of the timer associated with the
         // specified socket event 'socketEvent'.  This method registers a new
@@ -249,10 +249,10 @@ class my_TimedSocketMultiplexer {
 
     // MANIPULATORS
     int registerTimedSocketEvent(
-                         const btlso::SocketHandle::Handle&            handle,
-                         btlso::EventType::Type                        event,
-                         const bsls::TimeInterval&                     period,
-                         const bdlf::Function<void (*)(CallbackCode)>& userCb);
+                              const btlso::SocketHandle::Handle&       handle,
+                              btlso::EventType::Type                   event,
+                              const bsls::TimeInterval&                period,
+                              const bsl::function<void(CallbackCode)>& userCb);
         // Register the specified 'userCb' functor to be invoked whenever the
         // specified 'event' occurs on the specified 'handle' or when 'event'
         // has not occurred within the specified 'period' of time.  Return 0 on
@@ -266,9 +266,9 @@ class my_TimedSocketMultiplexer {
 };
 
 void my_TimedSocketMultiplexer::eventCb(
-                     const btlso::Event&                           socketEvent,
-                     const bdlf::Function<void (*)(CallbackCode)>& userCb,
-                     const btlso::TimerEventManager::Callback&     internalCb)
+                         const btlso::Event&                       socketEvent,
+                         const bsl::function<void(CallbackCode)>&  userCb,
+                         const btlso::TimerEventManager::Callback& internalCb)
 {
     // Retrieve the timer information associated with 'socketEvent'.
 
@@ -296,9 +296,9 @@ void my_TimedSocketMultiplexer::eventCb(
 }
 
 void my_TimedSocketMultiplexer::timerCb(
-                     const btlso::Event&                           socketEvent,
-                     const bdlf::Function<void (*)(CallbackCode)>& userCb,
-                     const btlso::TimerEventManager::Callback&     internalCb)
+                         const btlso::Event&                       socketEvent,
+                         const bsl::function<void(CallbackCode)>&  userCb,
+                         const btlso::TimerEventManager::Callback& internalCb)
 {
     // Retrieve the timer information associated with 'socketEvent' and set
     // the new expiry time.
@@ -327,21 +327,22 @@ my_TimedSocketMultiplexer::my_TimedSocketMultiplexer(
 }
 
 int my_TimedSocketMultiplexer::registerTimedSocketEvent(
-                          const btlso::SocketHandle::Handle&            handle,
-                          btlso::EventType::Type                        event,
-                          const bsls::TimeInterval&                     period,
-                          const bdlf::Function<void (*)(CallbackCode)>& userCb)
+                               const btlso::SocketHandle::Handle&       handle,
+                               btlso::EventType::Type                   event,
+                               const bsls::TimeInterval&                period,
+                               const bsl::function<void(CallbackCode)>& userCb)
 {
     btlso::Event socketEvent(handle, event);
     bsls::TimeInterval expiryTime = bdlt::CurrentTime::now() + period;
 
     // Create a timer callback.
 
-    btlso::TimerEventManager::Callback myTimerCb(bdlf::BindUtil::bind(
+    btlso::TimerEventManager::Callback myTimerCb;
+    myTimerCb = bdlf::BindUtil::bind(
              bdlf::MemFnUtil::memFn(&my_TimedSocketMultiplexer::timerCb, this),
              socketEvent,
              userCb,
-             myTimerCb));
+             myTimerCb);
 
     // Create an event callback.
 

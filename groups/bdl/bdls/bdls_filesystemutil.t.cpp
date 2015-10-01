@@ -12,11 +12,13 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
 #include <bsl_c_stdio.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>
@@ -970,7 +972,7 @@ int main(int argc, char *argv[])
 
         for (FileSet::const_iterator itr = fileset.begin(),
                                      end = fileset.end();
-             itr != end; ++itr) {
+            itr != end; ++itr) {
 
             if (veryVerbose) {
                 T_; cout << "Checking file "; P(itr->first)
@@ -1197,9 +1199,9 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdls_filesystemutil_13.append.txt";
-        const char *tag1     = "tmp.bdls_filesystemutil_13.tag.1.txt";
-        const char *success  = "tmp.bdls_filesystemutil_13.success.txt";
+        const char *testFile = "tmp.bdls_filesystemutil_14.append.txt";
+        const char *tag1     = "tmp.bdls_filesystemutil_14.tag.1.txt";
+        const char *success  = "tmp.bdls_filesystemutil_14.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -1260,15 +1262,22 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(off, 4 * SZ10 == off);
 
             bsl::string cmd = taskAbsolutePath + ' ' + argv[1] + " child";
-            cmd += (verbose     ? " v" : "");
-            cmd += (veryVerbose ? " v" : "");
+            cmd += verbose     ? " v" : "";
+            cmd += veryVerbose ? " v" : "";
 
             ::localForkExec(cmd);
 
-            for (int sec = 0; sec < 4 && !Obj::exists(tag1); ++sec) {
+            // On a very busy machine, it may take a long while for the child
+            // process to get started.
+
+            bsls::TimeInterval t, timeout = bdlt::CurrentTime::now() + 20.0;
+
+            while (!Obj::exists(tag1) &&
+                                    (t = bdlt::CurrentTime::now()) < timeout) {
                 if (veryVerbose) Q(Parent sleeping);
                 ::localSleep(1);
             }
+            ASSERTV((t - timeout).totalSecondsAsDouble(), t < timeout);
             ASSERT(Obj::exists(tag1));
             if (verbose && Obj::exists(tag1)) Q(Parent detected tag1);
 

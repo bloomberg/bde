@@ -2,7 +2,6 @@
 #include <bdlb_functionoutputiterator.h>
 
 #include <bdlf_memfn.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -25,7 +24,7 @@ using namespace bsl;
 //:   assignment to the dereferenced iterator.
 //:
 //: 2 That bdlb::FunctionOutputIterator can be correctly created with either
-//:   a function pointer, bdlf::MemFnInstance, bdef_Function.
+//:   a function pointer or a bsl::function.
 //
 //=============================================================================
 //
@@ -317,18 +316,18 @@ void accumulateArray()
 }
 //..
 //
-///Example 3: use of bdlf::Function and bdlf::BindUtil::bind
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: use of bsl::function and bdlf::BindUtil::bind
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates using a 'bdlb::FunctionOutputIterator'
 // with a functor created using 'bdlf::BindUtil'.  Consider the 'Accumulator'
 // class defined in Example 2, which we want to adapt to accumulate a set of
 // integer values.
 //
-// First, define an alias to a 'bdlf::Function', defining an accumulation
+// First, define an alias to a 'bsl::function', defining an accumulation
 // functor, and and then define a function 'accumulateArray2' to accumulate the
 // integer values in an array:
 //..
-typedef bdlf::Function<void (*)(int)> AccumulatorFunction;
+typedef bsl::function<void(int)> AccumulatorFunction;
     // Define function object
 //
 void accumulateArray2()

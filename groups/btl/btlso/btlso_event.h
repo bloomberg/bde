@@ -58,7 +58,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TYPES
-//      typedef bdlf::Function<void (*)()> Callback;
+//      typedef bsl::function<void()> Callback;
 //
 //    private:
 //      typedef bsl::unordered_map<btlso::Event,
@@ -175,6 +175,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {

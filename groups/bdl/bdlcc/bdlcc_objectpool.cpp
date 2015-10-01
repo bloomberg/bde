@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(bdlcc_objectpool_cpp,"$Id$ $CSID$")
 #include <bdlcc_fixedqueue.h>     // for testing only
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
+#include <bsl_functional.h>
 
 ///IMPLEMENTATION NOTES
 ///--------------------
@@ -59,7 +60,7 @@ namespace bdlcc {
 // ACCESSORS
 ObjectPoolFunctors::DefaultCreator
 ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
-                            bdlf::Function<void(*)(void*)> >::creator() const
+                            bsl::function<void(void*)> >::creator() const
 {
     return bdlf::BindUtil::bind(d_creator, bdlf::PlaceHolders::_1);
 }

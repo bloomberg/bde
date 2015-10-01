@@ -10,15 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide protocol for stream-based channel allocators with timeout.
 //
 //@CLASSES:
-// btlsc::TimedCbChannelAllocator: non-blocking channel allocator with timeout
+//  btlsc::TimedCbChannelAllocator: non-blocking channel allocator with timeout
 //
-//@SEE_ALSO: btlsc_timedchannelallocator btemc_timedcbchannelallocator
+//@SEE_ALSO: btlsc_timedchannelallocator
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
-//@DESCRIPTION: This component defines an abstract interface for a non-blocking
-// mechanism that allocates and deallocates non-blocking channels with and
-// without timeout capability; the allocation itself also has timeout
+//@DESCRIPTION: This component provides a class,
+// 'btlsc::TimedCbChannelAllocator', that defines an abstract interface for a
+// non-blocking mechanism that allocates and deallocates non-blocking channels
+// with and without timeout capability; the allocation itself also has timeout
 // capability.  Each channel allocated through this interface is an end point
 // of a bi-directional stream-based communication connection to a peer;
 // connection details, such as who the peer is, whether there is indeed one
@@ -27,22 +28,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Protocol Hierarchy
 ///------------------
-// The interface hierarchy (defined by direct inheritance) of the
-// 'btlsc::TimedCbChannelAllocator' protocol is as follows:
+// 'btlsc::TimedCbChannelAllocator' forms the base of an interface hierarchy;
+// other interfaces may be defined by direct public inheritance:
 //..
-//                  ,-----------------------------.
+//                  ,------------------------------.
 //                 ( btlsc::TimedCbChannelAllocator )
-//                  `-----------------------------'
-//                                 |
-//                                 V
-//                     ,------------------------.
-//                    ( btlsc::CbChannelAllocator )
-//                     `------------------------'
+//                  `------------------------------'
 //..
-// This protocol adds the ability to allocate timed channels as well as a
-// "timeout" capability for the allocation methods themselves.  Note that
-// 'deallocate' cannot block, fail, or throw, and thus does not need a timeout
-// facility.
 //
 ///Non-Blocking Channel Allocation
 ///-------------------------------
@@ -50,31 +42,31 @@ BSLS_IDENT("$Id: $")
 // channels in a non-blocking manner; each method registers a user-supplied
 // callback function object (functor) and returns immediately.  A successful
 // return status implies that the registered callback will be invoked (and,
-// conversely, an unsuccessful status implies otherwise.)  The callback, in
+// conversely, an unsuccessful status implies otherwise).  The callback, in
 // turn, will communicate the results of the registered allocation attempt.
 //
 // Enqueued allocation operations proceed asynchronously to one of three
 // possible results: (1) "success" -- the requested channel is allocated and
-// its address is passes to the callback function; in this case the callback
-// "status" argument has no meaning (2) "interrupted" -- the operation was
+// its address is passes to the callback function: in this case the callback
+// "status" argument has no meaning, (2) "interrupted" -- the operation was
 // interrupted (e.g., via a timeout): the channel address is null and the
 // (non-negative) status conveys the nature of the interruption, (3) "canceled"
 // -- the operation was aborted (synchronously) by an explicit call to
-// 'cancelAll': the channel-allocator address in null and the "status" is -1,
-// or (4) "error" -- an implementation-dependent error occurred: the channel
-// address is null and status is less than -1.  The user may retry interrupted
-// and cancelled operations with a reasonable expectation of success.  An
-// "error" status implies that the allocation is unlikely to succeed if
-// retried, but does not necessarily invalidate the allocator.  The 'isInvalid'
-// method may be used to confirm the occurrence of a permanent error.  If the
-// allocator is valid, an allocation request will be enqueued and may succeed.
-// Otherwise, the allocation request itself will not succeed.
+// 'cancelAll': the channel address in null and the "status" is -1, or (4)
+// "error" -- an implementation-dependent error occurred: the channel address
+// is null and status is less than -1.  The user may retry interrupted and
+// canceled operations with a reasonable expectation of success.  An "error"
+// status implies that the allocation is unlikely to succeed if retried, but
+// does not necessarily invalidate the allocator.  The 'isInvalid' method may
+// be used to confirm the occurrence of a permanent error.  If the allocator is
+// valid, an allocation request will be enqueued and may succeed.  Otherwise,
+// the allocation request itself will not succeed.
 //
 // The meanings of the callback function status value for an unsuccessful
 // allocation (i.e., a null channel address) are summarized as follows:
 //..
 //  "status"    meaning (only when returned channel address is null)
-//  --------    -------------------------------------------------------------
+//  --------    ---------------------------------------------------------
 //  positive    Interruption by an "asynchronous event"
 //
 //  zero        Interruption by a user-requested timeout
@@ -84,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //  < -1        Allocation operation unable to succeed at this time
 //..
 // Note that unless asynchronous events are explicitly enabled (see below),
-// they are ignored, and "status" will never be positive.  Note also that
+// they are ignored, and "status" will never be positive.  Also note that
 // whether the callback is invoked before or after the registering method
 // returns is not specified; in either case, if the registration was
 // successful, then the return value will reflect success.
@@ -92,7 +84,7 @@ BSLS_IDENT("$Id: $")
 ///Callback Functor Registration
 ///- - - - - - - - - - - - - - -
 // Once an operation is successfully initiated, a (reference-counted) copy of
-// the ('bcef') callback functor is retained by the concrete allocator until
+// the ('bdlf') callback functor is retained by the concrete allocator until
 // the callback is executed.  Therefore, the user need not be concerned with
 // preserving any resources used by the callback.
 //
@@ -107,10 +99,10 @@ BSLS_IDENT("$Id: $")
 // resulting from an AE, but certain restrictions can be (and are) imposed.  By
 // default, AEs are either ignored or, if that is not possible, cause an error.
 // At the user's option, however, a concrete implementation can be authorized
-// to return, if possible, with an "interrupted" status (leaving the factory
+// to return, if possible, with an "interrupted" status (leaving the allocator
 // unaffected) upon the occurrence of an AE.  Such authorizations are made
 // explicitly by incorporating into the optional (trailing) integer 'flags'
-// argument to a method call the 'btesc_Flag::k_ASYNC_INTERRUPT' value.
+// argument to a method call the 'btlsc::Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
 ///--------
@@ -139,19 +131,20 @@ BSLS_IDENT("$Id: $")
 // connections will be established.  It is sufficient that, when a tick needs
 // to be sent or received, a channel is obtained, the tick is transmitted, and
 // the channel is returned to its allocator.  Note that this example serves to
-// illustrate the use of the 'btlsc::TimedChannelAllocator' and does not
-// represent production-quality software.  Note 'my_Tick' will be used by both
-// the server and client.
+// illustrate the use of the 'btlsc::TimedCbChannelAllocator' and does not
+// represent production-quality software.  Also note that 'my_Tick' will be
+// used by both the server and client:
 //..
 //  class my_Tick {
 //      char   d_name[5];
 //      double d_bestBid;
 //      double d_bestOffer;
+//
 //    public:
 //      my_Tick() { }
 //      my_Tick(const char *ticker);
 //      my_Tick(const char *ticker, double bestBid, double bestOffer);
-//      ~my_Tick() { assert (d_bestBid > 0); };
+//      ~my_Tick() { assert(d_bestBid > 0); };
 //
 //      static int maxSupportedBdexVersion(int versionSelector) { return 1; }
 //
@@ -186,41 +179,30 @@ BSLS_IDENT("$Id: $")
 //  : d_bestBid(0)
 //  , d_bestOffer(0)
 //  {
-//     #ifdef BSLS_PLATFORM_OS_UNIX
-//     snprintf(d_name, sizeof d_name, "%s",ticker);
-//     #else
-//     if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {
-//         d_name[sizeof d_name - 1] = '\0';
-//     }
-//     #endif
+//     snprintf(d_name, sizeof d_name, "%s", ticker);
 //  }
 //
 //  my_Tick::my_Tick(const char *ticker, double bestBid, double bestOffer)
 //  : d_bestBid(bestBid)
 //  , d_bestOffer(bestOffer)
 //  {
-//      #ifdef BSLS_PLATFORM_OS_UNIX
-//      snprintf(d_name, sizeof d_name, "%s",ticker);
-//      #else
-//      if (_snprintf(d_name, sizeof d_name, "%s",ticker) < 0) {
-//          d_name[sizeof d_name - 1] = '\0';
-//      }
-//      #endif
+//      snprintf(d_name, sizeof d_name, "%s", ticker);
 //  }
 //
-//  void my_Tick::print(bsl::ostream& stream) const {
+//  void my_Tick::print(bsl::ostream& stream) const
+//  {
 //      stream << "(" << d_name << ", " << d_bestBid << ", " << d_bestOffer
 //             << ")" << endl;
 //  }
 //
 //  inline
-//  bsl::ostream& operator<<(bsl::ostream& stream, const my_Tick& tick) {
+//  bsl::ostream& operator<<(bsl::ostream& stream, const my_Tick& tick)
+//  {
 //      tick.print(stream);
 //      return stream;
 //  }
 //
 //  template <class STREAM>
-//  inline
 //  STREAM& my_Tick::bdexStreamOut(STREAM& stream, int version) const
 //  {
 //      switch (version) {
@@ -241,19 +223,19 @@ BSLS_IDENT("$Id: $")
 //  {
 //      switch (version) {
 //        case 1: {
-//            bsl::string temp1;
-//            stream.getString(temp1);
-//            int maxLen = sizeof (d_name) - 1, // the valid name length
-//                len = temp1.length();
-//            if (len < maxLen) {
-//                strcpy(d_name, temp1.c_str());
-//            }
-//            else {
-//                strncpy(d_name, temp1.c_str(), len);
-//                d_name[len] = 0;
-//            }
-//            stream.getFloat64(d_bestBid);
-//            stream.getFloat64(d_bestOffer);
+//          bsl::string temp1;
+//          stream.getString(temp1);
+//          int maxLen = sizeof d_name - 1;  // the valid name length
+//          int len    = temp1.length();
+//          if (len < maxLen) {
+//              strcpy(d_name, temp1.c_str());
+//          }
+//          else {
+//              strncpy(d_name, temp1.c_str(), len);
+//              d_name[len] = 0;
+//          }
+//          stream.getFloat64(d_bestBid);
+//          stream.getFloat64(d_bestOffer);
 //        } break;
 //        default: {
 //          stream.invalidate();
@@ -292,54 +274,57 @@ BSLS_IDENT("$Id: $")
 //  class my_TickReporter {
 //      // This class implements a server that accepts connections, extracts
 //      // from each connection a single 'my_Tick' value, and reports that
-//      // value to a console stream; both the acceptor and console stream
-//      // are supplied at construction.
+//      // value to a console stream; both the acceptor and console stream are
+//      // supplied at construction.
 //
-//      btlsc::TimedCbChannelAllocator *d_acceptor_p; // incoming connections
-//      btlso::TcpTimerEventManager    *d_eventManager_p; // Only needed for
-//                                                       // timeCb()'s use,
-//                                                       // could be erased
-//                                                       // otherwise.
-//      bsl::ostream&                  d_console;    // where to put tick info
+//      btlsc::TimedCbChannelAllocator *d_acceptor_p;      // incoming
+//                                                         // connections
+//      btlso::TcpTimerEventManager    *d_eventManager_p;  // Only needed for
+//                                                         // 'timeCb's use,
+//                                                         // could be erased
+//                                                         // otherwise.
+//      bsl::ostream&                   d_console;         // where to put tick
+//                                                         // info
 //
 //      btlsc::TimedCbChannelAllocator::TimedCallback
-//                                     d_allocFunctor;  // reused
+//                                      d_allocFunctor;    // reused
 //
 //    private:
 //      void acceptCb(btlsc::TimedCbChannel     *clientChannel,
-//                    int                       status,
+//                    int                        status,
 //                    const bsls::TimeInterval&  timeout);
 //          // Called when a new client channel has been accepted.
 //          // ...
 //
-//      void readCb(const char           *buffer,
-//                  int                   status,
-//                  int                   asyncStatus,
+//      void readCb(const char            *buffer,
+//                  int                    status,
+//                  int                    asyncStatus,
 //                  btlsc::TimedCbChannel *clientChannel);
 //          // Called when a 'my_Tick' value has been read from the channel.
 //          // ...
 //
-//      void timeCb(int                  lastNumTicks,
-//                  int                 *curNumTicks,
-//                  bsls::TimeInterval    lastTime);
+//      void timeCb(int                 lastNumTicks,
+//                  int                *curNumTicks,
+//                  bsls::TimeInterval  lastTime);
 //          // To calculate the tick send/receive rate (Ticks/second).
 //
 //    private:
-//      my_TickReporter(const my_TickReporter&);             // not impl.
-//      my_TickReporter& operator=(const my_TickReporter&);  // not impl.
+//      // NOT IMPLEMENTED
+//      my_TickReporter(const my_TickReporter&);
+//      my_TickReporter& operator=(const my_TickReporter&);
 //
 //    public:
-//      my_TickReporter(bsl::ostream&                  console,
+//      my_TickReporter(bsl::ostream&                   console,
 //                      btlsc::TimedCbChannelAllocator *acceptor,
-//                      btlso::TcpTimerEventManager    *d_eventManager_p);
+//                      btlso::TcpTimerEventManager    *eventManager);
 //          // Create a non-blocking tick-reporter using the specified
 //          // 'acceptor' to establish incoming client connections, each
-//          // transmitting a single 'my_Tick' value; write these values
-//          // to the specified 'console' stream.  If the acceptor is idle
-//          // for more than five minutes, print a message to the 'console'
-//          // stream supplied at construction and continue.  To guard
-//          // against malicious clients, a connection that does not produce
-//          // a tick value within one minute will be summarily dropped.
+//          // transmitting a single 'my_Tick' value; write these values to the
+//          // specified 'console' stream.  If the 'acceptor' is idle for more
+//          // than five minutes, print a message to the 'console' stream
+//          // supplied at construction and continue.  To guard against
+//          // malicious clients, a connection that does not produce a tick
+//          // value within one minute will be summarily dropped.
 //
 //      ~my_TickReporter();
 //          // Destroy this server object.
@@ -347,12 +332,12 @@ BSLS_IDENT("$Id: $")
 //
 //  #define VERSION_SELECTOR 20140601
 //
-//  const double ACCEPT_TIME_LIMIT = 300;               // 5 minutes
-//  const double   READ_TIME_LIMIT =  60;               // 1 minutes
+//  const double ACCEPT_TIME_LIMIT = 300;  // 5 minutes
+//  const double   READ_TIME_LIMIT =  60;  // 1 minutes
 //
 //  static int calculateMyTickMessageSize()
-//      // Calculate and return the number of bytes encoding of a
-//      // 'my_Tick' value (called just once, see below).
+//      // Calculate and return the number of bytes encoding of a 'my_Tick'
+//      // value (called just once, see below).
 //  {
 //      double bid = 0, offer = 0;
 //      my_Tick dummy("dummy", bid, offer);
@@ -364,32 +349,34 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  static int myTickMessageSize()
-//      // Return the number of bytes in a BDEX byte-stream encoding
-//      // of a 'my_Tick' value without creating a runtime-initialized
-//      // file-scope static variable (which is link-order dependent).
+//      // Return the number of bytes in a BDEX byte-stream encoding of a
+//      // 'my_Tick' value without creating a runtime-initialized file-scope
+//      // static variable (which is link-order dependent).
 //  {
 //      static const int MESSAGE_SIZE = calculateMyTickMessageSize();
 //      return MESSAGE_SIZE;
 //  }
 //
 //  void my_TickReporter::acceptCb(btlsc::TimedCbChannel     *clientChannel,
-//                                 int                       status,
+//                                 int                        status,
 //                                 const bsls::TimeInterval&  timeout)
 //  {
 //      bsls::TimeInterval nextTimeout(timeout);
 //
 //      if (clientChannel) {     // Successfully created a connection.
 //
-//          const int               numBytes = ::myTickMessageSize();
+//          const int                numBytes = ::myTickMessageSize();
 //
 //          const bsls::TimeInterval now      = bdlt::CurrentTime::now();
 //
 //          // Create one-time (buffered) read functor holding 'clientChannel'.
+//
+//          using namespace bdlf::PlaceHolders;
 //          btlsc::TimedCbChannel::BufferedReadCallback readFunctor(
-//                  bdlf::BindUtil::bind(&my_TickReporter::readCb,
-//                                      this,
-//                                      _1, _2, _3,
-//                                      clientChannel));
+//              bdlf::BindUtil::bind(
+//                      bdlf::MemFnUtil::memFn(&my_TickReporter::readCb, this),
+//                      _1, _2, _3,
+//                      clientChannel));
 //
 //          // Install read callback (timeout, but no raw or async interrupt).
 //
@@ -400,7 +387,7 @@ BSLS_IDENT("$Id: $")
 //                           " on this channel." << bsl::endl;
 //              d_acceptor_p->deallocate(clientChannel);
 //          }
-//         nextTimeout += ACCEPT_TIME_LIMIT;
+//          nextTimeout += ACCEPT_TIME_LIMIT;
 //      }
 //      else if (0 == status) {  // Interrupted due to timeout event.
 //          d_console << "Acceptor timed out, continuing..." << bsl::endl;
@@ -411,6 +398,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //      else {                   // Allocation operation is unable to succeed.
 //          assert(status < 0);
+//
 //          d_console << "Error: The channel allocator is not working now."
 //                    << bsl::endl;
 //
@@ -420,17 +408,18 @@ BSLS_IDENT("$Id: $")
 //
 //      // In all cases, attempt to reinstall the (reusable) accept callback.
 //
-//      if (d_acceptor_p->timedAllocateTimed(d_allocFunctor,
-//                                  nextTimeout + bdlt::CurrentTime::now())) {
+//      if (d_acceptor_p->timedAllocateTimed(
+//                                   d_allocFunctor,
+//                                   nextTimeout + bdlt::CurrentTime::now())) {
 //          d_console << "Error: unable to register accept operation."
 //                    << bsl::endl;
-//          // This server is hosed.
+//          // This server is broken.
 //      }
 //  }
 //
-//  void my_TickReporter::readCb(const char           *buffer,
-//                               int                   status,
-//                               int                   asyncStatus,
+//  void my_TickReporter::readCb(const char            *buffer,
+//                               int                    status,
+//                               int                    asyncStatus,
 //                               btlsc::TimedCbChannel *clientChannel)
 //  {
 //      static int curNumTicks = 0;
@@ -444,6 +433,7 @@ BSLS_IDENT("$Id: $")
 //
 //      if (msgSize == status) {  // Encoded-tick value read successfully.
 //          assert(buffer);
+//
 //          ++curNumTicks;
 //          if (0 == (curNumTicks % 200000)) {
 //              cout << curNumTicks << " ticks has been received. " << endl;
@@ -455,35 +445,35 @@ BSLS_IDENT("$Id: $")
 //              ::myPrintTick(bsl::cout, buffer, msgSize);
 //          }
 //          if (1 == curNumTicks) {
-//              bdlf::Function<void (*)()> timerFunctor(
-//                      bdlf::BindUtil::bind(&my_TickReporter::timeCb,
-//                                          this,
-//                                          0,
-//                                          &curNumTicks,
-//                                          now));
+//              bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
+//                      bdlf::MemFnUtil::memFn(&my_TickReporter::timeCb, this),
+//                      0,
+//                      &curNumTicks,
+//                      now));
 //              d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
 //          }
 //
+//          using namespace bdlf::PlaceHolders;
 //          btlsc::TimedCbChannel::BufferedReadCallback readFunctor(
-//                      bdlf::BindUtil::bind(&my_TickReporter::readCb,
-//                                          this,
-//                                          _1, _2, _3,
-//                                          clientChannel));
+//              bdlf::BindUtil::bind(
+//                      bdlf::MemFnUtil::memFn(&my_TickReporter::readCb, this),
+//                      _1, _2, _3,
+//                      clientChannel));
 //          if (clientChannel->timedBufferedRead(msgSize,
-//                                             now + READ_TIME_LIMIT,
-//                                             readFunctor)) {
+//                                               now + READ_TIME_LIMIT,
+//                                               readFunctor)) {
 //              d_console << "Error: Unable even to register a read operation"
-//                         " on this channel." << bsl::endl;
+//                           " on this channel." << bsl::endl;
 //              d_acceptor_p->deallocate(clientChannel);
 //          }
 //      }
 //      else if (0 <= status) {   // Tick message was interrupted.
 //
-//          assert(buffer); // Data in buffer is available for inspection
-//                          // (but remains in the channel's buffer).
+//          assert(buffer);  // Data in buffer is available for inspection (but
+//                           // remains in the channel's buffer).
 //
-//          // Must be a TIMEOUT event since neither raw (partial) reads
-//          // nor (external) asynchronous interrupts were authorized.
+//          // Must be a TIMEOUT event since neither raw (partial) reads nor
+//          // (external) asynchronous interrupts were authorized.
 //
 //          assert(0 == asyncStatus);   // must be timeout event!
 //
@@ -505,8 +495,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  void my_TickReporter::timeCb(int                lastNumTicks,
-//                               int               *curNumTicks,
+//  void my_TickReporter::timeCb(int                 lastNumTicks,
+//                               int                *curNumTicks,
 //                               bsls::TimeInterval  lastTime)
 //  {
 //      int numTicks = *curNumTicks - lastNumTicks;
@@ -514,26 +504,26 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval now = bdlt::CurrentTime::now();
 //
 //      bsls::TimeInterval timePeriod = now - lastTime;
-//      double numSeconds = timePeriod.seconds() +
-//                            (double) timePeriod.nanoseconds() / 1000000000;
-//      cout << numTicks <<" ticks were sent in "
+//      double numSeconds = timePeriod.seconds()
+//                          + (double)timePeriod.nanoseconds() / 1000000000;
+//      cout << numTicks   << " ticks were sent in "
 //           << numSeconds << " seconds." << endl;
 //
-//      cout << "The read rate is " << (int) (numTicks / numSeconds)
-//           << " Ticks/second." << endl << endl;
+//      cout << "The read rate is " << (int)(numTicks / numSeconds)
+//           << " Ticks/second."    << endl << endl;
 //
-//      bdlf::Function<void (*)()> timerFunctor(
-//                      bdlf::BindUtil::bind(&my_TickReporter::timeCb,
-//                                          this,
-//                                          *curNumTicks,
-//                                          curNumTicks,
-//                                          now));
+//      bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
+//                      bdlf::MemFnUtil::memFn(&my_TickReporter::timeCb, this),
+//                      *curNumTicks,
+//                      curNumTicks,
+//                      now));
 //      d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
 //  }
 //
-//  my_TickReporter::my_TickReporter(bsl::ostream&                  console,
-//                                 btlsc::TimedCbChannelAllocator *acceptor,
-//                                 btlso::TcpTimerEventManager    *eventManager)
+//  my_TickReporter::my_TickReporter(
+//                                bsl::ostream&                   console,
+//                                btlsc::TimedCbChannelAllocator *acceptor,
+//                                btlso::TcpTimerEventManager    *eventManager)
 //  : d_console(console)
 //  , d_acceptor_p(acceptor)
 //  , d_eventManager_p(eventManager)
@@ -541,20 +531,23 @@ BSLS_IDENT("$Id: $")
 //      assert(&d_console);
 //      assert(d_acceptor_p);
 //
-//     // Attempt to install the first accept callback.
+//      // Attempt to install the first accept callback.
 //
 //      bsls::TimeInterval timeout = bdlt::CurrentTime::now()
-//          + ACCEPT_TIME_LIMIT;
+//                                   + ACCEPT_TIME_LIMIT;
 //
 //      // load reusable allocate functor
-//      d_allocFunctor = bdlf::BindUtil::bind(&my_TickReporter::acceptCb,
-//                                           this,
-//                                           timeout));
+//
+//      using namespace bdlf::PlaceHolders;
+//      d_allocFunctor = bdlf::BindUtil::bind(
+//                    bdlf::MemFnUtil::memFn(&my_TickReporter::acceptCb, this),
+//                    _1, _2,
+//                    timeout);
 //
 //      if (d_acceptor_p->timedAllocateTimed(d_allocFunctor, timeout)) {
 //          d_console << "Error: Unable to install accept operation."
 //                    << bsl::endl;
-//          // This server is hosed.
+//          // This server is broken.
 //      }
 //  }
 //
@@ -564,8 +557,7 @@ BSLS_IDENT("$Id: $")
 //      assert(d_acceptor_p);
 //  }
 //
-//
-//  int main (int argc, const char *argv[])
+//  int main(int argc, const char *argv[])
 //  {
 //      enum { DEFAULT_PORT = 5000 };
 //
@@ -574,23 +566,23 @@ BSLS_IDENT("$Id: $")
 //      btlso::IPv4Address address;
 //      address.setPortNumber(portNumber);
 //
-//      btlso::TcpTimerEventManager sem;    // concrete manager
+//      btlso::TcpTimerEventManager manager;    // concrete manager
 //      btlso::InetStreamSocketFactory<btlso::IPv4Address> sf;
-//      btlsos::TcpTimedCbAcceptor acceptor(&sf, &sem);
+//      btlsos::TcpTimedCbAcceptor acceptor(&sf, &manager);
 //
 //      assert(0 == acceptor.open(address, DEFAULT_QUEUE_SIZE));
 //
 //      if (acceptor.isInvalid()) {
 //          bsl::cout << "Error: Unable to create acceptor" << bsl::endl;
-//                 return -1;
+//          return -1;                                                // RETURN
 //      }
 //
-//      my_TickReporter reporter(bsl::cout, &acceptor, &sem);
+//      my_TickReporter reporter(bsl::cout, &acceptor, &manager);
 //
 //      cout << "server: " << address
 //           << "; begins to dispatch()....." << endl;
 //
-//      while (0 != sem.dispatch(0)) {
+//      while (0 != manager.dispatch(0)) {
 //          // Do nothing.
 //      }
 //  }
@@ -625,55 +617,56 @@ BSLS_IDENT("$Id: $")
 //
 //      btlsc::TimedCbChannelAllocator *d_connector_p;  // outgoing connections
 //      btlso::TcpTimerEventManager    *d_eventManager_p;
-//      bsl::ostream&                  d_console;      // where to write errors
-//      const int                      d_inputSize;    // input packet size
+//      bsl::ostream&                   d_console;      // where to write
+//                                                      // errors
+//      const int                       d_inputSize;    // input packet size
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
-//                                                 d_allocateFunctor;
+//      bsl::function<void(btlsc::TimedCbChannel*, int)> d_allocateFunctor;
 //      btlsc::TimedCbChannel::BufferedReadCallback d_readFunctor;  // reused
 //
 //    private:
 //      void connectCb(btlsc::TimedCbChannel *serverChannel,
-//                     int                   status);
+//                     int                    status);
 //          // Called when a new server channel has been established.
 //          // ...
 //
-//      void writeCb(int                   status,
-//                   int                   asyncStatus,
+//      void writeCb(int                    status,
+//                   int                    asyncStatus,
 //                   btlsc::TimedCbChannel *serverChannel,
-//                   int                   messageSize,
-//                   int                   maxTicks);
+//                   int                    msgSize,
+//                   int                    maxTicks);
 //          // Called when a write operation to the server channel ends.
 //          // ...
 //
-//      void timeCb(int                  lastNumTicks,
-//                  int                 *curNumTicks,
-//                  int                  maxTicks,
-//                  bsls::TimeInterval    lastTime);
+//      void timeCb(int                 lastNumTicks,
+//                  int                *curNumTicks,
+//                  int                 maxTicks,
+//                  bsls::TimeInterval  lastTime);
 //          // To calculate the tick send/receive rate (Ticks/second).
 //
-//    private:  // Not implemented.
+//    private:
+//      // NOT IMPLEMENTED
 //      my_TickerplantSimulator(const my_TickerplantSimulator&);
 //      my_TickerplantSimulator& operator=(const my_TickerplantSimulator&);
 //
 //    public:
 //      my_TickerplantSimulator(
-//                           bsl::ostream&                  console,
-//                           btlsc::TimedCbChannelAllocator *connector,
-//                           btlso::TcpTimerEventManager    *d_eventManager_p,
-//                           int                            inputSize);
-//          // Create a non-blocking ticker-plant simulator using the
-//          // specified 'input' channel to read ASCII tick records of
-//          // the specified 'inputSize' and convert each record to a
-//          // 'my_Tick' structure; each tick value is sent asynchronously
-//          // to a peer via a distinct channel obtained from the specified
-//          // 'connector', reporting any errors to the specified 'console'.
-//          // If 'connector' fails or is unable to succeed after 30 seconds,
-//          // or if transmission itself exceeds 10 seconds, display a message
-//          // on 'console' and abort the transmission.  If three successive
-//          // reads of the input channel fail to produce a valid ticks,
-//          // invalidate the channel and shut down this simulator.  The
-//          // behavior is undefined unless 0 < inputSize.
+//                            bsl::ostream&                   console,
+//                            btlsc::TimedCbChannelAllocator *connector,
+//                            btlso::TcpTimerEventManager    *d_eventManager_p,
+//                            int                             inputSize);
+//          // Create a non-blocking ticker-plant simulator using the specified
+//          // 'input' channel to read ASCII tick records of the specified
+//          // 'inputSize' and convert each record to a 'my_Tick' structure;
+//          // each tick value is sent asynchronously to a peer via a distinct
+//          // channel obtained from the specified 'connector', reporting any
+//          // errors to the specified 'console'.  If 'connector' fails or is
+//          // unable to succeed after 30 seconds, or if transmission itself
+//          // exceeds 10 seconds, display a message on 'console' and abort the
+//          // transmission.  If three successive reads of the input channel
+//          // fail to produce a valid ticks, invalidate the channel and shut
+//          // down this simulator.  The behavior is undefined unless
+//          // '0 < inputSize'.
 //
 //      ~my_TickerplantSimulator();
 //          // Destroy this simulator object.
@@ -684,8 +677,8 @@ BSLS_IDENT("$Id: $")
 //  static const bsls::TimeInterval WRITE_TIME_LIMIT(3600, 0);  // 1 hour
 //
 //  void my_TickerplantSimulator::connectCb(
-//                                         btlsc::TimedCbChannel *serverChannel,
-//                                         int                   status)
+//                                        btlsc::TimedCbChannel *serverChannel,
+//                                        int                    status)
 //  {
 //      if (serverChannel) {            // Successfully created a connection.
 //          struct Tick {               // for usage example
@@ -714,13 +707,15 @@ BSLS_IDENT("$Id: $")
 //               bos << tick;
 //               int msgSize = bos.length();
 //
+//               using namespace bdlf::PlaceHolders;
 //               btlsc::TimedCbChannel::WriteCallback functor(
-//                      bdlf::BindUtil::bind(&my_TickerplantSimulator::writeCb,
-//                                          this,
-//                                          _1, _2,
-//                                          serverChannel,
-//                                          msgSize,
-//                                          (int) NUM_ITERATIONS));
+//                   bdlf::BindUtil::bind(
+//                    bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::writeCb,
+//                                           this),
+//                    _1, _2,
+//                    serverChannel,
+//                    msgSize,
+//                    (int)NUM_ITERATIONS));
 //
 //               bsls::TimeInterval now = bdlt::CurrentTime::now();
 //
@@ -738,15 +733,16 @@ BSLS_IDENT("$Id: $")
 //               }
 //          }
 //      }
-//      else if (status > 0 ) {  // Interrupted due to external event.
-//          assert (0);  // Impossible, not authorized.
+//      else if (status > 0) {  // Interrupted due to external event.
+//          assert(0);  // Impossible, not authorized.
 //      }
 //      else if (0 == status) {  // Interrupted due to timeout event.
 //          d_console << "Error: Connector timed out, transition aborted."
 //                    << bsl::endl;
 //      }
 //      else {  // Connector failed.
-//          assert (0 < status);
+//          assert(0 < status);
+//
 //          bsl::cout << "Error: Unable to connect to server." << bsl::endl;
 //
 //          // The server is down; invalidate the input channel, allowing
@@ -755,15 +751,15 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//
-//  void my_TickerplantSimulator::writeCb(int                   status,
-//                                        int                   asyncStatus,
+//  void my_TickerplantSimulator::writeCb(int                    status,
+//                                        int                    asyncStatus,
 //                                        btlsc::TimedCbChannel *serverChannel,
-//                                        int                   msgSize,
-//                                        int                   maxTicks)
+//                                        int                    msgSize,
+//                                        int                    maxTicks)
 //  {
-//      static int curNumTicks = 0;
+//      static int curNumTicks  = 0;
 //      static int lastNumTicks = 0;
+//
 //      assert(serverChannel);
 //      assert(0 < msgSize);
 //      assert(status <= msgSize);
@@ -786,18 +782,17 @@ BSLS_IDENT("$Id: $")
 //          if (0 == (curNumTicks % 200000)) {
 //              d_console << curNumTicks << " ticks has been sent. "
 //                        << bsl::endl;
-//              d_console << "The current time value: "
-//                        << now << bsl::endl;
+//              d_console << "The current time value: " << now << bsl::endl;
 //          }
 //
 //          if (1 == curNumTicks) {
-//              bdlf::Function<void (*)()> timerFunctor(
-//                      bdlf::BindUtil::bind(&my_TickerplantSimulator::timeCb,
-//                                          this,
-//                                          0,
-//                                          &curNumTicks,
-//                                          maxTicks,
-//                                          now));
+//              bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
+//                     bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::timeCb,
+//                                            this),
+//                     0,
+//                     &curNumTicks,
+//                     maxTicks,
+//                     now));
 //              d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
 //              d_console << "registered a timer.  time" << now + TIME_LEN
 //                        << bsl::endl;
@@ -805,9 +800,10 @@ BSLS_IDENT("$Id: $")
 //      }
 //      else if (0 <= status) {   // Tick message timed out.
 //
-//          assert(0 == asyncStatus // only form of partial-write authorized
+//          assert(0 == asyncStatus    // only form of partial-write authorized
 //                 || 0 >  asyncStatus // This operations was dequeued due to
-//                 && 0 == status); // a previous partial write operation.
+//                 && 0 == status);    // a previous partial write operation.
+//
 //          if (0 < asyncStatus) {
 //              d_console << "The request is interrupted." << bsl::endl;
 //          }
@@ -826,6 +822,7 @@ BSLS_IDENT("$Id: $")
 //          }
 //          else {
 //              assert(0 > asyncStatus && 0 == status);
+//
 //              if (0 == status) {
 //                  d_console << "This operation was dequeued. "
 //                            << "status = " << status << "; asyncStatus = "
@@ -840,14 +837,15 @@ BSLS_IDENT("$Id: $")
 //      }
 //      else {  // Tick message write failed.
 //          assert(0 > status);
+//
 //          d_console << "Error: Unable to write tick value to server."
 //                    << bsl::endl;
 //      }
 //  }
 //
-//  void my_TickerplantSimulator::timeCb(int                lastNumTicks,
-//                                       int               *curNumTicks,
-//                                       int                maxTicks,
+//  void my_TickerplantSimulator::timeCb(int                 lastNumTicks,
+//                                       int                *curNumTicks,
+//                                       int                 maxTicks,
 //                                       bsls::TimeInterval  lastTime)
 //  {
 //      int numTicks = *curNumTicks - lastNumTicks;
@@ -855,29 +853,28 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval now = bdlt::CurrentTime::now();
 //
 //      bsls::TimeInterval timePeriod = now - lastTime;
-//      double numSeconds = timePeriod.seconds() +
-//                            (double) timePeriod.nanoseconds() / 1000000000;
-//      cout << numTicks <<" ticks were sent in "
+//      double numSeconds = timePeriod.seconds()
+//                          + (double)timePeriod.nanoseconds() / 1000000000;
+//      cout << numTicks   << " ticks were sent in "
 //           << numSeconds << " seconds." << endl;
 //
-//      cout << "The send rate is " << (int) (numTicks / numSeconds)
-//           << " Ticks/second." << endl << endl;
+//      cout << "The send rate is " << (int)(numTicks / numSeconds)
+//           << " Ticks/second."    << endl << endl;
 //      if (*curNumTicks < maxTicks) {
-//          bdlf::Function<void (*)()> timerFunctor
-//                  bdlf::BindUtil::bind(
-//                            &my_TickerplantSimulator::timeCb,
-//                            this,
-//                            *curNumTicks, curNumTicks, maxTicks,
-//                            now));
+//          bsl::function<void()> timerFunctor(bdlf::BindUtil::bind(
+//                     bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::timeCb,
+//                                            this),
+//                     *curNumTicks, curNumTicks, maxTicks,
+//                     now));
 //          d_eventManager_p->registerTimer(now + TIME_LEN, timerFunctor);
 //      }
 //  }
 //
 //  my_TickerplantSimulator::
-//        my_TickerplantSimulator(bsl::ostream&                  console,
+//        my_TickerplantSimulator(bsl::ostream&                   console,
 //                                btlsc::TimedCbChannelAllocator *connector,
 //                                btlso::TcpTimerEventManager    *eventManager,
-//                                int                            inputSize)
+//                                int                             inputSize)
 //  : d_connector_p(connector)
 //  , d_eventManager_p(eventManager)
 //  , d_console(console)
@@ -888,15 +885,16 @@ BSLS_IDENT("$Id: $")
 //      assert(eventManager);
 //      assert(0 < inputSize);
 //
+//      using namespace bdlf::PlaceHolders;
 //      d_allocateFunctor = bdlf::BindUtil::bind(
-//                                  &my_TickerplantSimulator::connectCb,
-//                                  this);
+//          bdlf::MemFnUtil::memFn(&my_TickerplantSimulator::connectCb, this),
+//                                 _1, _2);
 //  }
 //
-//
 //  int my_TickerplantSimulator::connect() {
-//      return d_connector_p->timedAllocateTimed(d_allocateFunctor,
-//                            bdlt::CurrentTime::now() + CONNECT_TIME_LIMIT);
+//      return d_connector_p->timedAllocateTimed(
+//                              d_allocateFunctor,
+//                              bdlt::CurrentTime::now() + CONNECT_TIME_LIMIT);
 //
 //  }
 //
@@ -907,9 +905,9 @@ BSLS_IDENT("$Id: $")
 //      assert(0 < d_inputSize);
 //  }
 //
-//  int main (int argc, const char *argv[])
+//  int main(int argc, const char *argv[])
 //  {
-//      const char *const DEFAULT_HOST = "sundev1";
+//      const char *const DEFAULT_HOST = "widget";
 //      enum { DEFAULT_PORT = 5000 };
 //      enum { DEFAULT_SIZE = 10 };
 //
@@ -923,9 +921,9 @@ BSLS_IDENT("$Id: $")
 //
 //      btlso::IPv4Address serverAddress;
 //
-//      int ret = btlso::ResolveUtil::getAddress(&serverAddress,
-//                                              hostName);
+//      int ret = btlso::ResolveUtil::getAddress(&serverAddress, hostName);
 //      assert(0 == ret);
+//
 //      serverAddress.setPortNumber(portNumber);
 //      cout << "serverAddress = " << serverAddress << endl;
 //
@@ -933,18 +931,18 @@ BSLS_IDENT("$Id: $")
 //      btlso::TcpTimerEventManager::Hint
 //      infrequentRegistrationHint =
 //                   btlso::TcpTimerEventManager::e_INFREQUENT_REGISTRATION;
-//      btlso::TcpTimerEventManager sem(infrequentRegistrationHint);
+//      btlso::TcpTimerEventManager manager(infrequentRegistrationHint);
 //
-//      btlsos::TcpTimedCbConnector connector(&sf, &sem);
+//      btlsos::TcpTimedCbConnector connector(&sf, &manager);
 //      connector.setPeer(serverAddress);
 //
-//      my_TickerplantSimulator
-//          simulator(bsl::cout, &connector, &sem, inputSize);
+//      my_TickerplantSimulator simulator(bsl::cout, &connector, &manager,
+//                                        inputSize);
 //      assert(0 == simulator.connect());
 //
 //      cout << "client begins to dispatch()....." << endl;
 //
-//      while (0 != sem.dispatch(0)) {
+//      while (0 != manager.dispatch(0)) {
 //          // Do nothing.
 //      }
 //  }
@@ -958,37 +956,28 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
 
+namespace bsls { class TimeInterval; }
 
+namespace btlsc {
 
-// Updated by 'bde-replace-bdet-forward-declares.py -m bdlt': 2015-02-03
-// Updated declarations tagged with '// bdet -> bdlt'.
-
-namespace bsls { class TimeInterval; }                          // bdet -> bdlt
-
-namespace bdet {typedef ::BloombergLP::bsls::TimeInterval TimeInterval;    // bdet -> bdlt
-}  // close namespace bdet
-
-
-namespace btlsc {class CbChannel;
+class CbChannel;
 class TimedCbChannel;
 
                        // =============================
                        // class TimedCbChannelAllocator
                        // =============================
 
-class TimedCbChannelAllocator
-// : public CbChannelAllocator                // TBD: later
-{
+class TimedCbChannelAllocator {
     // This class is a protocol (pure abstract interface) for a non-blocking
-    // mechanism that allocates end points of communications channels
-    // supporting timed and untimed non-blocking (buffered and non-buffered)
-    // read and write operations on a byte stream.  A 'bcef' callback functor
+    // mechanism that allocates end points of communication channels supporting
+    // timed and untimed non-blocking (buffered and non-buffered) read and
+    // write operations on a byte stream.  A 'bdlf' callback functor
     // communicates the results of the asynchronous allocation.  A successful
     // allocation passes to the callback the address of a channel, in which
     // case the callback's "status" argument has no significance.  Otherwise, a
@@ -1005,12 +994,12 @@ class TimedCbChannelAllocator
     // deallocation.
 
   private:
-    TimedCbChannelAllocator&
-        operator=(const TimedCbChannelAllocator&); // not implemented
+    // NOT IMPLEMENTED
+    TimedCbChannelAllocator& operator=(const TimedCbChannelAllocator&);
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(CbChannel *, int)> Callback;
+    typedef bsl::function<void(CbChannel *, int)> Callback;
         // Invoked as a result of an 'allocate' or 'timedAllocate' request,
         // 'Callback' is an alias for a callback function object (functor) that
         // returns 'void' and takes as arguments the (possibly null) address of
@@ -1019,7 +1008,7 @@ class TimedCbChannelAllocator
         // (negative).  Note that "status" is meaningful only if "channel" is
         // 0.
 
-    typedef bdlf::Function<void (*)(TimedCbChannel *, int)> TimedCallback;
+    typedef bsl::function<void(TimedCbChannel *, int)> TimedCallback;
         // Invoked as a result of an 'allocateTimed' or 'timedAllocateTimed'
         // request, 'TimedCallback' is an alias for a callback function object
         // (functor) that returns 'void' and takes as arguments the (possibly
@@ -1030,15 +1019,14 @@ class TimedCbChannelAllocator
 
     // CREATORS
     virtual ~TimedCbChannelAllocator();
-        // Destroy this channel (required for syntactic consistency only).
+        // Destroy this object.
 
     // MANIPULATORS
-    virtual int allocate(const Callback& callback,
-                         int             flags = 0)                        = 0;
+    virtual int allocate(const Callback& callback, int flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'callback' will not be
@@ -1057,14 +1045,14 @@ class TimedCbChannelAllocator
         // permanent one; the allocator itself may still be valid (see
         // 'isInvalid').  The behavior is undefined unless 'callback' is valid.
 
-    virtual int timedAllocate(const Callback&          callback,
+    virtual int timedAllocate(const Callback&           callback,
                               const bsls::TimeInterval& timeout,
-                              int                      flags = 0)          = 0;
+                              int                       flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a callback channel or
         // interrupt after the specified absolute 'timeout' time is reached;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'callback' will not be
@@ -1073,25 +1061,25 @@ class TimedCbChannelAllocator
         // When invoked, 'callback' is passed the (possibly null) address of a
         // callback channel and an integer "status".  If that address is not 0,
         // the allocation succeeded and status has no meaning; a non-null
-        // channel-allocator address will remain valid until deallocated
-        // explicitly (see 'deallocate').  If the address is 0, a 0 status
-        // indicates that the operation has timed out, while a positive status
-        // indicates an interruption due to an asynchronous event.  In either
-        // case, subsequent allocation attempts may succeed.  A status of -1
-        // implies that the allocation operation was "canceled" (synchronously)
-        // by the caller (see 'cancelAll') and, often, may be retried
-        // successfully.  A status less than -1 indicates a more persistent
-        // error, but not necessarily a permanent one; the allocator itself may
-        // still be valid (see 'isInvalid').  Note that if the specified
-        // 'timeout' value has already passed, the allocation will still be
-        // attempted, but the attempt will not block.
+        // channel address will remain valid until deallocated explicitly (see
+        // 'deallocate').  If the address is 0, a 0 status indicates that the
+        // operation has timed out, while a positive status indicates an
+        // interruption due to an asynchronous event.  In either case,
+        // subsequent allocation attempts may succeed.  A status of -1 implies
+        // that the allocation operation was "canceled" (synchronously) by the
+        // caller (see 'cancelAll') and, often, may be retried successfully.  A
+        // status less than -1 indicates a more persistent error, but not
+        // necessarily a permanent one; the allocator itself may still be valid
+        // (see 'isInvalid').  The behavior is undefined unless 'callback' is
+        // valid.  Note that if the 'timeout' value has already passed, the
+        // allocation will still be attempted, but the attempt will not block.
 
     virtual int allocateTimed(const TimedCallback& timedCallback,
-                              int                  flags = 0)              = 0;
+                              int                  flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt the allocation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case
@@ -1109,16 +1097,16 @@ class TimedCbChannelAllocator
         // successfully.  A status less than -1 indicates a more persistent
         // error, but not necessarily a permanent one; the allocator itself may
         // still be valid (see 'isInvalid').  The behavior is undefined unless
-        // 'callback' is valid.
+        // 'timedCallback' is valid.
 
-    virtual int timedAllocateTimed(const TimedCallback&     timedCallback,
+    virtual int timedAllocateTimed(const TimedCallback&      timedCallback,
                                    const bsls::TimeInterval& timeout,
-                                   int                      flags = 0)     = 0;
+                                   int                       flags = 0) = 0;
         // Initiate a non-blocking operation to allocate a timed callback
         // channel or interrupt after the specified absolute 'timeout' time is
-        // reached; execute the specified 'callback' functor after the
+        // reached; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT',
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT',
         // "asynchronous events" are permitted to interrupt the allocation; by
         // default, such events are ignored.  Return 0 on successful
         // initiation, and a non-zero value otherwise (in which case
@@ -1127,18 +1115,19 @@ class TimedCbChannelAllocator
         // When invoked, 'timedCallback' is passed the (possibly null) address
         // of a timed callback channel and an integer "status".  If that
         // address is not 0, the allocation succeeded and status has no
-        // meaning; a non-null channel-allocator address will remain valid
-        // until deallocated explicitly (see 'deallocate').  If the address is
-        // 0, a 0 status indicates that the operation has timed out, while a
-        // positive "status" indicates an interruption due to an asynchronous
-        // event.  In either case, subsequent allocation attempts may succeed.
-        // A status of -1 implies that the allocation operation was "canceled"
+        // meaning; a non-null channel address will remain valid until
+        // deallocated explicitly (see 'deallocate').  If the address is 0, a 0
+        // status indicates that the operation has timed out, while a positive
+        // "status" indicates an interruption due to an asynchronous event.  In
+        // either case, subsequent allocation attempts may succeed.  A status
+        // of -1 implies that the allocation operation was "canceled"
         // (synchronously) by the caller (see 'cancelAll') and, often, may be
         // retried successfully.  A status less than -1 indicates a more
         // persistent error, but not necessarily a permanent one; the allocator
-        // itself may still be valid (see 'isInvalid').  Note that if the
-        // specified 'timeout' value has already passed, the allocation will
-        // still be attempted, but the attempt will not block.
+        // itself may still be valid (see 'isInvalid').  The behavior is
+        // undefined unless 'timedCallback' is valid.  Note that if the
+        // 'timeout' value has already passed, the allocation will still be
+        // attempted, but the attempt will not block.
 
     virtual void cancelAll() = 0;
         // Immediately cancel all pending operations on this allocator,
@@ -1154,7 +1143,7 @@ class TimedCbChannelAllocator
         // Terminate all operations on the specified 'channel', invoke each
         // pending callback with the appropriate status, and reclaim all
         // afforded channel services.  The behavior is undefined unless
-        // 'channel' is currently allocated from this allocator, (i.e., was
+        // 'channel' is currently allocated from this allocator (i.e., was
         // previously obtained from this instance and has not subsequently
         // deallocated deallocated).  Note that this method can never block.
 
@@ -1165,15 +1154,15 @@ class TimedCbChannelAllocator
 
     // ACCESSORS
     virtual int isInvalid() const = 0;
-        // Return 1 if this allocator is permanently invalid and 0 otherwise.
+        // Return 1 if this allocator is permanently invalid, and 0 otherwise.
         // An invalid allocator can never again register a request to allocate
         // a channel, but *may* succeed in completing existing enqueued
         // requests; deallocation operations are unaffected.  Note that the
         // significance of a 0 return cannot be relied upon beyond the return
         // of this method.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

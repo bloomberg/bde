@@ -113,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //  btlso::IpResolutionCache *ipCacheInstance()
 //  {
 //      static btlso::IpResolutionCache *singletonCachePtr = 0;
-//      BDLQQ_ONCE_DO {
+//      BSLMT_ONCE_DO {
 //          if (0 == singletonCachePtr) {
 //              bslma::Allocator *allocator =
 //                                           bslma::Default::globalAllocator();
@@ -171,20 +171,20 @@ BSLS_IDENT("$Id: $")
 #include <btlso_resolveutil.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_READLOCKGUARD
-#include <bdlqq_readlockguard.h>
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_WRITELOCKGUARD
-#include <bdlqq_writelockguard.h>
+#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
+#include <bslmt_writelockguard.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
@@ -248,7 +248,7 @@ class IpResolutionCache_Entry {
     DataPtr      d_data;          // pointer to a 'IpResolutionCache_Data'
                                   // object
 
-    bdlqq::Mutex d_updatingLock;  // mutex used to signal that a thread is
+    bslmt::Mutex d_updatingLock;  // mutex used to signal that a thread is
                                   // retrieving new data (but does *not*
                                   // synchronize access to 'd_data')
 
@@ -281,7 +281,7 @@ class IpResolutionCache_Entry {
         // the calling thread has a write lock on the cache containing this
         // entry.
 
-    bdlqq::Mutex& updatingLock();
+    bslmt::Mutex& updatingLock();
         // Return a reference providing modifiable access to a mutex used to
         // signal a thread is retrieving new 'data'.  Note that 'updatingLock'
         // does *not* synchronize access to 'data'; access to 'data' is
@@ -331,7 +331,7 @@ class IpResolutionCache {
     bdlt::DatetimeInterval  d_timeToLive;       // configured interval for old
                                                 // to become stale
 
-    mutable bdlqq::RWMutex  d_rwLock;           // access synchronization for
+    mutable bslmt::RWMutex  d_rwLock;           // access synchronization for
                                                 // reading/writing to 'd_cache'
                                                 // *and* the shared 'data' in
                                                 // the entries of 'd_cache'
@@ -468,7 +468,7 @@ void IpResolutionCache_Entry::reset()
 }
 
 inline
-bdlqq::Mutex& IpResolutionCache_Entry::updatingLock()
+bslmt::Mutex& IpResolutionCache_Entry::updatingLock()
 {
     return d_updatingLock;
 }
@@ -491,7 +491,7 @@ void IpResolutionCache::setTimeToLive(const bdlt::DatetimeInterval& value)
 {
     BSLS_ASSERT_SAFE(0 <= value.totalSeconds());
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> writeLockGuard(&d_rwLock);
+    bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(&d_rwLock);
     d_timeToLive = value;
 }
 
@@ -512,7 +512,7 @@ IpResolutionCache::resolverCallback() const
 inline
 const bdlt::DatetimeInterval& IpResolutionCache::timeToLive() const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> readLockGuard(&d_rwLock);
+    bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(&d_rwLock);
     return d_timeToLive;
 }
 

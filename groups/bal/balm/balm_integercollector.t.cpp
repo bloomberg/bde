@@ -2,7 +2,7 @@
 #include <balm_integercollector.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
@@ -11,6 +11,7 @@
 
 #include <bsls_types.h>
 
+#include <bsl_functional.h>
 #include <bsl_ostream.h>
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
@@ -109,7 +110,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
-    bdlqq::Barrier          d_barrier;
+    bslmt::Barrier          d_barrier;
     balm::IntegerCollector *d_collector_p;
     bslma::Allocator       *d_allocator_p;
 
@@ -199,7 +200,7 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
                                                      d_allocator_p,
                                                      &ConcurrencyTest::execute,
                                                      this);

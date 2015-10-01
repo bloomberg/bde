@@ -68,20 +68,20 @@
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_RWMUTEX
-#include <bdlqq_rwmutex.h>
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include <bslmt_rwmutex.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -124,7 +124,7 @@ class ControlManager {
     // INSTANCE DATA
     bslma::Allocator       *d_allocator_p;    // memory allocator (held)
     Registry                d_registry;       // registry
-    mutable bdlqq::RWMutex  d_registryMutex;  // registry mutex
+    mutable bslmt::RWMutex  d_registryMutex;  // registry mutex
 
     // NOT IMPLEMENTED
     ControlManager(const ControlManager&);             // = deleted
@@ -132,8 +132,8 @@ class ControlManager {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)(const bsl::string& prefix,
-                                    bsl::istream&      stream)> ControlHandler;
+    typedef bsl::function<void(const bsl::string& prefix,
+                               bsl::istream&      stream)> ControlHandler;
         // Defines a type alias for the function called to handle control
         // messages.  The 'prefix' argument is the first space-delimited word
         // read from the message, and the 'stream' argument is the

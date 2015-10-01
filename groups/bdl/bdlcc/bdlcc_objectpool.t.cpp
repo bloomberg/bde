@@ -6,13 +6,12 @@
 
 #include <bdlcc_fixedqueue.h>
 
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
 #include <bsls_atomic.h>
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
 #include <bslmf_nestedtraitdeclaration.h>
@@ -28,6 +27,7 @@
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_string.h>
@@ -142,13 +142,13 @@ void aSsErT(int c, const char *s, int i)
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
 
-typedef bdlqq::LockGuard<bdlqq::Mutex> LockGuard;
-static bdlqq::Mutex printMutex;  // mutex to protect output macros
+typedef bslmt::LockGuard<bslmt::Mutex> LockGuard;
+static bslmt::Mutex printMutex;  // mutex to protect output macros
 
 #define PT(X)  { LockGuard guard(&printMutex); P(X);  }
 #define PT_(X) { LockGuard guard(&printMutex); P_(X); }
 
-static bdlqq::Mutex assertMutex; // mutex to protect assert macros
+static bslmt::Mutex assertMutex; // mutex to protect assert macros
 
 #define LOOP_ASSERTT(I,X) { \
    if (!(X)) {                                                                \
@@ -184,25 +184,25 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-bdlqq::ThreadAttributes attributes;
+bslmt::ThreadAttributes attributes;
 void executeInParallel(int                               numThreads,
-                       bdlqq::ThreadUtil::ThreadFunction function)
+                       bslmt::ThreadUtil::ThreadFunction function)
     // Create the specified 'numThreads', each executing the specified
     // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
     // by passing i to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i],
+        bslmt::ThreadUtil::create(&threads[i],
                                   attributes,
                                   function,
                                   static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -382,15 +382,15 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
    };
 
    class Case13Type {
-      Address                       d_address;
-      bdlf::Function<void(*)(int*)> d_callback;
-      bsl::shared_ptr<int>          d_sp1;
-      int                           d_offset;
-      bsl::shared_ptr<int>          d_sp2;
-      int                           d_bytesLeft;
-      bsls::AtomicInt               d_state;
-      int                           d_index;
-      bsls::AtomicInt               d_count;
+      Address                    d_address;
+      bsl::function<void(int *)> d_callback;
+      bsl::shared_ptr<int>       d_sp1;
+      int                        d_offset;
+      bsl::shared_ptr<int>       d_sp2;
+      int                        d_bytesLeft;
+      bsls::AtomicInt            d_state;
+      int                        d_index;
+      bsls::AtomicInt            d_count;
 
    public:
       Case13Type()
@@ -424,9 +424,9 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
          // when running test drivers on linux, this yield() tends to consume a
          // lot more time than we want.  So just microSleep(1) instead, which
          // is a much smaller delay (but quite a bit more than 1 microsecond).
-         bdlqq::ThreadUtil::microSleep(1);
+         bslmt::ThreadUtil::microSleep(1);
 #else
-         bdlqq::ThreadUtil::yield();
+         bslmt::ThreadUtil::yield();
 #endif
 
          ASSERT(val == d_count.testAndSwap(val, val+1));
@@ -481,7 +481,7 @@ void case13Processor(bdlcc::ObjectPool<Case13Type>  *mX,
           break;
       }
       else {
-          bdlqq::ThreadUtil::microSleep(500); //0.5 ms
+          bslmt::ThreadUtil::microSleep(500); //0.5 ms
       }
    }
 }
@@ -670,7 +670,7 @@ public:
 
 bdlcc::ObjectPool<Counter> *pool;
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -714,7 +714,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -765,7 +765,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -809,9 +809,9 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrierAll(k_NUM_THREADS); // barrier for all threads
+bslmt::Barrier barrierAll(k_NUM_THREADS); // barrier for all threads
 
-bdlqq::Barrier barrier0(k_NUM_THREADS/4); // barrier for threads having
+bslmt::Barrier barrier0(k_NUM_THREADS/4); // barrier for threads having
                                        // thread-number % 4 == 0
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
@@ -915,7 +915,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -957,9 +957,9 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrierAll(k_NUM_THREADS);    // barrier for all threads
+bslmt::Barrier barrierAll(k_NUM_THREADS);    // barrier for all threads
 
-bdlqq::Barrier barrier0(k_NUM_THREADS / 2);  // barrier for even numbered
+bslmt::Barrier barrier0(k_NUM_THREADS / 2);  // barrier for even numbered
                                              // threads
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
@@ -1030,7 +1030,7 @@ class my_Class
 
 bdlcc::ObjectPool<my_Class> *pool;
 
-bdlqq::Barrier barrier(k_NUM_THREADS);
+bslmt::Barrier barrier(k_NUM_THREADS);
 
 #if !defined(BSLS_PLATFORM_CMP_SUN) \
     || BSLS_PLATFORM_CMP_VER_MAJOR >= 1360
@@ -1208,17 +1208,17 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
       public:
         my_DatabaseConnection()
         {
-            bdlqq::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
+            bslmt::ThreadUtil::microSleep(k_CONNECTION_OPEN_TIME);
         }
 
         ~my_DatabaseConnection()
         {
-            bdlqq::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
+            bslmt::ThreadUtil::microSleep(k_CONNECTION_CLOSE_TIME);
         }
 
         void executeQuery(Query *query)
         {
-            bdlqq::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
+            bslmt::ThreadUtil::microSleep(k_QUERY_EXECUTION_TIME);
             (void)query;
         }
     };
@@ -1417,30 +1417,30 @@ int main(int argc, char *argv[])
          ASSERT(1 == ptr2a->d_resetCount);
 
          bdlcc::ObjectPool<ConstructorTestHelp1b,
-                         bdlcc::ObjectPoolFunctors::DefaultCreator,
-                         bdlf::Function<void(*)(ConstructorTestHelp1b*)> >
-                         pool2b(&createConstructorTestHelp1b,
-                                bdlf::BindUtil::bind(
+                           bdlcc::ObjectPoolFunctors::DefaultCreator,
+                           bsl::function<void(ConstructorTestHelp1b *)> >
+             pool2b(&createConstructorTestHelp1b,
+                                    bdlf::BindUtil::bind(
                                         &ConstructorTestHelp1b::resetWithCount,
                                         _1,
                                         200),
-                                1,
-                                &ta);
+                                    1,
+                                    &ta);
          ConstructorTestHelp1b* ptr2b = pool2b.getObject();
          pool2b.releaseObject(ptr2b);
 
          ASSERT(200 == ptr2b->d_resetCount);
 
          bdlcc::ObjectPool<ConstructorTestHelp3,
-                         ConstructorTestHelp3Creator,
-                         bdlf::Function<void(*)(ConstructorTestHelp3*)> >
-                        pool3(ConstructorTestHelp3Creator(400),
-                              bdlf::BindUtil::bind(
+                           ConstructorTestHelp3Creator,
+                           bsl::function<void(ConstructorTestHelp3 *)> >
+             pool3(ConstructorTestHelp3Creator(400),
+                                     bdlf::BindUtil::bind(
                                          &ConstructorTestHelp3::resetWithCount,
                                          _1,
                                          300),
-                              1,
-                              &ta);
+                                     1,
+                                     &ta);
 
          ConstructorTestHelp3* ptr3 = pool3.getObject();
          pool3.releaseObject(ptr3);
@@ -1449,9 +1449,10 @@ int main(int argc, char *argv[])
          ASSERT(300 == ptr3->d_resetCount);
          ASSERT(400 == ptr3->d_startCount);
 
-         typedef bdlcc::ObjectPool<ConstructorTestHelp3,
-             bdlcc::ObjectPoolFunctors::DefaultCreator,
-             bdlf::Function<void(*)(ConstructorTestHelp3*)> > Pool4;
+         typedef bdlcc::ObjectPool<
+                           ConstructorTestHelp3,
+                           bdlcc::ObjectPoolFunctors::DefaultCreator,
+                           bsl::function<void(ConstructorTestHelp3 *)> > Pool4;
          Pool4 pool4
             (bdlf::BindUtil::bind(&constructor4, 600, _1),
              bdlf::BindUtil::bind(&ConstructorTestHelp3::resetWithCount,
@@ -1519,7 +1520,7 @@ int main(int argc, char *argv[])
     };
 
     bsls::AtomicInt numQueries(0);
-    bdlqq::ThreadGroup tg;
+    bslmt::ThreadGroup tg;
 
     tg.addThreads(bdlf::BindUtil::bind(&serverThread,
                                        &numQueries,
@@ -1580,10 +1581,10 @@ int main(int argc, char *argv[])
 //
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
 //      my_Query *query = getClientQuery();
-//      bdlqq::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
+//      bslmt::ThreadUtil::create(&threads[i], queryHandler2, (void *)query);
 //  }
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
-//      bdlqq::ThreadUtil::join(threads[i]);
+//      bslmt::ThreadUtil::join(threads[i]);
 //  }
 //..
 ///Modified 'queryHandler'
@@ -1677,7 +1678,7 @@ int main(int argc, char *argv[])
 
               bdlcc::FixedQueue<Case13Type *>
                                 queue(static_cast<bsl::size_t>(p.d_maxCount));
-              bdlqq::ThreadGroup procTg;
+              bslmt::ThreadGroup procTg;
               for (int j = 0; j < 2; ++j) {
                  procTg.addThread(bdlf::BindUtil::bind(&case13Processor,
                                                       &mX,
@@ -1685,7 +1686,7 @@ int main(int argc, char *argv[])
                                                       &done));
               }
 
-              bdlqq::ThreadGroup tg;
+              bslmt::ThreadGroup tg;
               for (int j = 0; j < p.d_numThreads; ++j) {
                  ASSERT(0 == tg.addThread(bdlf::BindUtil::bind(
                                                        &case13Thread,
@@ -1723,11 +1724,13 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
 
         {
-            bdlf::Function<void(*)(void *, bslma::Allocator *)> objectCreator(
-                                       bdlf::BindUtil::bind(&createString,
-                                                           _1,
-                                                           DEFAULT_STRING_INIT,
-                                                           _2));
+            typedef bsl::function<void(void *, bslma::Allocator *)> Creator;
+            Creator objectCreator(bsl::allocator_arg_t(),
+                                  bsl::allocator<Creator>(&ta),
+                                  bdlf::BindUtil::bind(&createString,
+                                                       _1,
+                                                       DEFAULT_STRING_INIT,
+                                                       _2));
             bdlcc::ObjectPool<bsl::string> pool(objectCreator, -1, &ta);
 
             bsl::string *myString = pool.getObject();

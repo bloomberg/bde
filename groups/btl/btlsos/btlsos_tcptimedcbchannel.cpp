@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbchannel_cpp,"$Id$ $CSID$")
 #include <btlsc_flag.h>
 #include <btls_iovecutil.h>
 
-#include <bdlf_function.h>
 #include <bdlf_memfn.h>
 
 #include <bslalg_scalardestructionprimitives.h>
@@ -21,7 +20,9 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbchannel_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstring.h>    // bsl::memcpy
+#include <bsl_functional.h>
 #include <bsl_iterator.h>
+#include <bsl_memory.h>
 #include <bsl_ostream.h>    // bsl::flush
 #include <bsl_vector.h>     // bsl::vector
 
@@ -63,9 +64,9 @@ enum {
 
 namespace btlsos {
 
-                        // ============================
-                        // class TcpTimedCbChannel_RReg
-                        // ============================
+                       // ============================
+                       // class TcpTimedCbChannel_RReg
+                       // ============================
 
 class TcpTimedCbChannel_RReg {
 
@@ -319,16 +320,16 @@ TcpTimedCbChannel_RReg::TcpTimedCbChannel_RReg(
 inline
 TcpTimedCbChannel_RReg::~TcpTimedCbChannel_RReg() {
     if (d_callbackType == e_VFUNC3) {
-        bdlf::Function<void (*)(const char *, int, int)> *cb =
-                (bdlf::Function<void (*)(const char *, int, int)> *)
+        bsl::function<void(const char *, int, int)> *cb =
+                (bsl::function<void(const char *, int, int)> *)
                         (void *) d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == e_VFUNC2);
-        bdlf::Function<void (*)(int, int)> *cb =
-                (bdlf::Function<void (*)(int, int)> *)(void *)d_cb.d_arena;
+        bsl::function<void(int, int)> *cb =
+                (bsl::function<void(int, int)> *)(void *)d_cb.d_arena;
 
         bslalg::ScalarDestructionPrimitives::destroy(cb);
     }
@@ -339,8 +340,8 @@ TcpTimedCbChannel_RReg::~TcpTimedCbChannel_RReg() {
 inline
 void TcpTimedCbChannel_RReg::invoke(int status, int asyncStatus) const {
     BSLS_ASSERT(e_VFUNC2 == d_callbackType);
-    bdlf::Function<void (*)(int, int)> *cb =
-        (bdlf::Function<void (*)(int, int)> *)
+    bsl::function<void(int, int)> *cb =
+        (bsl::function<void(int, int)> *)
         (void *) const_cast<char *>(d_cb.d_arena);
     (*cb)(status, asyncStatus);
 }
@@ -385,9 +386,9 @@ bsl::ostream& operator<<(bsl::ostream&                 out,
     return out;
 }
 
-                        // ============================
-                        // class TcpTimedCbChannel_WReg
-                        // ============================
+                       // ============================
+                       // class TcpTimedCbChannel_WReg
+                       // ============================
 
 class TcpTimedCbChannel_WReg {
 
@@ -405,7 +406,7 @@ public:
 
     // PUBLIC DATA MEMBERS
     bsls::TimeInterval     d_timeout;
-    bdlf::Function<void (*)(int, int)> d_callback;
+    bsl::function<void(int, int)> d_callback;
 
     union {
         struct {
@@ -717,9 +718,9 @@ bsl::ostream& operator<<(bsl::ostream&                 out,
 
 // FREE OPERATORS
 
-                        // ===========================
-                        // local function dequeue<REG>
-                        // ===========================
+                       // ===========================
+                       // local function dequeue<REG>
+                       // ===========================
 
 template <class REG>
 inline void
@@ -741,9 +742,9 @@ dequeue(bsl::deque<REG *> *queue, int status, int augStatus, bdlma::Pool *pool)
     queue->clear();
 }
 
-                      // ================================
-                      // local function completeOperation
-                      // ================================
+                     // ================================
+                     // local function completeOperation
+                     // ================================
 
 static inline
 int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
@@ -842,9 +843,9 @@ int completeOperation(btlsos::TcpTimedCbChannel_RReg *request,
     return rv;
 }
 
-                      // ===============================
-                      // local function initializeBuffer
-                      // ===============================
+                     // ===============================
+                     // local function initializeBuffer
+                     // ===============================
 
 static inline
 void initializeBuffer(bsl::vector<char>                       *buffer,
@@ -868,12 +869,12 @@ void initializeBuffer(bsl::vector<char>                       *buffer,
 namespace btlsos {
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // class TcpTimedCbChannel
-                          // -----------------------
+                         // -----------------------
+                         // class TcpTimedCbChannel
+                         // -----------------------
 
 // PRIVATE MANIPULATORS
 
@@ -980,7 +981,7 @@ void TcpTimedCbChannel::bufferedReadCb()
     }
     else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentReadRequest_p->d_flags
-                                         & btesc_Flag::k_ASYNC_INTERRUPT) {
+                                         & btlsc::Flag::k_ASYNC_INTERRUPT) {
             if (d_readTimerId) {
                 d_rManager_p->deregisterTimer(d_readTimerId);
                 d_readTimerId = NULL;
@@ -1158,7 +1159,7 @@ void TcpTimedCbChannel::readCb()
                   break;
               } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
                   if (d_currentReadRequest_p->d_flags &
-                      btesc_Flag::k_ASYNC_INTERRUPT)
+                      btlsc::Flag::k_ASYNC_INTERRUPT)
                   {
                       if (d_readTimerId) {
                           d_rManager_p->deregisterTimer(d_readTimerId);
@@ -1251,7 +1252,7 @@ void TcpTimedCbChannel::readCb()
                   break;
               } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
                   if (d_currentReadRequest_p->d_flags &
-                      btesc_Flag::k_ASYNC_INTERRUPT)
+                      btlsc::Flag::k_ASYNC_INTERRUPT)
                   {
                       if (d_readTimerId) {
                           d_rManager_p->deregisterTimer(d_readTimerId);
@@ -1596,7 +1597,7 @@ void TcpTimedCbChannel::bufferedWriteCb()
 
     } else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
         if (d_currentWriteRequest_p->d_flags
-                                         & btesc_Flag::k_ASYNC_INTERRUPT) {
+                                         & btlsc::Flag::k_ASYNC_INTERRUPT) {
             if (d_writeTimerId) {
                 d_wManager_p->deregisterTimer(d_writeTimerId);
                 d_writeTimerId = NULL;
@@ -1754,7 +1755,7 @@ void TcpTimedCbChannel::writeCb()
               break;
           } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
               if (d_currentWriteRequest_p->d_flags &
-                  btesc_Flag::k_ASYNC_INTERRUPT)
+                  btlsc::Flag::k_ASYNC_INTERRUPT)
               {
                   if (d_writeTimerId) {
                       d_wManager_p->deregisterTimer(d_writeTimerId);
@@ -1835,7 +1836,7 @@ void TcpTimedCbChannel::writeCb()
               break;
           } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
               if (d_currentWriteRequest_p->d_flags &
-                  btesc_Flag::k_ASYNC_INTERRUPT)
+                  btlsc::Flag::k_ASYNC_INTERRUPT)
               {
                   if (d_writeTimerId) {
                       d_wManager_p->deregisterTimer(d_writeTimerId);
@@ -1912,7 +1913,7 @@ void TcpTimedCbChannel::writeCb()
               break;
           } else if (s == btlso::SocketHandle::e_ERROR_INTERRUPTED) {
               if (d_currentWriteRequest_p->d_flags &
-                  btesc_Flag::k_ASYNC_INTERRUPT)
+                  btlsc::Flag::k_ASYNC_INTERRUPT)
               {
                   if (d_writeTimerId) {
                       d_wManager_p->deregisterTimer(d_writeTimerId);
@@ -2140,46 +2141,52 @@ TcpTimedCbChannel::TcpTimedCbChannel(
 
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedReadCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedWriteCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
@@ -2213,46 +2220,52 @@ TcpTimedCbChannel::TcpTimedCbChannel(
 
     // Initialize functors.
     d_bufferedReadFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedReadCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_readTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::readTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_bufferedWriteFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::bufferedWriteCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_writeTimerFunctor
-        = bdlf::Function<void (*)()>(
+        = bsl::function<void()>(
+                bsl::allocator_arg_t(),
+                bsl::allocator<bsl::function<void()> >(d_allocator_p),
                 bdlf::MemFnUtil::memFn(
                         &TcpTimedCbChannel::writeTimerCb
-                      , this)
-              , d_allocator_p);
+                      , this));
 
     d_socket_p->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE);
 }
@@ -2770,7 +2783,7 @@ int TcpTimedCbChannel::write(const char           *buffer,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -2852,7 +2865,7 @@ int TcpTimedCbChannel::timedWrite(const char                *buffer,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -2925,7 +2938,7 @@ int TcpTimedCbChannel::writeRaw(const char           *buffer,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -2994,7 +3007,7 @@ int TcpTimedCbChannel::timedWriteRaw(const char                *buffer,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3099,7 +3112,7 @@ int TcpTimedCbChannel::writevRaw(const btls::Ovec     *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3166,7 +3179,7 @@ int TcpTimedCbChannel::writevRaw(const btls::Iovec    *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3236,7 +3249,7 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Ovec          *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3309,7 +3322,7 @@ int TcpTimedCbChannel::timedWritevRaw(const btls::Iovec         *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3404,7 +3417,7 @@ int TcpTimedCbChannel::bufferedWrite(const char           *buffer,
             d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3510,7 +3523,7 @@ int TcpTimedCbChannel::timedBufferedWrite(
             d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3652,7 +3665,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Ovec     *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3797,7 +3810,7 @@ int TcpTimedCbChannel::bufferedWritev(const btls::Iovec    *buffers,
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -3950,7 +3963,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
             d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }
@@ -4106,7 +4119,7 @@ int TcpTimedCbChannel::timedBufferedWritev(
                 d_writeRequests.push_front(request);
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == s) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 writeCallback(0, e_INTERRUPT);
                 return 0;                                             // RETURN
             }

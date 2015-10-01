@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //      bsls::TimeInterval           d_readTimeout;
 //      bsls::TimeInterval           d_writeTimeout;
 //
-//      bdlf::Function<void (*)(btlsc::TimedCbChannel*, int)>
+//      bsl::function<void(btlsc::TimedCbChannel*, int)>
 //                                  d_allocateFunctor; // callback functor
 //    private:
 //      // Callbacks
@@ -206,7 +206,7 @@ BSLS_IDENT("$Id: $")
 //                                 int                    status) {
 //      if (channel) {
 //          // Accepted a connection;  issue a buffered read request.
-//          bdlf::Function<void (*)(const char *, int, int)> callback(
+//          bsl::function<void(const char *, int, int)> callback(
 //                  bdlf::BindUtil::bind(&bufferedReadCb,
 //                                      this,
 //                                      _1, _2, _3,
@@ -251,7 +251,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(channel);
 //      if (status > 0) {
-//          bdlf::Function<void(*)(int, int)> callback(
+//          bsl::function<void(int, int)> callback(
 //                  bdlf::BindUtil::bind(&writeCb,
 //                                      this,
 //                                      _1, _2,
@@ -265,7 +265,7 @@ BSLS_IDENT("$Id: $")
 //          }
 //
 //          // Re-register read request
-//          bdlf::Function<void (*)(const char *, int, int)> readCallback(
+//          bsl::function<void(const char *, int, int)> readCallback(
 //                  bdlf::BindUtil::bind(&bufferedReadCb,
 //                                      this,
 //                                      _1, _2, _3,
@@ -330,10 +330,6 @@ BSLS_IDENT("$Id: $")
 #include <btlso_ipv4address.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
 #endif
@@ -344,6 +340,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_VECTOR
@@ -358,9 +358,9 @@ namespace btlsos {
 
 class TcpTimedCbAcceptor_Reg; // component-local class declaration
 
-                          // ========================
-                          // class TcpTimedCbAcceptor
-                          // ========================
+                         // ========================
+                         // class TcpTimedCbAcceptor
+                         // ========================
 
 class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
     // This class implements a 'btesc'-style timed callback-based channel
@@ -399,9 +399,9 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
 
     int                 d_isInvalidFlag;   // set if acceptor is invalid
 
-    bdlf::Function<void (*)()>
+    bsl::function<void()>
                         d_acceptFunctor;   // cached callbacks
-    bdlf::Function<void (*)()>
+    bsl::function<void()>
                         d_timeoutFunctor;
 
     void               *d_timerId;         // registration id from socket event
@@ -478,7 +478,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // Initiate a non-blocking operation to allocate a callback channel;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt the allocation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'callback' will not be invoked).
@@ -501,7 +501,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // Initiate a non-blocking operation to allocate a timed callback
         // channel; execute the specified 'timedCallback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case 'timedCallback' will not be
@@ -581,7 +581,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // interrupt after the specified absolute 'timeout' time is reached;
         // execute the specified 'callback' functor after the allocation
         // operation terminates.  If the optionally specified 'flags'
-        // incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous events"
+        // incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous events"
         // are permitted to interrupt the allocation; by default, such events
         // are ignored.  Return 0 on successful initiation, and a non-zero
         // value otherwise (in which case 'callback' will not be invoked).
@@ -609,7 +609,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
         // channel or interrupt after the specified absolute 'timeout' time is
         // reached; execute the specified 'callback' functor after the
         // allocation operation terminates.  If the optionally specified
-        // 'flags' incorporates 'btesc_Flag::k_ASYNC_INTERRUPT', "asynchronous
+        // 'flags' incorporates 'btlsc::Flag::k_ASYNC_INTERRUPT', "asynchronous
         // events" are permitted to interrupt the allocation; by default, such
         // events are ignored.  Return 0 on successful initiation, and a
         // non-zero value otherwise (in which case the specified
@@ -655,7 +655,7 @@ class TcpTimedCbAcceptor : public btlsc::TimedCbChannelAllocator {
 };
 
 // ----------------------------------------------------------------------------
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ----------------------------------------------------------------------------
 
 inline

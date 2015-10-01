@@ -44,9 +44,9 @@ enum {
     e_SUCCESS       =  0
 };
 
-                          // =======================
-                          // local function allocate
-                          // =======================
+                         // =======================
+                         // local function allocate
+                         // =======================
 
 template <class RESULT>
 inline
@@ -78,7 +78,7 @@ inline
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
         }
-        if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+        if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
             *status = 1;  // Any positive number satisfies the contract.
             factory->deallocate(socket_p);
             return NULL;                                              // RETURN
@@ -94,9 +94,9 @@ namespace btlsos {
 //                             LOCAL DEFINITIONS
 // ============================================================================
 
-                             // ------------------
-                             // class TcpConnector
-                             // ------------------
+                            // ------------------
+                            // class TcpConnector
+                            // ------------------
 
 // CREATORS
 TcpConnector::TcpConnector(
@@ -220,8 +220,8 @@ void TcpConnector::deallocate(btlsc::Channel *channel)
     }
     BSLS_ASSERT(s);
 
+    channel->invalidate();
     d_factory_p->deallocate(s);
-    channel->~Channel();
 
     bsl::vector<btlsc::Channel*>::iterator idx =
                bsl::lower_bound(d_channels.begin(), d_channels.end(), channel);

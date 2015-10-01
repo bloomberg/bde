@@ -6,8 +6,8 @@
 
 #include <bslma_default.h>
 
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -33,7 +33,7 @@ void backoff(int *contentionCount, int backoffLevel)
     int count = ++(*contentionCount);
     if (count > k_MAX_SPIN_LEVEL) {
         *contentionCount = 0;
-        bdlqq::ThreadUtil::yield();  // exhaust time slice
+        bslmt::ThreadUtil::yield();  // exhaust time slice
     }
     else {
         int maxSpin = backoffLevel << count;
@@ -58,7 +58,7 @@ void *ConcurrentFixedPool::allocateNew()
     int   numNodes;
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_nodePoolMutex);
 
         numNodes = d_numNodes;
         if (numNodes == (int)d_nodes.size()) {
@@ -158,7 +158,7 @@ void ConcurrentFixedPool::deallocate(void *address)
 
 void ConcurrentFixedPool::release()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_nodePoolMutex);
 
     d_freeList = 0;
     d_numNodes = 0;
@@ -204,7 +204,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
         int numNodes;
 
         {
-            bdlqq::LockGuard<bdlqq::Mutex> guard(&d_nodePoolMutex);
+            bslmt::LockGuard<bslmt::Mutex> guard(&d_nodePoolMutex);
 
             numNodes = d_numNodes;
             if (numNodes == poolSize) {

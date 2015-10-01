@@ -4,8 +4,8 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlqq_condition.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_condition.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -88,7 +88,7 @@ void aSsErT(int c, const char *s, int i)
 
 #define MTCOUT \
 coutMutex.lock(); \
-{ bsl::cout << bdlqq::ThreadUtil::selfIdAsInt() << ": "
+{ bsl::cout << bslmt::ThreadUtil::selfIdAsInt() << ": "
 
 #define MTCOUT_UNLOCK \
 } \
@@ -104,7 +104,7 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
 typedef bdlma::ConcurrentPoolAllocator Obj;
 
@@ -220,8 +220,8 @@ extern "C" void *my3_down(void *arg)
 //  struct my1_WorkQueue {
 //      // DATA
 //      bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -311,8 +311,8 @@ extern "C" void *my3_down(void *arg)
     struct my1_WorkQueue {
         // DATA
         bsl::list<my1_WorkItem>  d_queue;    // queue of work requests
-        bdlqq::Mutex             d_mx;       // protects the shared queue
-        bdlqq::Condition         d_cv;       // signals existence of new work
+        bslmt::Mutex             d_mx;       // protects the shared queue
+        bslmt::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
       private:
@@ -441,8 +441,8 @@ extern "C" void *my3_down(void *arg)
 //  struct my2_WorkQueue {
 //      // DATA
 //      bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-//      bdlqq::Mutex             d_mx;       // protects the shared queue
-//      bdlqq::Condition         d_cv;       // signals existence of new work
+//      bslmt::Mutex             d_mx;       // protects the shared queue
+//      bslmt::Condition         d_cv;       // signals existence of new work
 //      bslma::Allocator        *d_alloc_p;  // pooled allocator
 //
 //      // CREATORS
@@ -538,8 +538,8 @@ extern "C" void *my3_down(void *arg)
     struct my2_WorkQueue {
         // DATA
         bsl::list<my2_WorkItem>  d_queue;    // queue of work requests
-        bdlqq::Mutex             d_mx;       // protects the shared queue
-        bdlqq::Condition         d_cv;       // signals existence of new work
+        bslmt::Mutex             d_mx;       // protects the shared queue
+        bslmt::Condition         d_cv;       // signals existence of new work
         bslma::Allocator        *d_alloc_p;  // pooled allocator
 
       private:
@@ -668,24 +668,24 @@ int main(int argc, char *argv[])
         bdlma::ConcurrentPoolAllocator poolAlloc;
         my1_WorkQueue queue(&poolAlloc);
 
-        bdlqq::ThreadAttributes attributes;
+        bslmt::ThreadAttributes attributes;
 
-        bdlqq::ThreadUtil::Handle producerHandle;
-        int status = bdlqq::ThreadUtil::create(&producerHandle,
+        bslmt::ThreadUtil::Handle producerHandle;
+        int status = bslmt::ThreadUtil::create(&producerHandle,
                                                attributes,
                                                &my1_producer,
                                                &queue);
         ASSERT(0 == status);
 
-        bdlqq::ThreadUtil::Handle consumerHandle;
-        status = bdlqq::ThreadUtil::create(&consumerHandle,
+        bslmt::ThreadUtil::Handle consumerHandle;
+        status = bslmt::ThreadUtil::create(&consumerHandle,
                                            attributes,
                                            &my1_consumer,
                                            &queue);
         ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(consumerHandle);
+        status = bslmt::ThreadUtil::join(consumerHandle);
         ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(producerHandle);
+        status = bslmt::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
     }
 //..
@@ -696,24 +696,24 @@ int main(int argc, char *argv[])
         bdlma::ConcurrentPoolAllocator poolAlloc(100);
         my2_WorkQueue queue(&poolAlloc);
 
-        bdlqq::ThreadAttributes attributes;
+        bslmt::ThreadAttributes attributes;
 
-        bdlqq::ThreadUtil::Handle producerHandle;
-        int status = bdlqq::ThreadUtil::create(&producerHandle,
+        bslmt::ThreadUtil::Handle producerHandle;
+        int status = bslmt::ThreadUtil::create(&producerHandle,
                                               attributes,
                                               &my2_producer,
                                               &queue);
         ASSERT(0 == status);
 
-        bdlqq::ThreadUtil::Handle consumerHandle;
-        status = bdlqq::ThreadUtil::create(&consumerHandle,
+        bslmt::ThreadUtil::Handle consumerHandle;
+        status = bslmt::ThreadUtil::create(&consumerHandle,
                                           attributes,
                                           &my2_consumer,
                                           &queue);
         ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(consumerHandle);
+        status = bslmt::ThreadUtil::join(consumerHandle);
         ASSERT(0 == status);
-        status = bdlqq::ThreadUtil::join(producerHandle);
+        status = bslmt::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
     }
 //..
@@ -1280,24 +1280,24 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard g(&ta);
             Obj a[NUM_ALLOCATORS];
 
-            bdlqq::ThreadAttributes attributes;
+            bslmt::ThreadAttributes attributes;
 
-            bdlqq::ThreadUtil::Handle upHandle;
-            int status = bdlqq::ThreadUtil::create(&upHandle,
+            bslmt::ThreadUtil::Handle upHandle;
+            int status = bslmt::ThreadUtil::create(&upHandle,
                                                   attributes,
                                                   &my3_up,
                                                   static_cast<void *>(a));
             ASSERT(0 == status);
 
-            bdlqq::ThreadUtil::Handle downHandle;
-            status = bdlqq::ThreadUtil::create(&downHandle,
+            bslmt::ThreadUtil::Handle downHandle;
+            status = bslmt::ThreadUtil::create(&downHandle,
                                               attributes,
                                               &my3_down,
                                               static_cast<void *>(a));
             ASSERT(0 == status);
-            status = bdlqq::ThreadUtil::join(upHandle);
+            status = bslmt::ThreadUtil::join(upHandle);
             ASSERT(0 == status);
-            status = bdlqq::ThreadUtil::join(downHandle);
+            status = bslmt::ThreadUtil::join(downHandle);
             ASSERT(0 == status);
         }
       } break;

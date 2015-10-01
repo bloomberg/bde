@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlcc_objectcatalog_cpp,"$Id$ $CSID$")
 
-#include <bdlqq_barrier.h> // for testing only
+#include <bslmt_barrier.h> // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

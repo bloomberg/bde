@@ -241,4 +241,3 @@
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
-

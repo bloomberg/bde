@@ -16,11 +16,10 @@ namespace btlmt {
                         // --------------------
 
 // CLASS METHODS
-bsl::ostream& ChannelStatus::print(
-                                      bsl::ostream&             stream,
-                                      ChannelStatus::Enum value,
-                                      int                       level,
-                                      int                       spacesPerLevel)
+bsl::ostream& ChannelStatus::print(bsl::ostream&       stream,
+                                   ChannelStatus::Enum value,
+                                   int                 level,
+                                   int                 spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 
@@ -50,6 +49,7 @@ const char *ChannelStatus::toAscii(ChannelStatus::Enum value)
 
 #undef CASE
 }
+
 }  // close package namespace
 
 }  // close enterprise namespace

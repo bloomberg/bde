@@ -6,12 +6,12 @@
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 
 #include <bsl_iostream.h>
 
 #include <bsl_c_stdlib.h>     // atoi
+#include <bsl_functional.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -95,8 +95,8 @@ int monitorSet(btlso::SocketHandle::Handle      *sockets,
     // ready for reading.
 
     for (int i = 0; i < numSockets; ++i) {
-        bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(function,
-                                                                 sockets[i]));
+        bsl::function<void()> callback(bdlf::BindUtil::bind(function,
+                                                            sockets[i]));
 
         const int rc = manager->registerSocketEvent(sockets[i],
                                                     btlso::EventType::e_READ,

@@ -72,7 +72,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {
 
 class Date;
@@ -87,8 +86,8 @@ namespace bbldc {
 
 struct BasicSia30360Neom {
     // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the SIA-30/360-neom
-    // day-count convention.
+    // compute values based on dates according to the SIA-30/360-neom day-count
+    // convention.
 
     // CLASS METHODS
     static int daysDiff(const bdlt::Date& beginDate,

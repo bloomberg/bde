@@ -11,7 +11,7 @@
 #include <bsl_cstring.h>   // memset()
 #include <bsl_cctype.h>    // isgraph()
 #include <bsl_climits.h>   // INT_MIN
-#include <bsl_strstream.h> // ostrstream
+#include <bsl_sstream.h>
 
 #include <stdio.h>
 
@@ -1695,14 +1695,15 @@ DEFINE_TEST_CASE(10)
 //     // text to the specified output stream 'os'.  Return 0 on success, and a
 //     // negative value otherwise.
 //..
-        bsl::istrstream inStream(BLOOMBERG_NEWS, sizeof(BLOOMBERG_NEWS));
-        bsl::strstream  outStream;
-        bsl::strstream  backInStream;
+        bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
+                                                sizeof(BLOOMBERG_NEWS)));
+        bsl::stringstream  outStream;
+        bsl::stringstream  backInStream;
 
         ASSERT(0 == streamEncoder(outStream, inStream));
         ASSERT(0 == streamDecoder(backInStream, outStream));
 
-        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.rdbuf()->str()));
+        ASSERT(0 == strcmp(BLOOMBERG_NEWS, backInStream.str().c_str()));
 }
 
 DEFINE_TEST_CASE(9)
@@ -5322,8 +5323,7 @@ DEFINE_TEST_CASE(1)
         if (verbose) cout << "\nTry '::printCharN' test helper function."
                                                                        << endl;
         {
-            static char buf[100];
-            ostrstream  out(buf, sizeof buf);
+            ostringstream out;
 
             const char in[] = "a" "\x00" "b" "\x07" "c" "\x08" "d" "\x0F"
                               "e" "\x10" "f" "\x80" "g" "\xFF";
@@ -5333,10 +5333,10 @@ DEFINE_TEST_CASE(1)
             const char EXP[] = "a<00>b<07>c<08>d<0F>e<10>f<80>g<FF><00>";
 
             if (veryVerbose) {
-                cout << "\tRESULT = " << buf << endl;
+                cout << "\tRESULT = " << out.str().c_str() << endl;
                 cout << "\tEXPECT = " << EXP << endl;
             }
-            ASSERT(0 == strncmp(EXP, buf, sizeof EXP));
+            ASSERT(0 == strncmp(EXP, out.str().c_str(), sizeof EXP));
         }
 
         if (verbose) cout << "\nTry instantiating a decoder." << endl;

@@ -10,14 +10,13 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <btlb_blobutil.h>
 #include <btlb_pooledblobbufferfactory.h>
 #include <bdlma_concurrentpoolallocator.h>
-#include <bdlqq_lockguard.h>
+#include <bslmt_lockguard.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -26,9 +25,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
+#include <bsl_functional.h>
+
 namespace BloombergLP {
 
 namespace btlmt {
+
                        // ------------------------
                        // class ChannelPoolChannel
                        // ------------------------
@@ -80,8 +82,7 @@ void ChannelPoolChannel::registerTimeoutAndUpdateClockId(
 
     ReadQueue::iterator entryIter = d_readQueue.end();
     --entryIter;
-    bdlf::Function<void (*)()> timeoutCallback(
-           bdlf::BindUtil::bind(
+    bsl::function<void()> timeoutCallback(bdlf::BindUtil::bind(
                   bdlf::MemFnUtil::memFn(&ChannelPoolChannel::timeoutCb, this),
                   entryIter));
 
@@ -103,13 +104,14 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 
     d_readQueue.pop_front();
 
-    bdlqq::LockGuardUnlock<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
 
     d_channelPool_p->deregisterClock(timerId);
 
     if (invokeCallback) {
-        int          dummy;
+        int        dummy;
         btlb::Blob dummyBlob;
+
         callback(cancellationCode, &dummy, &dummyBlob, 0);
     }
 }
@@ -118,7 +120,7 @@ void ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 ChannelPoolChannel::ChannelPoolChannel(
                              int                             channelId,
                              ChannelPool                    *channelPool,
-                             btlb::BlobBufferFactory      *blobBufferFactory,
+                             btlb::BlobBufferFactory        *blobBufferFactory,
                              bdlma::ConcurrentPoolAllocator *spAllocator,
                              bslma::Allocator               *basicAllocator)
 : d_mutex()
@@ -159,7 +161,7 @@ ChannelPoolChannel::~ChannelPoolChannel()
 int ChannelPoolChannel::read(int                          numBytes,
                              const BlobBasedReadCallback& callback)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     return addReadQueueEntry(numBytes, callback, bsls::TimeInterval(0));
 }
@@ -168,22 +170,20 @@ int ChannelPoolChannel::timedRead(int                          numBytes,
                                   const bsls::TimeInterval&    timeOut,
                                   const BlobBasedReadCallback& callback)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     return addReadQueueEntry(numBytes, callback, timeOut);
 }
 
-int ChannelPoolChannel::write(const btlb::Blob& blob,
-                              int                 highWaterMark)
+int ChannelPoolChannel::write(const btlb::Blob& blob, int highWaterMark)
 {
     return d_channelPool_p->write(d_channelId, blob, highWaterMark);
 }
 
 void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    // TBD FIX ME
     // It seems that at this point, 'd_callbackInProgress' must be false.  We
     // need to investigate and remove the if statement if this is true.
 
@@ -202,10 +202,11 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
         BlobBasedReadCallback callback = entryIter->d_readCallback;
         d_readQueue.erase(entryIter);
         {
-            bdlqq::LockGuardUnlock<bdlqq::Mutex> unlockGuard(&d_mutex);
+            bslmt::LockGuardUnlock<bslmt::Mutex> unlockGuard(&d_mutex);
 
             int          dummy = 0;
             btlb::Blob emptyBlob;
+
             callback(AsyncChannel::e_TIMEOUT,
                      &dummy,
                      &emptyBlob,
@@ -214,76 +215,18 @@ void ChannelPoolChannel::timeoutCb(ReadQueue::iterator entryIter)
     }
 }
 
-void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
-{
-    *numNeeded            = 1;
-    int numBytesAvailable = msg->length();
-
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
-    d_callbackInProgress = true;
-
-    while (!d_closed
-        && d_readQueue.size()
-        && (d_readQueue.front().d_numBytesNeeded <= numBytesAvailable
-         || d_readQueue.front().d_progress)) {
-        // Note: 'd_closed' may be set by a read callback within the loop, in
-        // which case do not process further callbacks and exit the loop.
-
-        ReadQueueEntry& entry = d_readQueue.front();
-
-        if (AsyncChannel::e_SUCCESS != entry.d_progress) {
-            removeTopReadEntry(true);
-            continue;
-        }
-
-        int numConsumed = 0;
-        int nNeeded     = 0;
-
-        const BlobBasedReadCallback& callback = entry.d_readCallback;
-        numBytesAvailable = msg->length();
-
-        {
-            bdlqq::LockGuardUnlock<bdlqq::Mutex> guard(&d_mutex);
-            callback(e_SUCCESS, &nNeeded, msg, d_channelId);
-            numConsumed = numBytesAvailable - msg->length();
-        }
-
-        BSLS_ASSERT(0 <= nNeeded);
-        BSLS_ASSERT(0 <= numConsumed);
-
-        numBytesAvailable -= numConsumed;
-
-        if (nNeeded) {
-            entry.d_numBytesNeeded = nNeeded;
-            if (nNeeded <= numBytesAvailable) {
-                continue;
-            }
-
-            *numNeeded = nNeeded - numBytesAvailable;
-        }
-        else {
-            removeTopReadEntry(false);
-            if (!d_readQueue.size()) {
-                d_channelPool_p->disableRead(d_channelId);
-            }
-        }
-    }
-    d_callbackInProgress = false;
-    lock.release()->unlock();
-}
-
 void ChannelPoolChannel::cancelRead()
 {
     const int NUM_ENTRIES = 16;
     const int SIZE        = NUM_ENTRIES * sizeof(ReadQueueEntry);
 
-    char BUFFER[SIZE];
+    char                               BUFFER[SIZE];
     bdlma::BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
 
     ReadQueue cancelQueue(&bufferAllocator);
 
     {
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         if (!d_readQueue.size()) {
             return;                                                   // RETURN
@@ -321,12 +264,12 @@ void ChannelPoolChannel::cancelRead()
         btlb::Blob dummyBlob;
         for (ReadQueue::iterator it = cancelQueue.begin();
              it != cancelQueue.end(); ++it) {
-            bdlf::Function<void (*)()> cancelNotifyCallback(
-                        bdlf::BindUtil::bind(it->d_readCallback,
-                                             AsyncChannel::e_CANCELED,
-                                             &dummy,
-                                             &dummyBlob,
-                                             d_channelId));
+            bsl::function<void()> cancelNotifyCallback(
+                                 bdlf::BindUtil::bind(it->d_readCallback,
+                                                      AsyncChannel::e_CANCELED,
+                                                      &dummy,
+                                                      &dummyBlob,
+                                                      d_channelId));
 
             int rc;
             while (1 == (rc = d_channelPool_p->registerClock(
@@ -337,12 +280,12 @@ void ChannelPoolChannel::cancelRead()
                                                         d_channelId))) {
                 d_nextClockId += 0x01000000;
             }
+
             if (rc) {
-                // The channel was already cleaned up in channel pool
-                // because the connection was closed at the other end.
-                // We assume that this is the event manager's dispatcher
-                // thread and it is safe to invoke the cancel notify
-                // callback from this thread.
+                // The channel was already cleaned up in channel pool because
+                // the connection was closed at the other end.  We assume that
+                // this is the event manager's dispatcher thread and it is safe
+                // to invoke the cancel notify callback from this thread.
 
                 cancelNotifyCallback();
             }
@@ -352,7 +295,7 @@ void ChannelPoolChannel::cancelRead()
 
 void ChannelPoolChannel::close()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
     if (!d_closed) {
         d_closed = true;
@@ -379,6 +322,65 @@ void ChannelPoolChannel::close()
     }
 }
 
+void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
+{
+    *numNeeded            = 1;
+    int numBytesAvailable = msg->length();
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    d_callbackInProgress = true;
+
+    while (!d_closed
+        && d_readQueue.size()
+        && (d_readQueue.front().d_numBytesNeeded <= numBytesAvailable
+         || d_readQueue.front().d_progress)) {
+        // Note: 'd_closed' may be set by a read callback within the loop, in
+        // which case do not process further callbacks and exit the loop.
+
+        ReadQueueEntry& entry = d_readQueue.front();
+
+        if (AsyncChannel::e_SUCCESS != entry.d_progress) {
+            removeTopReadEntry(true);
+            continue;
+        }
+
+        int numConsumed = 0;
+        int nNeeded     = 0;
+
+        const BlobBasedReadCallback& callback = entry.d_readCallback;
+        numBytesAvailable = msg->length();
+
+        {
+            bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
+            callback(e_SUCCESS, &nNeeded, msg, d_channelId);
+            numConsumed = numBytesAvailable - msg->length();
+        }
+
+        BSLS_ASSERT(0 <= nNeeded);
+        BSLS_ASSERT(0 <= numConsumed);
+
+        numBytesAvailable -= numConsumed;
+
+        if (nNeeded) {
+            entry.d_numBytesNeeded = nNeeded;
+            if (nNeeded <= numBytesAvailable) {
+                continue;
+            }
+
+            *numNeeded = nNeeded - numBytesAvailable;
+        }
+        else {
+            removeTopReadEntry(false);
+            if (!d_readQueue.size()) {
+                d_channelPool_p->disableRead(d_channelId);
+            }
+        }
+    }
+    d_callbackInProgress = false;
+    lock.release()->unlock();
+}
+
+// ACCESSORS
 btlso::IPv4Address ChannelPoolChannel::localAddress() const
 {
     return d_localAddress;

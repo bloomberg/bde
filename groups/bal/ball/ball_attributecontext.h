@@ -290,8 +290,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_ruleset.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -508,7 +508,7 @@ class AttributeContext {
     AttributeContext& operator=(const AttributeContext& );
 
     // PRIVATE CLASS METHODS
-    static const bdlqq::ThreadUtil::Key& contextKey();
+    static const bslmt::ThreadUtil::Key& contextKey();
         // Return a reference to the non-modifiable singleton key for the
         // thread local storage in which the 'AttributeContext' objects are
         // stored.  This method will create the key on the first invocation;

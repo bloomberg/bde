@@ -10,12 +10,12 @@
 #include <bslma_testallocator.h>
 #include <bdlt_currenttime.h>
 #include <bsls_timeinterval.h>
-#include <bdlqq_threadutil.h>
-#include <bdlf_function.h>
+#include <bslmt_threadutil.h>
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 #include <bsls_platform.h>
 #include <bsl_fstream.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_c_stdio.h>
 #include <bsl_c_stdlib.h>
@@ -404,7 +404,7 @@ int main(int argc, char *argv[]) {
                              socket, btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        bdlf::Function<void (*)()> deregisterCallback(
+        bsl::function<void()> deregisterCallback(
                 bdlf::MemFnUtil::memFn(&Obj::deregisterAll, &mX));
 
         ASSERT(0 == mX.registerSocketEvent(socket[0],
@@ -458,7 +458,7 @@ int main(int argc, char *argv[]) {
         // There seems to be a ~20ms latency between creation of a socket and
         // when it really starts working properly on HPUX.
 
-        bdlqq::ThreadUtil::microSleep(40 * 1000);
+        bslmt::ThreadUtil::microSleep(40 * 1000);
 #endif
 
         for (int i = 0; i < NUM_PAIRS; i++) {
@@ -758,6 +758,7 @@ int main(int argc, char *argv[]) {
       case 9: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
+        //
         // Concern:
         //   o  Deregistration from a callback of the same socket is handled
         //      correctly
@@ -765,10 +766,11 @@ int main(int argc, char *argv[]) {
         //      correctly
         //   o  Deregistration from a callback of one of the _previous_
         //      sockets and subsequent registration is handled correctly -
-        //      see DRQS 8124027
+        //
         // Plan:
         //   Create custom set of scripts for each concern and exercise them
         //   using 'btlso::EventManagerTester'.
+        //
         // Testing:
         //   int deregisterSocket();
         // -----------------------------------------------------------------
@@ -871,7 +873,7 @@ int main(int argc, char *argv[]) {
                 // case 12 in btlso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bdlqq::ThreadUtil::microSleep(40 * 1000);
+                bslmt::ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 Obj mX(&timeMetric, &testAllocator);
@@ -968,7 +970,7 @@ int main(int argc, char *argv[]) {
                 // case 12 in btlso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bdlqq::ThreadUtil::microSleep(40 * 1000);
+                bslmt::ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 const int NUM_PAIR =
@@ -1017,7 +1019,7 @@ int main(int argc, char *argv[]) {
                  << endl;
         {
             btlso::EventManagerTestPair socketPair;
-            bdlf::Function<void (*)()> nullFunctor;
+            bsl::function<void()> nullFunctor;
             const int NUM_ATTEMPTS = 10 * 1000;
             for (int i = 0; i < NUM_ATTEMPTS; i += 11) {
                 Obj mX(&timeMetric, &testAllocator);
@@ -1109,7 +1111,7 @@ int main(int argc, char *argv[]) {
             enum { NUM_DEREGISTERS = 70000 };
             Obj mX;
 
-            bdlf::Function<void (*)()> cb(&assertCb);
+            bsl::function<void()> cb(&assertCb);
 
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -1204,7 +1206,7 @@ int main(int argc, char *argv[]) {
             enum { NUM_DEREGISTERS = 70000 };
             Obj mX;
 
-            bdlf::Function<void (*)()> cb(&assertCb);
+            bsl::function<void()> cb(&assertCb);
 
             for (int i = 0; i < NUM_DEREGISTERS; ++i) {
                 int fd = socket(PF_INET, SOCK_STREAM, 0);
@@ -1564,7 +1566,7 @@ int main(int argc, char *argv[]) {
             // There seems to be a ~20ms latency between creation of a socket
             // and when it really starts working properly on HPUX.
 
-            bdlqq::ThreadUtil::microSleep(40 * 1000);
+            bslmt::ThreadUtil::microSleep(40 * 1000);
 #endif
 
             for (int j = 0; j < NUM_PAIR; j++) {

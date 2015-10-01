@@ -4,10 +4,10 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_timeinterval.h>
 #include <bdlt_currenttime.h>
@@ -18,7 +18,6 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
@@ -28,6 +27,7 @@
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
@@ -51,14 +51,14 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // 'bdlmt_multiqueuethreadpool' private interface
 // MANIPULATORS
-// [ 2] void deleteQueueCb(int id, const bdlf::Function<void (*)()>&
+// [ 2] void deleteQueueCb(int id, const bsl::function<void()>&
 //                                                             cleanupFunctor);
 // [ 2] void processQueueCb(int id);
 //
 // 'bdlmt_multiqueuethreadpool' public interface
 // CREATORS
 // [ 2] bdlmt::MultiQueueThreadPool(
-//                         const bdlqq::ThreadAttributes&  threadAttributes,
+//                         const bslmt::ThreadAttributes&  threadAttributes,
 //                         int                             minThreads,
 //                         int                             maxThreads,
 //                         int                             maxIdleTime,
@@ -69,9 +69,9 @@ using namespace BloombergLP;
 //
 // MANIPULATORS
 // [ 2] int createQueue();
-// [ 2] int deleteQueue(int id, const bdlf::Function<void (*)()>&
+// [ 2] int deleteQueue(int id, const bsl::function<void()>&
 //                                                             cleanupFunctor);
-// [ 2] int enqueueJob(int id, const bdlf::Function<void (*)()>& functor);
+// [ 2] int enqueueJob(int id, const bsl::function<void()>& functor);
 // [ 6] int enableQueue(int id);
 // [ 6] int disableQueue(int id);
 // [ 2] void start();
@@ -142,7 +142,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // The following macros facilitate thread-safe streaming to standard output.
 
-#define MTCOUT   coutMutex.lock(); { bsl::cout << bdlqq::ThreadUtil::self() \
+#define MTCOUT   coutMutex.lock(); { bsl::cout << bslmt::ThreadUtil::self() \
                                                << ": "
 #define MTENDL   bsl::endl;  } coutMutex.unlock()
 #define MTFLUSH  bsl::flush; } coutMutex.unlock()
@@ -152,13 +152,13 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 typedef bdlmt::MultiQueueThreadPool Obj;
 
-typedef bdlf::Function<void (*)()> Func;
+typedef bsl::function<void()> Func;
 
 static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
 // windows tends to sleep slightly less time than requested
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -173,91 +173,71 @@ static bdlqq::Mutex coutMutex;
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-void makeFunc(bdlf::Function<void (*)()> * f, void (*fptr)()) {
+void makeFunc(Func *f, void (*fptr)()) {
     *f = fptr;
 }
 
-void makeFunc(bslma::Allocator           *a,
-              bdlf::Function<void (*)()> *f,
-              void (                     *fptr)())
+void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)())
 {
-    *f = bdlf::Function<void (*)()>(fptr, a);
+    *f = Func(bsl::allocator_arg_t(), bsl::allocator<Func>(a), fptr);
 }
 
 template <class A1>
-void makeFunc(bdlf::Function<void (*)()> *f, void (*fptr)(A1), A1 a1)
+void makeFunc(Func *f, void (*fptr)(A1), A1 a1)
 {
     *f = bdlf::BindUtil::bind(fptr, a1);
 }
 
 template <class A1>
-void makeFunc(bslma::Allocator           *a,
-              bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1),
-              A1                          a1)
+void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)(A1), A1 a1)
 {
     *f = bdlf::BindUtil::bindA(a, fptr, a1);
 }
 
 template <class A1, class A2>
-void makeFunc(bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2),
-              A1                          a1,
-              A2                          a2)
+void makeFunc(Func *f, void (*fptr)(A1, A2), A1 a1, A2 a2)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2);
 }
 
 template <class A1, class A2>
-void makeFunc(bslma::Allocator           *a,
-              bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2),
-              A1                          a1,
-              A2                          a2)
+void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)(A1, A2), A1 a1, A2 a2)
 {
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2);
 }
 
 template <class A1, class A2, class A3>
-void makeFunc(bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2, A3),
-              A1                          a1,
-              A2                          a2,
-              A3                          a3)
+void makeFunc(Func *f, void (*fptr)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3);
 }
 
 template <class A1, class A2, class A3>
-void makeFunc(bslma::Allocator           *a,
-              bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2, A3),
-              A1                          a1,
-              A2                          a2,
-              A3                          a3)
+void makeFunc(bslma::Allocator *a,
+              Func             *f,
+              void (           *fptr)(A1, A2, A3),
+              A1                a1,
+              A2                a2,
+              A3                a3)
 {
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3);
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeFunc(bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2, A3, A4),
-              A1                          a1,
-              A2                          a2,
-              A3                          a3,
-              A4                          a4)
+void makeFunc(Func  *f,
+              void (*fptr)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3, a4);
 }
 
 template <class A1, class A2, class A3, class A4>
-void makeFunc(bslma::Allocator           *a,
-              bdlf::Function<void (*)()> *f,
-              void (                     *fptr)(A1, A2, A3, A4),
-              A1                          a1,
-              A2                          a2,
-              A3                          a3,
-              A4                          a4)
+void makeFunc(bslma::Allocator *a,
+              Func             *f,
+              void (           *fptr)(A1, A2, A3, A4),
+              A1                a1,
+              A2                a2,
+              A3                a3,
+              A4                a4)
 {
     *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3, a4);
 }
@@ -275,7 +255,7 @@ void incrementCounter(bsls::AtomicInt *counter)
 }
 
 static
-void waitOnBarrier(bdlqq::Barrier *barrier, int numIterations)
+void waitOnBarrier(bslmt::Barrier *barrier, int numIterations)
 {
     // Wait on the specified 'barrier' for 'numIterations' iterations.
 
@@ -296,7 +276,7 @@ struct Sleeper {
     }
 
     void operator()() {
-        bdlqq::ThreadUtil::microSleep(d_sleepMicroSeconds);
+        bslmt::ThreadUtil::microSleep(d_sleepMicroSeconds);
         ++s_finished;
     }
 };
@@ -322,7 +302,7 @@ struct Reproducer {
     {
         enum { SLEEP_HARDLY_TIME = 10 * 1000 };         // 0.01 sec
 
-        bdlqq::ThreadUtil::microSleep(SLEEP_HARDLY_TIME);
+        bslmt::ThreadUtil::microSleep(SLEEP_HARDLY_TIME);
         d_handleIdx += d_handleIdxIncrement;
         d_handleIdx %= d_handles->size();
         if (s_counter > 0) {
@@ -350,7 +330,7 @@ void case9Callback(bsls::AtomicInt *counter, bsl::vector<int> *results)
 }
 
 static
-void case11CleanUp(bsls::AtomicInt *counter, bdlqq::Barrier *barrier) {
+void case11CleanUp(bsls::AtomicInt *counter, bslmt::Barrier *barrier) {
     BSLS_ASSERT(barrier);
     BSLS_ASSERT(counter);
     barrier->wait();
@@ -359,10 +339,10 @@ void case11CleanUp(bsls::AtomicInt *counter, bdlqq::Barrier *barrier) {
 }
 
 static
-void case12EnqueueJob(bdlmt::MultiQueueThreadPool       *mqtp,
-                      int                                id,
-                      const bdlf::Function<void (*)()>&  job,
-                      bdlqq::Barrier                    *barrier)
+void case12EnqueueJob(bdlmt::MultiQueueThreadPool *mqtp,
+                      int                          id,
+                      const Func&                  job,
+                      bslmt::Barrier              *barrier)
 {
     // Enqueue the specified 'job' to the queue with the specified 'id' managed
     // by the 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp'.
@@ -379,10 +359,10 @@ void case12EnqueueJob(bdlmt::MultiQueueThreadPool       *mqtp,
 }
 
 static
-void case12DeleteQueue(bdlmt::MultiQueueThreadPool       *mqtp,
-                       int                                id,
-                       const bdlf::Function<void (*)()>&  cleanupCb,
-                       bdlqq::Barrier                    *barrier)
+void case12DeleteQueue(bdlmt::MultiQueueThreadPool *mqtp,
+                       int                          id,
+                       const Func&                  cleanupCb,
+                       bslmt::Barrier              *barrier)
 {
     // Delete the queue identified by 'id' from the
     // 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp' with the specified
@@ -549,7 +529,7 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
         MAX_IDLE    = 100   // use a very short idle time since new jobs
                             // arrive only at startup
     };
-    bdlqq::ThreadAttributes     defaultAttrs;
+    bslmt::ThreadAttributes     defaultAttrs;
     bdlmt::MultiQueueThreadPool pool(defaultAttrs,
                                      MIN_THREADS,
                                      MAX_THREADS,
@@ -596,7 +576,7 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
             const bsl::string& file = *it;
             const bsl::string& word = *jt;
             RegistryValue&     rv   = profileRegistry[word];
-            Func        job;
+            Func               job;
             makeFunc(&job, my_SearchCb, rv.second, file.c_str());
             int rc = pool.enqueueJob(rv.first, job);
             LOOP_ASSERT(word, 0 == rc);
@@ -673,7 +653,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         MAX_THREADS = NUM_QUEUES + 1,
         MAX_IDLE    = 60000    // milliseconds
     };
-    bdlqq::ThreadAttributes defaultAttrs;
+    bslmt::ThreadAttributes defaultAttrs;
 
     int queueIds[NUM_QUEUES];
 
@@ -940,7 +920,7 @@ int main(int argc, char *argv[]) {
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        bdlqq::ThreadAttributes threadAttrs;
+        bslmt::ThreadAttributes threadAttrs;
         threadAttrs.setStackSize(1 << 20);      // one megabyte
         bdlmt::MultiQueueThreadPool tp(threadAttrs, 1, 1, 1000*1000, &ta);
         ASSERT(0 == tp.start());
@@ -993,7 +973,7 @@ int main(int argc, char *argv[]) {
             MAX_THREADS = NUM_QUEUES + 1,
             MAX_IDLE    = 60000    // milliseconds
         };
-        bdlqq::ThreadAttributes defaultAttrs;
+        bslmt::ThreadAttributes defaultAttrs;
 
         // first do 'drainQueue()' case
         {
@@ -1176,7 +1156,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = NUM_QUEUES + 1,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -1190,11 +1170,11 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose)
                     cout << "Iteration " << i << "\n";
                 ASSERT(0 == mX.start());
-                int QUEUE_IDS[NUM_QUEUES];
+                int  QUEUE_IDS[NUM_QUEUES];
                 Func QUEUE_NOOP[NUM_QUEUES];
 
-                bdlqq::Barrier barrier(1+NUM_QUEUES);
-                Func block;  // blocks on barrier
+                bslmt::Barrier barrier(1+NUM_QUEUES);
+                Func           block;  // blocks on barrier
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
 
                 for (int j = 0; j < NUM_QUEUES; ++j) {
@@ -1294,13 +1274,13 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 2,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
 
             bsls::AtomicInt counter(0);
-            Func count;        // increment 'counter'
+            Func            count;        // increment 'counter'
             makeFunc(&ta, &count, incrementCounter, &counter);
 
             ASSERT(0 == mX.start());
@@ -1313,12 +1293,12 @@ int main(int argc, char *argv[]) {
                 cout << "\tCreated queues " << id1 << " and " << id2 << endl;
             }
 
-            Func   cleanupCb;
-            bdlqq::Barrier barrier(2);
+            Func           cleanupCb;
+            bslmt::Barrier barrier(2);
             makeFunc<bdlmt::MultiQueueThreadPool *,
                      int,
-                     const bdlf::Function<void (*)()> &,
-                     bdlqq::Barrier *>(&ta,
+                     const Func&,
+                     bslmt::Barrier *>(&ta,
                                        &cleanupCb,
                                        case12EnqueueJob,
                                        &mX,
@@ -1341,8 +1321,8 @@ int main(int argc, char *argv[]) {
             ASSERT(2 == X.numQueues());  // id2 and id3
             makeFunc<bdlmt::MultiQueueThreadPool *,
                      int,
-                     const bdlf::Function<void (*)()> &,
-                     bdlqq::Barrier *>(&ta,
+                     const Func&,
+                     bslmt::Barrier *>(&ta,
                                        &cleanupCb,
                                        case12DeleteQueue,
                                        &mX,
@@ -1357,8 +1337,8 @@ int main(int argc, char *argv[]) {
             barrier.wait();
 
             while (2 != counter) {         // SPIN
-                bdlqq::ThreadUtil::microSleep(250000); // trigger thread switch
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(250000); // trigger thread switch
+                bslmt::ThreadUtil::yield();
             }
             ASSERT(0 == mX.numQueues());
         }
@@ -1397,14 +1377,14 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 1,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
 
             int id = 0;
             bsls::AtomicInt counter(0);
-            Func cleanupCb;
-            bdlqq::Barrier barrier(2);
+            Func            cleanupCb;
+            bslmt::Barrier  barrier(2);
             makeFunc(&ta, &cleanupCb, case11CleanUp, &counter, &barrier);
 
             enum { NUM_ITERATIONS = 500 };
@@ -1459,7 +1439,7 @@ int main(int argc, char *argv[]) {
             MAX_IDLE = 60000    // milliseconds
         };
 
-        bdlmt::ThreadPool tp(bdlqq::ThreadAttributes(),
+        bdlmt::ThreadPool tp(bslmt::ThreadAttributes(),
                              MIN_THREADS,
                              MAX_THREADS,
                              MAX_IDLE,
@@ -1652,7 +1632,7 @@ int main(int argc, char *argv[]) {
                 const int NUM_QUEUES  = DATA[i].d_numQueues;
                 const int NUM_JOBS    = DATA[i].d_numJobs;
                 const int MAX_IDLE    = 1000;  // milliseconds
-                bdlqq::ThreadAttributes defaultAttrs;
+                bslmt::ThreadAttributes defaultAttrs;
 
                 Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
                 const Obj& X = mX;
@@ -1751,12 +1731,12 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
-            bdlqq::Barrier   barrier(2);
+            bslmt::ThreadAttributes defaultAttrs;
+            bslmt::Barrier   barrier(2);
             bsls::AtomicInt  counter(0);
-            Func     cleanupCb;  // empty callback
-            Func     block;      // blocks on 'barrier'
-            Func     count;      // increments 'counter'
+            Func             cleanupCb;  // empty callback
+            Func             block;      // blocks on 'barrier'
+            Func             count;      // increments 'counter'
             makeFunc(&ta, &cleanupCb, waitOnBarrier, &barrier, 1);
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
             makeFunc(&ta, &count, incrementCounter, &counter);
@@ -1776,8 +1756,8 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.enqueueJob(id, count));
             ASSERT(0 == mX.enqueueJob(id, count));
             while (5 != X.numElements(id)) {
-                bdlqq::ThreadUtil::microSleep(250000); // trigger thread switch
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(250000); // trigger thread switch
+                bslmt::ThreadUtil::yield();
             }
             ASSERT(5 == X.numElements(id));
             ASSERT(0 == counter);
@@ -1843,7 +1823,7 @@ int main(int argc, char *argv[]) {
                 IDLE        = 1000,    // milliseconds
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
             bdlmt::ThreadPool       pool(defaultAttrs,
                                          MIN_THREADS,
                                          MAX_THREADS,
@@ -1886,10 +1866,10 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == pool.numActiveThreads());
                 ASSERT(MIN_THREADS == pool.numWaitingThreads());
 
-                bdlqq::Barrier  barrier(2);
+                bslmt::Barrier  barrier(2);
                 bsls::AtomicInt counter(0);
-                Func    block;      // blocks on 'barrier'
-                Func    count;      // increments 'counter'
+                Func            block;      // blocks on 'barrier'
+                Func            count;      // increments 'counter'
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
                 makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -1918,14 +1898,14 @@ int main(int argc, char *argv[]) {
                 // this test, only assert '1 >= tp.numActiveThreads()' when all
                 // else has been exhausted.
 
-                bdlqq::ThreadUtil::microSleep(IDLE);
-                bdlqq::ThreadUtil::yield();
+                bslmt::ThreadUtil::microSleep(IDLE);
+                bslmt::ThreadUtil::yield();
                 if (1 < tp.numActiveThreads()) {
                     cout << "WARNING: Long delay in case 7 (still "
                          << tp.numActiveThreads() << " threads active)"
                          << endl;
-                    bdlqq::ThreadUtil::microSleep(IDLE);
-                    bdlqq::ThreadUtil::yield();
+                    bslmt::ThreadUtil::microSleep(IDLE);
+                    bslmt::ThreadUtil::yield();
                 }
 
                 LOOP_ASSERT(tp.numActiveThreads(),
@@ -2011,12 +1991,12 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 3,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
-            bdlqq::Barrier   barrier(2);
+            bslmt::Barrier   barrier(2);
             bsls::AtomicInt  counter(0);
-            Func     block;      // blocks on 'barrier'
-            Func     count;      // increments 'counter'
+            Func             block;      // blocks on 'barrier'
+            Func             count;      // increments 'counter'
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
             makeFunc(&ta, &count, incrementCounter, &counter);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
@@ -2035,7 +2015,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == X.numElements(id));
             ASSERT(0 == mX.deleteQueue(id));
             while (0 < X.numQueues()) {
-                bdlqq::ThreadUtil::yield();           // SPIN
+                bslmt::ThreadUtil::yield();           // SPIN
             }
             ASSERT(0 == X.numQueues());
             ASSERT(0 != mX.disableQueue(id));
@@ -2075,11 +2055,11 @@ int main(int argc, char *argv[]) {
 
             ASSERT(0 == mX.disableQueue(id));
             while (0 < X.numElements(id)) {
-                bdlqq::ThreadUtil::yield();           // SPIN
+                bslmt::ThreadUtil::yield();           // SPIN
             }
             ASSERT(0 == mX.deleteQueue(id));
             while (0 < X.numQueues()) {
-                bdlqq::ThreadUtil::yield();           // SPIN
+                bslmt::ThreadUtil::yield();           // SPIN
             }
             ASSERT(0 == X.numQueues());
             ASSERT(8 == counter);
@@ -2145,10 +2125,10 @@ int main(int argc, char *argv[]) {
                 MAX_IDLE    = 60000,    // milliseconds
                 MAX_QUEUES  = 16        // total number of queues to create
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
-            bdlqq::Barrier   barrier(1 + MAX_QUEUES);
-            Func     block;      // blocks on 'barrier'
+            bslmt::Barrier   barrier(1 + MAX_QUEUES);
+            Func             block;      // blocks on 'barrier'
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -2289,16 +2269,16 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   bdlmt::MultiQueueThreadPool(
-        //                 const bdlqq::ThreadAttributes&  threadAttributes,
+        //                 const bslmt::ThreadAttributes&  threadAttributes,
         //                 int                             minThreads,
         //                 int                             maxThreads,
         //                 int                             maxIdleTime,
         //                 bslma::Allocator               *basicAllocator = 0);
         //   ~bdlmt::MultiQueueThreadPool();
         //   int createQueue();
-        //   int deleteQueue(int id, const bdlf::Function<void (*)()>&
+        //   int deleteQueue(int id, const bsl::function<void()>&
         //                                                     cleanupFunctor);
-        //   int enqueueJob(int id, const bdlf::Function<void (*)()>& functor);
+        //   int enqueueJob(int id, const bsl::function<void()>& functor);
         //   void start();
         //   void stop();
         //   void shutdown();
@@ -2320,7 +2300,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -2334,7 +2314,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == tp.numWaitingThreads());
             ASSERT(0 == X.numQueues());
 
-            int         id = 0;
+            int  id = 0;
             Func cleanupCb;  // do nothing
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2374,8 +2354,8 @@ int main(int argc, char *argv[]) {
                      << endl;
             }
             {
-                bdlqq::Barrier barrier(2);
-                Func   block;
+                bslmt::Barrier barrier(2);
+                Func           block;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
 
                 id = 0;
@@ -2417,8 +2397,9 @@ int main(int argc, char *argv[]) {
             }
             {
                 counter = 0;
-                bdlqq::Barrier barrier(2);
-                Func   block, count;
+                bslmt::Barrier barrier(2);
+                Func           block;
+                Func           count;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
                 makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -2462,8 +2443,8 @@ int main(int argc, char *argv[]) {
                 ASSERT(1 == X.numQueues());
                 ASSERT(0 == X.numElements(id));
 
-                bdlqq::Barrier barrier(2);
-                Func   block;
+                bslmt::Barrier barrier(2);
+                Func           block;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
 
                 ASSERT(0 == mX.enqueueJob(id, block));
@@ -2484,8 +2465,9 @@ int main(int argc, char *argv[]) {
             }
             {
                 counter = 0;
-                bdlqq::Barrier barrier(2);
-                Func   block, count;
+                bslmt::Barrier barrier(2);
+                Func           block;
+                Func           count;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
                 makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -2529,8 +2511,8 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numQueues());
                 ASSERT(-1 == X.numElements(id));
 
-                bdlqq::Barrier barrier(2);
-                Func   block;
+                bslmt::Barrier barrier(2);
+                Func           block;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
 
                 id = mX.createQueue();
@@ -2554,8 +2536,9 @@ int main(int argc, char *argv[]) {
             }
             {
                 counter = 0;
-                bdlqq::Barrier barrier(2);
-                Func   block, count;
+                bslmt::Barrier barrier(2);
+                Func           block;
+                Func           count;
                 makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
                 makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -2611,7 +2594,7 @@ int main(int argc, char *argv[]) {
                 MAX_THREADS = 4,
                 MAX_IDLE    = 60000    // milliseconds
             };
-            bdlqq::ThreadAttributes defaultAttrs;
+            bslmt::ThreadAttributes defaultAttrs;
 
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
@@ -2640,10 +2623,10 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == tp.numActiveThreads());
             ASSERT(MIN_THREADS == tp.numWaitingThreads());
 
-            bdlqq::Barrier  barrier(2);
+            bslmt::Barrier  barrier(2);
             bsls::AtomicInt counter(0);
-            Func    block;      // blocks on 'barrier'
-            Func    count;      // increments 'counter'
+            Func            block;      // blocks on 'barrier'
+            Func            count;      // increments 'counter'
             makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
             makeFunc(&ta, &count, incrementCounter, &counter);
 
@@ -2711,7 +2694,7 @@ int main(int argc, char *argv[]) {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         // Only test on 32 bit, so we can easily exhaust the address space.
 
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
         attr.setStackSize(bsl::numeric_limits<int>::max());
 
         bslma::TestAllocator ta(veryVeryVerbose);

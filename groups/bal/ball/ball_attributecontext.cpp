@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(ball_attributecontext_cpp,"$Id$ $CSID$")
 #include <ball_categorymanager.h>
 
 #include <bdlma_concurrentpool.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_once.h>
-#include <bdlqq_threadlocalvariable.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_once.h>
+#include <bslmt_threadlocalvariable.h>
 
 #include <bdlb_print.h>
 #include <bdlb_bitutil.h>
@@ -115,15 +115,15 @@ AttributeContext_RuleEvaluationCache::print(
 // CREATORS
 AttributeContextProctor::~AttributeContextProctor()
 {
-    const bdlqq::ThreadUtil::Key& contextKey =
+    const bslmt::ThreadUtil::Key& contextKey =
                                            AttributeContext::contextKey();
 
     AttributeContext *context = (AttributeContext*)
-                                  bdlqq::ThreadUtil::getSpecific(contextKey);
+                                  bslmt::ThreadUtil::getSpecific(contextKey);
 
     if (context) {
         AttributeContext::removeContext(context);
-        bdlqq::ThreadUtil::setSpecific(contextKey, 0);
+        bslmt::ThreadUtil::setSpecific(contextKey, 0);
     }
 }
 }  // close package namespace
@@ -135,12 +135,12 @@ AttributeContextProctor::~AttributeContextProctor()
 namespace {
 
 // Define a thread-local variable, 'g_threadLocalContext', (on supported
-// platforms) that will serve as cache for 'bdlqq::ThreadUtil::getSpecific'.
-// Note that the memory will still be managed by 'bdlqq::ThreadUtil' thread
+// platforms) that will serve as cache for 'bslmt::ThreadUtil::getSpecific'.
+// Note that the memory will still be managed by 'bslmt::ThreadUtil' thread
 // specific storage.
 
-#ifdef BCES_THREAD_LOCAL_VARIABLE
-BCES_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
+BSLMT_THREAD_LOCAL_VARIABLE(ball::AttributeContext*, g_threadLocalContext, 0);
 #endif
 
 }  // close unnamed namespace
@@ -164,12 +164,12 @@ AttributeContext::~AttributeContext()
 }
 
 // PRIVATE CLASS METHODS
-const bdlqq::ThreadUtil::Key& AttributeContext::contextKey()
+const bslmt::ThreadUtil::Key& AttributeContext::contextKey()
 {
-    static bdlqq::ThreadUtil::Key s_contextKey;
-    BDLQQ_ONCE_DO {
-        bdlqq::ThreadUtil::createKey(&s_contextKey,
-                                    (bdlqq::ThreadUtil::Destructor)
+    static bslmt::ThreadUtil::Key s_contextKey;
+    BSLMT_ONCE_DO {
+        bslmt::ThreadUtil::createKey(&s_contextKey,
+                                    (bslmt::ThreadUtil::Destructor)
                                     AttributeContext::removeContext);
     }
     return s_contextKey;
@@ -178,7 +178,7 @@ const bdlqq::ThreadUtil::Key& AttributeContext::contextKey()
 
 void AttributeContext::removeContext(void *arg)
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
         g_threadLocalContext = 0;
 #endif
 
@@ -213,16 +213,16 @@ AttributeContext::initialize(CategoryManager  *categoryManager,
 
 AttributeContext *AttributeContext::lookupContext()
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
     return g_threadLocalContext;
 #else
-    return (AttributeContext*) bdlqq::ThreadUtil::getSpecific(contextKey());
+    return (AttributeContext*) bslmt::ThreadUtil::getSpecific(contextKey());
 #endif
 }
 
 AttributeContext *AttributeContext::getContext()
 {
-#ifdef BCES_THREAD_LOCAL_VARIABLE
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
     if (g_threadLocalContext) {
         return g_threadLocalContext;                                  // RETURN
     }
@@ -231,7 +231,7 @@ AttributeContext *AttributeContext::getContext()
                           bslma::Default::globalAllocator(s_globalAllocator_p);
     AttributeContext *context =
                             new (*allocator) AttributeContext(allocator);
-    if (0 != bdlqq::ThreadUtil::setSpecific(contextKey(), context)) {
+    if (0 != bslmt::ThreadUtil::setSpecific(contextKey(), context)) {
         bsl::fprintf(stderr,
                      "Failed to add 'AttributeContext' to thread "
                      "specific storage. %s : %d\n",
@@ -242,16 +242,16 @@ AttributeContext *AttributeContext::getContext()
     g_threadLocalContext = context;
     return context;                                                   // RETURN
 #else
-    const bdlqq::ThreadUtil::Key& key = contextKey();
+    const bslmt::ThreadUtil::Key& key = contextKey();
 
     AttributeContext *context =
-        (AttributeContext*)bdlqq::ThreadUtil::getSpecific(key);
+        (AttributeContext*)bslmt::ThreadUtil::getSpecific(key);
 
     if (!context) {
         bslma::Allocator *allocator =
                           bslma::Default::globalAllocator(s_globalAllocator_p);
         context = new (*allocator) AttributeContext(allocator);
-        if (0 != bdlqq::ThreadUtil::setSpecific(key, context)) {
+        if (0 != bslmt::ThreadUtil::setSpecific(key, context)) {
             bsl::fprintf(stderr,
                          "Failed to add 'AttributeContext' to thread "
                          "specific storage. %s:%d\n",
@@ -283,7 +283,7 @@ bool AttributeContext::hasRelevantActiveRules(const Category *category) const
 
     // We lock the mutex to ensure the rules are not modified as we evaluate
     // them.
-    bdlqq::LockGuard<bdlqq::Mutex> ruleGuard(
+    bslmt::LockGuard<bslmt::Mutex> ruleGuard(
                                         &s_categoryManager_p->rulesetMutex());
 
     return relevantRuleMask &
@@ -330,7 +330,7 @@ AttributeContext::determineThresholdLevels(ThresholdAggregate *levels,
     // We obtain the lock because we will need to process the rules.  Note
     // that we must again call the 'isDataAvailable' method in case the rules
     // have been modified since the lock was obtained.
-    bdlqq::LockGuard<bdlqq::Mutex> ruleGuard(
+    bslmt::LockGuard<bslmt::Mutex> ruleGuard(
                                         &s_categoryManager_p->rulesetMutex());
 
     // If the 'isDataAvailable' method returns 'true', the rule data has not

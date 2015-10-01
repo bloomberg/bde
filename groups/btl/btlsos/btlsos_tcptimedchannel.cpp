@@ -38,9 +38,9 @@ enum {
     e_ERROR_UNCLASSIFIED = -3
 };
 
-                       // ==============================
-                       // local function adjustVecBuffer
-                       // ==============================
+                      // ==============================
+                      // local function adjustVecBuffer
+                      // ==============================
 
 template <class VECTYPE>
 inline
@@ -82,12 +82,12 @@ int adjustVecBuffer(const VECTYPE        *buffers,
 namespace btlsos {
 
 // ============================================================================
-//                         END OF LOCAL DEFINITIONS
+//                          END OF LOCAL DEFINITIONS
 // ============================================================================
 
-                           // ---------------------
-                           // class TcpTimedChannel
-                           // ---------------------
+                          // ---------------------
+                          // class TcpTimedChannel
+                          // ---------------------
 
 // PRIVATE MANIPULATORS
 
@@ -186,7 +186,7 @@ int TcpTimedChannel::read(char *buffer, int numBytes, int flags)
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 // Return the total bytes read.
@@ -257,7 +257,7 @@ int TcpTimedChannel::read(int  *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesRead; // Return the total bytes read.  // RETURN
@@ -346,7 +346,7 @@ int TcpTimedChannel::timedRead(char                      *buffer,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 break;
@@ -437,7 +437,7 @@ int TcpTimedChannel::timedRead(int                       *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -529,7 +529,7 @@ int TcpTimedChannel::readv(const btls::Iovec *buffers,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 return numBytesRead;  // Return the total bytes read. // RETURN
             }
@@ -621,7 +621,7 @@ int TcpTimedChannel::readv(int               *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 return numBytesRead;  // Return the total bytes read. // RETURN
@@ -735,7 +735,7 @@ int TcpTimedChannel::timedReadv(const btls::Iovec         *buffers,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 break;
@@ -850,7 +850,7 @@ int TcpTimedChannel::timedReadv(int                       *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -1559,7 +1559,7 @@ int TcpTimedChannel::bufferedRead(const char **buffer, int numBytes, int flags)
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *buffer = 0;       // not returned
                 d_readBufferOffset = numBytesRead;
@@ -1635,7 +1635,7 @@ int TcpTimedChannel::bufferedRead(int         *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 *buffer = 0;
@@ -1733,7 +1733,7 @@ int TcpTimedChannel::timedBufferedRead(const char                **buffer,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 *buffer = 0;
@@ -1837,7 +1837,7 @@ int TcpTimedChannel::timedBufferedRead(int                        *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesRead;
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -2084,7 +2084,7 @@ int TcpTimedChannel::timedBufferedReadRaw(const char                **buffer,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 break;
             }
@@ -2175,7 +2175,7 @@ int TcpTimedChannel::timedBufferedReadRaw(
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 *augStatus = e_ERROR_INTERRUPTED;
                 *buffer = &d_readBuffer.front();
@@ -2225,7 +2225,7 @@ int TcpTimedChannel::write(const char *buffer, int numBytes, int flags)
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 // Return the total bytes written.
@@ -2274,7 +2274,7 @@ int TcpTimedChannel::write(int        *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -2345,7 +2345,7 @@ int TcpTimedChannel::timedWrite(const char                *buffer,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 break;
@@ -2412,7 +2412,7 @@ int TcpTimedChannel::timedWrite(int                       *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -2676,7 +2676,7 @@ int TcpTimedChannel::writev(const btls::Ovec *buffers,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 // Return the total bytes written.
@@ -2740,7 +2740,7 @@ int TcpTimedChannel::writev(const btls::Iovec *buffers,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 // Return the total bytes written.
@@ -2804,7 +2804,7 @@ int TcpTimedChannel::writev(int              *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -2870,7 +2870,7 @@ int TcpTimedChannel::writev(int               *augStatus,
             }
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {
                 // interruptible mode
 
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -2957,7 +2957,7 @@ int TcpTimedChannel::timedWritev(const btls::Ovec          *buffers,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 break;
@@ -3040,7 +3040,7 @@ int TcpTimedChannel::timedWritev(const btls::Iovec         *buffers,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 break;
@@ -3125,7 +3125,7 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 *augStatus = e_ERROR_INTERRUPTED;
@@ -3212,7 +3212,7 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {
-            if (flags & btesc_Flag::k_ASYNC_INTERRUPT) {  // interruptible
+            if (flags & btlsc::Flag::k_ASYNC_INTERRUPT) {  // interruptible
                                                               // mode
                 retValue = numBytesWritten;
                 *augStatus = e_ERROR_INTERRUPTED;

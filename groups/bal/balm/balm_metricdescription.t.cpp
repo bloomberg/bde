@@ -5,17 +5,18 @@
 #include <balm_metricformat.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bslim_testutil.h>
@@ -112,7 +113,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool    d_pool;
-    bdlqq::Barrier           d_barrier;
+    bslmt::Barrier           d_barrier;
     balm::MetricDescription *d_description_p;
     bslma::Allocator       *d_allocator_p;
 
@@ -141,7 +142,7 @@ class ConcurrencyTest {
         // Run the test.
 };
 
-bdlqq::Mutex m;
+bslmt::Mutex m;
 void ConcurrencyTest::execute()
 {
     bslma::Allocator *Z = d_allocator_p;
@@ -196,7 +197,7 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
                                                      d_allocator_p,
                                                      &ConcurrencyTest::execute,
                                                      this);

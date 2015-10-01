@@ -5097,7 +5097,7 @@ int main(int argc, char *argv[])
 
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 In in(OD, i);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
@@ -5164,7 +5164,7 @@ int main(int argc, char *argv[])
 
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 In in(OD, i);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
@@ -5751,7 +5751,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);   const Obj& X = gg(&mX, SPEC1);
 
-                Obj mZZ(&oa);  const Obj& ZZ = gg(&mX, SPEC1);
+                Obj mZZ(&oa);  const Obj& ZZ = gg(&mZZ, SPEC1);
 
                 const Obj& Z = mX;
 

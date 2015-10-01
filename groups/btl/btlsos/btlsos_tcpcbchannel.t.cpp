@@ -12,7 +12,6 @@
 
 #include <btls_iovec.h>
 
-#include <bdlf_function.h>
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -23,14 +22,21 @@
 
 #include <bsls_platform.h>
 
-#include <bsl_c_ctype.h>                        // 'isdigit'
+#include <bsl_c_ctype.h>     // 'isdigit'
 #include <bsl_csignal.h>
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>                       // 'atoi'
+#include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+#include <signal.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -664,16 +670,15 @@ static void writeCallback(int                          status,
     // Callback function for a write request to indicate the execution of a
     // read request and to notify the user if it succeeds, partially completes,
     // fails or needs to issue other requests.
-
 {
-    ASSERT(expStatus == status);
-    ASSERT(augStatus == expAugStatus);
+    LOOP2_ASSERT(expStatus, status, expStatus == status);
+    LOOP2_ASSERT(augStatus, expAugStatus, augStatus == expAugStatus);
 
     if (veryVerbose) {
         P_(status);   P(augStatus);
         P_(expStatus); P(expAugStatus);
-
     }
+
     if (expStatus == status) {
         if (veryVerbose) {
             cout << "The status and expStatus matched." << endl;
@@ -698,7 +703,7 @@ static void writeCallback(int                          status,
                 ASSERT(status > 0);
                 if (veryVerbose) {
                     cout << "Write (efficiently) transmitted " << status
-                         << " of " << status << "bytes." << endl;
+                         << " of " << status << " bytes." << endl;
                 }
             }
         }
@@ -946,13 +951,13 @@ static int gg(btlsos::TcpCbChannel        *channel,
           case 'R': {
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::e_SHUTDOWN_RECEIVE);
+                     btlso::Flag::e_SHUTDOWN_RECEIVE);
               ASSERT(0 == ret);
           } break;
           case 'S':
                                // close receive
               ret = channel->socket()->shutdown(
-                     bteso_Flag::e_SHUTDOWN_SEND);
+                     btlso::Flag::e_SHUTDOWN_SEND);
               ASSERT(0 == ret);
 
               break;
@@ -985,7 +990,7 @@ static int gg(btlsos::TcpCbChannel        *channel,
       case 'r': {
           int readLen, optFlag = 0, second = 0, nanoSec = 0,
               expStatus, expAugStatus;
-          bdlf::Function<void (*)(int, int)> callback;
+          bsl::function<void(int, int)> callback;
 
           switch (*(script+1)) {
             case 'b': {
@@ -1490,7 +1495,7 @@ int main(int argc, char *argv[])
             int optFlag1 = 0;
             char readBuf1[20] = "\0";
 
-            bdlf::Function<void (*)(int, int)> callback1(
+            bsl::function<void(int, int)> callback1(
                    bdlf::BindUtil::bind(&myReadCallback, _1, _2, readLen1, 0));
             // Issue a read request:
             ret = channel.read(readBuf1, readLen1, callback1, optFlag1);
@@ -1504,7 +1509,7 @@ int main(int argc, char *argv[])
             int readLen2 = 9;
             int optFlag2 = 0;
             char readBuf2[20] = "\0";
-            bdlf::Function<void (*)(int, int)> callback2(
+            bsl::function<void(int, int)> callback2(
                    bdlf::BindUtil::bind(&myReadCallback, _1, _2, readLen2, 0));
             // Issue a read request:
             ret = channel.read(readBuf2, readLen2, callback2, optFlag2);
@@ -3527,7 +3532,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvor7,1,16383,0", 0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvor8,1,16383,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvor8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -3614,7 +3619,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_, "wvo7,1,16383,0",  0,       0,      0,       0,  e_OVECTOR,   ""  },
-     { L_, "wvo8,1,16383,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
+     { L_, "wvo8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,   ""  },
      { L_, "dw1",             0,       0,      0,       0,  e_OVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,   ""  }
@@ -4373,7 +4378,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "wvir7,1,16383,0", 0,       0,      0,       0,  e_IOVECTOR,   ""  },
-    { L_, "wvir8,1,16383,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvir8,1,16384,0", 0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "R30000",          0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "dw1",             0,       0,      0,       0,  e_IOVECTOR,   ""  },
     { L_, "R40000",          0,       0,      0,       0,  e_NON_VEC,    ""  },
@@ -4462,7 +4467,7 @@ int main(int argc, char *argv[])
      // length of data during dispatch.
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_, "wvi7,1,16383,0",  0,       0,      0,       0, e_IOVECTOR,   ""  },
-    { L_, "wvi8,1,16383,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
+    { L_, "wvi8,1,16384,0",  0,       1,      1,       1,  e_NON_VEC,    ""  },
     { L_, "R52379",          0,       1,      1,       1,  e_NON_VEC,    ""  },
      { L_, "dw1",             0,       0,      0,       0, e_IOVECTOR,   ""  },
      { L_,  0,                0,       0,      0,       0,  e_NON_VEC,    ""  }
@@ -8317,11 +8322,11 @@ int main(int argc, char *argv[])
                             }
                             else if ('R' == *command) {
                                 memset(readBuf, '\0', sizeof readBuf);
-                                bteso_Flag::BlockingMode bm;
+                                btlso::Flag::BlockingMode bm;
                                 LOOP_ASSERT(LINE, 0 == sSocket->
                                         blockingMode(&bm));
                                 cSocket->setBlockingMode(
-                                        bteso_Flag::e_NONBLOCKING_MODE);
+                                        btlso::Flag::e_NONBLOCKING_MODE);
                                 int toRead = length;
                                 while (toRead > 0) {
                                     ret = cSocket->read(readBuf, toRead);
@@ -8749,10 +8754,10 @@ int main(int argc, char *argv[])
                         }
                         else if ('R' == *command) {
                             memset(readBuf, '\0', sizeof readBuf);
-                            bteso_Flag::BlockingMode bm;
+                            btlso::Flag::BlockingMode bm;
                             LOOP_ASSERT(LINE, 0 == sSocket->blockingMode(&bm));
                             cSocket->setBlockingMode(
-                                    bteso_Flag::e_NONBLOCKING_MODE);
+                                    btlso::Flag::e_NONBLOCKING_MODE);
                             int toRead = length;
                             while (toRead > 0) {
                                 ret = cSocket->read(readBuf, toRead);

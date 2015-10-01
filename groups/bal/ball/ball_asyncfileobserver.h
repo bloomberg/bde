@@ -326,12 +326,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
 #ifndef INCLUDED_BDLT_DATETIMEINTERVAL
@@ -348,6 +344,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_MEMORY
@@ -384,7 +384,7 @@ class AsyncFileObserver : public Observer {
                                                      // method calls to this
                                                      // file observer member
 
-    bdlqq::ThreadUtil::Handle      d_threadHandle;   // handle of asynchronous
+    bslmt::ThreadUtil::Handle      d_threadHandle;   // handle of asynchronous
                                                      // publication thread
 
     bdlcc::FixedQueue<AsyncRecord> d_recordQueue;    // queue transmitting
@@ -405,7 +405,7 @@ class AsyncFileObserver : public Observer {
                                                      // records, reset when
                                                      // published
 
-    bdlf::Function<void (*)()>     d_publishThreadEntryPoint;
+    bsl::function<void()>          d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
                                                      // function
@@ -416,7 +416,7 @@ class AsyncFileObserver : public Observer {
                                                      // count of dropped log
                                                      // records
 
-    mutable bdlqq::Mutex           d_mutex;          // serialize operations
+    mutable bslmt::Mutex           d_mutex;          // serialize operations
 
     bslma::Allocator              *d_allocator_p;    // memory allocator (held,
                                                      // not owned)
@@ -931,7 +931,7 @@ bool AsyncFileObserver::isPublishInLocalTimeEnabled() const
 inline
 bool AsyncFileObserver::isPublicationThreadRunning() const
 {
-    return bdlqq::ThreadUtil::invalidHandle() != d_threadHandle;
+    return bslmt::ThreadUtil::invalidHandle() != d_threadHandle;
 }
 
 inline

@@ -7,10 +7,9 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <ball_log.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 
-#include <bdlqq_writelockguard.h>
+#include <bslmt_writelockguard.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
@@ -380,7 +379,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&stats->d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     ProcStatistics procStats;
     if (0 != readProcStat(&procStats, stats->d_pid)) {
@@ -651,7 +650,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&stats->d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     ProcStatistics procStats;
     if (0 != readProcStat(&procStats, stats->d_pid)) {
@@ -806,7 +805,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&stats->d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     proc_taskinfo ti;
 
@@ -983,7 +982,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&stats->d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     int numThreads;
     double cpuTimeU;
@@ -1514,7 +1513,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 {
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&stats->d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
     bsl::string name  = findModuleName(stats->d_pid);
     int instanceIndex = findInstanceIndexFromPid(d_instanceQuery,
@@ -1658,7 +1657,7 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
 void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
                                                  Measure       measure) const
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
 
     os << bsl::fixed;
     os << bsl::setprecision(2);
@@ -1728,7 +1727,7 @@ void balb::PerformanceMonitor::Statistics::print(
 
 void balb::PerformanceMonitor::Statistics::reset()
 {
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_guard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_guard);
 
     d_numSamples = 0;
 
@@ -1813,7 +1812,7 @@ int PerformanceMonitor::registerPid(int pid, const bsl::string &description)
         return -1;                                                    // RETURN
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     d_pidMap.insert(bsl::make_pair(pid, bsl::make_pair(stats, collector)));
 
     return 0;
@@ -1825,7 +1824,7 @@ int PerformanceMonitor::unregisterPid(int pid)
         pid = currentProcessPid();
     }
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return (1 == d_pidMap.erase(pid)) ? 0 : -1;
 }
 
@@ -1835,7 +1834,7 @@ void PerformanceMonitor::setCollectionInterval(double interval)
 
     BALL_LOG_SET_CATEGORY(LOG_CATEGORY);
 
-    bdlqq::WriteLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
 
     if ((interval <= 0.0) && (d_clock != INVALID_TIMER_HANDLE)) {
         d_scheduler_p->cancelClock(d_clock, false);
@@ -1857,7 +1856,7 @@ void PerformanceMonitor::setCollectionInterval(double interval)
 
 void PerformanceMonitor::collect()
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
 
     for (PidMap::iterator it  = d_pidMap.begin();
                           it != d_pidMap.end();
@@ -1872,7 +1871,7 @@ void PerformanceMonitor::collect()
 
 void PerformanceMonitor::resetStatistics()
 {
-    bdlqq::ReadLockGuard<bdlqq::RWMutex> guard(&d_mapGuard);
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
 
     for (PidMap::iterator it  = d_pidMap.begin();
                           it != d_pidMap.end();

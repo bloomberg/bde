@@ -7,23 +7,34 @@ BSLS_IDENT_RCSID(btlsc_flag_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace btlsc {
 
-const char *btesc_Flag::toAscii(Flag value)
+                              // ----------
+                              // class Flag
+                              // ----------
+
+// CLASS METHODS
+const char *Flag::toAscii(Enum value)
 {
 #define CASE(X) case(k_ ## X): return #X
 
     switch (value) {
       CASE(ASYNC_INTERRUPT);
       CASE(RAW);
-      default: return "(* UNKNOWN *)";
+      default: {
+        return "(* Unknown Enumerator *)";                            // RETURN
+      } break;
     }
 
 #undef CASE
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, btesc_Flag::Flag rhs)
+}  // close package namespace
+
+// FREE OPERATORS
+bsl::ostream& btlsc::operator<<(bsl::ostream& stream, Flag::Enum value)
 {
-    return stream << btesc_Flag::toAscii(rhs);
+    return stream << Flag::toAscii(value);
 }
 
 }  // close enterprise namespace

@@ -2,7 +2,7 @@
 #include <balm_collectorrepository.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
 
@@ -168,7 +168,7 @@ class ThreadTester {
 
     // DATA
     bdlmt::FixedThreadPool     d_pool;
-    bdlqq::Barrier             d_barrier;
+    bslmt::Barrier             d_barrier;
     balm::CollectorRepository *d_repository_p;
     bslma::Allocator          *d_allocator_p;
 
@@ -228,8 +228,8 @@ void ThreadTester::execute()
 
         // Create 2 strings unique across all threads & iterations.
         bsl::string uniqueString1, uniqueString2;
-        stringId(&uniqueString1, "U1", bdlqq::ThreadUtil::selfIdAsInt(), i);
-        stringId(&uniqueString2, "U2", bdlqq::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString1, "U1", bslmt::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString2, "U2", bslmt::ThreadUtil::selfIdAsInt(), i);
         const char *S1 = uniqueString1.c_str();
         const char *S2 = uniqueString2.c_str();
 
@@ -324,9 +324,9 @@ void ThreadTester::execute()
 
 void ThreadTester::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(d_allocator_p,
-                                                        &ThreadTester::execute,
-                                                        this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(d_allocator_p,
+                                                      &ThreadTester::execute,
+                                                      this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }

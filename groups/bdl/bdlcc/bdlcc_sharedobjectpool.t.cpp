@@ -10,10 +10,10 @@
 
 #include <bdlma_concurrentpoolallocator.h>
 
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadgroup.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -26,6 +26,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_numeric.h>
 #include <bsl_string.h>
@@ -166,7 +167,7 @@ void TestRun<POOL>::threadProc(int id)
 template <class POOL>
 void TestRun<POOL>::run()
 {
-   bdlqq::ThreadGroup tg;
+   bslmt::ThreadGroup tg;
 
    for (int i = 0; i < d_numThreads; ++i) {
       tg.addThread(bdlf::BindUtil::bind(&TestRun::threadProc, this, i));
@@ -411,7 +412,7 @@ void LinkTestRun<POOL>::threadProc(int id)
 template <class POOL>
 void LinkTestRun<POOL>::run()
 {
-   bdlqq::ThreadGroup tg;
+   bslmt::ThreadGroup tg;
 
    for (int i = 0; i < d_numThreads; ++i) {
       tg.addThread(bdlf::BindUtil::bind(&LinkTestRun::threadProc,
@@ -442,11 +443,11 @@ void LinkTestRun<POOL>::run()
 //                   THREAD-SAFE OUTPUT AND ASSERT MACROS
 // ----------------------------------------------------------------------------
 
-static bdlqq::Mutex printMutex;  // mutex to protect output macros
+static bslmt::Mutex printMutex;  // mutex to protect output macros
 #define PT(X) { printMutex.lock(); P(X); printMutex.unlock(); }
 #define PT_(X) { printMutex.lock(); P_(X); printMutex.unlock(); }
 
-static bdlqq::Mutex assertMutex; // mutex to protect assert macros
+static bslmt::Mutex assertMutex; // mutex to protect assert macros
 
 #define LOOP_ASSERTT(I,X) { \
    if (!(X)) { assertMutex.lock(); cout << #I << ": " << I << "\n"; \
@@ -611,25 +612,25 @@ void ConstructorTestHelp1b::resetWithCount(ConstructorTestHelp1b *self,
 // ============================================================================
 //         GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-bdlqq::ThreadAttributes attributes;
+bslmt::ThreadAttributes attributes;
 void executeInParallel(int                               numThreads,
-                       bdlqq::ThreadUtil::ThreadFunction function)
+                       bslmt::ThreadUtil::ThreadFunction function)
     // Create the specified 'numThreads', each executing the specified
     // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
     // by passing i to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i],
+        bslmt::ThreadUtil::create(&threads[i],
                                   attributes,
                                   function,
                                   static_cast<char *>(0) + i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -836,12 +837,14 @@ int main(int argc, char *argv[])
          }
 
          bdlcc::SharedObjectPool<ConstructorTestHelp3,
-            ConstructorTestHelp3Creator,
-            bdlf::Function<void(*)(ConstructorTestHelp3*)> >
-               pool3(ConstructorTestHelp3Creator(400),
-                     bdlf::BindUtil::bind(
-                              &ConstructorTestHelp3::resetWithCount, _1, 300),
-                     1, &ta);
+                                 ConstructorTestHelp3Creator,
+                                 bsl::function<void(ConstructorTestHelp3 *)> >
+             pool3(ConstructorTestHelp3Creator(400),
+                   bdlf::BindUtil::bind(&ConstructorTestHelp3::resetWithCount,
+                                        _1,
+                                        300),
+                   1,
+                   &ta);
 
          ConstructorTestHelp3* ptr3;
          {
@@ -859,24 +862,27 @@ int main(int argc, char *argv[])
  "\t"
  "bdlcc::SharedObjectPool(\n"
  "\t"
- "                    const bdlf::Function<void(*)(void *)>& objectCreator\n"
+ "                    const bsl::function<void(void *)>&  objectCreator\n"
  "\t"
- "                    const RESETTER&                       objectResetter,\n"
+ "                    const RESETTER&                     objectResetter,\n"
  "\t"
- "                    int                                   numObjects = -1,\n"
+ "                    int                                 numObjects = -1,\n"
  "\t"
- "                    bslma::Allocator                     *basicAllocator=0)"
+ "                    bslma::Allocator                   *basicAllocator = 0)"
                  << endl;
          }
 
-         typedef bdlcc::SharedObjectPool<ConstructorTestHelp3,
-             bdlcc::ObjectPoolFunctors::DefaultCreator,
-            bdlf::Function<void(*)(ConstructorTestHelp3*)> > Pool4;
-         Pool4 pool4
-            (bdlf::BindUtil::bind(&constructor4, 600, _1),
-             bdlf::BindUtil::bind(&ConstructorTestHelp3::resetWithCount,
-                                 _1, 500),
-             1, &ta);
+         typedef bdlcc::SharedObjectPool<
+                           ConstructorTestHelp3,
+                           bdlcc::ObjectPoolFunctors::DefaultCreator,
+                           bsl::function<void(ConstructorTestHelp3 *)> > Pool4;
+         Pool4 pool4(bdlf::BindUtil::bind(&constructor4, 600, _1),
+                     bdlf::BindUtil::bind(
+                                         &ConstructorTestHelp3::resetWithCount,
+                                         _1,
+                                         500),
+                     1,
+                     &ta);
 
          ConstructorTestHelp3* ptr4;
          {

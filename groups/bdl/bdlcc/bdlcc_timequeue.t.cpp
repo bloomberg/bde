@@ -5,16 +5,15 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_condition.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadattributes.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_threadgroup.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_threadgroup.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
@@ -121,7 +120,7 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLIM_TESTUTIL_L_  // current Line number
 
-bdlqq::Mutex coutMutex;
+bslmt::Mutex coutMutex;
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -299,7 +298,7 @@ typedef bdlcc::TimeQueueItem<DATA> TimeQueueItem;
 bslma::TestAllocator ta(veryVeryVerbose);
 TimeQueue timequeue(&ta);
 
-bdlqq::Barrier barrier(k_NUM_THREADS + 1);
+bslmt::Barrier barrier(k_NUM_THREADS + 1);
 
 struct Case11ThreadInfo {
     int                         d_id;
@@ -532,10 +531,10 @@ void run()
 
     bdlcc::TimeQueue<int> timeQueue(k_BITS_PER_HANDLE);
 
-    bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS];
+    bslmt::ThreadUtil::Handle threads[k_NUM_THREADS];
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i],
+        bslmt::ThreadUtil::create(&threads[i],
                                  bdlf::BindUtil::bind(&threadFunc,
                                                      &timeQueue,
                                                      (int)k_NUM_ITERATIONS,
@@ -545,7 +544,7 @@ void run()
     }
 
     for (int i = 0; i < k_NUM_THREADS; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
 }
@@ -644,10 +643,10 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         bsl::vector<my_Connection*>      d_connections;
         bdlcc::TimeQueue<my_Connection*> d_timeQueue;
         int                              d_ioTimeout;
-        bdlqq::Mutex                     d_timerMonitorMutex;
-        bdlqq::Condition                 d_timerChangedCond;
-        bdlqq::ThreadUtil::Handle        d_connectionThreadHandle;
-        bdlqq::ThreadUtil::Handle        d_timerThreadHandle;
+        bslmt::Mutex                     d_timerMonitorMutex;
+        bslmt::Condition                 d_timerChangedCond;
+        bslmt::ThreadUtil::Handle        d_connectionThreadHandle;
+        bslmt::ThreadUtil::Handle        d_timerThreadHandle;
         volatile bool                    d_done;
 
       protected:
@@ -720,8 +719,8 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
     : d_timeQueue(basicAllocator)
     , d_ioTimeout(ioTimeout)
-    , d_connectionThreadHandle(bdlqq::ThreadUtil::invalidHandle())
-    , d_timerThreadHandle(bdlqq::ThreadUtil::invalidHandle())
+    , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
+    , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
     {
     }
 
@@ -729,11 +728,11 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     {
         d_done = true;
         d_timerChangedCond.broadcast();
-        if (bdlqq::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
-            bdlqq::ThreadUtil::join(d_connectionThreadHandle);
+        if (bslmt::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
+            bslmt::ThreadUtil::join(d_connectionThreadHandle);
         }
-        if (bdlqq::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
-            bdlqq::ThreadUtil::join(d_timerThreadHandle);
+        if (bslmt::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
+            bslmt::ThreadUtil::join(d_timerThreadHandle);
         }
     }
 //..
@@ -752,7 +751,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
                                                 connection,
                                                 &isNewTop);
         if (isNewTop) {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
             d_timerChangedCond.signal();
         }
     }
@@ -813,7 +812,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
                                                 connection,
                                                 &isNewTop);
         if (isNewTop) {
-            bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
             d_timerChangedCond.signal();
         }
     }
@@ -828,7 +827,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         while (!d_done) {
             bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
             {
-                bdlqq::LockGuard<bdlqq::Mutex> lock(&d_timerMonitorMutex);
+                bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
                 bsls::TimeInterval minTime;
                 int newLength;
 
@@ -865,22 +864,22 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 // Function 'start' spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bdlqq::ThreadUtil::create', which expects a function pointer
+// 'start' calls 'bslmt::ThreadUtil::create', which expects a function pointer
 // to a function with the standard "C" callback signature
 // 'void *fn(void *data)'.  This non-member function will call back into the
 // 'my_Server' object immediately.
 //..
     int my_Server::start()
     {
-        bdlqq::ThreadAttributes attr;
+        bslmt::ThreadAttributes attr;
 
-        if (bdlqq::ThreadUtil::create(&d_connectionThreadHandle, attr,
+        if (bslmt::ThreadUtil::create(&d_connectionThreadHandle, attr,
                                      &my_connectionMonitorThreadEntry,
                                      this)) {
             return -1;                                                // RETURN
         }
 
-        if (bdlqq::ThreadUtil::create(&d_timerThreadHandle, attr,
+        if (bslmt::ThreadUtil::create(&d_timerThreadHandle, attr,
                                      &my_timerMonitorThreadEntry,
                                      this)) {
             return -1;                                                // RETURN
@@ -1019,7 +1018,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             bsl::cout << "Opening connection " << connection2 << endl;
         }
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(2)); // 2s
 
         // Simulate transmission...
         const int  length = 1024;
@@ -1034,7 +1033,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         // Wait for timeout to occur, otherwise session gets destroyed from
         // stack too early.
 
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
     }
 //..
 // The program that would exercise this test server would simply consist of:
@@ -1045,7 +1044,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         mX.start();
 
         // Wait sufficiently long to observe all events.
-        bdlqq::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(10)); // 10s
 
         return 0;
     }
@@ -1341,25 +1340,25 @@ int main(int argc, char *argv[])
         using namespace TIMEQUEUE_TEST_CASE_11;
 
         Case11ThreadInfo info[k_NUM_THREADS];
-        bdlqq::ThreadUtil::Handle threads[k_NUM_THREADS + 1];
+        bslmt::ThreadUtil::Handle threads[k_NUM_THREADS + 1];
         bsl::vector<bdlcc::TimeQueueItem<DATA> > items[k_NUM_THREADS];
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             info[i].d_id = i;
             info[i].d_items_p = &items[i];
-            bdlqq::ThreadUtil::create(&threads[i],
+            bslmt::ThreadUtil::create(&threads[i],
                                      testAddUpdatePopRemoveAll,
                                      (void *)&info[i]);
         }
 
-        bdlqq::ThreadUtil::create(&threads[k_NUM_THREADS], testLength, NULL);
+        bslmt::ThreadUtil::create(&threads[k_NUM_THREADS], testLength, NULL);
 
         int size = 0;
         for (int i = 0; i < k_NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::join(threads[i]);
+            bslmt::ThreadUtil::join(threads[i]);
             size += static_cast<int>(items[i].size());
         }
-        bdlqq::ThreadUtil::join(threads[k_NUM_THREADS]);
+        bslmt::ThreadUtil::join(threads[k_NUM_THREADS]);
 
         LOOP_ASSERT(timequeue.length(), 0 == timequeue.length());
         LOOP_ASSERT(size, k_NUM_ITERATIONS * k_NUM_THREADS * 2 == size);
@@ -2901,11 +2900,12 @@ int main(int argc, char *argv[])
             {
                 const bsls::Types::Int64 NUM_ALLOC = ta.numAllocations();
                 ASSERT(bsls::TimeInterval() == X.time());
-                ASSERT(TestString()        == X.data());
+                const TestString dfltTestString;    // Appease bug in gcc-4.1.2
+                ASSERT(dfltTestString       == X.data());
                 // ASSERT(0 == X.handle());
-                ASSERT(Obj::Key(0)         == X.key());
-                ASSERT(NUM_ALLOC           == ta.numAllocations());
-                ASSERT(NUM_ALLOC2          == ta2.numAllocations());
+                ASSERT(Obj::Key(0)          == X.key());
+                ASSERT(NUM_ALLOC            == ta.numAllocations());
+                ASSERT(NUM_ALLOC2           == ta2.numAllocations());
             }
 
             if (verbose) cout << "\t\tConstructor without key.\n";
@@ -3259,7 +3259,7 @@ int main(int argc, char *argv[])
                     handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
                 }
 
-                bdlqq::ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+                bslmt::ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
 
                 mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
             }
@@ -3279,7 +3279,7 @@ int main(int argc, char *argv[])
                     handles[k] = mX.add(timers[k], VA, &isNewTop, &newLength);
                 }
 
-                bdlqq::ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
+                bslmt::ThreadUtil::microSleep(NUM_INNER_ITERATIONS);
 
                 mX.popLE(popTimes[j], &items, &newLength, &newMinTime);
             }

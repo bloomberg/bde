@@ -497,7 +497,7 @@ BSLS_IDENT("$Id: $")
 // that the callback supplied to the logging macro must match the prototype
 // 'void (*)(ball::UserFields *)'.
 //..
-//      bdlf::Function <void (*)(ball::UserFields *)> callback;
+//      bsl::function <void(ball::UserFields *)> callback;
 //      callback = bdlf::BindUtil::bind(&populateUsingPoint,
 //                                     bdlf::PlaceHolders::_1,
 //                                     point);
@@ -1066,7 +1066,7 @@ do {                                                                       \
 
 namespace BloombergLP {
 
-namespace bdlqq { class Mutex; }
+namespace bslmt { class Mutex; }
 
 namespace ball {
 
@@ -1155,7 +1155,7 @@ struct Log {
         // obtained by a call to 'Log::getRecord', and the logger manager
         // singleton has been initialized.
 
-    static char *obtainMessageBuffer(bdlqq::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer used for formatting messages in
         // this thread of execution is available.  Return the address of the
         // modifiable buffer to which this thread of execution has exclusive
@@ -1170,7 +1170,7 @@ struct Log {
         // 'Log::logMessage'; other use may adversely affect performance for
         // the entire program.
 
-    static void releaseMessageBuffer(bdlqq::Mutex *mutex);
+    static void releaseMessageBuffer(bslmt::Mutex *mutex);
         // Unlock the specified '*mutex' that guards the buffer used for
         // formatting messages in this thread of execution.  The behavior is
         // undefined unless '*mutex' was obtained by a call to
@@ -1314,7 +1314,7 @@ class Log_Formatter {
 
     int             d_bufferLen;   // length of buffer
 
-    bdlqq::Mutex   *d_mutex_p;     // mutex to lock buffer (held, not owned)
+    bslmt::Mutex   *d_mutex_p;     // mutex to lock buffer (held, not owned)
 
   private:
     // NOT IMPLEMENTED

@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 // registering a callback to be invoked when a particular event occurs on a
 // particular socket.  (The user is required to provide a socket handle, an
 // event, and a callback for registration.)  For 'btlso::EventManager', a
-// callback is represented by a 'bdlf::Function' functor (which may be
+// callback is represented by a 'bsl::function' functor (which may be
 // associated with a free function or a class method).  Registrations stay in
 // effect until they are subsequently deregistered, and the callback is invoked
 // each time the associated event occurs.
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //      // ready for reading.
 //
 //      for (int i = 0; i < numSockets; ++i) {
-//          bdlf::Function<void (*)()> callback(bdlf::BindUtil::bind(
+//          bsl::function<void()> callback(bdlf::BindUtil::bind(
 //                                                                function,
 //                                                                sockets[i]));
 //
@@ -101,8 +101,8 @@ BSLS_IDENT("$Id: $")
 #include <btlso_eventtype.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -123,7 +123,7 @@ class EventManager {
 
   public:
     // TYPES
-    typedef bdlf::Function<void (*)()> Callback;
+    typedef bsl::function<void()> Callback;
         // Alias for the type used as the registered callback for this event
         // manager.
 

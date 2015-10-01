@@ -7,31 +7,16 @@ BSLS_IDENT_RCSID(btlmt_session_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace btlmt {
-                            // -------------------
+
+                            // -------------
                             // class Session
-                            // -------------------
+                            // -------------
 
 // CREATORS
 Session::~Session()
 {
 }
 
-                            // --------------------------
-                            // class SessionFactory
-                            // --------------------------
-
-// CREATORS
-SessionFactory::~SessionFactory()
-{
-}
-
-// MANIPULATORS
-void SessionFactory::allocate(
-                           const bsl::shared_ptr<AsyncChannel>& channel,
-                           const SessionFactory::Callback&      callback)
-{
-    allocate(channel.get(), callback);
-}
 }  // close package namespace
 
 }  // close enterprise namespace

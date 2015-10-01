@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 // threads and queue capacity, hence the name "fixed" thread pool.  An
 // application can, however, specify the attributes of the threads in the pool
 // (e.g., thread priority or stack size), by providing a
-// 'bdlqq::ThreadAttributes' object with the desired values set.  See
-// 'bdlqq_threadutil' package documentation for a description of
-// 'bdlqq::ThreadAttributes'.
+// 'bslmt::ThreadAttributes' object with the desired values set.  See
+// 'bslmt_threadutil' package documentation for a description of
+// 'bslmt::ThreadAttributes'.
 //
 // Thread pools are ideal for developing multi-threaded server applications.  A
 // server need only package client requests to execute as jobs, and
@@ -100,7 +100,7 @@ BSLS_IDENT("$Id: $")
 // take a job from the queue, open the file, and search for the string.  If a
 // match is found, the job adds the filename to an array of matching filenames.
 // Because this array of filenames is shared across multiple jobs and across
-// multiple threads, access to the array is controlled via a 'bdlqq::Mutex'.
+// multiple threads, access to the array is controlled via a 'bslmt::Mutex'.
 //
 ///Setting FixedThreadPool Attributes
 ///- - - - - - - - - - - - - - - - -
@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 //   struct my_FastSearchJobInfo {
 //       const bsl::string        *d_word;    // word to search for
 //       const bsl::string        *d_path;    // path of the file to search
-//       bdlqq::Mutex             *d_mutex;   // mutex to control access to the
+//       bslmt::Mutex             *d_mutex;   // mutex to control access to the
 //                                            // result file list
 //       bsl::vector<bsl::string> *d_outList; // list of matching files
 //   };
@@ -157,19 +157,19 @@ BSLS_IDENT("$Id: $")
 //..
 // If we find a match, we add the file to the result list and return.  Since
 // the result list is shared among multiple processing threads, we use a mutex
-// lock to regulate access to the list.  We use a 'bdlqq::LockGuard' to manage
+// lock to regulate access to the list.  We use a 'bslmt::LockGuard' to manage
 // access to the mutex lock.  This template object acquires a mutex lock on
 // 'job->d_mutex' at construction, releases that lock on destruction.  Thus,
 // the mutex will be locked within the scope of the 'if' block, and released
 // when the program exits that scope.
 //
-// See 'bdlqq_threadutil' for information about the 'bdlqq::Mutex' class, and
-// component 'bdlqq_lockguard' for information about the 'bdlqq::LockGuard'
+// See 'bslmt_threadutil' for information about the 'bslmt::Mutex' class, and
+// component 'bslmt_lockguard' for information about the 'bslmt::LockGuard'
 // template class.
 //..
-//                bdlqq::LockGuard<bdlqq::Mutex> lock(job->d_mutex);
+//                bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
 //                job->d_outList->push_back(*job->d_path);
-//                break;  // bdlqq::LockGuard destructor unlocks mutex.
+//                break;  // bslmt::LockGuard destructor unlocks mutex.
 //            }
 //            memcpy(buffer, &buffer[nread - wordLen - 1], wordLen - 1);
 //            nread = fread(buffer + wordLen - 1, 1, sizeof(buffer) - wordLen,
@@ -188,8 +188,8 @@ BSLS_IDENT("$Id: $")
 //                      const bsl::vector<bsl::string>& fileList,
 //                      bsl::vector<bsl::string>&       outFileList)
 //   {
-//       bdlqq::Mutex     mutex;
-//       bdlqq::ThreadAttributes defaultAttributes;
+//       bslmt::Mutex     mutex;
+//       bslmt::ThreadAttributes defaultAttributes;
 //..
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
@@ -208,7 +208,7 @@ BSLS_IDENT("$Id: $")
 // passed to the search function and add the job to the pool.
 //
 // As noted above, all jobs will share a single mutex to guard the output file
-// list.  Function 'myFastSearchJob' uses a 'bdlqq::LockGuard' on this mutex to
+// list.  Function 'myFastSearchJob' uses a 'bslmt::LockGuard' on this mutex to
 // serialize access to the list.
 //..
 //       int count = fileList.size();
@@ -237,7 +237,7 @@ BSLS_IDENT("$Id: $")
 // The 'void' pointer argument provides a generic way of passing in user data,
 // without regard to the data type.  Clients who prefer better or more explicit
 // type safety may wish to use the Functor Interface instead.  This interface
-// uses 'bdlf::Function' to provide type-safe wrappers that can match argument
+// uses 'bsl::function' to provide type-safe wrappers that can match argument
 // number and type for a C++ free function or member function.
 //
 // To illustrate the Functor Interface, we will make two small changes to the
@@ -266,12 +266,12 @@ BSLS_IDENT("$Id: $")
 //           job.d_mutex   = &mutex;
 //           job.d_outList = &outFileList;
 //
-//           bdlf::Function<void (*)()> jobHandle =
+//           bsl::function<void()> jobHandle =
 //                         bdlf::BindUtil::bind(&myFastFunctorSearchJob, &job);
 //           pool.enqueueJob(jobHandle);
 //       }
 //..
-// Use of 'bdlf::Function' and 'bdlf::BindUtil' is described in the 'bdef'
+// Use of 'bsl::function' and 'bdlf::BindUtil' is described in the 'bdef'
 // package documentation.  For this example, it is important to note that
 // 'jobHandle' is a functor object, and that 'bdlf::BindUtil::bind' populates
 // that functor object with a function pointer (to the 'void' function
@@ -298,28 +298,28 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_SEMAPHORE
-#include <bdlqq_semaphore.h>
+#ifndef INCLUDED_BSLMT_SEMAPHORE
+#include <bslmt_semaphore.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADATTRIBUTES
-#include <bdlqq_threadattributes.h>
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include <bslmt_threadattributes.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADUTIL
-#include <bdlqq_threadutil.h>
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include <bslmt_threadutil.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_CONDITION
-#include <bdlqq_condition.h>
+#ifndef INCLUDED_BSLMT_CONDITION
+#include <bslmt_condition.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_THREADGROUP
-#include <bdlqq_threadgroup.h>
+#ifndef INCLUDED_BSLMT_THREADGROUP
+#include <bslmt_threadgroup.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMIC
@@ -330,16 +330,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #endif
 
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 namespace BloombergLP {
@@ -368,8 +368,8 @@ class FixedThreadPool {
 
   public:
     // TYPES
-    typedef bdlf::Function<void(*)()> Job;
-    typedef bdlcc::FixedQueue<Job>    Queue;
+    typedef bsl::function<void()>  Job;
+    typedef bdlcc::FixedQueue<Job> Queue;
 
     enum {
         e_STOP
@@ -392,14 +392,14 @@ class FixedThreadPool {
     // DATA
     Queue                   d_queue;              // underlying queue
 
-    bdlqq::Semaphore        d_queueSemaphore;     // used to implemented
+    bslmt::Semaphore        d_queueSemaphore;     // used to implemented
                                                   // blocking popping on the
                                                   // queue
 
     bsls::AtomicInt         d_numThreadsWaiting;  // number of idle thread in
                                                   // the pool
 
-    bdlqq::Mutex            d_metaMutex;          // mutex to ensure that there
+    bslmt::Mutex            d_metaMutex;          // mutex to ensure that there
                                                   // is only one controlling
                                                   // thread at any time
 
@@ -417,20 +417,20 @@ class FixedThreadPool {
                                                   // ready to go through the
                                                   // gate
 
-    bdlqq::Mutex            d_gateMutex;          // mutex used to protect the
+    bslmt::Mutex            d_gateMutex;          // mutex used to protect the
                                                   // gate count
 
-    bdlqq::Condition        d_threadsReadyCond;   // condition signaled when a
+    bslmt::Condition        d_threadsReadyCond;   // condition signaled when a
                                                   // worker thread is ready at
                                                   // the gate
 
-    bdlqq::Condition        d_gateCond;           // condition signaled when
+    bslmt::Condition        d_gateCond;           // condition signaled when
                                                   // the gate count is
                                                   // incremented
 
-    bdlqq::ThreadGroup      d_threadGroup;        // threads used by this pool
+    bslmt::ThreadGroup      d_threadGroup;        // threads used by this pool
 
-    bdlqq::ThreadAttributes d_threadAttributes;   // thread attributes to be
+    bslmt::ThreadAttributes d_threadAttributes;   // thread attributes to be
                                                   // used when constructing
                                                   // processing threads
 
@@ -486,7 +486,7 @@ class FixedThreadPool {
         // undefined unless '1 <= numThreads' and
         // '1 <= maxPendingJobs <= 0x01FFFFFF'.
 
-    FixedThreadPool(const bdlqq::ThreadAttributes&  threadAttributes,
+    FixedThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                     int                             numThreads,
                     int                             maxNumPendingJobs,
                     bslma::Allocator               *basicAllocator = 0);
@@ -518,7 +518,7 @@ class FixedThreadPool {
         // queuing is currently disabled.  Note that this function can block if
         // the underlying fixed queue has reached full capacity; use
         // 'tryEnqueueJob' instead for non-blocking.  The behavior is undefined
-        // unless 'functor' is not "unset".  See 'bdlf_function' for more
+        // unless 'functor' is not "unset".  See 'bsl::function' for more
         // information on functors.
 
     int enqueueJob(FixedThreadPoolJobFunc function, void *userData);

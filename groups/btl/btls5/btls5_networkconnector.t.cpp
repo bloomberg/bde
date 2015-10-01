@@ -1,12 +1,12 @@
 // btls5_networkconnector.t.cpp                                       -*-C++-*-
 #include <btls5_networkconnector.h>
 
-#include <btls5_testserver.h> // for testing only
+#include <btls5_testserver.h>
 #include <btls5_networkdescriptionutil.h>
 
 #include <bdlcc_fixedqueue.h>
 #include <bslma_testallocator.h>            // thread-safe allocator
-#include <bdlqq_threadutil.h>               // for sleep
+#include <bslmt_threadutil.h>               // for sleep
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 #include <bsl_iostream.h>
@@ -16,8 +16,9 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsl_sstream.h>
-#include <btlmt_session.h>                  // for testing only
-#include <btlmt_sessionpool.h>              // for testing only
+#include <btlmt_session.h>
+#include <btlmt_sessionfactory.h>
+#include <btlmt_sessionpool.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_socketimputil.h>
 
@@ -221,7 +222,8 @@ struct Session : public btlmt::Session {
 
 class SessionFactory : public btlmt::SessionFactory {
   public:
-    virtual void allocate(btlmt::AsyncChannel *, const Callback& cb)
+    virtual void allocate(btlmt::AsyncChannel                    *,
+                          const btlmt::SessionFactory::Callback&  cb)
     {
         cb(0, new Session);
         if (veryVerbose) { cout << "SessionFactory::allocate" << endl; }
@@ -239,11 +241,11 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
               btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
               const btls5::DetailedStatus&                    error,
               btlmt::SessionPool                             *sessionPool,
-              bdlqq::Mutex                                   *stateLock,
-              bdlqq::Condition                               *stateChanged,
+              bslmt::Mutex                                   *stateLock,
+              bslmt::Condition                               *stateChanged,
               volatile int                                   *state)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
+    bslmt::LockGuard<bslmt::Mutex> lock(stateLock);
     if (status == btls5::NetworkConnector::e_SUCCESS) {
         *state = 1;
         if (verbose) cout << "connection succeeded" << endl;
@@ -288,8 +290,8 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
                 btlso::StreamSocket< btlso::IPv4Address>       *socket,
                 btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
                 const btls5::DetailedStatus&                    detailedStatus,
-                bdlqq::Mutex                                   *stateLock,
-                bdlqq::Condition                               *stateChanged,
+                bslmt::Mutex                                   *stateLock,
+                bslmt::Condition                               *stateChanged,
                 volatile int                                   *state)
     {
         if (0 == status) {
@@ -299,7 +301,7 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
             cout << "Connect failed " << status << ": " << detailedStatus
                  << endl;
         }
-        bdlqq::LockGuard<bdlqq::Mutex> lock(stateLock);
+        bslmt::LockGuard<bslmt::Mutex> lock(stateLock);
         *state = status ? -1 : 1; // 1 for success, -1 for failure
         stateChanged->signal();
     }
@@ -343,8 +345,8 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
 //..
         const bsls::TimeInterval proxyTimeout(5.0);
         const bsls::TimeInterval totalTimeout(30.0);
-        bdlqq::Mutex     stateLock;
-        bdlqq::Condition stateChanged;
+        bslmt::Mutex     stateLock;
+        bslmt::Condition stateChanged;
         volatile int     state = 0; // value > 0 indicates success, < 0 error
         using namespace bdlf::PlaceHolders;
         btls5::NetworkConnector::ConnectionAttemptHandle attempt =
@@ -360,7 +362,7 @@ void socks5Cb(btls5::NetworkConnector::ConnectionStatus       status,
                                                      "destination.example.com",
                                                      8194));
         connector.startConnectionAttempt(attempt);
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
+        bslmt::LockGuard<bslmt::Mutex> lock(&stateLock);
         while (!state) {
             stateChanged.wait(&stateLock);
         }
@@ -973,7 +975,7 @@ int main(int argc, char *argv[])
                                                                   totalTimeout,
                                                                   destination);
             if (bsls::TimeInterval() != LAG) {
-                bdlqq::ThreadUtil::sleep(LAG);
+                bslmt::ThreadUtil::sleep(LAG);
             }
             connector2.startConnectionAttempt(attempt2);
 
@@ -1311,10 +1313,10 @@ int main(int argc, char *argv[])
                  << endl;
         }
         const bsls::TimeInterval proxyTimeout(10.0);
-        bdlqq::Mutex     stateLock;
-        bdlqq::Condition stateChanged;
+        bslmt::Mutex     stateLock;
+        bslmt::Condition stateChanged;
         volatile int     state = 0; // value > 0 indicates success, < 0 error
-        bdlqq::LockGuard<bdlqq::Mutex> lock(&stateLock);
+        bslmt::LockGuard<bslmt::Mutex> lock(&stateLock);
 
         btls5::NetworkConnector::ConnectionStateCallback cb =
                                            bdlf::BindUtil::bind(socks5Cb,
@@ -1634,7 +1636,7 @@ int main(int argc, char *argv[])
                                                                  proxyTimeout,
                                                                  totalTimeout,
                                                                  destination2);
-            bdlqq::ThreadUtil::sleep(LAG);
+            bslmt::ThreadUtil::sleep(LAG);
             connector.startConnectionAttempt(attempt2);
 
             // wait for connection results and check for success

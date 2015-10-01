@@ -86,12 +86,12 @@ BSLS_IDENT("$Id: $")
 #include <balm_metricrecord.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_LOCKGUARD
-#include <bdlqq_lockguard.h>
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include <bslmt_lockguard.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -121,7 +121,7 @@ class IntegerCollector {
     bsls::Types::Int64   d_total;     // total of values across events
     int                  d_min;       // minimum value across events
     int                  d_max;       // maximum value across events
-    mutable bdlqq::Mutex d_mutex;     // synchronizes access to data
+    mutable bslmt::Mutex d_mutex;     // synchronizes access to data
 
     // NOT IMPLEMENTED
     IntegerCollector(const IntegerCollector&);
@@ -233,7 +233,7 @@ IntegerCollector::~IntegerCollector()
 inline
 void IntegerCollector::reset()
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_count = 0;
     d_total = 0;
     d_min   = k_DEFAULT_MIN;
@@ -243,7 +243,7 @@ void IntegerCollector::reset()
 inline
 void IntegerCollector::update(int value)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     ++d_count;
     d_total += value;
     d_min = bsl::min(value, d_min);
@@ -256,7 +256,7 @@ void IntegerCollector::accumulateCountTotalMinMax(int count,
                                                   int min,
                                                   int max)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_count += count;
     d_total += total;
     d_min   = bsl::min(min, d_min);
@@ -269,7 +269,7 @@ void IntegerCollector::setCountTotalMinMax(int count,
                                            int min,
                                            int max)
 {
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&d_mutex);
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_count = count;
     d_total = total;
     d_min   = min;

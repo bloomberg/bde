@@ -875,12 +875,12 @@ struct SocketImpUtil_Util {
     typedef socklen_t ADDRLEN_T;
 #endif
 
+    enum {
+        k_INVALID_SOCKET_HANDLE =
 #ifdef BTLSO_PLATFORM_WIN_SOCKETS
-    enum {
-        k_INVALID_SOCKET_HANDLE = INVALID_SOCKET
+                                  INVALID_SOCKET
 #else
-    enum {
-        k_INVALID_SOCKET_HANDLE = -1
+                                  -1
 #endif
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BTESO_INVALID_SOCKET_HANDLE = k_INVALID_SOCKET_HANDLE

@@ -10,21 +10,22 @@
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 #include <bdlmt_timereventscheduler.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_threadutil.h>
 #include <bdlf_bind.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_defaultallocatorguard.h>
 
-#include <bdlqq_barrier.h>
+#include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_ostream.h>
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
 #include <bsl_c_stdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_functional.h>
 #include <bsl_iostream.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bsls_assert.h>
@@ -279,7 +280,7 @@ enum {
 void microSleep(int microSeconds, int seconds)
     // Sleep for *at* *least* the specified 'seconds' and 'microseconds'.  This
     // function is used for testing only.  It uses the function
-    // 'bdlqq::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
+    // 'bslmt::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
     // a chance to the event scheduler to process its dispatching thread.
     // Without this, there have been a large number of unpredictable
     // intermittent failures by this test driver, especially on AIX with
@@ -287,10 +288,10 @@ void microSleep(int microSeconds, int seconds)
     // running the test driver by hand).  It was noticed that calls to 'yield'
     // helped, and this routine centralizes this as a mechanism.
 {
-    bdlqq::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
-    bdlqq::ThreadUtil::yield();
-    bdlqq::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
-    bdlqq::ThreadUtil::yield();
+    bslmt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
+    bslmt::ThreadUtil::yield();
+    bslmt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
+    bslmt::ThreadUtil::yield();
 }
 
 bool withinWindow(const bsls::TimeInterval& value,
@@ -779,7 +780,7 @@ class ConcurrencyTest {
 
     // DATA
     bdlmt::FixedThreadPool         d_pool;
-    bdlqq::Barrier                d_barrier;
+    bslmt::Barrier                d_barrier;
     balm::PublicationScheduler   *d_scheduler_p;
     bdlmt::TimerEventScheduler    *d_eventScheduler_p;
     bslma::Allocator            *d_allocator_p;
@@ -815,7 +816,7 @@ class ConcurrencyTest {
 void ConcurrencyTest::execute()
 {
     bsl::string uniqueString1;
-    stringId(&uniqueString1, "US",  bdlqq::ThreadUtil::selfIdAsInt());
+    stringId(&uniqueString1, "US",  bslmt::ThreadUtil::selfIdAsInt());
     const char *S1 = uniqueString1.c_str();
 
     Schedule schedule(d_allocator_p);
@@ -971,10 +972,10 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bdlf::Function<void(*)()> job = bdlf::BindUtil::bindA(
-                                              d_allocator_p,
-                                              &ConcurrencyTest::execute,
-                                              this);
+    bsl::function<void()> job = bdlf::BindUtil::bindA(
+                                                     d_allocator_p,
+                                                     &ConcurrencyTest::execute,
+                                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1339,7 +1340,7 @@ int main(int argc, char *argv[])
     A->update(1.0);
     B->update(2.0);
     C->update(3.0);
-    bdlqq::ThreadUtil::sleep(bsls::TimeInterval(.11));
+    bslmt::ThreadUtil::sleep(bsls::TimeInterval(.11));
 //..
 // The output of the publication should look similar to:
 //..

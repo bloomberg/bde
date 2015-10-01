@@ -465,12 +465,8 @@ BSLS_IDENT("$Id: $")
 #include <balscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLQQ_MUTEX
-#include <bdlqq_mutex.h>
-#endif
-
-#ifndef INCLUDED_BDLF_FUNCTION
-#include <bdlf_function.h>
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
@@ -483,6 +479,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include <bsl_functional.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOSFWD
@@ -518,7 +518,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
 
   public:
     // PUBLIC TYPES
-    typedef bdlf::Function<void (*)()> FailureHandler;
+    typedef bsl::function<void()> FailureHandler;
                 // Type of functor called by this object to handle failures.
                 // Note that this can be set and accessed using th
                 // 'setFailureHandler' and 'failureHandler' methods
@@ -542,7 +542,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     BlockHeader              *d_blocks;            // list of allocated,
                                                    // unfreed blocks
 
-    mutable bdlqq::Mutex      d_mutex;             // mutex used to synchronize
+    mutable bslmt::Mutex      d_mutex;             // mutex used to synchronize
                                                    // access to this object
 
     const char               *d_name;              // name of this allocator

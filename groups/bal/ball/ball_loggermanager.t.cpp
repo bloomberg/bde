@@ -13,10 +13,10 @@
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
 
-#include <bdlqq_condition.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_lockguard.h>
-#include <bdlqq_threadutil.h>
+#include <bslmt_condition.h>
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadutil.h>
 
 #include <bslma_testallocator.h>
 
@@ -44,8 +44,10 @@
 #include <bsl_climits.h>
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
+#include <bsl_functional.h>
 #include <bsl_fstream.h>
 #include <bsl_map.h>
+#include <bsl_memory.h>
 #include <bsl_new.h>         // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_sstream.h>
@@ -244,7 +246,6 @@ typedef Obj::DefaultThresholdLevelsCallback Dtc;
 
 
 #define F_ __FILE__                           // current source file name
-#define L_ __LINE__                           // current Line number
 
 
 const int NUM_LOGGERS = 10;
@@ -287,20 +288,20 @@ const unsigned char FACTORY_PASS       = 64;
 const unsigned char FACTORY_TRIGGER    =  0;
 const unsigned char FACTORY_TRIGGERALL =  0;
 
-void executeInParallel(int numThreads, bdlqq::ThreadUtil::ThreadFunction func)
+void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
     // Create the specified 'numThreads', each executing the specified 'func'.
     // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
     // to i'th thread.  Finally join all the threads.
 {
-    bdlqq::ThreadUtil::Handle *threads =
-                               new bdlqq::ThreadUtil::Handle[numThreads];
+    bslmt::ThreadUtil::Handle *threads =
+                               new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::create(&threads[i], func, (void*)i);
+        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bdlqq::ThreadUtil::join(threads[i]);
+        bslmt::ThreadUtil::join(threads[i]);
     }
 
     delete [] threads;
@@ -509,12 +510,12 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
           static ball::DefaultObserver observer(&bsl::cout);
 //..
 // The following wraps the 'toLower' category name filter within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
 //..
 // and the following wraps the 'inheritThresholdLevels' function within a
-// 'bdlf::Function' functor:
+// 'bsl::function' functor:
 //..
           ball::LoggerManager::DefaultThresholdLevelsCallback
                                    thresholdsCallback(&inheritThresholdLevels);
@@ -1066,7 +1067,7 @@ struct ThreadData {
     int index;  // index of current thread
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 
 extern "C" {
     void *workerThread29(void *arg)
@@ -1094,7 +1095,7 @@ struct ThreadData {
     ball::LoggerManager   *manager;  // the instance observed by current thread
 };
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 
 extern "C" {
     void *workerThread28(void *arg)
@@ -1148,7 +1149,7 @@ enum { MAX_LIMIT = 32 * 1024 };
 
 ball::FixedSizeRecordBuffer buf(MAX_LIMIT);
 
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 extern "C" {
     void *workerThread26(void *arg)
     {
@@ -1216,7 +1217,7 @@ class my_publishCountingObserver : public ball::Observer {
 ball::Category *cat;
 ball::LoggerManager *manager;
 enum { MAX_LIMIT = 32 * 1024 };
-bdlqq::Barrier barrier(NUM_THREADS);
+bslmt::Barrier barrier(NUM_THREADS);
 extern "C" {
     void *workerThread25(void *)
     {
@@ -1247,9 +1248,9 @@ enum {
     NUM_THREADS = 4 // number of threads
 };
 ball::LoggerManager *manager;
-bdlf::Function<void (*)(int *, int *, int *, int *, const char *)> function;
-bdlqq::Barrier barrier(NUM_THREADS + 1);
-bdlqq::Condition condition;
+bsl::function<void(int *, int *, int *, int *, const char *)> function24;
+bslmt::Barrier barrier(NUM_THREADS + 1);
+bslmt::Condition condition;
 
 void callback(int *r, int *p, int *t, int *a, const char *c)
     // Wait for all the setting threads to be ready to set the callback, invoke
@@ -1259,8 +1260,8 @@ void callback(int *r, int *p, int *t, int *a, const char *c)
 {
     barrier.wait();
     inheritThresholdLevels(r, p, t, a, c);
-    bdlqq::Mutex m;
-    bdlqq::LockGuard<bdlqq::Mutex> guard(&m);
+    bslmt::Mutex m;
+    bslmt::LockGuard<bslmt::Mutex> guard(&m);
     ASSERT(-1 == condition.timedWait(&m, bdlt::CurrentTime::now() + 3));
 }
 
@@ -1278,7 +1279,7 @@ extern "C" {
         // out, because the setter mutex is locked by that thread.
     {
         barrier.wait();
-        manager->setDefaultThresholdLevelsCallback(&function);
+        manager->setDefaultThresholdLevelsCallback(&function24);
         condition.signal();
         return 0;
     }
@@ -1569,12 +1570,12 @@ int main(int argc, char *argv[])
         ball::LoggerManagerConfiguration configuration;
         ball::LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
-        function = &callback;
-        manager->setDefaultThresholdLevelsCallback(&function);
-        bdlqq::ThreadUtil::Handle handle;
-        bdlqq::ThreadUtil::create(&handle, setCategory, 0);
+        function24 = &callback;
+        manager->setDefaultThresholdLevelsCallback(&function24);
+        bslmt::ThreadUtil::Handle handle;
+        bslmt::ThreadUtil::create(&handle, setCategory, 0);
         executeInParallel(NUM_THREADS, workerThread30);
-        bdlqq::ThreadUtil::join(handle);
+        bslmt::ThreadUtil::join(handle);
       } break;
 
       case 23: {
@@ -1992,92 +1993,7 @@ int main(int argc, char *argv[])
         //   ~ball::LoggerManager();
         // --------------------------------------------------------------------
 
-        // The public constructor and test case are deprecated and maintained
-        // in the internal code base only.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-        if (verbose)
-            cout << endl << "Testing 'ball::LoggerManager' constructor" << endl
-                         << "========================================" << endl;
-
-        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
-
-        bslma::TestAllocator *DA = &defaultTestAllocator;
-        bslma::TestAllocator *GA = &globalTestAllocator;
-        bslma::TestAllocator *OA = &objectTestAllocator;
-
-        bslma::DefaultAllocatorGuard taGuard(DA);
-        bslma::Default::setGlobalAllocator(GA);
-
-        ball::LoggerManagerConfiguration mLMC;
-
-        const bsls::Types::Int64 NUM_BLOCKS_DFLT_ALLOC = DA->numBlocksInUse();
-        const bsls::Types::Int64 NUM_BLOCKS_GLOB_ALLOC = GA->numBlocksInUse();
-
-        ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
-        {
-            ball::TestObserver testObserver(bsl::cout, OA);
-
-            ASSERT(!Obj::isInitialized());
-            Obj manager(&testObserver, mLMC);
-            ASSERT( Obj::isInitialized());
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-            ASSERT(NUM_BLOCKS_GLOB_ALLOC <  GA->numBlocksInUse());
-
-            Obj& mLM = Obj::singleton();
-
-            ASSERT(&testObserver == mLM.observer());
-            ASSERT(1             == mLM.numCategories());
-
-            // add a category
-
-            const Cat *cat = mLM.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
-            ASSERT(cat);
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(cat == mLM.lookupCategory("Bloomberg.Bal"));
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat->categoryName()));
-            ASSERT(64  == cat->recordLevel());
-            ASSERT(48  == cat->passLevel());
-            ASSERT(32  == cat->triggerLevel());
-            ASSERT(16  == cat->triggerAllLevel());
-
-            // log a test message
-
-            if (veryVerbose) testObserver.setVerbose(1);
-
-            ball::Logger& lgr = mLM.getLogger();
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(0 == testObserver.numPublishedRecords());
-            const char *MESSAGE = "scoped guard test";
-            const int   LINE    = L_ + 1;
-            lgr.logMessage(*cat, cat->passLevel(), __FILE__, LINE, MESSAGE);
-            ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
-
-            ASSERT(1 == testObserver.numPublishedRecords());
-            const Rec& R = testObserver.lastPublishedRecord();
-            if (veryVerbose) cout << R << endl;
-
-            const Attr& A = R.fixedFields();
-            ASSERT(0                == bsl::strcmp("Bloomberg.Bal",
-                                                   A.category()));
-            ASSERT(A.severity() == cat->passLevel());
-            ASSERT(0            == bsl::strcmp(__FILE__, A.fileName()));
-            ASSERT(LINE         == A.lineNumber());
-            ASSERT(0            == bsl::strcmp(MESSAGE, A.message()));
-
-            const FieldValues& V = R.userFields();
-            ASSERT(0 == V.length());
-        }
-        ASSERT(0 == NUM_BLOCKS_GLOB_ALLOC);
-
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -2125,9 +2041,6 @@ int main(int argc, char *argv[])
             cout << endl << "TESTING LOW-LEVEL LOGGING" << endl
                          << "=========================" << endl;
 
-#if BDE_VERSION_MINOR >= 25
-        // TBD: This test is disabled for BDE 2.23.  Ensuring it will be
-        // re-enabled in the future.
 
         // Saving low-level handler
         const bsls::Log::LogMessageHandler oldBslsHandler =
@@ -2195,7 +2108,6 @@ int main(int argc, char *argv[])
             if(verbose) cout << "\tConfirm old handler restored." << endl;
             ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
         }
-#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -2466,16 +2378,16 @@ int main(int argc, char *argv[])
             data[ti].index = ti;
         }
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
 
         for (ti = 0; ti < NUM_THREADS; ++ti) {
-            bdlqq::ThreadUtil::create(&threads[ti],
+            bslmt::ThreadUtil::create(&threads[ti],
                                      workerThread29,
                                      (void*)&data[ti]);
         }
 
         for (ti = 0; ti < NUM_THREADS; ++ti) {
-            bdlqq::ThreadUtil::join(threads[ti]);
+            bslmt::ThreadUtil::join(threads[ti]);
         }
 
       } break;
@@ -2515,16 +2427,16 @@ int main(int argc, char *argv[])
             data[i].observer = new ball::DefaultObserver(&bsl::cout);
         }
 
-        bdlqq::ThreadUtil::Handle threads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle threads[NUM_THREADS];
 
         for (i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::create(&threads[i],
+            bslmt::ThreadUtil::create(&threads[i],
                                      workerThread28,
                                      (void*)&data[i]);
         }
 
         for (i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::join(threads[i]);
+            bslmt::ThreadUtil::join(threads[i]);
         }
 
         Obj& mLM = Obj::singleton();
@@ -4007,9 +3919,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing 'initSingleton'" << endl
                                   << "=======================" << endl;
 
-        bslma::TestAllocator defaultTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator globalTestAllocator(veryVeryVerbose);
-        bslma::TestAllocator objectTestAllocator(veryVeryVerbose);
+        bslma::TestAllocator defaultTestAllocator("d", veryVeryVerbose);
+        bslma::TestAllocator globalTestAllocator("g", veryVeryVerbose);
+        bslma::TestAllocator objectTestAllocator("o", veryVeryVerbose);
 
         bslma::TestAllocator *DA = &defaultTestAllocator;
         bslma::TestAllocator *GA = &globalTestAllocator;
@@ -4026,11 +3938,15 @@ int main(int argc, char *argv[])
             ball::TestObserver testObserver(bsl::cout, OA);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Cnf nameFilter(&toLower, OA);
+            Cnf nameFilter(bsl::allocator_arg_t(),
+                           bsl::allocator<Cnf>(OA),
+                           &toLower);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
-            Obj::DefaultThresholdLevelsCallback
-                thresholdsCallback(&simpleThresholdLevels, OA);
+            Obj::DefaultThresholdLevelsCallback thresholdsCallback(
+                       bsl::allocator_arg_t(),
+                       bsl::allocator<Obj::DefaultThresholdLevelsCallback>(OA),
+                       &simpleThresholdLevels);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::UserFieldsSchema descriptors(OA);
@@ -4039,7 +3955,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::Logger::UserFieldsPopulatorCallback populator(
-                                                       &simplePopulator, OA);
+                 bsl::allocator_arg_t(),
+                 bsl::allocator<ball::Logger::UserFieldsPopulatorCallback>(OA),
+                 &simplePopulator);
             ASSERT(NUM_BLOCKS_DFLT_ALLOC == DA->numBlocksInUse());
 
             ball::LoggerManagerDefaults mLMD;

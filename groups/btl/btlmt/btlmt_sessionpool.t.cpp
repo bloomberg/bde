@@ -4,16 +4,20 @@
 #include <btlmt_asyncchannel.h>
 #include <btlmt_channelpool.h>
 #include <btlmt_session.h>
+#include <btlmt_sessionfactory.h>
 
 #include <btlb_blobutil.h>
+
+#include <btlso_flag.h>
+
 #include <bslma_testallocator.h>
-#include <bdlqq_mutex.h>
-#include <bdlqq_threadutil.h>
-#include <bdlqq_barrier.h>
-#include <bdlqq_semaphore.h>
+
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_barrier.h>
+#include <bslmt_semaphore.h>
 
 #include <bdlf_bind.h>
-#include <bdlf_function.h>
 #include <bdlf_placeholder.h>
 #include <bdlf_memfn.h>
 #include <bslma_defaultallocatorguard.h>
@@ -55,26 +59,27 @@ using namespace bdlf::PlaceHolders;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] btlmt::SessionPool(config, poolStateCallback, *ta = 0);
+// [14] btlmt::SessionPool(BlobBufferFactory *, config, poolCb, *ta = 0);
 // [ 2] ~btlmt::SessionPool();
 //
 // MANIPULATORS
-// [13] int start();
-// [13] int stop();
-// [ 9] int stopAndRemoveAllSessions();
-// [12] int connect(host, ...., *socketOptions);
-// [12] int connect(serverAddr, ...., *socketOptions);
+// [12] int start();
+// [12] int stop();
+// [ 8] int stopAndRemoveAllSessions();
+// [11] int connect(host, ...., *socketOptions);
+// [11] int connect(serverAddr, ...., *socketOptions);
 // [ 5] int listen(*h, sscb, port, backlog, *factory, *data, *options);
 // [ 4] int listen(*h, sscb, port, backlog, reuse, *factory, *data, *options);
 // [  ] int listen(*h, sscb, endpoint, backlog, *factory, *data, *options);
 // [  ] int listen(*h, sscb, endpoint, backlog, reuse, *factory, *data, *opts);
 // [  ] int closeHandle(int handle);
-// [12] int connect(*h, sscb, *name, port, numAtts, time, *s, *f, *data, mode);
-// [12] int connect(*h, sscb, endpoint, numAtts, time, *s, *f, *userdata);
-// [11] int connect(*h, cb, *name, port, atts, time, *f, *data, mode, *o, *la);
-// [11] int connect(*h, sscb, endpoint, numAtts, time, *f, *userdata, *o, *la);
+// [11] int connect(*h, sscb, *name, port, numAtts, time, *s, *f, *data, mode);
+// [11] int connect(*h, sscb, endpoint, numAtts, time, *s, *f, *userdata);
+// [10] int connect(*h, cb, *name, port, atts, time, *f, *data, mode, *o, *la);
+// [10] int connect(*h, sscb, endpoint, numAtts, time, *f, *userdata, *o, *la);
 // [  ] int import(*h, sscb, *streamSocket, *factory, *sessionFactory, *data);
 // [  ] int import(*h, sscb, *streamSocket, *sessionFactory, *userData);
-// [10] int setWriteCacheWatermarks(handle, int lowWatermark, int hiWatermark);
+// [ 9] int setWriteCacheWatermarks(handle, int lowWatermark, int hiWatermark);
 //
 // ACCESSORS
 // [  ] const btlmt::ChannelPoolConfiguration& config() const;
@@ -83,14 +88,13 @@ using namespace bdlf::PlaceHolders;
 // [ 4] int portNumber(int handle) const;
 //
 // BUG FIXES
-// [ 8] Testing DRQS 28731692
-// [ 7] Testing DRQS 29067989
-// [ 6] Testing DRQS 24968477
-// [ 5] Testing DRQS 20535695
-// [ 4] Testing DRQS 22373213
+// [ 7] Testing removal of intermediate read blob
+// [ 6] Testing 'stop' updates numSessions correctly
+// [ 5] Testing peer address is set appropriately
+// [ 4] Testing removal of inefficiencies in read callback
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [14] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -156,7 +160,7 @@ static void aSsErT(int c, const char *s, int i)
 // The following macros facilitate thread-safe streaming to standard output.
 
 #define MTCOUT   coutMutex.lock(); { bsl::cout \
-                                         << bdlqq::ThreadUtil::selfIdAsInt()  \
+                                         << bslmt::ThreadUtil::selfIdAsInt()  \
                                          << ": "
 #define MTENDL   bsl::endl;  } coutMutex.unlock()
 
@@ -177,7 +181,7 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
-static bdlqq::Mutex coutMutex;
+static bslmt::Mutex coutMutex;
 
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
@@ -186,6 +190,7 @@ static
 btlso::IPv4Address getLocalAddress() {
     // On Cygwin, binding to btlso::IPv4Address() doesn't seem to work.
     // Wants to bind to localhost/127.0.0.1.
+
 #ifdef BSLS_PLATFORM_OS_CYGWIN
     return btlso::IPv4Address("127.0.0.1", 0);
 #else
@@ -207,7 +212,7 @@ void poolStateCallbackWithBarrier(int             state,
                                   int             source,
                                   void           *,
                                   int            *poolState,
-                                  bdlqq::Barrier *barrier)
+                                  bslmt::Barrier *barrier)
 {
     if (veryVerbose) {
         MTCOUT << "Pool state callback called with"
@@ -242,11 +247,11 @@ void sessionStateCallback(int             state,
     }
 }
 
-void sessionStateCallbackWithBarrier(int              state,
-                                     int              ,
-                                     btlmt::Session  *session,
-                                     void            *,
-                                     bdlqq::Barrier  *barrier)
+void sessionStateCallbackWithBarrier(int             state,
+                                     int             ,
+                                     btlmt::Session *session,
+                                     void           *,
+                                     bslmt::Barrier *barrier)
 {
     switch(state) {
       case btlmt::SessionPool::e_SESSION_DOWN: {
@@ -294,10 +299,10 @@ void sessionStateCallbackWithCounter(int              state,
     }
 }
 
-void readCbWithBlob(int           result,
-                    int          *numNeeded,
+void readCbWithBlob(int         result,
+                    int        *numNeeded,
                     btlb::Blob *data,
-                    int           ,
+                    int         ,
                     btlb::Blob *blob)
 {
     if (result) {
@@ -317,10 +322,10 @@ void readCbWithBlob(int           result,
 
 void readCbWithBlobAndBarrier(int             result,
                               int            *numNeeded,
-                              btlb::Blob   *data,
+                              btlb::Blob     *data,
                               int             channelId,
-                              btlb::Blob   *blob,
-                              bdlqq::Barrier *barrier)
+                              btlb::Blob     *blob,
+                              bslmt::Barrier *barrier)
 {
     readCbWithBlob(result, numNeeded, data, channelId, blob);
     barrier->wait();
@@ -328,10 +333,10 @@ void readCbWithBlobAndBarrier(int             result,
 
 void readCbWithCountAndBarrier(int             result,
                                int            *numNeeded,
-                               btlb::Blob   *data,
+                               btlb::Blob     *data,
                                int             ,
                                int            *cbCount,
-                               bdlqq::Barrier *barrier)
+                               bslmt::Barrier *barrier)
 {
     if (result) {
         // Session is going down.
@@ -349,14 +354,13 @@ void readCbWithCountAndBarrier(int             result,
                             // class TestSession
                             // =================
 
-
 class TestSession : public btlmt::Session {
     // This class is a concrete implementation of the 'btlmt::Session' protocol
     // to use along with 'Tester' objects.
 
     // DATA
     btlmt::AsyncChannel *d_channel_p;
-    BlobReadCallback   *d_callback_p;
+    BlobReadCallback    *d_callback_p;
 
   private:
     // NOT IMPLEMENTED
@@ -394,10 +398,10 @@ class TestSession : public btlmt::Session {
                             // -----------------
 
 // PRIVATE MANIPULATORS
-void TestSession::blobReadCb(int           result,
-                             int          *numNeeded,
+void TestSession::blobReadCb(int         result,
+                             int        *numNeeded,
                              btlb::Blob *blob,
-                             int           )
+                             int         )
 {
     if (result) {
         // Session is going down.
@@ -438,7 +442,7 @@ int TestSession::start()
                             d_callback_p
                             ? *d_callback_p
                             : bdlf::MemFnUtil::memFn(&TestSession::blobReadCb,
-                                                    this);
+                                                     this);
 
     d_channel_p->read(1, callback);
 
@@ -546,13 +550,13 @@ namespace BTEMT_SESSION_POOL_SETTING_SOCKETOPTIONS {
 using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
 int createConnection(
-                Obj                                          *sessionPool,
-                btlmt::SessionPool::SessionStateCallback      *sessionStateCb,
-                btlmt::SessionFactory                         *sessionFactory,
+                Obj                                            *sessionPool,
+                btlmt::SessionPool::SessionStateCallback       *sessionStateCb,
+                btlmt::SessionFactory                          *sessionFactory,
                 btlso::StreamSocket<btlso::IPv4Address>        *serverSocket,
-                SocketOptions                                *socketOptions,
+                SocketOptions                                  *socketOptions,
                 btlso::StreamSocketFactory<btlso::IPv4Address> *socketFactory,
-                const btlso::IPv4Address                      *ipAddress)
+                const btlso::IPv4Address                       *ipAddress)
 {
     ASSERT(0 == serverSocket->bind(getLocalAddress()));
     ASSERT(0 == serverSocket->listen(1));
@@ -577,9 +581,9 @@ int createConnection(
         typedef btlso::StreamSocketFactoryDeleter Deleter;
 
         bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-            clientSocket(socketFactory->allocate(),
-                         socketFactory,
-                         &Deleter::deleteObject<btlso::IPv4Address>);
+                      clientSocket(socketFactory->allocate(),
+                                   socketFactory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
 
         const int rc = clientSocket->bind(*ipAddress);
         if (rc) {
@@ -604,7 +608,7 @@ namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS {
 
 using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
-bdlqq::Mutex                                           mapMutex;
+bslmt::Mutex                                           mapMutex;
 bsl::map<int, btlmt::AsyncChannel *>                   sourceIdToChannelMap;
 typedef bsl::map<int, btlmt::AsyncChannel *>::iterator MapIter;
 
@@ -617,24 +621,24 @@ void sessionStateCallbackUsingChannelMapAndCounter(
 {
     switch(state) {
       case btlmt::SessionPool::e_SESSION_DOWN: {
-          if (veryVerbose) {
-              MTCOUT << "Client from "
-                     << session->channel()->peerAddress()
-                     << " has disconnected."
-                     << MTENDL;
-          }
+        if (veryVerbose) {
+            MTCOUT << "Client from "
+                   << session->channel()->peerAddress()
+                   << " has disconnected."
+                   << MTENDL;
+        }
       } break;
       case btlmt::SessionPool::e_SESSION_UP: {
-          if (veryVerbose) {
-              MTCOUT << "Client connected from "
-                     << session->channel()->peerAddress()
-                     << MTENDL;
-          }
-          {
-              bdlqq::LockGuard<bdlqq::Mutex> guard(&mapMutex);
-              sourceIdToChannelMap[handle] = session->channel();
-          }
-          ++*numUpConnections;
+        if (veryVerbose) {
+            MTCOUT << "Client connected from "
+                   << session->channel()->peerAddress()
+                   << MTENDL;
+        }
+        {
+            bslmt::LockGuard<bslmt::Mutex> guard(&mapMutex);
+            sourceIdToChannelMap[handle] = session->channel();
+        }
+        ++*numUpConnections;
       } break;
     }
 }
@@ -644,12 +648,12 @@ const int NUM_THREADS = 5;
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
                                                     clientSockets(NUM_THREADS);
-btlso::InetStreamSocketFactory<btlso::IPv4Address>    factory;
+btlso::InetStreamSocketFactory<btlso::IPv4Address>  factory;
 
 struct ConnectData {
     int                d_index;
     int                d_numBytes;
-    btlso::IPv4Address  d_serverAddress;
+    btlso::IPv4Address d_serverAddress;
 };
 
 void *connectFunction(void *args)
@@ -657,7 +661,7 @@ void *connectFunction(void *args)
     ConnectData              data      = *(const ConnectData *) args;
     const int                INDEX     = data.d_index;
     const int                NUM_BYTES = data.d_numBytes;
-    const btlso::IPv4Address  ADDRESS   = data.d_serverAddress;
+    const btlso::IPv4Address ADDRESS   = data.d_serverAddress;
 
     btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
     clientSockets[INDEX] = socket;
@@ -673,7 +677,7 @@ void *connectFunction(void *args)
             if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
                 continue;
             }
-            socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -683,11 +687,11 @@ void *connectFunction(void *args)
             rc = socket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
-            bdlqq::ThreadUtil::microSleep(1000 , 0);
+            bslmt::ThreadUtil::microSleep(1000 , 0);
         }
         else {
             return 0;                                                 // RETURN
@@ -707,9 +711,9 @@ struct ListenData {
 
 void *listenFunction(void *args)
 {
-    ListenData       data             = *(const ListenData *) args;
-    const int        INDEX            = data.d_index;
-    const int        NUM_BYTES        = data.d_numBytes;
+    ListenData       data      = *(const ListenData *) args;
+    const int        INDEX     = data.d_index;
+    const int        NUM_BYTES = data.d_numBytes;
     bsls::AtomicInt *numUpConnections(data.d_numUpConnections_p);
 
     btlso::StreamSocket<btlso::IPv4Address> *serverSocket = factory.allocate();
@@ -722,8 +726,7 @@ void *listenFunction(void *args)
 
     btlso::StreamSocket<btlso::IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
-    ASSERT(0 ==
-            acceptSocket->setBlockingMode(bteso_Flag::e_BLOCKING_MODE));
+    ASSERT(0 == acceptSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE));
 
     bsl::vector<char> buffer(NUM_BYTES);
 
@@ -731,10 +734,10 @@ void *listenFunction(void *args)
     do {
         int rc = acceptSocket->read(buffer.data(), numRemaining);
         if (rc < 0) {
-            if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
+            if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
                 continue;
             }
-            acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+            acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
 
@@ -744,11 +747,11 @@ void *listenFunction(void *args)
             rc = acceptSocket->write(buffer.data(), numRemaining);
 
             if (rc < 0) {
-                acceptSocket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+                acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
                 return 0;                                             // RETURN
             }
 
-            bdlqq::ThreadUtil::microSleep(1000 , 0);
+            bslmt::ThreadUtil::microSleep(1000 , 0);
         }
         else {
             return 0;                                                 // RETURN
@@ -759,12 +762,12 @@ void *listenFunction(void *args)
 
 bsls::AtomicInt numUpConnections(0);
 
-void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
-                     bdlqq::ThreadUtil::Handle                *listenThreads,
+void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
+                     bslmt::ThreadUtil::Handle                *listenThreads,
                      btlmt::SessionPool                       *pool,
                      btlmt::SessionPool::SessionStateCallback *sessionStateCb,
                      TestFactory                              *sessionFactory,
-                     const btlb::Blob&                       dataBlob)
+                     const btlb::Blob&                         dataBlob)
 {
     bsl::vector<int> serverHandles(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
@@ -779,20 +782,20 @@ void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
     const int   SIZE = 1024 * 1024; // 1 MB
 
     for (int i = 0; i < NUM_THREADS; ++i) {
-        connectData[i].d_index     = i;
-        connectData[i].d_numBytes  = SIZE;
+        connectData[i].d_index    = i;
+        connectData[i].d_numBytes = SIZE;
 
         const int PORTNUM = pool->portNumber(serverHandles[i]);
         connectData[i].d_serverAddress = btlso::IPv4Address("127.0.0.1",
-                                                           PORTNUM);
+                                                            PORTNUM);
 
-        ASSERT(0 == bdlqq::ThreadUtil::create(&connectThreads[i],
+        ASSERT(0 == bslmt::ThreadUtil::create(&connectThreads[i],
                                               &connectFunction,
                                               (void *) &connectData[i]));
     }
 
     while (numUpConnections < NUM_THREADS) {
-        bdlqq::ThreadUtil::microSleep(50, 0);
+        bslmt::ThreadUtil::microSleep(50, 0);
     }
 
     numUpConnections = 0;
@@ -804,13 +807,13 @@ void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
         listenData[i].d_numBytes           = SIZE;
         listenData[i].d_numUpConnections_p = &numUpConnections;
 
-        ASSERT(0 == bdlqq::ThreadUtil::create(&listenThreads[i],
+        ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                               &listenFunction,
                                               (void *) &listenData[i]));
     }
 
     while (numUpConnections < NUM_THREADS) {
-        bdlqq::ThreadUtil::microSleep(50, 0);
+        bslmt::ThreadUtil::microSleep(50, 0);
     }
 
     numUpConnections = 0;
@@ -829,7 +832,7 @@ void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
     }
 
     while (numUpConnections < NUM_THREADS) {
-        bdlqq::ThreadUtil::microSleep(50, 0);
+        bslmt::ThreadUtil::microSleep(50, 0);
     }
 
     mapMutex.lock();
@@ -849,8 +852,7 @@ void runTestFunction(bdlqq::ThreadUtil::Handle                *connectThreads,
 
 }  // close namespace BTEMT_SESSION_POOL_STOPANDREMOVEALLSESSIONS
 
-
-namespace BTEMT_SESSION_POOL_DRQS_29067989 {
+namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB {
 
 using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
@@ -870,10 +872,10 @@ enum {
 
 void readCbWithMetrics(int               result,
                        int              *numNeeded,
-                       btlb::Blob     *blob,
+                       btlb::Blob       *blob,
                        int               ,
                        int               numBytesToRead,
-                       bdlqq::Semaphore *semaphore)
+                       bslmt::Semaphore *semaphore)
 {
     static int numBytesRead = 0;
 
@@ -928,9 +930,9 @@ void readCbWithMetrics(int               result,
     }
 }
 
-}  // close namespace BTEMT_SESSION_POOL_DRQS_29067989
+}  // close namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB
 
-namespace BTEMT_SESSION_POOL_DRQS_20535695 {
+namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS {
 
 using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
@@ -944,11 +946,11 @@ class TestSessionFactory : public btlmt::SessionFactory {
     // strategy (such as pooling) is implemented.
 
     // DATA
-    bdlqq::Barrier *d_barrier_p;
+    bslmt::Barrier *d_barrier_p;
 
   public:
     // CREATORS
-    TestSessionFactory(bdlqq::Barrier *barrier);
+    TestSessionFactory(bslmt::Barrier *barrier);
         // Create a new 'TestSessionFactory' object using the specified
         // 'barrier'.
 
@@ -958,9 +960,8 @@ class TestSessionFactory : public btlmt::SessionFactory {
     // MANIPULATORS
     virtual void allocate(btlmt::AsyncChannel                   *channel,
                           const btlmt::SessionFactory::Callback& callback);
-        // Asynchronously allocate a 'btlmt::Session' object for the
-        // specified 'channel', and invoke the specified 'callback' with
-        // this session.
+        // Asynchronously allocate a 'btlmt::Session' object for the specified
+        // 'channel', and invoke the specified 'callback' with this session.
 
     virtual void deallocate(btlmt::Session *session);
         // Deallocate the specified 'session'.
@@ -974,7 +975,7 @@ class TestSessionFactory : public btlmt::SessionFactory {
                         // ------------------------
 
 // CREATORS
-TestSessionFactory::TestSessionFactory(bdlqq::Barrier *barrier)
+TestSessionFactory::TestSessionFactory(bslmt::Barrier *barrier)
 : d_barrier_p(barrier)
 {
 }
@@ -1006,9 +1007,9 @@ btlmt::AsyncChannel *TestSessionFactory::channel() const
     return 0;
 }
 
-}  // close namespace BTEMT_SESSION_POOL_DRQS_20535695
+}  // close namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS
 
-namespace BTEMT_SESSION_POOL_DRQS_44879376 {
+namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL {
 
                             // ===================
                             // class TesterSession
@@ -1020,7 +1021,7 @@ class TesterSession : public btlmt::Session {
 
     // DATA
     bsl::shared_ptr<btlmt::AsyncChannel>  d_channel_sp;
-    bdlqq::Barrier                       *d_barrier_p;
+    bslmt::Barrier                       *d_barrier_p;
 
     // PRIVATE MANIPULATORS
     void delayedChannelAccessor(
@@ -1039,10 +1040,10 @@ class TesterSession : public btlmt::Session {
         ASSERT(spChannel->peerAddress() == referenceAddress);
     }
 
-    void readCb(int           result,
-                int          *numNeeded,
+    void readCb(int         result,
+                int        *numNeeded,
                 btlb::Blob *blob,
-                int           channelId);
+                int         channelId);
         // Read callback for session pool.
 
   private:
@@ -1053,7 +1054,7 @@ class TesterSession : public btlmt::Session {
   public:
     // CREATORS
     TesterSession(const bsl::shared_ptr<btlmt::AsyncChannel>&  channel,
-                  bdlqq::Barrier                              *barrier);
+                  bslmt::Barrier                              *barrier);
         // Create a new 'TesterSession' object for the specified 'channel'.
 
     ~TesterSession();
@@ -1081,14 +1082,13 @@ class TesterFactory : public btlmt::SessionFactory {
     // strategy (such as pooling) is implemented.
 
     // DATA
-    int                              d_mode;
+    int               d_mode;
 
-    bdlqq::Barrier                  *d_barrier_p;   // held not owned
+    bslmt::Barrier   *d_barrier_p;    // held not owned
 
-    TesterSession                   *d_session_p;   // held not owned
+    TesterSession    *d_session_p;    // held not owned
 
-    bslma::Allocator                *d_allocator_p; // memory allocator (held,
-                                                    // not owned)
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
   public:
 
@@ -1100,7 +1100,7 @@ class TesterFactory : public btlmt::SessionFactory {
 
     // CREATORS
     TesterFactory(int               mode,
-                  bdlqq::Barrier   *barrier,
+                  bslmt::Barrier   *barrier,
                   bslma::Allocator *basicAllocator = 0);
         // Create a new 'TesterFactory' object of the specified 'mode'.
         // Optionally specify 'basicAllocator' used to supply memory.  If
@@ -1114,15 +1114,13 @@ class TesterFactory : public btlmt::SessionFactory {
     virtual void allocate(
                          const bsl::shared_ptr<btlmt::AsyncChannel>& channel,
                          const btlmt::SessionFactory::Callback&      callback);
-        // Asynchronously allocate a 'btlmt::Session' object for the
-        // specified 'channel', and invoke the specified 'callback' with
-        // this session.
+        // Asynchronously allocate a 'btlmt::Session' object for the specified
+        // 'channel', and invoke the specified 'callback' with this session.
 
     virtual void allocate(btlmt::AsyncChannel                    *channel,
                           const btlmt::SessionFactory::Callback&  callback);
-        // Asynchronously allocate a 'btlmt::Session' object for the
-        // specified 'channel', and invoke the specified 'callback' with
-        // this session.
+        // Asynchronously allocate a 'btlmt::Session' object for the specified
+        // 'channel', and invoke the specified 'callback' with this session.
 
     virtual void deallocate(btlmt::Session *session);
         // Deallocate the specified 'session'.
@@ -1138,7 +1136,7 @@ class TesterFactory : public btlmt::SessionFactory {
 // CREATORS
 TesterSession::TesterSession(
                           const bsl::shared_ptr<btlmt::AsyncChannel>&  channel,
-                          bdlqq::Barrier                              *barrier)
+                          bslmt::Barrier                              *barrier)
 : d_channel_sp(channel)
 , d_barrier_p(barrier)
 {
@@ -1149,10 +1147,10 @@ TesterSession::~TesterSession()
 }
 
 // MANIPULATORS
-void TesterSession::readCb(int           result,
-                           int          *numNeeded,
+void TesterSession::readCb(int         result,
+                           int        *numNeeded,
                            btlb::Blob *blob,
-                           int           )
+                           int         )
 {
     if (veryVerbose) {
         MTCOUT << "Read callback called with: " << result << MTENDL;
@@ -1168,14 +1166,16 @@ void TesterSession::readCb(int           result,
     *numNeeded = 1;
     btlb::BlobUtil::erase(blob, 0, blob->length());
 
-    bdlqq::ThreadUtil::Handle handle(bdlqq::ThreadUtil::invalidHandle());
-    ASSERT(0 == bdlqq::ThreadUtil::create(
-                &handle,
-                bdlf::BindUtil::bind(&TesterSession::delayedChannelAccessor,
-                                    this,
-                                    d_channel_sp,
-                                    d_channel_sp->peerAddress())));
-    bdlqq::ThreadUtil::detach(handle);
+    bslmt::ThreadUtil::Handle handle(bslmt::ThreadUtil::invalidHandle());
+
+    ASSERT(0 == bslmt::ThreadUtil::create(&handle,
+                                          bdlf::BindUtil::bind(
+                                        &TesterSession::delayedChannelAccessor,
+                                        this,
+                                        d_channel_sp,
+                                        d_channel_sp->peerAddress())));
+
+    bslmt::ThreadUtil::detach(handle);
 }
 
 int TesterSession::start()
@@ -1217,7 +1217,7 @@ btlmt::AsyncChannel *TesterSession::channel() const
 
 // CREATORS
 TesterFactory::TesterFactory(int               mode,
-                             bdlqq::Barrier   *barrier,
+                             bslmt::Barrier   *barrier,
                              bslma::Allocator *basicAllocator)
 : d_mode(mode)
 , d_barrier_p(barrier)
@@ -1275,14 +1275,14 @@ class Tester {
 
     btlmt::SessionPool              *d_sessionPool_p;   // managed pool (owned)
 
-    TesterFactory                   d_sessionFactory;  // factory
+    TesterFactory                    d_sessionFactory;  // factory
 
-    int                             d_portNumber;      // port on which this
-                                                       // echo server is
-                                                       // listening
+    int                              d_portNumber;      // port on which this
+                                                        // echo server is
+                                                        // listening
 
-    bslma::Allocator               *d_allocator_p;     // memory allocator
-                                                       // (held)
+    bslma::Allocator                *d_allocator_p;     // memory allocator
+                                                        // (held)
 
   public:
 
@@ -1290,7 +1290,7 @@ class Tester {
 
     // CREATORS
     Tester(int                        mode,
-           bdlqq::Barrier            *barrier,
+           bslmt::Barrier            *barrier,
            const btlso::IPv4Address&  endPointAddr,
            bslma::Allocator          *basicAllocator = 0);
     ~Tester();
@@ -1298,10 +1298,10 @@ class Tester {
     void poolStateCb(int reason, int source, void *userData);
         // Indicates the status of the whole pool.
 
-    void sessionStateCb(int            state,
-                        int            handle,
+    void sessionStateCb(int             state,
+                        int             handle,
                         btlmt::Session *session,
-                        void          *userData);
+                        void           *userData);
         // Per-session state.
 
     int portNumber() const;
@@ -1311,7 +1311,7 @@ class Tester {
 
 // CREATORS
 Tester::Tester(int                        mode,
-               bdlqq::Barrier            *barrier,
+               bslmt::Barrier            *barrier,
                const btlso::IPv4Address&  endPointAddr,
                bslma::Allocator          *basicAllocator)
 : d_config()
@@ -1324,26 +1324,27 @@ Tester::Tester(int                        mode,
     d_config.setMaxConnections(5);
     d_config.setReadTimeout(5.0);               // in seconds
     d_config.setMetricsInterval(10.0);          // seconds
-    d_config.setMaxWriteCache(1<<10);           // 1Mb
+    d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
     d_config.setIncomingMessageSizes(1, 100, 1024);
 
     typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
 
     SessionPoolStateCb poolStateCb = bdlf::MemFnUtil::memFn(
-                                          &Tester::poolStateCb,
-                                          this);
+                                                          &Tester::poolStateCb,
+                                                          this);
 
-    d_sessionPool_p = new (*d_allocator_p)
-                             btlmt::SessionPool(d_config,
-                                               poolStateCb,
-                                               basicAllocator);
+    d_sessionPool_p = new (*d_allocator_p) btlmt::SessionPool(d_config,
+                                                              poolStateCb,
+                                                              basicAllocator);
 
     btlmt::SessionPool::SessionStateCallback sessionStateCb =
-                 bdlf::MemFnUtil::memFn(&Tester::sessionStateCb,
-                                       this);
+                                bdlf::MemFnUtil::memFn(&Tester::sessionStateCb,
+                                                       this);
 
     ASSERT(0 == d_sessionPool_p->start());
+
     int handle;
+
     if (LISTENER == mode) {
         ASSERT(0 == d_sessionPool_p->listen(&handle,
                                             sessionStateCb,
@@ -1407,7 +1408,7 @@ int Tester::portNumber() const
     return d_portNumber;
 }
 
-}  // close namespace BTEMT_SESSION_POOL_DRQS_44879376
+}  // close namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -1442,10 +1443,10 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
        btlmt::AsyncChannel *d_channel_p;// underlying channel (held, not owned)
 
        // PRIVATE MANIPULATORS
-       void readCb(int           result,
-                   int          *numNeeded,
+       void readCb(int         result,
+                   int        *numNeeded,
                    btlb::Blob *blob,
-                   int           channelId);
+                   int         channelId);
            // Read callback for session pool.
 
      private:
@@ -1617,10 +1618,10 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         // This class implements a multi-user multi-threaded echo server.
 
         // DATA
-        btlmt::ChannelPoolConfiguration d_config;          // pool
+        btlmt::ChannelPoolConfiguration d_config;         // pool
                                                           // configuration
 
-        btlmt::SessionPool             *d_sessionPool_p;   // managed pool
+        btlmt::SessionPool             *d_sessionPool_p;  // managed pool
                                                           // (owned)
 
         my_EchoSessionFactory          d_sessionFactory;  // my_EchoSession
@@ -1630,7 +1631,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                                                           // echo server is
                                                           // listening
 
-        bdlqq::Mutex                  *d_coutLock_p;      // mutex protecting
+        bslmt::Mutex                  *d_coutLock_p;      // mutex protecting
                                                           // bsl::cout
 
         bslma::Allocator              *d_allocator_p;     // memory allocator
@@ -1640,10 +1641,10 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         void poolStateCb(int reason, int source, void *userData);
             // Indicates the status of the whole pool.
 
-        void sessionStateCb(int            state,
-                            int            handle,
+        void sessionStateCb(int             state,
+                            int             handle,
                             btlmt::Session *session,
-                            void          *userData);
+                            void           *userData);
             // Per-session state.
 
       private:
@@ -1657,15 +1658,15 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
                                      bslalg::TypeTraitUsesBslmaAllocator);
 
         // CREATORS
-        my_EchoServer(bdlqq::Mutex     *coutLock,
+        my_EchoServer(bslmt::Mutex     *coutLock,
                       int               portNumber,
                       int               numConnections,
                       bool              reuseAddressFlag,
                       bslma::Allocator *basicAllocator = 0);
             // Create an echo server that listens for incoming connections on
             // the specified 'portNumber' managing up to the specified
-            // 'numConnections' simultaneous connections.  The echo server
-            // will use the specified 'coutLock' to synchronize access to the
+            // 'numConnections' simultaneous connections.  The echo server will
+            // use the specified 'coutLock' to synchronize access to the
             // standard output.  Optionally specify a 'basicAllocator' used to
             // supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.  The behavior is undefined
@@ -1734,7 +1735,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
     }
 
     // CREATORS
-    my_EchoServer::my_EchoServer(bdlqq::Mutex     *lock,
+    my_EchoServer::my_EchoServer(bslmt::Mutex     *lock,
                                  int               portNumber,
                                  int               numConnections,
                                  bool              reuseAddressFlag,
@@ -1747,7 +1748,7 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         d_config.setMaxConnections(numConnections);
         d_config.setReadTimeout(5.0);               // in seconds
         d_config.setMetricsInterval(10.0);          // seconds
-        d_config.setMaxWriteCache(1<<10);           // 1Mb
+        d_config.setWriteCacheWatermarks(0, 1<<10); // 1Mb
         d_config.setIncomingMessageSizes(1, 100, 1024);
 
         typedef btlmt::SessionPool::SessionPoolStateCallback
@@ -1756,18 +1757,19 @@ namespace BTEMT_SESSION_POOL_USAGE_EXAMPLE {
         SessionPoolStateCb poolStateCb = bdlf::MemFnUtil::memFn(
                                             &my_EchoServer::poolStateCb, this);
 
-        d_sessionPool_p = new (*d_allocator_p)
-                             btlmt::SessionPool(d_config,
-                                               poolStateCb,
-                                               basicAllocator);
+        d_sessionPool_p = new (*d_allocator_p) btlmt::SessionPool(
+                                                               d_config,
+                                                               poolStateCb,
+                                                               basicAllocator);
 
         btlmt::SessionPool::SessionStateCallback sessionStateCb =
-                       bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
-                                             this);
+                         bdlf::MemFnUtil::memFn(&my_EchoServer::sessionStateCb,
+                                                this);
 
         ASSERT(0 == d_sessionPool_p->start());
         int handle;
-        ASSERT(0 == d_sessionPool_p->listen(&handle, sessionStateCb,
+        ASSERT(0 == d_sessionPool_p->listen(&handle,
+                                            sessionStateCb,
                                             portNumber,
                                             numConnections,
                                             reuseAddressFlag,
@@ -1841,7 +1843,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1863,7 +1865,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
 
       } break;
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
         // Test Constructor taking BlobBufferFactory
         //
@@ -1905,9 +1907,11 @@ int main(int argc, char *argv[])
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(4);
 
-        const int SIZE = 88;
-        btlb::Blob    blob;
-        bdlqq::Barrier barrier(2);
+        const int      SIZE = 88;
+
+        btlb::PooledBlobBufferFactory blobFactory(SIZE/2);
+        btlb::Blob                    blob;
+        bslmt::Barrier                barrier(2);
 
         BlobReadCallback callback = bdlf::BindUtil::bind(
                                                     &readCbWithBlobAndBarrier,
@@ -1922,8 +1926,8 @@ int main(int argc, char *argv[])
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolStateCb;
         typedef btlmt::SessionPool::SessionStateCallback     SessionStateCb;
 
-        PoolStateCb poolCb         = &poolStateCallback;
-        SessionStateCb     sessionStateCb = bdlf::BindUtil::bind(
+        PoolStateCb    poolCb         = &poolStateCallback;
+        SessionStateCb sessionStateCb = bdlf::BindUtil::bind(
                                               &sessionStateCallbackWithBarrier,
                                               _1,
                                               _2,
@@ -1931,8 +1935,7 @@ int main(int argc, char *argv[])
                                               _4,
                                               &barrier);
         const char FILL = 0xBB;
-        BSLS_ASSERT(0 == SIZE%2); // test invariant
-        btlb::PooledBlobBufferFactory blobFactory(SIZE/2);
+        BSLS_ASSERT(0 == SIZE % 2); // test invariant
         {
             Obj mX(&blobFactory, config, poolCb, &pa);
 
@@ -1983,7 +1986,7 @@ int main(int argc, char *argv[])
         ASSERT(0 != pa.numAllocations());
         ASSERT(0 == pa.numBytesInUse());
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'allocate' with shared async channel
         //   Ensure that the 'channel' passed to the session objects remains
@@ -2001,7 +2004,6 @@ int main(int argc, char *argv[])
         //      channel sharing.
         //
         // Testing:
-        //   DRQS 44879376
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "TESTING 'allocate' with shared channel"
@@ -2009,20 +2011,17 @@ int main(int argc, char *argv[])
                                << "======================================"
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_DRQS_44879376;
+        using namespace BTEMT_SESSION_POOL_CASE_ALLOCATE_SHARED_CHANNEL;
 
         btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
         btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
 
         btlso::IPv4Address address("127.0.0.1",
-                                  btlso::IPv4Address::k_ANY_PORT);
+                                   btlso::IPv4Address::k_ANY_PORT);
 
-        bdlqq::Barrier barrier(3);
+        bslmt::Barrier barrier(3);
 
-        Tester tester(Tester::LISTENER,
-                      &barrier,
-                      address,
-                      &ta);
+        Tester tester(Tester::LISTENER, &barrier, address, &ta);
 
         int portNumber = tester.portNumber();
 
@@ -2043,14 +2042,14 @@ int main(int argc, char *argv[])
             MTCOUT << "Bringing down the channel" << MTENDL;
         }
 
-        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 
         factory.deallocate(socket);
 
         barrier.wait();
 
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING CALLING 'start' AFTER 'stop'
         //   Ensure that 'start' after a 'stop' works as expected.
@@ -2118,8 +2117,8 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
-        bdlqq::ThreadUtil::Handle connectThreads[NUM_THREADS];
-        bdlqq::ThreadUtil::Handle listenThreads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle connectThreads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle listenThreads[NUM_THREADS];
 
         runTestFunction(connectThreads,
                         listenThreads,
@@ -2136,6 +2135,10 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.start());
 
+        mapMutex.lock();
+        sourceIdToChannelMap.clear();
+        mapMutex.unlock();
+
         runTestFunction(connectThreads,
                         listenThreads,
                         &mX,
@@ -2149,7 +2152,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == mX.numSessions());
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'connect' with socket options
         //   Ensure that the 'connect' that takes a socket option object
@@ -2192,14 +2195,14 @@ int main(int argc, char *argv[])
 
             typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
 
-            bdlqq::Barrier channelCbBarrier(2);
+            bslmt::Barrier channelCbBarrier(2);
             btlmt::SessionPool::SessionStateCallback sessionStateCb(
                          bdlf::BindUtil::bind(&sessionStateCallbackWithBarrier,
                                               _1, _2, _3, _4,
                                               &channelCbBarrier));
 
-            int             poolState;
-            bdlqq::Barrier   poolCbBarrier(2);
+            int              poolState;
+            bslmt::Barrier   poolCbBarrier(2);
             btlmt::SessionPool::SessionPoolStateCallback
                 poolStateCb(bdlf::BindUtil::bind(&poolStateCallbackWithBarrier,
                                                  _1, _2, _3,
@@ -2219,9 +2222,9 @@ int main(int argc, char *argv[])
                 typedef btlso::StreamSocketFactoryDeleter Deleter;
 
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                    socket(socketFactory.allocate(),
-                           &socketFactory,
-                           &Deleter::deleteObject<btlso::IPv4Address>);
+                            socket(socketFactory.allocate(),
+                                   &socketFactory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
 
                 SocketOptions opt;  opt.setKeepAlive(true); // always succeeds
                 const int rc = createConnection(&pool,
@@ -2260,7 +2263,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'connect' with a user-specified local address
         //   Ensure that the 'connect' that takes a client address returns a
@@ -2302,14 +2305,14 @@ int main(int argc, char *argv[])
 
             typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
 
-            bdlqq::Barrier channelCbBarrier(2);
+            bslmt::Barrier channelCbBarrier(2);
             btlmt::SessionPool::SessionStateCallback sessionStateCb(
                          bdlf::BindUtil::bind(&sessionStateCallbackWithBarrier,
                                               _1, _2, _3, _4,
                                               &channelCbBarrier));
 
             int             poolState;
-            bdlqq::Barrier  poolCbBarrier(2);
+            bslmt::Barrier  poolCbBarrier(2);
             btlmt::SessionPool::SessionPoolStateCallback
                 poolStateCb(bdlf::BindUtil::bind(&poolStateCallbackWithBarrier,
                                                  _1, _2, _3,
@@ -2329,9 +2332,9 @@ int main(int argc, char *argv[])
                 typedef btlso::StreamSocketFactoryDeleter Deleter;
 
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                    socket(socketFactory.allocate(),
-                           &socketFactory,
-                           &Deleter::deleteObject<btlso::IPv4Address>);
+                            socket(socketFactory.allocate(),
+                                   &socketFactory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
 
                 btlso::IPv4Address address("127.0.0.1", 45000); // good address
                 const int rc = createConnection(&pool,
@@ -2353,9 +2356,9 @@ int main(int argc, char *argv[])
                 typedef btlso::StreamSocketFactoryDeleter Deleter;
 
                 bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                    socket(socketFactory.allocate(),
-                           &socketFactory,
-                           &Deleter::deleteObject<btlso::IPv4Address>);
+                            socket(socketFactory.allocate(),
+                                   &socketFactory,
+                                   &Deleter::deleteObject<btlso::IPv4Address>);
 
                 btlso::IPv4Address address("1.1.1.1", 45000);  // bad address
                 const int rc = createConnection(&pool,
@@ -2376,7 +2379,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'setWriteCacheWatermarks'
         //   The 'setWriteCacheWatermarks' method has the expected effect.
@@ -2456,7 +2459,7 @@ int main(int argc, char *argv[])
                                         &factory));
 
         while (numUpConnections < 2) {
-            bdlqq::ThreadUtil::microSleep(50, 0);
+            bslmt::ThreadUtil::microSleep(50, 0);
         }
 
         ASSERT(0 != sessionPool.setWriteCacheWatermarks(handle + 666,
@@ -2464,45 +2467,50 @@ int main(int argc, char *argv[])
                                                         HI_WATERMARK - 1));
 
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
-                                                     LOW_WATERMARK,
-                                                     HI_WATERMARK));
+                                                        LOW_WATERMARK,
+                                                        HI_WATERMARK));
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
-                                                     LOW_WATERMARK,
-                                                     LOW_WATERMARK));
+                                                        LOW_WATERMARK,
+                                                        LOW_WATERMARK));
 
         sessionPool.setWriteCacheWatermarks(handle,
-                                            LOW_WATERMARK, HI_WATERMARK);
+                                            LOW_WATERMARK,
+                                            HI_WATERMARK);
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
                                                         HI_WATERMARK,
                                                         HI_WATERMARK));
 
         sessionPool.setWriteCacheWatermarks(handle,
-                                            LOW_WATERMARK, HI_WATERMARK);
+                                            LOW_WATERMARK,
+                                            HI_WATERMARK);
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
                                                         LOW_WATERMARK - 2,
                                                         LOW_WATERMARK));
 
         sessionPool.setWriteCacheWatermarks(handle,
-                                            LOW_WATERMARK, HI_WATERMARK);
+                                            LOW_WATERMARK,
+                                            HI_WATERMARK);
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
                                                         LOW_WATERMARK - 2,
                                                         LOW_WATERMARK - 1));
 
         sessionPool.setWriteCacheWatermarks(handle,
-                                            LOW_WATERMARK, HI_WATERMARK);
+                                            LOW_WATERMARK,
+                                            HI_WATERMARK);
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
                                                         HI_WATERMARK,
                                                         HI_WATERMARK + 2));
 
         sessionPool.setWriteCacheWatermarks(handle,
-                                            LOW_WATERMARK, HI_WATERMARK);
+                                            LOW_WATERMARK,
+                                            HI_WATERMARK);
         ASSERT(0 == sessionPool.setWriteCacheWatermarks(handle,
                                                         HI_WATERMARK + 1,
                                                         HI_WATERMARK + 2));
 
         ASSERT(0 == sessionPool.stop());
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'stopAndRemoveAllSessions'
         //
@@ -2568,8 +2576,8 @@ int main(int argc, char *argv[])
         btlb::Blob                    dataBlob(&factory);
         dataBlob.setLength(NUM_BYTES);
 
-        bdlqq::ThreadUtil::Handle connectThreads[NUM_THREADS];
-        bdlqq::ThreadUtil::Handle listenThreads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle connectThreads[NUM_THREADS];
+        bslmt::ThreadUtil::Handle listenThreads[NUM_THREADS];
 
         memset(connectThreads, 0, sizeof(connectThreads));
         memset(listenThreads, 0, sizeof(listenThreads));
@@ -2589,99 +2597,13 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.numSessions());
 
         for (int i = 0; i < NUM_THREADS; ++i) {
-            bdlqq::ThreadUtil::join(connectThreads[i]);
-            bdlqq::ThreadUtil::join(listenThreads[i]);
-        }
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // REPRODUCING DRQS 28731692
-        //  Ensure that session pool owns the factories used for allocating
-        //  read buffers.
-        //
-        // Concerns
-        //: 1 Session pool owns the factories that are used to allocate the
-        //:   buffers provided to clients in the data callback.
-        //
-        // Plan:
-        //: 1 Create a btlb::Blob that stores the data returned in the data
-        //:   callback.
-        //:
-        //: 2 Create a session pool object, 'mX', designed to use blobs
-        //:   and listen on a port on the local machine.
-        //:
-        //: 3 Create a socket and 'connect' to the port number on which the
-        //:   session pool is listening.
-        //:
-        //: 4 Write data on the socket.
-        //:
-        //: 5 Destroy the session pool.
-        //:
-        //: 6 Destroy the blob.
-        //
-        // Testing:
-        //  DRQS 28731692
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "DRQS 28731692" << bsl::endl
-                               << "=============" << bsl::endl;
-
-        using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
-
-        {
-            btlmt::ChannelPoolConfiguration config;
-            config.setMaxThreads(4);
-
-            typedef btlmt::SessionPool::SessionStateCallback     SessionCb;
-            typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
-
-            PoolCb    poolCb    = &poolStateCallback;
-            SessionCb sessionCb = &sessionStateCallback;
-
-            btlb::Blob           blob;
-            bslma::TestAllocator ta1, ta2;
-            BlobReadCallback     callback(bdlf::BindUtil::bind(&readCbWithBlob,
-                                                              _1,
-                                                              _2,
-                                                              _3,
-                                                              _4,
-                                                              &blob));
-
-            TestFactory factory(&callback, &ta2);
-            Obj         mX(config, poolCb, &ta1);
-
-            ASSERT(0 == mX.start());
-
-            int handle = 0;
-            ASSERT(0 == mX.listen(&handle,
-                                  sessionCb,
-                                  0,
-                                  5,
-                                  &factory));
-            const int PORTNUM = mX.portNumber(handle);
-            {
-                btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
-                btlso::StreamSocket<btlso::IPv4Address> *socket =
-                                                            factory.allocate();
-                bslma::ManagedPtr<btlso::StreamSocket<btlso::IPv4Address> >
-                  smp(socket,
-                      &factory,
-                      &SocketFactoryDeleter::deleteObject<btlso::IPv4Address>);
-
-                const btlso::IPv4Address ADDRESS("127.0.0.1", PORTNUM);
-                int rc = socket->connect(ADDRESS);
-                ASSERT(!rc);
-
-                const int PAYLOAD_SIZE = 320;
-                char payload[PAYLOAD_SIZE];
-                bsl::memset(payload, 'Z', PAYLOAD_SIZE);
-                socket->write(payload, PAYLOAD_SIZE);
-            }
+            bslmt::ThreadUtil::join(connectThreads[i]);
+            bslmt::ThreadUtil::join(listenThreads[i]);
         }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // REPRODUCING DRQS 29067989
+        // TESTING removal of intermediate read blob
         //  Ensure that session pool does not allocate and hold on to
         //  additional memory buffers when clients read all the data.
         //
@@ -2704,13 +2626,14 @@ int main(int argc, char *argv[])
         //:   unnecessarily hoard memory.
         //
         // Testing:
-        //  DRQS 29067989
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "DRQS 29067989" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose) bsl::cout << "TESTING removal of intermediate read blob"
+                               << bsl::endl
+                               << "========================================="
+                               << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_DRQS_29067989;
+        using namespace BTEMT_SESSION_POOL_CASE_REMOVE_EXTRA_BLOB;
 
         {
             btlmt::ChannelPoolConfiguration config;
@@ -2721,7 +2644,7 @@ int main(int argc, char *argv[])
             const int NUM_WRITES = 10000;
 
             bslma::TestAllocator ta;
-            bdlqq::Semaphore     semaphore;
+            bslmt::Semaphore     semaphore;
             BlobReadCallback     callback =
                                         bdlf::BindUtil::bind(
                                                      &readCbWithMetrics,
@@ -2782,7 +2705,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // REPRODUCING DRQS 24968477
+        // TESTING 'stop' updates numSessions correctly
         //  Ensure that the bug where d_numSessions is decremented in stop and
         //  then again when the session handle is destroyed has been fixed.
         //
@@ -2805,11 +2728,12 @@ int main(int argc, char *argv[])
         //:   returns 0.
         //
         // Testing:
-        //  DRQS 24968477
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "DRQS 24968477" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose) bsl::cout << "TEST 'stop' updates numSessions correctly"
+                               << bsl::endl
+                               << "========================================="
+                               << bsl::endl;
 
         using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
@@ -2822,7 +2746,7 @@ int main(int argc, char *argv[])
         config.setMaxConnections(NUM_SESSIONS);
 
         PoolCb          poolStateCb(&poolStateCallback);
-        bdlqq::Barrier  barrier(NUM_SESSIONS + 1);
+        bslmt::Barrier  barrier(NUM_SESSIONS + 1);
         bsls::AtomicInt numUpConnections(0);
 
         SessionCb sessionStateCb(bdlf::BindUtil::bind(
@@ -2861,7 +2785,7 @@ int main(int argc, char *argv[])
         }
 
         while (numUpConnections < NUM_SESSIONS) {
-            bdlqq::ThreadUtil::microSleep(50, 0);
+            bslmt::ThreadUtil::microSleep(50, 0);
         }
 
         int ns = X.numSessions();
@@ -2874,17 +2798,19 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // REPRODUCING DRQS 20535695
+        // TESTING peer address is set appropriately
         //
         // Plan:
         //
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "DRQS 20535695" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose) bsl::cout << "TESTING peer address is set appropriately"
+                               << bsl::endl
+                               << "========================================="
+                               << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_DRQS_20535695;
+        using namespace BTEMT_SESSION_POOL_CASE_PEER_ADDRESS;
 
         typedef btlmt::SessionPool::SessionStateCallback SessionCb;
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
@@ -2898,7 +2824,7 @@ int main(int argc, char *argv[])
         Obj mX(config, poolStateCb, false);
         ASSERT(0 == mX.start());
 
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
         int            handle;
         TestSessionFactory sessionFactory(&barrier);
         mX.listen(&handle, sessionStateCb, 0, 1, &sessionFactory);
@@ -2917,21 +2843,24 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == socket->connect(ADDRESS));
 
-        socket->shutdown(bteso_Flag::e_SHUTDOWN_BOTH);
+        socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 
         barrier.wait();
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // REPRODUCING DRQS 22373213
+        // TESTING removal of inefficiencies in read callback
         //
         // Plan:
         //
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "DRQS 22373213" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose)
+              bsl::cout << "TESTING removal of inefficiencies in read callback"
+                        << bsl::endl
+                        << "=================================================="
+                        << bsl::endl;
 
         using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
@@ -2939,7 +2868,7 @@ int main(int argc, char *argv[])
         config.setMaxThreads(4);
 
         int            cbCount = 0;
-        bdlqq::Barrier barrier(2);
+        bslmt::Barrier barrier(2);
 
         BlobReadCallback callback = bdlf::BindUtil::bind(
                                                     &readCbWithCountAndBarrier,
@@ -3115,7 +3044,7 @@ int main(int argc, char *argv[])
             const char STRING[] = "Hello World!";
 
             const btlso::IPv4Address ADDRESS("127.0.0.1",
-                                            mX.portNumber(handle));
+                                             mX.portNumber(handle));
             ASSERT(0 == socket->connect(ADDRESS));
             ASSERT(sizeof(STRING) == socket->write(STRING, sizeof(STRING)));
 

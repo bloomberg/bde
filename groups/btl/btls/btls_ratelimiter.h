@@ -287,7 +287,7 @@ BSLS_IDENT("$Id: $")
 //                                      rateLimiter.calculateTimeToSubmit(now);
 //          bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
 //                                 (timeToSubmit.nanoseconds() % 1000) ? 1 : 0;
-//          bdlqq::ThreadUtil::microSleep(static_cast<int>(uS));
+//          bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
 //      }
 //  }
 //..
