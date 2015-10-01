@@ -12,16 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlsb::FixedMemOutStreamBuf: output stream buffer using client memory
 //
-//@AUTHOR: Lea Fester (lfester)
-//
 //@SEE_ALSO: bdlsb_memoutstreambuf, bdlsb_fixedmeminstreambuf
 //
-//@DESCRIPTION: This component implements the output portion of the
-// 'bsl::basic_streambuf' protocol using a client-supplied memory buffer.
-// Method names necessarily correspond to the protocol-specified method names.
-// Clients supply the character buffer at stream buffer construction, and can
-// later reinitialize the stream buffer with a different character buffer by
-// calling the 'pubsetbuf' method.
+//@DESCRIPTION: This component defines a class 'bdlsb::FixedMemOutStreamBuf'
+// that implements the output portion of the 'bsl::basic_streambuf' protocol
+// using a client-supplied memory buffer.  Method names necessarily correspond
+// to the protocol-specified method names.  Clients supply the character buffer
+// at stream buffer construction, and can later reinitialize the stream buffer
+// with a different character buffer by calling the 'pubsetbuf' method.
 //
 // This component provides none of the input-related functionality of
 // 'basic_streambuf' (see Streaming Architecture, below), nor does it use
@@ -31,142 +29,103 @@ BSLS_IDENT("$Id: $")
 ///----------------------
 // Stream buffers are designed to decouple device handling from content
 // formatting, providing the requisite device handling and possible buffering
-// services, and leaving the formatting to the client stream.  The standard C++
-// IOStreams library further partitions streaming into input streaming and
+// services, and leaving the formatting to the client stream.  The standard
+// C++ IOStreams library further partitions streaming into input streaming and
 // output streaming, separating responsibilities for each at both the stream
 // layer and the stream buffer layer.  The BDE streaming library for 'bdex',
 // including all of 'bdesb', follows this model.
 //
-///Usage Example
-///-------------
-// This example demonstrates use of a stream buffer by a stream, in this case a
-// stream with simple formatting requirements -- namely, capitalizing all
-// character data that passes through its management.  (To simplify the
-// example, we do not include the functions for streaming non-character data.)
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-// The stream uses a client-supplied 'char'-array-based stream buffer, which is
-// inherently a fixed-size buffer.  In order to minimize data loss, this stream
-// (simplistically) flushes itself whenever utilization of the underlying
-// buffer exceeds 90 percent.  (In this simplified example, 'flush' merely
-// writes the buffer's contents to the screen.)
+///Example 1: Directly Observing Stream Buffer Contents
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Unlike most implementations of the 'bsl::basic_streambuf' concept,
+// 'bdlsb::FixedMemOutStreamBuf' gives the user direct access to the stream's
+// storage, both through the 'data' accessor and through the buffer originally
+// supplied to the constructor.  Note that this can be useful in many contexts,
+// such as when we need to perform extra security validation on buffer during
+// the streaming process.
+//
+// First, we create an array to provide storage for the stream buffer, and
+// construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
 //..
-// // my_capitalizingstream.h
-//
-// class my_CapitalizingStream {
-//     // This class capitalizes character data....
-//
-//   private:
-//     static const float NINETY_PERCENT;
-//
-//     bdlsb::FixedMemOutStreamBuf d_streamBuf;  // stream buffer to write to
-//     int d_capacity;                          // size of byte storage
-//     int d_utilization;                       // amount of storage in use
-//
-//     friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                              const string&          data);
-//     friend my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                              char                   data);
-//     // PRIVATE MANIPULATORS
-//     void flush();
-//         // Write the contents of this stream to....
-//
-//   public:
-//     // CREATORS
-//     my_CapitalizingStream(char *buffer, int   length);
-//         // Create a stream that....
-//
-//     ~my_CapitalizingStream() {}
-//         // Destroy this object.
-//
-//     // ACCESSORS
-//     const bdlsb::FixedMemOutStreamBuf& streamBuf() { return d_streamBuf; }
-//         // Return the stream buffer used by this stream.  Note that this
-//         // method is for debugging purposes only.
-// };
-//
-// // FREE OPERATORS
-// my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                   const string&          data);
-// my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                   char                   data);
-//     // Write the contents of....
+//  const unsigned int          STORAGE_SIZE = 64;
+//  char                        storage[STORAGE_SIZE];
+//  bdlsb::FixedMemOutStreamBuf buffer(storage, STORAGE_SIZE);
 //..
-// As is typical, the streaming operators are made friends of the class.
+// Notice that 'storage' is on the stack.  'bdlsb::FixedMemOutStreamBuf' can be
+// easily used without resorting to dynamic memory allocation.
+//
+// Then, we observe that 'buffer' already has a capacity of 64.  Note that this
+// capacity is fixed at construction:
 //..
-// // my_capitalizingstream.cpp
-//
-// #include <algorithm>
-//
-// const float my_CapitalizingStream::NINETY_PERCENT = 0.9;
-//
-// // CREATORS
-// my_CapitalizingStream::my_CapitalizingStream(char *buffer,
-//                                              int   length)
-//   : d_streamBuf(buffer, length)
-//   , d_capacity(length)
-//   , d_utilization(0)
-// {
-// }
-//
-// // PRIVATE MANIPULATORS
-// void my_CapitalizingStream::flush()
-// {
-//     bsl::cout << d_streamBuf.data() << bsl::endl;
-//     d_streamBuf.pubseekpos(0);
-// }
-//
-// // FREE OPERATORS
-// my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                   const string&          data)
-// {
-//     if (stream.d_utilization > my_CapitalizingStream::NINETY_PERCENT *
-//                                                         stream.d_capacity) {
-//         stream.flush();
-//     }
-//
-//     string tmp(data);
-//     transform(tmp.begin(), tmp.end(), tmp.begin(), bsl::toupper);
-//     stream.d_streamBuf.sputn(tmp.c_str(), tmp.length());
-//     stream.d_utilization += tmp.length();
-//     return stream;
-// }
-//
-// my_CapitalizingStream& operator<<(my_CapitalizingStream& stream,
-//                                   char                   data)
-// {
-//     if (stream.d_utilization > my_CapitalizingStream::NINETY_PERCENT *
-//                                                         stream.d_capacity) {
-//         stream.flush();
-//     }
-//
-//     stream.d_streamBuf.sputc(
-//                             bsl::toupper(static_cast<unsigned char>(data)));
-//     ++stream.d_utilization;
-//     return stream;
-// }
+//  assert(STORAGE_SIZE == buffer.capacity());
+//  assert( 0 == buffer.length());
+//  assert(buffer.data() == storage);
 //..
-// Given the above two functions, we can now write 'main', as follows:
+// Next, we use 'buffer' to construct a 'bsl::ostream':
 //..
-// // my_app.m.cpp
+//  bsl::ostream stream(&buffer);
+//..
+// Now, we output some data to the 'stream':
+//..
+//  stream << "The answer is " << 42 << ".";
+//..
+// Finally, we observe that the data is present in the storage array that we
+// supplied to 'buffer':
+//..
+//  assert(17 == buffer.length());
+//  assert(buffer.length() < STORAGE_SIZE);
+//  assert(0 == strncmp("The answer is 42.", storage, 17));
+//..
 //
-// int main(int argc, char **argv)
-// {
-//     char localBuffer[20];
-//     my_CapitalizingStream cs(localBuffer, sizeof localBuffer);
-//     cs << "If concrete objects reside in such a library";
+///Example 2: Fixed buffer's size illustration
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Unlike most implementations of the 'bsl::basic_streambuf' concept,
+// 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
+// constructor together with the address of the storage buffer.  That limit
+// will not be exceeded even in case of superfluous data.  Symbols beyond this
+// limit will be ignored.  Note that this can be useful if memory allocation
+// should be strictly controlled.
 //
-//     // Write again; since we do not have 10% capacity left, it will
-//     // force a flush.
-//     cs << "Hello!";
-// }
+// First, we create an array to provide storage for the stream buffer, fill it
+// with some data and construct a 'bdlsb::FixedMemOutStreamBuf' on the part of
+// that array:
 //..
-// Because the first write used more than 90% of the capacity (in fact, it
-// tried to write more than 100% of the capacity, causing a loss of all
-// characters beyond the twentieth), the second write forces a flush of the
-// stream buffer contents before copying the new contents.  The output from
-// this program therefore is:
+//  const unsigned int SMALL_STORAGE_SIZE = 16;
+//  const unsigned int SMALL_BUFFER_CAPACITY = SMALL_STORAGE_SIZE/2;
+//  char               smallStorage[SMALL_STORAGE_SIZE];
+//  memset(smallStorage, 'Z', SMALL_STORAGE_SIZE);
+//
+//  bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
+//                                          SMALL_BUFFER_CAPACITY);
 //..
-// IF CONCRETE OBJECTS
+// Next, we write some characters to the buffer and check that it handles them
+// correctly and superfluous data is ignored:
+//..
+//  bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
+//  assert(SMALL_BUFFER_CAPACITY == returnedSize);
+//  assert(SMALL_BUFFER_CAPACITY == smallBuffer.length());
+//  assert('Z' == smallStorage[smallBuffer.length()]);
+//..
+// Then, we reset position indicator to the beginning of storage:
+//..
+//  smallBuffer.pubseekpos(0,bsl::ios_base::out);
+//  assert(0 == smallBuffer.length());
+//..
+// Now, we write another string, containing fewer characters than the storage
+// capacity:
+//..
+//  returnedSize = smallBuffer.sputn("Truth.", 6);
+//..
+// Finally, we observe that given string has been successfully placed to
+// buffer:
+//..
+//  assert(6 == returnedSize);
+//  assert(6 == smallBuffer.length());
+//  assert(0 == strncmp("Truth.", smallStorage, 6));
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -205,9 +164,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlsb {
 
-                         // ==========================
-                         // class FixedMemOutStreamBuf
-                         // ==========================
+                       // ==========================
+                       // class FixedMemOutStreamBuf
+                       // ==========================
 
 class FixedMemOutStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -224,46 +183,49 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
                            off_type                offset,
                            bsl::ios_base::seekdir  fixedPosition,
                            bsl::ios_base::openmode which = bsl::ios_base::out);
-        // Set the location at which the next output will be written to the
-        // specified 'offset' from the location indicated by the specified
-        // 'fixedPosition' and return the new position on success or
-        // pos_type(-1) on failure.  The seek operation will fail if 'which'
-        // does not include the flag 'bsl::ios_base::out' or if the new
-        // position is less than zero or greater than the value returned by
-        // 'length'.
+        // Set the position indicator to the relative specified 'offset' from
+        // the base position indicated by the specified 'fixedPosition' and
+        // return the resulting absolute position on success or pos_type(-1)
+        // on failure.  Optionally specify 'which' area of the stream buffer.
+        // The seek operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if the resulting absolute position is less
+        // than zero or greater than the value returned by 'length'.
 
     virtual pos_type seekpos(
                            pos_type                position,
                            bsl::ios_base::openmode which = bsl::ios_base::out);
-        // Set the location at which the next output will be written to the
-        // specified 'position' and return the 'position' on success or
-        // pos_type(-1) on failure.  The seek operation will fail if 'which'
-        // does not include the flag 'bsl::ios_base::out' or if
-        // 'position < 0 || length() < position'.
+        // Set the position indicator to the specified 'position' and return
+        // the resulting absolute position on success or pos_type(-1) on
+        // failure.  Optionally specify 'which' area of the stream buffer.  The
+        // 'seekpos' operation will fail if 'which' does not include the flag
+        // 'bsl::ios_base::out' or if position is less then zero or greater
+        // than the value returned by 'length'.
 
     virtual FixedMemOutStreamBuf *setbuf(char_type       *buffer,
                                          bsl::streamsize  length);
         // Reinitialize this stream buffer to use the specified character
         // 'buffer' having the specified 'length'.  Return the address of this
-        // modifiable stream buffer.  Upon reinitialization for use of the new
-        // buffer, the length and next output location are reset to zero.  Note
-        // that 'buffer' is held but not owned.
+        // modifiable stream buffer.  The behavior is undefined unless
+        // 'length == 0' or 'length > 0 && buffer != 0'.  Upon
+        // re-initialization for use of the new buffer, the length and next
+        // output location are reset to zero.  Note that 'buffer' is held but
+        // not owned.
 
   public:
     // CREATORS
-    FixedMemOutStreamBuf(char            *buffer,
-                               bsl::streamsize  length);
+    FixedMemOutStreamBuf(char *buffer, bsl::streamsize length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
-        // unless '0 < length'.  Note that 'buffer' is held but not owned.
+        // unless 'length == 0' or 'length > 0 && buffer != 0'.
+        // Note that 'buffer' is held but not owned.
 
     ~FixedMemOutStreamBuf();
         // Destroy this stream buffer.
 
     // MANIPULATORS
     char *data();
-        // Return the address of the modifiable character buffer held by this
-        // stream buffer.
+        // Return a pointer providing modifiable access to the character buffer
+        // held by this stream buffer (supplied at construction).
 
     // ACCESSORS
     bsl::streamsize capacity() const;
@@ -272,36 +234,24 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
         // written.
 
     const char *data() const;
-        // Return the address of the non-modifiable character buffer held by
-        // this stream buffer.
+        // Return a pointer providing non-modifiable access to the character
+        // buffer held by this stream buffer (supplied at construction).
 
     bsl::streamsize length() const;
         // Return the number of characters from the beginning of the buffer to
-        // the current write position.  This function returns the same value as
-        // 'seekoff(0, bsl::ios_base::end)'.  The length is modified by a call
-        // to 'seekpos' or 'seekoff' and reset to zero by a call to
+        // the current write position.  This function returns the same value
+        // as 'seekoff(0, bsl::ios_base::end)'.  The length is modified by a
+        // call to 'seekpos' or 'seekoff' and reset to zero by a call to
         // 'pubsetbuf'.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-    bsl::streamsize bufSize() const;
-        // Return the number of characters in the buffer held by this stream
-        // buffer.  See 'length', below, for the span of bytes actually
-        // written.
-        //
-        // DEPRECATED: Use 'capacity()' instead.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------------
-                         // class FixedMemOutStreamBuf
-                         // --------------------------
+                       // --------------------------
+                       // class FixedMemOutStreamBuf
+                       // --------------------------
 
 // PROTECTED MANIPULATORS
 inline
@@ -319,7 +269,7 @@ FixedMemOutStreamBuf::setbuf(char_type *buffer, bsl::streamsize length)
 // CREATORS
 inline
 FixedMemOutStreamBuf::FixedMemOutStreamBuf(char            *buffer,
-                                                       bsl::streamsize  length)
+                                           bsl::streamsize  length)
 {
     BSLS_ASSERT_SAFE(buffer || 0 == length);
     BSLS_ASSERT_SAFE(0 <= length);
@@ -357,21 +307,8 @@ bsl::streamsize FixedMemOutStreamBuf::length() const
 {
     return pptr() - pbase();
 }
+
 }  // close package namespace
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-namespace bdlsb {
-
-inline
-bsl::streamsize FixedMemOutStreamBuf::bufSize() const
-{
-    return capacity();
-}
-}  // close package namespace
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 }  // close enterprise namespace
 
 #endif
