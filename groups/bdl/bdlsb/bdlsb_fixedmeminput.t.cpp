@@ -1,112 +1,102 @@
 // bdlsb_fixedmeminput.t.cpp                                          -*-C++-*-
-
 #include <bdlsb_fixedmeminput.h>
 
 #include <bslim_testutil.h>
+#include <bsls_asserttest.h>
 
 #include <bsl_iostream.h>
-#include <bsl_iomanip.h>
-#include <bsl_strstream.h>
-#include <bsl_string.h>
+#include <bsl_iomanip.h>            // for testing only
+#include <bsl_sstream.h>            // for testing only
+#include <bsl_string.h>             // for testing only
+
+#include <bslx_byteoutstream.h>     // for testing only
+#include <bslx_genericinstream.h>   // for testing only
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
-//=============================================================================
-//                              TEST PLAN
-//-----------------------------------------------------------------------------
-//                          *** Overview ***
-//
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
 // This test driver exercises all the public methods from the 'basic_streambuf'
-// protocol that are implemented by the class 'bdlsb::FixedMemInput', as well
-// as each public method in the 'bdlsb::FixedMemInput' class that is not part
-// of the 'basic_streambuf' protocol.
+// protocol that are implemented by the 'FixedMemInput', as well as each new
+// (non-protocol) public method added in the 'FixedMemInput' class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
 // behavior, and that they conform to a feasible interpretation of the standard
 // as described in the function documentation, where the standard defined
-// behavior only loosely.  For those methods that are not protocol-defined, we
+// behavior only loosely.  For those methods that are not protocol defined, we
 // check only compliance with the behavior as described in the function
 // documentation.
 //
-//       Primary Constructors, Primary Manipulators, and Basic Accessors
-//       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Primary Constructors:
-//   A 'bdlsb::FixedMemInput' is created with a client-supplied C char
-//   array (which can be changed during the lifetime of an object), and a
-//   length specification.  This is the only constructor, so our set of
-//   primary constructors will be:
-//
-//    o bdlsb::FixedMemInput(char *buffer, bsl::streamsize length);
-//
 // Primary Manipulators:
-//   We can bring a 'bdlsb::FixedMemInput' to any achievable white-box
-//   state by using a combination of 'pubseekpos', which allows us to
-//   reposition the "cursor" (i.e., the position that the next read operation
-//   will input from) anywhere in the stream buffer, and 'sbumpc', which
-//   removes a single character from the stream buffer.
+//: o Value constructor 'FixedMemInput(const char *, streamsize)'
+//: o 'sbumpc'
 //
-//    o int_type sgetc(char_type);
-//    o pos_type pubseekpos(pos_type, ios_base::openmode);
+/// Basic Accessors:
+//: o 'data'
+//: o 'length'
 //
-//
-// Basic Accessors:
-//   We would like to find the largest set of *direct* accessors that can be
-//   used generally to report back on the state of the object.  The
-//   'bdesb::MemInStreamBuf' component has only 'length' and 'data' as
-//   accessors, and so they form our accessor set:
-//
-//    o const char_type *data();
-//    o streamsize length();
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 3] bdlsb::FixedMemInput(char *, streamsize);
+// [ 2] FixedMemInput(const char *, streamsize);
+// [ 2] ~FixedMemInput();
 //
 // MANIPULATORS
-// [ 4] seekpos(pos_type, openmode);
-// [ 6] setbuf(char *, streamsize);
-// [ 6] setbuf(const char *, streamsize);
-// [ 6] pubsetbuf(char *, streamsize);
-// [ 6] pubsetbuf(const char *, streamsize);
-// [ 7] streamsize xsgetn(char_type, streamsize);
-// [ 8] pbackfail(int_type);
-// [ 9] seekoff(off_type, seekdir, openmode);
+// [ 2] int_type sbumpc();
+// [ 8] int_type sgetc();
+// [ 9] int_type snextc();
+// [ 5] streamsize sgetn(char_type, streamsize);
+// [ 6] pos_type pubseekoff(off_type, seekdir, openmode);
+// [ 6] pos_type pubseekpos(pos_type, openmode);
+// [ 7] FixedMemInput *pubsetbuf(char *, streamsize);
+// [ 7] FixedMemInput *pubsetbuf(const char *, streamsize);
+// [10] int_type sputbackc(char_type);
+// [11] int_type sungetc();
+//
 //
 // ACCESSORS
-// [10] showmanyc();
-// [ 4] data();
-// [ 4] length();
+// [ 4] const char *data() const;
+// [ 4] streamsize length() const;
+// [ 4] streamsize capacity() const;
+// [12] streamsize in_avail();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TEST APPARATUS
-// [ 5] ostream& operator<<(ostream&, const bdlsb::FixedMemInput&);
-//-----------------------------------------------------------------------------
+// [ 3] ostream& operator<<(ostream&, const FixedMemInput&);
+// [13] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
 // ============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
@@ -115,43 +105,91 @@ void aSsErT(int c, const char *s, int i)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLIM_TESTUTIL_L_  // current Line number
-
-// ============================================================================
-//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-// ----------------------------------------------------------------------------
-const int ARBITRARY_INITIAL_BUFSIZE = 20;
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                    GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-                   // ===================================
-                   // operator<< for bdlsb::FixedMemInput
-                   // ===================================
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
+// ============================================================================
+//                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+
+typedef bdlsb::FixedMemInput Obj;
+
+const bsl::size_t   INIT_BUFSIZE = 20;
+const Obj::off_type INIT_BUFSIZE_POS = 20;
+const bsl::size_t   MIDPOINT     = INIT_BUFSIZE / 2;
+const Obj::off_type MIDPOINT_POS = INIT_BUFSIZE_POS / 2;
+
+// The aliases for types and constants used in seeking/positioning tests
+typedef bsl::ios_base::openmode io_openmode;
+typedef bsl::ios_base::seekdir  io_seekdir;
+
+const io_openmode PUT = bsl::ios_base::out;
+const io_openmode GET = bsl::ios_base::in;
+const io_seekdir  CUR = bsl::ios_base::cur;
+const io_seekdir  BEG = bsl::ios_base::beg;
+const io_seekdir  END = bsl::ios_base::end;
+
+//=============================================================================
+//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+
+// This function is used to fill the provided buffer with pattern used across
+// multiple tests.
+void fillBuffer(char* buffer, bsl::size_t length)
+{
+    char         ch;
+    bsl::size_t  i;
+    for (ch = 'a', i = 0; i < length; ++i, ++ch) {
+        buffer[i] = ch;
+    }
+}
+
+}  // close unnamed namespace
+
+               // ============================
+               // operator<< for FixedMemInput
+               // ============================
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdlsb::FixedMemInput& streamBuffer);
+bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer);
     // Write the contents of the specified 'streamBuffer' (as well as a marker
     // indicating eight bytes groupings) to the specified output 'stream' in
     // binary format, and return a reference to the modifiable 'stream'.
 
-bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bdlsb::FixedMemInput& streamBuffer)
+bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer)
 {
-    const int   len  = streamBuffer.length();
-    const char *data = streamBuffer.data();
+    const bsl::streamsize   len  = streamBuffer.length();
+    const char             *data = streamBuffer.data();
 
     bsl::ios::fmtflags flags = stream.flags();
+
     stream << bsl::hex;
-    for (int i = 0; i < len; ++i) {
+
+    for (bsl::streamsize i = 0; i < len; ++i) {
         if (0 < i && 0 != i % 8) stream << ' ';
 
         if (0 == i % 8) { // print new line and address after 8 bytes
@@ -163,1009 +201,1464 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     return stream;
 }
 
-// ============================================================================
-//                               MAIN PROGRAM
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 ///Usage
 ///-----
-// See the 'bdlsb_fixedmeminstreambuf' component for an identical usage
-// example, where every occurrence of 'bdlsb::FixedMemInStreamBuf' can be
-// substituted for 'bdlsb::FixedMemInput'.
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdlsb::FixedMemInput'
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// The 'bdlsb::FixedMemInput' class is intended to be used as a template
+// parameter to the 'bslx::GenericInStream' class.  Such specialization
+// provides user with performance efficient way to unexternalize BDEX encoded
+// data from existing character buffer.
+//
+// See the 'bslx_genericinstream' component usage example for a more practical
+// example of using 'bslx' streams.
+//
+// This example demonstrates instantiating a template, 'bslx::GenericInStream',
+// on a 'bdlsb::FixedMemInput' object and using the 'bslx::GenericInStream'
+// object to stream in some data.
+//
+// First, create 'bslx::ByteOutStream' 'outStream' and externalize some user
+// data to it.  Note that this code only prepares the character buffer that is
+// used to illustrate the purpose of the 'bdlsb::FixedMemInput' class.
+//..
+    bslx::ByteOutStream outStream(20131127);
+
+    unsigned int MAGIC = 0x1812;
+
+    outStream.putUint32(MAGIC);
+    outStream.putInt32(83);
+    outStream.putString(bsl::string("test"));
+    ASSERT(outStream.isValid());
+//..
+// Next, create a 'bdlsb::FixedMemInput' stream buffer initialized with the
+// buffer from the 'bslx::ByteOutStream' object 'outStream':
+//..
+    bdlsb::FixedMemInput streamBuffer(outStream.data(), outStream.length());
+//..
+// Then, create the 'bslx::GenericInStream' stream parametrized with
+// 'bdlsb::FixedMemInput':
+//..
+    bslx::GenericInStream<bdlsb::FixedMemInput>  inStream(&streamBuffer);
+//..
+// Now, use resulting 'inStream' to unexternalize user data:
+//..
+    unsigned int  magic;
+    int           key;
+    bsl::string   value;
+
+    inStream.getUint32(magic);
+    inStream.getInt32(key);
+    inStream.getString(value);
+    ASSERT(inStream.isValid());
+//..
+// Finally, verify that the data from the supplied buffer was unexternalized
+// correctly:
+//..
+    ASSERT(MAGIC  == magic);
+    ASSERT(83     == key);
+    ASSERT("test" == value);
+//..
+
       } break;
-      case 10: {
+
+      case 12: {
         // --------------------------------------------------------------------
-        // SHOWMANYC
+        // TESTING 'in_avail' METHOD
         //
         // Concerns:
-        //   - That 'showmanyc' return the correct number of items left
-        //     to consume in the streambuf.
+        //: 1 That 'in_avail' returns the correct number of items left to
+        //:   consume in the streambuf.
         //
         // Plan:
-        //   Use a depth-ordered enumeration to simulate categories 0, 1,
-        //   and >-1 for category partitioning of stream buffer capacity, in
-        //   cross-product with remaining-characters categories 0, [1..
-        //   stream buffer capacity -1], and [entire capacity].
-        //
-        // Tactics:
-        //   - Category-Partitioning Data Selection Method
-        //   - Table-Based Implementation Technique
+        //: 1 Using the table-driven test-case-implementation technique, test
+        //:   the output of the 'in_avail' method for remaining-characters
+        //:   categories 0, [1..stream buffer capacity-1] and [entire capacity]
+        //:   (C-1)
         //
         // Testing:
-        //   showmanyc();
+        //   streamsize in_avail();
         // --------------------------------------------------------------------
 
-        const char *msg1 = "Testing when entire capacity remains.";
-        const char *msg2 = "Testing when entire capacity minus one remains.";
-        const char *msg3 = "Testing when at most 1 character remains.";
-        const char *msg4 = "Testing when 0 characters remain.";
-        const char *msgs[4] = {msg1, msg2, msg3, msg4};
-
         if (verbose) cout << endl
-                          << "SHOWMANYC TEST" << endl
-                          << "==============" << endl;
+                          << "TESTING 'in_avail' METHOD" << endl
+                          << "=========================" << endl;
 
+        if (verbose) cout << "\nTesting 'in_avail' with no buffer." << endl;
         {
-            const int ENUM_DEPTH_LIMIT = 5;
-            char buffer[ENUM_DEPTH_LIMIT];
-            for (int i = 0; i < ENUM_DEPTH_LIMIT; ++i) {
+            Obj mSB(0, 0);
 
-                if (veryVerbose) {
-                  cout <<
-          "\nTesting 'inavail' ('showmanyc') for streambufs of initial length "
-                       << i << '.' << endl;
-                }
-
-                // Test for entire capacity and entire-minus-one left
-                for (int k = 0; k <= 1; ++k) {
-                    for (int j = 0; j < i; ++j) {
-                        buffer[j] = 'a' + (j %26);
-                    }
-                    bdlsb::FixedMemInput mSB(buffer, i);
-
-                    if (veryVerbose) { cout << "\t" << msgs[k] << endl; }
-                    const int WAY_BIG_ENOUGH = 100;
-                    char temp[WAY_BIG_ENOUGH];
-                    mSB.sgetn(temp, k);
-                    bsl::streamsize ret = mSB.in_avail();
-                    if (i - k == 0) {
-                        LOOP2_ASSERT(i, k, -1 == ret);
-                    }
-                    else {
-                        LOOP2_ASSERT(i, k, i - k == ret);
-                    }
-                }
-
-                // Test for 1 char left and 0 chars left
-                if (veryVerbose) cout << endl;
-
-                for (int k = 1; k >= 0; --k) {
-                    for (int j = 0; j < i; ++j) {
-                        buffer[j] = 'a' + (j %26);
-                    }
-                    bdlsb::FixedMemInput mSB(buffer, i);
-
-                    if (veryVerbose) { cout << "\t" << msgs[3 - k] << endl; }
-                    const int WAY_BIG_ENOUGH = 100;
-                    char temp[WAY_BIG_ENOUGH];
-                    if (i - k >= 0) {
-                        mSB.sgetn(temp, i - k);
-                        bsl::streamsize ret = mSB.in_avail();
-                        if ( k == 0) {
-                             LOOP2_ASSERT(i, k, -1 == ret);
-                        }
-                        else {
-                            LOOP2_ASSERT(i, k, k == ret);
-                        }
-                    }
-                }
-
-            }
+            ASSERT(-1 == mSB.in_avail());
         }
-      } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // SEEK TEST
-        //
-        // Concerns:
-        //   - that seeking relative to a specification ('seekoff') uses
-        //     the correct location from which to offset
-        //   - that both negative and positive offsets compute correctly
-        //   - that seeking positions the "cursor" (i.e., pptr()) at the
-        //     correct location
-        //   - that seeking out of bounds does not throw or abort or crash
-        //     the program
-        //   - that trying to seek in the "get" area has no effect
-        //
-        // Plan:
-        //   Perform a variety of seeks, using representative test vectors from
-        //   the cross-product of offset categories beginning-pointer, current-
-        //   pointer and end-pointer, with direction categories negative-
-        //   forcing-past-beginning, negative-falling-within-bounds, 0,
-        //   positive-falling-within bounds, and positive-forcing-past-end.
-        //
-        // Tactics:
-        //   - Category-Partitioning Data Selection Method
-        //   - Table-Based Implementation Technique
-        //
-        // Testing:
-        //   pos_type seekoff(off_type, seekdir, openmode);
-        // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "SEEKOFF TESTS" << endl
-                          << "=============" << endl;
 
-        if (verbose) cout << "\nTesting seekoff from beginning and end."
-                          << endl;
-
-        const int OUT = bsl::ios_base::out;
-        const int IN  = bsl::ios_base::in;
-        const int CUR = bsl::ios_base::cur;
-        const int BEG = bsl::ios_base::beg;
-        const int END = bsl::ios_base::end;
-        char mFILL[ARBITRARY_INITIAL_BUFSIZE];
-        memset(mFILL, 'a', sizeof mFILL);
-
+        if (verbose) cout <<
+            "\nTesting 'in_avail' in various positions." << endl;
         {
             static const struct {
-                int         d_line;          // line number
-                int         d_areaFlags;     // "put" area or "get" area
-                bdlsb::FixedMemInput::pos_type
-                            d_amount;        // amount to seek
-                int         d_base;          // seekoff from where?
-                int         d_retVal;
+                int           d_line;          // line number
+                int           d_bufferSize;    // buffer size
+                streamsize    d_charsToRead;   // number of characters to read
+                streamsize    d_expectedAvail; // expected number of available
+                                               // characters in the streambuf
             } DATA[] = {
-               //L#  area                      final
-               //    flag   amount     base    position/ retVal
-               //--  ----   -------    ----    ----------------
-               // seekoff from the start of the streambuf
-               { L_,  IN,    -2,      BEG,      -1,     },
-               { L_,  IN,     0,      BEG,       0      },
-               { L_,  IN,   ARBITRARY_INITIAL_BUFSIZE - 1,
-                                      BEG,
-                                    ARBITRARY_INITIAL_BUFSIZE - 1 },
-               { L_,  IN,   500,      BEG,      -1  },
-
-               // seekoff in the "put" area
-               { L_,  OUT,   22,      BEG,      -1  },
-
-               // seekoff from the end of the streambuf.
-               { L_,  IN,  -300,      END,      -1  },
-               { L_,  IN,  -ARBITRARY_INITIAL_BUFSIZE,
-                                      END,       0  },  // excessive but good
-               { L_,  IN,  -30,       END,      -1 },
-               { L_,  IN,    0,       END,     ARBITRARY_INITIAL_BUFSIZE },
-               { L_,  IN,    1,       END,      -1 },
-
-               // seekoff in the "put" area
-               { L_,  OUT,    22,     END,      -1  },
-
-               // seekoff from the current cursor, where cur == begin
-               { L_,  IN,  -300,      CUR,      -1 },
-               { L_,  IN,  -30,       CUR,      -1  },
-               { L_,  IN,    0,       CUR,       0   },
-               { L_,  IN,    1,       CUR,       1   },
-
-               // seekoff in the "put" area
-               { L_,  OUT,    22,       CUR,      -1  }
+               //LINE   BUFFER_SIZE   CHARS_TO_READ EXPECTED_AVAIL
+               //----  ------------  -------------- --------------
+               { L_,             0,             0,             -1 },
+               { L_,             0,             1,             -1 },
+               { L_,             1,             0,              1 },
+               { L_,             1,             1,             -1 },
+               { L_,             1,             2,             -1 },
+               { L_,             2,             0,              2 },
+               { L_,             2,             1,              1 },
+               { L_,             2,             2,             -1 },
+               { L_,             2,             3,             -1 },
+               { L_,             3,             0,              3 },
+               { L_,             3,             1,              2 },
+               { L_,             3,             2,              1 },
+               { L_,             3,             3,             -1 },
+               { L_,             3,             4,             -1 },
+               { L_,             4,             0,              4 },
+               { L_,             4,             1,              3 },
+               { L_,             4,             2,              2 },
+               { L_,             4,             3,              1 },
+               { L_,             4,             4,             -1 },
+               { L_,             4,             5,             -1 },
             };
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
 
-            for (int i = 0; i < DATA_LEN; ++i ) {
-                const int LINE      = DATA[i].d_line;
-                const int FINAL_POS = (0 < DATA[i].d_retVal ?
-                                       DATA[i].d_retVal : 0);
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int                   LINE = DATA[i].d_line;
+                const int            BUFFER_SIZE = DATA[i].d_bufferSize;
+                const streamsize   CHARS_TO_READ = DATA[i].d_charsToRead;
+                const streamsize  EXPECTED_AVAIL = DATA[i].d_expectedAvail;
 
-                char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
-                    buffer[j] = 'a' + (j %26);
+                if (veryVerbose) { T_ P_(LINE) P(BUFFER_SIZE) }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj mSB(buffer, BUFFER_SIZE);
+
+                char temp[16];
+                mSB.sgetn(temp, CHARS_TO_READ);
+                streamsize retval = mSB.in_avail();
+                ASSERTV(LINE, EXPECTED_AVAIL, retval,
+                                                     EXPECTED_AVAIL == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t Buffer size: "  << BUFFER_SIZE
+                         << " Chars to Read: "  << CHARS_TO_READ
+                         << " Expected Avail: " << EXPECTED_AVAIL << endl;
                 }
-                bdlsb::FixedMemInput mSB(buffer,
-                                              ARBITRARY_INITIAL_BUFSIZE);
+                delete[] buffer;
+            }
+        }
 
-                bdlsb::FixedMemInput::int_type ret;
-                ret = mSB.pubseekoff(DATA[i].d_amount,
-                                (bsl::ios_base::seekdir) DATA[i].d_base,
-                                (bsl::ios_base::openmode) DATA[i].d_areaFlags);
-                LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
-                if (veryVerbose) { T_ P(ret) };
+      } break;
 
-                // Verify positioning by reading one char, and check the char
-                // (except for out-of-bounds positions).
-                int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
-                                    'a' + FINAL_POS % 26 : -1);
-                if (veryVerbose) {
-                    cout << "\tAt position " << FINAL_POS << " char is: "
-                    << (char)mSB.sgetc() << endl;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'sungetc' METHOD
+        //
+        // Concerns:
+        //: 1 Ensure that characters can be put back into the buffer.
+        //:
+        //: 2 Ensure that method correctly handles corner cases.
+        //
+        // Plan:
+        //: 1 Using the table-driven test-case-implementation technique, test
+        //:   the output of the 'sungetc' method. Ensure that the stream buffer
+        //:    position indicator updated correctly. (C-1..2)
+        //
+        // Testing:
+        //   int_type sungetc();
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'sungetc' METHOD" << endl
+                          << "========================" << endl;
+
+        if (verbose) cout <<
+            "\nTesting 'sungetc' method at position 0." << endl;
+        {
+
+            static const struct {
+                int           d_line;          // line number
+                int           d_bufferSize;    // buffer length
+            } DATA[] = {
+               //LINE   BUFFER_SIZE
+               //----  ------------
+               { L_,              0 },
+               { L_,              1 },
+               { L_,   INIT_BUFSIZE },
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int LINE        = DATA[i].d_line;
+                const int BUFFER_SIZE = DATA[i].d_bufferSize;
+
+                if (veryVerbose) { T_ P_(LINE) P(BUFFER_SIZE) }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+
+                Obj::int_type retval;
+                retval = mSB.sungetc();
+                ASSERT(Obj::traits_type::eof() == retval);
+                if (veryVeryVerbose) {
+                    cout << "\t'sungetc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
                 }
-                LOOP_ASSERT(LINE, mSB.sgetc() == expectedChar);
+
+                delete[] buffer;
             }
         }
 
         if (verbose) cout <<
-              "\nTesting seekoff from a variety of current-pointer positions."
-                          << endl;
+            "\nTesting 'sungetc' at various position." << endl;
         {
-            const int MIDPOINT = ARBITRARY_INITIAL_BUFSIZE / 2;
+
             static const struct {
-                int         d_line;             // line number
-                int         d_offset;           // seek offset
-                int         d_initialPosition;  // where to set pptr() first
-                int         d_retVal;           // return from pubseekoff()
+                int           d_line;          // line number
+                Obj::off_type d_startPos;      // start position
+                Obj::int_type d_retVal;        // expected return value
             } DATA[] = {
-
-               //L#  offset   startPoint                  retVal
-               //--  ------   ----------                  ------
-               { L_,  -1,     ARBITRARY_INITIAL_BUFSIZE,
-                                             ARBITRARY_INITIAL_BUFSIZE - 1 },
-               { L_,   0,     ARBITRARY_INITIAL_BUFSIZE,
-                                             ARBITRARY_INITIAL_BUFSIZE  },
-               { L_,  500,    ARBITRARY_INITIAL_BUFSIZE,  -1           },
-               { L_,  -110,   ARBITRARY_INITIAL_BUFSIZE,  -1           },
-               { L_,  -20,    MIDPOINT,                   -1           },
-               { L_,  -5,     MIDPOINT,                   MIDPOINT - 5 },
-               { L_,   0,     MIDPOINT,                   MIDPOINT     },
-               { L_,   5,     MIDPOINT,                   MIDPOINT + 5 },
-               { L_,   31,    MIDPOINT,                   -1           },
-               { L_,   ARBITRARY_INITIAL_BUFSIZE, MIDPOINT, -1 }
+               //LINE        START_POS                     RETVAL
+               //----  ----------------  ------------------------
+               { L_,                 1,                       'a' },
+               { L_,                 2,                       'b' },
+               { L_,          MIDPOINT,      'a' + (MIDPOINT - 1) },
+               { L_,      INIT_BUFSIZE,  'a' + (INIT_BUFSIZE - 1) },
             };
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
 
-            for (int i = 0; i < DATA_LEN; ++i ) {
-                const int LINE      = DATA[i].d_line;
-                const int FINAL_POS = (0 < DATA[i].d_retVal ?
-                                       DATA[i].d_retVal :
-                                       DATA[i].d_initialPosition);
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::off_type START_POS = DATA[i].d_startPos;
+                const Obj::int_type RETVAL    = DATA[i].d_retVal;
 
-                char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
-                    buffer[j] = 'a' + (j %26);
+                if (veryVerbose) { T_ P_(LINE) P_(START_POS) P(RETVAL) }
+
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
+
+                Obj mSB(buffer, INIT_BUFSIZE);
+
+                mSB.pubseekpos(START_POS, GET);
+
+                // Put one character back into the buffer
+                Obj::int_type retval;
+                retval = mSB.sungetc();
+
+                ASSERTV(i, RETVAL, retval, RETVAL == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t'sungetc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
                 }
-                bdlsb::FixedMemInput mSB(buffer,
-                                              ARBITRARY_INITIAL_BUFSIZE);
-
-                bdlsb::FixedMemInput::int_type ret;
-
-                mSB.pubseekpos(DATA[i].d_initialPosition);
-                ret = mSB.pubseekoff(DATA[i].d_offset,
-                                     (bsl::ios_base::seekdir) CUR,
-                                     (bsl::ios_base::openmode)IN);
-                if (veryVerbose) { T_ P(ret) };
-
-                LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
-
-                // Verify positioning by reading one char, and check the char
-                // (except for out-of-bounds positions).
-                int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
-                                    'a' + FINAL_POS % 26 : -1);
-                if (veryVerbose) {
-                    cout << "\tAt position " << FINAL_POS << " char is: "
-                    << (char)mSB.sgetc() << endl;
-                }
-                LOOP_ASSERT(LINE, mSB.sgetc() == expectedChar);
             }
-          }
+        }
+      } break;
+
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'sputbackc' METHOD
+        //
+        // Concerns:
+        //: 1 Ensure that characters can be put back into the buffer.
+        //:
+        //: 2 Ensure that method correctly handles corner cases.
+        //
+        // Plan:
+        //: 1 Using the table-driven test-case-implementation technique, test
+        //:   the output of the 'sputbackc' method. Ensure that the stream
+        //:   buffer position indicator updated correctly. (C-1..2)
+        //
+        // Testing:
+        //   int_type sputbackc(char_type);
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'sputbackc' METHOD" << endl
+                          << "==========================" << endl;
+
+        if (verbose) cout <<
+            "\nTesting 'sputbackc' method at position 0." << endl;
+        {
+
+            static const struct {
+                int           d_line;          // line number
+                int           d_bufferSize;    // buffer length
+            } DATA[] = {
+               //LINE   BUFFER_SIZE
+               //----  ------------
+               { L_,              0 },
+               { L_,              1 },
+               { L_,   INIT_BUFSIZE },
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int LINE        = DATA[i].d_line;
+                const int BUFFER_SIZE = DATA[i].d_bufferSize;
+
+                if (veryVerbose) { T_ P_(LINE) P(BUFFER_SIZE) }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+
+                Obj::int_type retval;
+
+                // Putting back valid character
+                retval = mSB.sputbackc('a');
+                ASSERT(Obj::traits_type::eof() == retval);
+                if (veryVeryVerbose) {
+                    cout << "\t'sputbackc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+
+                // Putting back invalid character
+                retval = mSB.sputbackc('Z');
+                ASSERT(Obj::traits_type::eof() == retval);
+                if (veryVeryVerbose) {
+                    cout << "\t'sputbackc' (invalid) returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+
+                delete[] buffer;
+            }
+        }
+
+        if (verbose) cout <<
+            "\nTesting 'sputbackc' at various position." << endl;
+        {
+
+            static const struct {
+                int           d_line;          // line number
+                Obj::off_type d_startPos;      // start position
+                Obj::int_type d_retVal;        // expected return value
+            } DATA[] = {
+               //LINE        START_POS                     RETVAL
+               //----  ----------------  ------------------------
+               { L_,                 1,                       'a' },
+               { L_,                 2,                       'b' },
+               { L_,          MIDPOINT,      'a' + (MIDPOINT - 1) },
+               { L_,      INIT_BUFSIZE,  'a' + (INIT_BUFSIZE - 1) },
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::off_type START_POS = DATA[i].d_startPos;
+                const Obj::int_type RETVAL    = DATA[i].d_retVal;
+
+                if (veryVerbose) { T_ P_(LINE) P_(START_POS) P(RETVAL) }
+
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
+
+                Obj mSB(buffer, INIT_BUFSIZE);
+
+                Obj::int_type retval;
+
+                // Putting back valid character
+                mSB.pubseekpos(START_POS, GET);
+
+                retval = mSB.sputbackc(Obj::traits_type::to_char_type(RETVAL));
+
+                ASSERTV(i, RETVAL, retval, RETVAL == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t'sputbackc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+
+                // Putting back invalid character
+                mSB.pubseekpos(START_POS, GET);
+
+                retval = mSB.sputbackc('Z');
+
+                ASSERTV(i, Obj::traits_type::eof() == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t'sputbackc' (invalid) returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+            }
+        }
+      } break;
+
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'snextc' METHOD
+        //
+        // Concerns:
+        //: 1 Ensure that 'snextc' correctly reads character from the current
+        //:   position.
+        //:
+        //: 2 Ensure that method correctly handles corner cases.
+        //
+        // Plan:
+        //: 1 Using the table-driven test-case-implementation technique, test
+        //:   the output of the 'snextc' method. Ensure that the stream
+        //:   buffer position indicator updated correctly. (C-1..2)
+        //
+        // Testing:
+        //   int_type snextc();
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'snextc' METHOD" << endl
+                          << "=======================" << endl;
+
+        if (verbose) cout <<
+            "\nTesting 'snextc' method at position 0." << endl;
+        {
+
+            static const struct {
+                int           d_line;          // line number
+                int           d_bufferSize;    // buffer length
+                Obj::int_type d_retVal;        // expected character
+            } DATA[] = {
+               //LINE    BUFFER_SIZE  RETVAL
+               //----  -------------  ------
+               { L_,              0,      -1 },
+               { L_,              1,      -1 },
+               { L_,              2,     'b' },
+               { L_,   INIT_BUFSIZE,     'b' }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE        = DATA[i].d_line;
+                const int           BUFFER_SIZE = DATA[i].d_bufferSize;
+                const Obj::int_type RETVAL      = DATA[i].d_retVal;
+
+                if (veryVerbose) { T_ P_(LINE) P(BUFFER_SIZE) }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+
+                Obj::int_type retval;
+
+                // Reading character at current position
+                retval = mSB.snextc();
+                ASSERT(RETVAL == retval);
+                if (veryVeryVerbose) {
+                    cout << "\t'snextc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+
+                delete[] buffer;
+            }
+        }
+
+        if (verbose) cout <<
+            "\nTesting 'snextc' at various position." << endl;
+        {
+
+            static const struct {
+                int           d_line;          // line number
+                Obj::off_type d_startPos;      // start position
+                Obj::int_type d_retVal;        // expected return value
+            } DATA[] = {
+               //LINE        START_POS                     RETVAL
+               //----  ----------------  ------------------------
+               { L_,                 0,                       'b' },
+               { L_,                 1,                       'c' },
+               { L_,                 2,                       'd' },
+               { L_,          MIDPOINT,        'a' + (MIDPOINT+1) },
+               { L_,    INIT_BUFSIZE-2,  'a' + (INIT_BUFSIZE - 1) },
+               { L_,    INIT_BUFSIZE-1,                       -1  },
+               { L_,      INIT_BUFSIZE,                       -1  }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::off_type START_POS = DATA[i].d_startPos;
+                const Obj::int_type RETVAL    = DATA[i].d_retVal;
+
+                if (veryVerbose) { T_ P_(LINE) P_(START_POS) P(RETVAL) }
+
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
+
+                Obj mSB(buffer, INIT_BUFSIZE);
+
+                Obj::int_type retval;
+
+                // Putting back valid character
+                mSB.pubseekpos(START_POS, GET);
+
+                retval = mSB.snextc();
+
+                ASSERTV(i, RETVAL, retval, RETVAL == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t'snextc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+            }
+        }
       } break;
 
       case 8: {
         // --------------------------------------------------------------------
-        // PBACKFAIL
+        // TESTING 'sgetc' METHOD
         //
         // Concerns:
-        //   - Ensure that no character can be written into the buffer.
+        //: 1 Ensure that 'sgetc' correctly reads character from the current
+        //:   position.
+        //:
+        //: 2 Ensure that method correctly handles corner cases.
         //
         // Plan:
-        //   Invoke the single public function that can call 'pbackfail'
-        //   without asserting, in the circumstances under which it would
-        //   do so, and ensure that the content of the streambuf is the same
-        //   after the call as before the call.
-        //
-        // Tactics:
-        //   - Ad-hoc Data Selection Method
-        //   - Brute-Force Implementation Technique
+        //: 1 Using the table-driven test-case-implementation technique, test
+        //:   the output of the 'sgetc' method. Ensure that the stream
+        //:   buffer position indicator updated correctly. (C-1..2)
         //
         // Testing:
-        //   pbackfail(int_type);
+        //   int_type sgetc();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PBACKFAIL" << endl
-                          << "=========" << endl;
+                          << "TESTING 'sgetc' METHOD" << endl
+                          << "======================" << endl;
 
+        if (verbose) cout <<
+            "\nTesting 'sgetc' method at position 0." << endl;
         {
-            if (verbose) cout << endl
-                 << "Testing 'pbackfail' triggered by 'sungetc'." << endl;
 
-            static const int sampleSizes[] = { 0, 1 };
+            static const struct {
+                int           d_line;          // line number
+                int           d_bufferSize;    // buffer length
+                Obj::int_type d_retVal;        // expected character
+            } DATA[] = {
+               //LINE    BUFFER_SIZE  RETVAL
+               //----  -------------  ------
+               { L_,              0,      -1  },
+               { L_,              1,     'a'  },
+               { L_,   INIT_BUFSIZE,     'a'  }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
 
-            for (int j = 0; j < 2; ++j) {
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE        = DATA[i].d_line;
+                const int           BUFFER_SIZE = DATA[i].d_bufferSize;
+                const Obj::int_type RETVAL      = DATA[i].d_retVal;
 
-                if (verbose) cout << endl;
+                if (veryVerbose) { T_ P_(LINE) P(BUFFER_SIZE) }
 
-                const int BUF_LEN = sampleSizes[j];
-                char *buffer = new char[BUF_LEN];
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    buffer[i] = 'a' + (i % 26);
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+
+                Obj::int_type retval;
+
+                // Reading character at current position
+                retval = mSB.sgetc();
+                ASSERT(RETVAL == retval);
+                if (veryVeryVerbose) {
+                    cout << "\t'sgetc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
                 }
 
-                bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-                const bdlsb::FixedMemInput& SB = mSB;
-
-                LOOP_ASSERT(j, BUF_LEN == SB.length());
-
-                bdlsb::FixedMemInput::int_type ret;
-                ret = mSB.sungetc();
-                LOOP_ASSERT(j,
-                      bdlsb::FixedMemInput::traits_type::eof() == ret);
-                if (veryVerbose) {
-                    cout << "pbackfail (via sungetc) returned " <<
-                            ret << endl;
-                }
-
-                delete [] buffer;
+                delete[] buffer;
             }
         }
 
+        if (verbose) cout <<
+            "\nTesting 'sgetc' at various position." << endl;
         {
-            if (verbose) cout << endl <<
-  "Cannot test 'pbackfail' triggered by 'sputbackc' because such use asserts."
-                              << endl;
+
+            static const struct {
+                int           d_line;          // line number
+                Obj::off_type d_startPos;      // start position
+                Obj::int_type d_retVal;        // expected return value
+            } DATA[] = {
+               //LINE        START_POS                     RETVAL
+               //----  ----------------  ------------------------
+               { L_,                 0,                       'a' },
+               { L_,                 1,                       'b' },
+               { L_,                 2,                       'c' },
+               { L_,          MIDPOINT,          'a' + (MIDPOINT) },
+               { L_,    INIT_BUFSIZE-1,  'a' + (INIT_BUFSIZE - 1) },
+               { L_,      INIT_BUFSIZE,                        -1 }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::off_type START_POS = DATA[i].d_startPos;
+                const Obj::int_type RETVAL    = DATA[i].d_retVal;
+
+                if (veryVerbose) { T_ P_(LINE) P_(START_POS) P(RETVAL) }
+
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
+
+                Obj mSB(buffer, INIT_BUFSIZE);
+
+                Obj::int_type retval;
+
+                // Putting back valid character
+                mSB.pubseekpos(START_POS, GET);
+
+                retval = mSB.sgetc();
+
+                ASSERTV(i, RETVAL, retval, RETVAL == retval);
+
+                if (veryVeryVerbose) {
+                    cout << "\t'sgetc' returned ";
+                    if (Obj::traits_type::eof() == retval) {
+                        cout << "EOF." << endl;
+                    } else {
+                        cout << Obj::traits_type::to_char_type(retval)
+                             << "." << endl;
+                    }
+                }
+            }
         }
-        } break;
+      } break;
 
       case 7: {
         // --------------------------------------------------------------------
-        // XSGETN TEST
+        // TESTING 'pubsetbuf' METHODS
+        //
+        // Protected 'setbuf' methods are called by the public 'pubsetbuf'
+        // method.  Ensure that we can reset put area to client-provided buffer
+        // for a constructed stream buffer object
         //
         // Concerns:
-        //   - that 'xsgetn' retrieve the correct bytes from the streambuf.
-        //   - that 'xsgetn' properly handle requests for 0, 1, and >_1
-        //     characters, from streambufs of length 0, 1, and >_1.
-        //   - that 'xsgetn' properly handle requests for more characters
-        //     than contained in the streambuf.
+        //: 1 Ensure the 'pubsetbuf' methods reset internal buffer.
+        //:
+        //: 2 Ensure the 'pubsetbuf' methods reset position indicator.
+        //:
+        //: 3 Ensure 'const' and non-'const' buffers can be used as new
+        //:   buffers.
         //
         // Plan:
-        //   Create a table whose vectors test the cross-product of the
-        //   categories indicated above.
-        //
-        // Tactics:
-        //   - Category-Partitioning and Ad-hoc Data Selection Method
-        //   - Table-Based and Brute-Force Implementation Technique
+        //: 1 Manually call 'pubsetbuf' methods and verify that the buffer has
+        //:   been reset to the new address and length. (C-1, C-3)
+        //:
+        //: 2 Manually verify position indicator value after resetting the
+        //:   stream buffer. (C-2)
         //
         // Testing:
-        //   streamsize xsgetn(char_type, streamsize);
+        //   FixedMemInput *pubsetbuf(char *, streamsize);
+        //   FixedMemInput *pubsetbuf(const char *, streamsize);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GET MULTIPLE CHARACTERS TEST" << endl
-                          << "============================" << endl;
+                          << "TESTING 'pubsetbuf' METHODS" << endl
+                          << "===========================" << endl;
 
-            static const struct {
-                int         d_line;             // line number
-                int         d_request;          // num bytes to retrieve
-                int         d_capacity;         // length of streambuf
-                int         d_return;           // expected return val
-            } DATA[] = {
-              //       chars to   stream   expected
-              //L#     retrieve   length   return
-               //--    --------   -------  --------
-              { L_,       0,         0,       0    },
-              { L_,       0,         1,       0    },
-              { L_,       0,         30,      0    },
-
-              { L_,       1,         0,       0    },
-              { L_,       1,         1,       1    },
-              { L_,       1,         30,      1    },
-
-              { L_,       30,        0,       0    },
-              { L_,       30,        1,       1    },
-              { L_,       30,        30,      30   }
-            };
-
-        const int DATA_LEN = sizeof DATA / sizeof *DATA;
+        if (verbose) cout <<
+            "\nTesting 'pubsetbuf' using non-const C arrays." << endl;
 
         {
-            if (verbose) cout <<
-                          "\nTesting 'sgetn' right after streambuf creation."
-                              << endl;
+            static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
 
-            for (int i = 0; i < DATA_LEN; ++i) {
-                const int LINE      = DATA[i].d_line;
+            for (int j = 0; j < 3; ++j) {
+                const bsl::size_t BUFFER_SIZE = sampleSizes[j];
 
-                char *buffer = new char[DATA[i].d_capacity];
-                for (int j = 0; j < DATA[i].d_capacity; ++j) {
-                    buffer[j] = 'a' + (j %26);
+                if (veryVerbose) { T_ P(BUFFER_SIZE) }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                char fakeBuffer[1];
+
+                Obj        mSB(fakeBuffer, 1);
+                const Obj&  SB = mSB;
+
+                ASSERT(1          == SB.length());
+                ASSERT(fakeBuffer == SB.data());
+
+                mSB.pubsetbuf(buffer, BUFFER_SIZE);
+                ASSERT(buffer      == SB.data());
+                ASSERT(BUFFER_SIZE == SB.length());
+                ASSERT(BUFFER_SIZE == SB.capacity());
+
+                Obj::int_type retval;
+                for (bsl::size_t i = 0; i < BUFFER_SIZE; ++i) {
+                    retval = mSB.sbumpc();
+                    ASSERTV(i, buffer[i] ==
+                                       Obj::traits_type::to_char_type(retval));
+                    if (veryVeryVerbose) {
+                        cout << "\t'sbumpc' returned ";
+                        if (Obj::traits_type::eof() == retval) {
+                            cout << "EOF." << endl;
+                        } else {
+                            cout << Obj::traits_type::to_char_type(retval)
+                                 << "." << endl;
+                        }
+                    }
                 }
-                bdlsb::FixedMemInput mSB(buffer, DATA[i].d_capacity);
-                const bdlsb::FixedMemInput& SB = mSB;
-
-                char *temp = new char[DATA[i].d_request];
-                bsl::streamsize ret = mSB.sgetn(temp, DATA[i].d_request);
-                LOOP_ASSERT(LINE, DATA[i].d_return == ret);
-                LOOP_ASSERT(LINE, 0 == strncmp(temp, SB.data(), ret));
-                if (veryVerbose) { cout << "\tRequested " << DATA[i].d_request
-                        << " chars from a streambuf of length " <<
-                        DATA[i].d_capacity << endl;
-                }
-
-                delete [] temp;
                 delete [] buffer;
-
             }
         }
+
+        if (verbose) cout <<
+            "\nTesting 'pubsetbuf' using const C arrays." << endl;
         {
-            if (verbose) cout <<
-                          "\nTesting successive 'sgetn' from same streambuf"
-                              << endl;
+            static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
 
-            const int BUF_LEN = 100;
-            char buffer[BUF_LEN];
-            for (int k = 0; k < 100; ++k) {
-                buffer[k] = 'a' + (k %26);
-            }
-            bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
+            for (int j = 0; j < 3; ++j) {
+                const bsl::size_t BUFFER_SIZE = sampleSizes[j];
 
-            char a[2], b[3], c[4], d[5], e[6], f[7], g[8], h[9], i[10], j[11];
-            a[1] = b[2] = c[3] = d[4] = e[5] = f[6] = g[7] = h[8] = i[9] =
-                  j[10] = 'X';
-            char *resultBuf[10] = { a, b, c, d, e, f, g, h, i, j };
-            int result;
-            const char *nextCompare = buffer;
-            for (int j = 1; j < 10; ++j) {
-                result = mSB.sgetn(resultBuf[j - 1], j);
-                LOOP_ASSERT(j, j == result);
-                LOOP_ASSERT(j, 0 == memcmp(nextCompare, resultBuf[j - 1], j));
-                LOOP_ASSERT(j, 'X' == resultBuf[j - 1][j]);
-                if (veryVerbose) { cout << "\tPicked up " << j
-                    << " chars from the same streambuf." << endl;
+                if (veryVerbose) { T_ P(BUFFER_SIZE) }
+
+                const char *buffer = new char[BUFFER_SIZE];
+                char       *hack   = const_cast<char *>(buffer);
+                fillBuffer(hack, BUFFER_SIZE);
+
+                char fakeBuffer[1];
+
+                Obj        mSB(fakeBuffer, 1);
+                const Obj&  SB = mSB;
+
+                ASSERT(1          == SB.length());
+                ASSERT(1          == SB.capacity());
+                ASSERT(fakeBuffer == SB.data());
+
+                mSB.pubsetbuf(buffer, BUFFER_SIZE);
+                ASSERT(buffer      == SB.data());
+                ASSERT(BUFFER_SIZE == SB.length());
+                ASSERT(BUFFER_SIZE == SB.capacity());
+
+                Obj::int_type retval;
+                for (bsl::size_t i = 0; i < BUFFER_SIZE; ++i) {
+                    retval = mSB.sbumpc();
+                    ASSERTV(i, buffer[i] ==
+                                       Obj::traits_type::to_char_type(retval));
+                    if (veryVeryVerbose) {
+                        cout << "\t'sbumpc' returned ";
+                        if (Obj::traits_type::eof() == retval) {
+                            cout << "EOF." << endl;
+                        } else {
+                            cout << Obj::traits_type::to_char_type(retval)
+                                 << "." << endl;
+                        }
+                    }
                 }
-                nextCompare += j;
+                delete [] buffer;
             }
         }
       } break;
 
       case 6: {
         // --------------------------------------------------------------------
-        // SETBUF TEST
-        //
-        //   Ensure that 'pubsetbuf' sets up the new character buffer so that
-        //   the stream buffer uses it correctly.
+        // TESTING 'seek' METHODS
         //
         // Concerns:
-        //   - That setbuf sets up all streambuf machinery properly so that
-        //     streambuf operations use the client-supplied buffer.
-        //   - That the streambuf is capable of using the entirety of the
-        //     available storage, i.e., the full amount specified by the
-        //     client.
-        //   - That 'const' C arrays work as do the non-'const'.
+        //: 1 Seeking is correct for:
+        //:   - all relative positions.
+        //:   - positive, 0, and negative values.
+        //:   - out of buffer boundaries.
+        //:
+        //: 2 Seeking into the "put" area has no effect.
+        //:
         //
         // Plan:
-        //   Use the base-class-implemented method 'sbumpc' to successively
-        //   consume all characters from a 0-, 1-, and arbitrary_size_>_1-
-        //   length bdlsb::FixedMemInput, and ensure that all characters
-        //   are retrieved.
-        //
-        //   Re-run the same suite for 'const' C arrays.  Three tests are
-        //   overkill given white-box knowledge of the implementation, but it
-        //   is cheap enough that the simplicity of duplication drives this
-        //   choice.
-        //
-        // Tactics:
-        //   - Category-Partitioning Data Selection Method
-        //   - Loop-Based Implementation Techniques
+        //: 1 Perform a variety of seeks, using representative test vectors
+        //:   from the cross-product of offset categories beginning-pointer,
+        //:   current-pointer and end-pointer, with direction categories
+        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
+        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
+        //:   (C-1..2)
+        //:
         //
         // Testing:
-        //   setbuf(char *, streamsize);
-        //   setbuf(const char *, streamsize);
-        //   pubsetbuf(char *, streamsize);
-        //   pubsetbuf(const char *, streamsize);
+        //   pos_type pubseekoff(off_type, seekdir, openmode);
+        //   pos_type pubseekpos(pos_type, openmode);
         // --------------------------------------------------------------------
-
         if (verbose) cout << endl
-                          << "SETBUF" << endl
-                          << "======" << endl;
+                          << "TESTING 'seek' METHODS" << endl
+                          << "======================" << endl;
+
+        if (verbose) cout <<
+                "\nTesting 'seekoff' after buffer creation." << endl;
+
         {
-            static const int sampleSizes[] = { 0, 1, 5 };
+            static const struct {
+                int           d_line;          // line number
+                io_openmode   d_areaFlags;     // "put"/"get" area
+                Obj::off_type d_offset;        // seek offset
+                io_seekdir    d_base;          // relative position
+                Obj::pos_type d_retVal;        // expected return value
+            } DATA[] = {
+               //LINE  AREA                OFFSET  BASE            RETVAL
+               //----  ----   -------------------  ----  ----------------
+               // seekoff from the start of the streambuf
+               { L_,   GET,                    0,  BEG,                 0 },
+               { L_,   GET,                    1,  BEG,                 1 },
+               { L_,   GET,                   -1,  BEG,                -1 },
+               { L_,   GET, INIT_BUFSIZE_POS - 1,  BEG,  INIT_BUFSIZE - 1 },
+               { L_,   GET,                  100,  BEG,                -1 },
+               { L_,   GET,     INIT_BUFSIZE_POS,  BEG,      INIT_BUFSIZE },
 
-            for (int j = 0; j < 3; ++j) {
+               // seekoff from the end of the streambuf.
+               { L_,   GET,                    0,  END,      INIT_BUFSIZE },
+               { L_,   GET,                    1,  END,                -1 },
+               { L_,   GET,                   -1,  END,  INIT_BUFSIZE - 1 },
+               { L_,   GET,                 -100,  END,                -1 },
+               { L_,   GET,    -INIT_BUFSIZE_POS,  END,                 0 },
 
-                if (verbose) cout <<
-                    "Testing pub/setbuf using non-const C arrays of length "
-                                  << sampleSizes[j] << '.' << endl;
+               // seekoff from the current cursor, where cur == begin
+               { L_,   GET,                    0,  CUR,                 0 },
+               { L_,   GET,                    1,  CUR,                 1 },
+               { L_,   GET,                   -1,  CUR,                -1 },
+               { L_,   GET,     INIT_BUFSIZE_POS,  CUR,      INIT_BUFSIZE },
 
-                const int BUF_LEN = sampleSizes[j];
-                char *buffer = new char[BUF_LEN];
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    buffer[i] = 'a' + (i % 26);
+               // seekoff in the "put" area
+               { L_,   PUT,                    0,  BEG,                -1 },
+               { L_,   PUT,                    1,  BEG,                -1 },
+               { L_,   PUT,                   -1,  BEG,                -1 },
+               { L_,   PUT,                    0,  CUR,                -1 },
+               { L_,   PUT,                    1,  CUR,                -1 },
+               { L_,   PUT,                   -1,  CUR,                -1 },
+               { L_,   PUT,                    0,  END,                -1 },
+               { L_,   PUT,                    1,  END,                -1 },
+               { L_,   PUT,                   -1,  END,                -1 }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const io_openmode   AREA      = DATA[i].d_areaFlags;
+                const Obj::off_type OFFSET    = DATA[i].d_offset;
+                const io_seekdir    BASE      = DATA[i].d_base;
+                const Obj::pos_type RETVAL    = DATA[i].d_retVal;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(OFFSET) P(RETVAL)
                 }
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
 
-                char fakeBuffer[1];
-                bdlsb::FixedMemInput mSB(fakeBuffer, 1);
-                const bdlsb::FixedMemInput& SB = mSB;
+                Obj mSB(buffer, INIT_BUFSIZE);
 
-                mSB.pubsetbuf(buffer, BUF_LEN);
-                ASSERT(BUF_LEN == SB.length());
+                Obj::pos_type retval;
+                retval = mSB.pubseekoff(OFFSET, BASE, AREA);
 
-                bdlsb::FixedMemInput::int_type ret;
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    ret = mSB.sbumpc();
-                    if (veryVerbose) {T_ P((char)ret)}
-                }
-                delete [] buffer;
+                ASSERTV(LINE, RETVAL, retval, RETVAL == retval);
             }
         }
 
+        if (verbose) cout << "\nTesting 'pubseekoff' from a variety of "
+                             "current-pointer positions." << endl;
         {
-            static const int sampleSizes[] = { 0, 1, 5 };
+            static const struct {
+                int           d_line;          // line number
+                Obj::pos_type d_startPos;      // start seek position
+                Obj::off_type d_offset;        // seek offset
+                Obj::pos_type d_retVal;        // return from pubseekoff()
+            } DATA[] = {
+               //LINE      START_POS             OFFSET            RETVAL
+               //----  -------------  -----------------  ----------------
+               { L_,              0,                 0,                 0 },
+               { L_,              1,                -1,                 0 },
+               { L_,              1,                -2,                -1 },
+               { L_,              0,                -5,                -1 },
+               { L_,   INIT_BUFSIZE,                 0,      INIT_BUFSIZE },
+               { L_,   INIT_BUFSIZE,                -1,  INIT_BUFSIZE - 1 },
+               { L_,   INIT_BUFSIZE,               100,                -1 },
+               { L_,   INIT_BUFSIZE,              -100,                -1 },
+               { L_,   INIT_BUFSIZE, -INIT_BUFSIZE_POS,                 0 },
+               { L_,       MIDPOINT,                 0,          MIDPOINT },
+               { L_,       MIDPOINT,                 5,      MIDPOINT + 5 },
+               { L_,       MIDPOINT,                -5,      MIDPOINT - 5 },
+               { L_,       MIDPOINT,               100,                -1 },
+               { L_,       MIDPOINT,              -100,                -1 },
+               { L_,       MIDPOINT,     -MIDPOINT_POS,                 0 }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
 
-            for (int j = 0; j < 3; ++j) {
-                if (verbose) cout <<
-                    "Testing pub/setbuf using const C arrays of length "
-                                  << sampleSizes[j] << '.' << endl;
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::pos_type START_POS = DATA[i].d_startPos;
+                const Obj::off_type OFFSET    = DATA[i].d_offset;
+                const Obj::pos_type RETVAL    = DATA[i].d_retVal;
 
-                const int BUF_LEN = sampleSizes[j];
-                const char *buffer = new char[BUF_LEN];
-                char *hack = const_cast<char *>(buffer);
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    hack[i] = 'a' + (i % 26);
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(START_POS) P_(OFFSET) P(RETVAL)
                 }
 
-                char fakeBuffer[1];
-                bdlsb::FixedMemInput mSB(fakeBuffer, 1);
-                const bdlsb::FixedMemInput& SB = mSB;
+                char buffer[INIT_BUFSIZE];
+                fillBuffer(buffer, INIT_BUFSIZE);
 
-                mSB.pubsetbuf(buffer, BUF_LEN);
-                ASSERT(BUF_LEN == SB.length());
+                Obj mSB(buffer, INIT_BUFSIZE);
 
-                bdlsb::FixedMemInput::int_type ret;
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    ret = mSB.sbumpc();
-                    if (veryVerbose) {T_ P((char)ret)}
+
+                Obj::pos_type retval;
+
+                mSB.pubseekoff(START_POS, BEG, GET);
+                retval = mSB.pubseekoff(OFFSET, CUR, GET);
+
+                ASSERTV(LINE, RETVAL, retval, RETVAL == retval);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'pubseekpos' method." << endl;
+        {
+            static const struct {
+                int           d_line;          // line number
+                Obj::pos_type d_startPos;      // start seek position
+                Obj::off_type d_offset;        // seek offset
+                Obj::pos_type d_retVal;        // return from pubseekoff()
+            } DATA[] = {
+               //LINE     START_POS      OFFSET     RETVAL
+               //----  ------------   ---------   --------
+               { L_,              0,  MIDPOINT,   MIDPOINT },
+               { L_,       MIDPOINT,  MIDPOINT,   MIDPOINT },
+               { L_,   INIT_BUFSIZE,  MIDPOINT,   MIDPOINT }
+            };
+            enum { NUM_DATA = sizeof(DATA)/sizeof(DATA[0]) };
+
+            for (int i = 0; i < NUM_DATA; ++i ) {
+                const int           LINE      = DATA[i].d_line;
+                const Obj::pos_type START_POS = DATA[i].d_startPos;
+                const Obj::off_type OFFSET    = DATA[i].d_offset;
+                const Obj::pos_type RETVAL    = DATA[i].d_retVal;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(START_POS) P_(OFFSET) P(RETVAL)
                 }
-                delete [] buffer;
+
+                char buffer[INIT_BUFSIZE];
+
+                Obj        mSB(buffer, INIT_BUFSIZE);
+
+                Obj::pos_type retval;
+                retval = mSB.pubseekpos(OFFSET, GET);
+
+                ASSERTV(LINE, RETVAL, retval, RETVAL == retval);
             }
         }
       } break;
 
       case 5: {
         // --------------------------------------------------------------------
-        // OUTPUT: bsl::ostream& 'operator<<'
-        //
-        // NOTE: 'op<<' is NOT part of the component.  It is, however, an
-        // auxiliary function used in the test driver, and so we include the
-        // 'traditional' test case 5 here in order to test the operator.
+        // TESTING 'sgetn' METHOD
         //
         // Concerns:
-        //   - that value is formatted correctly (i.e., as binary)
-        //   - that no additional characters are written after terminating.
-        //   - that these functions work on references to 'const' objects.
-        //   - that each return a reference to the modifiable stream argument.
+        //: 1 Ensure that 'sgetn' reads the correct bytes from the streambuf.
+        //:
+        //: 2 Ensure that 'sgetn' properly handle requests for any number of
+        //:   characters from stream buffers of various length.
+        //:
+        //: 3 Ensure that no more than specified number of characters can be
+        //:   read from the streambuf.
         //
         // Plan:
-        //   For each of a small representative set of object values use
-        //   'ostrstream' to write that object's value to two separate
-        //   character buffers each with different initial values.  Compare
-        //   the contents of these buffers with the literal expected output
-        //   format and verify that the characters beyond the length of the
-        //   streambuf contents are unaffected in both buffers.
-        //   - Test operator<< on the empty streambuf.
-        //   - Test operator<< on a streambuf containing some characters.
-        //
-        // Tactics:
-        //   - Ad-Hoc Data Selection Method
+        //: 1 Read out characters from specifically constructed streambuf and
+        //:   verify that all border cases handled correctly.
         //
         // Testing:
-        //   ostream& operator<<(ostream&, const bdesb::MemOutStreamRaw&);
+        //   streamsize sgetn(char_type, streamsize);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                  << "OUTPUT bsl::ostream& 'operator<<'" << endl
-                  << "=================================" << endl;
+                          << "TESTING 'sgetn' METHOD" << endl
+                          << "======================" << endl;
 
-        if (verbose) cout << "\nCreate stream buffers to be printed." << endl;
+        static const struct {
+            int         d_line;         // line number
+            int         d_readLen;      // number of bytes to read
+            int         d_bufferSize;   // size of the streambuf
+            int         d_retVal;       // expected return value
+        } DATA[] = {
+            //LINE  READ_LEN  BUFFER_SIZE  RETVAL
+            //----  --------  -----------  ------
+            { L_,         0,           0,       0 },
+            { L_,         0,           1,       0 },
+            { L_,         0,          10,       0 },
+            { L_,         1,           0,       0 },
+            { L_,         1,           1,       1 },
+            { L_,         1,          10,       1 },
+            { L_,        10,           0,       0 },
+            { L_,        10,           1,       1 },
+            { L_,        10,          10,      10 }
+        };
+
+        enum { NUM_DATA = sizeof(DATA) / sizeof(DATA[0]) };
+
+        if (verbose) cout << "\nTesting 'sgetn' right after streambuf "
+                             "creation." << endl;
 
         {
-            if (verbose) cout << "\tChecking operator<< return value."
-                              << endl;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int LINE        = DATA[i].d_line;
+                const int READ_LEN    = DATA[i].d_readLen;
+                const int BUFFER_SIZE = DATA[i].d_bufferSize;
+                const int RETVAL      = DATA[i].d_retVal;
 
-            const int BUF_LEN = 10;
-            char buffer[BUF_LEN];
-            for (int j = 0; j < BUF_LEN; ++j) {
-                buffer[j] = 'a' + (j %26);
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(BUFFER_SIZE) P_(READ_LEN) P(RETVAL)
+                }
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+                const Obj&  SB = mSB;
+
+                char *temp = new char[READ_LEN];
+
+                streamsize retval = mSB.sgetn(temp, READ_LEN);
+                ASSERTV(LINE, RETVAL, retval, RETVAL == retval );
+                ASSERTV(LINE, 0 == strncmp(temp, SB.data(), retval));
+
+                delete [] temp;
+                delete [] buffer;
             }
-            const bdlsb::FixedMemInput SB(buffer, BUF_LEN);
-
-            const int SIZE = 100;
-            char buf1[SIZE], buf2[SIZE];
-            ostrstream out1(buf1, SIZE), out2(buf2, SIZE);
-            out1 << SB << "arbitrary";  // Ensure modifiable
-            out2 << SB << "value";      // stream is returned.
         }
 
+        if (verbose) cout << "\nTesting successive 'sgetn' from same "
+                             "streambuf." << endl;
         {
-            if (verbose) cout << "\tChecking operator<<-generated content."
-                              << endl;
+            const int BUFFER_SIZE = 100;
 
-            const int BUF_LEN = 10;
-            char buffer[BUF_LEN];
-            for (int j = 0; j < BUF_LEN; ++j) {
-                buffer[j] = 'a' + (j %26);
-            }
-            bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-            const bdlsb::FixedMemInput& SB = mSB;
+            char buffer[BUFFER_SIZE];
+            fillBuffer(buffer, BUFFER_SIZE);
 
-            const int SIZE = 200;
-            char buf1[SIZE], buf2[SIZE];
-            memset(buf1, 'X', SIZE);
-            memset(buf2, 'Y', SIZE);
-            ostrstream out1(buf1, SIZE), out2(buf2, SIZE);
-            out1 << mSB;
-            out2 << SB;
-            char *endOfString = strchr(buf1, 'X');
-            int stringLen = endOfString - buf1;
-            ASSERT(0 == memcmp(buf1, buf2, stringLen));
-            ASSERT('X' == buf1[stringLen]);
-            ASSERT('Y' == buf2[stringLen]);
+            Obj mSB(buffer, BUFFER_SIZE);
 
-            const char *EXPECTED =
-                     "\n0000\t01100001 01100010 01100011 01100100 01100101 "
-                     "01100110 01100111 01101000"
-                     "\n0008\t01101001 01101010";
-            ASSERT(0 == memcmp(buf1, EXPECTED, stringLen));
-            buf1[stringLen] = 0;
-            if (verbose) {
-                T_ P(buf1)
+            char a[2], b[3], c[4], d[5], e[6], f[7], g[8], h[9], i[10], j[11];
+            a[1] = b[2] = c[3] = d[4] = e[5] = f[6] = g[7] = h[8] = i[9] =
+                  j[10] = 'X';
+
+            char *resultBuf[10] = { a, b, c, d, e, f, g, h, i, j };
+
+            const char *nextCompare = buffer;
+
+            streamsize retval;
+            for(int j = 1; j < 10; ++j) {
+                retval = mSB.sgetn(resultBuf[j - 1], j);
+
+                ASSERTV(j, retval, j == retval);
+                ASSERTV(j,   0 == memcmp(nextCompare, resultBuf[j - 1], j));
+                ASSERTV(j, 'X' == resultBuf[j - 1][j]);
+
+                if (veryVerbose) {
+                    cout << "\tPicked up " << j
+                         << " chars from the same streambuf.\n";
+                }
+                nextCompare += j;
             }
         }
       } break;
 
       case 4: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS/BASIC ACCESSORS
-        //   Verify the most basic functionality of a
-        //   'bdlsb::FixedMemInput'.
+        // BASIC ACCESSORS
+        //
+        // Verify the basic accessors of the 'bdlsb::FixedMemInput' object.
+        // Note that none of the accessors are strictly needed for followup
+        // tests, but simplify the overall test logic.
         //
         // Concerns:
-        //   We note that 'sbumpc' is one of our primary manipulators, but we
-        //   do not ourselves test it because the implementation is completely
-        //   defined by the base class, which we can presume has been
-        //   thoroughly vetted.
-        //
-        //   (seekpos)
-        //   - that seeking positions the "cursor" (i.e., pptr()), at the
-        //     correct location
-        //   - that seeking out of bounds does not throw or abort or crash
-        //     the program
-        //   - that trying to seek in the "put" area has no effect
-        //
-        //    (capacity, data, and length)
-        //   - To ensure that accessors work off of references to 'const'
-        //     instances.
-        //   - That 'capacity' returns the size of the buffer held by this
-        //     stream buffer.
-        //   - That 'data' returns the address of the underlying character
-        //     array.
-        //   - That 'length' returns the number of characters available in the
-        //     stream buffer.
+        //: 1 Accessors work off of a references to 'const' objects.
+        //:
+        //: 2 The address of the user provided buffer is correctly reported.
+        //:
+        //: 3 The number of characters read from the stream buffer is
+        //:   correctly reported.
         //
         // Plan:
-        //   (seekpos)
-        //   - Perform a variety of seeks, each testing different settings so
-        //     as to address various combinations of the above concerns.
-        //
-        //   (capacity, data, and length)
-        //   - Create a 'bdesb::MemInput' of known size and verify its
-        //     length.
-        //   - Read some characters, and verify the length and content.
-        //   - Consume enough characters to use all the capacity, and then
-        //     verify length and content.
-        //   - Read one more character so as to cause underflow, and then
-        //     verify length and content.
-        //   - At all times verify that 'capacity' returns the same known size
-        //     with wich the 'bdesb::MemInput was created'.
-        // Tactics:
-        //   - Category-Partitioning Data Selection Method for 'seekpos'
-        //   - Table-Based Implementation Technique for 'seekpos'
-        //   - Brute-Force and Loop-Based Implementation Techniques for
-        //     'data' and 'length'
+        //: 1 Verify accessors for corner cases. (C 1..3)
+        //:
+        //: 2 Read data from the stream buffer and verify that all accessors
+        //:   report expected values. (C 1..3)
         //
         // Testing:
-        //   seekpos(pos_type, openmode);
-        //   data();
-        //   length();
+        //   const char *data() const;
+        //   streamsize length() const;
+        //   streamsize capacity() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PRIMARY MANIPULATORS/BASIC ACCESSORS" << endl
-                          << "====================================" << endl;
+                          << "BASIC ACCESSORS" << endl
+                          << "===============" << endl;
 
+        if (verbose) cout <<
+            "\nTesting accessors with no buffer." << endl;
         {
-            if (verbose) cout << "\nChecking 'capacity', 'data' and, 'length'"
-                              << " of varying-size streambufs right after"
-                              << " point of construction." << endl;
+            Obj        mSB(0, 0);
+            const Obj&  SB = mSB;
 
-            const int TEST_LENGTH = 5;
-            char buffer[TEST_LENGTH];
-            for (int i = 1; i <= TEST_LENGTH; ++i) {
-                for (int j = 0; j < i; ++j) {
-                    buffer[j] = 'a' + (j %26);
-                }
-                bdlsb::FixedMemInput mSB(buffer, i);
-                const bdlsb::FixedMemInput& SB = mSB;
-                LOOP_ASSERT(i, i == SB.length());
-                LOOP_ASSERT(i, SB.data() == buffer);
-                LOOP_ASSERT(i, SB.capacity() == i);
-                if (veryVerbose) { T_ P(SB) }
-            }
+            ASSERT(0 == SB.data());
+            ASSERT(0 == SB.length());
+            ASSERT(0 == SB.capacity());
+
+            if(veryVerbose) { T_ P(SB) };
         }
 
+        if (verbose) cout <<
+            "\nTesting accessors after streambuf creation." << endl;
         {
-            if (verbose) cout << "\nChecking 'capacity', 'data' and, 'length'"
-                              << " after character consumption." << endl;
+            char buffer[INIT_BUFSIZE];
+            fillBuffer(buffer, INIT_BUFSIZE);
 
-            const int ARBITRARY_SMALL_SIZE = 3;
-            char a[ARBITRARY_SMALL_SIZE], b[ARBITRARY_SMALL_SIZE],
-                 c[ARBITRARY_SMALL_SIZE];
-            char *const DATA[] = {
-                a, b, c
-            };
+            Obj        mSB(buffer, INIT_BUFSIZE);
+            const Obj&  SB = mSB;
 
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
-            const int BUF_LEN = 100;
-            char buffer[BUF_LEN];
-            for (int i = 0; i < BUF_LEN; ++i) {
-                buffer[i] = 'a' + (i % 26);
-            }
-            bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-            const bdlsb::FixedMemInput& SB = mSB;
-            ASSERT(SB.capacity() == BUF_LEN);
+            ASSERT(buffer       == SB.data());
+            ASSERT(INIT_BUFSIZE == SB.length());
+            ASSERT(INIT_BUFSIZE == SB.capacity());
 
-            for (int iLen = 0; iLen < DATA_LEN; iLen++) {
-                for (int j = 0; j < ARBITRARY_SMALL_SIZE; ++j) {
-                    DATA[iLen][j] = mSB.sbumpc();
-                }
+            if(veryVerbose) { T_ P(SB) };
+        }
 
-                LOOP_ASSERT(iLen, SB.length() == BUF_LEN -
-                                   (ARBITRARY_SMALL_SIZE * (iLen + 1)));
-                LOOP_ASSERT(iLen, 0 == strncmp(DATA[iLen],
-                              &(SB.data()[ARBITRARY_SMALL_SIZE * iLen]),
-                              ARBITRARY_SMALL_SIZE));
+        if (verbose) cout <<
+          "\nTesting accessors after characters consumption." << endl;
+        {
+            char buffer[INIT_BUFSIZE];
+            fillBuffer(buffer, INIT_BUFSIZE);
+
+            Obj        mSB(buffer, INIT_BUFSIZE);
+            const Obj&  SB = mSB;
+
+            Obj::int_type retval;
+            for (bsl::size_t i = 0; i < INIT_BUFSIZE; ++i) {
+                ASSERTV(i, buffer           == SB.data());
+                ASSERTV(i, INIT_BUFSIZE - i == SB.length());
+                ASSERTV(i, INIT_BUFSIZE     == SB.capacity());
+
+                retval = mSB.sbumpc();
+
+                ASSERTV(i, buffer               == SB.data());
+                ASSERTV(i, INIT_BUFSIZE - i - 1 == SB.length());
+                ASSERTV(i, INIT_BUFSIZE         == SB.capacity());
+                ASSERTV(i, buffer[i] == (char) retval);
 
                 if (veryVerbose) {
-                  cout << "\t(Diminishing) stream length is "
-                       <<  SB.length() << endl;
+                    cout << "\t(Diminishing) stream length is "
+                         << SB.length() << ".\n";
                 }
-            }
-
-            if (veryVerbose) cout << endl;
-
-            for (int j = BUF_LEN - (ARBITRARY_SMALL_SIZE * DATA_LEN);
-                                                               j >= 0; --j) {
-                LOOP_ASSERT(j, SB.length() == j);
-                if (veryVerbose) {
-                    cout << "\tWinding down to 0, length is: " << SB.length()
-                         << endl;
-                }
-                mSB.sbumpc();
-
             }
 
             if (veryVerbose) {
-                cout << "\n\tCausing underflow, and then verifying length."
-                     << endl;
+                cout << "\tCausing underflow, and then verifying length.\n";
             }
+
             mSB.sbumpc();
-            ASSERT(0 == SB.length());
+            ASSERT(0            == SB.length());
+            ASSERT(INIT_BUFSIZE == SB.capacity());
         }
 
-        {
-            if (verbose) { T_ cout << "\nTesting seekpos." << endl;}
-
-            const int OUT = bsl::ios_base::out;
-            const int IN  = bsl::ios_base::in;
-
-            static const struct {
-                int         d_line;           // line number
-                int         d_areaFlags;      // "put" or "get" area
-                bdlsb::FixedMemInput::pos_type  d_amount;
-                                              // amount to seek
-                int         d_retVal;         // Return value from pubseekpos
-            } DATA[] = {
-               //L#  area   amount  return
-               //    flag           value
-               //--  ----   ------- ----------------
-               { L_,  IN,   -20,       -1   },
-               { L_,  IN,    0,         0   },
-               { L_,  IN,   ARBITRARY_INITIAL_BUFSIZE - 2,
-                                        ARBITRARY_INITIAL_BUFSIZE - 2},
-               { L_,  IN,   ARBITRARY_INITIAL_BUFSIZE - 1,
-                                        ARBITRARY_INITIAL_BUFSIZE - 1  },
-               { L_,  IN,   ARBITRARY_INITIAL_BUFSIZE,
-                                        ARBITRARY_INITIAL_BUFSIZE},
-               { L_,  IN,   ARBITRARY_INITIAL_BUFSIZE + 1,
-                                       -1    },
-
-               { L_,  OUT,    1,       -1    }
-            };
-
-            const int DATA_LEN = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < DATA_LEN; ++i ) {
-                const int LINE      = DATA[i].d_line;
-                const int FINAL_POS = (0 < DATA[i].d_retVal ?
-                                       DATA[i].d_retVal : 0);
-
-                char buffer[ARBITRARY_INITIAL_BUFSIZE];
-                for (int j = 0; j < ARBITRARY_INITIAL_BUFSIZE; ++j) {
-                    buffer[j] = 'a' + (j %26);
-                }
-                bdlsb::FixedMemInput mSB(buffer,
-                                              ARBITRARY_INITIAL_BUFSIZE);
-
-                bdlsb::FixedMemInput::pos_type ret;
-                ret = mSB.pubseekpos(DATA[i].d_amount,
-                                 (bsl::ios_base::openmode)DATA[i].d_areaFlags);
-
-                if (veryVerbose) { T_ P(ret) }
-                LOOP_ASSERT(LINE, DATA[i].d_retVal == ret);
-
-                // Verify positioning by reading one char, and check the char
-                // (except for out-of-bounds positions).
-                int expectedChar = (FINAL_POS < ARBITRARY_INITIAL_BUFSIZE ?
-                                    'a' + FINAL_POS % 26 : -1);
-                if (veryVerbose) {
-                    cout << "\tAt position " << FINAL_POS << " char is: "
-                         << char(mSB.sgetc()) << endl;
-                }
-                LOOP_ASSERT(LINE, mSB.sgetc() == expectedChar);
-            }
-        }
       } break;
 
       case 3: {
         // --------------------------------------------------------------------
-        // PRIMARY CONSTRUCTOR
-        //   Ensure that this constructor is "wired-up" and defaults properly.
-        //
-        // Concerns:
-        //   - That the constructor sets up all streambuf machinery properly
-        //     so that streambuf operations use the client-supplied buffer.
-        //   - That the streambuf is capable of using the entirety of the
-        //     available storage, i.e., the full amount specified by the
-        //     client.
-        //   - That 'const' C arrays work as do the non-'const'.
-        //
-        // Plan:
-        //   Use the base-class-implemented method 'sbumpc' to successively
-        //   consume all characters from a 0-, 1-, and arbitrary_size_>_1-
-        //   length bdlsb::FixedMemInput, and ensure that all characters
-        //   are retrieved.
-        //
-        //   Re-run the same suite for 'const' C arrays.  Three tests are
-        //   overkill given white-box knowledge of the implementation, but it
-        //   is cheap enough that the simplicity of duplication drives this
-        //   choice.
-        //
-        // Tactics:
-        //   - Category-Partitioning Data Selection Method
-        //   - Loop-Based Implementation Techniques
-        //
-        // Testing:
-        //   bdlsb::FixedMemInput(char *, streamsize);
-        //
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "PRIMARY CONSTRUCTOR" << endl
-                          << "===================" << endl;
-        {
-            static const int sampleSizes[] = { 0, 1, 5 };
-
-            for (int j = 0; j < 3; ++j) {
-
-                if (verbose) cout <<
-                    "Testing constructor using non-const C arrays of length "
-                                  << sampleSizes[j] << '.' << endl;
-
-                const int BUF_LEN = sampleSizes[j];
-                char *buffer = new char[BUF_LEN];
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    buffer[i] = 'a' + (i % 26);
-                }
-                bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-                const bdlsb::FixedMemInput& SB = mSB;
-                ASSERT(BUF_LEN == SB.length());
-
-                bdlsb::FixedMemInput::int_type ret;
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    ret = mSB.sbumpc();
-                    if (veryVerbose) {T_ P((char)ret)}
-                }
-                delete [] buffer;
-            }
-        }
-
-        {
-            static const int sampleSizes[] = { 0, 1, 5 };
-
-            for (int j = 0; j < 3; ++j) {
-                if (verbose) cout <<
-                    "Testing constructor using const C arrays of length "
-                                  << sampleSizes[j] << '.' << endl;
-
-                const int BUF_LEN = sampleSizes[j];
-                const char *buffer = new char[BUF_LEN];
-                char *hack = const_cast<char *>(buffer);
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    hack[i] = 'a' + (i % 26);
-                }
-                bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-                const bdlsb::FixedMemInput& SB = mSB;
-                ASSERT(BUF_LEN == SB.length());
-
-                bdlsb::FixedMemInput::int_type ret;
-                for (int i = 0; i < BUF_LEN; ++i) {
-                    ret = mSB.sbumpc();
-                    if (veryVerbose) {T_ P((char)ret)}
-                }
-                delete [] buffer;
-            }
-        }
-
-      } break;
-
-      case 2: {
-
-        // --------------------------------------------------------------------
         // TEST APPARATUS
-        //   Verify the equipment we have set up to test itself works properly.
+        //
+        // Verify the auxiliary function used in the test driver. Note that
+        // the tested function is not part of the component and use only to
+        // provide human readable test traces.
         //
         // Concerns:
-        //     This driver uses no test apparatus.
+        //: 1 Output operator formats the stream buffer correctly.
+        //:
+        //: 2 Output operator does not produce any trailing characters.
+        //:
+        //: 3 Output operator works on references to 'const' object.
         //
         // Plan:
-        //      N/A
-        //
-        // Tactics:
-        //   - N/A
+        //:  1 For each of a small representative set of object values use
+        //:    'stringstream' to write that object's value to two separate
+        //:    strings.  Compare the contents of these strings with the literal
+        //:    expected output format and verify that they are equal. (C-1..3)
         //
         // Testing:
+        //   ostream& operator<<(ostream&, const FixedMemInput&);
         // --------------------------------------------------------------------
-
         if (verbose) cout << endl
                           << "TEST APPARATUS" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << endl
-                          << "This driver uses no apparatus." << endl;
+        if (verbose) cout << "\tChecking operator<< return value." << endl;
+        {
+            char buffer[INIT_BUFSIZE];
+            fillBuffer(buffer, INIT_BUFSIZE);
 
+            Obj        mSB(buffer, INIT_BUFSIZE);
+            const Obj&  SB = mSB;
+
+            stringstream out1;
+            stringstream out2;
+            out1 << SB << "next";    // Ensure modifiable
+            out2 << SB << "next";    // stream is returned.
+        }
+
+        if (verbose) cout << "\tChecking operator<<-generated content."
+                          << endl;
+        {
+            const int BUFFER_SIZE = 11;
+
+            char buffer[BUFFER_SIZE];
+            fillBuffer(buffer, BUFFER_SIZE);
+
+            Obj        mSB(buffer, BUFFER_SIZE);
+            const Obj&  SB = mSB;
+
+            stringstream out1;
+            stringstream out2;
+            out1 << mSB;
+            out2 << SB;
+
+            string str1 = out1.str();
+            string str2 = out2.str();
+            ASSERT (str1 == str2);
+
+            const string EXPECTED =
+                     "\n0000\t01100001 01100010 01100011 01100100 "
+                             "01100101 01100110 01100111 01101000"
+                     "\n0008\t01101001 01101010 01101011";
+
+            if (veryVerbose) { T_ P(str1) T_  P(EXPECTED) }
+
+            ASSERT(EXPECTED == str1);
+        }
+
+
+      } break;
+
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS
+        //
+        //   Ensure that we can use the 2-argument value constructor to create
+        //   an object having any state relevant for thorough testing, and use
+        //   the destructor to destroy it safely.
+        //   There are no public functions with which to cleanly observe the
+        //   state of the object without manipulating it.  This test will rely
+        //   on using the 'sbumpc' to check that reading from the stream buffer
+        //   in fact reads from the client-provided buffer.
+        //
+        // Concerns:
+        //: 1 The 2-argument value constructor can create an object to have any
+        //:   value that does not violate the method's documented
+        //:   preconditions.
+        //:
+        //: 2 The constructor sets up all streambuf machinery properly
+        //:   so that streambuf operations use the client-provided buffer.
+        //:
+        //: 3 The streambuf is capable of using the entirety of the available
+        //:   storage, i.e., the full amount specified by the client.
+        //:
+        //: 4 An object can be safely destroyed.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using 2-argument constructor, create and object with the
+        //:   specified buffer of the specified length. (C-1)
+        //:
+        //: 2 Let the object created in P-1 go out of scope. (C-4)
+        //:
+        //: 3 Read the stream buffer content via class method 'sbumpc'
+        //:   and verify that the data is read from the client-provided buffer.
+        //:   (C-2..3)
+        //:
+        //: 4 Read enough characters to verify that the length as specified is
+        //:   completely usable, and then read one more to ensure that the
+        //:   stream buffer is using the client-provided length as an upper
+        //:   bound as well as a lower bound. (C-3)
+        //:
+        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid constructor parameter values, but not
+        //:   triggered for adjacent valid ones. (C-5)
+        //
+        // Testing:
+        //   FixedMemInput(const char *, streamsize);
+        //   ~FixedMemInput();
+        //   int_type sbumpc();
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS" << endl
+                          << "====================" << endl;
+
+        static const bsl::size_t sampleSizes[] = { 0, 1, 5 };
+        enum { SAMPLE_NUM = sizeof(sampleSizes) / sizeof(sampleSizes[0]) };
+
+        if (verbose) cout <<
+            "\nTesting constructor using non-const C arrays" << endl;
+        {
+            for (int j = 0; j < SAMPLE_NUM; ++j) {
+                const bsl::size_t BUFFER_SIZE = sampleSizes[j];
+
+                if (veryVerbose) T_ P(BUFFER_SIZE);
+
+                char *buffer = new char[BUFFER_SIZE];
+                fillBuffer(buffer, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+                const Obj&  SB = mSB;
+                ASSERT(BUFFER_SIZE == SB.length());
+                ASSERT(BUFFER_SIZE == SB.length());
+
+                Obj::int_type ret;
+                for (bsl::size_t i = 0; i < BUFFER_SIZE; ++i) {
+                    ret = mSB.sbumpc();
+                    ASSERT (buffer[i] == (char)ret);
+                    if (veryVerbose) {T_ P((char)ret)}
+                }
+                ASSERT(0 == SB.length());
+
+                ret = mSB.sbumpc();
+                ASSERT(Obj::traits_type::eof() == ret);
+
+                delete [] buffer;
+            }
+        }
+
+        if (verbose) cout <<
+            "\nTesting constructor using const C arrays" << endl;
+        {
+            for (int j = 0; j < SAMPLE_NUM; ++j) {
+                const bsl::size_t BUFFER_SIZE = sampleSizes[j];
+
+                if (veryVerbose) T_ P(BUFFER_SIZE);
+
+                const char *buffer = new char[BUFFER_SIZE];
+                char       *hack   = const_cast<char *>(buffer);
+                fillBuffer(hack, BUFFER_SIZE);
+
+                Obj        mSB(buffer, BUFFER_SIZE);
+                const Obj&  SB = mSB;
+                ASSERT(BUFFER_SIZE == SB.length());
+
+                Obj::int_type ret;
+                for (bsl::size_t i = 0; i < BUFFER_SIZE; ++i) {
+                    ret = mSB.sbumpc();
+                    ASSERT (buffer[i] == (char)ret);
+                    if (veryVerbose) {T_ P((char)ret)}
+                }
+                ASSERT(0 == SB.length());
+
+                ret = mSB.sbumpc();
+                ASSERT(Obj::traits_type::eof() == ret);
+
+                delete [] buffer;
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            char buffer[INIT_BUFSIZE];
+
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_FAIL(Obj(     0,  INIT_BUFSIZE));
+            ASSERT_SAFE_PASS(Obj(     0,             0));
+            ASSERT_SAFE_PASS(Obj(buffer,             0));
+            ASSERT_SAFE_PASS(Obj(buffer,  INIT_BUFSIZE));
+        }
       } break;
 
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
-        //   Note: This test merely exercises basic functionality.
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   - That basic essential functionality is superficially operational.
-        //   - Provide "Developers' Sandbox".
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
-        //  Do whatever is needed:
-        //   - Try reading from a stream buffer.
-        //
-        // Tactics:
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute-Force Implementation Technique
+        //: 1 Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1175,38 +1668,55 @@ int main(int argc, char **argv)
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        if (verbose)
-           cout << "\tMake sure we can create and use 'bdlsb::FixedMemInput'."
-                << endl;
+        if (verbose) cout <<
+            "\nMake sure we can create and use a 'bdlsb::FixedMemInput'."
+                          << endl;
 
-        const int BUF_LEN = 100;
-        char buffer[BUF_LEN];
-        for (int i = 0; i < BUF_LEN; ++i) {
-            buffer[i] = 'a' + (i % 26);
-        }
-        bdlsb::FixedMemInput mSB(buffer, BUF_LEN);
-        const bdlsb::FixedMemInput& SB = mSB;
-        ASSERT(BUF_LEN == SB.length());
+        char buffer[INIT_BUFSIZE];
+        fillBuffer(buffer, INIT_BUFSIZE);
 
-        if (verbose) cout << "\tTry 'sgetc' getting character 'a'." << endl;
+        if (verbose) cout << "\nCreating an object" << endl;
+
+        Obj        mSB(buffer, INIT_BUFSIZE);
+        const Obj&  SB = mSB;
+        ASSERT(INIT_BUFSIZE == SB.length());
+        ASSERT(buffer == SB.data());
+
+        if (verbose) cout << "\nCalling 'sgetc' to get character 'a'." << endl;
+
         int result;
         result = mSB.sgetc();
         ASSERT('a' == result);
-        ASSERT(BUF_LEN == SB.length());
+        // 'sgetc' does not advance read position
+        ASSERT(INIT_BUFSIZE == SB.length());
 
-        if (verbose) cout << "\tTry 'sbumpc' getting character 'a'." << endl;
+        if (verbose)
+            cout << "\nCalling 'sbumpc' to get character 'a'." << endl;
+
         result = mSB.sbumpc();
         ASSERT('a' == result);
-        ASSERT(BUF_LEN - 1 == mSB.length());
+        // 'sbumpc' advances read position
+        ASSERT(INIT_BUFSIZE - 1 == mSB.length());
 
-        if (verbose) cout << "\tTry getting 10 characters at once." << endl;
+        if (verbose)
+            cout << "\nCalling 'snextc' to get character 'c'." << endl;
+
+        result = mSB.snextc();
+        ASSERT('c' == result);
+        // 'snextc' advances read position
+        ASSERT(INIT_BUFSIZE - 2 == mSB.length());
+
+        if (verbose) cout << "\nCalling 'sgetn' to get 10 characters." << endl;
+
         char temp[11];
         memset(temp, 'X', 11);
         mSB.sgetn(temp, 10);
-        ASSERT(BUF_LEN - 11 == SB.length());
-        ASSERT(0 == strncmp(temp, "bcdefghijk", 10));
+        // 'sgetn' internally calls 'sbumpc'
+        ASSERT(INIT_BUFSIZE - 12 == SB.length());
+        ASSERT(  0 == strncmp(temp, "cdefghijkl", 10));
         ASSERT('X' == temp[10]);
       } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

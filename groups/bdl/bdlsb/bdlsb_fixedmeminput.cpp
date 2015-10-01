@@ -1,6 +1,8 @@
 // bdlsb_fixedmeminput.cpp                                            -*-C++-*-
-
 #include <bdlsb_fixedmeminput.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlsb_fixedmeminput_cpp,"$Id$ $CSID$")
 
 #include <bsls_performancehint.h>
 
@@ -9,43 +11,54 @@
 
 namespace BloombergLP {
 namespace bdlsb {
+                        // -------------------
+                        // class FixedMemInput
+                        // -------------------
 
 // MANIPULATORS
 FixedMemInput::pos_type
-FixedMemInput::pubseekpos(FixedMemInput::pos_type position,
-                                bsl::ios_base::openmode       which)
+FixedMemInput::pubseekpos(pos_type                position,
+                          bsl::ios_base::openmode which)
 {
     // This is an input buffer only, so cannot "seek" in "put" area.
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(which & bsl::ios_base::in))) {
         return pos_type(-1);                                          // RETURN
     }
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > d_bufferLength)
+    bsl::size_t finalPosition = static_cast<bsl::size_t>(position);
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(finalPosition > d_bufferSize)
      || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(off_type(position) < 0)) {
         return pos_type(-1);                                          // RETURN
     }
 
-    return d_pos = position;
+    d_pos = finalPosition;
+    return position;
 }
 
 FixedMemInput::pos_type
-FixedMemInput::pubseekoff(FixedMemInput::off_type offset,
-                                bsl::ios_base::seekdir        fixedPosition,
-                                bsl::ios_base::openmode       which)
+FixedMemInput::pubseekoff(off_type                offset,
+                          bsl::ios_base::seekdir  way,
+                          bsl::ios_base::openmode which)
 {
-    const char *basePtr;
+    const char *basePtr = d_buffer_p;
 
-    basePtr = (fixedPosition == bsl::ios_base::cur) ? d_buffer_p +
-                                                     static_cast<IntPtr>(d_pos)
-            : (fixedPosition == bsl::ios_base::beg) ? d_buffer_p
-                                                    : d_buffer_p +
-                                                      d_bufferLength;
+    switch (way) {
+      case bsl::ios_base::beg:
+        break;
+      case bsl::ios_base::cur:
+        basePtr += d_pos;
+        break;
+      case bsl::ios_base::end:
+        basePtr += d_bufferSize;
+        break;
+      default:
+        return pos_type(-1);                                          // RETURN
+    }
 
     return pubseekpos(pos_type((basePtr - d_buffer_p) + offset), which);
-
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
