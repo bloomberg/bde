@@ -28,6 +28,9 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 
+#include <bsl_iostream.h>
+#include <bsl_vector.h>
+
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstdio.h>
@@ -35,13 +38,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
-#include <bsl_iostream.h>
-#include <bsl_vector.h>
-
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

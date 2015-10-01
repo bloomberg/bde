@@ -43,10 +43,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -1101,7 +1101,7 @@ int main(int argc, char *argv[]) {
 {
 //line cmd channelType  interruptFlag  timeout expStat validChannel expNumConn
 //---- --- -----------  -------------  ------- ------- ------------ ----------
-  {L_, 'A',  CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
+{L_, 'A',   e_CHANNEL,  non_interrupt, INFINITED, -3,         0,     existing},
 };
 #endif
 // ===================>

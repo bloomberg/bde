@@ -29,18 +29,17 @@
 
 #include <bsls_platform.h>
 
+#include <bsl_iostream.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_typeinfo.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
-#include <bsl_iostream.h>
-
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

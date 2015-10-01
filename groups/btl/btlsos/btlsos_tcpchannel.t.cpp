@@ -29,12 +29,12 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #undef ERR
 
 #include <signal.h>
-#include <unistd.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
