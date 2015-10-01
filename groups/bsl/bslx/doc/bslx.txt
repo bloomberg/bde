@@ -4,12 +4,12 @@
 
 @MNEMONIC: Basic Standard Library eXternalization (bslx)
 
-@DESCRIPTION: The 'bslx' package defines (via documentation) the BDEX
- protocol for externalization (i.e., for an "out stream") and
- "unexternalization" (i.e., for an "in stream"), and provides concrete
- byte-array-based stream implementations of each kind of stream, including
- streams for testing.  In general, concrete streams must be used in matched
- pairs, as described in more detail below.
+@DESCRIPTION: The 'bslx' package defines (via documentation) the BDEX protocol
+ for externalization (i.e., for an "out stream") and "unexternalization" (i.e.,
+ for an "in stream"), and provides concrete byte-array-based stream
+ implementations of each kind of stream, including streams for testing.  In
+ general, concrete streams must be used in matched pairs, as described in more
+ detail below.
 
 /Hierarchical Synopsis
 /---------------------
@@ -99,9 +99,9 @@
 
  The 'bslx' streams provide better support for externalization than 'iostream'
  objects because BDEX specifies a canonical, optimized representation for
- fundamental types, provides component authors the tools to externalize in
- a platform-neutral way any in-core object, and allows versioning of
- types not directly supported by BDEX.
+ fundamental types, provides component authors the tools to externalize in a
+ platform-neutral way any in-core object, and allows versioning of types not
+ directly supported by BDEX.
 
  When externalizing data, the version to be used must be supplied to the
  objects directly serialized (objects nested within these "top-level" objects
@@ -118,10 +118,10 @@
  'bslx::VersionFunctions::k_NO_VERSION' should be supplied for this parameter.
 
  However, when using 'operator<<' it is impractical to directly supply the
- version to be used with each top-level object.  As such, an indirect method
- of versioning is employed, which incorporates data provided to the stream
- during the stream's construction, the 'versionSelector'.  One requirement
- of all BDEX-compliant serializable types is to implement the
+ version to be used with each top-level object.  As such, an indirect method of
+ versioning is employed, which incorporates data provided to the stream during
+ the stream's construction, the 'versionSelector'.  One requirement of all
+ BDEX-compliant serializable types is to implement the
  'maxSupportedBdexVersion' method, which converts this 'versionSelector' to the
  needed version on a per object-type basis.  While the list of versions
  supported by an object is typically a sequential set of numbers starting with
@@ -141,14 +141,13 @@
 
 /Supported Types
 /---------------
- The supported types and required content are listed in the table below.
- All of the fundamental types in the table may be streamed as scalar values or
- as homogeneous arrays.  'bsl::string' is streamed as an 'int' representing the
+ The supported types and required content are listed in the table below.  All
+ of the fundamental types in the table may be streamed as scalar values or as
+ homogeneous arrays.  'bsl::string' is streamed as an 'int' representing the
  string's length and a homogeneous 'char' array for the string's data.  Note
  that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
- 'bsls::Types::Uint64', respectively, which in turn are 'typedef' names
- for the signed and unsigned 64-bit integer types, respectively, on the host
- platform:
+ 'bsls::Types::Uint64', respectively, which in turn are 'typedef' names for the
+ signed and unsigned 64-bit integer types, respectively, on the host platform:
 ..
   C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
   --------------    -----------------------------------------------
@@ -166,8 +165,8 @@
 
   bsl::string       BDE implementation of the STL string class
 ..
- BDEX also supports compact streaming of integer types.  In particular,
- 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit
+ BDEX also supports compact streaming of integer types.  In particular, 64-bit
+ integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit
  integers can be streamed as 24- or 32-bit values, at the user's discretion.
  In all cases, the least-significant bytes of the fundamental integer type are
  written to the stream.  Therefore, outputting a signed value may not preserve
@@ -184,8 +183,8 @@
  The protocols specify what types that wish to support BDEX streaming must
  provide (three specifically-named methods), and what services the type can
  expect from all compliant streams (various "put" and "get" methods).  In
- addition, BDEX also documents two interfaces, 'InStream' and 'OutStream',
- that serve as the "documentation protocols" for input and output streams,
+ addition, BDEX also documents two interfaces, 'InStream' and 'OutStream', that
+ serve as the "documentation protocols" for input and output streams,
  respectively.
 
 /Requirements for a BDEX-Compliant Class to be Streamable
@@ -195,8 +194,8 @@
  Class" section below for implementation details.
 
  The required signatures and typical documentation (some behavioral details may
- be implementation-specific) of the three required methods for a
- BDEX-compliant class are as follows:
+ be implementation-specific) of the three required methods for a BDEX-compliant
+ class are as follows:
 ..
   // CLASS METHODS
   static int maxSupportedBdexVersion(int versionSelector);
@@ -295,9 +294,9 @@
 ..
  Putting other design decisions to one side for this discussion, we may ask:
  How would we incorporate BDEX streaming into such a class?  We observe that
- the actual data footprint of such a point class is two 'int' values.  If
- BDEX succeeds in externalizing these two 'int' values (preserving their
- order), then the task is accomplished.
+ the actual data footprint of such a point class is two 'int' values.  If BDEX
+ succeeds in externalizing these two 'int' values (preserving their order),
+ then the task is accomplished.
 
  The function-level documentation should make the purpose of each method clear,
  and we will show the implementations for 'MyPoint' soon, but first let's just
@@ -369,9 +368,9 @@
            // value-semantic types and containers.
    };
 ..
- The implementations of the new BDEX-required methods might be as follows.
- The 'maxSupportedBdexVersion' method simply returns the value 1 regardless of
- the 'versionSelector' requested:
+ The implementations of the new BDEX-required methods might be as follows.  The
+ 'maxSupportedBdexVersion' method simply returns the value 1 regardless of the
+ 'versionSelector' requested:
 ..
   inline
   int MyPoint::maxSupportedBdexVersion(int versionSelector)
@@ -383,8 +382,8 @@
  and is therefore a bit simpler, so we'll show that one first.  Anyway, it's a
  bit more logical to see the output format before implementing the input
  format.  The method is a template method parameterized by 'STREAM', and the
- "protocol" of that 'STREAM' must be compatible with the BDEX contract.  We
- can therefore safely assume that the 'stream' object has the required methods.
+ "protocol" of that 'STREAM' must be compatible with the BDEX contract.  We can
+ therefore safely assume that the 'stream' object has the required methods.
  See the "The BDEX Protocols" section above for the contracts.  The heart of
  the method is the two sequential calls to 'putInt32', which externalize the
  'x' and 'y' coordinates of the point value, in that order.  These two lines
@@ -572,8 +571,8 @@
  to the BDEX 'OutStream' constructor) is to use the current date as a
  *compile*-time constant value.  Using the current date will select the most
  recent BDEX version.  However, in environments were multiple tasks may be
- reading the resulting serialized value, it is important to ensure that all
- the tasks participating in the system are capable of reading that BDEX version
+ reading the resulting serialized value, it is important to ensure that all the
+ tasks participating in the system are capable of reading that BDEX version
  before selecting it as an output version.
 
  The roll-out of a new BDEX version for an existing type ('A') in a production

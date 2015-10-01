@@ -1,17 +1,60 @@
  bdls.txt
 
-@PURPOSE: Provide system-level utilities for BDL
+@PURPOSE: Provide platform-independent system-level utilities.
 
 @MNEMONIC: Basic Development Library System-level utilities (bdls)
 
+@DESCRIPTION: The 'bdls' package provides a suite of components for
+ platform-independent interactions with operating system for the management of
+ memory, files, and pipes.
+
 /Hierarchical Synopsis
 /---------------------
- The 'bdls' package currently has 1 component.
+ The 'bdls' package currently has 9 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  1. bdls_testutil
+  5. bdls_osutil
+
+  4. bdls_pipeutil
+     bdls_processutil
+
+  3. bdls_fdstreambuf
+     bdls_filedescriptorguard
+
+  2. bdls_filesystemutil
+
+  1. bdls_memoryutil
+     bdls_pathutil
+     bdls_testutil                                       !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
-: 'bdls_testutil':
+: 'bdls_fdstreambuf':
+:      Provide a stream buffer initialized with a file descriptor.
+:
+: 'bdls_filedescriptorguard':
+:      Provide a RAII guard class used to close files.
+:
+: 'bdls_filesystemutil':
+:      Provide methods for filesystem access with multi-language names.
+:
+: 'bdls_memoryutil':
+:      Provide a set of portable utilities for memory manipulation.
+:
+: 'bdls_osutil':
+:      Provide utilities related to the operating system.
+:
+: 'bdls_pathutil':
+:      Provide portable file path manipulation.
+:
+: 'bdls_pipeutil':
+:      Provide basic portable named-pipe utilities.
+:
+: 'bdls_processutil':
+:      Provide basic platform-independent utilities related to processes.
+:
+: 'bdls_testutil':                                       !DEPRECATED!
 :      Provide test utilities for components in 'bdl' and above.

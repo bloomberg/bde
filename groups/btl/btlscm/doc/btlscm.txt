@@ -9,7 +9,6 @@
 @DESCRIPTION: The 'btlscm' package is identical in design and purpose to the
  'bdescm' package, except that 'btlscm' is incorporated into each 'btl'
  component to provide uniform versioning information for that package group.
- See the 'bdescm' package documentation for details.
 
 /Hierarchical Synopsis
 /---------------------

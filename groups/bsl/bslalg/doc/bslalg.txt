@@ -8,20 +8,19 @@
  components (in particular, the standard library containers).  The facilities
  fall into three broad classes:
 
-: o Utilities that provide efficient implementations of primitive operations
-:   on generic data types (e.g., construction, copy-construction), optimized
-:   based on the exposed traits of the type (e.g., bitwise-copyable,
-:   uses-allocator).
+: o Utilities that provide efficient implementations of primitive operations on
+:   generic data types (e.g., construction, copy-construction), optimized based
+:   on the exposed traits of the type (e.g., bitwise-copyable, uses-allocator).
 :
 : o Primitive data types and fundamental algorithms that form the basis of
-:   standard library containers (e.g., linked lists, hash tables, Red/ Black
+:   standard library containers (e.g., linked lists, hash tables, Red/Black
 :   trees and deques).
 :
 : o Legacy traits types used to tag user-defined (client) types according to
 :   properties such as whether they use a memory allocator to supply memory
 :   resources, have a trivial default constructor, are POD types, etc.  These
-:   traits types have been superceded by the traits in the 'bslmf' package,
-:   and are implemented in terms of 'bslmf'.
+:   traits types have been superseded by the traits in the 'bslmf' package, and
+:   are implemented in terms of 'bslmf'.
 :
 
 /Hierarchical Synopsis
@@ -49,7 +48,7 @@
   3. bslalg_hashtablebucket
      bslalg_scalarprimitives
      bslalg_selecttrait
-     bslalg_typetraits
+     bslalg_typetraits                                   !DEPRECATED!
 
   2. bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
@@ -68,12 +67,12 @@
      bslalg_swaputil
      bslalg_typetraitbitwisecopyable
      bslalg_typetraitbitwiseequalitycomparable
-     bslalg_typetraitbitwisemoveable
+     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
      bslalg_typetraithaspointersemantics
      bslalg_typetraithasstliterators
      bslalg_typetraithastrivialdefaultconstructor
      bslalg_typetraitnil
-     bslalg_typetraitpair
+     bslalg_typetraitpair                                !DEPRECATED!
      bslalg_typetraitusesbslmaallocator
 ..
 
@@ -166,7 +165,7 @@
 : 'bslalg_typetraitbitwiseequalitycomparable':
 :      Provide a trait to mark classes as bit-wise eq.-comparable.
 :
-: 'bslalg_typetraitbitwisemoveable':
+: 'bslalg_typetraitbitwisemoveable':                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise moveable.
 :
 : 'bslalg_typetraithaspointersemantics':
@@ -181,10 +180,10 @@
 : 'bslalg_typetraitnil':
 :      Provide a trait to mark classes as having no other traits.
 :
-: 'bslalg_typetraitpair':
+: 'bslalg_typetraitpair':                                !DEPRECATED!
 :      Provide a trait to mark classes as similar to 'std::pair'.
 :
-: 'bslalg_typetraits':
+: 'bslalg_typetraits':                                   !DEPRECATED!
 :      Provide compile-time traits that can be associated with types.
 :
 : 'bslalg_typetraitusesbslmaallocator':

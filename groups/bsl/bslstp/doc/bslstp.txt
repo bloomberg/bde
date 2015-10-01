@@ -25,52 +25,52 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  3. bslstp_hashmap
-     bslstp_hashset
+  3. bslstp_hashmap                                      !DEPRECATED!
+     bslstp_hashset                                      !DEPRECATED!
 
-  2. bslstp_hashtable
-     bslstp_slist
+  2. bslstp_hashtable                                    !DEPRECATED!
+     bslstp_slist                                        !DEPRECATED!
 
-  1. bslstp_alloc
-     bslstp_exalgorithm
-     bslstp_exfunctional
-     bslstp_hash
-     bslstp_iterator
-     bslstp_slistbase
-     bslstp_util
+  1. bslstp_alloc                                        !DEPRECATED!
+     bslstp_exalgorithm                                  !DEPRECATED!
+     bslstp_exfunctional                                 !DEPRECATED!
+     bslstp_hash                                         !DEPRECATED!
+     bslstp_iterator                                     !DEPRECATED!
+     bslstp_slistbase                                    !DEPRECATED!
+     bslstp_util                                         !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
-: 'bslstp_alloc':
+: 'bslstp_alloc':                                        !DEPRECATED!
 :      Provide facilities for STLPort implementation.
 :
-: 'bslstp_exalgorithm':
+: 'bslstp_exalgorithm':                                  !DEPRECATED!
 :      Provide a namespace for algorithm extensions.
 :
-: 'bslstp_exfunctional':
+: 'bslstp_exfunctional':                                 !DEPRECATED!
 :      Provide a namespace for functional extensions.
 :
-: 'bslstp_hash':
+: 'bslstp_hash':                                         !DEPRECATED!
 :      Provide a namespace for hash functions.
 :
-: 'bslstp_hashmap':
+: 'bslstp_hashmap':                                      !DEPRECATED!
 :      Provide containers indexed by a hashed key value.
 :
-: 'bslstp_hashset':
+: 'bslstp_hashset':                                      !DEPRECATED!
 :      Provide containers hashed by value.
 :
-: 'bslstp_hashtable':
+: 'bslstp_hashtable':                                    !DEPRECATED!
 :      Provide facilities for STLPort implementation.
 :
-: 'bslstp_iterator':
+: 'bslstp_iterator':                                     !DEPRECATED!
 :      Provide facility for STLPort implementation.
 :
-: 'bslstp_slist':
+: 'bslstp_slist':                                        !DEPRECATED!
 :      Provide a singly linked list container.
 :
-: 'bslstp_slistbase':
+: 'bslstp_slistbase':                                    !DEPRECATED!
 :      Provide facility for STLPort implementation.
 :
-: 'bslstp_util':
+: 'bslstp_util':                                         !DEPRECATED!
 :      Provide a namespace for utility functions for STL functionality.

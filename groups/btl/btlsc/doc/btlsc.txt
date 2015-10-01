@@ -61,16 +61,16 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. btlsc_channelallocator
+  4. btlsc_cbchannelallocator
+     btlsc_channelallocator
+     btlsc_timedcbchannelallocator
      btlsc_timedchannelallocator
 
   3. btlsc_timedcbchannel
      btlsc_timedchannel
 
   2. btlsc_cbchannel
-     btlsc_cbchannelallocator
      btlsc_channel
-     btlsc_timedcbchannelallocator
 
   1. btlsc_flag
 ..
@@ -78,7 +78,7 @@
 /Component Synopsis
 /------------------
 : 'btlsc_cbchannel':
-:      Provide protocol for stream-based data communication.
+:      Provide a protocol for stream-based data communication.
 :
 : 'btlsc_cbchannelallocator':
 :      Provide protocol for non-blocking stream-based channel allocators.
@@ -99,7 +99,7 @@
 :      Provide protocol for stream-based channel allocators with timeout.
 :
 : 'btlsc_timedchannel':
-:      Provide protocol for stream-based communication with timeout.
+:      Provide a protocol for stream-based communication with a timeout.
 :
 : 'btlsc_timedchannelallocator':
 :      Provide protocol for stream-based channel allocators with timeout.

@@ -7,9 +7,7 @@
 @AUTHOR: Tom Marshall (tmarshal)
 
 @DESCRIPTION: The 'bal' ("Basic Applications Environment") package group
- contains twelve packages (beyond the required 'balscm' source management
- versioning package -- see 'bdescm' for a general discussion of version
- control).  Those packages provide application-level support services in varied
+ contains packages that provide application-level support services in varied
  areas such as encoders/decoders, timezone support, command-line handling,
  metrics, and logging.
 
@@ -27,20 +25,20 @@
      balst
      baltzo
 
-  2. ball
+  2. balber
+     ball
 
-  1. balber
-     balscm
+  1. balscm
      balxml
 ..
 
 /Package Synopsis
 /----------------
 : 'balb':
-:      Provide ...
+:      Provide common application-level facilities.
 :
 : 'balber':
-:      Provide ...
+:      Provide encoding/decoding of data per the (binary) BER rules.
 :
 : 'baljsn':
 :      Provide components for encoding/decoding in the JSON format.
@@ -55,7 +53,7 @@
 :      Provide versioning information for library components in 'bal'
 :
 : 'balst':
-:      Provide ...
+:      Provide a portable facility for obtaining & printing a stack trace
 :
 : 'baltzo':
 :      Provide timezone data for use with timezone-enabled vocabulary types.
