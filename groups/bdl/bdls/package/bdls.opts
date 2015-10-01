@@ -1,4 +1,7 @@
-*                       _       OPTS_FILE       = bdl.opts
+*                       _       OPTS_FILE       = bdls.opts
 
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
+
+#-lsocket needed for bdls::FileSystemUtil::isRegularFile test
+unix-SunOS              _       MT_LDFLAGS     = -Bdynamic -lpthread -lsocket -Bstatic
