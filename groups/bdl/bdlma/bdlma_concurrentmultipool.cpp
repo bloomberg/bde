@@ -21,6 +21,7 @@ BSLS_IDENT_RCSID(bdema_multipool_cpp,"$Id$ $CSID$")
 #include <bsls_performancehint.h>
 
 #include <bsl_cstdio.h>  // 'fprintf'
+#include <bsl_cstdint.h>
 
 #include <new>           // placement 'new'
 
@@ -167,7 +168,7 @@ void ConcurrentMultipool::initialize(
 inline
 int ConcurrentMultipool::findPool(int size) const
 {
-    return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(
+    return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<bsl::uint32_t>(
                                 ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1));
 }
 

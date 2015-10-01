@@ -1019,8 +1019,8 @@ void MultipriorityQueue<TYPE>::removeAll()
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         while (d_notEmptyFlags) {
-            const int priority =
-                bdlb::BitUtil::numTrailingUnsetBits((uint32_t)d_notEmptyFlags);
+            const int priority = bdlb::BitUtil::numTrailingUnsetBits(
+                                  static_cast<bsl::uint32_t>(d_notEmptyFlags));
 
             Node *& head = d_heads[priority];
             BSLS_ASSERT(head);

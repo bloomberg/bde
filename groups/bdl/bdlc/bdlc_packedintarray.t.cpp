@@ -29,8 +29,8 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#include <stdint.h>
-#include <utility>
+#include <bsl_cstdint.h>
+#include <bsl_utility.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -219,27 +219,39 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlc::PackedIntArray<int64_t>                  Obj;
-typedef int64_t                                        Element;
-typedef bdlc::PackedIntArray<int64_t>::const_iterator  Iterator;
+typedef bdlc::PackedIntArray<bsl::int64_t>                  Obj;
+typedef bsl::int64_t                                        Element;
+typedef bdlc::PackedIntArray<bsl::int64_t>::const_iterator  Iterator;
 
-typedef bdlc::PackedIntArray<uint64_t>                 UnsignedObj;
-typedef uint64_t                                       UnsignedElement;
-typedef bdlc::PackedIntArray<uint64_t>::const_iterator UnsignedIterator;
+typedef bdlc::PackedIntArray<bsl::uint64_t>                 UnsignedObj;
+typedef bsl::uint64_t                                       UnsignedElement;
+typedef bdlc::PackedIntArray<bsl::uint64_t>::const_iterator UnsignedIterator;
 
-const static int64_t k_INT8_MIN   = bsl::numeric_limits<int8_t >::min();
-const static int64_t k_INT8_MAX   = bsl::numeric_limits<int8_t >::max();
-const static int64_t k_INT16_MIN  = bsl::numeric_limits<int16_t>::min();
-const static int64_t k_INT16_MAX  = bsl::numeric_limits<int16_t>::max();
-const static int64_t k_INT32_MIN  = bsl::numeric_limits<int32_t>::min();
-const static int64_t k_INT32_MAX  = bsl::numeric_limits<int32_t>::max();
-const static int64_t k_INT64_MIN  = bsl::numeric_limits<int64_t>::min();
-const static int64_t k_INT64_MAX  = bsl::numeric_limits<int64_t>::max();
+const static bsl::int64_t k_INT8_MIN
+                                    = bsl::numeric_limits<bsl::int8_t >::min();
+const static bsl::int64_t k_INT8_MAX
+                                    = bsl::numeric_limits<bsl::int8_t >::max();
+const static bsl::int64_t k_INT16_MIN
+                                    = bsl::numeric_limits<bsl::int16_t>::min();
+const static bsl::int64_t k_INT16_MAX
+                                    = bsl::numeric_limits<bsl::int16_t>::max();
+const static bsl::int64_t k_INT32_MIN
+                                    = bsl::numeric_limits<bsl::int32_t>::min();
+const static bsl::int64_t k_INT32_MAX
+                                    = bsl::numeric_limits<bsl::int32_t>::max();
+const static bsl::int64_t k_INT64_MIN
+                                    = bsl::numeric_limits<bsl::int64_t>::min();
+const static bsl::int64_t k_INT64_MAX
+                                    = bsl::numeric_limits<bsl::int64_t>::max();
 
-const static uint64_t k_UINT8_MAX   = bsl::numeric_limits<uint8_t >::max();
-const static uint64_t k_UINT16_MAX  = bsl::numeric_limits<uint16_t>::max();
-const static uint64_t k_UINT32_MAX  = bsl::numeric_limits<uint32_t>::max();
-const static uint64_t k_UINT64_MAX  = bsl::numeric_limits<uint64_t>::max();
+const static bsl::uint64_t k_UINT8_MAX
+                                   = bsl::numeric_limits<bsl::uint8_t >::max();
+const static bsl::uint64_t k_UINT16_MAX
+                                   = bsl::numeric_limits<bsl::uint16_t>::max();
+const static bsl::uint64_t k_UINT32_MAX
+                                   = bsl::numeric_limits<bsl::uint32_t>::max();
+const static bsl::uint64_t k_UINT64_MAX
+                                   = bsl::numeric_limits<bsl::uint64_t>::max();
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -346,7 +358,7 @@ typedef bslx::TestOutStream Out;
 //
 // <UELEMENT> ::= 'z' | 'O' | 'C' | 'S' | 'I' | 'L' | 's' | 'i' | 'l'
 
-int getValue(char specChar, int64_t *value, int verboseFlag);
+int getValue(char specChar, bsl::int64_t *value, int verboseFlag);
     // Place into the specified 'value' the value corresponding to the
     // specified 'specChar' and display errors to 'cerr' if the specified
     // 'verboseFlag' is set.  Return 0 if operation successful, return non-zero
@@ -376,7 +388,7 @@ int getValue(char specChar, int64_t *value, int verboseFlag);
 // )       k_INT32_MAX + 1
 //..
 
-int getValue(char specChar, int64_t *value, int verboseFlag)
+int getValue(char specChar, bsl::int64_t *value, int verboseFlag)
 {
     enum { SUCCESS_APPEND = -1, SUCCESS_REMOVEALL = -2, SUCCESS_POPBACK = -3 };
     switch(specChar) {
@@ -448,7 +460,7 @@ int getValue(char specChar, int64_t *value, int verboseFlag)
     return SUCCESS_APPEND;
 }
 
-int getValue(char specChar, uint64_t *value, int verboseFlag);
+int getValue(char specChar, bsl::uint64_t *value, int verboseFlag);
     // Place into the specified 'value' the value corresponding to the
     // specified 'specChar' and display errors to 'cerr' if the specified
     // 'verboseFlag' is set.  Return 0 if operation successful, return non-zero
@@ -470,7 +482,7 @@ int getValue(char specChar, uint64_t *value, int verboseFlag);
 // l      k_UINT32_MAX + 1
 //..
 
-int getValue(char specChar, uint64_t *value, int verboseFlag)
+int getValue(char specChar, bsl::uint64_t *value, int verboseFlag)
 {
     enum { SUCCESS_APPEND = -1, SUCCESS_REMOVEALL = -2, SUCCESS_POPBACK = -3 };
     switch(specChar) {
