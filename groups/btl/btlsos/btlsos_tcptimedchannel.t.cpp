@@ -144,7 +144,7 @@ enum {
 #if defined BSLS_PLATFORM_OS_LINUX
     k_SLEEP_TIME              =  1000
 #else
-    k_SLEEP_TIME              =  10
+    k_SLEEP_TIME              =  10000
 #endif
 };
 
@@ -1134,7 +1134,7 @@ int processTest(btlsos::TcpTimedChannel     *channel,
     // specified 'commands' to invoke functions in the specified 'channel', or
     // the 'helperSocket' which is the control part of the socket pair.  If the
     // 'signals' is set, a thread taking the specified 'threadFunction'
-    // function will be generated to generate signals.  Results after each test
+    // function will be 
     // will be compared against those expected which are also specified in the
     // 'commands'.  For a read operation, load either the specified 'buffer' or
     // 'ioBuffer' corresponding to the request.  Note because the behaviors are
@@ -9005,7 +9005,7 @@ int main(int argc, char *argv[]) {
               {L_,   e_RBR,         250,         0,        44,         0, 0 },
             },
 
-            #else
+            #else // !(defined BSLS_PLATFORM_OS_SOLARIS)
             // Commands set 5: Establish a channel and make the expected number
             // of bytes of data available in the channel's internal buffer,
             // test the behavior of the 'read' method w/o the 'augStatus'
