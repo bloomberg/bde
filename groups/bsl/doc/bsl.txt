@@ -30,12 +30,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsl' package group currently has 15 packages having 12 levels of physical
+ The 'bsl' package group currently has 16 packages having 12 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  12. bslx
+  12. bslmt
+      bslx
 
   11. bslim
 
@@ -43,7 +44,7 @@
 
    9. bsl+bslhdrs
 
-   8. bslstp
+   8. bslstp                                             !DEPRECATED!
 
    7. bslstl
 
@@ -59,7 +60,7 @@
 
    2. bslscm
 
-   1. bslfwd
+   1. bslfwd                                             !DEPRECATED!
       bsls
 ..
  Note that the 'bsl+stdhdrs' package is only a compatibility layer for
@@ -87,11 +88,11 @@
 : 'bsldoc':
 :      Provide documentation of terms and concepts used throughout BDE.
 :
-: 'bslfwd':
+: 'bslfwd':                                              !DEPRECATED!
 :      Provide compatibility for clients using single-level namespace
 :
 : 'bslh':
-:      Provide a framework for hashing types using swapable algorithms.
+:      Provide a framework for hashing types using swappable algorithms.
 :
 : 'bslim':
 :      Provide implementation mechanisms.
@@ -102,6 +103,9 @@
 : 'bslmf':
 :      Provide meta-function versions of useful coding constructs.
 :
+: 'bslmt':
+:      Support for multi-threading and thread-safe processes.
+:
 : 'bsls':
 :      Provide system-level utilities for 'bsl'.
 :
@@ -111,7 +115,7 @@
 : 'bslstl':
 :      Provide replacement classes for STL constructs.
 :
-: 'bslstp':
+: 'bslstp':                                              !DEPRECATED!
 :      Provide replacement classes (adopted from STLport) for STL.
 :
 : 'bsltf':

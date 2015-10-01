@@ -856,7 +856,7 @@
 :      Provide an implementation of the SpookyHash algorithm.
 :
 : 'bslh_spookyhashalgorithmimp':
-:      Provide BDE style encapsulation of 3rd-party SpookyHash code.
+:      Provide BDE style encapsulation of 3rd party SpookyHash code.
 
 /Component Overview
 /------------------

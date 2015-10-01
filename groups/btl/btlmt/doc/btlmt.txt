@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'btlmt' package currently has 9 components having 4 levels of physical
+ The 'btlmt' package currently has 10 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -27,6 +27,7 @@
      btlmt_channelstatus
      btlmt_channeltype
      btlmt_session
+     btlmt_sessionfactory
      btlmt_tcptimereventmanager
 ..
  'btlmt' also depends directly upon the 'btlso' and 'btlsos' packages within
@@ -45,15 +46,18 @@
 :      Provide a concrete implementation of 'btlmt::AsyncChannel'
 :
 : 'btlmt_channelpoolconfiguration':
-:      Provide a constrained-attribute class for channel pools.
+:      Provide a class for configuring channel pools.
 :
 : 'btlmt_channelstatus':
-:      Provide a set of enumerations for the channel status codes.
+:      Enumerate the set of channel status codes.
 :
 : 'btlmt_channeltype':
-:      Provide a namespace for representing channel type values.
+:      Enumerate the set of channel types.
 :
 : 'btlmt_session':
+:      Provide a *pure* protocol class for a session
+:
+: 'btlmt_sessionfactory':
 :      Provide a *pure* protocol class for creating sessions
 :
 : 'btlmt_sessionpool':

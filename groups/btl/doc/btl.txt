@@ -36,7 +36,7 @@
 /Package Synopsis
 /----------------
 : 'btlb':
-:      Provide ...
+:      Provide flexible, efficient management of message buffers.
 :
 : 'btlmt':
 :      Provide framework for multi-threaded TCP/IP transport.

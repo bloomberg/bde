@@ -28,233 +28,233 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bslfwd_bslalg_arraydestructionprimitives
-     bslfwd_bslalg_arrayprimitives
-     bslfwd_bslalg_rangecompare
-     bslfwd_bslalg_scalardestructionprimitives
-     bslfwd_bslalg_scalarprimitives
-     bslfwd_bslalg_swaputil
-     bslfwd_bslalg_typetraitbitwisecopyable
-     bslfwd_bslalg_typetraitbitwiseequalitycomparable
-     bslfwd_bslalg_typetraitbitwisemoveable
-     bslfwd_bslalg_typetraithaspointersemantics
-     bslfwd_bslalg_typetraithasstliterators
-     bslfwd_bslalg_typetraithastrivialdefaultconstructor
-     bslfwd_bslalg_typetraitusesbslmaallocator
-     bslfwd_bslma_allocator
-     bslfwd_bslma_bufferallocator
-     bslfwd_bslma_default
-     bslfwd_bslma_defaultallocatorguard
-     bslfwd_bslma_deleterhelper
-     bslfwd_bslma_infrequentdeleteblocklist
-     bslfwd_bslma_mallocfreeallocator
-     bslfwd_bslma_managedallocator
-     bslfwd_bslma_newdeleteallocator
-     bslfwd_bslma_sequentialallocator
-     bslfwd_bslma_sequentialpool
-     bslfwd_bslma_testallocator
-     bslfwd_bslma_testallocatorexception
-     bslfwd_bslma_testallocatormonitor
-     bslfwd_bslmf_anytype
-     bslfwd_bslmf_functionpointerclinkage
-     bslfwd_bslmf_functionpointercpluspluslinkage
-     bslfwd_bslmf_nil
-     bslfwd_bslmf_typelist0
-     bslfwd_bsls_alignment
-     bslfwd_bsls_alignmentimp8bytealignedtype
-     bslfwd_bsls_alignmentimpmatch
-     bslfwd_bsls_alignmentutil
-     bslfwd_bsls_assert
-     bslfwd_bsls_assertfailurehandlerguard
-     bslfwd_bsls_asserttest
-     bslfwd_bsls_asserttestexception
-     bslfwd_bsls_blockgrowth
-     bslfwd_bsls_noexcbuildtarget
-     bslfwd_bsls_nomtbuildtarget
-     bslfwd_bsls_performancehint
-     bslfwd_bsls_platform
-     bslfwd_bsls_stopwatch
-     bslfwd_bsls_timeutil
-     bslfwd_bsls_types
-     bslfwd_bsls_util
-     bslfwd_bsls_yesexcbuildtarget
-     bslfwd_bsls_yesmtbuildtarget
-     bslfwd_bslscm_version
-     bslfwd_bslstl_stdexceptutil
-     bslfwd_bslstl_util
-     bslfwd_bslstl_utiliterator
+  2. bslfwd_bslalg_arraydestructionprimitives            !DEPRECATED!
+     bslfwd_bslalg_arrayprimitives                       !DEPRECATED!
+     bslfwd_bslalg_rangecompare                          !DEPRECATED!
+     bslfwd_bslalg_scalardestructionprimitives           !DEPRECATED!
+     bslfwd_bslalg_scalarprimitives                      !DEPRECATED!
+     bslfwd_bslalg_swaputil                              !DEPRECATED!
+     bslfwd_bslalg_typetraitbitwisecopyable              !DEPRECATED!
+     bslfwd_bslalg_typetraitbitwiseequalitycomparable    !DEPRECATED!
+     bslfwd_bslalg_typetraitbitwisemoveable              !DEPRECATED!
+     bslfwd_bslalg_typetraithaspointersemantics          !DEPRECATED!
+     bslfwd_bslalg_typetraithasstliterators              !DEPRECATED!
+     bslfwd_bslalg_typetraithastrivialdefaultconstructor !DEPRECATED!
+     bslfwd_bslalg_typetraitusesbslmaallocator           !DEPRECATED!
+     bslfwd_bslma_allocator                              !DEPRECATED!
+     bslfwd_bslma_bufferallocator                        !DEPRECATED!
+     bslfwd_bslma_default                                !DEPRECATED!
+     bslfwd_bslma_defaultallocatorguard                  !DEPRECATED!
+     bslfwd_bslma_deleterhelper                          !DEPRECATED!
+     bslfwd_bslma_infrequentdeleteblocklist              !DEPRECATED!
+     bslfwd_bslma_mallocfreeallocator                    !DEPRECATED!
+     bslfwd_bslma_managedallocator                       !DEPRECATED!
+     bslfwd_bslma_newdeleteallocator                     !DEPRECATED!
+     bslfwd_bslma_sequentialallocator                    !DEPRECATED!
+     bslfwd_bslma_sequentialpool                         !DEPRECATED!
+     bslfwd_bslma_testallocator                          !DEPRECATED!
+     bslfwd_bslma_testallocatorexception                 !DEPRECATED!
+     bslfwd_bslma_testallocatormonitor                   !DEPRECATED!
+     bslfwd_bslmf_anytype                                !DEPRECATED!
+     bslfwd_bslmf_functionpointerclinkage                !DEPRECATED!
+     bslfwd_bslmf_functionpointercpluspluslinkage        !DEPRECATED!
+     bslfwd_bslmf_nil                                    !DEPRECATED!
+     bslfwd_bslmf_typelist0                              !DEPRECATED!
+     bslfwd_bsls_alignment                               !DEPRECATED!
+     bslfwd_bsls_alignmentimp8bytealignedtype            !DEPRECATED!
+     bslfwd_bsls_alignmentimpmatch                       !DEPRECATED!
+     bslfwd_bsls_alignmentutil                           !DEPRECATED!
+     bslfwd_bsls_assert                                  !DEPRECATED!
+     bslfwd_bsls_assertfailurehandlerguard               !DEPRECATED!
+     bslfwd_bsls_asserttest                              !DEPRECATED!
+     bslfwd_bsls_asserttestexception                     !DEPRECATED!
+     bslfwd_bsls_blockgrowth                             !DEPRECATED!
+     bslfwd_bsls_noexcbuildtarget                        !DEPRECATED! !PRIVATE!
+     bslfwd_bsls_nomtbuildtarget                         !DEPRECATED! !PRIVATE!
+     bslfwd_bsls_performancehint                         !DEPRECATED!
+     bslfwd_bsls_platform                                !DEPRECATED!
+     bslfwd_bsls_stopwatch                               !DEPRECATED!
+     bslfwd_bsls_timeutil                                !DEPRECATED!
+     bslfwd_bsls_types                                   !DEPRECATED!
+     bslfwd_bsls_util                                    !DEPRECATED!
+     bslfwd_bsls_yesexcbuildtarget                       !DEPRECATED! !PRIVATE!
+     bslfwd_bsls_yesmtbuildtarget                        !DEPRECATED! !PRIVATE!
+     bslfwd_bslscm_version                               !DEPRECATED!
+     bslfwd_bslstl_stdexceptutil                         !DEPRECATED!
+     bslfwd_bslstl_util                                  !DEPRECATED!
+     bslfwd_bslstl_utiliterator                          !DEPRECATED!
 
-  1. bslfwd_buildtarget
+  1. bslfwd_buildtarget                                  !DEPRECATED! !PRIVATE!
 ..
 
 /Component Synopsis
 /------------------
-: 'bslfwd_bslalg_arraydestructionprimitives':
+: 'bslfwd_bslalg_arraydestructionprimitives':            !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_arrayprimitives':
+: 'bslfwd_bslalg_arrayprimitives':                       !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_rangecompare':
+: 'bslfwd_bslalg_rangecompare':                          !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_scalardestructionprimitives':
+: 'bslfwd_bslalg_scalardestructionprimitives':           !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_scalarprimitives':
+: 'bslfwd_bslalg_scalarprimitives':                      !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_swaputil':
+: 'bslfwd_bslalg_swaputil':                              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraitbitwisecopyable':
+: 'bslfwd_bslalg_typetraitbitwisecopyable':              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraitbitwiseequalitycomparable':
+: 'bslfwd_bslalg_typetraitbitwiseequalitycomparable':    !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraitbitwisemoveable':
+: 'bslfwd_bslalg_typetraitbitwisemoveable':              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraithaspointersemantics':
+: 'bslfwd_bslalg_typetraithaspointersemantics':          !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraithasstliterators':
+: 'bslfwd_bslalg_typetraithasstliterators':              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraithastrivialdefaultconstructor':
+: 'bslfwd_bslalg_typetraithastrivialdefaultconstructor': !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslalg_typetraitusesbslmaallocator':
+: 'bslfwd_bslalg_typetraitusesbslmaallocator':           !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_allocator':
+: 'bslfwd_bslma_allocator':                              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_bufferallocator':
+: 'bslfwd_bslma_bufferallocator':                        !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_default':
+: 'bslfwd_bslma_default':                                !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_defaultallocatorguard':
+: 'bslfwd_bslma_defaultallocatorguard':                  !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_deleterhelper':
+: 'bslfwd_bslma_deleterhelper':                          !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_infrequentdeleteblocklist':
+: 'bslfwd_bslma_infrequentdeleteblocklist':              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_mallocfreeallocator':
+: 'bslfwd_bslma_mallocfreeallocator':                    !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_managedallocator':
+: 'bslfwd_bslma_managedallocator':                       !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_newdeleteallocator':
+: 'bslfwd_bslma_newdeleteallocator':                     !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_sequentialallocator':
+: 'bslfwd_bslma_sequentialallocator':                    !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_sequentialpool':
+: 'bslfwd_bslma_sequentialpool':                         !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_testallocator':
+: 'bslfwd_bslma_testallocator':                          !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_testallocatorexception':
+: 'bslfwd_bslma_testallocatorexception':                 !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslma_testallocatormonitor':
+: 'bslfwd_bslma_testallocatormonitor':                   !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslmf_anytype':
+: 'bslfwd_bslmf_anytype':                                !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslmf_functionpointerclinkage':
+: 'bslfwd_bslmf_functionpointerclinkage':                !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslmf_functionpointercpluspluslinkage':
+: 'bslfwd_bslmf_functionpointercpluspluslinkage':        !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslmf_nil':
+: 'bslfwd_bslmf_nil':                                    !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslmf_typelist0':
+: 'bslfwd_bslmf_typelist0':                              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_alignment':
+: 'bslfwd_bsls_alignment':                               !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_alignmentimp8bytealignedtype':
+: 'bslfwd_bsls_alignmentimp8bytealignedtype':            !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_alignmentimpmatch':
+: 'bslfwd_bsls_alignmentimpmatch':                       !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_alignmentutil':
+: 'bslfwd_bsls_alignmentutil':                           !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_assert':
+: 'bslfwd_bsls_assert':                                  !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_assertfailurehandlerguard':
+: 'bslfwd_bsls_assertfailurehandlerguard':               !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_asserttest':
+: 'bslfwd_bsls_asserttest':                              !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_asserttestexception':
+: 'bslfwd_bsls_asserttestexception':                     !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_blockgrowth':
+: 'bslfwd_bsls_blockgrowth':                             !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_noexcbuildtarget':
+: 'bslfwd_bsls_noexcbuildtarget':                        !DEPRECATED! !PRIVATE!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_nomtbuildtarget':
+: 'bslfwd_bsls_nomtbuildtarget':                         !DEPRECATED! !PRIVATE!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_performancehint':
+: 'bslfwd_bsls_performancehint':                         !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_platform':
+: 'bslfwd_bsls_platform':                                !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_stopwatch':
+: 'bslfwd_bsls_stopwatch':                               !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_timeutil':
+: 'bslfwd_bsls_timeutil':                                !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_types':
+: 'bslfwd_bsls_types':                                   !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_util':
+: 'bslfwd_bsls_util':                                    !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_yesexcbuildtarget':
+: 'bslfwd_bsls_yesexcbuildtarget':                       !DEPRECATED! !PRIVATE!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bsls_yesmtbuildtarget':
+: 'bslfwd_bsls_yesmtbuildtarget':                        !DEPRECATED! !PRIVATE!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslscm_version':
+: 'bslfwd_bslscm_version':                               !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslstl_stdexceptutil':
+: 'bslfwd_bslstl_stdexceptutil':                         !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslstl_util':
+: 'bslfwd_bslstl_util':                                  !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_bslstl_utiliterator':
+: 'bslfwd_bslstl_utiliterator':                          !DEPRECATED!
 :      Provide a forward-declaration for the corresponding BDE type.
 :
-: 'bslfwd_buildtarget':
+: 'bslfwd_buildtarget':                                  !DEPRECATED! !PRIVATE!
 :      Supply a compile-time indicator of whether BSL uses C++ namespaces.
 
 /Usage
