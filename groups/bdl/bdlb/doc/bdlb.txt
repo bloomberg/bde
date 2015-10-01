@@ -95,10 +95,10 @@
 :      Provide a utility of hash functions.
 :
 : 'bdlb_nullableallocatedvalue':
-:      Provide a template for nullable allocated values.
+:      Provide a template for nullable allocated (out-of-place) objects.
 :
 : 'bdlb_nullablevalue':
-:      Provide a template for nullable types.
+:      Provide a template for nullable (in-place) objects.
 :
 : 'bdlb_nullinputiterator':
 :      Provide a pure input iterator for an empty range.

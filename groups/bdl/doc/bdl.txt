@@ -12,50 +12,70 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 8 packages having 3 levels of physical
+ The 'bdl' package group currently has 13 packages having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdlc
-     bdlt
+  8. bdldfp
+     bdlmt
 
-  3. bdlb
-     bdldfp
+  7. bdlat
+     bdlcc
+     bdls
+
+  6. bdlt
+
+  5. bdlc
+
+  4. bdlde
      bdlma
 
-  2. bdls
+  3. bdlb
 
-  1. bdl+decnumber
-     bdl+inteldfp
-     bdlscm
+  2. bdlf
+     bdlsb
+
+  1. bdlscm
 ..
 
 /Package Synopsis
 /----------------
-: 'bdl+decnumber':
-:      Provide third-party decimal floating point library (IBM decNumber).
-:
-: 'bdl+inteldfp':
-:      Provide third-party decimal floating point library (Intel DFP).
+: 'bdlat':
+:      Provide generic functions to manipulate attribute types
 :
 : 'bdlb':
-:      Provide utilities classes and functions.
+:      Provide utilities on basic types.
 :
 : 'bdlc':
 :      Provide container vocabulary types.
 :
+: 'bdlcc':
+:      Provide containers that support concurrent (multi-thread) access.
+:
+: 'bdlde':
+:      Mechanisms for standard encodings and hashings, e.g., base64, md5.
+:
 : 'bdldfp':
 :      Provide IEEE-754 2008 decimal floating-point types and utilities.
+:
+: 'bdlf':
+:      Provide signature-specific function objects (functors).
 :
 : 'bdlma':
 :      Provide allocators, pools, and other memory-management tools.
 :
+: 'bdlmt':
+:      Provides thread pools and event schedulers.
+:
 : 'bdls':
-:      Provide system-level utilities for BDL
+:      Provide platform-independent system-level utilities.
+:
+: 'bdlsb':
+:      Provide concrete 'streambuf' implementations.
 :
 : 'bdlscm':
-:      Provide versioning information for BDL library components.
+:      Provide versioning information for BDE library components.
 :
 : 'bdlt':
-:      Provide and time-related vocabulary types, and related utilities.
+:      Provide date and time vocabulary types, and related utilities.
