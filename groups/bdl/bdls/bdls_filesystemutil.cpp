@@ -22,6 +22,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
 #include <bsl_cstring.h>
+#include <bsl_limits.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>

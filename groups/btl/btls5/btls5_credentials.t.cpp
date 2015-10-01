@@ -1567,25 +1567,25 @@ int main(int argc, char *argv[])
 
         { L_,  0,  0, "UA", "PA",  "["                                       NL
                                    "username = \"UA\""                       NL
-                                   "password = \"PA\""                       NL
+                                   "password = \"*****\""                    NL
                                    "]"                                       NL
                                                                              },
 
         { L_,  0,  1, "UA", "PA",  "["                                       NL
                                    " username = \"UA\""                      NL
-                                   " password = \"PA\""                      NL
+                                   " password = \"*****\""                   NL
                                    "]"                                       NL
                                                                              },
 
         { L_,  0, -1, "UA", "PA",  "["                                       SP
                                    "username = \"UA\""                       SP
-                                   "password = \"PA\""                       SP
+                                   "password = \"*****\""                    SP
                                    "]"
                                                                              },
 
         { L_,  0, -8, "UA", "PA",  "["                                       NL
                                    "    username = \"UA\""                   NL
-                                   "    password = \"PA\""                   NL
+                                   "    password = \"*****\""                NL
                                    "]"                                       NL
                                                                              },
 
@@ -1598,50 +1598,50 @@ int main(int argc, char *argv[])
 
         { L_,  3,  0, "UA", "PA",  "["                                       NL
                                    "username = \"UA\""                       NL
-                                   "password = \"PA\""                       NL
+                                   "password = \"*****\""                    NL
                                    "]"                                       NL
                                                                              },
 
         { L_,  3,  2, "UA", "PA",  "      ["                                 NL
                                    "        username = \"UA\""               NL
-                                   "        password = \"PA\""               NL
+                                   "        password = \"*****\""            NL
                                    "      ]"                                 NL
                                                                              },
 
         { L_,  3, -2, "UA", "PA",  "      ["                                 SP
                                    "username = \"UA\""                       SP
-                                   "password = \"PA\""                       SP
+                                   "password = \"*****\""                    SP
                                    "]"
                                                                              },
 
         { L_,  3, -8, "UA", "PA",
                                 "            ["                              NL
                                 "                username = \"UA\""          NL
-                                "                password = \"PA\""          NL
+                                "                password = \"*****\""       NL
                                 "            ]"                              NL
                                                                              },
 
         { L_, -3,  0, "UA", "PA",  "["                                       NL
                                    "username = \"UA\""                       NL
-                                   "password = \"PA\""                       NL
+                                   "password = \"*****\""                    NL
                                    "]"                                       NL
                                                                              },
 
         { L_, -3,  2, "UA", "PA",  "["                                       NL
                                    "        username = \"UA\""               NL
-                                   "        password = \"PA\""               NL
+                                   "        password = \"*****\""            NL
                                    "      ]"                                 NL
                                                                              },
 
         { L_, -3, -2, "UA", "PA",  "["                                       SP
                                    "username = \"UA\""                       SP
-                                   "password = \"PA\""                       SP
+                                   "password = \"*****\""                    SP
                                    "]"
                                                                              },
         { L_, -3, -8, "UA", "PA",
                                 "["                                          NL
                                 "                username = \"UA\""          NL
-                                "                password = \"PA\""          NL
+                                "                password = \"*****\""       NL
                                 "            ]"                              NL
                                                                              },
 
@@ -1654,7 +1654,7 @@ int main(int argc, char *argv[])
 
         { L_,  2,  3, "UB", "PB",  "      ["                                 NL
                                    "         username = \"UB\""              NL
-                                   "         password = \"PB\""              NL
+                                   "         password = \"*****\""           NL
                                    "      ]"                                 NL
                                                                              },
 
@@ -1667,13 +1667,13 @@ int main(int argc, char *argv[])
 
         { L_, -8, -8, "UA", "PA",  "["                                       NL
                                    "    username = \"UA\""                   NL
-                                   "    password = \"PA\""                   NL
+                                   "    password = \"*****\""                NL
                                    "]"                                       NL
                                                                              },
 
         { L_, -8, -8, "UB", "PB", "["                                        NL
                                    "    username = \"UB\""                   NL
-                                   "    password = \"PB\""                   NL
+                                   "    password = \"*****\""                NL
                                    "]"                                       NL
                                                                              },
         // -----------------------------------------------------------------
@@ -1683,9 +1683,9 @@ int main(int argc, char *argv[])
         //LINE L SPL  UNAME PSWD   EXP
         //---- - ---  ----- ----   ---
 
-        { L_, -9, -9, "UA", "PA",  "[ \"UA\" \"PA\" ]"                       },
+        { L_, -9, -9, "UA", "PA",  "[ \"UA\" \"*****\" ]"                    },
 
-        { L_, -9, -9, "UB", "PB",  "[ \"UB\" \"PB\" ]"                       },
+        { L_, -9, -9, "UB", "PB",  "[ \"UB\" \"*****\" ]"                    },
 
 #undef NL
 #undef SP

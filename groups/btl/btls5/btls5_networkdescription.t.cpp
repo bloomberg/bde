@@ -1758,7 +1758,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"username\""       NL
-            "password = \"password\""       NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -1770,7 +1770,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"\""               NL
-            "password = \"\""               NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -1790,7 +1790,7 @@ int main(int argc, char *argv[])
             "   ]"                             NL
             "   credentials = ["               NL
             "    username = \"username\""      NL
-            "    password = \"password\""      NL
+            "    password = \"*****\""         NL
             "   ]"                             NL
             "  ]"                              NL
             " ]"                               NL
@@ -1802,7 +1802,7 @@ int main(int argc, char *argv[])
             "   ]"                             NL
             "   credentials = ["               NL
             "    username = \"\""              NL
-            "    password = \"\""              NL
+            "    password = \"*****\""         NL
             "   ]"                             NL
             "  ]"                              NL
             " ]"                               NL
@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"username\""       SP
-            "password = \"password\""       SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -1834,7 +1834,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"\""               SP
-            "password = \"\""               SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -1854,7 +1854,7 @@ int main(int argc, char *argv[])
             "            ]"                                NL
             "            credentials = ["                  NL
             "                username = \"username\""      NL
-            "                password = \"password\""      NL
+            "                password = \"*****\""         NL
             "            ]"                                NL
             "        ]"                                    NL
             "    ]"                                        NL
@@ -1866,7 +1866,7 @@ int main(int argc, char *argv[])
             "            ]"                                NL
             "            credentials = ["                  NL
             "                username = \"\""              NL
-            "                password = \"\""              NL
+            "                password = \"*****\""         NL
             "            ]"                                NL
             "        ]"                                    NL
             "    ]"                                        NL
@@ -1894,7 +1894,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"username\""       NL
-            "password = \"password\""       NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -1906,7 +1906,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"\""               NL
-            "password = \"\""               NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -1926,7 +1926,7 @@ int main(int argc, char *argv[])
             "            ]"                              NL
             "            credentials = ["                NL
             "              username = \"username\""      NL
-            "              password = \"password\""      NL
+            "              password = \"*****\""         NL
             "            ]"                              NL
             "          ]"                                NL
             "        ]"                                  NL
@@ -1938,7 +1938,7 @@ int main(int argc, char *argv[])
             "            ]"                              NL
             "            credentials = ["                NL
             "              username = \"\""              NL
-            "              password = \"\""              NL
+            "              password = \"*****\""         NL
             "            ]"                              NL
             "          ]"                                NL
             "        ]"                                  NL
@@ -1958,7 +1958,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"username\""       SP
-            "password = \"password\""       SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -1970,7 +1970,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"\""               SP
-            "password = \"\""               SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -1990,7 +1990,7 @@ int main(int argc, char *argv[])
             "                        ]"                                NL
             "                        credentials = ["                  NL
             "                            username = \"username\""      NL
-            "                            password = \"password\""      NL
+            "                            password = \"*****\""         NL
             "                        ]"                                NL
             "                    ]"                                    NL
             "                ]"                                        NL
@@ -2002,7 +2002,7 @@ int main(int argc, char *argv[])
             "                        ]"                                NL
             "                        credentials = ["                  NL
             "                            username = \"\""              NL
-            "                            password = \"\""              NL
+            "                            password = \"*****\""         NL
             "                        ]"                                NL
             "                    ]"                                    NL
             "                ]"                                        NL
@@ -2022,7 +2022,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"username\""       NL
-            "password = \"password\""       NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -2034,7 +2034,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"\""               NL
-            "password = \"\""               NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
             "]"                             NL
@@ -2054,7 +2054,7 @@ int main(int argc, char *argv[])
             "            ]"                              NL
             "            credentials = ["                NL
             "              username = \"username\""      NL
-            "              password = \"password\""      NL
+            "              password = \"*****\""         NL
             "            ]"                              NL
             "          ]"                                NL
             "        ]"                                  NL
@@ -2066,7 +2066,7 @@ int main(int argc, char *argv[])
             "            ]"                              NL
             "            credentials = ["                NL
             "              username = \"\""              NL
-            "              password = \"\""              NL
+            "              password = \"*****\""         NL
             "            ]"                              NL
             "          ]"                                NL
             "        ]"                                  NL
@@ -2086,7 +2086,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"username\""       SP
-            "password = \"password\""       SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"\""               SP
-            "password = \"\""               SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"                             SP
             "]"                             SP
@@ -2118,7 +2118,7 @@ int main(int argc, char *argv[])
             "                        ]"                                NL
             "                        credentials = ["                  NL
             "                            username = \"username\""      NL
-            "                            password = \"password\""      NL
+            "                            password = \"*****\""         NL
             "                        ]"                                NL
             "                    ]"                                    NL
             "                ]"                                        NL
@@ -2130,7 +2130,7 @@ int main(int argc, char *argv[])
             "                        ]"                                NL
             "                        credentials = ["                  NL
             "                            username = \"\""              NL
-            "                            password = \"\""              NL
+            "                            password = \"*****\""         NL
             "                        ]"                                NL
             "                    ]"                                    NL
             "                ]"                                        NL
@@ -2158,7 +2158,7 @@ int main(int argc, char *argv[])
             "               ]"                            NL
             "               credentials = ["              NL
             "                  username = \"\""           NL
-            "                  password = \"\""           NL
+            "                  password = \"*****\""      NL
             "               ]"                            NL
             "            ]"                               NL
             "            ["                               NL
@@ -2168,7 +2168,7 @@ int main(int argc, char *argv[])
             "               ]"                            NL
             "               credentials = ["              NL
             "                  username = \"username\""   NL
-            "                  password = \"password\""   NL
+            "                  password = \"*****\""      NL
             "               ]"                            NL
             "            ]"                               NL
             "         ]"                                  NL
