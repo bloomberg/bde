@@ -30,7 +30,9 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 
+#ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
+#endif
 
 #ifdef BSLS_PLATFORM_CMP_SUN
 #include <signal.h>

@@ -405,7 +405,7 @@ void *registerThread(void *arg)
                        &dummyFunction);
         if (veryVerbose) {
             printf("Thread %d: Iteration (O) %d\n",
-                   (int) bslmt::ThreadUtil::self(),
+                   (int) bslmt::ThreadUtil::selfIdAsInt(),
                    i);
         }
         mX->registerSocketEvent(fd,
@@ -429,7 +429,7 @@ void *registerThread(void *arg)
                                 btlso::EventType::e_READ, callback);
         if (veryVerbose) {
             printf("Thread %d: Iteration (C)%d\n",
-                   (int) bslmt::ThreadUtil::self(),
+                   (int) bslmt::ThreadUtil::selfIdAsInt(),
                    i);
         }
         LOOP_ASSERT(i, mX->isRegistered(fd,

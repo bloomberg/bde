@@ -125,7 +125,8 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <cstring>
+#include <bsl_cstring.h>
+#include <bsl_cstdint.h>
 
 namespace BloombergLP {
 
@@ -277,7 +278,7 @@ void normalizeMantissaAndAdjustExp(long long *mantissa,
         *mantissa |= DOUBLE_MANTISSA_IMPLICIT_ONE_MASK;
     }
 
-    int shift = bdlb::BitUtil::numTrailingUnsetBits((uint64_t) *mantissa);
+    int shift = bdlb::BitUtil::numTrailingUnsetBits((bsl::uint64_t) *mantissa);
     *mantissa >>= shift;
     *exponent -= (DOUBLE_NUM_MANTISSA_BITS - shift);
 
@@ -933,7 +934,7 @@ int BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
         return FAILURE;                                               // RETURN
     }
 
-    int shift = bdlb::BitUtil::numLeadingUnsetBits((uint64_t) mantissa);
+    int shift = bdlb::BitUtil::numLeadingUnsetBits((bsl::uint64_t) mantissa);
     if (64 == shift) {
         return FAILURE;                                               // RETURN
     }
@@ -1169,7 +1170,7 @@ int BerUtil_Imp::numBytesToStream(short value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
 
         numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint32_t) value)
                 + 2;
     }
     else {
@@ -1179,7 +1180,7 @@ int BerUtil_Imp::numBytesToStream(short value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 16]'.
 
         numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint32_t) value)
                 + 2;
     }
 
@@ -1204,7 +1205,7 @@ int BerUtil_Imp::numBytesToStream(int value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
         numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits((uint32_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint32_t) value)
                 + 2;
     }
     else {
@@ -1214,7 +1215,7 @@ int BerUtil_Imp::numBytesToStream(int value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 32]'.
 
         numBits = 31
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint32_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint32_t) value)
                 + 2;
     }
 
@@ -1239,7 +1240,7 @@ int BerUtil_Imp::numBytesToStream(long long value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
 
         numBits = 63
-                - bdlb::BitUtil::numLeadingUnsetBits((uint64_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits((bsl::uint64_t) value)
                 + 2;
     }
     else {
@@ -1249,7 +1250,7 @@ int BerUtil_Imp::numBytesToStream(long long value)
         //: o Add 1 to preserve the sign bit, for a value in range '[2 .. 64]'.
 
         numBits = 63
-                - bdlb::BitUtil::numLeadingUnsetBits(~ (uint64_t) value)
+                - bdlb::BitUtil::numLeadingUnsetBits(~ (bsl::uint64_t) value)
                 + 2;
     }
 

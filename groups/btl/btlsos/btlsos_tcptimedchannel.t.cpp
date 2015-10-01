@@ -33,10 +33,10 @@
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
+#include <unistd.h>
 #endif
 
 #include <signal.h>
-#include <unistd.h>
 
 #undef ERR
 
