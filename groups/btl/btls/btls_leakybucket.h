@@ -235,7 +235,7 @@ BSLS_IDENT("$Id: $")
 // in order to guarantee quality-of-service (QOS).
 //
 // Suppose we have a network interface capable of transferring at a rate of
-// 1024 byte/s and an application wants to transmit 5 KiB (5120 bytes) of data
+// 1024 byte/s and an application wants to transmit 5 KB (5120 bytes) of data
 // over that network in 20 different 256-bytes data chunks.  We want to send
 // data over this interface and want to ensure the transmission uses on average
 // less than 50% of the available bandwidth, or 512 byte/s.  In this way, other
@@ -461,8 +461,8 @@ class LeakyBucket {
                 const bsls::TimeInterval& currentTime);
         // Create an empty leaky bucket having the specified 'drainRate', the
         // specified 'capacity', and the specified 'currentTime' as the initial
-        // 'lastUpdateTime'.  The behavior is undefined unless '0 < newRate'
-        // and '0 < newCapacity'.
+        // 'lastUpdateTime'.  The behavior is undefined unless '0 < newRate',
+        // '0 < newCapacity', and 'LLONG_MIN != currentTime.seconds()'.
 
     ~LeakyBucket();
         // Destroy this object.
@@ -472,8 +472,8 @@ class LeakyBucket {
                                         const bsls::TimeInterval& currentTime);
         // If 1 more unit can be submitted to this leaky bucket without causing
         // it to overflow, then return a time interval of 0 immediately.
-        // Otherwise, first update the state of this this leaky bucket to the
-        // specified 'currentTime'.  Then, Return the estimated time interval
+        // Otherwise, first update the state of this leaky bucket to the
+        // specified 'currentTime'.  Then, return the estimated time interval
         // that should pass from 'currentTime' until 1 more unit can be
         // submitted to this leaky bucket without causing it to overflow.  The
         // number of nanoseconds in the returned time interval is rounded up.
@@ -481,7 +481,11 @@ class LeakyBucket {
         // of this leaky bucket has been updated to 'currentTime'.  Also note
         // that after waiting for the returned time interval, clients should
         // typically check again using this method, because additional units
-        // may have been submitted in the interim.
+        // may have been submitted in the interim.  The behavior is undefined
+        // unless 'LLONG_MIN != currentTime.seconds()' and the total number of
+        // seconds in the time interval resulting from
+        // 'currentTime - lastUpdateTime()' can be represented with a 64-bit
+        // signed integer.
 
     void reserve(bsls::Types::Uint64 numUnits);
         // Reserve the specified 'numUnits' for future use by this leaky
@@ -509,7 +513,8 @@ class LeakyBucket {
         // Reset the the following statistic counters for this leaky bucket to
         // 0: 'unitsInBucket', 'unitsReserved', 'submittedUnits', and
         // 'unusedUnits'.  Set the 'lastUpdateTime' and the
-        // 'statisticCollectionStartTime' to the specified 'currentTime'.
+        // 'statisticCollectionStartTime' to the specified 'currentTime'.  The
+        // behavior is undefined unless 'LLONG_MIN != currentTime.seconds()'.
 
     void resetStatistics();
         // Reset the statics collected for this leaky bucket by setting the
@@ -537,7 +542,11 @@ class LeakyBucket {
         // it the number of units drained from 'lastUpdateTime' to
         // 'currentTime'.  If 'currentTime' is before the
         // 'statisticsCollectionStartTime' of this leaky bucket, set
-        // 'statisticsCollectionStartTime' to 'currentTime'.
+        // 'statisticsCollectionStartTime' to 'currentTime'.  The behavior is
+        // undefined unless 'LLONG_MIN != currentTime.seconds()' and the total
+        // number of seconds in the time interval resulting from
+        // 'currentTime - lastUpdateTime()' can be represented with a 64-bit
+        // signed integer.
 
     bool wouldOverflow(const bsls::TimeInterval& currentTime);
         // Update the state of this this leaky bucket to the specified
@@ -545,7 +554,11 @@ class LeakyBucket {
         // bucket would cause the total number of units held by this leaky
         // bucket to exceed its capacity, and 'false' otherwise.  Note that
         // this method counts both submitted units and reserved units toward
-        // the total number of units held by this leaky bucket .
+        // the total number of units held by this leaky bucket.  The behavior
+        // is undefined unless 'LLONG_MIN != currentTime.seconds()' and the
+        // total number of seconds in the time interval resulting from
+        // 'currentTime - lastUpdateTime()' can be represented with a 64-bit
+        // signed integer.
 
     // ACCESSORS
     bsls::Types::Uint64 capacity() const;
@@ -635,6 +648,8 @@ void LeakyBucket::submitReserved(bsls::Types::Uint64 numUnits)
 inline
 void LeakyBucket::reset(const bsls::TimeInterval& currentTime)
 {
+    BSLS_ASSERT_SAFE(LLONG_MIN != currentTime.seconds());
+
     d_lastUpdateTime = currentTime;
     d_unitsInBucket  = 0;
     d_unitsReserved  = 0;

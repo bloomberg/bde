@@ -136,6 +136,7 @@ LeakyBucket::LeakyBucket(bsls::Types::Uint64       drainRate,
 {
     BSLS_ASSERT_OPT(0 < d_drainRate);
     BSLS_ASSERT_OPT(0 < d_capacity);
+    BSLS_ASSERT(LLONG_MIN != currentTime.seconds());
 
     // Calculate the maximum interval between updates that would not cause the
     // number of units drained to overflow an unsigned 64-bit integral type.
@@ -177,7 +178,7 @@ bsls::TimeInterval LeakyBucket::calculateTimeToSubmit(
         return bsls::TimeInterval(0, 0);                              // RETURN
     }
 
-    bsls::TimeInterval timeToSubmit(0,0);
+    bsls::TimeInterval  timeToSubmit(0,0);
     bsls::Types::Uint64 backlogUnits;
 
     // From here, 'd_unitsInBucket + d_unitsReserved' is always greater than
@@ -186,8 +187,8 @@ bsls::TimeInterval LeakyBucket::calculateTimeToSubmit(
     backlogUnits = d_unitsInBucket + d_unitsReserved - d_capacity + 1;
 
     timeToSubmit = LeakyBucket::calculateDrainTime(backlogUnits,
-                                                        d_drainRate,
-                                                        true);
+                                                   d_drainRate,
+                                                   true);
 
     // Return 1 nanosecond if the time interval was rounded to zero (in cases
     // of high drain rates).
@@ -223,6 +224,7 @@ void LeakyBucket::setRateAndCapacity(bsls::Types::Uint64 newRate,
 
 void LeakyBucket::updateState(const bsls::TimeInterval& currentTime)
 {
+    BSLS_ASSERT(LLONG_MIN != currentTime.seconds());
 
     bsls::TimeInterval delta = currentTime - d_lastUpdateTime;
     d_statSubmittedUnitsAtLastUpdate = d_statSubmittedUnits;
