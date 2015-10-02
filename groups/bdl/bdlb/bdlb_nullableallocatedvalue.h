@@ -96,6 +96,14 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -157,6 +165,8 @@ class NullableAllocatedValue {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NullableAllocatedValue,
                                    bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(NullableAllocatedValue,
+                                   bslmf::IsBitwiseMoveable);
     BSLMF_NESTED_TRAIT_DECLARATION(NullableAllocatedValue,
                                    bdlb::HasPrintMethod);
 
@@ -406,37 +416,15 @@ void NullableAllocatedValue<TYPE>::swap(NullableAllocatedValue& other)
 
     BSLS_ASSERT(d_allocator_p == other.d_allocator_p);
 
-    // same 'isNull' flags
+    // Nothing to do if both objects are null.
 
     if (isNull() && other.isNull()) {
-        // nothing to do for null objects
         return;                                                       // RETURN
     }
 
-    if (!isNull() && !other.isNull()) {
-        // swap underlying values
-        bslalg::SwapUtil::swap(&this->value(), &other.value());
-        return;                                                       // RETURN
-    }
+    // Otherwise, simply swap the pointers to the out-of-place objects.
 
-    // different 'isNull' flags
-
-    NullableAllocatedValue *nullObj;
-    NullableAllocatedValue *nonNullObj;
-
-    if (isNull()) {
-        nullObj    = this;
-        nonNullObj = &other;
-    }
-    else {
-        nullObj    = &other;
-        nonNullObj = this;
-    }
-
-    // copy-construct and reset
-    nullObj->makeValue(nonNullObj->value());  // This can throw, so 'swap' is
-                                              // only strongly exception-safe.
-    nonNullObj->reset();
+    bslalg::SwapUtil::swap(&d_value_p, &other.d_value_p);
 }
 
 template <class TYPE>
