@@ -9585,7 +9585,7 @@ const TP* bsl::Function_Rep::target() const BSLS_NOTHROW_SPEC
     return reinterpret_cast<const TP *>(
                                 const_cast<Function_Rep*>(this)->target<TP>());
 #else
-    const_cast<Function_Rep*>(this)->target<TP>();
+    return const_cast<Function_Rep*>(this)->target<TP>();
 #endif
 }
 
