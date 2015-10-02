@@ -34,7 +34,7 @@ int asciiToInt(const char **nextPos,
     // and set the specified '*nextPos' to 'end'.  Return 0 on success, and a
     // non-zero value (with no effect) otherwise.  All characters in the range
     // '[begin .. end)' must be decimal digits.  The behavior is undefined
-    // unless 'begin < end' and the parsed value does not overflow an 'int'.
+    // unless 'begin < end' and the parsed value does not exceed 'INT_MAX'.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -350,12 +350,14 @@ int generateInt(char *buffer, int value, int paddedLen)
     // Write, to the specified 'buffer', the decimal string representation of
     // the specified 'value' padded with leading zeros to the specified
     // 'paddedLen', and return 'paddedLen'.  'buffer' is NOT null-terminated.
-    // The behavior is undefined unless 'buffer' has sufficient capacity and
-    // '0 <= paddedLen'.  Note that if the decimal string representation of
-    // 'value' is more than 'paddedLen' digits, only the low-order 'paddedLen'
-    // digits of 'value' are output.
+    // The behavior is undefined unless '0 <= value', '0 <= paddedLen', and
+    // 'buffer' has sufficient capacity to hold 'paddedLen' characters.  Note
+    // that if the decimal string representation of 'value' is more than
+    // 'paddedLen' digits, only the low-order 'paddedLen' digits of 'value' are
+    // output.
 {
     BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= value);
     BSLS_ASSERT(0 <= paddedLen);
 
     char *p = buffer + paddedLen;
@@ -374,12 +376,13 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
     // the specified 'value' padded with leading zeros to the specified
     // 'paddedLen' followed by the specified 'separator' character, and return
     // 'paddedLen + 1'.  'buffer' is NOT null-terminated.  The behavior is
-    // undefined unless 'buffer' has sufficient capacity and '0 <= paddedLen'.
-    // Note that if the decimal string representation of 'value' is more than
-    // 'paddedLen' digits, only the low-order 'paddedLen' digits of 'value' are
-    // output.
+    // undefined unless '0 <= value', '0 <= paddedLen', and 'buffer' has
+    // sufficient capacity to hold 'paddedLen' characters.  Note that if the
+    // decimal string representation of 'value' is more than 'paddedLen'
+    // digits, only the low-order 'paddedLen' digits of 'value' are output.
 {
     BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= value);
     BSLS_ASSERT_SAFE(0 <= paddedLen);
 
     buffer += generateInt(buffer, value, paddedLen);
@@ -432,7 +435,7 @@ int generateZoneDesignator(char                            *buffer,
     return static_cast<int>(p - buffer);
 }
 
-#if defined(BDE_BUILD_TARGET_SAFE)
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 static
 int generatedLengthForTzObject(int                             defaultLength,
                                int                             tzOffset,
@@ -499,11 +502,22 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_DATE_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen == sizeof outBuf);
+    int outLen;
 
-    copyBuf(buffer, bufferLength, outBuf, outLen);
+    if (bufferLength >= k_DATE_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_DATE_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATE_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_DATE_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
 
     return outLen;
 }
@@ -516,11 +530,22 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_TIME_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen == sizeof outBuf);
+    int outLen;
 
-    copyBuf(buffer, bufferLength, outBuf, outLen);
+    if (bufferLength >= k_TIME_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_TIME_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_TIME_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_TIME_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
 
     return outLen;
 }
@@ -533,11 +558,22 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_DATETIME_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen == sizeof outBuf);
+    int outLen;
 
-    copyBuf(buffer, bufferLength, outBuf, outLen);
+    if (bufferLength >= k_DATETIME_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_DATETIME_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETIME_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_DATETIME_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
 
     return outLen;
 }
@@ -550,14 +586,25 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_DATETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    int outLen;
+
+    if (bufferLength >= k_DATETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETZ_STRLEN,
                                                           object.offset(),
                                                           configuration));
-
-    copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }
@@ -570,14 +617,25 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_TIMETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    int outLen;
+
+    if (bufferLength >= k_TIMETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_TIMETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_TIMETZ_STRLEN,
                                                           object.offset(),
                                                           configuration));
-
-    copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }
@@ -590,14 +648,25 @@ int Iso8601Util::generate(char                            *buffer,
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= bufferLength);
 
-    char      outBuf[k_DATETIMETZ_STRLEN];
-    const int outLen = generateRaw(outBuf, object, configuration);
-    BSLS_ASSERT(outLen <= static_cast<int>(sizeof outBuf));
+    int outLen;
+
+    if (bufferLength >= k_DATETIMETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETIMETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
     BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETIMETZ_STRLEN,
                                                           object.offset(),
                                                           configuration));
-
-    copyBuf(buffer, bufferLength, outBuf, outLen);
 
     return outLen;
 }

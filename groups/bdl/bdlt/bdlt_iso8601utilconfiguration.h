@@ -289,15 +289,18 @@ bool operator==(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration' objects
-    // have the same value if each of their attributes (respectively) have the
-    // same value.
+    // have the same value if each of their 'omitColonInZoneDesignator',
+    // 'useCommaForDecimalSign', and 'useZAbbreviationForUtc' attributes
+    // (respectively) have the same value.
 
 bool operator!=(const Iso8601UtilConfiguration& lhs,
                 const Iso8601UtilConfiguration& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'Iso8601UtilConfiguration'
-    // objects do not have the same value if any of their attributes
-    // (respectively) do not have the same value.
+    // objects do not have the same value if any of their
+    // 'omitColonInZoneDesignator', 'useCommaForDecimalSign', or
+    // 'useZAbbreviationForUtc' attributes (respectively) do not have the same
+    // value.
 
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const Iso8601UtilConfiguration& object);
@@ -339,7 +342,7 @@ inline
 void Iso8601UtilConfiguration::setDefaultConfiguration(
                                  const Iso8601UtilConfiguration& configuration)
 {
-    bsls::AtomicOperations::setIntRelease(&s_defaultConfiguration,
+    bsls::AtomicOperations::setIntRelaxed(&s_defaultConfiguration,
                                           configuration.d_configurationMask);
 }
 

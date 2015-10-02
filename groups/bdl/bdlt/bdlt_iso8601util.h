@@ -33,11 +33,17 @@ BSLS_IDENT("$Id: $")
 // 'generateRaw') takes a 'bdlt' object and a 'char *' buffer, 'bsl::string',
 // or 'bsl::ostream', and writes an ISO 8601 representation of the object to
 // the buffer, string, or stream.  The "raw" functions are distinguished from
-// their non-"raw" counterparts in two respects:
+// their non-"raw" counterparts in three respects:
 //
-//: o The length of the 'char *' buffer is not supplied to the "raw" functions.
+//: o The length of the 'char *' buffer is not supplied to the 'generateRaw'
+//:   functions.
 //:
-//: o The "raw" functions do not output a null terminator.
+//: o The 'generateRaw' functions do not output a null terminator.
+//:
+//: o The 'generate' functions that provide an 'int bufferLength' parameter
+//:   truncate the generated output to 'bufferLength' characters.  (Neither the
+//:   'generateRaw' functions nor the 'generate' functions taking 'bsl::string'
+//:   or 'bsl::ostream' do any truncation of their generated output.)
 //
 // Since the generate functions always succeed, no status value is returned.
 // Instead, either the number of characters output to the 'char *' buffer or
@@ -54,6 +60,23 @@ BSLS_IDENT("$Id: $")
 // validity of parsed strings are subject to the semantic constraints imposed
 // by the various 'isValid*' class methods, (i.e., 'Date::isValidYearMonthDay',
 // 'Time::isValid', etc.).
+//
+///Terminology
+///-----------
+// As this component concerns ISO 8601, some terms from that specification are
+// used liberally in what follows.  Two ISO 8601 terms of particular note are
+// *zone* *designator* and *fractional* *second*.
+//
+// An ISO 8601 *zone* *designator* corresponds to what other 'bdlt' components
+// commonly refer to as a timezone offset (or simply as an offset; e.g., see
+// 'bdlt_datetimetz').  For example, the ISO 8601 string
+// '2002-03-17T15:46:00+04:00' has a zone designator of '+4:00', indicating a
+// timezone 4 hours ahead of GMT.
+//
+// An ISO 8601 *fractional* *second* corresponds to the 'millisecond' attribute
+// of a 'bdlt::Time' object.  For example, the 'Time' value (and ISO 8601
+// string) '15:46:09.330' has a 'millisecond' attribute value of 330, a.k.a. a
+// fractional second of .33.
 //
 ///ISO 8601 String Generation
 ///--------------------------
@@ -86,15 +109,15 @@ BSLS_IDENT("$Id: $")
 //..
 ///Configuration
 ///- - - - - - -
-// The 'generate' and 'generateRaw' functions come in matching pairs, where the
-// two functions in each pair are distinguished by whether or not an
-// 'Iso8601UtilConfiguration' object is supplied.  This optional argument
+// The 'generate' and 'generateRaw' functions provide an optional configuration
+// parameter.  This optional parameter, of type 'Iso8601UtilConfiguration',
 // enables configuration of three aspects of ISO 8601 string generation:
+//
 //: o The decimal sign to use in fractional seconds: '.' or ','.
 //:
 //: o Whether ':' is optional in zone designators.
 //:
-//: o Whether 'Z' is output for the zone designator instead of '+00:00' (UTC).
+//: o Whether 'Z' is output for the zone designator instead of '+00:00' (GMT).
 //
 // 'Iso8601UtilConfiguration' has three attributes that directly correspond to
 // these aspects.  In addition, for generate methods that are not supplied with
@@ -111,7 +134,7 @@ BSLS_IDENT("$Id: $")
 // configuration has no effect on parsing either.  Instead, the parse methods
 // automatically accept '.' or ',' as the decimal sign in fractional seconds,
 // and treat '+00:00', '+0000', and 'Z' as equivalent zone designators (all
-// denoting UTC).
+// denoting GMT).
 //
 ///Zone Designators
 /// - - - - - - - -
@@ -120,7 +143,7 @@ BSLS_IDENT("$Id: $")
 // is parsed for a 'Date', it must be valid, so it can affect the status value
 // that is returned in that case, but it is otherwise ignored.  For 'Time' and
 // 'Datetime', any zone designator present in the parsed string will affect the
-// resulting object value (unless the zone designator denotes UTC) because the
+// resulting object value (unless the zone designator denotes GMT) because the
 // result is converted to GMT.  If the zone designator is absent, it is treated
 // as if '+00:00' were specified:
 //..
@@ -234,7 +257,7 @@ BSLS_IDENT("$Id: $")
 //  |                                    |  # preserve default 'Time' value  |
 //  +------------------------------------+-----------------------------------+
 //  |  24:00:00.000-4:00                 |  TimeTz: parsing fails            |
-//  |                                    |  # zone designator not UTC        |
+//  |                                    |  # zone designator not GMT        |
 //  +------------------------------------+-----------------------------------+
 //  |  0001-01-01T24:00:00.000           |  Datetime(Date(0001, 01, 01),     |
 //  |                                    |           Time(24, 0, 0, 0))      |
@@ -510,7 +533,10 @@ struct Iso8601Util {
     // TYPES
     enum {
         // This enumeration defines fixed lengths for the ISO 8601
-        // representations of date, time, and datetime values.
+        // representations of date, time, and datetime values.  Note that these
+        // constants do *not* account for the null terminator that may be
+        // produced by the 'generate' functions taking a 'bufferLength'
+        // argument.
 
         k_DATE_STRLEN       = 10,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
@@ -946,7 +972,7 @@ struct Iso8601Util {
         // zone designator must be absent or indicate GMT.  The behavior is
         // undefined unless 'string.data()' is non-null.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     static int generate(char              *buffer,
                         const Date&        object,
                         int                bufferLength);
@@ -960,23 +986,28 @@ struct Iso8601Util {
                         const DateTz&      object,
                         int                bufferLength);
     static int generate(char              *buffer,
+                        const TimeTz&      object,
+                        int                bufferLength);
+    static int generate(char              *buffer,
+                        const DatetimeTz&  object,
+                        int                bufferLength);
+        // !DEPRECATED!: Use the overloads taking the 'bufferLength' argument
+        // *before* the 'object' argument instead.
+
+    static int generate(char              *buffer,
                         const DateTz&      object,
                         int                bufferLength,
                         bool               useZAbbreviationForUtc);
     static int generate(char              *buffer,
                         const TimeTz&      object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const TimeTz&      object,
                         int                bufferLength,
                         bool               useZAbbreviationForUtc);
     static int generate(char              *buffer,
                         const DatetimeTz&  object,
-                        int                bufferLength);
-    static int generate(char              *buffer,
-                        const DatetimeTz&  object,
                         int                bufferLength,
                         bool               useZAbbreviationForUtc);
+        // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
+        // object instead.
 
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DateTz&     object,
@@ -987,6 +1018,8 @@ struct Iso8601Util {
     static bsl::ostream& generate(bsl::ostream&     stream,
                                   const DatetimeTz& object,
                                   bool              useZAbbreviationForUtc);
+        // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
+        // object instead.
 
     static int generateRaw(char              *buffer,
                            const DateTz&      object,
@@ -997,7 +1030,10 @@ struct Iso8601Util {
     static int generateRaw(char              *buffer,
                            const DatetimeTz&  object,
                            bool               useZAbbreviationForUtc);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+        // !DEPRECATED!: Use the overloads taking an 'Iso8601UtilConfiguration'
+        // object instead.
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // ============================================================================
@@ -1388,7 +1424,7 @@ int Iso8601Util::parse(DatetimeTz *result, const bslstl::StringRef& string)
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 inline
 int Iso8601Util::generate(char *buffer, const Date& object, int bufferLength)
 {
@@ -1416,6 +1452,20 @@ int Iso8601Util::generate(char *buffer, const DateTz& object, int bufferLength)
 }
 
 inline
+int Iso8601Util::generate(char *buffer, const TimeTz& object, int bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
+int Iso8601Util::generate(char              *buffer,
+                          const DatetimeTz&  object,
+                          int                bufferLength)
+{
+    return generate(buffer, bufferLength, object);
+}
+
+inline
 int Iso8601Util::generate(char          *buffer,
                           const DateTz&  object,
                           int            bufferLength,
@@ -1429,12 +1479,6 @@ int Iso8601Util::generate(char          *buffer,
 }
 
 inline
-int Iso8601Util::generate(char *buffer, const TimeTz& object, int bufferLength)
-{
-    return generate(buffer, bufferLength, object);
-}
-
-inline
 int Iso8601Util::generate(char          *buffer,
                           const TimeTz&  object,
                           int            bufferLength,
@@ -1445,14 +1489,6 @@ int Iso8601Util::generate(char          *buffer,
     configuration.setUseZAbbreviationForUtc(useZAbbreviationForUtc);
 
     return generate(buffer, bufferLength, object, configuration);
-}
-
-inline
-int Iso8601Util::generate(char              *buffer,
-                          const DatetimeTz&  object,
-                          int                bufferLength)
-{
-    return generate(buffer, bufferLength, object);
 }
 
 inline
@@ -1539,7 +1575,7 @@ int Iso8601Util::generateRaw(char              *buffer,
 
     return generateRaw(buffer, object, configuration);
 }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace

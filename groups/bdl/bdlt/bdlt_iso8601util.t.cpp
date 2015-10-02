@@ -108,15 +108,15 @@ using namespace bsl;
 // [ 7] int parse(DateTz *result, const StringRef& string);
 // [ 8] int parse(TimeTz *result, const StringRef& string);
 // [ 9] int parse(DatetimeTz *result, const StringRef& string);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 1] int generate(char *, const Date&, int);
 // [ 2] int generate(char *, const Time&, int);
 // [ 3] int generate(char *, const Datetime&, int);
 // [ 4] int generate(char *, const DateTz&, int);
-// [ 4] int generate(char *, const DateTz&, int, bool useZ);
 // [ 5] int generate(char *, const TimeTz&, int);
-// [ 5] int generate(char *, const TimeTz&, int, bool useZ);
 // [ 6] int generate(char *, const DatetimeTz&, int);
+// [ 4] int generate(char *, const DateTz&, int, bool useZ);
+// [ 5] int generate(char *, const TimeTz&, int, bool useZ);
 // [ 6] int generate(char *, const DatetimeTz&, int, bool useZ);
 // [ 4] ostream generate(ostream&, const DateTz&, bool useZ);
 // [ 5] ostream generate(ostream&, const TimeTz&, bool useZ);
@@ -124,7 +124,7 @@ using namespace bsl;
 // [ 4] int generateRaw(char *, const DateTz&, bool useZ);
 // [ 5] int generateRaw(char *, const TimeTz&, bool useZ);
 // [ 6] int generateRaw(char *, const DatetimeTz&, bool useZ);
-#endif // BDE_OPENSOURCE_PUBLICATION
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
 // [10] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -2305,12 +2305,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const DatetimeTz&, const Config&);
         //   int generateRaw(char *, const DatetimeTz&);
         //   int generateRaw(char *, const DatetimeTz&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const DatetimeTz&, int);
         //   int generate(char *, const DatetimeTz&, int, bool useZ);
         //   ostream generate(ostream&, const DatetimeTz&, bool useZ);
         //   int generateRaw(char *, const DatetimeTz&, bool useZ);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2433,7 +2433,7 @@ if (veryVerbose)
                                                          buffer + k + 1,
                                                          BUFLEN - k - 1));
                             }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                             // Swap order of 'k' and 'X' in call to 'generate'.
                             {
                                 bsl::memset(buffer, '?', BUFLEN);
@@ -2463,7 +2463,7 @@ if (veryVerbose)
                                                              BUFLEN - k - 1));
                                 }
                             }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
                         // 'generate' to a 'string'
@@ -2613,7 +2613,7 @@ if (veryVerbose)
                         }
                     }  // loop over 'CNFG_DATA'
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     // Test methods taking (legacy)
                     // 'bool useZAbbreviationForUtc'.
 
@@ -2708,7 +2708,7 @@ if (veryVerbose)
                                                      BUFLEN - OUTLEN));
                         }
                     }  // loop over 'USEZ_CNFG_DATA'
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
                 }  // loop over 'ZONE_DATA'
             }  // loop over 'TIME_DATA'
@@ -2817,12 +2817,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const TimeTz&, const Config&);
         //   int generateRaw(char *, const TimeTz&);
         //   int generateRaw(char *, const TimeTz&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const TimeTz&, int);
         //   int generate(char *, const TimeTz&, int, bool useZ);
         //   ostream generate(ostream&, const TimeTz&, bool useZ);
         //   int generateRaw(char *, const TimeTz&, bool useZ);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2930,7 +2930,7 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // Swap order of 'k' and 'X' in call to 'generate'.
                         {
                             bsl::memset(buffer, '?', BUFLEN);
@@ -2959,7 +2959,7 @@ if (veryVerbose)
                                                          BUFLEN - k - 1));
                             }
                         }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
                     // 'generate' to a 'string'
@@ -3105,7 +3105,7 @@ if (veryVerbose)
                     }
                 }  // loop over 'CNFG_DATA'
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // Test methods taking (legacy) 'bool useZAbbreviationForUtc'.
 
                 const bool USEZ_CNFG_DATA[] = { false, true };
@@ -3197,7 +3197,7 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'USEZ_CNFG_DATA'
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
             }  // loop over 'ZONE_DATA'
         }  // loop over 'TIME_DATA'
@@ -3305,12 +3305,12 @@ if (veryVerbose)
         //   ostream generate(ostream&, const DateTz&, const Config&);
         //   int generateRaw(char *, const DateTz&);
         //   int generateRaw(char *, const DateTz&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const DateTz&, int);
         //   int generate(char *, const DateTz&, int, bool useZ);
         //   ostream generate(ostream&, const DateTz&, bool useZ);
         //   int generateRaw(char *, const DateTz&, bool useZ);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3413,7 +3413,7 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // Swap order of 'k' and 'X' in call to 'generate'.
                         {
                             bsl::memset(buffer, '?', BUFLEN);
@@ -3442,7 +3442,7 @@ if (veryVerbose)
                                                          BUFLEN - k - 1));
                             }
                         }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
                     // 'generate' to a 'string'
@@ -3588,7 +3588,7 @@ if (veryVerbose)
                     }
                 }  // loop over 'CNFG_DATA'
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // Test methods taking (legacy) 'bool useZAbbreviationForUtc'.
 
                 const bool USEZ_CNFG_DATA[] = { false, true };
@@ -3680,7 +3680,7 @@ if (veryVerbose)
                                                  BUFLEN - OUTLEN));
                     }
                 }  // loop over 'USEZ_CNFG_DATA'
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
             }  // loop over 'ZONE_DATA'
         }  // loop over 'DATE_DATA'
@@ -3788,9 +3788,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Datetime&, const Config&);
         //   int generateRaw(char *, const Datetime&);
         //   int generateRaw(char *, const Datetime&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const Datetime&, int);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3898,7 +3898,7 @@ if (veryVerbose)
                                                      buffer + k + 1,
                                                      BUFLEN - k - 1));
                         }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // Swap order of 'k' and 'X' in call to 'generate'.
                         {
                             bsl::memset(buffer, '?', BUFLEN);
@@ -3927,7 +3927,7 @@ if (veryVerbose)
                                                          BUFLEN - k - 1));
                             }
                         }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                     }
 
                     // 'generate' to a 'string'
@@ -4174,9 +4174,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Time&, const Config&);
         //   int generateRaw(char *, const Time&);
         //   int generateRaw(char *, const Time&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const Time&, int);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4263,7 +4263,7 @@ if (veryVerbose)
                                                  buffer + k + 1,
                                                  BUFLEN - k - 1));
                     }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     // Swap order of 'k' and 'X' in call to 'generate'.
                     {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4291,7 +4291,7 @@ if (veryVerbose)
                                                      BUFLEN - k - 1));
                         }
                     }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
                 // 'generate' to a 'string'
@@ -4534,9 +4534,9 @@ if (veryVerbose)
         //   ostream generate(ostream&, const Date&, const Config&);
         //   int generateRaw(char *, const Date&);
         //   int generateRaw(char *, const Date&, const Config&);
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int generate(char *, const Date&, int);
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4622,7 +4622,7 @@ if (veryVerbose)
                                                  buffer + k + 1,
                                                  BUFLEN - k - 1));
                     }
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     // Swap order of 'k' and 'X' in call to 'generate'.
                     {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4650,7 +4650,7 @@ if (veryVerbose)
                                                      BUFLEN - k - 1));
                         }
                     }
-#endif  // BDE_OPENSOURCE_PUBLICATION
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
                 // 'generate' to a 'string'
