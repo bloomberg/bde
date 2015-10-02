@@ -302,10 +302,8 @@ int main(int argc, char *argv[])
 //..
     SecuritiesUM securities;
 
-    securities.insert(
-              std::make_pair<const char *, Security>(ibm, Security(ibm, 616)));
-    securities.insert(
-        std::make_pair<const char *, Security>(msft, Security(msft, 6150000)));
+    securities.insert(std::make_pair(ibm, Security(ibm, 616)));
+    securities.insert(std::make_pair(msft, Security(msft, 6150000)));
 //..
 // Finally, we make sure, that we able to access securities by their names:
 //..
