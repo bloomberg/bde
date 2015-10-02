@@ -164,6 +164,13 @@ class Category {
         // Report whether this category is enabled. This function is fully
         // thread-safe.
 
+    const bsls::AtomicInt& isEnabledRaw() const;
+        // Return a *reference* to a const value indicating the enabled status
+        // of this category, allowing downstream uses to minimize latency by
+        // avoiding indirection through abstracted interfaces, albeit at some
+        // risk of object-lifetime violations.  The returned reference must not
+        // be allowed to outlive this category object.
+
     bsl::ostream& print(bsl::ostream& stream) const;
         // Print this category to the specified output 'stream' in some human
         // readable form, and return the modifiable 'stream'.
@@ -278,6 +285,12 @@ const char *Category::name() const
 
 inline
 bool Category::enabled() const
+{
+    return d_enabled;
+}
+
+inline
+const bsls::AtomicInt& Category::isEnabledRaw() const
 {
     return d_enabled;
 }

@@ -192,6 +192,10 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 #include <balm_publicationtype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 namespace balm {
@@ -217,6 +221,8 @@ class Metric {
     // DATA
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
+
+    const bsls::AtomicInt *d_isEnabled_p;  // cache of isActive()
 
     // NOT IMPLEMENTED
     Metric& operator=(Metric& );
@@ -244,9 +250,9 @@ class Metric {
         // manager.
 
     // CREATORS
-    Metric(const char          *category,
-                const char     *name,
-                MetricsManager *manager = 0);
+    Metric(const char     *category,
+           const char     *name,
+           MetricsManager *manager = 0);
         // Create a metric object to collect values for the metric identified
         // by the specified null-terminated strings 'category' and 'name'.
         // Optionally specify a metrics 'manager' used to provide a collector
@@ -338,7 +344,7 @@ class Metric {
         // inactive if either (1) it was not initialized with a valid metric
         // identifier or (2) the associated metric category has been disabled
         // (see the 'MetricsManager' method 'setCategoryEnabled').  Note that
-        // invoking this method is equivalent to the expression
+        // invoking this method is logically equivalent to the expression
         // '0 != collector() && metricId().category()->enabled()'.
 };
 
@@ -436,6 +442,8 @@ Metric::Metric(const char     *category,
                const char     *name,
                MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
+, d_isEnabled_p(d_collector_p == 0
+                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
@@ -443,18 +451,22 @@ inline
 Metric::Metric(const MetricId&  metricId,
                MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
+, d_isEnabled_p(d_collector_p == 0
+                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
 inline
 Metric::Metric(Collector *collector)
 : d_collector_p(collector)
+, d_isEnabled_p(&d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
 inline
 Metric::Metric(const Metric& original)
 : d_collector_p(original.d_collector_p)
+, d_isEnabled_p(original.d_isEnabled_p)
 {
 }
 
@@ -508,7 +520,7 @@ MetricId Metric::metricId() const
 inline
 bool Metric::isActive() const
 {
-    return d_collector_p && d_collector_p->metricId().category()->enabled();
+    return d_isEnabled_p && *d_isEnabled_p;
 }
 }  // close package namespace
 

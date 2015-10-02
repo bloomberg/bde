@@ -11,6 +11,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#include <bsls_atomic.h>
+
 #include <bslim_testutil.h>
 
 using namespace BloombergLP;
@@ -38,6 +40,7 @@ using bsl::flush;
 // ACCESSORS
 // [ 3] const char *name() const;
 // [ 3] bool enabled() const;
+// [ 6] bool isEnabledRaw() const;
 // [ 5] bsl::ostream& print(bsl::ostream& ) const;
 // FREE OPERATORS
 // [ 5] bsl::ostream& operator<<(bsl::ostream& , const balm::Category& );
@@ -197,6 +200,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void registerCategoryHolder(balm::CategoryHolder *holder);
         //   void setEnabled(bool );
+        //   void isEnabledRaw();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'registerCategoryHolder' and "
@@ -220,7 +224,12 @@ int main(int argc, char *argv[])
                 ASSERT(next == holders[i].next());
             }
 
+            const bsls::AtomicInt *enabled_p = &c.isEnabledRaw();
+
             c.setEnabled(false);
+
+            ASSERT(false == *enabled_p);
+            ASSERT(&c.isEnabledRaw() == enabled_p);
 
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
@@ -231,12 +240,15 @@ int main(int argc, char *argv[])
 
             c.setEnabled(true);
 
+            ASSERT(true == *enabled_p);
+            ASSERT(&c.isEnabledRaw() == enabled_p);
+
             for (int i = 0; i < NUM_ELEMENTS; ++i) {
                 balm::CategoryHolder *next = (0 == i) ? 0 : &holders[i - 1];
                 ASSERT(&c   == holders[i].category());
                 ASSERT(true == holders[i].enabled());
                 ASSERT(next == holders[i].next());
-                }
+            }
         }
         for (int i = 0; i < NUM_ELEMENTS; ++i) {
             ASSERT(0     == holders[i].category());
@@ -377,6 +389,9 @@ int main(int argc, char *argv[])
 
               ASSERT(MX.enabled());
               ASSERT(MY.enabled());
+              ASSERT(true == MX.isEnabledRaw());
+              ASSERT(true == MY.isEnabledRaw());
+              ASSERT(&MX.isEnabledRaw() != &MY.isEnabledRaw());
           }
           {
               if (veryVerbose)
@@ -408,8 +423,9 @@ int main(int argc, char *argv[])
                   Obj mX(DATA[i].d_name, DATA[i].d_enabled);
                   const Obj& MX = mX;
 
-                  ASSERT(DATA[i].d_name      == MX.name());
+                  ASSERT(DATA[i].d_name    == MX.name());
                   ASSERT(DATA[i].d_enabled == MX.enabled());
+                  ASSERT(DATA[i].d_enabled == MX.isEnabledRaw());
                   ASSERT(0 == defaultAllocator.numBytesInUse());
                   ASSERT(0 == testAlloc.numBytesInUse());
               }
@@ -533,24 +549,31 @@ int main(int argc, char *argv[])
         ASSERT(VAL_B == MB.name());
         ASSERT(VAL_C == MC.name());
         ASSERT(true  == MA.enabled());
+        ASSERT(true  == MA.isEnabledRaw());
         ASSERT(true  == MB.enabled());
+        ASSERT(true  == MB.isEnabledRaw());
         ASSERT(false == MC.enabled());
+        ASSERT(false == MC.isEnabledRaw());
 
         Obj mX(VAL_A);  const Obj& MX = mX;
         ASSERT(VAL_A == MX.name());
         ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabledRaw());
 
         mX.setName(VAL_B);
         ASSERT(VAL_B == MX.name());
         ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabledRaw());
 
         mX.setEnabled(false);
         ASSERT(VAL_B == MX.name());
         ASSERT(false == MX.enabled());
+        ASSERT(false == MX.isEnabledRaw());
 
         mX.setEnabled(true);
         ASSERT(VAL_B == MX.name());
         ASSERT(true  == MX.enabled());
+        ASSERT(true  == MX.isEnabledRaw());
 
       } break;
       default: {

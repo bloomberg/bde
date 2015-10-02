@@ -197,6 +197,10 @@ BSLS_IDENT("$Id: $")
 #include <balm_publicationtype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 namespace balm {
@@ -225,6 +229,8 @@ class IntegerMetric {
                                       // owned); may be 0, but cannot be
                                       // invalid
 
+    const bsls::AtomicInt *d_isEnabled_p;  // cache of isActive()
+
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );
 
@@ -251,9 +257,9 @@ class IntegerMetric {
         // of the indicated metrics manager.
 
     // CREATORS
-    IntegerMetric(const char          *category,
-                       const char     *name,
-                       MetricsManager *manager = 0);
+    IntegerMetric(const char     *category,
+                  const char     *name,
+                  MetricsManager *manager = 0);
         // Create an integer metric object to collect values for the metric
         // identified by the specified 'category' and 'name'.  Optionally
         // specify a metrics 'manager' used to provide a collector for the
@@ -449,6 +455,8 @@ IntegerMetric::IntegerMetric(const char     *category,
                              const char     *name,
                              MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
+, d_isEnabled_p(d_collector_p == 0
+                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
@@ -456,18 +464,22 @@ inline
 IntegerMetric::IntegerMetric(const MetricId&  metricId,
                              MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
+, d_isEnabled_p(d_collector_p == 0
+                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
 inline
 IntegerMetric::IntegerMetric(IntegerCollector *collector)
 : d_collector_p(collector)
+, d_isEnabled_p(&d_collector_p->metricId().category()->isEnabledRaw())
 {
 }
 
 inline
 IntegerMetric::IntegerMetric(const IntegerMetric& original)
 : d_collector_p(original.d_collector_p)
+, d_isEnabled_p(original.d_isEnabled_p)
 {
 }
 
@@ -521,7 +533,7 @@ MetricId IntegerMetric::metricId() const
 inline
 bool IntegerMetric::isActive() const
 {
-    return d_collector_p && d_collector_p->metricId().category()->enabled();
+    return d_isEnabled_p && *d_isEnabled_p;
 }
 }  // close package namespace
 
