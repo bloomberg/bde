@@ -556,7 +556,7 @@ extern "C" void *testTimersThread(void *arg) {
     ASSERT(mX);
 
     const Obj& X = *mX;
-    enum { NUM_TIMERS = 1 };
+    enum { NUM_TIMERS = 10 };
     int flags[NUM_TIMERS];
     bsls::TimeInterval timeValues[NUM_TIMERS];
     bsls::TimeInterval now = bdlt::CurrentTime::now();
@@ -1905,7 +1905,7 @@ int main(int argc, char *argv[])
             cout << "\tConcern #1: Registration on disabled object."
                  << endl;
         {
-            enum { NUM_THREADS = 1 };
+            enum { NUM_THREADS = 10 };
             Obj mX(false, true, &testAllocator);
             const Obj& X = mX;
 
@@ -1916,7 +1916,6 @@ int main(int argc, char *argv[])
             globalBarrier = &barrier;
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
-            defaultAllocator.setVerbose(1);
             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
             for (int i = 0; i < NUM_THREADS; ++i) {
@@ -1944,44 +1943,44 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.numTotalSocketEvents());
         }
 
-//         if (verbose)
-//             cout << "\tConcern #2: Registration on enabled object."
-//                  << endl;
-//         {
-//             enum { NUM_THREADS = 10 };
-//             Obj mX(false, true, &testAllocator);
-//             const Obj& X = mX;
-//             ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
-//             bslmt::ThreadUtil::Handle workers[NUM_THREADS];
+        if (verbose)
+            cout << "\tConcern #2: Registration on enabled object."
+                 << endl;
+        {
+            enum { NUM_THREADS = 10 };
+            Obj mX(false, true, &testAllocator);
+            const Obj& X = mX;
+            ASSERT(0 == mX.enable()); ASSERT(X.isEnabled());
+            bslmt::ThreadUtil::Handle workers[NUM_THREADS];
 
-//             ASSERT(0 == defaultAllocator.numBytesInUse());
-//             bslmt::Barrier barrier(NUM_THREADS);
-//             globalBarrier = &barrier;
+            ASSERT(0 == defaultAllocator.numBytesInUse());
+            bslmt::Barrier barrier(NUM_THREADS);
+            globalBarrier = &barrier;
 
-//             bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+            bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
-//             for (int i = 0; i < NUM_THREADS; ++i) {
-//                 int rc = bslmt::ThreadUtil::create(&workers[i],
-//                                                   bslmt::ThreadAttributes(),
-//                                                   &testTimersThread,
-//                                                   &mX);
-//                 LOOP_ASSERT(i, 0 == rc);
-//             }
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                int rc = bslmt::ThreadUtil::create(&workers[i],
+                                                  bslmt::ThreadAttributes(),
+                                                  &testTimersThread,
+                                                  &mX);
+                LOOP_ASSERT(i, 0 == rc);
+            }
 
-//             for (int i = 0; i < NUM_THREADS; ++i) {
-//                 int rc = bslmt::ThreadUtil::join(workers[i]);
-//                 LOOP_ASSERT(i, 0 == rc);
-//             }
+            for (int i = 0; i < NUM_THREADS; ++i) {
+                int rc = bslmt::ThreadUtil::join(workers[i]);
+                LOOP_ASSERT(i, 0 == rc);
+            }
 
-//             LOOP_ASSERT(defaultAllocator.numBytesInUse(),
-//                         0 == defaultAllocator.numBytesInUse());
+            LOOP_ASSERT(defaultAllocator.numBytesInUse(),
+                        0 == defaultAllocator.numBytesInUse());
 
-//             if (veryVerbose) {
-//                 P(X.numTimers());
-//             }
-//             ASSERT(0 == mX.numTimers());
-//             ASSERT(0 == mX.numTotalSocketEvents());
-//         }
+            if (veryVerbose) {
+                P(X.numTimers());
+            }
+            ASSERT(0 == mX.numTimers());
+            ASSERT(0 == mX.numTotalSocketEvents());
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
