@@ -83,6 +83,10 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 
@@ -104,7 +108,7 @@ class Category {
     // DATA
     const char     *d_name_p;     // name of the category (held, not owned)
 
-    bool            d_enabled;    // whether the category is enabled
+    bsls::AtomicInt d_enabled;    // whether the category is enabled
 
     CategoryHolder *d_holders_p;  // linked list of holders of this category
 
@@ -156,12 +160,16 @@ class Category {
         // Return the address of the non-modifiable null-terminated string
         // containing the name of this category.
 
-    const bool& enabled() const;
-        // Return a reference to the non-modifiable boolean value indicating
-        // whether this category is enabled.  Note that this value is
-        // explicitly returned by reference to allow clients to refer to the
-        // value directly (rather than indirectly, through the owning
-        // category).
+    bool enabled() const;
+        // Report whether this category is enabled. This function is fully
+        // thread-safe.
+
+    const bsls::AtomicInt& isEnabledRaw() const;
+        // Return a *reference* to a const value indicating the enabled status
+        // of this category, allowing downstream uses to minimize latency by
+        // avoiding indirection through abstracted interfaces, albeit at some
+        // risk of object-lifetime violations.  The returned reference must not
+        // be allowed to outlive this category object.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Print this category to the specified output 'stream' in some human
@@ -276,7 +284,13 @@ const char *Category::name() const
 }
 
 inline
-const bool& Category::enabled() const
+bool Category::enabled() const
+{
+    return d_enabled;
+}
+
+inline
+const bsls::AtomicInt& Category::isEnabledRaw() const
 {
     return d_enabled;
 }
