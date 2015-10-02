@@ -197,6 +197,10 @@ BSLS_IDENT("$Id: $")
 #include <balm_publicationtype.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ATOMIC
+#include <bsls_atomic.h>
+#endif
+
 namespace BloombergLP {
 
 namespace balm {
@@ -225,17 +229,11 @@ class IntegerMetric {
                                       // owned); may be 0, but cannot be
                                       // invalid
 
-    const bool       *d_isEnabled_p;  // is category enabled (held, not owned)
+    const bsls::AtomicInt
+                     *d_isEnabled_p;  // memo for isActive()
 
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );
-
-    // PRIVATE CONSTANTS
-    static const bool k_NOT_ACTIVE;
-        // A static boolean constant for 'false'.  The data member
-        // 'd_isEnabled_p' is assigned the *address* of this constant if the
-        // 'Metric' object is not supplied a valid integer collector at
-        // construction.
 
   public:
     // CLASS METHODS
@@ -260,9 +258,9 @@ class IntegerMetric {
         // of the indicated metrics manager.
 
     // CREATORS
-    IntegerMetric(const char          *category,
-                       const char     *name,
-                       MetricsManager *manager = 0);
+    IntegerMetric(const char     *category,
+                  const char     *name,
+                  MetricsManager *manager = 0);
         // Create an integer metric object to collect values for the metric
         // identified by the specified 'category' and 'name'.  Optionally
         // specify a metrics 'manager' used to provide a collector for the
@@ -403,7 +401,7 @@ struct IntegerMetric_MacroImp {
         // 'name', and register the specified 'holder' for 'category'.   Note
         // that '*collector' must be assigned *before* registering 'holder' to
         // ensure that the macros always have a valid 'collector' when
-        // 'holder.enabled()' is 'true'.
+        // 'holder->enabled()' is 'true'.
 
     static void getCollector(
                        IntegerCollector       **collector,
@@ -418,7 +416,7 @@ struct IntegerMetric_MacroImp {
         // identified metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
-        // valid collector' when 'holder.enabled()' is 'true'.
+        // valid collector' when 'holder->enabled()' is 'true'.
 };
 
 // ============================================================================
@@ -459,10 +457,8 @@ IntegerMetric::IntegerMetric(const char     *category,
                              MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
 {
-    // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
-    d_isEnabled_p = (d_collector_p)
-                  ? &d_collector_p->metricId().category()->enabled()
-                  : &k_NOT_ACTIVE;
+    d_isEnabled_p = (d_collector_p
+                  ? &d_collector_p->metricId().category()->isEnabledRaw() : 0);
 }
 
 inline
@@ -470,17 +466,15 @@ IntegerMetric::IntegerMetric(const MetricId&  metricId,
                              MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
 {
-    // 'd_collector_p' can be 0, but it *cannot* have an invalid metric id.
-    d_isEnabled_p = (d_collector_p)
-                  ? &d_collector_p->metricId().category()->enabled()
-                  : &k_NOT_ACTIVE;
+    d_isEnabled_p = (d_collector_p
+                  ? &d_collector_p->metricId().category()->isEnabledRaw() : 0);
 }
 
 inline
 IntegerMetric::IntegerMetric(IntegerCollector *collector)
 : d_collector_p(collector)
-, d_isEnabled_p(&collector->metricId().category()->enabled())
 {
+    d_isEnabled_p = &d_collector_p->metricId().category()->isEnabledRaw();
 }
 
 inline
@@ -494,7 +488,7 @@ IntegerMetric::IntegerMetric(const IntegerMetric& original)
 inline
 void IntegerMetric::increment()
 {
-    if (*d_isEnabled_p) {
+    if (this->isActive()) {
         d_collector_p->update(1);
     }
 }
@@ -502,7 +496,7 @@ void IntegerMetric::increment()
 inline
 void IntegerMetric::update(int value)
 {
-    if (*d_isEnabled_p) {
+    if (this->isActive()) {
         d_collector_p->update(value);
     }
 }
@@ -513,7 +507,7 @@ void IntegerMetric::accumulateCountTotalMinMax(int count,
                                                int min,
                                                int max)
 {
-    if (*d_isEnabled_p) {
+    if (this->isActive()) {
         d_collector_p->accumulateCountTotalMinMax(count, total, min, max);
     }
 }
@@ -540,7 +534,7 @@ MetricId IntegerMetric::metricId() const
 inline
 bool IntegerMetric::isActive() const
 {
-    return *d_isEnabled_p;
+    return d_isEnabled_p && d_isEnabled_p->loadRelaxed();
 }
 }  // close package namespace
 

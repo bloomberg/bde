@@ -10,9 +10,6 @@ namespace BloombergLP {
                          // class balm::IntegerMetric
                          // -------------------------
 
-// PRIVATE CONSTANTS
-const bool balm::IntegerMetric::k_NOT_ACTIVE = false;
-
 namespace balm {
                         // ----------------------------
                         // class IntegerMetric_MacroImp
@@ -25,7 +22,7 @@ void IntegerMetric_MacroImp::getCollector(IntegerCollector **collector,
                                           const char        *metric)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
-    // that the macros have a valid 'collector' when 'holder.enabled()' is
+    // that the macros have a valid 'collector' when 'holder->enabled()' is
     // 'true'.
     MetricsManager *manager = DefaultMetricsManager::instance();
     *collector = manager->collectorRepository().getDefaultIntegerCollector(
@@ -42,7 +39,7 @@ void IntegerMetric_MacroImp::getCollector(
                               PublicationType::Value  preferredPublicationType)
 {
     // '*collector' must be assigned *before* registering 'holder' to ensure
-    // that the macros have a valid 'collector' when 'holder.enabled()' is
+    // that the macros have a valid 'collector' when 'holder->enabled()' is
     // 'true'.
     MetricsManager *manager = DefaultMetricsManager::instance();
     *collector = manager->collectorRepository().getDefaultIntegerCollector(

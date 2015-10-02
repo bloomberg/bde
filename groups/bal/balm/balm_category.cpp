@@ -28,7 +28,6 @@ Category::~Category()
 void Category::setEnabled(bool enabledFlag)
 {
     if (d_enabled != enabledFlag) {
-        d_enabled = enabledFlag;
 
         // Update the linked-list of category holder's registered with this
         // category.
@@ -37,6 +36,7 @@ void Category::setEnabled(bool enabledFlag)
             holder->setEnabled(enabledFlag);
             holder = holder->next();
         }
+        d_enabled = enabledFlag;
     }
 }
 

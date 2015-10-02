@@ -426,7 +426,7 @@ StopwatchScopedGuard::StopwatchScopedGuard(const char     *category,
 inline
 StopwatchScopedGuard::~StopwatchScopedGuard()
 {
-    if (d_collector_p && d_collector_p->metricId().category()->enabled()) {
+    if (isActive()) {
         d_collector_p->update(d_stopwatch.elapsedTime() * d_timeUnits);
     }
 }
