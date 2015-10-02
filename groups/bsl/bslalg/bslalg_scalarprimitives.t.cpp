@@ -129,6 +129,25 @@ struct my_ClassDef {
     bslma::Allocator           *d_allocator_p;
 };
 
+// In optimized builds, some compilers will elide some of the operations in the
+// destructors of the test classes defined below.  In order to force the
+// compiler to retain all of the code in the destructors, we provide the
+// following function that can be used to (conditionally) print out the state
+// of a 'my_ClassDef' data member.  If the destructor calls this function as
+// its last operation, then all values set in the destructor have visible
+// side-effects, but non-verbose test runs do not have to be burdened with
+// additional output.
+
+static bool forceDestructorCall = false;
+
+void dumpClassDefState(const my_ClassDef& def)
+{
+    if (forceDestructorCall) {
+        printf("%p: %d %p %p\n",
+               &def, def.d_value, def.d_data_p, def.d_allocator_p);
+    }
+}
+
                              // ===============
                              // class my_Class1
                              // ===============
@@ -161,6 +180,7 @@ class my_Class1 {
         ASSERT(d_def.d_value != 91);
         d_def.d_value = 91;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     my_Class1& operator=(const my_Class1& rhs) {
@@ -214,6 +234,7 @@ class my_Class2 {
         ASSERT(d_def.d_value != 92);
         d_def.d_value = 92;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     // MANIPULATORS
@@ -301,6 +322,10 @@ class my_ClassFussy {
     ~my_ClassFussy() {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++destructorInvocations;
+
+        // 'dumpClassDefState' is not called here, because a
+        // default-constructed 'my_ClassFussy' object may leave 'd_def'
+        // uninitialized.
     }
 
     // MANIPULATORS
@@ -384,6 +409,7 @@ class my_Class4 {
         (d_def.d_allocator_p)->deallocate(d_def.d_data_p);
         d_def.d_data_p = 0;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     // MANIPULATORS
@@ -1271,6 +1297,8 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    forceDestructorCall = veryVeryVerbose;
 
     (void)veryVeryVerbose;      // suppress warning
 
@@ -2288,11 +2316,17 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::Allocator *const theAlloc = &testAllocator;
 
+        // 'defaultConstruct' invokes default constructor, with defaulted
+        // arguments, even if type does not take an allocator.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::defaultConstruct((my_Class1*) &rawBuf,
                                                    theAlloc);
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(0 == rawBuf.d_value);
+
+        // 'copyConstruct' invokes copy constructor, even if type does not take
+        // an allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class1*) &rawBuf,
@@ -2300,11 +2334,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(1 == rawBuf.d_value);
 
+        // 'copyConstruct' invokes copy constructor, passing the allocator if
+        // type takes an allocator.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class2*) &rawBuf,
                                                 v2, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
         ASSERT(2 == rawBuf.d_value);
+
+        // 'construct' invokes constructor, even if type does not take an
+        // allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class1*) &rawBuf,
@@ -2312,16 +2352,23 @@ int main(int argc, char *argv[])
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(3 == rawBuf.d_value);
 
+        // 'destroy' invokes destructor ... with no particular constraints.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         DestructionPrimitives::destroy((my_Class1*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(91 == rawBuf.d_value);
+
+        // 'construct' invokes constructor, passing the allocator if type takes
+        // an allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class2*) &rawBuf,
                                             4, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
         ASSERT(4 == rawBuf.d_value);
+
+        // 'destroy' invokes destructor ... with no particular constraints.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         DestructionPrimitives::destroy((my_Class2*) &rawBuf);
