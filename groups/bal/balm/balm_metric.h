@@ -222,7 +222,7 @@ class Metric {
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
 
-    const bsls::AtomicInt *d_isEnabled_p;  // cache of isActive()
+    const bsls::AtomicInt *d_isEnabled_p;  // memo for isActive()
 
     // NOT IMPLEMENTED
     Metric& operator=(Metric& );
@@ -442,25 +442,25 @@ Metric::Metric(const char     *category,
                const char     *name,
                MetricsManager *manager)
 : d_collector_p(lookupCollector(category, name, manager))
-, d_isEnabled_p(d_collector_p == 0
-                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
+    d_isEnabled_p = (d_collector_p
+                  ? &d_collector_p->metricId().category()->isEnabledRaw() : 0);
 }
 
 inline
 Metric::Metric(const MetricId&  metricId,
                MetricsManager  *manager)
 : d_collector_p(lookupCollector(metricId, manager))
-, d_isEnabled_p(d_collector_p == 0
-                   ? 0 : &d_collector_p->metricId().category()->isEnabledRaw())
 {
+    d_isEnabled_p = (d_collector_p
+                  ? &d_collector_p->metricId().category()->isEnabledRaw() : 0);
 }
 
 inline
 Metric::Metric(Collector *collector)
 : d_collector_p(collector)
-, d_isEnabled_p(&d_collector_p->metricId().category()->isEnabledRaw())
 {
+    d_isEnabled_p = &d_collector_p->metricId().category()->isEnabledRaw();
 }
 
 inline
@@ -520,7 +520,7 @@ MetricId Metric::metricId() const
 inline
 bool Metric::isActive() const
 {
-    return d_isEnabled_p && *d_isEnabled_p;
+    return d_isEnabled_p && d_isEnabled_p->loadRelaxed();
 }
 }  // close package namespace
 
