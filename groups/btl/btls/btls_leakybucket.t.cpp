@@ -834,6 +834,8 @@ int main(int argc, char *argv[])
         //:
         //: 6 The manipulator does not affect the number of reserved
         //:   units.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using table-driven technique:
@@ -867,6 +869,11 @@ int main(int argc, char *argv[])
         //:     units is allowed.  Take into account that the number of
         //:     microseconds in the returned time interval is rounded
         //:     down.  (C-1)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-7)
         //
         // Testing:
         //   bsls::TimeInterval calculateTimeToSubmit(
@@ -938,6 +945,32 @@ int main(int argc, char *argv[])
                             false ==
                                   x.wouldOverflow(CHECK_TIME + EXPECTED_WAIT));
             }
+        }
+
+        // C-7
+        if (verbose) cout << endl << "Negative Testing" << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mA(1, 1, Ti(0));
+
+            const Ti TA = Ti(LLONG_MIN,     -999999999);
+            const Ti TB = Ti(LLONG_MIN + 1, -999999999);
+
+            mA.submit(10000);
+
+            ASSERT_FAIL(mA.calculateTimeToSubmit(TA));
+            ASSERT_PASS(mA.calculateTimeToSubmit(TB));
+
+            const Ti MAX_TI = Ti(LLONG_MAX, 999999999);
+
+            Obj mB(1, 1, MAX_TI);
+
+            mB.submit(10000);
+
+            ASSERT_FAIL(mB.calculateTimeToSubmit(TA));
+            ASSERT_PASS(mB.calculateTimeToSubmit(Ti(0)));
         }
       } break;
       case 14: {
@@ -1119,6 +1152,8 @@ int main(int argc, char *argv[])
         //: 3 'reset' method updates the value of
         //:   'statisticsCollectionStartTime' attribute and resets the
         //:   statistics counter.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Define the values of object parameters ('rate' and 'capacity'
@@ -1147,6 +1182,11 @@ int main(int argc, char *argv[])
         //:
         //:   5 Verify the object attributes that are to be reset by the
         //:     'reset' manipulator.  (C-2..3)
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-4)
         //
         // Testing:
         //   void reset(const bsls::TimeInterval& currentTime);
@@ -1161,8 +1201,8 @@ int main(int argc, char *argv[])
         const Uint64 CAPACITY(1000);
         const Uint64 RATE(1000);
 
-        const Ti MAX_TI = Ti(LLONG_MAX, 999999999);
-        const Ti MIN_TI = Ti(LLONG_MIN, -999999999);
+        const Ti MAX_TI = Ti(LLONG_MAX,      999999999);
+        const Ti MIN_TI = Ti(LLONG_MIN + 1, -999999999);
 
         struct {
             int    d_line;
@@ -1185,7 +1225,6 @@ int main(int argc, char *argv[])
             {  L_,         Ti( 0),      1000,     MAX_TI },
             {  L_,         MIN_TI,      1000,     Ti( 0) },
             {  L_,         Ti( 0),      1000,     MIN_TI },
-            {  L_,         MIN_TI,      1000,     MAX_TI },
         };
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
@@ -1220,6 +1259,20 @@ int main(int argc, char *argv[])
 
         }
 
+        // C-4
+        if (verbose) cout << endl << "Negative Testing" << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mA(1, 1, Ti(0));
+
+            const Ti TA = Ti(LLONG_MIN,     -999999999);
+            const Ti TB = Ti(LLONG_MIN + 1, -999999999);
+
+            ASSERT_SAFE_FAIL(mA.reset(TA));
+            ASSERT_SAFE_PASS(mA.reset(TB));
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1916,6 +1969,28 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, UNITS_TO_RESERVE  == x.unitsReserved());
             }
         }
+
+        // C-8
+        if (verbose) cout << endl << "Negative Testing" << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mA(1, 1, Ti(0));
+
+            const Ti TA = Ti(LLONG_MIN,     -999999999);
+            const Ti TB = Ti(LLONG_MIN + 1, -999999999);
+
+            ASSERT_FAIL(mA.wouldOverflow(TA));
+            ASSERT_PASS(mA.wouldOverflow(TB));
+
+            const Ti MAX_TI = Ti(LLONG_MAX, 999999999);
+
+            Obj mB(1, 1, MAX_TI);
+
+            ASSERT_FAIL(mB.wouldOverflow(TA));
+            ASSERT_PASS(mB.wouldOverflow(Ti(0)));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1945,6 +2020,8 @@ int main(int argc, char *argv[])
         //: 6 The manipulator updates value of the
         //:   'statisticsCollectionStartTime' attribute if the specified time
         //:   is before its current value and does not affect it otherwise.
+        //:
+        //: 7 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Define the 'capacity' attribute value, that will be used
@@ -1986,6 +2063,11 @@ int main(int argc, char *argv[])
         //:
         //: 5 Invoke 'updateState', specifying time that is before the value
         //:   of 'statisticsCollectionStartTime' attribute.  (C-6)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-7)
         //
         // Testing:
         //   void updateState(const bsls::TimeInterval& currentTime);
@@ -2120,6 +2202,28 @@ int main(int argc, char *argv[])
             ASSERT(500 == x.unitsReserved());
             x.updateState(Ti(10.0));
             ASSERT(500 == x.unitsReserved());
+        }
+
+        // C-7
+        if (verbose) cout << endl << "Negative Testing" << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mA(1, 1, Ti(0));
+
+            const Ti TA = Ti(LLONG_MIN,     -999999999);
+            const Ti TB = Ti(LLONG_MIN + 1, -999999999);
+
+            ASSERT_FAIL(mA.updateState(TA));
+            ASSERT_PASS(mA.updateState(TB));
+
+            const Ti MAX_TI = Ti(LLONG_MAX, 999999999);
+
+            Obj mB(1, 1, MAX_TI);
+
+            ASSERT_FAIL(mB.updateState(TA));
+            ASSERT_PASS(mB.updateState(Ti(0)));
         }
       } break;
       case 6: {
@@ -2660,11 +2764,29 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_OPT_FAIL(Obj x(0, 1000, Ti(0)));
-            ASSERT_OPT_FAIL(Obj x(1,    0, Ti(0)));
+            // Drain Rate
 
+            ASSERT_OPT_FAIL(Obj x(0, 1000, Ti(0)));
             ASSERT_OPT_PASS(Obj x(1, 1000, Ti(0)));
+
+            // Capacity
+
+            ASSERT_OPT_FAIL(Obj x(1,    0, Ti(0)));
             ASSERT_OPT_PASS(Obj x(1,    1, Ti(0)));
+
+            // Current Time
+
+            const Ti TA = Ti(LLONG_MIN,              0);
+            const Ti TB = Ti(LLONG_MIN,     -999999999);
+
+            const Ti TC = Ti(LLONG_MIN + 1, -999999999);
+            const Ti TD = Ti(LLONG_MIN + 1, +999999999);
+
+            ASSERT_FAIL(Obj x(1, 1, TA));
+            ASSERT_FAIL(Obj x(1, 1, TB));
+
+            ASSERT_PASS(Obj x(1, 1, TC));
+            ASSERT_PASS(Obj x(1, 1, TD));
         }
       } break;
       case 2: {
