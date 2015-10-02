@@ -241,7 +241,7 @@ namespace {
 // This example demonstrates using a 'bdlsb::OverflowMemOutStreamBuf' in order
 // to test a user defined stream type, 'CapitalizingStream'. In this example,
 // we'll define a simple example stream type 'CapitalizingStream' that
-// capitalizing lower-case ASCII data written to the stream. In order to test
+// capitalizes lower-case ASCII data written to the stream. In order to test
 // this 'CapitalizingStream' type, we'll create an instance, and supply it a
 // 'bdlsb::OverflowMemOutStreamBuf' object as its stream buffer; after we write
 // some character data to the 'CapitalizingStream' we'll inspect the buffer of
@@ -265,7 +265,7 @@ namespace {
         // CREATORS
         explicit CapitalizingStream(bsl::streambuf *streamBuffer);
             // Create a capitalizing stream using the specified 'streamBuffer'
-            // as underlying stream buffer to the stream.
+            // as the underlying stream buffer for the stream.
     };
 
     // FREE OPERATORS
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 
     bdlsb::OverflowMemOutStreamBuf streamBuffer(buffer, INITIAL_CAPACITY);
 //..
-// Now, we test our 'CapitalingStream' by supplying created instance of
+// Now, we test our 'CapitalingStream' by supplying the created instance of
 // 'bdlsb::OverflowMemOutStreamBuf' and using it to inspect the output of the
 // stream:
 //..
