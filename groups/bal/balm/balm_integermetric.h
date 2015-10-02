@@ -229,7 +229,8 @@ class IntegerMetric {
                                       // owned); may be 0, but cannot be
                                       // invalid
 
-    const bsls::AtomicInt *d_isEnabled_p;  // memo for isActive()
+    const bsls::AtomicInt
+                     *d_isEnabled_p;  // memo for isActive()
 
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );

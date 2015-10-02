@@ -222,7 +222,8 @@ class Metric {
     Collector  *d_collector_p;  // collected metric data (held, not owned); may
                                 // be 0, but cannot be invalid
 
-    const bsls::AtomicInt *d_isEnabled_p;  // memo for isActive()
+    const bsls::AtomicInt
+               *d_isEnabled_p;  // memo for isActive()
 
     // NOT IMPLEMENTED
     Metric& operator=(Metric& );
