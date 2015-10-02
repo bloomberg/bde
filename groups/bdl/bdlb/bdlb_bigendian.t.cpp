@@ -30,21 +30,21 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-// ============================================================================
+//=============================================================================
 //                             TEST PLAN
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // All classes in this component are a value-semantic types that represent
 // big-endian integer types.  They have the same value if they have the same
 // in-core big endian representation.
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 // CLASS METHODS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-// [10] static int maxSupportedBdexVersion();
+// [ 9] static int maxSupportedBdexVersion();
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
-// [10] static int maxSupportedBdexVersion(int);
+// [ 9] static int maxSupportedBdexVersion(int);
 // [ 2] static bdlb::BigEndianInt16::make(short);
 // [ 2] static bdlb::BigEndianUint16::make(unsigned short);
 // [ 2] static bdlb::BigEndianInt32::make(int);
@@ -55,8 +55,8 @@ using namespace bsl;
 // CREATORS
 //
 // MANIPULATORS
-// [10] STREAM& bdexStreamIn(STREAM&, Obj&);
-// [10] STREAM& bdexStreamOut(STREAM&, const Obj&) const;
+// [ 9] STREAM& bdexStreamIn(STREAM&, Obj&);
+// [ 9] STREAM& bdexStreamOut(STREAM&, const Obj&) const;
 //
 // ACCESSORS
 // [ 4] bdlb::BigEndianInt16::operator  short() const;
@@ -79,7 +79,7 @@ using namespace bsl;
 // [ 6] bool operator!=(const bdlb::BigEndianInt64& lhs, rhs);
 // [ 6] bool operator==(const bdlb::BigEndianUint64& lhs, rhs);
 // [ 6] bool operator!=(const bdlb::BigEndianUint64& lhs, rhs);
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -145,9 +145,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 
-// ============================================================================
+//=============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -229,13 +229,9 @@ bool isInCoreValueCorrect(bsls::Types::Uint64          value,
 
 }  // close unnamed namespace
 
-
-// Global Data for testing
-//
-
-// ============================================================================
+//=============================================================================
 //                                 TYPE TRAITS
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianInt16>::value);
 BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt16>::value);
@@ -255,9 +251,9 @@ BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt64>::value);
 BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianUint64>::value);
 BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianUint64>::value);
 
-// ============================================================================
+//=============================================================================
 //                             GLOBAL TEST DATA
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 const short VALUES_SHORT[] = {0,
                               1,
                               -1,
@@ -333,7 +329,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
@@ -404,9 +400,9 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING STREAMING FUNCTIONALITY:
+        // TESTING STREAMING FUNCTIONALITY
         //
         // Concerns:
         //   1. The (free) streaming operators '<<' and '>>' are implemented
@@ -466,7 +462,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing Streaming Functionality" << endl
+                          << "TESTING STREAMING FUNCTIONALITY" << endl
                           << "===============================" << endl;
 
         using bslx::OutStreamFunctions::bdexStreamOut;
@@ -1232,24 +1228,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-
-      case 9: {
-        // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
-        //
-        // TBD
-        // --------------------------------------------------------------------
-
-      } break;
-
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION, g:
-        //
-        // This component test driver does not have a generator function.
-        // --------------------------------------------------------------------
-
       } break;
 
       case 7: {
@@ -2041,7 +2019,7 @@ int main(int argc, char *argv[])
 
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   Developers' Sandbox.
         //
         // Concerns:

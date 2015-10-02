@@ -80,9 +80,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdlb {
-                          // ==========================
-                          // class BigEndianInt16
-                          // ==========================
+
+                         // ====================
+                         // class BigEndianInt16
+                         // ====================
 
 class BigEndianInt16 {
     // This class provides a container for an in-core representation of a
@@ -206,9 +207,9 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // Write the specified 'integer' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-                          // ===========================
-                          // class BigEndianUint16
-                          // ===========================
+                         // =====================
+                         // class BigEndianUint16
+                         // =====================
 
 class BigEndianUint16 {
     // This class provides a container for an in-core representation of an
@@ -334,9 +335,9 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-                          // ==========================
-                          // class BigEndianInt32
-                          // ==========================
+                         // ====================
+                         // class BigEndianInt32
+                         // ====================
 
 class BigEndianInt32 {
     // This class provides a container for an in-core representation of a
@@ -460,9 +461,9 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-                          // ===========================
-                          // class BigEndianUint32
-                          // ===========================
+                         // =====================
+                         // class BigEndianUint32
+                         // =====================
 
 class BigEndianUint32 {
     // This class provides a container for an in-core representation of an
@@ -588,9 +589,9 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-                          // ==========================
-                          // class BigEndianInt64
-                          // ==========================
+                         // ====================
+                         // class BigEndianInt64
+                         // ====================
 
 class BigEndianInt64 {
     // This class provides a container for an in-core representation of a
@@ -714,9 +715,9 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-                          // ===========================
-                          // class BigEndianUint64
-                          // ===========================
+                         // =====================
+                         // class BigEndianUint64
+                         // =====================
 
 class BigEndianUint64 {
     // This class provides a container for an in-core representation of an
@@ -889,9 +890,9 @@ BigEndianUint64& BigEndianUint64::operator=(
     return *this;
 }
 
-                         // --------------------------
+                         // --------------------
                          // class BigEndianInt16
-                         // --------------------------
+                         // --------------------
 
 // CLASS METHODS
 inline
@@ -980,9 +981,9 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
 }
 
 namespace bdlb {
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint16
-                         // ---------------------------
+                         // ---------------------
 
 // CLASS METHODS
 inline
@@ -1071,9 +1072,9 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
 }
 
 namespace bdlb {
-                         // --------------------------
+                         // --------------------
                          // class BigEndianInt32
-                         // --------------------------
+                         // --------------------
 
 // CLASS METHODS
 inline
@@ -1160,9 +1161,9 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
 }
 
 namespace bdlb {
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint32
-                         // ---------------------------
+                         // ---------------------
 
 // CLASS METHODS
 inline
@@ -1251,9 +1252,9 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
 }
 
 namespace bdlb {
-                         // --------------------------
+                         // --------------------
                          // class BigEndianInt64
-                         // --------------------------
+                         // --------------------
 
 // CLASS METHODS
 inline
@@ -1340,9 +1341,9 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
 }
 
 namespace bdlb {
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint64
-                         // ---------------------------
+                         // ---------------------
 
 // CLASS METHODS
 inline
