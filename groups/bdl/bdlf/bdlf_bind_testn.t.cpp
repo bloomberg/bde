@@ -1,13 +1,9 @@
 // bdlf_bind_testn.t.cpp                                              -*-C++-*-
 #include <bdlf_bind_testn.h>
 
-#include <bsls_bsltestutil.h>
-
 #include <bdlf_bind.h>
 #include <bdlf_bind_test.h>
 #include <bdlf_placeholder.h>
-
-#include <bslalg_typetraits.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -17,9 +13,10 @@
 #include <bslmf_nil.h>
 
 #include <bsls_platform.h>
+#include <bsls_bsltestutil.h>
 
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>    // atoi()
+#include <bsl_cstdlib.h>    // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -540,8 +537,8 @@ DEFINE_TEST_CASE(17) {
                   bdlf::BindUtil::bind(FUNC,BWM_ARGS(FIRST,LAST)))));         \
         ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
             bdlf::BindUtil::bindR<RET>(FUNC,BWM_ARGS(FIRST,LAST)))));         \
-        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
-            bdlf::BindUtil::bindA(&alloc0,FUNC,BWM_ARGS(FIRST,LAST))))); 
+//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
+//            bdlf::BindUtil::bindA(&alloc0,FUNC,BWM_ARGS(FIRST,LAST))))); 
 
         if (veryVerbose) printf("Testing BindUtil::bind[RA]\n");
         //       Return type    Invocable  First Arg      Last Arg      Exp
@@ -1334,6 +1331,7 @@ DEFINE_TEST_CASE(12) {
       }
 
 DEFINE_TEST_CASE(11) {
+#if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
         // TESTING BDEF_BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY VALUE
@@ -1518,9 +1516,11 @@ DEFINE_TEST_CASE(11) {
                 printf("\tLINE: %d PARAMS: %d X: ", L_, PARAMS); X.print();
             }
         }
+#endif // #if 0
       }
 
 DEFINE_TEST_CASE(10) {
+#if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
         // TESTING BDEF_BINDUTIL::BINDA WITH FUNCTION OBJECT PASSED BY ADDRESS
@@ -1727,9 +1727,11 @@ DEFINE_TEST_CASE(10) {
                 printf("\tLINE: %d PARAMS: %d X: ", L_, PARAMS); X.print();
             }
         }
-      }
+#endif // #if 0
+}
 
 DEFINE_TEST_CASE(9) {
+#if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
         // TESTING BDEF_BINDUTIL::BINDA WITH MEMBER FUNCTION POINTER
@@ -1949,9 +1951,11 @@ DEFINE_TEST_CASE(9) {
             }
         }
 #endif
+#endif // #if 0
       }
 
 DEFINE_TEST_CASE(8) {
+#if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
         // TESTING BDEF_BINDUTIL::BINDA WITH FREE FUNCTION REFERENCE
@@ -2153,9 +2157,11 @@ DEFINE_TEST_CASE(8) {
             }
         }
 #endif
+#endif // #if 0
       }
 
 DEFINE_TEST_CASE(7) {
+#if 0
         DECLARE_MAIN_VARIABLES
         // --------------------------------------------------------------------
         // TESTING BDEF_BINDUTIL::BINDA WITH FREE FUNCTION POINTER
@@ -2373,6 +2379,7 @@ DEFINE_TEST_CASE(7) {
             }
         }
 #endif
+#endif // #if 0
       }
 
 DEFINE_TEST_CASE(6) {
@@ -3359,7 +3366,7 @@ DEFINE_TEST_CASE(1) {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;

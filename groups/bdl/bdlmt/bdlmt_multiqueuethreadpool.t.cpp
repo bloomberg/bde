@@ -177,21 +177,10 @@ void makeFunc(Func *f, void (*fptr)()) {
     *f = fptr;
 }
 
-void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)())
-{
-    *f = Func(bsl::allocator_arg_t(), bsl::allocator<Func>(a), fptr);
-}
-
 template <class A1>
 void makeFunc(Func *f, void (*fptr)(A1), A1 a1)
 {
     *f = bdlf::BindUtil::bind(fptr, a1);
-}
-
-template <class A1>
-void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)(A1), A1 a1)
-{
-    *f = bdlf::BindUtil::bindA(a, fptr, a1);
 }
 
 template <class A1, class A2>
@@ -200,27 +189,10 @@ void makeFunc(Func *f, void (*fptr)(A1, A2), A1 a1, A2 a2)
     *f = bdlf::BindUtil::bind(fptr, a1, a2);
 }
 
-template <class A1, class A2>
-void makeFunc(bslma::Allocator *a, Func *f, void (*fptr)(A1, A2), A1 a1, A2 a2)
-{
-    *f = bdlf::BindUtil::bindA(a, fptr, a1, a2);
-}
-
 template <class A1, class A2, class A3>
 void makeFunc(Func *f, void (*fptr)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3);
-}
-
-template <class A1, class A2, class A3>
-void makeFunc(bslma::Allocator *a,
-              Func             *f,
-              void (           *fptr)(A1, A2, A3),
-              A1                a1,
-              A2                a2,
-              A3                a3)
-{
-    *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3);
 }
 
 template <class A1, class A2, class A3, class A4>
@@ -228,18 +200,6 @@ void makeFunc(Func  *f,
               void (*fptr)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3, a4);
-}
-
-template <class A1, class A2, class A3, class A4>
-void makeFunc(bslma::Allocator *a,
-              Func             *f,
-              void (           *fptr)(A1, A2, A3, A4),
-              A1                a1,
-              A2                a2,
-              A3                a3,
-              A4                a4)
-{
-    *f = bdlf::BindUtil::bindA(a, fptr, a1, a2, a3, a4);
 }
 
 void noop() {
@@ -1175,7 +1135,7 @@ int main(int argc, char *argv[]) {
 
                 bslmt::Barrier barrier(1+NUM_QUEUES);
                 Func           block;  // blocks on barrier
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
+                makeFunc(&block, waitOnBarrier, &barrier, 1);
 
                 for (int j = 0; j < NUM_QUEUES; ++j) {
                     QUEUE_NOOP[j] = Func(&noop);
@@ -1281,7 +1241,7 @@ int main(int argc, char *argv[]) {
 
             bsls::AtomicInt counter(0);
             Func            count;        // increment 'counter'
-            makeFunc(&ta, &count, incrementCounter, &counter);
+            makeFunc(&count, incrementCounter, &counter);
 
             ASSERT(0 == mX.start());
 
@@ -1298,8 +1258,7 @@ int main(int argc, char *argv[]) {
             makeFunc<bdlmt::MultiQueueThreadPool *,
                      int,
                      const Func&,
-                     bslmt::Barrier *>(&ta,
-                                       &cleanupCb,
+                     bslmt::Barrier *>(&cleanupCb,
                                        case12EnqueueJob,
                                        &mX,
                                        id2,
@@ -1322,8 +1281,7 @@ int main(int argc, char *argv[]) {
             makeFunc<bdlmt::MultiQueueThreadPool *,
                      int,
                      const Func&,
-                     bslmt::Barrier *>(&ta,
-                                       &cleanupCb,
+                     bslmt::Barrier *>(&cleanupCb,
                                        case12DeleteQueue,
                                        &mX,
                                        id2,
@@ -1385,7 +1343,7 @@ int main(int argc, char *argv[]) {
             bsls::AtomicInt counter(0);
             Func            cleanupCb;
             bslmt::Barrier  barrier(2);
-            makeFunc(&ta, &cleanupCb, case11CleanUp, &counter, &barrier);
+            makeFunc(&cleanupCb, case11CleanUp, &counter, &barrier);
 
             enum { NUM_ITERATIONS = 500 };
             ASSERT(0 == mX.start());
@@ -1656,8 +1614,7 @@ int main(int argc, char *argv[]) {
 
                     for (int k = 0; k < NUM_JOBS; ++k) {
                         Func job;
-                        makeFunc(&ta,
-                                 &job,
+                        makeFunc(&job,
                                  case9Callback,
                                  &counters[j],
                                  &results[j]);
@@ -1737,9 +1694,9 @@ int main(int argc, char *argv[]) {
             Func             cleanupCb;  // empty callback
             Func             block;      // blocks on 'barrier'
             Func             count;      // increments 'counter'
-            makeFunc(&ta, &cleanupCb, waitOnBarrier, &barrier, 1);
-            makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
-            makeFunc(&ta, &count, incrementCounter, &counter);
+            makeFunc(&cleanupCb, waitOnBarrier, &barrier, 1);
+            makeFunc(&block, waitOnBarrier, &barrier, 1);
+            makeFunc(&count, incrementCounter, &counter);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
 
@@ -1870,8 +1827,8 @@ int main(int argc, char *argv[]) {
                 bsls::AtomicInt counter(0);
                 Func            block;      // blocks on 'barrier'
                 Func            count;      // increments 'counter'
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
-                makeFunc(&ta, &count, incrementCounter, &counter);
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
+                makeFunc(&count, incrementCounter, &counter);
 
                 int id = mX.createQueue();
                 ASSERT(0 != id);
@@ -1997,8 +1954,8 @@ int main(int argc, char *argv[]) {
             bsls::AtomicInt  counter(0);
             Func             block;      // blocks on 'barrier'
             Func             count;      // increments 'counter'
-            makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
-            makeFunc(&ta, &count, incrementCounter, &counter);
+            makeFunc(&block, waitOnBarrier, &barrier, 1);
+            makeFunc(&count, incrementCounter, &counter);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
             int numElements;
@@ -2129,7 +2086,7 @@ int main(int argc, char *argv[]) {
 
             bslmt::Barrier   barrier(1 + MAX_QUEUES);
             Func             block;      // blocks on 'barrier'
-            makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
+            makeFunc(&block, waitOnBarrier, &barrier, 1);
             Obj mX(defaultAttrs, MIN_THREADS, MAX_THREADS, MAX_IDLE, &ta);
             const Obj& X = mX;
 
@@ -2147,7 +2104,7 @@ int main(int argc, char *argv[]) {
                 int NUM_JOBS = i + 1;
                 for (int j = 0; j < NUM_JOBS; ++j) {
                     Func count;
-                    makeFunc(&ta, &count, incrementCounter, &counters[i]);
+                    makeFunc(&count, incrementCounter, &counters[i]);
                     LOOP2_ASSERT(i, j, 0 == mX.enqueueJob(id, count));
                 }
                 int numJobs = X.numElements(id);
@@ -2356,7 +2313,7 @@ int main(int argc, char *argv[]) {
             {
                 bslmt::Barrier barrier(2);
                 Func           block;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
 
                 id = 0;
                 ASSERT(0 != mX.enqueueJob(id, block));
@@ -2400,8 +2357,8 @@ int main(int argc, char *argv[]) {
                 bslmt::Barrier barrier(2);
                 Func           block;
                 Func           count;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
-                makeFunc(&ta, &count, incrementCounter, &counter);
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
+                makeFunc(&count, incrementCounter, &counter);
 
                 id = mX.createQueue();
                 ASSERT(0 != id);
@@ -2445,7 +2402,7 @@ int main(int argc, char *argv[]) {
 
                 bslmt::Barrier barrier(2);
                 Func           block;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
+                makeFunc(&block, waitOnBarrier, &barrier, 1);
 
                 ASSERT(0 == mX.enqueueJob(id, block));
                 barrier.wait();
@@ -2468,8 +2425,8 @@ int main(int argc, char *argv[]) {
                 bslmt::Barrier barrier(2);
                 Func           block;
                 Func           count;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
-                makeFunc(&ta, &count, incrementCounter, &counter);
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
+                makeFunc(&count, incrementCounter, &counter);
 
                 id = mX.createQueue();
                 ASSERT(0 != id);
@@ -2513,7 +2470,7 @@ int main(int argc, char *argv[]) {
 
                 bslmt::Barrier barrier(2);
                 Func           block;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 1);
+                makeFunc(&block, waitOnBarrier, &barrier, 1);
 
                 id = mX.createQueue();
                 ASSERT(0 != id);
@@ -2539,8 +2496,8 @@ int main(int argc, char *argv[]) {
                 bslmt::Barrier barrier(2);
                 Func           block;
                 Func           count;
-                makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
-                makeFunc(&ta, &count, incrementCounter, &counter);
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
+                makeFunc(&count, incrementCounter, &counter);
 
                 id = mX.createQueue();
                 ASSERT(0 != id);
@@ -2627,8 +2584,8 @@ int main(int argc, char *argv[]) {
             bsls::AtomicInt counter(0);
             Func            block;      // blocks on 'barrier'
             Func            count;      // increments 'counter'
-            makeFunc(&ta, &block, waitOnBarrier, &barrier, 2);
-            makeFunc(&ta, &count, incrementCounter, &counter);
+            makeFunc(&block, waitOnBarrier, &barrier, 2);
+            makeFunc(&count, incrementCounter, &counter);
 
             int id = mX.createQueue();
             ASSERT(0 != id);

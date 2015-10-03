@@ -22,11 +22,11 @@ BSLS_IDENT("$Id: $")
 // 'bdlf::Bind', that is a functor object that binds an invocable object or
 // function to a list of arguments.  This component also defines factory
 // methods in the 'bdlf::BindUtil' namespace for creating 'bdlf::Bind' objects
-// (e.g., 'bind', 'bindA', and 'bindR') and 'bdlf::BindWrapper' objects (e.g.,
-// 'bindS' and 'bindSR').  The 'bdlf::Bind' functor (called henceforth a
-// "binder") is an object that can hold any invocable object (the "bound
-// functor") and a number of parameters (the "bound arguments", some of which
-// can be place-holders of type 'bdlf::PlaceHolder').  When the binder is later
+// (e.g., 'bind' and 'bindR') and 'bdlf::BindWrapper' objects (e.g., 'bindS'
+// and 'bindSR').  The 'bdlf::Bind' functor (called henceforth a "binder") is
+// an object that can hold any invocable object (the "bound functor") and a
+// number of parameters (the "bound arguments", some of which can be
+// place-holders of type 'bdlf::PlaceHolder').  When the binder is later
 // invoked (with optional additional arguments called the "invocation
 // arguments" used to compute the value of bound arguments that use
 // place-holders), it returns the result of calling the bound functor with the
@@ -53,12 +53,12 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bdlf::Bind' functors are typically used with standard algorithms,
 // or with 'bsl::function'.  This mechanism is similar to, but much more
-// powerful than 'bsl::binder1st' or 'bsl::binder2nd'.
+// powerful than, 'bsl::bind1st' or 'bsl::bind2nd'.
 //
 // The difference between a binder created using one of 'bindS' and 'bindSR'
-// and a binder created using 'bind', 'bindA', and 'bindR' is that in the
-// former case the binder is returned by reference rather than by value, with
-// shared ownership semantics.  Hence its main use is for creating binders that
+// and a binder created using 'bind', and 'bindR' is that in the former case
+// the binder is returned by reference rather than by value, with shared
+// ownership semantics.  Hence its main use is for creating binders that
 // hold a non-trivial amount of storage (i.e., the bound arguments) and will be
 // copied, possibly several times, such as jobs enqueued in a threadpool.
 //
@@ -873,24 +873,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_constructorproxy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
-#include <bslalg_typetraithaspointersemantics.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
-#include <bslmf_matchanytype.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ARRAYTOPOINTER
@@ -905,8 +893,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_functionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
+#include <bslmf_haspointersemantics.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include <bslmf_matchanytype.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
@@ -915,6 +911,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_TAG
+#include <bslmf_tag.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
@@ -1200,8 +1200,7 @@ class BindWrapper {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(BindWrapper,
-                                 bslalg::TypeTraitHasPointerSemantics);
+    BSLMF_NESTED_TRAIT_DECLARATION(BindWrapper, bslmf::HasPointerSemantics);
 
     // PUBLIC TYPES
     typedef typename bdlf::Bind<RET,FUNC,TUPLE>::ResultType ResultType;
@@ -1856,236 +1855,6 @@ struct BindUtil {
                                        P13,P14> ListType;
         return Bind<bslmf::Nil, FUNC, ListType>
             (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14));
-    }
-
-                        // - - - - 'bindA' methods - - - -
-
-    template <class FUNC>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
-    bindA(bslma::Allocator *allocator, FUNC func)
-        // Return a 'Bind' object that is bound to the specified 'func'
-        // invocable object, which can be invoked with no parameters.
-    {
-        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple0>
-                   (func, Bind_BoundTuple0(), allocator);
-    }
-
-    template <class FUNC, class P1>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with one parameter.
-    {
-        return Bind<bslmf::Nil, FUNC, Bind_BoundTuple1<P1> >
-            (func, Bind_BoundTuple1<P1>(p1, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple2<P1, P2> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with two parameters.
-    {
-        typedef Bind_BoundTuple2<P1,P2> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1, p2, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple3<P1,P2,P3> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with three parameters.
-    {
-        typedef Bind_BoundTuple3<P1,P2,P3> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                    (func, ListType(p1,p2,p3, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple4<P1,P2,P3,P4> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with four parameters.
-    {
-        typedef Bind_BoundTuple4<P1,P2,P3,P4> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple5<P1,P2,P3,P4,P5> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with five parameters.
-    {
-        typedef Bind_BoundTuple5<P1,P2,P3,P4,P5> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with six parameters.
-    {
-        typedef Bind_BoundTuple6<P1,P2,P3,P4,P5,P6> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                   (func, ListType(p1,p2,p3,p4,p5,p6, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with seven parameters.
-    {
-        typedef Bind_BoundTuple7<P1,P2,P3,P4,P5,P6,P7> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-                  (func, ListType(p1,p2,p3,p4,p5,p6,p7, allocator), allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8>
-    static
-    Bind<bslmf::Nil, FUNC,
-         Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7, P8 const&p8)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with eight parameters.
-    {
-        typedef Bind_BoundTuple8<P1,P2,P3,P4,P5,P6,P7,P8> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,allocator),allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9>
-    static
-    Bind<bslmf::Nil, FUNC,
-         Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-         P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-         P7 const&p7, P8 const&p8, P9 const&p9)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with nine parameters.
-    {
-        typedef Bind_BoundTuple9<P1,P2,P3,P4,P5,P6,P7,P8,P9> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,allocator),allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9, class P10>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with ten parameters.
-    {
-        typedef Bind_BoundTuple10<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,allocator),
-             allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9, class P10, class P11>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple11<
-                                          P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with eleven parameters.
-    {
-        typedef Bind_BoundTuple11<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,allocator),
-             allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9, class P10, class P11,
-              class P12>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple12<
-                                      P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with twelve parameters.
-    {
-        typedef Bind_BoundTuple12<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12>
-            ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,allocator),
-             allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9, class P10, class P11,
-              class P12, class P13>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple13<
-                                  P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13> >
-    bindA(bslma::Allocator *allocator,FUNC func, P1 const&p1, P2 const&p2,
-          P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6, P7 const&p7,
-          P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12, P13 const&p13)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with thirteen parameters.
-    {
-        typedef Bind_BoundTuple13<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                  P13> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,
-                            allocator),allocator);
-    }
-
-    template <class FUNC, class P1, class P2, class P3, class P4, class P5,
-              class P6, class P7, class P8, class P9, class P10, class P11,
-              class P12, class P13, class P14>
-    static
-    Bind<bslmf::Nil, FUNC, Bind_BoundTuple14<
-                              P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14> >
-    bindA(bslma::Allocator *allocator, FUNC func, P1 const&p1,
-          P2 const&p2, P3 const&p3, P4 const&p4, P5 const&p5, P6 const&p6,
-          P7 const&p7, P8 const&p8, P9 const&p9, P10 const&p10, P11 const&p11,
-          P12 const&p12, P13 const&p13, P14 const&p14)
-        // Return a 'Bind' object that is bound to the specified invocable
-        // object 'func', which can be invoked with fourteen parameters.
-    {
-        typedef Bind_BoundTuple14<P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,
-                                  P13,P14> ListType;
-        return Bind<bslmf::Nil, FUNC, ListType>
-            (func, ListType(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,
-                            allocator),allocator);
     }
 
                         // - - - - 'bindR' methods - - - -
@@ -3674,8 +3443,7 @@ class Bind_Impl {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Bind_Impl,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_Impl, bslma::UsesBslmaAllocator);
 
   private:
     // PRIVATE ACCESSORS
@@ -4256,8 +4024,8 @@ class Bind_ImplExplicit {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(Bind_ImplExplicit,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_ImplExplicit,
+                                   bslma::UsesBslmaAllocator);
 
   private:
     // PRIVATE ACCESSORS
@@ -4762,8 +4530,7 @@ struct Bind_FuncTraitsImp<RET,FUNC,0,0,0> {
     // ENUMERATIONS
     enum {
         k_IS_EXPLICIT           = 0
-      , k_HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
-                                   bslalg::TypeTraitHasPointerSemantics>::VALUE
+      , k_HAS_POINTER_SEMANTICS = bslmf::HasPointerSemantics<FUNC>::value
     };
 
     // PUBLIC TYPES
@@ -4861,8 +4628,7 @@ struct Bind_FuncTraitsImp<bslmf::Nil,FUNC,0,0,0> {
     // ENUMERATIONS
     enum {
         k_IS_EXPLICIT           = 0
-      , k_HAS_POINTER_SEMANTICS = bslalg::HasTrait<FUNC,
-                                   bslalg::TypeTraitHasPointerSemantics>::VALUE
+      , k_HAS_POINTER_SEMANTICS = bslmf::HasPointerSemantics<FUNC>::value
     };
 
     // PUBLIC TYPES
@@ -5092,9 +4858,10 @@ class Bind_MemFnObjectWrapper {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(Bind_MemFnObjectWrapper,
-                                  bslalg::TypeTraitHasPointerSemantics,
-                                  bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_MemFnObjectWrapper,
+                                   bslmf::HasPointerSemantics);
+    BSLMF_NESTED_TRAIT_DECLARATION(Bind_MemFnObjectWrapper,
+                                   bslmf::IsBitwiseMoveable);
 
     // CREATORS
     Bind_MemFnObjectWrapper(TYPE  *object)                     // IMPLICIT

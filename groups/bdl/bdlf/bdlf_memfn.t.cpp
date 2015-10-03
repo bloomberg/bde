@@ -3,9 +3,6 @@
 
 #include <bslim_testutil.h>
 
-#include <bslalg_typetraithaspointersemantics.h>
-#include <bslalg_typetraits.h>
-
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bslma_testallocator.h>                // for testing only
@@ -32,7 +29,7 @@ using namespace bsl;  // automatically added by script
 // wrapper forwards invocation arguments properly, and returns the correct
 // value.  In addition, we want to verify that the 'bslmf_MemFnInstance'
 // wrapper propagates its allocator to the instance it holds, if that instance
-// takes a 'bdema' allocator.  Finally, we also have concerns that
+// takes a 'bslma' allocator.  Finally, we also have concerns that
 // 'const'-correctness is respected, i.e., a non-'const' member function cannot
 // be involved on a non-modifiable instance.
 //-----------------------------------------------------------------------------
@@ -294,9 +291,8 @@ class TestPtrWrapper {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(TestPtrWrapper,
-                                  bslalg::TypeTraitHasPointerSemantics,
-                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestPtrWrapper, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(TestPtrWrapper, bslmf::HasPointerSemantics);
 
     // CREATORS
     TestPtrWrapper(TYPE *objPtr, bslma::Allocator *allocator = 0)
@@ -600,10 +596,10 @@ DEFINE_TEST_CASE(8) {
         // TESTING INSTANCES WITH POINTER SEMANTICS
         //
         // Concern:
-        //   1. that classes which have pointer-like semantics (as
-        //      indicated by the 'bslalg::TypeTraitHasPointerSemantics') are
-        //      treated properly and that 'const'-correctness is respected.
-        //   2. that if such classes take 'bdema' allocators, the copy stored
+        //   1. that classes which have pointer-like semantics (as indicated by
+        //      the 'bslmf::HasPointerSemantics') are treated properly and that
+        //      'const'-correctness is respected.
+        //   2. that if such classes take 'bblma' allocators, the copy stored
         //      inside the 'bdlf::MemFnInstance' object is propagated the
         //      allocator passed at construction of the 'bdlf::MemFnInstance'.
         //

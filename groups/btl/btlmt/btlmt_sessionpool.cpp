@@ -750,12 +750,11 @@ int SessionPool::closeHandle(int handleId)
             int ret;
             do {
                 bsl::function<void()> fctor(
-                    bdlf::BindUtil::bindA(d_allocator_p,
-                                          bdlf::MemFnUtil::memFn(
+                    bdlf::BindUtil::bind(bdlf::MemFnUtil::memFn(
                                              &SessionPool::connectAbortTimerCb,
-                                             this),
-                                          handle,
-                                          clockId));
+                                              this),
+                                         handle,
+                                         clockId));
 
                 ret = d_channelPool_p->registerClock(
                                         fctor,

@@ -361,14 +361,13 @@ int Socks5Session::readMessage(
 {
     using namespace bdlf::PlaceHolders;
     btlmt::AsyncChannel::BlobBasedReadCallback cb =
-                      bdlf::BindUtil::bindA(d_allocator_p,
-                                            &Socks5Session::readMessageCb<MSG>,
-                                            this,
-                                            _1,
-                                            _2,
-                                            _3,
-                                            _4,
-                                            func);
+                       bdlf::BindUtil::bind(&Socks5Session::readMessageCb<MSG>,
+                                             this,
+                                             _1,
+                                             _2,
+                                             _3,
+                                             _4,
+                                             func);
 
     int rc = d_channel_p->read(sizeof(MSG), cb);
     return rc;
@@ -446,10 +445,9 @@ int Socks5Session::clientWrite(const char *buf, int length)
                                      bdlt::CurrentTime::now() + d_args.d_delay;
 
     btlso::EventManager::Callback cb =
-                    bdlf::BindUtil::bindA(d_allocator_p,
-                                          &Socks5Session::clientWriteImmediate,
-                                          this,
-                                          blob);
+                     bdlf::BindUtil::bind(&Socks5Session::clientWriteImmediate,
+                                           this,
+                                           blob);
 
     d_eventManager.registerTimer(scheduledTime, cb);
     LOG_TRACE << "schedule write after " << d_args.d_delay
@@ -746,24 +744,22 @@ void Socks5Session::startDestination(Socks5Session *clientSession)
 
     using namespace bdlf::PlaceHolders;
 
-    btlmt::AsyncChannel::BlobBasedReadCallback destinationCb
-                             = bdlf::BindUtil::bindA(d_allocator_p,
-                                                     &Socks5Session::readProxy,
-                                                     this,
-                                                     _1,
-                                                     _2,
-                                                     _3,
-                                                     _4);
+    btlmt::AsyncChannel::BlobBasedReadCallback destinationCb =
+                                bdlf::BindUtil::bind(&Socks5Session::readProxy,
+                                                      this,
+                                                      _1,
+                                                      _2,
+                                                      _3,
+                                                      _4);
     d_channel_p->read(1, destinationCb);
 
-    btlmt::AsyncChannel::BlobBasedReadCallback clientCb
-                             = bdlf::BindUtil::bindA(d_allocator_p,
-                                                     &Socks5Session::readProxy,
-                                                     clientSession,
-                                                     _1,
-                                                     _2,
-                                                     _3,
-                                                     _4);
+    btlmt::AsyncChannel::BlobBasedReadCallback clientCb =
+                                bdlf::BindUtil::bind(&Socks5Session::readProxy,
+                                                      clientSession,
+                                                      _1,
+                                                      _2,
+                                                      _3,
+                                                      _4);
     clientSession->d_channel_p->read(1, clientCb);
 }
 
@@ -854,14 +850,12 @@ btls5::TestServer::SessionFactory::SessionFactory(
     // config.setIncomingMessageSizes(1, 100, 1024);
 
     using namespace bdlf::PlaceHolders;
-    btlmt::SessionPool::SessionPoolStateCallback poolStateCb
-        = bdlf::BindUtil::bindA(
-                               d_allocator_p,
-                               &btls5::TestServer::SessionFactory::poolStateCb,
-                               this,
-                               _1,
-                               _2,
-                               _3);
+    btlmt::SessionPool::SessionPoolStateCallback poolStateCb =
+          bdlf::BindUtil::bind(&btls5::TestServer::SessionFactory::poolStateCb,
+                                this,
+                                _1,
+                                _2,
+                                _3);
 
     d_sessionPool.reset(new (*d_allocator_p) btlmt::SessionPool(
                                                                config,
@@ -869,14 +863,13 @@ btls5::TestServer::SessionFactory::SessionFactory(
                                                                basicAllocator),
                         basicAllocator);
 
-    btlmt::SessionPool::SessionStateCallback cb
-                       = bdlf::BindUtil::bindA(d_allocator_p,
-                                               &SessionFactory::sessionStateCb,
-                                               this,
-                                               _1,
-                                               _2,
-                                               _3,
-                                               _4);
+    btlmt::SessionPool::SessionStateCallback cb =
+                          bdlf::BindUtil::bind(&SessionFactory::sessionStateCb,
+                                                this,
+                                                _1,
+                                                _2,
+                                                _3,
+                                                _4);
 
     int rc;  // return code
 
@@ -967,14 +960,13 @@ void btls5::TestServer::SessionFactory::connect(
     int handle;
 
     using namespace bdlf::PlaceHolders;
-    btlmt::SessionPool::SessionStateCallback cb = bdlf::BindUtil::bindA(
-                            d_allocator_p,
+    btlmt::SessionPool::SessionStateCallback cb = bdlf::BindUtil::bind(
                             &btls5::TestServer::SessionFactory::sessionStateCb,
-                            this,
-                            _1,
-                            _2,
-                            _3,
-                            _4);
+                             this,
+                             _1,
+                             _2,
+                             _3,
+                             _4);
 
     const int numAttempts = 3;
     bsls::TimeInterval interval(0.2);

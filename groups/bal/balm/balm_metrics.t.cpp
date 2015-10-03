@@ -411,10 +411,9 @@ void StandardMacroConcurrencyTest::execute()
 
 void StandardMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                        d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                         &StandardMacroConcurrencyTest::execute,
-                                        this);
+                                         this);
 
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
@@ -516,10 +515,9 @@ void DynamicMacroConcurrencyTest::execute()
 
 void DynamicMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                         d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                          &DynamicMacroConcurrencyTest::execute,
-                                         this);
+                                          this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -722,10 +720,9 @@ void TlsMacroConcurrencyTest::execute()
 
 void TlsMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                             d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                              &TlsMacroConcurrencyTest::execute,
-                                             this);
+                                              this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -872,10 +869,9 @@ void StandardIntMacroConcurrencyTest::execute()
 
 void StandardIntMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                     d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                      &StandardIntMacroConcurrencyTest::execute,
-                                     this);
+                                      this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -998,10 +994,9 @@ void DynamicIntMacroConcurrencyTest::execute()
 
 void DynamicIntMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                      d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                       &DynamicIntMacroConcurrencyTest::execute,
-                                      this);
+                                       this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1202,10 +1197,9 @@ void TlsIntMacroConcurrencyTest::execute()
 
 void TlsIntMacroConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = Corp::bdlf::BindUtil::bindA(
-                                          d_allocator_p,
+    bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                           &TlsIntMacroConcurrencyTest::execute,
-                                          this);
+                                           this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }

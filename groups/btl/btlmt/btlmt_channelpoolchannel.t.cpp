@@ -965,13 +965,12 @@ int main(int argc, char *argv[])
                         "123456789012345678901234567890123";
 
             AsyncChannel::BlobBasedReadCallback cb =
-                bdlf::BindUtil::bindA(&ta,
-                                     &readCb,
-                                     bdlf::PlaceHolders::_1,
-                                     bdlf::PlaceHolders::_2,
-                                     bdlf::PlaceHolders::_3,
-                                     bdlf::PlaceHolders::_4,
-                                     logString);
+                bdlf::BindUtil::bind(&readCb,
+                                      bdlf::PlaceHolders::_1,
+                                      bdlf::PlaceHolders::_2,
+                                      bdlf::PlaceHolders::_3,
+                                      bdlf::PlaceHolders::_4,
+                                      logString);
 
             int rc = mX.read(5, cb);
             ASSERT(!rc);

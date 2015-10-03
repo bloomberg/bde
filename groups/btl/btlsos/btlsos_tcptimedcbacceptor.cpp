@@ -653,12 +653,10 @@ void TcpTimedCbAcceptor::deallocate(btlsc::CbChannel *channel)
 {
     BSLS_ASSERT(channel);
     channel->invalidate();
-    bsl::function<void()> cb(
-            bdlf::BindUtil::bindA(
-                d_allocator_p
-              , &TcpTimedCbAcceptor::deallocateCb
-              , this
-              , channel));
+    bsl::function<void()> cb(bdlf::BindUtil::bind(
+                                             &TcpTimedCbAcceptor::deallocateCb,
+                                              this,
+                                              channel));
     d_manager_p->registerTimer(bdlt::CurrentTime::now(), cb);
 }
 

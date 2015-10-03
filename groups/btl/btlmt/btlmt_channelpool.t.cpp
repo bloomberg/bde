@@ -3806,14 +3806,12 @@ void runTestCaseStressTest(
     info.d_msgSize       = msgSize < 0 ? -msgSize : 0;
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::BindUtil::bindA( allocator
-                                , &caseStressTestChannelStateCallback
+            bdlf::BindUtil::bind( &caseStressTestChannelStateCallback
                                 , _1, _2, _3, _4
                                 , &info));
 
     btlmt::ChannelPool::BlobBasedReadCallback  dataCb(
-            bdlf::BindUtil::bindA( allocator
-                                , &caseStressTestDataCallback
+            bdlf::BindUtil::bind( &caseStressTestDataCallback
                                 , _1, _2, _3, _4
                                 , &info));
 
@@ -5299,15 +5297,13 @@ void runTestCaseEnableDisable(
     makeNull(&dataCb);
 
     btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-            bdlf::BindUtil::bindA( &ta
-                                , recordChannelState
+            bdlf::BindUtil::bind( recordChannelState
                                 , _1, _2, _3, _4
                                 , &channelEvents
                                 , &channelEventsMutex));
 
     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-            bdlf::BindUtil::bindA( &ta
-                                , recordPoolState
+            bdlf::BindUtil::bind( recordPoolState
                                 , _1, _2, _3
                                 , &poolEvents
                                 , &poolEventsMutex));
@@ -6101,8 +6097,7 @@ void runTestCase(char                                           *,
         int                 channelId = -1;
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                bdlf::BindUtil::bindA( &ta
-                                    , &caseChannelStateCallback
+                bdlf::BindUtil::bind( &caseChannelStateCallback
                                     , _1, _2, _3, _4
                                     , &poolAddr
                                     , &eventAddr
@@ -10270,8 +10265,7 @@ void TestDriver::testCase25()
 
             // Supply a data callback that will delay, to simulate processing.
             btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &dummyDataCallbackWithDelay
+                    bdlf::BindUtil::bind( &dummyDataCallbackWithDelay
                                         , _1, _2, _3, _4
                                         , 0.5));
 
@@ -10501,8 +10495,7 @@ void TestDriver::testCase24()
                 if (verbose) { P(config); }
 
                 btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
-                        bdlf::BindUtil::bindA( &ta
-                                            , &dummyDataCallbackWithDelay
+                        bdlf::BindUtil::bind( &dummyDataCallbackWithDelay
                                             , _1, _2, _3, _4
                                             , 0.5));
 
@@ -11541,8 +11534,7 @@ void TestDriver::testCase19()
 
             // This pool will import.
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseImportChannelStateCallback
+                    bdlf::BindUtil::bind( &caseImportChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -11709,8 +11701,7 @@ void TestDriver::testCase18()
             makeNull(&channelCb);
 
             btlmt::ChannelPool::PoolStateChangeCallback poolCb(
-                                 bdlf::BindUtil::bindA(
-                                                  &ta,
+                                 bdlf::BindUtil::bind(
                                                   &caseAcceptPoolStateCallback,
                                                   _1, _2, _3,
                                                   &acceptErrors));
@@ -11903,16 +11894,14 @@ void TestDriver::testCase17()
             int                *eventAddr = &poolEvent;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseMaxConnsChannelStateCallback
+                    bdlf::BindUtil::bind( &caseMaxConnsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
                                         , &channelBarrier));
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseMaxConnsPoolStateCallback
+                    bdlf::BindUtil::bind( &caseMaxConnsPoolStateCallback
                                         , _1, _2, _3
                                         , &eventAddr
                                         , &limitReachedFlag));
@@ -12128,8 +12117,7 @@ void TestDriver::testCase16()
             int            channelId = 0;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseCallbacksChannelStateCallback
+                    bdlf::BindUtil::bind( &caseCallbacksChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &channelId
                                         , &barrier));
@@ -12230,8 +12218,7 @@ void TestDriver::testCase15()
             int                 channelId = 0;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseShutdownChannelStateCallback
+                    bdlf::BindUtil::bind( &caseShutdownChannelStateCallback
                                         , _1, _2, _3, _4
                                         , (int)SERVER_ID
                                         , &poolAddr
@@ -12332,8 +12319,7 @@ void TestDriver::testCase14()
             int channelId2 = -1;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseHandleStatsChannelStateCallback
+                    bdlf::BindUtil::bind( &caseHandleStatsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &acceptedChannelId1
                                         , &channelId1
@@ -12647,8 +12633,7 @@ void TestDriver::testCase13()
             int                 channelId;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseChannelStatsChannelStateCallback
+                    bdlf::BindUtil::bind( &caseChannelStatsChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -12656,8 +12641,7 @@ void TestDriver::testCase13()
                                         , &channelId));
 
             btlmt::ChannelPool::BlobBasedReadCallback         dataCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseChannelStatsChannelDataCallback
+                    bdlf::BindUtil::bind( &caseChannelStatsChannelDataCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &fail));
@@ -13147,8 +13131,7 @@ void TestDriver::testCase12()
             int                *eventAddr = &poolEvent;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseAvgResetChannelStateCallback
+                    bdlf::BindUtil::bind( &caseAvgResetChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr
@@ -13330,8 +13313,7 @@ void TestDriver::testCase11()
             btlmt::ChannelPool *mX_p;
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseFlowControlChannelCallback
+                    bdlf::BindUtil::bind( &caseFlowControlChannelCallback
                                         , _1, _2, _3, _4
                                         , &barrier
                                         , &numBytesWritten
@@ -13590,8 +13572,7 @@ void TestDriver::testCase9()
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = 0;  // do not check
                     bsl::function<void()> functor(
-                            bdlf::BindUtil::bindA( &ta
-                                                , &caseMyClockCallback
+                            bdlf::BindUtil::bind( &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -13682,8 +13663,7 @@ void TestDriver::testCase9()
                 ThreadId threadId2 = NULL_THREAD_ID;
 
                 btlmt::ChannelPool::ChannelStateChangeCallback channel2Cb(
-                        bdlf::BindUtil::bindA( &ta
-                                            , &caseChannelStateCallback
+                        bdlf::BindUtil::bind( &caseChannelStateCallback
                                             , _1, _2, _3, _4
                                             , &channelId1
                                             , &threadId1
@@ -13761,8 +13741,7 @@ void TestDriver::testCase9()
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = 0;  // do not check
                     bsl::function<void()> functor(
-                            bdlf::BindUtil::bindA( &ta
-                                                , &caseMyClockCallback
+                            bdlf::BindUtil::bind( &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -13832,8 +13811,7 @@ void TestDriver::testCase9()
                     clockState[i].d_numInvocations = 0;
                     clockState[i].d_maxNumInvocations = NUM_INVOCATIONS;
                     bsl::function<void()> functor(
-                            bdlf::BindUtil::bindA( &ta
-                                                , &caseMyClockCallback
+                            bdlf::BindUtil::bind( &caseMyClockCallback
                                                 , &clockState[i]
                                                 , i
                                                 , &mX
@@ -14117,8 +14095,7 @@ void TestDriver::testCase7()
             // Test Execution
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseChannelStateCallback
+                    bdlf::BindUtil::bind( &caseChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &info));
 
@@ -14309,8 +14286,7 @@ void TestDriver::testCase6()
             bslmt::Barrier  barrier(2);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &caseChannelStateCallback
+                    bdlf::BindUtil::bind( &caseChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &barrier));
 
@@ -14406,15 +14382,13 @@ void TestDriver::testCase5()
             config.setReadTimeout(1000);
 
             btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &recordChannelState
+                    bdlf::BindUtil::bind( &recordChannelState
                                         , _1, _2, _3, _4
                                         , &channelEvents
                                         , &channelEventsMutex));
 
             btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdlf::BindUtil::bindA( &ta
-                                        , &recordPoolState
+                    bdlf::BindUtil::bind( &recordPoolState
                                         , _1, _2, _3
                                         , &poolEvents
                                         , &poolEventsMutex));
@@ -14814,8 +14788,7 @@ void TestDriver::testCase3()
                         bsls::AtomicInt isInvoked(0);
 
                         btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                                bdlf::BindUtil::bindA( &ta
-                                                    , &caseErrorPoolStateCb
+                                bdlf::BindUtil::bind( &caseErrorPoolStateCb
                                                     , _1, _2, _3
                                                     , DATA[i].d_sourceId
                                                     , EXPECTED_SEVERITY
@@ -14900,8 +14873,7 @@ void TestDriver::testCase3()
                     bsls::AtomicInt isInvoked(0);
 
                     btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                            bdlf::BindUtil::bindA( &ta
-                                                , &caseErrorPoolStateCb
+                            bdlf::BindUtil::bind( &caseErrorPoolStateCb
                                                 , _1, _2, _3
                                                 , DATA[i].d_sourceId
                                                 , EXPECTED_SEVERITY
@@ -15137,8 +15109,7 @@ static void negativeCase2()
         int                 channelId = -1;
 
         btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                    bdlf::BindUtil::bindA( 0
-                                        , &caseN2ChannelStateCallback
+                    bdlf::BindUtil::bind( &caseN2ChannelStateCallback
                                         , _1, _2, _3, _4
                                         , &poolAddr
                                         , &eventAddr

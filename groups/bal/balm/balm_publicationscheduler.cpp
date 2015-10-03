@@ -490,8 +490,7 @@ void PublicationScheduler::scheduleCategory(
         bslmt::LockGuard<bslmt::Mutex> guard(clock->mutex());
         clock->handle() = d_scheduler_p->startClock(
                           interval,
-                          bdlf::BindUtil::bindA(d_allocator_p,
-                                                &PublicationScheduler::publish,
+                          bdlf::BindUtil::bind(&PublicationScheduler::publish,
                                                 this,
                                                 clock));
     }
@@ -574,8 +573,7 @@ void PublicationScheduler::setDefaultSchedule(
     if (clock->handle() == bdlmt::TimerEventScheduler::e_INVALID_HANDLE) {
         clock->handle() = d_scheduler_p->startClock(
             interval,
-            bdlf::BindUtil::bindA(d_allocator_p,
-                                  &PublicationScheduler::publish,
+            bdlf::BindUtil::bind(&PublicationScheduler::publish,
                                   this,
                                   clock));
     }

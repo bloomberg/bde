@@ -1235,9 +1235,8 @@ void Channel::notifyChannelDown(ChannelHandle             self,
             invokeChannelDown(self, ChannelPool::e_CHANNEL_DOWN_READ);
         }
         else {
-            bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                                            d_allocator_p,
-                                            &Channel::invokeChannelDown,
+            bsl::function<void()> cb(bdlf::BindUtil::bind(
+                                           &Channel::invokeChannelDown,
                                             this,
                                             self,
                                             ChannelPool::e_CHANNEL_DOWN_READ));
@@ -1252,9 +1251,8 @@ void Channel::notifyChannelDown(ChannelHandle             self,
             invokeChannelDown(self, ChannelPool::e_CHANNEL_DOWN_WRITE);
         }
         else {
-            bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                                           d_allocator_p,
-                                           &Channel::invokeChannelDown,
+            bsl::function<void()> cb(bdlf::BindUtil::bind(
+                                          &Channel::invokeChannelDown,
                                            this,
                                            self,
                                            ChannelPool::e_CHANNEL_DOWN_WRITE));
@@ -1297,9 +1295,8 @@ void Channel::notifyChannelDown(ChannelHandle             self,
             invokeChannelDown(self, ChannelPool::e_CHANNEL_DOWN);
         }
         else {
-            bsl::function<void()> cb(bdlf::BindUtil::bindA(
-                                                 d_allocator_p,
-                                                 &Channel::invokeChannelDown,
+            bsl::function<void()> cb(bdlf::BindUtil::bind(
+                                                &Channel::invokeChannelDown,
                                                  this,
                                                  self,
                                                  ChannelPool::e_CHANNEL_DOWN));
@@ -1522,11 +1519,10 @@ void Channel::registerReadTimeoutCallback(bsls::TimeInterval   timeout,
 
     BSLS_ASSERT(0 == d_readTimeoutTimerId);
 
-    bsl::function<void()> readTimeoutFunctor(bdlf::BindUtil::bindA(
-                                                       d_allocator_p,
+    bsl::function<void()> readTimeoutFunctor(bdlf::BindUtil::bind(
                                                        &Channel::readTimeoutCb,
-                                                       this,
-                                                       self));
+                                                        this,
+                                                        self));
 
     d_readTimeoutTimerId = d_eventManager_p->registerTimer(timeout,
                                                            readTimeoutFunctor);
@@ -1541,8 +1537,7 @@ void Channel::registerWriteCb(ChannelHandle self)
         return;                                                       // RETURN
     }
 
-    bsl::function<void()> writeFunctor(bdlf::BindUtil::bindA(d_allocator_p,
-                                                             &Channel::writeCb,
+    bsl::function<void()> writeFunctor(bdlf::BindUtil::bind(&Channel::writeCb,
                                                              this,
                                                              self));
 
@@ -1861,8 +1856,7 @@ void Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 
     if (enqueueStateChangeCb) {
         bsl::function<void()> stateCbFunctor(
-                       bdlf::BindUtil::bindA(d_allocator_p,
-                                             d_channelStateCb,
+                        bdlf::BindUtil::bind(d_channelStateCb,
                                              d_channelId,
                                              d_sourceId,
                                              ChannelPool::e_AUTO_READ_DISABLED,
@@ -1889,8 +1883,7 @@ int Channel::initiateReadSequence(ChannelHandle self)
     BSLS_ASSERT(d_channelUpFlag);
     BSLS_ASSERT(d_socket);
 
-    bsl::function<void()> readFunctor = bdlf::BindUtil::bindA(d_allocator_p,
-                                                              &Channel::readCb,
+    bsl::function<void()> readFunctor = bdlf::BindUtil::bind(&Channel::readCb,
                                                               this,
                                                               self);
 
@@ -1978,8 +1971,7 @@ int Channel::writeMessage(const MessageType&   msg,
         if(!d_hiWatermarkHitFlag) {
             d_hiWatermarkHitFlag = true;
 
-            bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                                              d_allocator_p,
+            bsl::function<void()> functor(bdlf::BindUtil::bind(
                                               d_channelStateCb,
                                               d_channelId,
                                               d_sourceId,
@@ -2091,11 +2083,10 @@ int Channel::writeMessage(const MessageType&   msg,
 
         // There is data available, let the event manager know.
 
-        bsl::function<void()> initWriteFunctor(bdlf::BindUtil::bindA(
-                                                     d_allocator_p,
+        bsl::function<void()> initWriteFunctor(bdlf::BindUtil::bind(
                                                      &Channel::registerWriteCb,
-                                                     this,
-                                                     self));
+                                                      this,
+                                                      self));
 
         d_eventManager_p->execute(initWriteFunctor);
         return e_SUCCESS;                                             // RETURN
@@ -2144,9 +2135,8 @@ void Channel::setWriteCacheHiWatermarkRaw(int numBytes)
 
     if (!d_hiWatermarkHitFlag && writeCacheSize >= numBytes) {
         d_hiWatermarkHitFlag = true;
-        bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                                              d_allocator_p,
-                                              &d_channelStateCb,
+        bsl::function<void()> functor(bdlf::BindUtil::bind(
+                                             &d_channelStateCb,
                                               d_channelId,
                                               d_sourceId,
                                               ChannelPool::e_WRITE_CACHE_HIWAT,
@@ -2186,9 +2176,8 @@ void Channel::setWriteCacheLowWatermarkRaw(int numBytes)
      && (currentWriteCacheSize() <= d_writeCacheLowWat)) {
 
         d_hiWatermarkHitFlag = false;
-        bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                                             d_allocator_p,
-                                             &d_channelStateCb,
+        bsl::function<void()> functor(bdlf::BindUtil::bind(
+                                            &d_channelStateCb,
                                              d_channelId,
                                              d_sourceId,
                                              ChannelPool::e_WRITE_CACHE_LOWWAT,
@@ -2288,9 +2277,7 @@ void ChannelPool::init()
 
     bsls::AtomicOperations::initInt(&d_capacity, 0);
 
-    d_metricsFunctor = bdlf::BindUtil::bindA(d_allocator_p,
-                                             &ChannelPool::metricsCb,
-                                             this);
+    d_metricsFunctor = bdlf::BindUtil::bind(&ChannelPool::metricsCb, this);
 
     int maxThread = d_config.maxThreads();
     BSLS_ASSERT(0 < maxThread);
@@ -2376,11 +2363,10 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
             aGuard.release()->unlock();
 
             bsl::function<void()> acceptRetryFunctor(
-                             bdlf::BindUtil::bindA(d_allocator_p,
-                                                   &ChannelPool::acceptRetryCb,
-                                                   this,
-                                                   serverId,
-                                                   server));
+                              bdlf::BindUtil::bind(&ChannelPool::acceptRetryCb,
+                                                    this,
+                                                    serverId,
+                                                    server));
 
             if (server->d_exponentialBackoff < k_MAX_EXP_BACKOFF) {
                 server->d_exponentialBackoff *= 2;
@@ -2470,11 +2456,10 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
         server->d_manager_p->deregisterTimer(server->d_timeoutTimerId);
 
         bsl::function<void()> acceptTimeoutFunctor(
-                           bdlf::BindUtil::bindA(d_allocator_p,
-                                                 &ChannelPool::acceptTimeoutCb,
-                                                 this,
-                                                 serverId,
-                                                 server));
+                            bdlf::BindUtil::bind(&ChannelPool::acceptTimeoutCb,
+                                                  this,
+                                                  serverId,
+                                                  server));
 
         server->d_start = bdlt::CurrentTime::now() + server->d_timeout;
         server->d_timeoutTimerId = server->d_manager_p->registerTimer(
@@ -2484,18 +2469,16 @@ void ChannelPool::acceptCb(int serverId, bsl::shared_ptr<ServerState> server)
     }
 
     bsl::function<void()> invokeChannelUpCommand(
-                               bdlf::BindUtil::bindA(d_allocator_p,
-                                                     &Channel::invokeChannelUp,
-                                                     channelPtr,
-                                                     channelHandle));
+                                bdlf::BindUtil::bind(&Channel::invokeChannelUp,
+                                                      channelPtr,
+                                                      channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (server->d_readEnabledFlag) {
-        initiateReadCommand = bdlf::BindUtil::bindA(
-                                                d_allocator_p,
+        initiateReadCommand = bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                channelPtr,
-                                                channelHandle);
+                                                 channelPtr,
+                                                 channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
@@ -2522,11 +2505,10 @@ void ChannelPool::acceptRetryCb(int                          serverId,
     }
 
     bsl::function<void()> acceptFunctor(
-                                  bdlf::BindUtil::bindA(d_allocator_p,
-                                                        &ChannelPool::acceptCb,
-                                                        this,
-                                                        serverId,
-                                                        server));
+                                   bdlf::BindUtil::bind(&ChannelPool::acceptCb,
+                                                         this,
+                                                         serverId,
+                                                         server));
 
     if (0 != server->d_manager_p->registerSocketEvent(
                                                   server->d_socket_p->handle(),
@@ -2551,12 +2533,11 @@ void ChannelPool::acceptTimeoutCb(int                          serverId,
         return;                                                       // RETURN
     }
 
-    bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bindA(
-                                                 d_allocator_p,
+    bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bind(
                                                  &ChannelPool::acceptTimeoutCb,
-                                                 this,
-                                                 serverId,
-                                                 server));
+                                                  this,
+                                                  serverId,
+                                                  server));
 
     server->d_start += server->d_timeout;
     server->d_timeoutTimerId = server->d_manager_p->registerTimer(
@@ -2712,12 +2693,11 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     // Closely identical to allocateServer, but must execute the pool state
     // callback in the event manager's dispatcher thread.
 
-    bsl::function<void()> acceptFunctor(bdlf::BindUtil::bindA(
-                                                        d_allocator_p,
+    bsl::function<void()> acceptFunctor(bdlf::BindUtil::bind(
                                                         &ChannelPool::acceptCb,
-                                                        this,
-                                                        serverId,
-                                                        server));
+                                                         this,
+                                                         serverId,
+                                                         server));
 
     if (0 != manager->registerSocketEvent(serverSocket->handle(),
                                           btlso::EventType::e_ACCEPT,
@@ -2730,12 +2710,11 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     }
 
     if (isTimedFlag) {
-        bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bindA(
-                                                 d_allocator_p,
+        bsl::function<void()> acceptTimeoutFunctor(bdlf::BindUtil::bind(
                                                  &ChannelPool::acceptTimeoutCb,
-                                                 this,
-                                                 serverId,
-                                                 server));
+                                                  this,
+                                                  serverId,
+                                                  server));
 
         ss->d_timeoutTimerId = manager->registerTimer(
                                             bdlt::CurrentTime::now() + timeout,
@@ -2962,10 +2941,9 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == retCode) {
           bsl::function<void()> connectEventFunctor(
-                            bdlf::BindUtil::bindA(d_allocator_p,
-                                                  &ChannelPool::connectEventCb,
-                                                  this,
-                                                  idx));
+                             bdlf::BindUtil::bind(&ChannelPool::connectEventCb,
+                                                   this,
+                                                   idx));
 
             // Keep guard active for makeM(&connectTimeoutFunctor, ...) below.
 
@@ -2995,11 +2973,10 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     // Reschedule timeout.
     cs.d_start += cs.d_period;
 
-    bsl::function<void()> connectTimeoutFunctor(bdlf::BindUtil::bindA(
-                                                d_allocator_p,
+    bsl::function<void()> connectTimeoutFunctor(bdlf::BindUtil::bind(
                                                 &ChannelPool::connectTimeoutCb,
-                                                this,
-                                                idx));
+                                                 this,
+                                                 idx));
 
     cs.d_timeoutTimerId = manager->registerTimer(cs.d_start,
                                                  connectTimeoutFunctor);
@@ -3122,19 +3099,17 @@ void ChannelPool::importCb(StreamSocket                    *socket_p,
     int rc = d_channels.replace(newId, channelHandle);
     BSLS_ASSERT(0 == rc);
 
-    bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bindA(
-                                                     d_allocator_p,
+    bsl::function<void()> invokeChannelUpCommand(bdlf::BindUtil::bind(
                                                      &Channel::invokeChannelUp,
-                                                     channelPtr,
-                                                     channelHandle));
+                                                      channelPtr,
+                                                      channelHandle));
 
     bsl::function<void()> initiateReadCommand;
     if (readEnabledFlag) {
-        initiateReadCommand = bdlf::BindUtil::bindA(
-                                                d_allocator_p,
+        initiateReadCommand = bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                channelPtr,
-                                                channelHandle);
+                                                 channelPtr,
+                                                 channelHandle);
     }
 
     manager->execute(invokeChannelUpCommand);
@@ -3171,11 +3146,10 @@ void ChannelPool::timerCb(int clockId)
         ts.d_absoluteTime += ts.d_period;
         tGuard.release()->unlock();
 
-        bsl::function<void()> functor(bdlf::BindUtil::bindA(
-                                                         d_allocator_p,
+        bsl::function<void()> functor(bdlf::BindUtil::bind(
                                                          &ChannelPool::timerCb,
-                                                         this,
-                                                         clockId));
+                                                          this,
+                                                          clockId));
 
         ts.d_eventManagerId = ts.d_eventManager_p->registerTimer(
                                                              ts.d_absoluteTime,
@@ -3592,8 +3566,7 @@ int ChannelPool::connectImp(
 
     cGuard.release()->unlock();
 
-    bsl::function<void()> connectFunctor(bdlf::BindUtil::bindA(
-                                               d_allocator_p,
+    bsl::function<void()> connectFunctor(bdlf::BindUtil::bind(
                                                &ChannelPool::connectInitiateCb,
                                                this,
                                                idx));
@@ -3654,8 +3627,7 @@ int ChannelPool::connectImp(
 
     cGuard.release()->unlock();
 
-    bsl::function<void()> connectFunctor(bdlf::BindUtil::bindA(
-                                               d_allocator_p,
+    bsl::function<void()> connectFunctor(bdlf::BindUtil::bind(
                                                &ChannelPool::connectInitiateCb,
                                                this,
                                                idx));
@@ -3685,12 +3657,11 @@ int ChannelPool::disableRead(int channelId)
         channel->disableRead(channelHandle, true);
     }
     else {
-        bsl::function<void()> disableReadCommand(bdlf::BindUtil::bindA(
-                                                         d_allocator_p,
+        bsl::function<void()> disableReadCommand(bdlf::BindUtil::bind(
                                                          &Channel::disableRead,
-                                                         channel,
-                                                         channelHandle,
-                                                         false));
+                                                          channel,
+                                                          channelHandle,
+                                                          false));
 
         channel->eventManager()->execute(disableReadCommand);
     }
@@ -3709,11 +3680,10 @@ int ChannelPool::enableRead(int channelId)
 
     Channel *channel = channelHandle.get();
 
-    bsl::function<void()> initiateReadCommand(bdlf::BindUtil::bindA(
-                                                d_allocator_p,
+    bsl::function<void()> initiateReadCommand(bdlf::BindUtil::bind(
                                                 &Channel::initiateReadSequence,
-                                                channel,
-                                                channelHandle));
+                                                 channel,
+                                                 channelHandle));
 
     channel->eventManager()->execute(initiateReadCommand);
     return 0;
@@ -3742,17 +3712,16 @@ int ChannelPool::import(
     StreamSocket             *pointer = streamSocket->release(&deleter);
 
     bsl::function<void()> importFunctor(
-                                  bdlf::BindUtil::bindA(d_allocator_p,
-                                                        &ChannelPool::importCb,
-                                                        this,
-                                                        pointer,
-                                                        deleter,
-                                                        manager,
-                                                        manager,
-                                                        sourceId,
-                                                        readEnabledFlag,
-                                                        mode,
-                                                        true));
+                                   bdlf::BindUtil::bind(&ChannelPool::importCb,
+                                                         this,
+                                                         pointer,
+                                                         deleter,
+                                                         manager,
+                                                         manager,
+                                                         sourceId,
+                                                         readEnabledFlag,
+                                                         mode,
+                                                         true));
 
     manager->execute(importFunctor);
     return e_SUCCESS;
@@ -4052,8 +4021,7 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
     ts.d_eventManager_p = manager;
     ts.d_callback       = command;
 
-    bsl::function<void()> functor(bdlf::BindUtil::bindA(d_allocator_p,
-                                                        &ChannelPool::timerCb,
+    bsl::function<void()> functor(bdlf::BindUtil::bind(&ChannelPool::timerCb,
                                                         this,
                                                         clockId));
 
@@ -4095,8 +4063,7 @@ int ChannelPool::registerClock(const bsl::function<void()>& command,
     ts.d_eventManager_p = manager;
     ts.d_callback       = command;
 
-    bsl::function<void()> functor(bdlf::BindUtil::bindA(d_allocator_p,
-                                                        &ChannelPool::timerCb,
+    bsl::function<void()> functor(bdlf::BindUtil::bind(&ChannelPool::timerCb,
                                                         this,
                                                         clockId));
 
