@@ -233,12 +233,10 @@ void my_EchoServer::allocateCb(btlsc::TimedCbChannel *channel, int status) {
     if (channel) {
         // Accepted a connection.  Issue a read raw request.
         bsl::function<void(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &my_EchoServer::readCb
-                      , this
-                      , _1, _2
-                      , channel));
+                bdlf::BindUtil::bind(&my_EchoServer::readCb,
+                                      this,
+                                      _1, _2,
+                                      channel));
 
         if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, callback))
@@ -284,13 +282,11 @@ void my_EchoServer::bufferedReadCb(const char            *buffer,
     ASSERT(channel);
     if (0 < status) {
         bsl::function<void(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &my_EchoServer::writeCb
-                      , this
-                      , _1, _2
-                      , channel
-                      , status));
+                bdlf::BindUtil::bind(&my_EchoServer::writeCb,
+                                      this,
+                                      _1, _2,
+                                      channel,
+                                      status));
         if (channel->timedBufferedWrite(buffer, status,
                 bdlt::CurrentTime::now() + d_writeTimeout, callback))
         {
@@ -300,12 +296,10 @@ void my_EchoServer::bufferedReadCb(const char            *buffer,
         }
         // Re-register read request
         bsl::function<void(const char *, int, int)> readCallback(
-                bdlf::BindUtil::bindA(
-                    d_allocator_p
-                  , &my_EchoServer::bufferedReadCb
-                  , this
-                  , _1, _2, _3
-                  , channel));
+                bdlf::BindUtil::bind(&my_EchoServer::bufferedReadCb,
+                                      this,
+                                      _1, _2, _3,
+                                      channel));
         if (channel->timedBufferedRead(k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
             cout << "Failed to enqueue read request." << endl;
@@ -337,13 +331,11 @@ void my_EchoServer::readCb(int                    status,
     ASSERT(channel);
     if (0 < status) {
         bsl::function<void(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &my_EchoServer::writeCb
-                      , this
-                      , _1, _2
-                      , channel
-                      , status));
+                bdlf::BindUtil::bind(&my_EchoServer::writeCb,
+                                      this,
+                                      _1, _2,
+                                      channel,
+                                      status));
         if (channel->timedBufferedWrite(d_buffer, status,
                 bdlt::CurrentTime::now() + d_writeTimeout, callback))
         {
@@ -353,12 +345,10 @@ void my_EchoServer::readCb(int                    status,
         }
         // Re-register read request
         bsl::function<void(int, int)> readCallback(
-                bdlf::BindUtil::bindA(
-                        d_allocator_p
-                      , &my_EchoServer::readCb
-                      , this
-                      , _1, _2
-                      , channel));
+                bdlf::BindUtil::bind(&my_EchoServer::readCb,
+                                      this,
+                                      _1, _2,
+                                      channel));
         if (channel->timedReadRaw(d_buffer, k_READ_SIZE,
                 bdlt::CurrentTime::now() + d_readTimeout, readCallback)) {
             cout << "Failed to enqueue read request." << endl;

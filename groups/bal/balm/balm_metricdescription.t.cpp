@@ -197,9 +197,7 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = bdlf::BindUtil::bindA(
-                                                     d_allocator_p,
-                                                     &ConcurrencyTest::execute,
+    bsl::function<void()> job = bdlf::BindUtil::bind(&ConcurrencyTest::execute,
                                                      this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);

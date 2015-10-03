@@ -322,8 +322,7 @@ enum {
                                    int                    status) {
         if (channel) {
             // Accepted a connection.  Issue a read raw request.
-            bsl::function<void(int, int)> callback(bdlf::BindUtil::bindA(
-                          d_allocator_p,
+            bsl::function<void(int, int)> callback(bdlf::BindUtil::bind(
                           bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
                           _1,
                           _2,
@@ -368,8 +367,7 @@ enum {
              << " read " << status << " bytes." << endl;
         ASSERT(channel);
         if (0 < status) {
-            bsl::function<void(int, int)> callback(bdlf::BindUtil::bindA(
-                         d_allocator_p,
+            bsl::function<void(int, int)> callback(bdlf::BindUtil::bind(
                          bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
                          _1,
                          _2,
@@ -386,8 +384,7 @@ enum {
             }
             // Re-register read request
             bsl::function<void(const char *, int, int)> readCallback(
-                bdlf::BindUtil::bindA(
-                         d_allocator_p,
+                bdlf::BindUtil::bind(
                          bdlf::MemFnUtil::memFn(&my_EchoServer::bufferedReadCb,
                                                 this),
                          _1,
@@ -426,8 +423,7 @@ enum {
         ASSERT(channel);
         if (0 < status) {
             bsl::function<void(int, int)> callback(
-                bdlf::BindUtil::bindA(
-                         d_allocator_p,
+                bdlf::BindUtil::bind(
                          bdlf::MemFnUtil::memFn(&my_EchoServer::writeCb, this),
                          _1,
                          _2,
@@ -445,8 +441,7 @@ enum {
                 }
             // Re-register read request
             bsl::function<void(int, int)> readCallback(
-                  bdlf::BindUtil::bindA(
-                          d_allocator_p,
+                  bdlf::BindUtil::bind(
                           bdlf::MemFnUtil::memFn(&my_EchoServer::readCb, this),
                           _1,
                           _2,

@@ -165,24 +165,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_constructorproxy.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
-#include <bslalg_typetraithaspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
@@ -191,6 +179,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_FORWARDINGTYPE
 #include <bslmf_forwardingtype.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
+#include <bslmf_haspointersemantics.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -205,12 +197,18 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
 
 
 namespace BloombergLP {
+
+namespace bslma { class Allocator; }
 
 namespace bdlf {
                           // =======================
@@ -247,8 +245,7 @@ struct MemFn_Dereference {
     static inline OBJTYPE& deref(TYPE& obj)
     {
         enum { k_POINTER_SEMANTICS = bslmf::IsPointer<TYPE>::VALUE
-                    || bslalg::HasTrait<TYPE,
-                                bslalg::TypeTraitHasPointerSemantics>::VALUE };
+                                  || bslmf::HasPointerSemantics<TYPE>::value};
 
         return derefImp(obj, (bslmf::MetaInt<k_POINTER_SEMANTICS> *)0);
     }
@@ -257,8 +254,7 @@ struct MemFn_Dereference {
     static inline OBJTYPE& deref(const TYPE& obj)
     {
         enum { k_POINTER_SEMANTICS = bslmf::IsPointer<TYPE>::VALUE
-                    || bslalg::HasTrait<TYPE,
-                                bslalg::TypeTraitHasPointerSemantics>::VALUE };
+                                  || bslmf::HasPointerSemantics<TYPE>::value};
 
         return derefImp(obj, (bslmf::MetaInt<k_POINTER_SEMANTICS> *)0);
     }
@@ -350,8 +346,8 @@ class MemFn {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseCopyable);
-    BSLALG_DECLARE_NESTED_TRAITS(MemFn, bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(MemFn, bslmf::IsBitwiseMoveable);
 
     // CREATORS
     explicit
@@ -779,7 +775,7 @@ class MemFnInstance {
     // fourteen additional arguments may be specified depending on the
     // 'PROTOTYPE'.  Note that whether 'INSTANCE' is a pointer or a reference
     // is determined by whether it has pointer semantics or not (as determined
-    // by the 'bslalg::TypeTraitHasPointerSemantics' type trait).
+    // by the 'bslmf::HasPointerSemantics' type trait).
 
     // PRIVATE TYPES
     typedef bslmf::MemberFunctionPointerTraits<PROTOTYPE> Traits;
@@ -853,10 +849,8 @@ class MemFnInstance {
     // PRIVATE ACCESSORS
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
-    BSLALG_DECLARE_NESTED_TRAITS(MemFnInstance,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslma::UsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MemFnInstance, bslmf::IsBitwiseMoveable);
 
     // CREATORS
     MemFnInstance(PROTOTYPE         func,

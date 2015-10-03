@@ -1,29 +1,25 @@
 // bdlf_bind.t.cpp                                                    -*-C++-*-
 #include <bdlf_bind.h>
 
-#include <bsls_bsltestutil.h>
-
 #include <bdlf_bind_test.h>
 #include <bdlf_placeholder.h>
-
-#include <bslalg_typetraits.h>
-
-#include <bslmf_nil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_nil.h>
+
 #include <bsls_platform.h>
+#include <bsls_bsltestutil.h>
 
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>    // atoi()
-#include <bsl_cstring.h>    // strcpy()
-#include <bsl_functional.h>
+#include <bsl_cstdlib.h>        // 'atoi'
+#include <bsl_cstring.h>        // 'strcpy'
+#include <bsl_functional.h>     // 'ref', 'cref'
 #include <bsl_string.h>
 
-#include <bsl_functional.h>  // ref, cref
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -58,7 +54,7 @@ using namespace bsl;  // automatically added by script
 //
 // This is a large component by the number of lines of code, and even more so
 // since it is a template and has at least *four* orthogonal dimensions: the
-// family of factory methods ('bind', bindA', or 'bindR'), the nature of the
+// family of factory methods ('bind', bindR', or 'bindS'), the nature of the
 // bound object (free function pointer or reference, member function pointer,
 // and function object by reference or by value), the number of arguments (from
 // 0 up to 14 for function objects, and 0 up to 13 for free and member
@@ -73,8 +69,8 @@ using namespace bsl;  // automatically added by script
 // case [3]), it is impractical to test the remaining almost thousand
 // combinations in a single component (due to limitation in the compilation
 // time of test driver).  We therefore split the testing into 14 components and
-// delegate the combinations of the family of factory methods ('bind', bindA',
-// or 'bindR'), the nature of the bound object (free function pointer or
+// delegate the combinations of the family of factory methods ('bind', bindR',
+// or 'bindS'), the nature of the bound object (free function pointer or
 // reference, member function pointer, and function object by reference or by
 // value), and the allocation model, when invoked with 'N' arguments to the
 // component 'bdlf::bind_testN'.  It remains here only to test the concerns
@@ -85,7 +81,7 @@ using namespace bsl;  // automatically added by script
 // allocators know about 'bdlf::Bind' using the 'bslma::Allocator' protocol
 // (case 2).  Then we test the mix of placeholders and bound arguments (case
 // 3).  We also test the additional concerns about passing 'bdlf_bind' objects
-// as parameters to the various 'bdlf::BindUtil::bind", 'bindA' and 'bindR'
+// as parameters to the various 'bdlf::BindUtil::bind", 'bindR' and 'bindS'
 // (case 4) and about respecting the signature of the invocable (case 5).
 // Finally, we make sure the usage example compiles and runs as advertised
 // (case 6).
@@ -152,7 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bsls::Types::Int64 Int64;
 
-int globalVerbose = 0;
+bool globalVerbose = false;
 
 // The whole bdlf_bind component currently works with up to 14 arguments.
 
@@ -278,7 +274,7 @@ int myFunctionWithExternCLinkage(int x)
 
 }  // extern "C"
 
-namespace BDEF_BIND_TEST_CASE_5 {
+namespace BDLF_BIND_TEST_CASE_5 {
 
 int myFunctionWithConstnessMix(const int   a1,
                                const int&  a2,
@@ -450,14 +446,14 @@ struct ConcreteDerivedClass : public AbstractBaseClass {
     virtual int test() const { return 2; }
 };
 
-}  // close namespace BDEF_BIND_TEST_CASE_5
+}  // close namespace BDLF_BIND_TEST_CASE_5
 
 // ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 4
 // ----------------------------------------------------------------------------
-namespace BDEF_BIND_TEST_CASE_4 {
+namespace BDLF_BIND_TEST_CASE_4 {
 
-#define BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                                  \
+#define BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                                  \
                     NoAllocTestArg1  const& a1,  NoAllocTestArg2  const& a2,  \
                     NoAllocTestArg3  const& a3,  NoAllocTestArg4  const& a4,  \
                     NoAllocTestArg5  const& a5,  NoAllocTestArg6  const& a6,  \
@@ -476,7 +472,7 @@ namespace BDEF_BIND_TEST_CASE_4 {
     // The use of the 14 arguments for each of these functions to avoid getting
     // an unused parameter compiler warning.
 
-int sumOf14Arguments( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+int sumOf14Arguments( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     return a1.value()
          + a2.value()
@@ -494,107 +490,107 @@ int sumOf14Arguments( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
          + a14.value();
 }
 
-NoAllocTestArg1 selectArgument1( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg1 selectArgument1( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a1.value(),  1);
     return a1;
 }
 
-NoAllocTestArg2 selectArgument2( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg2 selectArgument2( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a2.value(),  2);
     return a2;
 }
 
-NoAllocTestArg3 selectArgument3( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg3 selectArgument3( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a3.value(),  3);
     return a3;
 }
 
-NoAllocTestArg4 selectArgument4( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg4 selectArgument4( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a4.value(),  4);
     return a4;
 }
 
-NoAllocTestArg5 selectArgument5( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg5 selectArgument5( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a5.value(),  5);
     return a5;
 }
 
-NoAllocTestArg6 selectArgument6( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg6 selectArgument6( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a6.value(),  6);
     return a6;
 }
 
-NoAllocTestArg7 selectArgument7( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg7 selectArgument7( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a7.value(),  7);
     return a7;
 }
 
-NoAllocTestArg8 selectArgument8( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg8 selectArgument8( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a8.value(),  8);
     return a8;
 }
 
-NoAllocTestArg9 selectArgument9( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg9 selectArgument9( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a9.value(),  9);
     return a9;
 }
 
-NoAllocTestArg10 selectArgument10( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg10 selectArgument10( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a10.value(),  10);
     return a10;
 }
 
-NoAllocTestArg11 selectArgument11( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg11 selectArgument11( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a11.value(),  11);
     return a11;
 }
 
-NoAllocTestArg12 selectArgument12( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg12 selectArgument12( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a12.value(),  12);
     return a12;
 }
 
-NoAllocTestArg13 selectArgument13( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg13 selectArgument13( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a13.value(),  13);
     return a13;
 }
 
-NoAllocTestArg14 selectArgument14( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
+NoAllocTestArg14 selectArgument14( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsNoAlloc::setSlot(a14.value(),  14);
     return a14;
 }
 
-#undef BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
+#undef BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
 
-#define BDEF_BIND_TEST_ALLOC_14_ARGUMENTS                                     \
+#define BDLF_BIND_TEST_ALLOC_14_ARGUMENTS                                     \
                         AllocTestArg1  const& a1,  AllocTestArg2  const& a2,  \
                         AllocTestArg3  const& a3,  AllocTestArg4  const& a4,  \
                         AllocTestArg5  const& a5,  AllocTestArg6  const& a6,  \
@@ -606,63 +602,63 @@ NoAllocTestArg14 selectArgument14( BDEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 // Note that the return value is a const& to avoid inadvertently triggering a
 // copy that would use the default allocator.
 
-AllocTestArg1 const& selectAllocArgument1( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg1 const& selectAllocArgument1( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a1.allocator(),  1);
     return a1;
 }
 
-AllocTestArg2 const& selectAllocArgument2( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg2 const& selectAllocArgument2( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a2.allocator(),  2);
     return a2;
 }
 
-AllocTestArg3 const& selectAllocArgument3( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg3 const& selectAllocArgument3( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a3.allocator(),  3);
     return a3;
 }
 
-AllocTestArg4 const& selectAllocArgument4( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg4 const& selectAllocArgument4( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a4.allocator(),  4);
     return a4;
 }
 
-AllocTestArg5 const& selectAllocArgument5( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg5 const& selectAllocArgument5( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a5.allocator(),  5);
     return a5;
 }
 
-AllocTestArg6 const& selectAllocArgument6( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg6 const& selectAllocArgument6( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a6.allocator(),  6);
     return a6;
 }
 
-AllocTestArg7 const& selectAllocArgument7( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg7 const& selectAllocArgument7( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a7.allocator(),  7);
     return a7;
 }
 
-AllocTestArg8 const& selectAllocArgument8( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg8 const& selectAllocArgument8( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a8.allocator(),  8);
     return a8;
 }
 
-AllocTestArg9 const& selectAllocArgument9( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+AllocTestArg9 const& selectAllocArgument9( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a9.allocator(),  9);
@@ -670,7 +666,7 @@ AllocTestArg9 const& selectAllocArgument9( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
 }
 
 AllocTestArg10 const&
-                     selectAllocArgument10( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+                     selectAllocArgument10( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a10.allocator(),  10);
@@ -678,7 +674,7 @@ AllocTestArg10 const&
 }
 
 AllocTestArg11 const&
-                     selectAllocArgument11( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+                     selectAllocArgument11( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a11.allocator(),  11);
@@ -686,7 +682,7 @@ AllocTestArg11 const&
 }
 
 AllocTestArg12 const&
-                     selectAllocArgument12( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+                     selectAllocArgument12( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a12.allocator(),  12);
@@ -694,7 +690,7 @@ AllocTestArg12 const&
 }
 
 AllocTestArg13 const&
-                     selectAllocArgument13( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+                     selectAllocArgument13( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a13.allocator(),  13);
@@ -702,7 +698,7 @@ AllocTestArg13 const&
 }
 
 AllocTestArg14 const&
-                     selectAllocArgument14( BDEF_BIND_TEST_ALLOC_14_ARGUMENTS )
+                     selectAllocArgument14( BDLF_BIND_TEST_ALLOC_14_ARGUMENTS )
 {
     USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
     SlotsAlloc::setSlot(a14.allocator(),  14);
@@ -710,14 +706,14 @@ AllocTestArg14 const&
 }
 
 #undef USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS
-#undef BDEF_BIND_TEST_ALLOC_14_ARGUMENTS
+#undef BDLF_BIND_TEST_ALLOC_14_ARGUMENTS
 
-}  // close namespace BDEF_BIND_TEST_CASE_4
+}  // close namespace BDLF_BIND_TEST_CASE_4
 
 // ----------------------------------------------------------------------------
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 3
 // ----------------------------------------------------------------------------
-namespace BDEF_BIND_TEST_CASE_3 {
+namespace BDLF_BIND_TEST_CASE_3 {
 
 template <// Types of bound arguments, could be I1-14, or placeholder.
           class B1,  class B2,  class B3,  class B4,  class B5,
@@ -762,12 +758,12 @@ void testPlaceHolder(
     ASSERT(EXPECTED == X);
 }
 
-}  // close namespace BDEF_BIND_TEST_CASE_3
+}  // close namespace BDLF_BIND_TEST_CASE_3
 
 // ============================================================================
 //                   BREATHING TEST CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
-namespace BDEF_BIND_BREATHING_TEST {
+namespace BDLF_BIND_BREATHING_TEST {
 
 using namespace bdlf::PlaceHolders;
 
@@ -1137,8 +1133,7 @@ using namespace bdlf::PlaceHolders;
 
       public:
         // TRAITS
-        BSLALG_DECLARE_NESTED_TRAITS(MyString,
-                                     bslalg::TypeTraitUsesBslmaAllocator);
+        BSLMF_NESTED_TRAIT_DECLARATION(MyString, bslma::UsesBslmaAllocator);
 
         //CREATORS
         MyString(const char *str, bslma::Allocator *allocator = 0)
@@ -1172,34 +1167,18 @@ using namespace bdlf::PlaceHolders;
         const Int64 NUM_ALLOCS = allocator.numAllocations();
 //..
 // To expose that the default allocator is not used, we will use a default
-// allocator guard, which will re-route any default allocation to the
+// allocator guard, which will re-route any default allocation to the local
 // 'defaultAllocator':
 //..
         bslma::TestAllocator defaultAllocator("Default", globalVerbose);
         bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
         const Int64 NUM_DEFAULT_ALLOCS = defaultAllocator.numAllocations();
 //..
-// We now create a binder object with allocator using 'bindA'.  If the bound
-// object were an instance of a class taking an allocator, then 'allocator'
-// would be passed to its copy constructor; in this case, 'allocator' will be
-// ignored.  But 'allocator' *will* be used to make the copy of 'myString' held
-// by the binder:
-//..
-        callBinder(
-              bdlf::BindUtil::bindA(&allocator, &invocable, _1, _2, myString));
-//..
-// We now check that memory was allocated from the test allocator, and none
-// from the default allocator:
-//..
-        ASSERT(NUM_ALLOCS != allocator.numAllocations());
-//#ifndef BSLS_PLATFORM_CMP_MSVC
-        // MSVC 2005 does NOT use the RVO, so bindA does a copy construction
-        // with the default allocator.
-        ASSERT(NUM_DEFAULT_ALLOCS == defaultAllocator.numAllocations());
-//#endif
-
-//..
-// We repeat the same calls using 'bindS' below:
+// We now create a shared binder object with 'allocator' using 'bindS'.  If the
+// bound object were an instance of a class taking an allocator, then
+// 'allocator' would be passed to its copy constructor; in this case.  In this
+// case, 'allocator' will be used to make the copy of 'myString' held by the
+// binder:
 //..
         callBinder(
               bdlf::BindUtil::bindS(&allocator, &invocable, _1, _2, myString));
@@ -1215,12 +1194,12 @@ using namespace bdlf::PlaceHolders;
     }
 //..
 
-}  // close namespace BDEF_BIND_BREATHING_TEST
+}  // close namespace BDLF_BIND_BREATHING_TEST
 
 // ============================================================================
 //                    USAGE EXAMPLE CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
-namespace BDEF_BIND_USAGE_EXAMPLE {
+namespace BDLF_BIND_USAGE_EXAMPLE {
 
 using namespace bdlf::PlaceHolders;
 
@@ -1533,7 +1512,7 @@ using namespace bdlf::PlaceHolders;
 //..
     void bindTest7(bslma::Allocator * = 0)
     {
-        using namespace BDEF_BIND_BREATHING_TEST; // for testing only
+        using namespace BDLF_BIND_BREATHING_TEST; // for testing only
 #if 0
         const char* formatString = "Here it is: %d %d\n";
         callBinder(bdlf::BindUtil::bindR<int>(&printf, formatString, _1, _2));
@@ -1546,11 +1525,11 @@ using namespace bdlf::PlaceHolders;
 //  Here it is: 10 14
 //..
 
-}  // close namespace BDEF_BIND_USAGE_EXAMPLE
+}  // close namespace BDLF_BIND_USAGE_EXAMPLE
 // ============================================================================
 //              USAGE EXAMPLE FROM OTHER TEST DRIVERS FUNCTIONS
 // ----------------------------------------------------------------------------
-namespace BDEF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS {
+namespace BDLF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS {
 
 int onMasterCommand(const int&, int& stream, int *counter = 0)
 {
@@ -1578,7 +1557,7 @@ void enqueuedJob2(const MyInt& ptr1, const MyInt& ptr2) {
     ASSERT(1618034 == ptr2.d_myInt);
 }
 
-}  // close namespace BDEF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS
+}  // close namespace BDLF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS
 // ============================================================================
 //                MACROS EXPORTING INITIALIZATION OUT OF MAIN
 // ----------------------------------------------------------------------------
@@ -1707,7 +1686,7 @@ DEFINE_TEST_CASE(7) {
             printf("\nTesting Usage Example from Other Test Drivers"
                    "\n=============================================\n");
 
-        using namespace BDEF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS;
+        using namespace BDLF_BIND_USAGE_EXAMPLE_FROM_OTHER_TEST_DRIVERS;
         using namespace bdlf::PlaceHolders;
 
         {
@@ -1813,7 +1792,7 @@ DEFINE_TEST_CASE(6) {
         if (verbose) printf("\nTesting Usage Examples"
                             "\n======================\n");
 
-        using namespace BDEF_BIND_USAGE_EXAMPLE;
+        using namespace BDLF_BIND_USAGE_EXAMPLE;
 
         if (verbose) printf("\tmyMainLoop1.\n");
         myMainLoop();
@@ -1885,7 +1864,7 @@ DEFINE_TEST_CASE(5) {
             printf("\nTESTING RESPECTING THE SIGNATURE OF THE INVOCABLE"
                    "\n=================================================\n");
 
-        using namespace BDEF_BIND_TEST_CASE_5;
+        using namespace BDLF_BIND_TEST_CASE_5;
         using namespace bdlf::PlaceHolders;
 
 #if !defined(BSLS_PLATFORM_CMP_IBM)
@@ -2238,7 +2217,7 @@ DEFINE_TEST_CASE(4) {
             printf("\nTESTING PASSING 'bdlf_bind' OBJECTS AS PARAMETERS"
                    "\n=================================================\n");
 
-        using namespace BDEF_BIND_TEST_CASE_4;
+        using namespace BDLF_BIND_TEST_CASE_4;
         using namespace bdlf::PlaceHolders;
 
         if (verbose)
@@ -2374,6 +2353,7 @@ DEFINE_TEST_CASE(4) {
             if (veryVerbose) { printf("%d: X: ", L_); X.print(); }
         }
 
+#if 0
         if (verbose)
             printf("\tPropagating allocators to nested binders.\n");
         {
@@ -2575,7 +2555,7 @@ DEFINE_TEST_CASE(4) {
             const int NUM_DEFAULT_ALLOCS = Z0->numAllocations()
                                          - NUM_DEFAULT_ALLOCS_BEFORE;
 #ifndef BSLS_PLATFORM_CMP_MSVC
-            // MSVC 2005 does NOT use the RVO, so bindA does a copy
+            // MSVC 2005 does NOT use the RVO, so 'bindA' does a copy
             // construction with the default allocator.
             LOOP_ASSERT(NUM_DEFAULT_ALLOCS, 406 == NUM_DEFAULT_ALLOCS);
 #endif
@@ -2609,6 +2589,7 @@ DEFINE_TEST_CASE(4) {
             const int NUM_ALLOCS = Z1->numAllocations() - NUM_ALLOCS_BEFORE;
             LOOP_ASSERT(NUM_ALLOCS, 0 == NUM_ALLOCS);
         }
+#endif // #if 0
 
         if (verbose)
             printf("\tPropagating allocators to nested binders via 'bindS'\n");
@@ -2778,7 +2759,7 @@ DEFINE_TEST_CASE(3) {
         if (verbose) printf("\nMIXING BOUND ARGUMENTS AND PLACEHOLDERS"
                             "\n=======================================\n");
 
-        using namespace BDEF_BIND_TEST_CASE_3;
+        using namespace BDLF_BIND_TEST_CASE_3;
         using namespace bdlf::PlaceHolders;
 
         if (verbose) printf("\tAll placeholders in cyclic permutation.\n");
@@ -3543,13 +3524,13 @@ DEFINE_TEST_CASE(2) {
         // TESTING TRAITS
         //
         // Concern:
-        //   1. That the 'bslalg::TypeTraitUsesBslmaAllocator' traits is
-        //      correctly detected for 'bdlf::Bind' objects, in their two
+        //   1. That the 'bslma::UsesBslmaAllocator' traits is correctly
+        //      detected for 'bdlf::Bind' objects, in their two
         //      implementations.
-        //   2. That the 'bslalg::TypeTraitUsesBslmaAllocator' traits is
-        //      correctly *NOT* detected for 'bdlf::BindWrapper' objects.
-        //   3. That the 'bslalg::TypeTraitHasPointerSemantics' traits is
-        //      correctly detected for 'bdlf::BindWrapper' objects.
+        //   2. That the 'bslma::UsesBslmaAllocator' traits is correctly *NOT*
+        //      detected for 'bdlf::BindWrapper' objects.
+        //   3. That the 'bslmf::HasPointerSemantics' traits is correctly
+        //      detected for 'bdlf::BindWrapper' objects.
         //
         // Plan:
         //   The test class 'bdlf::Bind', 'bdlf::Bind_Impl',
@@ -3569,20 +3550,17 @@ DEFINE_TEST_CASE(2) {
 
         if (verbose) printf("\tAsserting traits of 'bdlf::Bind'.\n");
         {
-            ASSERT(1 == (bslalg::HasTrait<
-                                 bdlf::Bind<bslmf::Nil, FUNC, ListType>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT((bslma::UsesBslmaAllocator<
+                             bdlf::Bind<bslmf::Nil, FUNC, ListType> >::value));
         }
 
         if (verbose) printf("\tAsserting traits of 'bdlf::BindWrapper'.\n");
         {
-            ASSERT(0 == (bslalg::HasTrait<
-                                 bdlf::BindWrapper<bslmf::Nil, FUNC, ListType>,
-                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT(!(bslma::UsesBslmaAllocator<
+                      bdlf::BindWrapper<bslmf::Nil, FUNC, ListType> >::value));
 
-            ASSERT(1 == (bslalg::HasTrait<
-                                bdlf::BindWrapper<bslmf::Nil, FUNC, ListType>,
-                                bslalg::TypeTraitHasPointerSemantics>::VALUE));
+            ASSERT((bslmf::HasPointerSemantics<
+                      bdlf::BindWrapper<bslmf::Nil, FUNC, ListType> >::value));
         }
       }
 
@@ -3602,7 +3580,7 @@ DEFINE_TEST_CASE(1) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        using namespace BDEF_BIND_BREATHING_TEST;
+        using namespace BDLF_BIND_BREATHING_TEST;
 
         if (verbose) printf("\tbindTest1.\n");
         bindTest1();
@@ -3625,14 +3603,12 @@ DEFINE_TEST_CASE(1) {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     globalVerbose = verbose;
-    (void) veryVerbose;      // kill warning about unused variable
-    (void) veryVeryVerbose;  // kill warning about unused variable
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

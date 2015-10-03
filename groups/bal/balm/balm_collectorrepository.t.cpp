@@ -324,8 +324,7 @@ void ThreadTester::execute()
 
 void ThreadTester::runTest()
 {
-    bsl::function<void()> job = bdlf::BindUtil::bindA(d_allocator_p,
-                                                      &ThreadTester::execute,
+    bsl::function<void()> job = bdlf::BindUtil::bind(&ThreadTester::execute,
                                                       this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);

@@ -268,10 +268,9 @@ void MetricConcurrencyTest::execute()
 
 void MetricConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = bdlf::BindUtil::bindA(
-                                               d_allocator_p,
+    bsl::function<void()> job = bdlf::BindUtil::bind(
                                                &MetricConcurrencyTest::execute,
-                                               this);
+                                                this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }

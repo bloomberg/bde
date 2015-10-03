@@ -674,8 +674,7 @@ extern "C" void *executeTest(void *arg) {
     vector<my_Event> results;
     for (int i = 0; i < NUM_EXECUTES; ++i) {
         bsl::function<void()> functor(
-                bdlf::BindUtil::bindA(testAllocator_p, &recordCb, (void*)i,
-                                     &results));
+                bdlf::BindUtil::bind(&recordCb, (void*)i, &results));
         mX->execute(functor);
     }
 
@@ -1468,7 +1467,7 @@ int main(int argc, char *argv[])
 
                 btlso::EventManagerTestPair testPair;
                 bsl::function<void()> callback(
-                       bdlf::BindUtil::bindA(&testAllocator, &disableCb, &mX));
+                       bdlf::BindUtil::bind(&disableCb, &mX));
 
                 mX.registerSocketEvent(testPair.observedFd(),
                                        btlso::EventType::e_WRITE,

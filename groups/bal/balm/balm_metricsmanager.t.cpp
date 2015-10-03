@@ -397,11 +397,10 @@ inline
 balm::MetricsManager::RecordsCollectionCallback TestCallback::function()
 {
     balm::MetricsManager::RecordsCollectionCallback cb =
-        bdlf::BindUtil::bindA(d_allocator_p,
-                             &TestCallback::recordMetrics,
-                             this,
-                             bdlf::PlaceHolders::_1,
-                             bdlf::PlaceHolders::_2);
+        bdlf::BindUtil::bind(&TestCallback::recordMetrics,
+                              this,
+                              bdlf::PlaceHolders::_1,
+                              bdlf::PlaceHolders::_2);
     return cb;
 }
 
@@ -1132,10 +1131,8 @@ void ConcurrencyTest::execute()
 
 void ConcurrencyTest::runTest()
 {
-    bsl::function<void()> job = bdlf::BindUtil::bindA(
-                                                     d_allocator_p,
-                                                     &ConcurrencyTest::execute,
-                                                     this);
+    bsl::function<void()> job = bdlf::BindUtil::bind(&ConcurrencyTest::execute,
+                                                      this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1411,11 +1408,10 @@ void ConcurrencyTest::runTest()
         d_callbackHandle =
            d_metricsManager_p->registerCollectionCallback(
               METRIC_CATEGORY,
-              bdlf::BindUtil::bindA(basicAllocator,
-                                   &EventHandlerWithCallback::collectMetricsCb,
-                                   this,
-                                   bdlf::PlaceHolders::_1,
-                                   bdlf::PlaceHolders::_2));
+              bdlf::BindUtil::bind(&EventHandlerWithCallback::collectMetricsCb,
+                                    this,
+                                    bdlf::PlaceHolders::_1,
+                                    bdlf::PlaceHolders::_2));
     }
 
 //..
@@ -1915,7 +1911,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 ASSERT(found < 2);
-                ASSERT(found == combIt.includesElement(i));
+                ASSERT(static_cast<bool>(found)== combIt.includesElement(i));
             }
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 for (int j = 0; j < NUM_METRICS; ++j) {
@@ -1952,7 +1948,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 ASSERT(found < 2);
-                ASSERT(found == combIt.includesElement(i));
+                ASSERT(static_cast<bool>(found) == combIt.includesElement(i));
             }
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 for (int j = 0; j < NUM_METRICS; ++j) {
