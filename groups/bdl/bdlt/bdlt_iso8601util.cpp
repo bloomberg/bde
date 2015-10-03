@@ -516,7 +516,7 @@ int Iso8601Util::generate(char                            *buffer,
         outLen = generateRaw(outBuf, object, configuration);
         BSLS_ASSERT(outLen == k_DATE_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        bsl::memcpy(buffer, outBuf, bufferLength);
     }
 
     return outLen;
@@ -544,7 +544,7 @@ int Iso8601Util::generate(char                            *buffer,
         outLen = generateRaw(outBuf, object, configuration);
         BSLS_ASSERT(outLen == k_TIME_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        bsl::memcpy(buffer, outBuf, bufferLength);
     }
 
     return outLen;
@@ -572,7 +572,7 @@ int Iso8601Util::generate(char                            *buffer,
         outLen = generateRaw(outBuf, object, configuration);
         BSLS_ASSERT(outLen == k_DATETIME_STRLEN);
 
-        copyBuf(buffer, bufferLength, outBuf, outLen);
+        bsl::memcpy(buffer, outBuf, bufferLength);
     }
 
     return outLen;
