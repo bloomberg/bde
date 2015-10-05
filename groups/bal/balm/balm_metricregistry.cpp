@@ -474,7 +474,6 @@ bsl::ostream& MetricRegistry::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

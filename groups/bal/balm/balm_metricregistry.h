@@ -158,7 +158,6 @@ namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
-
 namespace balm {
 
 class MetricFormat;
@@ -244,7 +243,7 @@ class MetricRegistry {
 
     int                    d_nextKey;        // next valid user data key
 
-    mutable bslmt::RWMutex  d_lock;          // read-write property lock
+    mutable bslmt::RWMutex d_lock;           // read-write property lock
 
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
@@ -472,15 +471,6 @@ class MetricRegistry {
 };
 
 }  // close package namespace
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-                         // --------------------------
-                         // class balm::MetricRegistry
-                         // --------------------------
-
 }  // close enterprise namespace
 
 #endif

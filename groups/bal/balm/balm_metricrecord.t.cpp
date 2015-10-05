@@ -18,17 +18,16 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::MetricRecord' is a simple value object holding to
 // properties that can be written and accessed freely, i.e., there are no
 // constraints placed up their values.
 //
-//-----------------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 3]  balm::MetricRecord();
 // [ 5]  balm::MetricRecord(const balm::MetricRecord&  original);
@@ -63,7 +62,7 @@ using bsl::flush;
 //                       const balm::MetricRecord&);
 // [ 7]  bsl::ostream& operator<<(const bsl::ostream&      stream,
 //                                const balm::MetricRecord& rhs);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
 
@@ -273,7 +272,7 @@ int main(int argc, char *argv[])
     balm::MetricDescription  description(&myCategory, "RequestSize");
     balm::MetricId           requestSizeId(&description);
 
-    // In practice, obtain 'requestSizeId' from a 'balm::MetricRegistry' object.
+    // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
     balm::MetricRecord requestSize(requestSizeId);
 //..
 // Finally we retrieve the information about the request sizes of the

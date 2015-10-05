@@ -115,7 +115,7 @@ class Collector {
     // the default maximum value is 'MetricRecord::k_DEFAULT_MAX'.
 
     // DATA
-    MetricRecord   d_record;  // the recorded metric information
+    MetricRecord         d_record;  // the recorded metric information
     mutable bslmt::Mutex d_lock;    // record synchronization mechanism
 
     // NOT IMPLEMENTED

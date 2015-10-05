@@ -377,7 +377,7 @@ BSLS_IDENT("$Id: $")
 // metrics.
 //
 ///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //

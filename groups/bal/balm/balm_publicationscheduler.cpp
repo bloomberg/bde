@@ -491,8 +491,8 @@ void PublicationScheduler::scheduleCategory(
         clock->handle() = d_scheduler_p->startClock(
                           interval,
                           bdlf::BindUtil::bind(&PublicationScheduler::publish,
-                                                this,
-                                                clock));
+                                               this,
+                                               clock));
     }
     else {
         clock = clockIt->second;
@@ -574,15 +574,14 @@ void PublicationScheduler::setDefaultSchedule(
         clock->handle() = d_scheduler_p->startClock(
             interval,
             bdlf::BindUtil::bind(&PublicationScheduler::publish,
-                                  this,
-                                  clock));
+                                 this,
+                                 clock));
     }
 
     proctor.release();
 }
 
-int PublicationScheduler::cancelCategorySchedule(
-                                                 const Category *category)
+int PublicationScheduler::cancelCategorySchedule(const Category *category)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
@@ -640,7 +639,7 @@ PublicationScheduler::getDefaultSchedule(bsls::TimeInterval *result) const
 }
 
 int PublicationScheduler::getCategorySchedule(
-                      bsl::vector<bsl::pair<const Category *,
+                     bsl::vector<bsl::pair<const Category *,
                                            bsls::TimeInterval> > *result) const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
@@ -654,9 +653,9 @@ int PublicationScheduler::getCategorySchedule(
 }
 
 bsl::ostream&
-PublicationScheduler::print(bsl::ostream&   stream,
-                                 int        level,
-                                 int        spacesPerLevel) const
+PublicationScheduler::print(bsl::ostream& stream,
+                            int           level,
+                            int           spacesPerLevel) const
 {
     // We must sort the various sets of categories alphabetically to ensure
     // that the resulting formatted text is consistent (for testing).
@@ -733,8 +732,8 @@ PublicationScheduler::print(bsl::ostream&   stream,
 
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

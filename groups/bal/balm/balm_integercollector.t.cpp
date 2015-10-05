@@ -26,15 +26,15 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::IntegerCollector' is a mechanism for collecting and recording
 // aggregated metric values.  Ensure values can be accumulated into and read
 // out of the container, and that the operations are thread safe.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 3]  balm::Collector(const balm::MetricId& metric);
 // [ 3]  ~balm::Collector();
@@ -52,7 +52,7 @@ using bsl::flush;
 // ACCESSORS
 // [ 2]  const balm::MetricId& metric() const;
 // [ 2]  void load(balm::MetricRecord *record) const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCURRENCY TEST
 // [ 9] USAGE EXAMPLE

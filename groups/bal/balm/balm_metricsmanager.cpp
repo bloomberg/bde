@@ -231,16 +231,15 @@ class MetricsManager_PublisherRegistry {
     // 'MetricsManager' object.
 
     // PRIVATE TYPES
-    typedef bsl::shared_ptr<Publisher>           PublisherPtr;
+    typedef bsl::shared_ptr<Publisher>                    PublisherPtr;
         // 'PublisherPtr' is an alias for a shared pointer to a 'Publisher'
         // object.
 
-    typedef bsl::multimap<const Category *, PublisherPtr>
-                                                            SpecificPublishers;
+    typedef bsl::multimap<const Category *, PublisherPtr> SpecificPublishers;
         // 'SpecificPublishers' is an alias for a map from a category to the
         // set of publishers for that category.
 
-    typedef bsl::set<PublisherPtr>                    PublisherSet;
+    typedef bsl::set<PublisherPtr>                        PublisherSet;
         // 'PublisherSet' type is an alias for set of managed pointers to
         // publisher objects.
 
@@ -1167,8 +1166,8 @@ int MetricsManager::findSpecificPublishers(
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_rwLock);
     return d_publishers->findSpecificPublishers(publishers, category);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

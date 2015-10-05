@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // metric will have no effect.
 //
 ///Choosing between 'balm::Metric' and Macros
-///-----------------------------------------
+///------------------------------------------
 // The 'balm::Metric' class and the macros defined in 'balm_metrics' provide
 // the same basic functionality.  Clients may find 'balm::Metric' objects
 // better suited to collecting metrics associated with a particular instance
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 // metrics.
 //
 ///Example 1 - Metric collection with 'balm::Metric'
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // We can use 'balm::Metric' objects to record metric values.  In this
 // example we implement a hypothetical event manager object.  We use
 // 'balm::Metric' objects to record metrics for the size of the request, the
@@ -404,7 +404,7 @@ struct Metric_MacroImp {
         // metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
-        // valid collector' when 'holder->enabled()' is 'true'.
+        // valid 'collector' when 'holder->enabled()' is 'true'.
 };
 
 // ============================================================================
@@ -523,6 +523,7 @@ bool Metric::isActive() const
 {
     return d_isEnabled_p && d_isEnabled_p->loadRelaxed();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

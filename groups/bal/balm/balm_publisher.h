@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 // event manager.
 //
 ///Example 1 -- Implementing the 'balm::Publisher' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates a simple implementation of the
 // 'balm::Publisher' protocol.  This implementation publishes the metric
 // records to an output stream provided on construction.
@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //  };
 //..
 ///Example 3 -- Publishing Collected Metrics Using 'EventManager'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this final example, we publish metrics collected for the 'EventManager'
 // object (defined above).
 //
@@ -213,7 +213,9 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 namespace BloombergLP {
 
 
-namespace balm {class MetricSample;
+namespace balm {
+
+class MetricSample;
 
                               // ===============
                               // class Publisher
@@ -236,16 +238,8 @@ class Publisher {
         // that the recorded metric values will be distributed in a human or
         // machine readable form.
 };
+
 }  // close package namespace
-
-// ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-                           // ---------------------
-                           // class balm::Publisher
-                           // ---------------------
-
 }  // close enterprise namespace
 
 #endif

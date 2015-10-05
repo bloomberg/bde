@@ -18,8 +18,8 @@ namespace balm {
 Publisher::~Publisher()
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -93,7 +93,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace balm {class MetricSample;
+namespace balm {
+
+class MetricSample;
 
                            // =====================
                            // class StreamPublisher
@@ -140,8 +142,8 @@ StreamPublisher::StreamPublisher(bsl::ostream& stream)
 : d_stream(stream)
 {
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

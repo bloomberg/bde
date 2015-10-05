@@ -202,8 +202,8 @@ void StreamPublisher::publish(const MetricSample& metricValues)
         }
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

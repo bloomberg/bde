@@ -81,8 +81,8 @@ void IntegerCollector::load(MetricRecord *record) const
                        ? MetricRecord::k_DEFAULT_MAX
                        : max;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

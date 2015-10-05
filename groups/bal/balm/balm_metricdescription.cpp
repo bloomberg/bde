@@ -45,8 +45,8 @@ bsl::ostream& MetricDescription::printDescription(
 
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -36,9 +36,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::MetricRegistry' is a mechanism for registering category and
@@ -46,7 +46,7 @@ using bsl::flush;
 // found and that the container is thread safe.  Finally, this container
 // guarantees a single address is provided for each unique string value
 // returned (in either a metric name or category name).
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 2]  balm::MetricRegistry(bslma::Allocator *);
 // [ 2]  ~balm::MetricRegistry();
@@ -70,7 +70,7 @@ using bsl::flush;
 // [ 2]  const balm::Category *findCategory(const StringRef& ) const;
 // [ 5]  void getAllCategories(bsl::vector<const balm::Category *> *) const;
 // [ 7]  bsl::ostream& print(bsl::ostream& , int, int) const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] TESTING UNIQUE ADDRESSES FOR EQUAL STRING VALUES
 // [ 9] BSLMA ALLOCATION EXCEPTION TEST
@@ -174,7 +174,7 @@ class ConcurrencyTest {
   public:
 
     // CREATORS
-    ConcurrencyTest(int                  numThreads,
+    ConcurrencyTest(int                   numThreads,
                     balm::MetricRegistry *registry,
                     bslma::Allocator     *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
@@ -1159,8 +1159,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That 'addId', 'getId', 'addCategory', and 'getCategory' create
-        //   'balm::MetricDescription' and 'balm::Category' objects that contain
-        //   a unique address for each unique string value
+        //   'balm::MetricDescription' and 'balm::Category' objects that
+        //   contain a unique address for each unique string value
         //
         // Plan:
         //   Perform a combination of 'addCategory', 'getCategory', 'addId',
@@ -1441,7 +1441,8 @@ int main(int argc, char *argv[])
 
             Obj mX(Z); const Obj& MX = mX;
             {
-                bsl::vector<const balm::Category *> categories(initialVector,Z);
+                bsl::vector<const balm::Category *>
+                                                   categories(initialVector,Z);
                 int exp_allocations = allocator.numAllocations();
                 MX.getAllCategories(&categories);
                 ASSERT(categories      == initialVector);
@@ -1460,7 +1461,8 @@ int main(int argc, char *argv[])
                 bsl::vector<const balm::Category *> exp_categories(Z);
                 MX.getAllCategories(&exp_categories);
 
-                bsl::vector<const balm::Category *> categories(initialVector,Z);
+                bsl::vector<const balm::Category *>
+                                                   categories(initialVector,Z);
                 int exp_allocations = allocator.numAllocations() + 1;
                 MX.getAllCategories(&categories);
                 ASSERT(exp_allocations <= allocator.numAllocations());

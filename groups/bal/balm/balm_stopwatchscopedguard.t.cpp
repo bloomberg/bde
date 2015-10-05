@@ -31,9 +31,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The 'balm::StopwatchScopedGuard' provides a mechanism and macros for
@@ -43,7 +43,7 @@ using bsl::flush;
 // 'ELAPSED TIME VALUE' test, ensure that the correct metric is updated,
 // the 'ELAPSED TIME VALUE' test verifies that the class records a reasonable
 // elapsed time to that metric.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 4]  explicit balm::StopwatchScopedGuard(balm::Metric *metric);
 // [ 3]  explicit balm::StopwatchScopedGuard(balm::Collector *collector);
@@ -55,7 +55,7 @@ using bsl::flush;
 // [ 3]  ~balm::StopwatchScopedGuard();
 // ACCESSORS
 // [ 3]  bool isActive() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] 'TestPublisher'                             (helper classes)
 // [ 3] TESTING REPORTED TIME UNITS
@@ -368,8 +368,8 @@ bool TestPublisher::contains(const balm::MetricId& id) const
 // ----------------------------------------------------------------------------
 
 //..
-///Example 2 - Metric collection with 'balm::StopwatchScopedGuard'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
 // processor similar to the one in example 3.  We use a 'balm::Metric'
@@ -443,8 +443,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Example 1 - Create and configure the default 'balm::MetricsManager' instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //

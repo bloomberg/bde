@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // to the supplied metric.
 //
 ///Choosing Between 'balm::StopwatchScopedGuard' and Macros
-///-------------------------------------------------------
+///--------------------------------------------------------
 // The 'balm::StopwatchScopedGuard' class and the macros defined in the
 // 'balm_metrics' component provide the same basic functionality.  Clients may
 // find that using a 'balm::StopwatchScopedGuard' object (in coordination with
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // of code using a 'balm::StopwatchScopedGuard'.
 //
 ///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // the 'balm::DefaultMetricsManager::release' method.
 //
 ///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
 // processor similar to the one in example 3.  We use a 'balm::Metric'
@@ -438,8 +438,8 @@ bool StopwatchScopedGuard::isActive() const
     return 0 != d_collector_p
         && d_collector_p->metricId().category()->enabled();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

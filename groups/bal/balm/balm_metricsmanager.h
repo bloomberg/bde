@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // 'balm::MetricsManager' object with which they are registered.
 //
 ///Registered 'RecordsCollectionCallback' Implementations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Implementations of 'balm::MetricsManager::RecordsCollectionCallback'
 // registered with a 'balm::MetricsManager' will be invoked by a function
 // holding mutex locks that provide synchronized access to data in that
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // metrics.
 //
 ///Example 1 - Initialize a 'balm::MetricsManager'
-///- - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create and configure a
 // 'balm::MetricsManager' that we will use to record and publish metric values.
 // We first create a 'balm::MetricsManager' object and a
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //
 //..
 ///Example 2 - Recording Metric Values with 'balm::Collector'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This second example demonstrates using 'balm::Collector' objects (obtained
 // from a metrics manager's collector repository) to collect metrics related to
 // a hypothetical 'EventHandler' class.  On construction, the event handler
@@ -941,8 +941,8 @@ const MetricRegistry& MetricsManager::metricRegistry() const
 {
     return d_metricRegistry;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -107,7 +107,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace balm {class Category;
+namespace balm {
+
+class Category;
 class MetricFormat;
 
                           // =======================
@@ -352,6 +354,7 @@ const void *MetricDescription::userData(UserDataKey key) const
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return ((unsigned int)key < d_userData.size()) ? d_userData[key] : 0;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

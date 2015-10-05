@@ -292,8 +292,8 @@ class MetricFormat {
         // the currently installed default allocator is used.  Note that
         // 'formatSpec' will return 0 for all supplied publication types.
 
-    MetricFormat(const MetricFormat&    original,
-                      bslma::Allocator *basicAllocator = 0);
+    MetricFormat(const MetricFormat&  original,
+                 bslma::Allocator    *basicAllocator = 0);
         // Create a metric format object having the same value as the specified
         // 'original' format.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -486,9 +486,8 @@ MetricFormat::operator=(const MetricFormat& rhs)
 }
 
 inline
-void MetricFormat::setFormatSpec(
-                                  PublicationType::Value  publicationType,
-                                  const MetricFormatSpec& formatSpec)
+void MetricFormat::setFormatSpec(PublicationType::Value  publicationType,
+                                 const MetricFormatSpec& formatSpec)
 {
     if (d_formatSpecs.empty()) {
         d_formatSpecs.resize(PublicationType::k_LENGTH);
@@ -505,7 +504,7 @@ void MetricFormat::clearFormatSpecs()
 // ACCESSORS
 inline
 const MetricFormatSpec *MetricFormat::formatSpec(
-                             PublicationType::Value publicationType) const
+                                  PublicationType::Value publicationType) const
 {
     if (d_formatSpecs.empty()) {
         return 0;                                                     // RETURN
@@ -513,6 +512,7 @@ const MetricFormatSpec *MetricFormat::formatSpec(
     const AggregateFormatSpec& spec = d_formatSpecs[publicationType];
     return spec.isNull() ? 0 : &spec.value();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

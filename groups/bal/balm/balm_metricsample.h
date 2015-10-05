@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // Now we create the two arrays of metric records whose addresses we will
 // later add to the metric sample:
 //..
-//  balm::MetricRecord buffer1[] = { recordA, recordB };
+//  balm::MetricRecord              buffer1[] = { recordA, recordB };
 //  bsl::vector<balm::MetricRecord> buffer2(allocator);
 //  buffer2.push_back(recordC);
 //..
@@ -88,15 +88,15 @@ BSLS_IDENT("$Id: $")
 //..
 // We can verify the basic properties of our sample:
 //..
-//       assert(timeStamp            == sample.timeStamp());
-//       assert(2                    == sample.numGroups());
-//       assert(3                    == sample.numRecords());
+//       assert(timeStamp             == sample.timeStamp());
+//       assert(2                     == sample.numGroups());
+//       assert(3                     == sample.numRecords());
 //       assert(bsls::TimeInterval(1) == sample.sampleGroup(0).elapsedTime());
-//       assert(buffer1              == sample.sampleGroup(0).records());
-//       assert(2                    == sample.sampleGroup(0).numRecords());
+//       assert(buffer1               == sample.sampleGroup(0).records());
+//       assert(2                     == sample.sampleGroup(0).numRecords());
 //       assert(bsls::TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
-//       assert(buffer2.data()       == sample.sampleGroup(1).records());
-//       assert(1                    == sample.sampleGroup(1).numRecords());
+//       assert(buffer2.data()        == sample.sampleGroup(1).records());
+//       assert(1                     == sample.sampleGroup(1).numRecords());
 //..
 // Finally we can obtain an iterator over the sample's sequence of groups.  In
 // this simple example, we iterate over the groups of records in the sample
@@ -170,7 +170,7 @@ class MetricSampleGroup {
 
     int                 d_numRecords;  // number of records in array
 
-    bsls::TimeInterval        d_elapsedTime; // interval described by records
+    bsls::TimeInterval  d_elapsedTime; // interval described by records
 
   public:
     // PUBLIC TYPES
@@ -543,6 +543,7 @@ MetricSampleGroup::const_iterator MetricSampleGroup::end() const
 {
     return d_records_p + d_numRecords;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

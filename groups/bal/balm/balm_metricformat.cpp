@@ -25,11 +25,11 @@ namespace BloombergLP {
 const char *balm::MetricFormatSpec::k_DEFAULT_FORMAT = "%f";
 
 namespace balm {
+
 // CLASS METHODS
-bsl::ostream& MetricFormatSpec::formatValue(
-                                       bsl::ostream&           stream,
-                                       double                  value,
-                                       const MetricFormatSpec& format)
+bsl::ostream& MetricFormatSpec::formatValue(bsl::ostream&           stream,
+                                            double                  value,
+                                            const MetricFormatSpec& format)
 {
     enum { e_INITIAL_BUFFER_SIZE = 32 };
 
@@ -117,8 +117,8 @@ bsl::ostream& MetricFormat::print(bsl::ostream& stream,
     stream << " ]" << NL;
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -130,8 +130,8 @@ void ConfigurationUtil::setUserData(
         registry.setUserData(categoryName, key, value, false);
     }
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

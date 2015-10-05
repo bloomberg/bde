@@ -159,14 +159,14 @@ class IntegerCollector {
         // minimum, and maximum values to their default states.  After this
         // operation, the count and total values will be 0, the minimum value
         // will be 'k_DEFAULT_MIN', and the maximum value will be
-        // 'k_DEFAULT_MAX'.  Note that 'k_DEFAULT_MIN !=
-        // MetricRecord::k_DEFAULT_MIN' and 'k_DEFAULT_MAX !=
-        // MetricRecord::k_DEFAULT_MAX'; when populating 'record', this
-        // operation will convert default values for minimum and maximum.  A
-        // minimum value of 'k_DEFAULT_MIN' will populate a minimum value of
-        // of 'MetricRecord::k_DEFAULT_MIN' and a maximum value of
+        // 'k_DEFAULT_MAX'.  Note that
+        // 'k_DEFAULT_MIN != MetricRecord::k_DEFAULT_MIN' and
+        // 'k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX'; when populating
+        // 'record', this operation will convert default values for minimum and
+        // maximum.  A minimum value of 'k_DEFAULT_MIN' will populate a minimum
+        // value of of 'MetricRecord::k_DEFAULT_MIN' and a maximum value of
         // 'k_DEFAULT_MAX' will populate a maximum value of
-        //  'MetricRecord::k_DEFAULT_MAX'.
+        // 'MetricRecord::k_DEFAULT_MAX'.
 
     void update(int value);
         // Increment the event count by 1, add the specified 'value' to the
@@ -282,8 +282,8 @@ const MetricId& IntegerCollector::metricId() const
 {
     return d_metricId;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

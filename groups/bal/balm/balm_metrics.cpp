@@ -47,8 +47,8 @@ void Metrics_Helper::logEmptyName(const char *name,
     BALL_LOG_WARN << "Empty " << k_TYPE_STRING[type] << " \"" << name
                   << "\" added at " << file << ":" << line << BALL_LOG_END;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

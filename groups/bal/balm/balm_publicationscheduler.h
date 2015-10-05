@@ -180,7 +180,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace balm {class Category;
+namespace balm {
+
+class Category;
 
 class PublicationScheduler_ClockData;  // defined in implementation
 class PublicationScheduler_Proctor;    // defined in implementation
@@ -415,7 +417,7 @@ class PublicationScheduler {
         // return 'false' with no effect.
 
     int getCategorySchedule(
-                           bsl::vector<bsl::pair<const Category *,
+                 bsl::vector<bsl::pair<const Category *,
                                        bsls::TimeInterval> >    *result) const;
         // Load into the specified 'result' a representation of the current
         // schedule for publishing categories being followed by this scheduler
@@ -494,8 +496,8 @@ bool PublicationScheduler::findCategorySchedule(
                           result,
                           d_manager_p->metricRegistry().getCategory(category));
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

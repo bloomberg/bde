@@ -27,13 +27,12 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-
+// ----------------------------------------------------------------------------
 // balm::MetricFormatSpec
 // CLASS METHODS
 // [ 9] static bsl::ostream& formatValue(bsl::ostream&,
@@ -53,8 +52,8 @@ using bsl::flush;
 // [ 3] const char *format() const;
 // [ 8] bsl::ostream& print(bsl::ostream& ) const;
 // FREE OPERATORS
-// [ 5] bool operator==(const balm::Metricformat& , const balm::Metricformat& );
-// [ 5] bool operator!=(const balm::Metricformat& , const balm::Metricformat& );
+// [ 5] operator==(balm::Metricformat&, balm::Metricformat&);
+// [ 5] operator!=(balm::Metricformat&, balm::Metricformat&);
 // [ 9] bsl::ostream& operator<<(bsl::ostream& , const balm::Metricformat& );
 //
 // balm::MetricFormat
@@ -67,21 +66,19 @@ using bsl::flush;
 // [10] void setFormatSpec(balm::PublicationType::Value  ,
 //                         const balm::MetricFormatSpec&  );
 // [15] void clearFormatSpecs();
-// [16] void clearFormatSpec(balm::PublicationType::Value publicationType);
+// [16] void clearFormatSpec(PublicationType::Value publicationType);
 // ACCESSORS
-// [10] const balm::MetricFormatSpec *formatSpec(
-//                                         balm::PublicationType::Value ) const;
+// [10] MetricFormatSpec *formatSpec(balm::PublicationType::Value);
 // [  ] bsl::ostream& print(bsl::ostream& , int, int ) const;
 // FREE OPERATORS
-// [12] bool operator==(const balm::Metricformat& , const balm::Metricformat& );
-// [12] bool operator!=(const balm::Metricformat& , const balm::Metricformat& );
+// [12] operator==(balm::Metricformat&, balm::Metricformat&);
+// [12] operator!=(balm::Metricformat&, balm::Metricformat&);
 // [ 9] bsl::ostream& operator<<(bsl::ostream& , const balm::Metricformat& );
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] HELPERS: gg
 // [ 2] HELPERS: CombinationIterator
 // [17] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -402,7 +399,7 @@ int main(int argc, char *argv[])
         //   format specs and verify they are added correctly.
         //
         // Testing:
-        //   void clearFormatSpec(balm::PublicationType::Value publicationType);
+        //   void clearFormatSpec(PublicationType::Value publicationType);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting manipulator: clearFormatSpec()"
@@ -657,14 +654,13 @@ int main(int argc, char *argv[])
         //   'operator!=' using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription' value
-        //   to verify comparisons are made by address (rather than by value).
+        //   Use different addresses to the same 'balm::MetricDescription'
+        //   value to verify comparisons are made by address (rather than by
+        //   value).
         //
         // Testing:
-        //   bool operator==(const balm::MetricFormat&,
-        //                   const balm::MetricFormat&);
-        //   bool operator!=(const balm::MetricFormat&,
-        //                   const balm::MetricFormat&);
+        //   operator==(balm::Metricformat&, balm::Metricformat&);
+        //   operator!=(balm::Metricformat&, balm::Metricformat&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting equality: balm::MetricFormat" << endl;
@@ -746,8 +742,7 @@ int main(int argc, char *argv[])
         // ~balm::MetricFormat();
         // void setFormatSpec(balm::PublicationType::Value  publicationType,
         //                    const balm::MetricFormatSpec& formatSpec);
-        // const balm::MetricFormatSpec *formatSpec(
-        //                  balm::PublicationType::Value publicationType) const;
+        // MetricFormatSpec *formatSpec(balm::PublicationType::Value);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1039,14 +1034,13 @@ int main(int argc, char *argv[])
         //   'operator!=' using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription' value
-        //   to verify comparisons are made by address (rather than by value).
+        //   Use different addresses to the same 'balm::MetricDescription'
+        //   value to verify comparisons are made by address (rather than by
+        //   value).
         //
         // Testing:
-        //   bool operator==(const balm::MetricFormatSpec&,
-        //                   const balm::MetricFormatSpec&);
-        //   bool operator!=(const balm::MetricFormatSpec&,
-        //                   const balm::MetricFormatSpec&);
+        //   operator==(balm::Metricformat&, balm::Metricformat&);
+        //   operator!=(balm::Metricformat&, balm::Metricformat&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting equality: balm::MetricFormatSpec"
