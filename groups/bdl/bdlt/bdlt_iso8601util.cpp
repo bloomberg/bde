@@ -275,7 +275,7 @@ int parseZoneDesignator(const char **nextPos,
     // Parse the zone designator, represented in the "Z|(+|-])hh:mm" ISO
     // 8601 extended format, from the string starting at the specified 'begin'
     // and ending before the specified 'end', load into the specified
-    // 'minuteOffset' the indicated offset (in minutes) from GMT, and set the
+    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
     // specified '*nextPos' to the location one past the last parsed character.
     // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
     // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
@@ -964,7 +964,7 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
 
     // 2. Parse zone designator, if any.
 
-    int tzOffset = 0;  // minutes from GMT
+    int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
         if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
@@ -972,11 +972,11 @@ int Iso8601Util::parse(Time *result, const char *string, int length)
         }
 
         if (tzOffset) {
-            localTime.addMinutes(-tzOffset);  // convert to GMT
+            localTime.addMinutes(-tzOffset);  // convert to UTC
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.  The
+    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
     // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
     // (above).
 
@@ -1066,7 +1066,7 @@ int Iso8601Util::parse(DateTz *result, const char *string, int length)
 
     // 2. Parse zone designator, if any.
 
-    int tzOffset = 0;  // minutes from GMT
+    int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
         if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
@@ -1130,7 +1130,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 
     // 2. Parse zone designator, if any.
 
-    int tzOffset = 0;  // minutes from GMT
+    int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
         if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
@@ -1138,7 +1138,7 @@ int Iso8601Util::parse(TimeTz *result, const char *string, int length)
         }
     }
 
-    // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.  The
+    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
     // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
     // (above).
 
@@ -1200,7 +1200,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
 
     // 3. Parse zone designator, if any.
 
-    int tzOffset = 0;  // minutes from GMT
+    int tzOffset = 0;  // minutes from UTC
 
     if (p != end) {
         if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
@@ -1227,7 +1227,7 @@ int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
     // component-level documentation).
 
     if (24 == hour) {
-        // '24 == hour' is allowed only for the value '24:00:00.000' in GMT.
+        // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.
 
         if (minute || second || millisecond || tzOffset) {
             return -1;                                                // RETURN

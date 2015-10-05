@@ -256,7 +256,7 @@ const int NUM_DEFAULT_TIME_DATA =
 
 struct DefaultZoneDataRow {
     int         d_line;     // source line number
-    int         d_offset;   // offset (in minutes) from GMT
+    int         d_offset;   // offset (in minutes) from UTC
     const char *d_iso8601;  // ISO 8601 string
 };
 
@@ -692,7 +692,7 @@ int main(int argc, char *argv[])
 //..
     const bdlt::Date date(2005, 1, 31);     // 2005/01/31
     const bdlt::Time time(8, 59, 59, 123);  // 08::59::59.123
-    const int        tzOffset = 240;        // +04:00 (four hours west of GMT)
+    const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
 //..
 // Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding ISO
 // 8601-compliant string will be generated shortly:
@@ -751,7 +751,7 @@ if (veryVerbose)
     ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
 //..
 // Note that this time the value of the target object has been converted to
-// GMT.
+// UTC.
 //
 ///Example 2: Configuring ISO 8601 String Generation
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -838,7 +838,7 @@ if (veryVerbose)
     ASSERT(sourceTimeTz.utcTime() == targetTime);
 //..
 // Note that this time the value of the target object has been converted to
-// GMT.
+// UTC.
 
       } break;
       case 9: {
@@ -855,11 +855,11 @@ if (veryVerbose)
         //:
         //: 3 If the optional zone designator is present in the input string
         //:   when parsing into a 'Datetime' object, the resulting value is
-        //:   converted to the equivalent GMT datetime.
+        //:   converted to the equivalent UTC datetime.
         //:
         //: 4 If the optional zone designator is *not* present in the input
         //:   string when parsing into a 'DatetimeTz' object, it is assumed to
-        //:   be GMT.
+        //:   be UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
@@ -1498,11 +1498,11 @@ if (veryVerbose)
         //:
         //: 3 If the optional zone designator is present in the input string
         //:   when parsing into a 'Time' object, the resulting value is
-        //:   converted to the equivalent GMT time.
+        //:   converted to the equivalent UTC time.
         //:
         //: 4 If the optional zone designator is *not* present in the input
         //:   string when parsing into a 'TimeTz' object, it is assumed to be
-        //:   GMT.
+        //:   UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
@@ -1934,7 +1934,7 @@ if (veryVerbose)
         //:
         //: 4 If the optional zone designator is *not* present in the input
         //:   string when parsing into a 'DateTz' object, it is assumed to be
-        //:   GMT.
+        //:   UTC.
         //:
         //: 5 If parsing succeeds, 0 is returned.
         //:
