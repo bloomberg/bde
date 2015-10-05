@@ -20,38 +20,82 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bsls_types
 //
 //@DESCRIPTION: This component provides generic in-core big-endian integer
-// types.  The integral values that they represent are stored in the objects as
-// big-endian values.
+// types 'bdlb::BigEndianInt16', 'bdlb::BigEndianUint16',
+// 'bdlb::BigEndianInt32', 'bdlb::BigEndianUint32', 'bdlb::BigEndianInt64' and
+// 'bdlb::BigEndianUint64' that store integral values that they represent in a
+// big-endian byte order.  For example, an integer value 0x01020304 will be
+// internally stored by the 'bdlb::BigEndianInt32' object as 0x04030201 on
+// little-endian platforms.
 //
 ///Usage
 ///-----
-// 'bdlb::BigEndian' types are very useful to represent structures meant to be
-// exchanged over a network, or that are stored as big-endian integers:
+// This section illustrates intended use of this component.
+//
+/// Example 1: Basic Use of 'bdlb::BigEndian'
+/// - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using 'bdlb::BigEndian' types to represent a
+// structure meant to be exchanged over the network ( which historically uses
+// big-endian byte order ) or stored in-core as big-endian integers.  First, we
+// define the structure:
 //..
 //  struct ProtocolHeader {
 //      // This structure represents the header of the protocol.  All integer
-//      // values are stored in network byte-order (i.e., big-endian).
+//      // values are stored in the network byte-order (i.e., big-endian).
 //
 //      bdlb::BigEndianUint16 d_protocolVersion;
-//      bdlb::BigEndianUint64 d_messageLength;
-//      bdlb::BigEndianInt32  d_source;
-//      bdlb::BigEndianInt32  d_destination;
+//      bdlb::BigEndianUint16 d_messageType;
+//      bdlb::BigEndianUint32 d_messageLength;
 //  };
 //..
-// Using the above definition, it is trivial to read information from the
-// header from any platform:
+// Next, we prepare in-memory representation of the protocol header with
+// protocol version set to '0x1', message type set to '0x02' and message
+// length set to '0x1234' in the big-endian byte order ( most significant bytes
+// first ):
+//..
+//  const char buffer[8] = { 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x12, 0x34 };
+//..
+// Now, we create an instance of the 'ProtocolHeader' structure and emulate
+// packet reception over the network:
 //..
 //  struct ProtocolHeader header;
-//  if (sizeof(header) == read(socket, &header, sizeof(header)) {
-//      assert(1 == header.d_protocolVersion);
-//          // This line will work on any architecture.  'bdlb::BigEndian'
-//          // types handle byte swapping if necessary.
+//  assert(8 == sizeof(header));
+//  memcpy(static_cast<void*>(&header), buffer, 8);
+//..
+// Next, we verify that actual in-core values depend on the endianess of the
+// underlying platform:
+//..
+//  #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+//  assert(0x0100 ==
+//         static_cast<short>(*(reinterpret_cast<unsigned short*>(
+//                                               &header.d_protocolVersion))));
 //
-//      // ...
-//  }
-//  else {
-//      bsl::cerr << "Transmission error!" << bsl::endl;
-//  }
+//  assert(0x0200 ==
+//         static_cast<short>(*(reinterpret_cast<unsigned short*>(
+//                                               &header.d_messageType))));
+//
+//  assert(0x34120000 == *(reinterpret_cast<unsigned int*>(
+//                                               &header.d_messageLength)));
+//  #endif // BSLS_PLATFORM_IS_LITTLE_ENDIAN
+//
+//  #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+//  assert(0x01 ==
+//         static_cast<short>(*(reinterpret_cast<unsigned short*>(
+//                                               &header.d_protocolVersion))));
+//
+//  assert(0x02 ==
+//         static_cast<short>(*(reinterpret_cast<unsigned short*>(
+//                                               &header.d_messageType))));
+//
+//  assert(0x1234 == *(reinterpret_cast<unsigned int*>(
+//                                               &header.d_messageLength)));
+//  #endif // BSLS_PLATFORM_IS_BIG_ENDIAN
+//..
+// Finally, we verify that the received protocol header can be validated on
+// platforms of any endianess:
+//..
+//  assert(0x01   == header.d_protocolVersion);
+//  assert(0x02   == header.d_messageType);
+//  assert(0x1234 == header.d_messageLength);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -89,9 +133,9 @@ class BigEndianInt16 {
     // This class provides a container for an in-core representation of a
     // signed 16-bit big-endian integer.  It supports a complete set of *value*
     // *semantic* operations, including copy construction, assignment, equality
-    // comparison, 'bsl::ostream' printing, and 'bdex' serialization.  Note
-    // that the copy constructor and copy assignment operator are provided by
-    // the compiler.  Any object of this class can be converted to a 'short'
+    // comparison, 'bsl::ostream' printing, and BDEX serialization.  Note that
+    // the copy constructor and copy-assignment operator are provided by the
+    // compiler.  Any object of this class can be converted to a 'short'
     // allowing comparison with any other object of this class.  This class is
     // *exception* *neutral* with no guarantee of rollback: if an exception is
     // thrown during the invocation of a method on a pre-existing object, the
@@ -120,9 +164,9 @@ class BigEndianInt16 {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -134,10 +178,14 @@ class BigEndianInt16 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianInt16() = default;
+    //! BigEndianInt16(const BigEndianInt16& other) = default;
+    //! ~BigEndianInt16() = default;
 
     // MANIPULATORS
+    //! BigEndianInt16& operator=(const BigEndianInt16& other) = default;
+
     BigEndianInt16& operator=(short value);
         // Store in this object the specified 'value' as a signed 16-bit
         // big-endian integer, and return a reference to this modifiable
@@ -186,14 +234,12 @@ class BigEndianInt16 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianInt16& lhs, const BigEndianInt16& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt16' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianInt16'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianInt16& lhs, const BigEndianInt16& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt16' objects
     // do not have the same value, and 'false' otherwise.  Two 'BigEndianInt16'
@@ -201,7 +247,6 @@ bool operator!=(const BigEndianInt16& lhs, const BigEndianInt16& rhs);
     // integral network byte-order values that they represent do not have the
     // same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&         stream,
                          const BigEndianInt16& integer);
     // Write the specified 'integer' to the specified output 'stream' and
@@ -215,8 +260,8 @@ class BigEndianUint16 {
     // This class provides a container for an in-core representation of an
     // unsigned 16-bit big-endian integer.  It supports a complete set of
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison, 'bsl::ostream' printing, and 'bdex' serialization.
-    // Note that the copy constructor and copy assignment operator are provided
+    // equality comparison, 'bsl::ostream' printing, and BDEX serialization.
+    // Note that the copy constructor and copy-assignment operator are provided
     // by the compiler.  Any object of this class can be converted to an
     // 'unsigned short' allowing comparison with any other object of this
     // class.  This class is *exception* *neutral* with no guarantee of
@@ -244,13 +289,13 @@ class BigEndianUint16 {
     // CLASS METHODS
     static BigEndianUint16 make(unsigned short value);
         // Create and initialize a 'BigEndianUint16' object that stores the
-        // specified  'value' as a unsigned 16-bit big-endian integer.
+        // specified 'value' as a unsigned 16-bit big-endian integer.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -262,10 +307,14 @@ class BigEndianUint16 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianUint16() = default;
+    //! BigEndianUint16(const BigEndianUint16& other) = default;
+    //! ~BigEndianUint16() = default;
 
     // MANIPULATORS
+    //! BigEndianUint16& operator=(const BigEndianUint16& other) = default;
+
     BigEndianUint16& operator=(unsigned short value);
         // Store in this object the specified 'value' as an unsigned 16-bit
         // big-endian integer, and return a reference to this modifiable
@@ -314,14 +363,12 @@ class BigEndianUint16 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianUint16& lhs, const BigEndianUint16& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint16' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianUint16'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianUint16& lhs, const BigEndianUint16& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint16' objects
     // do not have the same value, and 'false' otherwise.  Two
@@ -329,7 +376,6 @@ bool operator!=(const BigEndianUint16& lhs, const BigEndianUint16& rhs);
     // respective integral network byte-order values that they represent do not
     // have the same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&          stream,
                          const BigEndianUint16& integer);
     // Write the specified 'integer' to the specified output 'stream', and
@@ -343,9 +389,9 @@ class BigEndianInt32 {
     // This class provides a container for an in-core representation of a
     // signed 32-bit big-endian integer.  It supports a complete set of *value*
     // *semantic* operations, including copy construction, assignment, equality
-    // comparison, 'bsl::ostream' printing, and 'bdex' serialization.  Note
-    // that the copy constructor and copy assignment operator are provided by
-    // the compiler.  Any object of this class can be converted to an 'int'
+    // comparison, 'bsl::ostream' printing, and BDEX serialization.  Note that
+    // the copy constructor and copy-assignment operator are provided by the
+    // compiler.  Any object of this class can be converted to an 'int'
     // allowing comparison with any other object of this class.  This class is
     // *exception* *neutral* with no guarantee of rollback: if an exception is
     // thrown during the invocation of a method on a pre-existing object, the
@@ -374,9 +420,9 @@ class BigEndianInt32 {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -388,10 +434,14 @@ class BigEndianInt32 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianInt32() = default;
+    //! BigEndianInt32(const BigEndianInt32& other) = default;
+    //! ~BigEndianInt32() = default;
 
     // MANIPULATORS
+    //! BigEndianInt32& operator=(const BigEndianInt32& other) = default;
+
     BigEndianInt32& operator=(int value);
         // Store in this object the specified 'value' as a signed 32-bit
         // big-endian integer, and return a reference to this modifiable
@@ -440,14 +490,12 @@ class BigEndianInt32 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianInt32& lhs, const BigEndianInt32& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt32' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianInt32'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianInt32& lhs, const BigEndianInt32& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt32' objects
     // do not have the same value, and 'false' otherwise.  Two 'BigEndianInt32'
@@ -455,7 +503,6 @@ bool operator!=(const BigEndianInt32& lhs, const BigEndianInt32& rhs);
     // integral network byte-order values that they represent do not have the
     // same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&         stream,
                          const BigEndianInt32& integer);
     // Write the specified 'integer' to the specified output 'stream', and
@@ -469,8 +516,8 @@ class BigEndianUint32 {
     // This class provides a container for an in-core representation of an
     // unsigned 32-bit big-endian integer.  It supports a complete set of
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison, 'bsl::ostream' printing, and 'bdex' serialization.
-    // Note that the copy constructor and copy assignment operator are provided
+    // equality comparison, 'bsl::ostream' printing, and BDEX serialization.
+    // Note that the copy constructor and copy-assignment operator are provided
     // by the compiler.  Any object of this class can be converted to an
     // 'unsigned int' allowing comparison with any other object of this class.
     // This class is *exception* *neutral* with no guarantee of rollback: if an
@@ -502,9 +549,9 @@ class BigEndianUint32 {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -516,10 +563,14 @@ class BigEndianUint32 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianUint32() = default;
+    //! BigEndianUint32(const BigEndianUint32& other) = default;
+    //! ~BigEndianUint32() = default;
 
     // MANIPULATORS
+    //! BigEndianUint32& operator=(const BigEndianUint32& other) = default;
+
     BigEndianUint32& operator=(unsigned int value);
         // Store in this object the specified 'value' as an unsigned 32-bit
         // big-endian integer, and return a reference to this modifiable
@@ -568,14 +619,12 @@ class BigEndianUint32 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianUint32& lhs, const BigEndianUint32& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint32' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianUint32'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianUint32& lhs, const BigEndianUint32& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint32' objects
     // do not have the same value, and 'false' otherwise.  Two
@@ -583,7 +632,6 @@ bool operator!=(const BigEndianUint32& lhs, const BigEndianUint32& rhs);
     // respective integral network byte-order values that they represent do not
     // have the same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&          stream,
                          const BigEndianUint32& integer);
     // Write the specified 'integer' to the specified output 'stream', and
@@ -597,9 +645,9 @@ class BigEndianInt64 {
     // This class provides a container for an in-core representation of a
     // signed 64-bit big-endian integer.  It supports a complete set of *value*
     // *semantic* operations, including copy construction, assignment, equality
-    // comparison, 'bsl::ostream' printing, and 'bdex' serialization.  Note
-    // that the copy constructor and copy assignment operator are provided by
-    // the compiler.  Any object of this class can be converted to an 'Int64'
+    // comparison, 'bsl::ostream' printing, and BDEX serialization.  Note that
+    // the copy constructor and copy-assignment operator are provided by the
+    // compiler.  Any object of this class can be converted to an 'Int64'
     // allowing comparison with any other object of this class.  This class is
     // *exception* *neutral* with no guarantee of rollback: if an exception is
     // thrown during the invocation of a method on a pre-existing object, the
@@ -628,9 +676,9 @@ class BigEndianInt64 {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -642,10 +690,14 @@ class BigEndianInt64 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianInt64() = default;
+    //! BigEndianInt64(const BigEndianInt64& other) = default;
+    //! ~BigEndianInt64() = default;
 
     // MANIPULATORS
+    //! BigEndianInt64& operator=(const BigEndianInt64& other) = default;
+
     BigEndianInt64& operator=(bsls::Types::Int64 value);
         // Store in this object the specified 'value' as a signed 64-bit
         // big-endian integer, and return a reference to this modifiable
@@ -694,14 +746,12 @@ class BigEndianInt64 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianInt64& lhs, const BigEndianInt64& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt64' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianInt64'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianInt64& lhs, const BigEndianInt64& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianInt64' objects
     // do not have the same value, and 'false' otherwise.  Two 'BigEndianInt64'
@@ -709,7 +759,6 @@ bool operator!=(const BigEndianInt64& lhs, const BigEndianInt64& rhs);
     // integral network byte-order values that they represent do not have the
     // same value.
 
-inline
 bsl::ostream& operator<<(bsl::ostream&         stream,
                          const BigEndianInt64& integer);
     // Write the specified 'integer' to the specified output 'stream', and
@@ -723,8 +772,8 @@ class BigEndianUint64 {
     // This class provides a container for an in-core representation of an
     // unsigned 64-bit big-endian integer.  It supports a complete set of
     // *value* *semantic* operations, including copy construction, assignment,
-    // equality comparison, 'bsl::ostream' printing, and 'bdex' serialization.
-    // Note that the copy constructor and copy assignment operator are provided
+    // equality comparison, 'bsl::ostream' printing, and BDEX serialization.
+    // Note that the copy constructor and copy-assignment operator are provided
     // by the compiler.  Any object of this class can be converted to a
     // 'Uint64' allowing comparison with any other object of this class.  This
     // class is *exception* *neutral* with no guarantee of rollback: if an
@@ -756,9 +805,9 @@ class BigEndianUint64 {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
+        // Return the most current BDEX streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
         // containers.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
@@ -770,10 +819,14 @@ class BigEndianUint64 {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // Use the default constructor, copy constructor, destructor, and copy
-    // assignment operator that are provided by the compiler.
+    // CREATORS
+    //! BigEndianUint64() = default;
+    //! BigEndianUint64(const BigEndianUint64& other) = default;
+    //! ~BigEndianUint64() = default;
 
     // MANIPULATORS
+    //! BigEndianUint64& operator=(const BigEndianUint64& other) = default;
+
     BigEndianUint64& operator=(bsls::Types::Uint64 value);
         // Store in this object the specified 'value' as an unsigned 64-bit
         // big-endian integer, and return a reference to this modifiable
@@ -822,14 +875,12 @@ class BigEndianUint64 {
 };
 
 // FREE OPERATORS
-inline
 bool operator==(const BigEndianUint64& lhs, const BigEndianUint64& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint64' objects
     // have the same value, and 'false' otherwise.  Two 'BigEndianUint64'
     // objects have the same value if and only if the respective integral
     // network byte-order values that they represent have the same value.
 
-inline
 bool operator!=(const BigEndianUint64& lhs, const BigEndianUint64& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' 'BigEndianUint64' objects
     // do not have the same value, and 'false' otherwise.  Two
@@ -837,58 +888,13 @@ bool operator!=(const BigEndianUint64& lhs, const BigEndianUint64& rhs);
     // respective integral network byte-order values that they represent do not
     // have the same value.
 
-inline
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const BigEndianUint64& integer);
+bsl::ostream& operator<<(bsl::ostream& stream, const BigEndianUint64& integer);
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
 // ============================================================================
-//                 INLINE DEFINITIONS
+//                               INLINE DEFINITIONS
 // ============================================================================
-
-inline
-BigEndianInt16& BigEndianInt16::operator=(short value)
-{
-    d_value = BSLS_BYTEORDER_HTONS(value);
-    return *this;
-}
-
-inline
-BigEndianUint16& BigEndianUint16::operator=(unsigned short value)
-{
-    d_value = BSLS_BYTEORDER_HTONS(value);
-    return *this;
-}
-
-inline
-BigEndianInt32& BigEndianInt32::operator=(int value)
-{
-    d_value = BSLS_BYTEORDER_HTONL(value);
-    return *this;
-}
-
-inline
-BigEndianUint32& BigEndianUint32::operator=(unsigned int value)
-{
-    d_value = BSLS_BYTEORDER_HTONL(value);
-    return *this;
-}
-
-inline
-BigEndianInt64& BigEndianInt64::operator=(bsls::Types::Int64 value)
-{
-    d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
-    return *this;
-}
-
-inline
-BigEndianUint64& BigEndianUint64::operator=(
-                                                     bsls::Types::Uint64 value)
-{
-    d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
-    return *this;
-}
 
                          // --------------------
                          // class BigEndianInt16
@@ -917,6 +923,13 @@ int BigEndianInt16::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianInt16& BigEndianInt16::operator=(short value)
+{
+    d_value = BSLS_BYTEORDER_HTONS(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianInt16::bdexStreamIn(STREAM& stream, int version)
 {
@@ -1008,6 +1021,13 @@ int BigEndianUint16::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianUint16& BigEndianUint16::operator=(unsigned short value)
+{
+    d_value = BSLS_BYTEORDER_HTONS(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianUint16::bdexStreamIn(STREAM& stream, int version)
 {
@@ -1099,6 +1119,13 @@ int BigEndianInt32::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianInt32& BigEndianInt32::operator=(int value)
+{
+    d_value = BSLS_BYTEORDER_HTONL(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianInt32::bdexStreamIn(STREAM& stream, int version)
 {
@@ -1188,6 +1215,13 @@ int BigEndianUint32::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianUint32& BigEndianUint32::operator=(unsigned int value)
+{
+    d_value = BSLS_BYTEORDER_HTONL(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianUint32::bdexStreamIn(STREAM& stream, int version)
 {
@@ -1279,6 +1313,13 @@ int BigEndianInt64::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianInt64& BigEndianInt64::operator=(bsls::Types::Int64 value)
+{
+    d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianInt64::bdexStreamIn(STREAM& stream, int version)
 {
@@ -1368,6 +1409,13 @@ int BigEndianUint64::maxSupportedBdexVersion(int /* versionSelector */)
 }
 
 // MANIPULATORS
+inline
+BigEndianUint64& BigEndianUint64::operator=(bsls::Types::Uint64 value)
+{
+    d_value = BSLS_BYTEORDER_HOST_U64_TO_BE(value);
+    return *this;
+}
+
 template <class STREAM>
 STREAM& BigEndianUint64::bdexStreamIn(STREAM& stream, int version)
 {
