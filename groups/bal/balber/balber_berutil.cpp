@@ -668,7 +668,7 @@ int BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
     bdlt::Date localDate;
     getBinaryDateValue(streamBuf, &localDate, length);
 
-    return value->validateAndSetDateTz(localDate, offset);
+    return value->setDatetimeTzIfValid(localDate, offset);
 }
 
 int BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,

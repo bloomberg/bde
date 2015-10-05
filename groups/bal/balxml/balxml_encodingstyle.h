@@ -11,6 +11,8 @@ BSLS_IDENT_PRAGMA_ONCE
 //@PURPOSE: Provide value-semantic attribute classes
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
+//
+//@DESCRIPTION: Value-semantic attribute classes.
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
