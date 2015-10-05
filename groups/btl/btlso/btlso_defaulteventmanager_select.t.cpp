@@ -462,8 +462,14 @@ int main(int argc, char *argv[])
             Obj mX;
             if (veryVerbose) { P(Obj::k_MAX_NUM_HANDLES); }
 
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+            const int MAX_HANDLES = Obj::k_MAX_NUM_HANDLES - 1;
+#else
+            const int MAX_HANDLES = Obj::k_MAX_NUM_HANDLES;
+#endif
+
             btlso::SocketHandle::Handle handle = 0;
-            for (; handle < Obj::k_MAX_NUM_HANDLES; ++handle) {
+            for (; handle < MAX_HANDLES; ++handle) {
 
                 if (veryVerbose) { P(handle) }
 
@@ -483,7 +489,16 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
             }
 
-            ASSERT(handle == Obj::k_MAX_NUM_HANDLES);
+            ASSERT(handle == MAX_HANDLES);
+
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+            bsl::function<void()> cb1, cb2;
+            int rc = mX.registerSocketEvent(
+                                          (btlso::SocketHandle::Handle) handle,
+                                           btlso::EventType::e_READ,
+                                           cb1);
+            ASSERT(!rc);
+#endif
 
             if (verbose) cout << "Negative Testing." << endl;
             {
