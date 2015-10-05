@@ -48,9 +48,9 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Next, we prepare in-memory representation of the protocol header with
-// protocol version set to '0x1', message type set to '0x02' and message
-// length set to '0x1234' in the big-endian byte order ( most significant bytes
-// first ):
+// protocol version set to '0x1', message type set to '0x02' and message length
+// set to '0x1234' in the big-endian byte order ( most significant bytes first
+// ):
 //..
 //  const char buffer[8] = { 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x12, 0x34 };
 //..
@@ -926,7 +926,7 @@ int BigEndianInt16::maxSupportedBdexVersion(int /* versionSelector */)
 inline
 BigEndianInt16& BigEndianInt16::operator=(short value)
 {
-    d_value = BSLS_BYTEORDER_HTONS(value);
+    d_value = BSLS_BYTEORDER_HOST_U16_TO_BE(value);
     return *this;
 }
 
@@ -952,7 +952,7 @@ STREAM& BigEndianInt16::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianInt16::operator short() const
 {
-    return BSLS_BYTEORDER_NTOHS(d_value);
+    return BSLS_BYTEORDER_BE_U16_TO_HOST(d_value);
 }
 
 namespace bdlb {
@@ -1024,7 +1024,7 @@ int BigEndianUint16::maxSupportedBdexVersion(int /* versionSelector */)
 inline
 BigEndianUint16& BigEndianUint16::operator=(unsigned short value)
 {
-    d_value = BSLS_BYTEORDER_HTONS(value);
+    d_value = BSLS_BYTEORDER_HOST_U16_TO_BE(value);
     return *this;
 }
 
@@ -1050,7 +1050,7 @@ STREAM& BigEndianUint16::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianUint16::operator unsigned short() const
 {
-    return BSLS_BYTEORDER_NTOHS(d_value);
+    return BSLS_BYTEORDER_BE_U16_TO_HOST(d_value);
 }
 
 namespace bdlb {
@@ -1122,7 +1122,7 @@ int BigEndianInt32::maxSupportedBdexVersion(int /* versionSelector */)
 inline
 BigEndianInt32& BigEndianInt32::operator=(int value)
 {
-    d_value = BSLS_BYTEORDER_HTONL(value);
+    d_value = BSLS_BYTEORDER_HOST_U32_TO_BE(value);
     return *this;
 }
 
@@ -1146,7 +1146,7 @@ STREAM& BigEndianInt32::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianInt32::operator int() const
 {
-    return BSLS_BYTEORDER_NTOHL(d_value);
+    return BSLS_BYTEORDER_BE_U32_TO_HOST(d_value);
 }
 
 namespace bdlb {
@@ -1218,7 +1218,7 @@ int BigEndianUint32::maxSupportedBdexVersion(int /* versionSelector */)
 inline
 BigEndianUint32& BigEndianUint32::operator=(unsigned int value)
 {
-    d_value = BSLS_BYTEORDER_HTONL(value);
+    d_value = BSLS_BYTEORDER_HOST_U32_TO_BE(value);
     return *this;
 }
 
@@ -1244,7 +1244,7 @@ STREAM& BigEndianUint32::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianUint32::operator unsigned int() const
 {
-    return BSLS_BYTEORDER_NTOHL(d_value);
+    return BSLS_BYTEORDER_BE_U32_TO_HOST(d_value);
 }
 
 namespace bdlb {
@@ -1340,7 +1340,7 @@ STREAM& BigEndianInt64::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianInt64::operator bsls::Types::Int64() const
 {
-    return BSLS_BYTEORDER_HOST_U64_TO_BE(d_value);
+    return BSLS_BYTEORDER_BE_U64_TO_HOST(d_value);
 }
 
 namespace bdlb {
@@ -1436,7 +1436,7 @@ STREAM& BigEndianUint64::bdexStreamIn(STREAM& stream, int version)
 inline
 bdlb::BigEndianUint64::operator bsls::Types::Uint64() const
 {
-    return BSLS_BYTEORDER_HOST_U64_TO_BE(d_value);
+    return BSLS_BYTEORDER_BE_U64_TO_HOST(d_value);
 }
 
 namespace bdlb {
