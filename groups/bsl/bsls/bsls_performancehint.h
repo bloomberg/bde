@@ -153,8 +153,8 @@ BSLS_IDENT("$Id: $")
 // The following series of examples illustrates use of the macros and functions
 // provided by this component.
 //
-///Example 1 -- USING BRANCH PREDICTION MACROS
-///-- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+///Example 1: Using the Branch Prediction Macros
+///- - - - - - - - - - - - - - - - - - - - - - -
 // The following demonstrates the use of 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY'
 // and 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' to generate more efficient
 // assembly instructions.  Note the use of 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT'
@@ -240,8 +240,9 @@ BSLS_IDENT("$Id: $")
 //  user    0m2.149s
 //  sys     0m0.005s
 //..
-///Example 2 -- USING 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'
-///-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+//
+///Example 2: Using 'BSLS_PERFORMANCEHINT_PREDICT_EXPECT'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is essentially the same as the '__builtin_expect(expr, value)'
 // macro that is provided by some compilers.  This macro allows the user to
 // define more complex hints to the compiler, such as the optimization of
@@ -265,8 +266,8 @@ BSLS_IDENT("$Id: $")
 //..
 // However, this is sufficient to illustrate the intent of this macro.
 //
-///Example 3 -- Cache Line Prefetching
-///-- -- -- -- -- -- -- -- -- -- -- --
+///Example 3: Cache Line Prefetching
+///- - - - - - - - - - - - - - - - -
 // The following demonstrates use of 'prefetchForReading' and
 // 'prefetchForWriting' to prefetch data cache lines:
 //..
