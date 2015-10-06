@@ -25,8 +25,12 @@ BSLS_IDENT("$Id: $")
 // limit on the maximum number of categories allowed, and for retrieving the
 // threshold levels of (established) categories.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
 // The code fragments in this example demonstrate several administration
 // utilities that are used to create categories, and to set and access their
 // threshold levels.

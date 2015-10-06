@@ -37,8 +37,12 @@ BSLS_IDENT("$Id: $")
 // meaning that one or more functions cannot be invoked safely from a signal
 // handler.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Implementing a Single-User Eacho Server
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a single-user
 // echo server.  An echo server accepts a connection and sends back any
 // received data back to the client (until the connection is terminated).  This

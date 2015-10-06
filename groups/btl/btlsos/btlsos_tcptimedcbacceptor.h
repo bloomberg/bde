@@ -60,8 +60,12 @@ BSLS_IDENT("$Id: $")
 // manager, both acceptors are thread-safe if and only if that socket event
 // manager is *THREAD* *ENABLED*.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Implementing a Multi-User Echo Server
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a multi-user
 // echo server.  An echo server accepts connections and, for every connection,
 // sends any received data back to the client (until the connection is

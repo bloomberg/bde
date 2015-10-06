@@ -56,10 +56,10 @@ BSLS_IDENT("$Id: $")
 // operations are not required, 'btlsos_tcpcbchannel' is preferred from
 // performance perspective.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 //..
-// See 'btlsos_tcptimedcbacceptor' component.
+// See the {'btlsos_tcptimedcbacceptor'} component.
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

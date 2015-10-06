@@ -39,8 +39,12 @@ BSLS_IDENT("$Id: $")
 // non-timed operations are required, 'btlsos::TcpChannel' should be used
 // instead.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Using a Pair of Sockets
+/// - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible use of this component.  First,
 // a pair of sockets connecting each other on the local host are created for
 // our example, which could be any connected sockets on different hosts.  The

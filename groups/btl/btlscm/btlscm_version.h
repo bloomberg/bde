@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // information may be extracted from binary files using common UNIX utilities
 // (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
 // function in the 'btlscm::Version' struct can be used to query version
-// information for the 'btl' package group at runtime.  The following USAGE
+// information for the 'btl' package group at runtime.  The following {Usage}
 // examples illustrate these two basic capabilities.
 //
 // Note that unless the 'version' method will be called, it is not necessary to
@@ -31,6 +31,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Displaying Verson Information
+/// - - - - - - - - - - - - - - - - - - - -
 // A program can display the version of BTL that was used to build it by
 // printing the version string returned by 'btlscm::Version::version()' to
 // 'stdout' as follows:

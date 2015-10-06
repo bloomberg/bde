@@ -27,8 +27,12 @@ BSLS_IDENT("$Id: $")
 // Note that the 'ball::AttributeContainer' supplied at construction must
 // remain valid and *unmodified* for the lifetime of this object.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Installing an 'ball::AttributeContanier'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following code fragment, we will use a 'ball::ScopedAttributes' to
 // install a 'ball::AttributeContainer' in the current context.
 //

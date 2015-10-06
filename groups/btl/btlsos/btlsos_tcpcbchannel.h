@@ -54,10 +54,10 @@ BSLS_IDENT("$Id: $")
 // buffered, non-buffered, and vectored.  Thus, it is advised that, for optimal
 // performance, only one category within domain is used.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 //..
-// See 'btlsos_tcptimedcbacceptor' component.
+// See the {'btlsos_tcptimedcbacceptor'} component.
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

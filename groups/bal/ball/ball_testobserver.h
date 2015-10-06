@@ -60,8 +60,12 @@ BSLS_IDENT("$Id: $")
 // printing.  A subsequent call of 'setVerbose(0)' restores the default "quiet"
 // behavior.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate the basic usage of testing
 // observer objects.  The example focuses on the individual features that are
 // useful for testing larger systems (not shown) that use observers derived
