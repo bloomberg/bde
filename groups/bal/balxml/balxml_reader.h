@@ -70,26 +70,28 @@ BSLS_IDENT("$Id: $")
 // separate access to the prefix, the local name, the namespace URI, and the
 // namespace ID.
 //
-///Base URI:
-///---------
+///Base URI
+///--------
 // Networked XML documents may comprise chunks of data aggregated using various
 // W3C standard inclusion mechanisms and can contain nodes that come from
 // different places.  DTD entities are an example of this.  The base URI tells
 // you where a node comes from (see http://www.w3.org/TR/xmlbase/).  The base
 // URI of an element is:
-//..
-//   1.  The base URI specified by an xml:base attribute on the element,
-//       if one exists, otherwise
-//   2.  The base URI of the element's parent element within the document or
-//       external entity, if one exists, otherwise
-//   3.  The base URI of the document entity or external entity containing the
-//       element.
-//..
+//
+//: 1 The base URI specified by an xml:base attribute on the element, if one
+//:   exists, otherwise
+//:
+//: 2 The base URI of the element's parent element within the document or
+//:   external entity, if one exists, otherwise
+//:
+//: 3 The base URI of the document entity or external entity containing the
+//:   element.
+//
 // If there is no base URI for a node being returned (for example, it was
 // parsed from an in-memory string), then 'nodeBaseUri' return an empty string.
 //
-///Encoding:
-///---------
+///Encoding
+///--------
 // A XML document or any external reference (such as expanding an entity in a
 // DTD file or reading a schema file) will be encoded, for example, in "ASCII,"
 // "UTF-8," or "UTF-16".  The document can also contain self-describing
@@ -190,6 +192,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
 #endif

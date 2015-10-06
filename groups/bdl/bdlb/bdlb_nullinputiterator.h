@@ -20,15 +20,16 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This components provides a class template defining an input
 // iterator type, 'bdlb::NullInputIterator', with the following attributes:
-//..
-//  o For a given type, 'T', all objects of type 'NullInputIterator<T>'
-//    compare equal.  Thus, any pair of such iterators constitute an
-//    empty range.
-//  o Dereferencing or incrementing the iterator is undefined behavior, since
-//    every iterator is logically at the end of its valid range.
-//  o Exactly meets the requirements for an input iterator according to the
-//    C++ Standard (C++98, Section 24.1.1 [lib.input.iterators]).
-//..
+//
+//: o For a given type, 'T', all objects of type 'NullInputIterator<T>' compare
+//:   equal.  Thus, any pair of such iterators constitute an empty range.
+//:
+//: o Dereferencing or incrementing the iterator is undefined behavior, since
+//:   every iterator is logically at the end of its valid range.
+//:
+//: o Exactly meets the requirements for an input iterator according to the C++
+//:   Standard (C++98, Section 24.1.1 [lib.input.iterators]).
+//
 // This iterator type is typically used to test that a function or template
 // class compiles when instantiated with a pure input iterator.
 //

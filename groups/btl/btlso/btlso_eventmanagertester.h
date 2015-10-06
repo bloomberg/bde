@@ -110,6 +110,7 @@ BSLS_IDENT("$Id: $")
 //
 // Event Manager         : the event manager under test
 //..
+//
 ///Abbreviated Grammar
 ///-------------------
 // The following characters are used to compose expressions within the rules of
@@ -148,6 +149,7 @@ BSLS_IDENT("$Id: $")
 // + -          commands as described in the rules defined in the "Language
 //              Specification" section, below.
 //..
+//
 ///Language Specification
 ///----------------------
 // The Test Language defines a set of possible input strings that translate
@@ -298,6 +300,7 @@ BSLS_IDENT("$Id: $")
 //       the callback, write 20 bytes and register for read event on 'fds[0]'.
 //       Read 18 bytes when read event occurs on 'fds[0]'.
 //..
+//
 ///Thread-safety
 ///-------------
 // The thread-safety of 'btlso::EventManagerTester' depends on the event
@@ -322,29 +325,28 @@ BSLS_IDENT("$Id: $")
 // such as the number of connections, socket handles, etc.
 //
 // The 'registerSocketEvent' method performance test proceeds as follows:
-//..
-//    1) In an outer loop over the requested number of socket pairs:
-//          1) Create a socket pair.
-//          2) In an inner loop over the requested number of measurements:
-//              1) Record the current time ('bdlt::CurrentTime::now()').
-//              2) Call the 'registerSocketEvent' method.
-//              3) Calculate and record the elapsed time.
-//          3) Write the average elapsed time to the passed-in 'ostream'.
-//    2) Clean up and free resources.
-//..
+//
+//: 1 In an outer loop over the requested number of socket pairs:
+//:   1 Create a socket pair.
+//:   2 In an inner loop over the requested number of measurements:
+//:     1 Record the current time ('bdlt::CurrentTime::now()').
+//:     2 Call the 'registerSocketEvent' method.
+//:     3 Calculate and record the elapsed time.
+//:   3 Write the average elapsed time to the passed-in 'ostream'.
+//: 2 Clean up and free resources.
 //
 // The 'dispatch' method performance test proceeds as follows:
-//..
-//    1) In an outer loop over the requested number of socket pairs:
-//          1) Create a socket pair.
-//          2) Register a 'READ' event for the "observed" socket in the pair.
-//          3) In an inner loop over the requested number of measurements:
-//              1) Record the current time ('bdlt::CurrentTime::now()').
-//              2) Call the 'dispatch' method.
-//              3) Calculate and record the elapsed time.
-//          4) Write the average elapsed time to the passed-in 'ostream'.
-//    2) Clean up and free resources.
-//..
+//
+//: 1 In an outer loop over the requested number of socket pairs:
+//:   1 Create a socket pair.
+//:   2 Register a 'READ' event for the "observed" socket in the pair.
+//:   3 In an inner loop over the requested number of measurements:
+//:     1 Record the current time ('bdlt::CurrentTime::now()').
+//:     2 Call the 'dispatch' method.
+//:     3 Calculate and record the elapsed time.
+//:   4 Write the average elapsed time to the passed-in 'ostream'.
+//: 2 Clean up and free resources.
+//
 // The implementation ensures that only one 'READ' event is dispatched at a
 // time by writing only one byte to the "control" socket, whose counterpart,
 // the "observed" socket's 'READ' event is to be dispatched.
