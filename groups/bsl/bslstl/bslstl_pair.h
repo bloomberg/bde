@@ -286,8 +286,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_HASH
@@ -303,7 +311,8 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_UTILITY
 #endif
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && !defined(BSLS_PLATFORM_CMP_CLANG)
 
 // If the compiler supports rvalue references, then we have C++11 'std::swap',
 // which has a complicated SFINAE clause.  Fortunately, it is defined in
@@ -320,7 +329,7 @@ namespace std {
 template <class TYPE> void swap(TYPE& a, TYPE& b);
 }
 
-#endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
 namespace bsl {
 

@@ -8255,7 +8255,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.rep());
             ASSERT(0 == X.use_count());
             ASSERT(false == X.unique());
-            ASSERT(false == X);
+            ASSERT(false == static_cast<bool>(X));
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(0 == X.ptr());
             ASSERT(0 == X.numReferences());

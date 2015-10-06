@@ -3,17 +3,16 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlt_datetime.h>                      // for testing only
-#include <bdlt_datetimeutil.h>                  // for testing only
-#include <bdlt_currenttime.h>                   // for testing only
-#include <bslx_byteoutstream.h>                 // for testing only
-#include <bslx_marshallingutil.h>               // for testing only
+#include <bdlt_currenttime.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeutil.h>
 
-#include <bslma_default.h>                      // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bsls_assert.h>                        // for testing only
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslx_byteoutstream.h>
+#include <bslx_marshallingutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_exception.h>
@@ -778,9 +777,9 @@ int main(int argc, char *argv[])
             "trailer"
         };
         const int MSG_SIZES[] = {
-            bsl::strlen(MSG[0]),
-            bsl::strlen(MSG[1]),
-            bsl::strlen(MSG[2])
+            static_cast<int>(bsl::strlen(MSG[0])),
+            static_cast<int>(bsl::strlen(MSG[1])),
+            static_cast<int>(bsl::strlen(MSG[2]))
         };
         const int NUM_MSG_BUFFERS = sizeof MSG / sizeof *MSG;
         const int MSG_LENGTH      = MSG_SIZES[0] + MSG_SIZES[1] + MSG_SIZES[2];

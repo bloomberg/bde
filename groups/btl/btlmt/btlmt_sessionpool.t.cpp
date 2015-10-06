@@ -2211,7 +2211,7 @@ int main(int argc, char *argv[])
 
             TestFactory sessionFactory;
 
-            Obj pool(config, poolStateCb, false);
+            Obj pool(config, poolStateCb);
 
             ASSERT(0 == pool.start());
 
@@ -2321,7 +2321,7 @@ int main(int argc, char *argv[])
 
             TestFactory sessionFactory;
 
-            Obj pool(config, poolStateCb, false);
+            Obj pool(config, poolStateCb);
 
             ASSERT(0 == pool.start());
 
@@ -2434,7 +2434,7 @@ int main(int argc, char *argv[])
                                               _4,
                                               &numUpConnections);
 
-        Obj sessionPool(config, poolStateCb, false);
+        Obj sessionPool(config, poolStateCb);
 
         ASSERT(0 == sessionPool.start());
 
@@ -2754,7 +2754,7 @@ int main(int argc, char *argv[])
                                               _1, _2, _3, _4,
                                               &numUpConnections));
 
-        Obj mX(config, poolStateCb, false);  const Obj& X = mX;
+        Obj mX(config, poolStateCb);  const Obj& X = mX;
 
         ASSERT(0 == mX.start());
 
@@ -2821,7 +2821,7 @@ int main(int argc, char *argv[])
         PoolCb    poolStateCb    = &poolStateCallback;
         SessionCb sessionStateCb = &sessionStateCallback;
 
-        Obj mX(config, poolStateCb, false);
+        Obj mX(config, poolStateCb);
         ASSERT(0 == mX.start());
 
         bslmt::Barrier barrier(2);

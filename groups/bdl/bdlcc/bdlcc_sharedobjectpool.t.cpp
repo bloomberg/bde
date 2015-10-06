@@ -33,7 +33,7 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 static int verbose;
 static int veryVerbose;
@@ -318,7 +318,7 @@ struct SpLink
 
     void reset()
     {
-        ASSERT(false == d_next);
+        ASSERT(false == static_cast<bool>(d_next));
     }
 };
 

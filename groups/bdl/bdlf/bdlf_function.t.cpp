@@ -7,17 +7,17 @@
 
 #ifdef WARNING
 // TBD removed the allocator to break a cylce bdlma --> bdlqq --> bdlf --^
-#include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#include <bdlma_bufferedsequentialallocator.h>
 #endif
 
-#include <bslalg_typetraits.h>                  // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bslmf_if.h>                           // for testing only
+#include <bslalg_typetraits.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslmf_if.h>
 
-#include <bsls_alignmentutil.h>                 // for testing only
-#include <bsls_platform.h>                      // for testing only
+#include <bsls_alignmentutil.h>
+#include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -30,7 +30,7 @@
 #endif
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -3094,7 +3094,7 @@ int main(int argc, char *argv[])
                     mU.transferTo(&mV);  // test here
 
                     LOOP2_ASSERT(ui, vi, functionsHaveSameValue(UU, V));
-                    LOOP2_ASSERT(ui, vi, false == U);
+                    LOOP2_ASSERT(ui, vi, false == static_cast<bool>(U));
                 }
             }
         }
@@ -3148,7 +3148,8 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(ui, ua, vi, va,
                                  functionsHaveSameValue(UU, V));
-                    LOOP4_ASSERT(ui, ua, vi, va, false == U);
+                    LOOP4_ASSERT(ui, ua, vi, va,
+                                 false == static_cast<bool>(U));
 
                     LOOP4_ASSERT(ui, ua, vi, va, U.getAllocator() == Z[ua]);
                     LOOP4_ASSERT(ui, ua, vi, va, V.getAllocator() == Z[va]);

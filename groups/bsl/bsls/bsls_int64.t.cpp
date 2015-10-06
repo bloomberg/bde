@@ -4,8 +4,6 @@
 
 #include <bsls_int64.h>
 
-#include <bsls_platform.h>  // for testing only
-
 #include <cstddef>     // offsetof()
 #include <cstdlib>     // atoi()
 #include <cstring>     // memset(), memcmp(), strlen()
@@ -397,8 +395,10 @@ int main(int argc, char *argv[]) {
 #if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
-            { L_,   0x8000000000000000, "-9223372036854775808" },
-            { L_,   0xFFFFFFFFFFFFFFFF, "-1"                   },  // signed
+            { L_,   static_cast<T>(0x8000000000000000),
+                                        "-9223372036854775808" },
+            { L_,   static_cast<T>(0xFFFFFFFFFFFFFFFF),
+                                        "-1"                   },  // signed
 #endif
             { L_,   -1,                 "-1"                   },  // signed
         };

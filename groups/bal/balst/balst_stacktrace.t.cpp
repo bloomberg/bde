@@ -3630,30 +3630,30 @@ int main(int argc, char *argv[])
         {
             const int SZ = 10;
             const struct {
-                int         d_lineNum;          // source line number
-                const char *d_spec_p;           // specification string
-                int         d_length;           // expected length
-                Element     d_elements[SZ];     // expected element values
+                int            d_lineNum;       // source line number
+                const char    *d_spec_p;        // specification string
+                int            d_length;        // expected length
+                const Element *d_elements[SZ];  // expected element values
             } DATA[] = {
                 //line  spec            length  elements
-                //----  --------------  ------  ------------------------
-                { L_,   "",             0,      { }                     },
-                { L_,   "A",            1,      { VA }                  },
-                { L_,   "B",            1,      { VB }                  },
-                { L_,   "AB",           2,      { VA, VB }              },
-                { L_,   "BC",           2,      { VB, VC }              },
-                { L_,   "BCA",          3,      { VB, VC, VA }          },
-                { L_,   "CAB",          3,      { VC, VA, VB }          },
-                { L_,   "CDAB",         4,      { VC, VD, VA, VB }      },
-                { L_,   "DABC",         4,      { VD, VA, VB, VC }      },
-                { L_,   "ABCDE",        5,      { VA, VB, VC, VD, VE }  },
-                { L_,   "EDCBA",        5,      { VE, VD, VC, VB, VA }  },
-                { L_,   "ABCDEAB",      7,      { VA, VB, VC, VD, VE,
-                                                  VA, VB }              },
-                { L_,   "BACDEABC",     8,      { VB, VA, VC, VD, VE,
-                                                  VA, VB, VC }          },
-                { L_,   "CBADEABCD",    9,      { VC, VB, VA, VD, VE,
-                                                  VA, VB, VC, VD }      },
+                //----  --------------  ------  ----------------------------
+                { L_,   "",             0,      { }                         },
+                { L_,   "A",            1,      { &VA }                     },
+                { L_,   "B",            1,      { &VB }                     },
+                { L_,   "AB",           2,      { &VA, &VB }                },
+                { L_,   "BC",           2,      { &VB, &VC }                },
+                { L_,   "BCA",          3,      { &VB, &VC, &VA }           },
+                { L_,   "CAB",          3,      { &VC, &VA, &VB }           },
+                { L_,   "CDAB",         4,      { &VC, &VD, &VA, &VB }      },
+                { L_,   "DABC",         4,      { &VD, &VA, &VB, &VC }      },
+                { L_,   "ABCDE",        5,      { &VA, &VB, &VC, &VD, &VE } },
+                { L_,   "EDCBA",        5,      { &VE, &VD, &VC, &VB, &VA } },
+                { L_,   "ABCDEAB",      7,      { &VA, &VB, &VC, &VD, &VE,
+                                                  &VA, &VB }                },
+                { L_,   "BACDEABC",     8,      { &VB, &VA, &VC, &VD, &VE,
+                                                  &VA, &VB, &VC }           },
+                { L_,   "CBADEABCD",    9,      { &VC, &VB, &VA, &VD, &VE,
+                                                  &VA, &VB, &VC, &VD }      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3665,11 +3665,11 @@ int main(int argc, char *argv[])
 
             int oldLen= -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-                const int            LINE   = DATA[ti].d_lineNum;
-                const char *const    SPEC   = DATA[ti].d_spec_p;
-                const int            LENGTH = DATA[ti].d_length;
-                const Element *const e      = DATA[ti].d_elements;
-                const int            curLen = LENGTH;
+                const int                   LINE   = DATA[ti].d_lineNum;
+                const char *const           SPEC   = DATA[ti].d_spec_p;
+                const int                   LENGTH = DATA[ti].d_length;
+                const Element *const *const E      = DATA[ti].d_elements;
+                const int                   curLen = LENGTH;
 
                 Obj mX(&testAllocator);
 
@@ -3694,11 +3694,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, LENGTH == Y.length());
                 int i;
                 for (i = 0; i < LENGTH; ++i) {
-                    LOOP2_ASSERT(LINE, i, e[i] == X[i]);
-                    LOOP2_ASSERT(LINE, i, e[i] == Y[i]);
-                }
-                for (; i < SZ; ++i) {
-                    LOOP2_ASSERT(LINE, i, Element() == e[i]);
+                    LOOP2_ASSERT(LINE, i, *E[i] == X[i]);
+                    LOOP2_ASSERT(LINE, i, *E[i] == Y[i]);
                 }
             }
         }
@@ -3788,49 +3785,49 @@ int main(int argc, char *argv[])
             const struct {  // non-'static', else default allocator leaks
                             // and asserts on destruction
 
-                int         d_lineNum;       // source line number
-                const char *d_spec_p;        // specification string
-                int         d_length;        // expected length
-                Element     d_elements[SZ];  // expected value
+                int            d_lineNum;       // source line number
+                const char    *d_spec_p;        // specification string
+                int            d_length;        // expected length
+                const Element *d_elements[SZ];  // expected value
             } DATA[] = {
                 //line  spec            length  elements
-                //----  --------------  ------  ------------------------
-                { L_,   "",             0,      { }                     },
+                //----  --------------  ------  ---------------------------
+                { L_,   "",             0,      { }                         },
 
-                { L_,   "A",            1,      { VA }                  },
-                { L_,   "B",            1,      { VB }                  },
-                { L_,   "~",            0,      { }                     },
+                { L_,   "A",            1,      { &VA }                     },
+                { L_,   "B",            1,      { &VB }                     },
+                { L_,   "~",            0,      { }                         },
 
-                { L_,   "CD",           2,      { VC, VD }              },
-                { L_,   "E~",           0,      { }                     },
-                { L_,   "~E",           1,      { VE }                  },
-                { L_,   "~~",           0,      { }                     },
+                { L_,   "CD",           2,      { &VC, &VD }                },
+                { L_,   "E~",           0,      { }                         },
+                { L_,   "~E",           1,      { &VE }                     },
+                { L_,   "~~",           0,      { }                         },
 
-                { L_,   "ABC",          3,      { VA, VB, VC }          },
-                { L_,   "~BC",          2,      { VB, VC }              },
-                { L_,   "A~C",          1,      { VC }                  },
-                { L_,   "AB~",          0,      { }                     },
-                { L_,   "~~C",          1,      { VC }                  },
-                { L_,   "~B~",          0,      { }                     },
-                { L_,   "A~~",          0,      { }                     },
-                { L_,   "~~~",          0,      { }                     },
+                { L_,   "ABC",          3,      { &VA, &VB, &VC }           },
+                { L_,   "~BC",          2,      { &VB, &VC }                },
+                { L_,   "A~C",          1,      { &VC }                     },
+                { L_,   "AB~",          0,      { }                         },
+                { L_,   "~~C",          1,      { &VC }                     },
+                { L_,   "~B~",          0,      { }                         },
+                { L_,   "A~~",          0,      { }                         },
+                { L_,   "~~~",          0,      { }                         },
 
-                { L_,   "ABCD",         4,      { VA, VB, VC, VD }      },
-                { L_,   "~BCD",         3,      { VB, VC, VD }          },
-                { L_,   "A~CD",         2,      { VC, VD }              },
-                { L_,   "AB~D",         1,      { VD }                  },
-                { L_,   "ABC~",         0,      { }                     },
+                { L_,   "ABCD",         4,      { &VA, &VB, &VC, &VD }      },
+                { L_,   "~BCD",         3,      { &VB, &VC, &VD }           },
+                { L_,   "A~CD",         2,      { &VC, &VD }                },
+                { L_,   "AB~D",         1,      { &VD }                     },
+                { L_,   "ABC~",         0,      { }                         },
 
-                { L_,   "ABCDE",        5,      { VA, VB, VC, VD, VE }  },
-                { L_,   "~BCDE",        4,      { VB, VC, VD, VE }      },
-                { L_,   "AB~DE",        2,      { VD, VE }              },
-                { L_,   "ABCD~",        0,      { }                     },
-                { L_,   "A~C~E",        1,      { VE }                  },
-                { L_,   "~B~D~",        0,      { }                     },
+                { L_,   "ABCDE",        5,      { &VA, &VB, &VC, &VD, &VE } },
+                { L_,   "~BCDE",        4,      { &VB, &VC, &VD, &VE }      },
+                { L_,   "AB~DE",        2,      { &VD, &VE }                },
+                { L_,   "ABCD~",        0,      { }                         },
+                { L_,   "A~C~E",        1,      { &VE }                     },
+                { L_,   "~B~D~",        0,      { }                         },
 
-                { L_,   "~CBA~~ABCDE",  5,      { VA, VB, VC, VD, VE }  },
+                { L_,   "~CBA~~ABCDE",  5,      { &VA, &VB, &VC, &VD, &VE } },
 
-                { L_,   "ABCDE~CDEC~E", 1,      { VE }                  },
+                { L_,   "ABCDE~CDEC~E", 1,      { &VE }                     },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3838,12 +3835,11 @@ int main(int argc, char *argv[])
 
             int oldLen = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-                const int            LINE   = DATA[ti].d_lineNum;
-                const char *const    SPEC   = DATA[ti].d_spec_p;
-                const int            LENGTH = DATA[ti].d_length;
-                const Element *const e      = DATA[ti].d_elements;
-                const int            curLen = (int)strlen(SPEC);
-
+                const int                   LINE   = DATA[ti].d_lineNum;
+                const char *const           SPEC   = DATA[ti].d_spec_p;
+                const int                   LENGTH = DATA[ti].d_length;
+                const Element *const *const E      = DATA[ti].d_elements;
+                const int                   curLen = (int)strlen(SPEC);
 
                 Obj mX(&testAllocator);
                 const Obj& X = gg(&mX, SPEC);   // original spec
@@ -3871,8 +3867,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, LENGTH == X.length());
                 LOOP_ASSERT(LINE, LENGTH == Y.length());
                 for (int i = 0; i < LENGTH; ++i) {
-                    LOOP2_ASSERT(LINE, i, e[i] == X[i]);
-                    LOOP2_ASSERT(LINE, i, e[i] == Y[i]);
+                    LOOP2_ASSERT(LINE, i, *E[i] == X[i]);
+                    LOOP2_ASSERT(LINE, i, *E[i] == Y[i]);
                 }
             }
         }

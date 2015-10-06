@@ -252,14 +252,14 @@ class StackTraceFrame {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    StackTraceFrame(const void             *address,
-                          const bslstl::StringRef&  libraryFileName,
-                          int                     lineNumber,
-                          const bslstl::StringRef&  mangledSymbolName,
-                          bsl::size_t             offsetFromSymbol,
-                          const bslstl::StringRef&  sourceFileName,
-                          const bslstl::StringRef&  symbolName,
-                          bslma::Allocator       *basicAllocator = 0);
+    StackTraceFrame(const void               *address,
+                    const bslstl::StringRef&  libraryFileName,
+                    int                       lineNumber,
+                    const bslstl::StringRef&  mangledSymbolName,
+                    bsl::size_t               offsetFromSymbol,
+                    const bslstl::StringRef&  sourceFileName,
+                    const bslstl::StringRef&  symbolName,
+                    bslma::Allocator         *basicAllocator = 0);
         // Create a local time descriptor object having the specified
         // 'address', 'libraryFileName', 'lineNumber', 'mangledSymbolName',
         // 'offsetFromSymbol', 'sourceFileName', and 'symbolName' attribute
@@ -269,7 +269,7 @@ class StackTraceFrame {
         // '-1 <= lineNumber'.
 
     StackTraceFrame(const StackTraceFrame&  original,
-                          bslma::Allocator             *basicAllocator = 0);
+                    bslma::Allocator       *basicAllocator = 0);
         // Create a 'StackTraceFrame' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -415,8 +415,7 @@ class StackTraceFrame {
 };
 
 // FREE OPERATORS
-bool operator==(const StackTraceFrame& lhs,
-                const StackTraceFrame& rhs);
+bool operator==(const StackTraceFrame& lhs, const StackTraceFrame& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'StackTraceFrame' objects
     // have the same value if the corresponding values of their 'address',
@@ -424,8 +423,7 @@ bool operator==(const StackTraceFrame& lhs,
     // 'offsetFromSymbol', 'sourceFileName', and 'symbolName' attributes are
     // the same.
 
-bool operator!=(const StackTraceFrame& lhs,
-                const StackTraceFrame& rhs);
+bool operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'StackTraceFrame'
     // objects do not have the same value if the corresponding values
@@ -433,8 +431,7 @@ bool operator!=(const StackTraceFrame& lhs,
     // 'mangledSymbolName', 'offsetFromSymbol', 'sourceFileName', or
     // 'symbolName' attributes are the not same.
 
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const StackTraceFrame& object);
+bsl::ostream& operator<<(bsl::ostream& stream, const StackTraceFrame& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -471,15 +468,14 @@ StackTraceFrame::StackTraceFrame(bslma::Allocator *basicAllocator)
 }
 
 inline
-StackTraceFrame::StackTraceFrame(
-                                   const void             *address,
-                                   const bslstl::StringRef&  libraryFileName,
-                                   int                     lineNumber,
-                                   const bslstl::StringRef&  mangledSymbolName,
-                                   bsl::size_t             offsetFromSymbol,
-                                   const bslstl::StringRef&  sourceFileName,
-                                   const bslstl::StringRef&  symbolName,
-                                   bslma::Allocator       *basicAllocator)
+StackTraceFrame::StackTraceFrame(const void               *address,
+                                 const bslstl::StringRef&  libraryFileName,
+                                 int                       lineNumber,
+                                 const bslstl::StringRef&  mangledSymbolName,
+                                 bsl::size_t               offsetFromSymbol,
+                                 const bslstl::StringRef&  sourceFileName,
+                                 const bslstl::StringRef&  symbolName,
+                                 bslma::Allocator         *basicAllocator)
 : d_address(address)
 , d_libraryFileName(libraryFileName.begin(),
                     libraryFileName.end(),
@@ -501,11 +497,9 @@ StackTraceFrame::StackTraceFrame(
     BSLS_ASSERT_SAFE(0 != symbolName.data());
 }
 
-
 inline
-StackTraceFrame::StackTraceFrame(
-                                  const StackTraceFrame&  original,
-                                  bslma::Allocator             *basicAllocator)
+StackTraceFrame::StackTraceFrame(const StackTraceFrame&  original,
+                                 bslma::Allocator       *basicAllocator)
 : d_address(original.d_address)
 , d_libraryFileName(original.d_libraryFileName, basicAllocator)
 , d_lineNumber(original.d_lineNumber)
@@ -524,8 +518,7 @@ StackTraceFrame::~StackTraceFrame()
 
 // MANIPULATORS
 inline
-StackTraceFrame& StackTraceFrame::operator=(
-                                              const StackTraceFrame& rhs)
+StackTraceFrame& StackTraceFrame::operator=(const StackTraceFrame& rhs)
 {
     if (rhs == *this) {
         return *this;                                                 // RETURN
@@ -565,7 +558,6 @@ void StackTraceFrame::setMangledSymbolName(const bslstl::StringRef& value)
 
     d_mangledSymbolName.assign(value.begin(), value.end());
 }
-
 
 inline
 void StackTraceFrame::setOffsetFromSymbol(bsl::size_t value)
@@ -711,8 +703,7 @@ void swap(StackTraceFrame& a, StackTraceFrame& b)
 
 // FREE OPERATORS
 inline
-bool balst::operator==(const StackTraceFrame& lhs,
-                const StackTraceFrame& rhs)
+bool balst::operator==(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
 {
     return lhs.address()           == rhs.address()
         && lhs.libraryFileName()   == rhs.libraryFileName()
@@ -724,8 +715,7 @@ bool balst::operator==(const StackTraceFrame& lhs,
 }
 
 inline
-bool balst::operator!=(const StackTraceFrame& lhs,
-                const StackTraceFrame& rhs)
+bool balst::operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
 {
     return lhs.address()           != rhs.address()
         || lhs.libraryFileName()   != rhs.libraryFileName()

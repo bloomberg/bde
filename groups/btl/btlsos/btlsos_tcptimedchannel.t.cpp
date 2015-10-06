@@ -41,7 +41,7 @@
 #undef ERR
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                              TEST PLAN
@@ -7186,7 +7186,7 @@ int main(int argc, char *argv[]) {
                 // There are not enough space in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it.
               {L_,  e_SIGNAL,         2,          0,           0,       0, 0 },
-              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,     8192,INTERRUPTED, 0 },
+              {L_,     e_WA,  SYS_DEPENDENT_LEN,  1,   8192,e_INTERRUPTED, 0 },
                 // There are not enough bytes left in the TCP buffer for next
                 // request, now we'll generate signals to interrupt it, the
                 // only difference is we call the "write" method w/o the

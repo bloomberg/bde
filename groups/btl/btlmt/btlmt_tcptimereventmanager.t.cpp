@@ -9,7 +9,7 @@
 
 #include <btlso_defaulteventmanager.h>
 
-#include <bslma_testallocator.h>                // for testing only
+#include <bslma_testallocator.h>
 #include <bdlmt_threadpool.h>
 #include <bslmt_barrier.h>
 #include <bslmt_threadattributes.h>
@@ -40,7 +40,7 @@
 #include <sys/resource.h>   // getrlimit()
 #endif
 
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 using namespace BloombergLP;
 
 //=============================================================================
@@ -405,8 +405,8 @@ void *registerThread(void *arg)
                        bsl::allocator<btlso::TimerEventManager::Callback>(&ta),
                        &dummyFunction);
         if (veryVerbose) {
-            printf("Thread %d: Iteration (O) %d\n",
-                   (int) bslmt::ThreadUtil::selfIdAsInt(),
+            printf("Thread %llu: Iteration (O) %d\n",
+                   bslmt::ThreadUtil::selfIdAsUint64(),
                    i);
         }
         mX->registerSocketEvent(fd,
@@ -430,8 +430,8 @@ void *registerThread(void *arg)
         mX->registerSocketEvent(fd,
                                 btlso::EventType::e_READ, callback);
         if (veryVerbose) {
-            printf("Thread %d: Iteration (C)%d\n",
-                   (int) bslmt::ThreadUtil::selfIdAsInt(),
+            printf("Thread %llu: Iteration (C)%d\n",
+                   bslmt::ThreadUtil::selfIdAsUint64(),
                    i);
         }
         LOOP_ASSERT(i, mX->isRegistered(fd,
