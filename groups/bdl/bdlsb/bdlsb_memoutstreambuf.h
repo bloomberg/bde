@@ -46,9 +46,9 @@ BSLS_IDENT("$Id: $")
 /// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using a 'bdlsb::MemOutStreamBuf' in order to test
-// a user defined stream type, 'CapitalizingStream'. In this example, we'll
+// a user defined stream type, 'CapitalizingStream'.  In this example, we'll
 // define a simple example stream type 'CapitalizingStream' that capitalizing
-// lower-case ASCII data written to the stream. In order to test this
+// lower-case ASCII data written to the stream.  In order to test this
 // 'CapitalizingStream' type, we'll create an instance, and supply it a
 // 'bdlsb::MemOutStreamBuf' object as its stream buffer; after we write some
 // character data to the 'CapitalizingStream' we'll inspect the buffer of the
@@ -224,10 +224,9 @@ class MemOutStreamBuf : public bsl::streambuf {
         // 'insertionChar' is not specified, 'traits_type::eof()' is appended
         // instead.
 
-    virtual pos_type seekoff(
-                           off_type                offset,
-                           bsl::ios_base::seekdir  way,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
+    virtual pos_type seekoff(off_type                offset,
+                             bsl::ios_base::seekdir  way,
+                             bsl::ios_base::openmode which = bsl::ios_base::in
                                                          | bsl::ios_base::out);
         // Set the position indicator to the relative specified 'offset' from
         // the base position indicated by the specified 'way' and return the
@@ -235,18 +234,17 @@ class MemOutStreamBuf : public bsl::streambuf {
         // Optionally specify 'which' area of the stream buffer.  The seek
         // operation will fail if 'which' does not include the flag
         // 'bsl::ios_base::out' or if the resulting absolute position is less
-        // than zero or greater then length().
+        // than zero or greater then 'length()'.
 
-    virtual pos_type seekpos(
-                           pos_type                position,
-                           bsl::ios_base::openmode which = bsl::ios_base::in
+    virtual pos_type seekpos(pos_type                position,
+                             bsl::ios_base::openmode which = bsl::ios_base::in
                                                          | bsl::ios_base::out);
         // Set the position indicator to the specified 'position' and return
         // the resulting absolute position on success or pos_type(-1) on
         // failure.  Optionally specify 'which' area of the stream buffer.  The
         // 'seekpos' operation will fail if 'which' does not include the flag
         // 'bsl::ios_base::out' or if 'position' is less then zero or greater
-        // than length().
+        // than 'length()'.
 
     virtual bsl::streamsize xsputn(const char_type *source,
                                    bsl::streamsize  numChars);

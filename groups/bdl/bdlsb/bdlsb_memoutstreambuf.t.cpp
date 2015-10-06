@@ -211,6 +211,23 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
     stream.flags(flags); // reset stream format flags
     return stream;
 }
+size_t estimateCurrentCapacity(bdlsb::MemOutStreamBuf& streamBuffer);
+    // Write a sequence of characters to the specified 'streamBuffer' until
+    // the stream buffer relocates its internal buffer and return the length
+    // of the stream buffer before the relocation.   Note that this function
+    // alters the content of the stream buffer.
+
+size_t estimateCurrentCapacity(bdlsb::MemOutStreamBuf& streamBuffer)
+{
+    const char* initialBuffer     = streamBuffer.data();
+    size_t      estimatedCapacity = static_cast<size_t>(streamBuffer.length());
+
+    while (initialBuffer == streamBuffer.data()) {
+        estimatedCapacity = static_cast<size_t>(streamBuffer.length());
+        streamBuffer.sputc('a');
+    }
+    return estimatedCapacity;
+}
 
 class LimitsTestAllocator : public bslma::Allocator {
   // This 'class' implements an allocator that can be used to test allocation
@@ -468,9 +485,9 @@ namespace {
 /// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using a 'bdlsb::MemOutStreamBuf' in order to test
-// a user defined stream type, 'CapitalizingStream'. In this example, we'll
+// a user defined stream type, 'CapitalizingStream'.  In this example, we'll
 // define a simple example stream type 'CapitalizingStream' that capitalizing
-// lower-case ASCII data written to the stream. In order to test this
+// lower-case ASCII data written to the stream.  In order to test this
 // 'CapitalizingStream' type, we'll create an instance, and supply it a
 // 'bdlsb::MemOutStreamBuf' object as its stream buffer; after we write some
 // character data to the 'CapitalizingStream' we'll inspect the buffer of the
@@ -1114,13 +1131,13 @@ int main(int argc, char *argv[])
         //:   correctly.  (C-1..3)
         //:
         //: 2 Create an object and write out several strings with length
-        //:   exceeding current capacity.  Verify that enough memory for string
-        //:   storing has been allocated.  (C-4)
+        //:   exceeding current capacity.  Verify that enough memory for
+        //:   storing the string has been allocated.  (C-4)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   triggered when an attempt is made to perform operations with
+        //:   invalid input parameters values (using the 'BSLS_ASSERTTEST_*
+        //:   macros).  (C-5)
         //
         // Testing:
         //   streamsize xsputn(const char_type *s, streamsize length);
@@ -1182,14 +1199,33 @@ int main(int argc, char *argv[])
                 size_t d_numCharsToWrite;    // number of characters to write
                 size_t d_expCapacity;        // expected object capacity
             } DATA[] = {
-               //LINE  INITIAL           CHARACTERS  EXPECTED
-               //      CAPACITY          NUMBER      CAPACITY
-               //----  ---------------   ----------  ---------------------
-               { L_,   0,                1,          INIT_BUFSIZE       },
-               { L_,   0,                IBMO,       INIT_BUFSIZE       },
-               { L_,   0,                IBPO,       TWICE_INIT_BUFSIZE },
-               { L_,   1,                HIBPO,      INIT_BUFSIZE       },
-               { L_,   INIT_BUFSIZE,     IBPO,       TWICE_INIT_BUFSIZE },
+               //LINE  INITIAL         CHARACTERS  EXPECTED
+               //      CAPACITY        TO WRITE    CAPACITY
+               //----  -------------   ----------  ---------------------
+               { L_,   0,              1,            INIT_BUFSIZE       },
+               { L_,   0,              IBMO,         INIT_BUFSIZE       },
+               { L_,   0,              IBPO,         TWICE_INIT_BUFSIZE },
+               { L_,   1,              1,            1                  },
+               { L_,   1,              HIBPO,        INIT_BUFSIZE       },
+               { L_,   1,              INIT_BUFSIZE, INIT_BUFSIZE       },
+               { L_,   1,              IBPO,         TWICE_INIT_BUFSIZE },
+               { L_,   4,              1,            4                  },
+               { L_,   4,              2,            4                  },
+               { L_,   4,              3,            4                  },
+               { L_,   4,              4,            4                  },
+               { L_,   4,              5,            8                  },
+               { L_,   4,              6,            8                  },
+               { L_,   4,              7,            8                  },
+               { L_,   4,              8,            8                  },
+               { L_,   4,              9,            16                 },
+               { L_,   4,              10,           16                 },
+               { L_,   4,              15,           16                 },
+               { L_,   4,              16,           16                 },
+               { L_,   4,              17,           32                 },
+               { L_,   INIT_BUFSIZE,   IBMO,         INIT_BUFSIZE       },
+               { L_,   INIT_BUFSIZE,   HIBPO,        INIT_BUFSIZE       },
+               { L_,   INIT_BUFSIZE,   INIT_BUFSIZE, INIT_BUFSIZE       },
+               { L_,   INIT_BUFSIZE,   IBPO,         TWICE_INIT_BUFSIZE },
             };
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -1209,9 +1245,13 @@ int main(int argc, char *argv[])
 
                 mSB.sputn(FILL, CHARS_TO_WRITE);
 
+                // Estimate the buffer capacity by observing allocator
                 ASSERTV(LINE, EXP_CAPACITY   == ta.lastAllocatedNumBytes());
                 ASSERTV(LINE, CHARS_TO_WRITE == mSB.length());
                 ASSERTV(LINE, 0 == strncmp(SB.data(), FILL, CHARS_TO_WRITE));
+
+                // Estimate the buffer capacity by triggering next relocation
+                ASSERTV(LINE, EXP_CAPACITY == estimateCurrentCapacity(mSB));
             }
         }
 
