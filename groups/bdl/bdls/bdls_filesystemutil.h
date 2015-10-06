@@ -525,7 +525,9 @@ struct FilesystemUtil {
         // treat the last filename in 'path' as a directory and attempt to
         // create it.  Otherwise, treat the last filename as a regular file and
         // ignore it.  Return 0 on success, and a non-zero value if any needed
-        // directories in 'path' could not be created.
+        // directories in 'path' could not be created.  Note that this
+        // function may return an error status if another task attempts to
+        // create a directory in 'path' concurrently to this function call.
 
     static void visitPaths(
                          const bsl::string&                           pattern,
