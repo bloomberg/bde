@@ -30,9 +30,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::Metric' class and the macros defined in this component primarily
@@ -43,7 +43,7 @@ using bsl::flush;
 // creating an "oracle" 'balm::Collector' object and verifying that operations
 // performed on a 'balm::Metric' (or with a macro) have the same effect as the
 // same operation performed directly on the "oracle" 'balm::Collector'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 9] static balm::Collector *lookupCollector(const bslstl::StringRef&  ,
 //                                             const bslstl::StringRef&  ,
@@ -72,7 +72,7 @@ using bsl::flush;
 //                       const balm::Metric&);
 // [ 4]  bool operator!=(const balm::Metric&,
 //                       const balm::Metric&);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] CONCURRENCY TEST: 'balm::Metric'
 // [11] USAGE EXAMPLE
@@ -286,7 +286,7 @@ void MetricConcurrencyTest::runTest()
 // metrics.
 //
 ///Example 1 - Metric collection with 'balm::Metric'
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // We can use 'balm::Metric' objects to record metric values.  In this
 // example we implement a hypothetical event manager object.  We use
 // 'balm::Metric' objects to record metrics for the size of the request, the

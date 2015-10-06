@@ -111,7 +111,10 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-namespace balm {class MetricsManager;
+namespace balm {
+
+class MetricsManager;
+
                         // ============================
                         // struct DefaultMetricsManager
                         // ============================
@@ -138,8 +141,8 @@ struct DefaultMetricsManager {
         // otherwise return the address of the default metrics manager
         // instance, or 0 if the default metrics manager instance has not yet
         // been created or has already been destroyed.  Note that this
-        // operation is logically equivalent to 'manager ? manager :
-        // instance()'.
+        // operation is logically equivalent to
+        // 'manager ? manager : instance()'.
 
     static MetricsManager *create(bslma::Allocator *basicAllocator = 0);
         // Create the default 'MetricsManager' instance and return the address

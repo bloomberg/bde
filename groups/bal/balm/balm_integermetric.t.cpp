@@ -31,9 +31,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::IntegerMetric' class and the macros defined in this component
@@ -45,7 +45,7 @@ using bsl::flush;
 // object and verifying that operations performed on a 'balm::IntegerMetric'
 // (or with a macro) have the same effect as the same operation performed
 // directly on the "oracle" 'balm::IntegerCollector'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 9] balm::IntegerCollector *lookupCollector(const bslstl::StringRef&,
 //                                              const bslstl::StringRef&,
@@ -75,7 +75,7 @@ using bsl::flush;
 //                       const balm::IntegerMetric&);
 // [ 4]  bool operator!=(const balm::IntegerMetric&,
 //                       const balm::IntegerMetric&);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] CONCURRENCY TEST: 'balm::IntegerMetric'
 // [11] USAGE EXAMPLE
@@ -151,11 +151,11 @@ class MetricConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool   d_pool;
+    bdlmt::FixedThreadPool  d_pool;
     balm::IntegerMetric    *d_metric;
     balm::MetricRegistry   *d_registry;
     bslmt::Barrier          d_barrier;
-    bslma::Allocator      *d_allocator_p;
+    bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -167,7 +167,7 @@ class MetricConcurrencyTest {
     MetricConcurrencyTest(int                  numThreads,
                           balm::IntegerMetric  *metric,
                           balm::MetricRegistry *registry,
-                          bslma::Allocator    *basicAllocator)
+                          bslma::Allocator     *basicAllocator)
     : d_pool(numThreads, 1000, basicAllocator)
     , d_metric(metric)
     , d_registry(registry)

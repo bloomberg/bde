@@ -27,15 +27,15 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'bdema::MetricDescription' is a simple mechanism containing the address
-// of a (non-modifiable) 'balm::Category' and the address of a null-terminated
+// A 'balm::MetricDescription' is a simple mechanism containing the address of
+// a (non-modifiable) 'balm::Category' and the address of a null-terminated
 // string.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] balm::MetricDescription(const balm::Category *, const char *);
 // [ 2] ~balm::MetricDescription();
@@ -43,7 +43,7 @@ using bsl::flush;
 // [ 3] void setName(const char *);
 // [ 3] void setCategory(const balm::Category *)
 // [ 5] void setPreferredPublicationType(balm::PublicationType::Value type);
-// [ 6] void setFormat(const bsl::shared_ptr<const balm::MetricFormat>& );
+// [ 6] void setFormat(bsl::shared_ptr<const balm::MetricFormat>&);
 // ACCESSORS
 // [ 2] const char *name() const;
 // [ 2] const balm::Category *category() const;
@@ -53,12 +53,11 @@ using bsl::flush;
 // [ 7] void setUserData(UserDataKey key,  const void *value);
 // [ 7] const void *userData(UserDataKey key) const;
 // FREE OPERATORS
-// [ 4] bsl::ostream& operator<<(bsl::ostream&, const balm::MetricDescription&);
-//-----------------------------------------------------------------------------
+// [ 4] operator<<(ostream&, const balm::MetricDescription&);
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCURRENCY TEST
 // [ 9] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -112,10 +111,10 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool    d_pool;
+    bdlmt::FixedThreadPool   d_pool;
     bslmt::Barrier           d_barrier;
     balm::MetricDescription *d_description_p;
-    bslma::Allocator       *d_allocator_p;
+    bslma::Allocator        *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -390,7 +389,7 @@ int main(int argc, char *argv[])
         //   'format'.  Note that this tests the *address* of the format.
         //
         // Testing:
-        //    void setFormat(const bsl::shared_ptr<const balm::MetricFormat>& );
+        //    void setFormat(bsl::shared_ptr<const balm::MetricFormat>&);
         //    bsl::shared_ptr<const balm::MetricFormat> format() const;
         // --------------------------------------------------------------------
 

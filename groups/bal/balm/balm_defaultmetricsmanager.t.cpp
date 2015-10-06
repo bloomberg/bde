@@ -24,9 +24,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The 'balm::DefaultMetricsManager' is a namespace for a related set of
@@ -36,7 +36,7 @@ using bsl::flush;
 // The 'balm::DefaultMetricsManagerScopedGuard' is a simple scoped guard with
 // only a single constructor and destructor and can be test with a single
 // case.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::DefaultMetricsManager
 // CLASS METHODS
 // [ 3] static balm::MetricsManager *manager(balm::MetricsManager *manager);
@@ -44,13 +44,13 @@ using bsl::flush;
 // [ 2] static balm::MetricsManager *create(ostream& , Allocator *);
 // [ 1] static balm::MetricsManager *instance();
 // [ 1] static void destroy();
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::DefaultMetricsManagerScopedGuard
 // CREATORS
 // [ 4] balm::DefaultMetricsManagerScopedGuard(bslma::Allocator *);
 // [ 5] balm::DefaultMetricsManagerScopedGuard(bsl::cout, Allocator)
 // [ 3] ~balm::DefaultMetricsManagerScopedGuard();
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
 
 // ============================================================================
@@ -162,9 +162,9 @@ int main(int argc, char *argv[])
 //..
 //  int main(int argc, char *argv[])
     {
-//
+
         // ...
-//
+
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
 //..
 // Once the default instance has been created, it can be accessed using the
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
                                                      "MyCategory", "MyMetric");
         myMetric->update(10);
         manager->publishAll();
-//
+
         // ... rest of program elided ...
     }
 //..

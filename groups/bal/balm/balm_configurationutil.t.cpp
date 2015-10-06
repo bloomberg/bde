@@ -29,12 +29,12 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] static int setPreferredPublicationType(
 //                               const char                   *category,
@@ -61,10 +61,9 @@ using bsl::flush;
 //                              balm::MetricDescription::UserDataKey,
 //                              const void *,
 //                              balm::MetricsManager *);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE 1
 // [ 8] USAGE EXAMPLE 2
-//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -116,7 +115,7 @@ typedef balm::MetricDescription::UserDataKey Key;
 // ----------------------------------------------------------------------------
 
 ///Using a Metric's User Data
-///- - - - - - - - - - - - -
+/// - - - - - - - - - - - - -
 // In the following example we configure, using 'balm::ConfigurationUtil',
 // application specific thresholds for a series of metrics that will
 // be used by a publisher to determine whether each metric should be written
@@ -137,8 +136,8 @@ typedef balm::MetricDescription::UserDataKey Key;
 //
         // DATA
         balm::MetricDescription::UserDataKey d_thresholdKey;  // key for a
-                                                             // metric's
-                                                             // threshold
+                                                              // metric's
+                                                              // threshold
 //
         // NOT IMPLEMENTED
         ThresholdPublisher(const ThresholdPublisher& );

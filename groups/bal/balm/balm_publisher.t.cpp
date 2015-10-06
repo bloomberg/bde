@@ -26,14 +26,14 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -87,7 +87,7 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 // ----------------------------------------------------------------------------
 
 ///Example 1 -- Implementing the 'balm::Publisher' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates a simple implementation of the
 // 'balm::Publisher' protocol.  This implementation publishes the metric
 // records to an output stream provided on construction.
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
 ///Example 3 -- Publishing Collected Metrics Using 'EventManager'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this final example, we publish metrics collected using a
 // 'EventManager' object (defined above).
 //
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That the virtual methods of the abstract base class
-        //   'bdem::Publisher' will call the methods of concrete
+        //   'balm::Publisher' will call the methods of concrete
         //   implementations.
         //
         // Plan:

@@ -42,9 +42,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 //  The component under test is a scheduling mechanism that uses a
@@ -60,7 +60,7 @@ using bsl::flush;
 //  cases we define a helper class, 'TestPublisher', and use it to record the
 //  invocations of the 'balm::MetricsManager' object's 'publish' method over a
 //  period of time and compare those to their expected values.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 3] balm::PublicationScheduler(balm::MetricsManager *,
 //                                bdlmt::TimerEventScheduler *,
@@ -69,8 +69,7 @@ using bsl::flush;
 // MANIPULATORS
 // [10] void scheduleCategory(const bslstl::StringRef&   ,
 //                            const bsls::TimeInterval& );
-// [ 3] void scheduleCategory(const balm::Category      *,
-//                            const bsls::TimeInterval&  );
+// [ 3] void scheduleCategory(const Category *, const TimeInterval&);
 // [ 3] void setDefaultSchedule(const bsls::TimeInterval& );
 // [10] int cancelCategorySchedule(const bslstl::StringRef& );
 // [ 6] int cancelCategorySchedule(const balm::Category *);
@@ -85,10 +84,10 @@ using bsl::flush;
 // [ 3] bool getDefaultSchedule(bsls::TimeInterval *) const;
 // [ 8] int getCategorySchedule(
 //                        bsl::vector<bsl::pair<const balm::Category *,
-//                                              bsls::TimeInterval> > * ) const;
+//                                             bsls::TimeInterval> > * ) const;
 // [ 3] const balm::MetricsManager *manager() const;
 // [ 9] bsl::ostream& print(bsl::ostream&, int, spacesPerLevel ) const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] 'gg', 'TestPublisher'                       (generator, helper classes)
 // [ 4] PRIVATE METHOD TEST: 'publish'              (private method)
@@ -224,41 +223,41 @@ enum {
         firstTime = 0;                                                    \
     }                                                                     \
     if (veryVeryVerbose) cout <<                                          \
-        "### Begin bdema exception test." << endl;                        \
-    int bdemaExceptionCounter = 0;                                        \
-    static int bdemaExceptionLimit = 100;                                 \
-    testAllocator.setAllocationLimit(bdemaExceptionCounter);              \
+        "### Begin balm exception test." << endl;                        \
+    int balmExceptionCounter = 0;                                        \
+    static int balmExceptionLimit = 100;                                 \
+    testAllocator.setAllocationLimit(balmExceptionCounter);              \
     do {                                                                  \
         try {
 
 #define END_BALM_EXCEPTION_TEST                                           \
         } catch (bslma::TestAllocatorException& e) {                      \
             Schedule schedule(Z);                                         \
-            bsls::TimeInterval interval;                                   \
+            bsls::TimeInterval interval;                                  \
             ASSERT(0  == timer.numClocks());                              \
             ASSERT(0  == timer.numEvents());                              \
             ASSERT(0  == MX.getCategorySchedule(&schedule));              \
             ASSERT(!MX.getDefaultSchedule(&interval));                    \
-            if (veryVerbose && bdemaExceptionLimit || veryVeryVerbose) {  \
-                --bdemaExceptionLimit;                                    \
-                cout << "(*** " << bdemaExceptionCounter << ')';          \
+            if (veryVerbose && balmExceptionLimit || veryVeryVerbose) {  \
+                --balmExceptionLimit;                                    \
+                cout << "(*** " << balmExceptionCounter << ')';          \
                 if (veryVeryVerbose) { cout << " BEDMA_EXCEPTION: "       \
-                    << "alloc limit = " << bdemaExceptionCounter << ", "  \
+                    << "alloc limit = " << balmExceptionCounter << ", "  \
                     << "last alloc size = " << e.numBytes();              \
                 }                                                         \
-                else if (0 == bdemaExceptionLimit) {                      \
-                    cout << " [ Note: 'bdemaExceptionLimit' reached. ]";  \
+                else if (0 == balmExceptionLimit) {                      \
+                    cout << " [ Note: 'balmExceptionLimit' reached. ]";  \
                 }                                                         \
                 cout << endl;                                             \
             }                                                             \
-            testAllocator.setAllocationLimit(++bdemaExceptionCounter);    \
+            testAllocator.setAllocationLimit(++balmExceptionCounter);    \
             continue;                                                     \
         }                                                                 \
         testAllocator.setAllocationLimit(-1);                             \
         break;                                                            \
     } while (1);                                                          \
     if (veryVeryVerbose) cout <<                                          \
-        "### End bdema exception test." << endl;                          \
+        "### End balm exception test." << endl;                          \
 }
 #else
 #define BEGIN_BALM_EXCEPTION_TEST                                         \
@@ -322,16 +321,16 @@ class TestPublisher : public balm::Publisher {
     // maintains 'lastElapsedTime()' and 'lastTimeStamp()' values holding the
     // elapsed time and time stamp values of the last published
     // 'balm::MetricSample' object.  In addition, the 'TestPublisher' maintains
-    // a map of invocation information.  Each 'balm::MetricSample' passed to the
-    // 'publish' method is identified by the *set* of *categories* that appear
-    // in the sequence of records held by that sample.  For each unique set of
-    // categories passed to the 'publish' method (via a 'balm::MetricSample'
-    // object) a 'TestPublisher' object will record: the number of times the
-    // 'publish' method has been invoked with that set of categories, as well
-    // as the time stamp and elapsed time of the last metric sample passed to
-    // 'publish' with that identifying set of categories.  Note that the
-    // invocation information is explicitly designed to test the
-    // 'balm::PublicationScheduler::publish' method, which invokes
+    // a map of invocation information.  Each 'balm::MetricSample' passed to
+    // the 'publish' method is identified by the *set* of *categories* that
+    // appear in the sequence of records held by that sample.  For each unique
+    // set of categories passed to the 'publish' method (via a
+    // 'balm::MetricSample' object) a 'TestPublisher' object will record: the
+    // number of times the 'publish' method has been invoked with that set of
+    // categories, as well as the time stamp and elapsed time of the last
+    // metric sample passed to 'publish' with that identifying set of
+    // categories.  Note that the invocation information is explicitly designed
+    // to test the 'balm::PublicationScheduler::publish' method, which invokes
     // 'balm::MetricsManager::publish' with a unique set of categories for the
     // supplied time interval.
 
@@ -660,7 +659,7 @@ class Action {
      // CREATORS
      Action(Type type, const balm::Category *category, int interval);
         // Create an 'Action' with the specified 'type', 'category', and
-        // 'interval.
+        // 'interval'.
 
      // ACCESSORS
      Type type() const;
@@ -779,11 +778,11 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool         d_pool;
+    bdlmt::FixedThreadPool        d_pool;
     bslmt::Barrier                d_barrier;
     balm::PublicationScheduler   *d_scheduler_p;
-    bdlmt::TimerEventScheduler    *d_eventScheduler_p;
-    bslma::Allocator            *d_allocator_p;
+    bdlmt::TimerEventScheduler   *d_eventScheduler_p;
+    bslma::Allocator             *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -973,7 +972,7 @@ void ConcurrencyTest::execute()
 void ConcurrencyTest::runTest()
 {
     bsl::function<void()> job = bdlf::BindUtil::bind(&ConcurrencyTest::execute,
-                                                      this);
+                                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1090,9 +1089,9 @@ bool stringDiff(const bsl::string& expectedValue,
 //                 ]                             'scheduleCategory()' "B" at
 //                                               1 time unit.
 
-void gg(bsl::vector<Action>  *actions,
+void gg(bsl::vector<Action>   *actions,
         balm::MetricRegistry&  registry,
-        const char           *specification)
+        const char            *specification)
     // Set the specified 'actions' to the sequence of actions indicated by the
     // specified 'specification' (as described by the 'gg' generator language
     // above), using the specified 'registry' to supply 'balm::Category' object
@@ -1396,8 +1395,8 @@ int main(int argc, char *argv[])
         //   of this object are exception neutral.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "BDEMA EXCEPTION TEST" << endl
-                          << "====================" << endl;
+                          << "BALM ALLOCATION EXCEPTION TEST" << endl
+                          << "==============================" << endl;
 
         const char *TEST_SPECS[] = {
             "A1",
@@ -1568,7 +1567,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "TESTING MANIPULATOR: print" << endl
-                          << "==================================" << endl;
+                          << "==========================" << endl;
 
         bdlmt::TimerEventScheduler timer(Z);
         balm::MetricsManager      manager(Z);
@@ -1693,7 +1692,7 @@ int main(int argc, char *argv[])
         // Testing:
         //  int getCategorySchedule(
         //                bsl::vector<bsl::pair<const balm::Category *,
-        //                                      bsls::TimeInterval> > * ) const;
+        //                                     bsls::TimeInterval> > * ) const;
         // --------------------------------------------------------------------
 
         const char *TEST_SPECS[] = {
@@ -1796,7 +1795,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "TESTING MANIPULATOR: cancelAll\n"
-                          << "==========================================\n";
+                          << "==============================\n";
 
         bdlmt::TimerEventScheduler  timer(Z);
         balm::MetricsManager       manager(Z);
@@ -2419,7 +2418,7 @@ int main(int argc, char *argv[])
         //                             bslma::Allocator *);
         //   ~balm::PublicationScheduler();
         //   balm::MetricsManager *manager();
-        //   void scheduleCategory(const Category *, const bsls::TimeInterval&);
+        //   void scheduleCategory(const Category *, const TimeInterval&);
         //   void setDefaultSchedule(const bsls::TimeInterval& )
         //   const balm::MetricsManager *manager() const;
         //   bool findCategorySchedule(bsls::TimeInterval   *result,

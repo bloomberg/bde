@@ -419,6 +419,7 @@ const double& MetricRecord::min() const
 {
     return d_min;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

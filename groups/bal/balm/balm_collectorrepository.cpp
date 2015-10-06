@@ -48,9 +48,9 @@ class CollectorRepository_Collectors {
     // This implementation class provides a container mechanism for managing a
     // set of objects of templatized type 'COLLECTOR' that are all associated
     // with a single metric.  The behavior is undefined unless the templatized
-    // type 'COLLECTOR' is either 'balm::Collector' or
-    // 'balm::IntegerCollector'.  A 'balm::CollectorRepository_Collectors'
-    // object is supplied a 'balm::MetricId' at construction, and provides a
+    // type 'COLLECTOR' is either 'Collector' or
+    // 'IntegerCollector'.  A 'CollectorRepository_Collectors'
+    // object is supplied a 'MetricId' at construction, and provides a
     // default 'COLLECTOR' as well as a set of additional 'COLLECTOR' objects
     // for the identified metric.  Additional 'COLLECTOR' objects (beyond the
     // default) can be added using the 'addCollector' method.  A
@@ -83,15 +83,15 @@ class CollectorRepository_Collectors {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    CollectorRepository_Collectors(const balm::MetricId&   metricId,
-                                   bslma::Allocator       *basicAllocator = 0);
-        // Create a 'balm::CollectorRepository_Collectors' object to hold
+    CollectorRepository_Collectors(const MetricId&   metricId,
+                                   bslma::Allocator *basicAllocator = 0);
+        // Create a 'CollectorRepository_Collectors' object to hold
         // objects of the templatized type 'COLLECTOR' for the specified
         // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  The behavior is undefined unless the
-        // templatized type 'COLLECTOR' is either 'balm::Collector' or
-        // 'balm::IntegerCollector', and 'metricId.isValid()' is 'true'.
+        // templatized type 'COLLECTOR' is either 'Collector' or
+        // 'IntegerCollector', and 'metricId.isValid()' is 'true'.
 
     ~CollectorRepository_Collectors();
         // Destroy this object.
@@ -112,14 +112,14 @@ class CollectorRepository_Collectors {
         // call to 'addCollector' on this object, or has previously been
         // removed.
 
-    void collectAndReset(balm::MetricRecord *record);
+    void collectAndReset(MetricRecord *record);
         // Load into the specified 'record' the aggregate value of all the
         // records collected by the collectors owned by this object; then
         // reset those collectors to their default values.  Note that all
         // collectors within this object record values for the same metric id,
         // so they can be aggregated into a single record.
 
-    void collect(balm::MetricRecord *record);
+    void collect(MetricRecord *record);
         // Load into the specified 'record' the aggregate value of all the
         // records collected by the collectors owned by this object.  Note
         // that all collectors within this object record values for the same
@@ -136,8 +136,8 @@ class CollectorRepository_Collectors {
         // subsequently removed.  Return the number of collectors that were
         // found.
 
-    const balm::MetricId& metricId() const;
-        // Return a reference to the non-modifiable 'balm::MetricId' object
+    const MetricId& metricId() const;
+        // Return a reference to the non-modifiable 'MetricId' object
         // identifying the metric for which the collectors in this container
         // are collecting values.
 };
@@ -365,7 +365,8 @@ CollectorRepository_MetricCollectors::intCollectors()
     return d_intCollectors;
 }
 
-void CollectorRepository_MetricCollectors::collectAndReset(MetricRecord *record)
+void CollectorRepository_MetricCollectors::collectAndReset(
+                                                          MetricRecord *record)
 {
     d_collectors.collectAndReset(record);
     MetricRecord tempRecord;

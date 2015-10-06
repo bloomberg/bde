@@ -6,10 +6,6 @@ BSLS_IDENT_RCSID(balm_metric_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                             // ------------------
-                             // class balm::Metric
-                             // ------------------
-
 namespace balm {
                            // ---------------------
                            // class Metric_MacroImp
@@ -49,9 +45,8 @@ void Metric_MacroImp::getCollector(
     manager->metricRegistry().setPreferredPublicationType(
                           (*collector)->metricId(), preferredPublicationType);
 }
+
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

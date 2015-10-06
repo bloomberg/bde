@@ -47,8 +47,8 @@ int PublicationType::fromInt(PublicationType::Value *result,
 }
 
 int PublicationType::fromString(PublicationType::Value *result,
-                                     const char        *string,
-                                     int                stringLength)
+                                const char             *string,
+                                int                     stringLength)
 {
 
     switch(stringLength) {

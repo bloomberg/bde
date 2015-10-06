@@ -23,9 +23,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // A 'balm::MetricSampleGroup' is a simple value containing three
@@ -34,7 +34,7 @@ using bsl::flush;
 // time interval.  A 'balm::MetricSample' is a sequence of
 // 'balm::MetricSampleGroup' objects with the additional restriction that empty
 // groups are not permitted, and 'elapsedTime > bsls::TimeInterval(0, 0)'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::MetricSampleGroup
 // CREATORS
 // [ 3]  balm::MetricSampleGroup();
@@ -44,7 +44,7 @@ using bsl::flush;
 // [ 6]  balm::MetricSampleGroup(const balm::MetricSampleGroup& );
 // [ 3]  ~balm::MetricSampleGroup();
 // MANIPULATORS
-// [ 7]  balm::MetricSampleGroup& operator=(const balm::MetricSampleGroup& );
+// [ 7]  balm::MetricSampleGroup& operator=(balm::MetricSampleGroup&);
 // [ 3]  void setElapsedTime(const bsls::TimeInterval& );
 // [ 3]  void setRecords(const balm::MetricRecord *, int );
 // ACCESSORS
@@ -61,7 +61,7 @@ using bsl::flush;
 //                       const balm::MetricSampleGroup& );
 // [ 8]  bsl::ostream& operator<<(bsl::ostream& ,
 //                                const balm::MetricSampleGroup& );
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::MetricSample
 // CREATORS
 // [11]  balm::MetricSample(bslma::Allocator *);
@@ -85,10 +85,10 @@ using bsl::flush;
 // [11]  int numRecords() const;
 // [15]   bsl::ostream& print(bsl::ostream&, int, int) const;
 // FREE OPERATORS
-// [12]  bool operator==(const balm::MetricSample& , const balm::MetricSample& );
-// [12]  bool operator!=(const balm::MetricSample& , const balm::MetricSample& );
+// [12]  bool operator==(balm::MetricSample& , balm::MetricSample& );
+// [12]  bool operator!=(balm::MetricSample& , balm::MetricSample& );
 // [15]  bsl::ostream& operator<<(bsl::ostream&, const balm::MetricSample& );
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST: 'balm::MetricSampleGroup'
 // [ 2] BREATHING TEST: 'balm::MetricSample'
 // [ 2] HELPER TEST: 'gg'
@@ -360,13 +360,13 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and use a metric sample.
-// We start by initializing several 'balm::MetricRecord' values that we will add
-// to the sample.  Note that in this example we create the 'balm::MetricId'
+// We start by initializing several 'balm::MetricRecord' values, which we will
+// add to the sample.  Note that in this example we create the 'balm::MetricId'
 // objects by hand; however, in practice ids should be obtained from a
 // 'balm::MetricRegistry' object (such as the one owned by a
 // 'balm::MetricsManager').
 //..
-    bslma::Allocator    *allocator = bslma::Default::allocator(0);
+    bslma::Allocator *allocator = bslma::Default::allocator(0);
 
     balm::Category myCategory("MyCategory");
     balm::MetricDescription descA(&myCategory, "MetricA");
@@ -377,67 +377,67 @@ int main(int argc, char *argv[])
     balm::MetricId metricB(&descB);
     balm::MetricId metricC(&descC);
 
-    const int TZ = 0;  // GMT time zone offset
+    const int TZ = 0;  // UTC time zone offset
 
     bdlt::DatetimeTz timeStamp(bdlt::Datetime(2008, 3, 26, 13, 30, 0, 0), TZ);
     balm::MetricRecord recordA(metricA, 0, 0, 0, 0);
     balm::MetricRecord recordB(metricB, 1, 2, 3, 4);
     balm::MetricRecord recordC(metricC, 4, 3, 2, 1);
 //..
-// Now we create the two arrays of metric records whose, the addresses of
-// which we will later add to the metric sample.
+// Now we create the two arrays of metric records whose addresses we will
+// later add to the metric sample:
 //..
-    balm::MetricRecord              buffer1[] = {recordA, recordB};
+    balm::MetricRecord              buffer1[] = { recordA, recordB };
     bsl::vector<balm::MetricRecord> buffer2(allocator);
     buffer2.push_back(recordC);
 //..
-// Next we create a 'balm::MetricSample' object, 'sample', and set timestamp
-// property.  Then we add two groups of records, containing the addresses of
-// our two record arrays, to the sample we have created.  Since the records
-// were not actually collected over a period of time, we supply an arbitrary
-// elapsed time value of 1 second and 2 seconds (respectively) for the two
-// groups added to the sample.  Note that these arrays must remain valid for
-// the lifetime of 'sample'.
+// Next we create a 'balm::MetricSample' object, 'sample', and set its
+// timestamp property.  Then we add two groups of records (containing the
+// addresses of our two record arrays) to the sample we have created.  Since
+// the records were not actually collected over a period of time, we supply an
+// arbitrary elapsed time value of 1 second and 2 seconds (respectively) for
+// the two groups added to the sample.  Note that these arrays must remain
+// valid for the lifetime of 'sample'.
 //..
     balm::MetricSample sample(allocator);
     sample.setTimeStamp(timeStamp);
     sample.appendGroup(buffer1,
                        sizeof(buffer1) / sizeof(*buffer1),
-                       bsls::TimeInterval(1, 0));
+                       bsls::TimeInterval(1.0));
     sample.appendGroup(buffer2.data(),
                        buffer2.size(),
-                       bsls::TimeInterval(2, 0));
+                       bsls::TimeInterval(2.0));
 //..
-// We can verify the basic properties of our sample.
+// We can verify the basic properties of our sample:
 //..
-         ASSERT(timeStamp            == sample.timeStamp());
-         ASSERT(2                    == sample.numGroups());
-         ASSERT(3                    == sample.numRecords());
+         ASSERT(timeStamp             == sample.timeStamp());
+         ASSERT(2                     == sample.numGroups());
+         ASSERT(3                     == sample.numRecords());
          ASSERT(bsls::TimeInterval(1) == sample.sampleGroup(0).elapsedTime());
-         ASSERT(buffer1              == sample.sampleGroup(0).records());
-         ASSERT(2                    == sample.sampleGroup(0).numRecords());
+         ASSERT(buffer1               == sample.sampleGroup(0).records());
+         ASSERT(2                     == sample.sampleGroup(0).numRecords());
          ASSERT(bsls::TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
-         ASSERT(buffer2.data()       == sample.sampleGroup(1).records());
-         ASSERT(buffer2.size()       == sample.sampleGroup(1).numRecords());
+         ASSERT(buffer2.data()        == sample.sampleGroup(1).records());
+         ASSERT(1                     == sample.sampleGroup(1).numRecords());
 //..
 // Finally we can obtain an iterator over the sample's sequence of groups.  In
-// this simple example we iterate over the groups of records in the sample,
-// and then iterate over ache record in the group, writing the records to the
-// console.
+// this simple example, we iterate over the groups of records in the sample
+// and, for each group, iterate over the records in that group, writing those
+// records to the console.
 //..
-    balm::MetricSample::const_iterator sIt = sample.begin();
-    for ( ; sIt != sample.end(); ++sIt) {
-        balm::MetricSampleGroup::const_iterator gIt = sIt->begin();
-        for ( ; gIt != sIt->end(); ++gIt) {
-            bsl::cout << *gIt << bsl::endl;
+    balm::MetricSample::const_iterator sampleIt = sample.begin();
+    for ( ; sampleIt != sample.end(); ++sampleIt) {
+        balm::MetricSampleGroup::const_iterator groupIt = sampleIt->begin();
+        for ( ; groupIt != sampleIt->end(); ++groupIt) {
+            bsl::cout << *groupIt << bsl::endl;
         }
     }
 //..
 // The output will look like:
 //..
-// [ MyCategory.MetricA: 0 0 0 0 ]
-// [ MyCategory.MetricB: 1 2 3 4 ]
-// [ MyCategory.MetricC: 4 3 2 1 ]
+//  [ MyCategory.MetricA: 0 0 0 0 ]
+//  [ MyCategory.MetricB: 1 2 3 4 ]
+//  [ MyCategory.MetricC: 4 3 2 1 ]
 //..
       } break;
       case 18: {
@@ -480,7 +480,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             int size = gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -544,7 +545,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             int size = gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -603,7 +605,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             int size = gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -639,9 +642,11 @@ int main(int argc, char *argv[])
         //   operator<<(ostream&, const balm::MetricSample&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'print': 'balm::MetricSample'." << endl;
+        if (verbose) cout <<
+                            "\nTesting 'print': 'balm::MetricSample'." << endl;
 
-        bdlt::Date         date(bdlt::DateUtil::convertFromYYYYMMDDRaw(20080101));
+        bdlt::Date         date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                                    20080101));
         bdlt::DatetimeTz   timeStamp(bdlt::Datetime(date), 0);
 
         Obj mX(Z); const Obj& MX = mX;
@@ -737,7 +742,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -751,7 +757,8 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-                bdlt::Date    date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[j].d_date));
+                bdlt::Date    date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[j].d_date));
                 bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
                 gg(&groups, VALUES[j].d_groupSpec, RECORD_BUFFER);
 
@@ -777,7 +784,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -838,7 +846,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -882,13 +891,12 @@ int main(int argc, char *argv[])
         //    S X S.
         //
         // Testing:
-        //   bool operator==(const balm::MetricSample&,
-        //                   const balm::MetricSample&);
-        //   bool operator!=(const balm::MetricSample&,
-        //                   const balm::MetricSample&);
+        //   bool operator==(balm::MetricSample&, balm::MetricSample&);
+        //   bool operator!=(balm::MetricSample&, balm::MetricSample&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting equality: 'balm::MetricSample'" << endl;
+        if (verbose) cout << 
+                            "\nTesting equality: 'balm::MetricSample'" << endl;
 
         if (veryVerbose) cout << "\tTest basic equality." << endl;
 
@@ -911,7 +919,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -925,7 +934,8 @@ int main(int argc, char *argv[])
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-                bdlt::Date    date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[j].d_date));
+                bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[j].d_date));
                 bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
                 gg(&groups, VALUES[j].d_groupSpec, RECORD_BUFFER);
 
@@ -1009,7 +1019,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_VALUES; ++i) {
             bsl::vector<balm::MetricSampleGroup> groups(Z);
 
-            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(VALUES[i].d_date));
+            bdlt::Date       date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
+                                                            VALUES[i].d_date));
             bdlt::DatetimeTz timeStamp(bdlt::Datetime(date), 0);
             int size = gg(&groups, VALUES[i].d_groupSpec, RECORD_BUFFER);
 
@@ -1235,7 +1246,7 @@ int main(int argc, char *argv[])
         //   assigning u to itself, and verifying that w == u.
         //
         // Testing:
-        //   balm::MetricSampleGroup& operator=(const balm::MetricSampleGroup& );
+        //   balm::MetricSampleGroup& operator=(balm::MetricSampleGroup&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Assignment Operator: "

@@ -17,7 +17,6 @@ BSLS_IDENT_RCSID(balm_defaultmetricsmanager_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-
 namespace balm { class Publisher; }
 
                      // ---------------------------------

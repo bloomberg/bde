@@ -45,9 +45,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
 // The component under test is a mechanism for organizing metrics to be
@@ -74,7 +74,7 @@ using bsl::flush;
 // the primary container operators are tested, using 'publish', when required,
 // to verify internal state; then the test driver exhaustively tests the
 // primary publish variant 'publish(const char *[], ...)'.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 5]  balm::MetricsManager(bslma::Allocator *basicAllocator = 0);
 // [ 5]  ~balm::MetricsManager();
@@ -119,7 +119,7 @@ using bsl::flush;
 //                                 const Category           *) const;
 // [ 5]  const balm::CollectorRepository& collectorRepository() const;
 // [ 5]  const balm::MetricRegistry& metricRegistry() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST: general behavior
 // [ 2] BREATHING TEST: publisher registration
 // [ 3] BREATHING TEST: enabling categories
@@ -398,9 +398,9 @@ balm::MetricsManager::RecordsCollectionCallback TestCallback::function()
 {
     balm::MetricsManager::RecordsCollectionCallback cb =
         bdlf::BindUtil::bind(&TestCallback::recordMetrics,
-                              this,
-                              bdlf::PlaceHolders::_1,
-                              bdlf::PlaceHolders::_2);
+                             this,
+                             bdlf::PlaceHolders::_1,
+                             bdlf::PlaceHolders::_2);
     return cb;
 }
 
@@ -449,7 +449,7 @@ public:
         return bslmt::ThreadUtil::create(
                       &d_thread,
                       bdlf::MemFnUtil::memFn(&LockAndModifyWorker::worker,
-                                            this));
+                                             this));
     }
 
     void stop() {
@@ -510,7 +510,7 @@ class TestPublisher : public balm::Publisher {
     // 'lastRecords()' values holding the time stamp, and record values (in
     // sorted order) of the last published 'balm::MetricSample' object.  A
     // 'TestPublisher' also maintains a reconstruction of the most recently
-    // published sample, accessed using the 'lastSample().  The returned
+    // published sample, accessed using the 'lastSample()'.  The returned
     // sample value contains the same metric record values organized into the
     // same groups as the published sample, but the returned sample does not
     // refer to the the same addresses in memory: so the returned sample is
@@ -525,11 +525,11 @@ class TestPublisher : public balm::Publisher {
     bsl::vector<balm::MetricRecord> d_recordBuffer;    // last samples records
 
     bsl::vector<balm::MetricRecord> d_sortedRecords;   // last sample's records
-                                                      // in sorted order
+                                                       // in sorted order
 
     balm::MetricSample              d_sample;          // reconstructed last
-                                                      // sample (using
-                                                      // 'd_recordsBuffer')
+                                                       // sample (using
+                                                       // 'd_recordsBuffer')
 
     bsl::set<bsls::TimeInterval>    d_elapsedTimes;    // last elapsed times
 
@@ -876,10 +876,10 @@ class ConcurrencyTest {
     // Invoke a set of operations operations synchronously.
 
     // DATA
-    bdlmt::FixedThreadPool      d_pool;
+    bdlmt::FixedThreadPool     d_pool;
     bslmt::Barrier             d_barrier;
     balm::MetricsManager      *d_manager_p;
-    bslma::Allocator         *d_allocator_p;
+    bslma::Allocator          *d_allocator_p;
 
     // PRIVATE MANIPULATORS
     void execute();
@@ -1099,7 +1099,7 @@ void ConcurrencyTest::execute()
         d_barrier.wait();
 
         // Verify that the 'B' callback and the s2Cb were both invoked
-        // 'NUM_THREADS" additional times.
+        // 'NUM_THREADS' additional times.
         ASSERT(BCB_INV  + NUM_THREADS == bCb.invocations());
         ASSERT(S2CB_INV + NUM_THREADS == s2Cb.invocations());
 
@@ -1132,7 +1132,7 @@ void ConcurrencyTest::execute()
 void ConcurrencyTest::runTest()
 {
     bsl::function<void()> job = bdlf::BindUtil::bind(&ConcurrencyTest::execute,
-                                                      this);
+                                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1211,7 +1211,7 @@ void ConcurrencyTest::runTest()
     }
 
 ///Example 2 - Recording metric values with 'balm::Collector'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This second example demonstrates using 'balm::Collector' objects (obtained
 // from a metrics manager's collector repository) to collect metrics related to
 // a hypothetical 'EventHandler' class.  On construction, the event handler
@@ -1875,7 +1875,7 @@ int main(int argc, char *argv[])
             allCategories.push_back(reg.getCategory(CATEGORIES[i]));
         }
 
-        if (veryVerbose) cout << "\tTest collectSample() for som categories"
+        if (veryVerbose) cout << "\tTest collectSample() for some categories"
                               << endl;
         CombinationIterator<const Category *> combIt(allCategories, Z);
         do {
@@ -2150,7 +2150,7 @@ int main(int argc, char *argv[])
     } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING: 'addSpecificPublishers(const bslstl::StringRef&, ...);
+        // TESTING: 'addSpecificPublishers(const bslstl::StringRef&, ...)'
         //
         // Concerns:
         //   That the alternative 'addSpecificPublishers' variant (taking a
@@ -2210,7 +2210,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING: 'findSpecificPublishers(..., const bslstl::StringRef&);
+        // TESTING: 'findSpecificPublishers(..., const bslstl::StringRef&)'
         //
         // Concerns:
         //   That the alternative 'findSpecificPublishers' variant (taking a
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING: 'registerCollectionCallback(const bslstl::StringRef&, ...);
+        // TESTING: 'registerCollectionCallback(const bslstl::StringRef&, ...)'
         //
         // Concerns:
         //   That the alternative 'registerCollectionCallback' variant (taking
@@ -2285,8 +2285,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "TEST: void registerCollectionCallback(const char *, ...)"
-            << "\n====================================================\n";
+            <<   "TEST: void registerCollectionCallback(const char *, ...)"
+            << "\n========================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -2375,9 +2375,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         // Testing:
-        //   void 'setCategoryEnabled(const balm::Category *, bool );
-        //   void 'setCategoryEnabled(const char *, bool );
-        //   void 'setAllCategoriesEnabled(bool );
+        //   void setCategoryEnabled(const balm::Category *, bool );
+        //   void setCategoryEnabled(const char *, bool );
+        //   void setAllCategoriesEnabled(bool );
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -2650,7 +2650,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING: 'publishAll(const bsl::set<const balm::Category *>&, ...)
+        // TESTING: 'publishAll(const bsl::set<const balm::Category *>&, ...)'
         //
         // Concerns:
         //   That 'publishAll' method calls the expected callbacks and invokes
@@ -2767,7 +2767,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING: 'publishAll(const bsls::TimeInterval& )
+        // TESTING: 'publishAll(const bsls::TimeInterval& )'
         //
         // Concerns:
         //   That 'publishAll' method calls the expected callbacks and invokes
@@ -2856,7 +2856,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: 'publish(const balm::Category *, ...)
+        // TESTING: 'publish(const balm::Category *, ...)'
         //
         // Concerns:
         //   That 'publish' method calls the expected callbacks and invokes the
@@ -2955,7 +2955,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: 'publish(const bsl::set<const balm::Category *>&, ...)
+        // TESTING: 'publish(const bsl::set<const balm::Category *>&, ...)'
         //
         // Concerns:
         //   That 'publish' method calls the expected callbacks and invokes the
@@ -3113,7 +3113,7 @@ int main(int argc, char *argv[])
         if (verbose) cout
             << endl
             << "TEST: void publish(const balm::Category **, int, ...)\n"
-            << "====================================================\n";
+            << "=====================================================\n";
 
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
@@ -3489,9 +3489,9 @@ int main(int argc, char *argv[])
         //   published.
         //
         // Plan:
-        //   Create a map from 'balm::MetricId' to a '(CallbackHandle,
-        //   TestCallback)' pair.  Using a representative set of category
-        //   and metric identifiers:
+        //   Create a map from 'balm::MetricId' to a
+        //   '(CallbackHandle, TestCallback)' pair.  Using a representative set
+        //   of category and metric identifiers:
         //
         //   For each identified metric, create a 'TestCallback' and register
         //   it for associated category.  Verify the returned 'CallbackHandle'

@@ -21,14 +21,14 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'bdema::Category' is a simple mechanism class containing a character
+// A 'balm::Category' is a simple mechanism class containing a character
 // pointer and a boolean value.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::Category
 // CREATORS
 // [ 3] explicit balm::Category(const char *, bool    );
@@ -44,7 +44,7 @@ using bsl::flush;
 // [ 5] bsl::ostream& print(bsl::ostream& ) const;
 // FREE OPERATORS
 // [ 5] bsl::ostream& operator<<(bsl::ostream& , const balm::Category& );
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // balm::CategoryHolder
 // MANIPULATORS
 // [ 2] void reset();
@@ -55,10 +55,9 @@ using bsl::flush;
 // [ 2] const balm::Category *category() const;
 // [ 2] bool enabled() const;
 // [ 2] balm::CategoryHolder *next() const;
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO

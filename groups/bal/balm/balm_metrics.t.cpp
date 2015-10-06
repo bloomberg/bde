@@ -42,9 +42,9 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                  TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // The macros defined in this component primarily provide user-friendly access
@@ -56,7 +56,7 @@ using bsl::flush;
 // "THREAD_LOCAL" macro variants (i.e., 'BALM_METRICS_THREAD_LOCAL_UPDATE')
 // have more complex behavior with respect to their statically cached (or
 // thread-local statically cached) 'balm::Collector' object.
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // MACROS
 // [ 2] BALM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
 // [ 2] BALM_METRICS_INCREMENT(CATEGORY, NAME)
@@ -84,7 +84,7 @@ using bsl::flush;
 // [ 9] BALM_METRICS_DYNAMIC_TIME_BLOCK_MILLISECONDS(CATEGORY, METRIC)
 // [ 9] BALM_METRICS_DYNAMIC_TIME_BLOCK_MICROSECONDS(CATEGORY, METRIC)
 // [ 9] BALM_METRICS_DYNAMIC_TIME_BLOCK_NANOSECONDS(CATEGORY, METRIC)
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] CONCURRENCY TEST: STANDARD MACROS
 // [12] CONCURRENCY TEST: DYNAMIC MACROS
@@ -517,7 +517,7 @@ void DynamicMacroConcurrencyTest::runTest()
 {
     bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                          &DynamicMacroConcurrencyTest::execute,
-                                          this);
+                                         this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -666,8 +666,7 @@ void TlsMacroConcurrencyTest::execute()
         // 'ENABLED_CATEGORY' metric values.
 
         BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
-        BALM::MetricId incId = registry.getId(
-                                                  ENABLED_CATEGORY, INCREMENT);
+        BALM::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
 
         bsl::vector<BALM::Collector *> cols(Z);
         bsl::vector<BALM::IntegerCollector *> intCols(Z);
@@ -722,7 +721,7 @@ void TlsMacroConcurrencyTest::runTest()
 {
     bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                              &TlsMacroConcurrencyTest::execute,
-                                              this);
+                                             this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -871,7 +870,7 @@ void StandardIntMacroConcurrencyTest::runTest()
 {
     bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                      &StandardIntMacroConcurrencyTest::execute,
-                                      this);
+                                     this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -996,7 +995,7 @@ void DynamicIntMacroConcurrencyTest::runTest()
 {
     bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                       &DynamicIntMacroConcurrencyTest::execute,
-                                       this);
+                                      this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1143,8 +1142,7 @@ void TlsIntMacroConcurrencyTest::execute()
         // 'ENABLED_CATEGORY' metric values.
 
         BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
-        BALM::MetricId incId = registry.getId(
-                                                  ENABLED_CATEGORY, INCREMENT);
+        BALM::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
 
         ColSPtrVector cols(Z);
         IColSPtrVector intCols(Z);
@@ -1199,7 +1197,7 @@ void TlsIntMacroConcurrencyTest::runTest()
 {
     bsl::function<void()> job = Corp::bdlf::BindUtil::bind(
                                           &TlsIntMacroConcurrencyTest::execute,
-                                           this);
+                                          this);
     for (int i = 0; i < d_pool.numThreads(); ++i) {
         d_pool.enqueueJob(job);
     }
@@ -1248,7 +1246,7 @@ void TlsIntMacroConcurrencyTest::runTest()
     }
 //..
 ///Example 3 - Using 'BALM_METRICS_IF_CATEGORY_ENABLED'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this next example, we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to
 // conditionally disable a (relatively) expensive operation involved in
 // computing a metric value.  The 'processEvent2' function, defined below, uses
@@ -2981,8 +2979,9 @@ int main(int argc, char *argv[])
         // Perform the same test again, but enabled or disable the metric's
         // category on each iteration.
         //
-        // Testing: BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
-        // BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
+        // Testing:
+        //   BALM_METRICS_DYNAMIC_UPDATE(CATEGORY, NAME, VALUE)
+        //   BALM_METRICS_DYNAMIC_INCREMENT(CATEGORY, NAME)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

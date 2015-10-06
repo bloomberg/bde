@@ -25,16 +25,16 @@ using bsl::cout;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'bdema::MetricId' is a simple in-core value semantic class
-// whose value is the address of a (non-modifiable) 'balm::MetricDescription.
-// The class also provides auxiliary accessors for accessing the value of the
-// underlying metric description.
-//-----------------------------------------------------------------------------
+// A 'balm::MetricId' is a simple in-core value semantic class whose value is
+// the address of a (non-modifiable) 'balm::MetricDescription'.  The class also
+// provides auxiliary accessors for accessing the value of the underlying
+// metric description.
+// ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] balm::MetricId();
 // [ 3] balm::MetricId(const balm::MetricDescription *);
@@ -55,10 +55,9 @@ using bsl::flush;
 // [ 4] bool operator!=(const balm::MetricId&, const balm::MetricId&);
 // [10] bool operator<(const balm::MetricId&, const balm::MetricId&);
 // [ 9] bsl::ostream& operator<<(bsl::ostream&, const balm::MetricId&);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] USAGE EXAMPLE
-//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -356,8 +355,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   'category()' returns the 'balm::Category' address of the
-        //   'balm::MetricDescription' object underlying a 'balm::MetricId', and
-        //   'categoryName()' returns 'category()->categoryName()'.
+        //   'balm::MetricDescription' object underlying a 'balm::MetricId',
+        //   and 'categoryName()' returns 'category()->categoryName()'.
         //
         // Plan:
         //   Specify a set S of (unique) objects with substantial and varied
@@ -527,8 +526,9 @@ int main(int argc, char *argv[])
         //   'operator!=' using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription' value
-        //   to verify comparisons are made by address (rather than by value).
+        //   Use different addresses to the same 'balm::MetricDescription'
+        //   value to verify comparisons are made by address (rather than by
+        //   value).
         //
         // Testing:
         //   bool operator==(const balm::MetricId&, const balm::MetricId&);

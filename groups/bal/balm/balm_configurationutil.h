@@ -108,8 +108,8 @@ BSLS_IDENT("$Id: $")
 //
 //      // DATA
 //      balm::MetricDescription::UserDataKey d_thresholdKey;  // key for a
-//                                                           // metric's
-//                                                           // threshold
+//                                                            // metric's
+//                                                            // threshold
 //
 //      // NOT IMPLEMENTED
 //      ThresholdPublisher(const ThresholdPublisher&);

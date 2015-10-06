@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // operations that would otherwise update the metric will have no effect.
 //
 ///Choosing Between 'balm::IntegerMetric' and Macros
-///------------------------------------------------
+///-------------------------------------------------
 // The 'balm::IntegerMetric' class and the macros defined in 'balm_metrics'
 // provide the same basic functionality.  Clients may find
 // 'balm::IntegerMetric' objects better suited to collecting integer metrics
@@ -225,12 +225,11 @@ class IntegerMetric {
     // have no effect.
 
     // DATA
-    IntegerCollector *d_collector_p;  // collected metric data (held, not
-                                      // owned); may be 0, but cannot be
-                                      // invalid
+    IntegerCollector      *d_collector_p;  // collected metric data (held, not
+                                           // owned); may be 0, but cannot be
+                                           // invalid
 
-    const bsls::AtomicInt
-                     *d_isEnabled_p;  // memo for isActive()
+    const bsls::AtomicInt *d_isEnabled_p;  // memo for isActive()
 
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );
@@ -416,7 +415,7 @@ struct IntegerMetric_MacroImp {
         // identified metric's preferred publication type to the specified
         // 'preferredPublicationType'.  Note that '*collector' must be
         // assigned before 'holder' to ensure that the macros always have a
-        // valid collector' when 'holder->enabled()' is 'true'.
+        // valid 'collector' when 'holder->enabled()' is 'true'.
 };
 
 // ============================================================================
@@ -536,6 +535,7 @@ bool IntegerMetric::isActive() const
 {
     return d_isEnabled_p && d_isEnabled_p->loadRelaxed();
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

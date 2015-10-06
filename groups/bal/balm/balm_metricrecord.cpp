@@ -45,8 +45,8 @@ bsl::ostream& MetricRecord::print(bsl::ostream& stream) const
            << " ]";
     return stream;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
