@@ -91,13 +91,11 @@ BSLS_IDENT("$Id: $")
 // return type of 'operator()' and the handling of unset variants.  Firstly,
 // the method varies based on whether 'operator()' returns a value or not.
 // There can either be:
-//..
+//
 //: o No return value.
-//:
 //: o A return type specified in the visitor interface.
-//:
 //: o A return type specified explicitly when invoking 'apply'.
-//..
+//
 // The default is no return value.  If users would like to return a value from
 // the visitor's 'operator()', the functor should specify an alias 'ResultType'
 // to the desired return type.  For example, if 'operator()' were to return an
@@ -112,11 +110,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Secondly, the 'apply' method varies based on how the method handles an unset
 // variant.  A user can choose to:
-//..
+//
 //: o Pass a default constructed 'bslmf::Nil' to the visitor.
-//:
 //: o Pass a user-specified "default" value to the visitor.
-//..
+//
 // Furthermore, if the user is sure that the variant cannot be unset, the user
 // can invoke 'applyRaw', which is slightly more efficient.  However, if the
 // variant is, in fact, unset, the behavior of 'applyRaw' is undefined.
@@ -295,11 +292,11 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Variant Assignment
 ///- - - - - - - - - - - - - - -
 // A value of a given type can be stored in a variant in three different ways:
-//..
+//
 //: o 'operator='
 //: o 'assignTo<TYPE>'
 //: o 'assign'
-//..
+//
 // 'operator=' automatically deduces the type that the user is trying to assign
 // to the variant.  This should be used most of the time.  The 'assignTo<TYPE>'
 // method should be used when conversion to the type that the user is assigning
@@ -398,19 +395,16 @@ BSLS_IDENT("$Id: $")
 // 'apply' method.  The first two examples below illustrate the different ways
 // to invoke 'apply' (with no return value) to control the behavior of visiting
 // an unset variant:
-//..
+//
 //: o 'bslmf::Nil' is passed to the visitor.
-//:
 //: o A user-specified default value is passed to the visitor.
-//..
+//
 // A third example illustrates use of 'applyRaw', the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
 // ways to specify the return value from 'apply:
-//..
+//
 //: o The return value is specified in the visitor.
-//:
 //: o The return value is specified with the function call.
-//..
 //
 ///'bslmf::Nil' Passed to Visitor
 ///-  -  -  -  -  -  -  -  -  - -

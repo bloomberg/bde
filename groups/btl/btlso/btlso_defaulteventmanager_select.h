@@ -55,20 +55,23 @@ BSLS_IDENT("$Id: $")
 // *thread* *enabled*.  If no allocator is provided at creation, the default
 // allocator, which is *thread* *enabled*, is used.  Otherwise, the following
 // is guaranteed:
-//..
+//
 //: o A single instance of this event manager is *not* *thread* *safe* with
 //:   respect to operations invoked on the same instance from different
 //:   threads: such operations are *not* guaranteed to work correctly.
+//:
 //: o An instance of this event manager *is* *thread* *safe* with respect to
 //:   operations invoked on *different* *instances* from different threads:
 //:   there will be no side-effects from such operations (which, generally
 //:   speaking, means that there is no 'static' data).
+//:
 //: o Distinct instances of this event manager are *thread* *enabled* meaning
 //:   that operations invoked on distinct instances from different threads can
 //:   proceed in parallel.
+//:
 //: o This event manager is not *async-safe*, meaning that one or more
 //:   functions cannot be invoked safely from a signal handler.
-//..
+//
 ///Performance
 ///-----------
 // Given that S is the number of socket events registered, the two classes of

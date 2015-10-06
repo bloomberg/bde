@@ -21,10 +21,10 @@ BSLS_IDENT("$Id: $")
 // 'class' contains a parameterized 'encode' function that encodes an object
 // into a specified stream.  There are two overloaded versions of this
 // function:
-//..
+//
 //: o one that writes to a 'bsl::streambuf'
 //: o one that writes to an 'bsl::ostream'
-//..
+//
 // This component can be used with types that support the 'bdeat' framework
 // (see the 'bdeat' package for details), which is a compile-time interface for
 // manipulating struct-like and union-like objects.  In particular, types
