@@ -6,248 +6,245 @@ BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
 #include <bdlt_datetimetz.h>
 #include <bdlt_datetz.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
-#include <bdlb_chartype.h>
-
-#include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>
+#include <bsl_cctype.h>
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
+namespace bdlt {
+
+namespace {
 
 // STATIC HELPER FUNCTIONS
+
 static
-int parseUint(const char **nextPos,
-              int         *result,
-              const char  *begin,
-              const char  *end)
-    // Parse the unsigned integer described by the string starting at specified
-    // 'begin' and ending before the specified 'end', then load the integer
-    // value into the specified 'result' and load '*nextPos' with the address
-    // one past the last character parsed.  Return 0 on success and a non-zero
-    // value otherwise.  Failure will occur if the range [begin, end) does not
-    // begin with at least one digit or if the string of digits is more than 10
-    // chars long.  Characters beginning with the first non-digit char in the
-    // input string are ignored.  The behavior is undefined unless 'begin' and
-    // 'end' describe a contiguous range of memory or if the string of digits
-    // represent a value that cannot be represented in a signed integer.  Note
-    // that if a non-digit char is encountered at least one char after 'begin'
-    // but before 'end', it is not an error but merely terminates parsing.
+int asciiToInt(const char **nextPos,
+               int         *result,
+               const char  *begin,
+               const char  *end)
+    // Convert the (unsigned) ASCII decimal integer starting at the specified
+    // 'begin' and ending immediately before the specified 'end' into its
+    // corresponding 'int' value, load the value into the specified 'result',
+    // and set the specified '*nextPos' to 'end'.  Return 0 on success, and a
+    // non-zero value (with no effect) otherwise.  All characters in the range
+    // '[begin .. end)' must be decimal digits.  The behavior is undefined
+    // unless 'begin < end' and the parsed value does not exceed 'INT_MAX'.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
+    BSLS_ASSERT(begin < end);
 
-    static const int maxDigits = 10;
+    int tmp = 0;
 
-    // Stop parsing at 'maxDigits'.
+    while (begin < end) {
+        if (!isdigit(*begin)) {
+            return -1;                                                // RETURN
+        }
 
-    if (end - begin > maxDigits) {
-        end = begin + maxDigits + 1;  // Parse one extra digit.
+        tmp *= 10;
+        tmp += *begin - '0';
+
+        ++begin;
     }
 
-    char buf[maxDigits + 2];  // Make room for one extra digit.
-    char *bufPtr = buf;
-    const char *inPtr = begin;
-    while (inPtr < end && bdlb::CharType::isDigit(*inPtr)) {
-        *bufPtr++ = *inPtr++;
-    }
+    *result  = tmp;
+    *nextPos = end;
 
-    int parsedLen = inPtr - begin;
-    if (0 == parsedLen || parsedLen > maxDigits) {
-        // Parsed too few or too many digits.
-
-        return -1;                                                    // RETURN
-    }
-
-    *nextPos = inPtr;
-    *bufPtr = '\0';
-    *result = bsl::atoi(buf);
     return 0;
 }
 
 static
-int parseDate(int         *year,
+int parseDate(const char **nextPos,
+              int         *year,
               int         *month,
               int         *day,
-              const char **begin,
+              const char  *begin,
               const char  *end)
-    // Parse a date, represented in "YYYY-MM-DD" format, from the string
-    // starting at the specified '*begin' and ending before the specified 'end'
-    // then load the specified 'year', 'month' and 'day' with their respective
-    // parsed values, and set '*begin' to the location one past the last parsed
-    // character.  In the "YYYY-MM-DD" format accepted by this function,
-    // 'YYYY', 'MM', and 'DD' are strings representing positive integers, '-'
-    // is literally a dash character, 'YYYY' is 4 chars long, and 'MM' and 'DD'
-    // are both 2 chars long.  Return 0 on success and a non-zero value if the
-    // string being parsed does not match the specified format (including
-    // partial representations).  Note that if the pattern is successfully
-    // completed before 'end' is reached, that is not an error and 0 is
-    // returned.
+    // Parse the date, represented in the "YYYY-MM-DD" ISO 8601 extended
+    // format, from the string starting at the specified 'begin' and ending
+    // before the specified 'end', load into the specified 'year', 'month', and
+    // 'day' their respective parsed values, and set the specified '*nextPos'
+    // to the location one past the last parsed character.  Return 0 on
+    // success, and a non-zero value (with no effect on '*nextPos') otherwise.
+    // The behavior is undefined unless 'begin <= end'.  Note that successfully
+    // parsing a date before 'end' is reached is not an error.
 {
-    BSLS_ASSERT(year);     BSLS_ASSERT(month);    BSLS_ASSERT(day);
-    BSLS_ASSERT(begin);    BSLS_ASSERT(end);
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(year);
+    BSLS_ASSERT(month);
+    BSLS_ASSERT(day);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
 
-    const char *p = *begin;
+    const char *p = begin;
 
-    // Parse year.
+    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
 
-    const char *expectedEnd = p + 4;
-    if   (0   != parseUint(&p, year, p, end - 1)
-       || p   != expectedEnd
-       || '-' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;  // skip hyphen
-
-    // Parse month.
-
-    expectedEnd = p + 2;
-    if   (0   != parseUint(&p, month, p, end - 1)
-       || p   != expectedEnd
-       || '-' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;  // skip hyphen
-
-    // Parse day.
-
-    expectedEnd = p + 2;
-    if   (0 != parseUint(&p, day, p, end)
-       || p != expectedEnd) {
+    if (end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    *begin = p;
+    // 1. Parse year.
 
-    return 0;
-}
+    if (0 != asciiToInt(&p, year, p, p + 4) || '-' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;  // skip '-'
 
-static inline
-int parseTimeFraction(int         *millisecond,
-                      const char **begin,
-                      const char  *end)
-    // Parse the fractional part of a second after '.' in a time, returning the
-    // value in '*millisecond'.  '*begin', on input, points to the beginning of
-    // the input, starting after the '.'.  'end' points to the end of input,
-    // and may contain trailing data after the fractional part of a second.
-    // Upon returning, '*begin' points after the parsed fractional part of a
-    // second, which may be of unbounded length.  Return 0 on success and a
-    // non-zero value otherwise.  Note that if the string passed is of 0 length
-    // or if it doesn't begin with at least one digit, an error code is
-    // returned.
-{
-    BSLS_ASSERT(millisecond);    BSLS_ASSERT(begin);    BSLS_ASSERT(end);
+    // 2. Parse month.
 
-    const char * const start = *begin;
-    BSLS_ASSERT(start);
+    if (0 != asciiToInt(&p, month, p, p + 2) || '-' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;  // skip '-'
 
-    // there must be at least one digit
+    // 3. Parse day.
 
-    if (start >= end || !bdlb::CharType::isDigit(*start)) {
+    if (0 != asciiToInt(&p, day, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
-    // Get 'buf' containing, in string form, the fractional time in tenths of
-    // microseconds.  Note we already know that the first char is good.
-
-    char buf[5] = { "0000" };    // must not be static
-    const char *p = start;
-    const char * const end2 = bsl::min(end, start + 4);
-    do {
-        ++p;
-    } while (p < end2 && bdlb::CharType::isDigit(*p));
-    bsl::memcpy(buf, start, p - start);
-
-    // round to nearest millisecond
-
-    *millisecond = (bsl::atoi(buf) + 5) / 10;
-
-    // ignore any low order digits after first 4, skipping them
-
-    while (p < end && bdlb::CharType::isDigit(*p)) {
-        ++p;
-    }
-    *begin = p;
+    *nextPos = p;
 
     return 0;
 }
 
 static
-int parseTime(int         *hour,
+int parseFractionalSecond(const char **nextPos,
+                          int         *millisecond,
+                          const char  *begin,
+                          const char  *end)
+    // Parse the fractional second starting at the specified 'begin' and ending
+    // before the specified 'end', load into the specified 'millisecond' the
+    // parsed value (in milliseconds), and set the specified '*nextPos' to the
+    // location one past the last parsed character (necessarily a decimal
+    // digit).  Return 0 on success, and a non-zero value (with no effect)
+    // otherwise.  There must be at least one digit, only the first 4 digits
+    // are significant, and all digits beyond the first 4 are parsed but
+    // ignored.  The behavior is undefined unless 'begin <= end'.  Note that
+    // the resulting value is rounded up to 1000 if the parsed value is .9995
+    // or greater.  Also note that successfully parsing a fractional second
+    // before 'end' is reached is not an error.
+{
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(millisecond);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
+
+    const char *p = begin;
+
+    // There must be at least one digit.
+
+    if (p == end || !isdigit(*p)) {
+        return -1;                                                    // RETURN
+    }
+
+    // Only the first 4 digits are significant.
+
+    const char *endSignificant = bsl::min(end, p + 4);
+
+    int tmp    = 0;
+    int factor = 10000;  // Since the result is in milliseconds, we have to
+                         // adjust it according to how many digits are present.
+
+    do {
+        tmp    *= 10;
+        tmp    += *p - '0';
+        factor /= 10;
+    } while (++p < endSignificant && isdigit(*p));
+
+    tmp = (tmp * factor + 5) / 10;  // round to nearest millisecond
+
+    // Skip and ignore all digits beyond the first 4, if any.
+
+    while (p < end && isdigit(*p)) {
+        ++p;
+    }
+
+    *millisecond = tmp;
+    *nextPos     = p;
+
+    return 0;
+}
+
+static
+int parseTime(const char **nextPos,
+              int         *hour,
               int         *minute,
               int         *second,
               int         *millisecond,
               bool        *hasLeapSecond,
-              const char **begin,
+              const char  *begin,
               const char  *end)
-    // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
-    // starting at the specified '*begin' and ending before the specified
-    // 'end', then load the specified 'hour', 'minute', 'second' and
-    // 'millisecond' with their respective parsed values, and set '*begin' to
-    // the location one past the last parsed character.  In the "hh:mm:ss[.d+]"
-    // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
-    // integers (left padded with 0's if necessary) denoting hours, minutes,
-    // and seconds, ':' is literally a colon character, and [.d+] is the
-    // optional fraction of a second, consisting of a '.' followed by one or
-    // more decimal digits.  If '60 == ss', interpret it as a leap second, and
-    // set '*second' to 59 and set '*hasLeapSecond' to 'true', otherwise set
-    // '*hasLeapSecond' to 'false'.  If '[.d+]' contains more than 3 digits,
-    // the value will be rounded to the nearest value in milliseconds.  Return
-    // 0 on success and a non-zero value if the string being parsed does not
-    // match the specified format (including partial representations).  Note
-    // that a fractional second value of '.9995' or more will be rounded to
-    // 1000 milliseconds (and higher level functions are responsible for
-    // incrementing the represented value of 'seconds' if necessary).  Also
-    // note that if the pattern is successfully completed before 'end' is
-    // reached, that is not an error.
+    // Parse the time, represented in the "hh:mm:ss[.s+]" ISO 8601 extended
+    // format, from the string starting at the specified 'begin' and ending
+    // before the specified 'end', load into the specified 'hour', 'minute',
+    // 'second', and 'millisecond' their respective parsed values, set the
+    // specified 'hasLeapSecond' flag to 'true' if a leap second was indicated
+    // and 'false' otherwise, and set the specified '*nextPos' to the location
+    // one past the last parsed character.  Return 0 on success, and a non-zero
+    // value (with no effect on '*nextPos') otherwise.  The optional fractional
+    // second is converted to milliseconds, and is rounded up to 1000 if the
+    // parsed value is .9995 or greater.  The behavior is undefined unless
+    // 'begin <= end'.  Note that successfully parsing a time before 'end' is
+    // reached is not an error.
 {
-    BSLS_ASSERT(hour);           BSLS_ASSERT(minute);    BSLS_ASSERT(second);
-    BSLS_ASSERT(millisecond);    BSLS_ASSERT(begin);     BSLS_ASSERT(end);
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(hour);
+    BSLS_ASSERT(minute);
+    BSLS_ASSERT(second);
+    BSLS_ASSERT(millisecond);
+    BSLS_ASSERT(hasLeapSecond);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
 
-    const char *p = *begin;
+    const char *p = begin;
 
-    // Parse hour.
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
-    const char *expectedEnd = p + 2;
-    if   (0   != parseUint(&p, hour, p, end - 1)
-       || p   != expectedEnd
-       || ':' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;  // skip colon
-
-    // Parse minute.
-
-    expectedEnd = p + 2;
-    if   (0   != parseUint(&p, minute, p, end - 1)
-       || p   != expectedEnd
-       || ':' != *p) {
-        return -1;                                                    // RETURN
-    }
-    ++p;  // skip colon
-
-    // Parse second.
-
-    expectedEnd = p + 2;
-    if   (0 != parseUint(&p, second, p, end)
-       || p != expectedEnd) {
+    if (end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    // Parse millisecond.
+    // 1. Parse hour.
 
-    if (p < end && '.' == *p) {
+    if (0 != asciiToInt(&p, hour, p, p + 2) || ':' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;  // skip ':'
+
+    // 2. Parse minute.
+
+    if (0 != asciiToInt(&p, minute, p, p + 2) || ':' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;  // skip ':'
+
+    // 3. Parse second.
+
+    if (0 != asciiToInt(&p, second, p, p + 2)) {
+        return -1;                                                    // RETURN
+    }
+
+    // 4. Parse (optional) fractional second, in milliseconds.
+
+    if (p < end && ('.' == *p || ',' == *p)) {
         // We have a fraction of a second.
 
-        ++p;  // skip dot
-        if (0 != parseTimeFraction(millisecond, &p, end)) {
+        ++p;  // skip '.' or ','
+
+        if (0 != parseFractionalSecond(&p, millisecond, p, end)) {
             return -1;                                                // RETURN
         }
     }
@@ -255,541 +252,780 @@ int parseTime(int         *hour,
         *millisecond = 0;
     }
 
-    // Parse hasLeapSecond
+    // 5. Handle leap second.
 
     if (60 == *second) {
         *hasLeapSecond = true;
-        *second = 59;
+        *second        = 59;
     }
     else {
         *hasLeapSecond = false;
     }
 
-    *begin = p;
+    *nextPos = p;
 
     return 0;
 }
 
 static
-int parseTimezoneOffset(int         *minuteOffset,
-                        const char **begin,
+int parseZoneDesignator(const char **nextPos,
+                        int         *minuteOffset,
+                        const char  *begin,
                         const char  *end)
-    // Parse a time zone offset, represented in either "([Zz]|[+-]hh:mm"
-    // format, from the string starting at the specified '*begin' and ending
-    // before the specified 'end' then load the specified 'minuteOffset' with
-    // the parsed time zone offset (in minutes), and set '*begin' to the
-    // location one past the last parsed character.  If the timezone begins
-    // with 'z' or 'Z', it is one char long, and equivalent to "+00:00".
-    // Otherwise it starts with '+' or '-' followed by "hh:mm" where 'hh'
-    // represents hours and 'mm' represents minutes.  Note 'hh' and 'mm' are 2
-    // digit integers (left padded with '0's if necessary).  'hh' must be in
-    // the range '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.
-    // Return 0 on success and a non-zero value if the string being parsed does
-    // not match the specified format.  Note that if the pattern is
-    // successfully completed before 'end' is reached, that is not an error.
+    // Parse the zone designator, represented in the "Z|(+|-])hh:mm" ISO
+    // 8601 extended format, from the string starting at the specified 'begin'
+    // and ending before the specified 'end', load into the specified
+    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
+    // specified '*nextPos' to the location one past the last parsed character.
+    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
+    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
+    // successfully parsing a zone designator before 'end' is reached is not an
+    // error.
 {
-    BSLS_ASSERT(minuteOffset);    BSLS_ASSERT(begin);    BSLS_ASSERT(end);
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(minuteOffset);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
 
-    const char *p = *begin;
+    const char *p = begin;
 
     if (p >= end) {
         return -1;                                                    // RETURN
     }
 
-    char sign = *p++;
+    const char sign = *p++;  // store and skip '(+|-|Z)'
 
-    if ('Z' == sign || 'z' == sign) {
+    if ('Z' == sign) {
         *minuteOffset = 0;
-        *begin = p;
+        *nextPos      = p;
+
         return 0;                                                     // RETURN
     }
-    else if ('+' != sign && '-' != sign) {
+
+    enum { k_MINIMUM_LENGTH = sizeof "hhmm" - 1 };
+
+    if (('+' != sign && '-' != sign) || end - p < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    // We have parsed a '+' or '-'.  Make sure it is followed by at least 5
-    // more chars ('hh:mm').
+    // We have parsed a '+' or '-' and established that there are sufficient
+    // characters to represent "hhmm" (but not necessarily "hh:mm").
 
-    // read hour
+    // Parse hour.
 
-    int hourVal;
-    const char *expectedEnd = p + 2;
-    if   (0           != parseUint(&p, &hourVal, p, end - 1)
-       || p           != expectedEnd
-       || hourVal     >= 24  // Max TZ offset is 23:59
-       || ':'         != *p) {
+    int hour;
+
+    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
         return -1;                                                    // RETURN
     }
-    ++p;  // skip ':'
+    if (':' == *p) {
+        ++p;  // skip optional ':'
+        if (end - p < 2) {
+            return -1;                                                // RETURN
+        }
+    }
 
-    // read minute
+    // Parse minute.
 
-    int minuteVal;
-    expectedEnd = p + 2;
-    if   (0 != parseUint(&p, &minuteVal, p, end)
-       || p != expectedEnd
-       || minuteVal > 59) {
+    int minute;
+
+    if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
         return -1;                                                    // RETURN
     }
 
-    *minuteOffset = hourVal * 60 + minuteVal;
+    *minuteOffset = hour * 60 + minute;
+
     if ('-' == sign) {
         *minuteOffset = -*minuteOffset;
     }
-    *begin = p;
+
+    *nextPos = p;
 
     return 0;
 }
 
 static
-char *generateInt(char *buffer, int val, int len)
-    // Write into the specified 'buffer', the decimal value of the specified
-    // 'val', left-padded with zeros to the specified 'len' and return
-    // 'buffer + len'.  The buffer is NOT null-terminated.  Note that if the
-    // decimal string representation of 'val' is more than 'len' digits, only
-    // the low order digits are printed.
+int generateInt(char *buffer, int value, int paddedLen)
+    // Write, to the specified 'buffer', the decimal string representation of
+    // the specified 'value' padded with leading zeros to the specified
+    // 'paddedLen', and return 'paddedLen'.  'buffer' is NOT null-terminated.
+    // The behavior is undefined unless '0 <= value', '0 <= paddedLen', and
+    // 'buffer' has sufficient capacity to hold 'paddedLen' characters.  Note
+    // that if the decimal string representation of 'value' is more than
+    // 'paddedLen' digits, only the low-order 'paddedLen' digits of 'value' are
+    // output.
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(0 <= value);
+    BSLS_ASSERT(0 <= paddedLen);
 
-    buffer += len;
-    for (char *p = buffer; len != 0; --len) {
-        *--p = (char) ('0' + val % 10);
-        val /= 10;
+    char *p = buffer + paddedLen;
+
+    while (p > buffer) {
+        *--p = static_cast<char>('0' + value % 10);
+        value /= 10;
     }
 
-    return buffer;
+    return paddedLen;
 }
 
 static inline
-char *generateInt(char *buffer, int val, int len, char separator)
-    // Write into the specified 'buffer', the decimal value of the specified
-    // 'val', left-padded with zeros to the specified 'len' and followed by
-    // the specified 'separator' character then return 'buffer + len + 1'.
-    // The buffer is NOT null-terminated.
+int generateInt(char *buffer, int value, int paddedLen, char separator)
+    // Write, to the specified 'buffer', the decimal string representation of
+    // the specified 'value' padded with leading zeros to the specified
+    // 'paddedLen' followed by the specified 'separator' character, and return
+    // 'paddedLen + 1'.  'buffer' is NOT null-terminated.  The behavior is
+    // undefined unless '0 <= value', '0 <= paddedLen', and 'buffer' has
+    // sufficient capacity to hold 'paddedLen' characters.  Note that if the
+    // decimal string representation of 'value' is more than 'paddedLen'
+    // digits, only the low-order 'paddedLen' digits of 'value' are output.
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= value);
+    BSLS_ASSERT_SAFE(0 <= paddedLen);
+
+    buffer += generateInt(buffer, value, paddedLen);
+    *buffer = separator;
+
+    return paddedLen + 1;
+}
+
+static
+int generateZoneDesignator(char                            *buffer,
+                           int                              tzOffset,
+                           const Iso8601UtilConfiguration&  configuration)
+    // Write, to the specified 'buffer', the formatted zone designator
+    // indicated by the specified 'tzOffset' and 'configuration', and return
+    // the number of bytes written.  The behavior is undefined unless 'buffer'
+    // has sufficient capacity and '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(-(24 * 60) < tzOffset);
+    BSLS_ASSERT(             tzOffset < 24 * 60);
 
-    buffer = generateInt(buffer, val, len);
-    *buffer++ = separator;
-    return buffer;
-}
+    char *p = buffer;
 
-static
-char *generateTimeZoneOffset(char *buffer,
-                             int   tzOffset,
-                             bool  useZAbbreviationForUtc)
-    // Write into the specified 'buffer', the formatted time zone offset
-    // indicated by 'tzOffset', which is the character 'Z' if 'tzOffset' is 0
-    // and the specified 'useZAbbreviationForUtc' is 'true', and a numeric
-    // offset otherwise.
-{
-    if (0 == tzOffset && useZAbbreviationForUtc) {
-        *buffer++ = 'Z';
+    if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
+        *p++ = 'Z';
     }
     else {
-        char timezoneSign;
+        char tzSign;
 
         if (0 > tzOffset) {
-            tzOffset     = -tzOffset;
-            timezoneSign = '-';
+            tzOffset = -tzOffset;
+            tzSign   = '-';
         }
         else {
-            timezoneSign = '+';
+            tzSign   = '+';
         }
 
-        // TZ offset cannot be more than 24 hours.
+        *p++ = tzSign;
 
-        BSLS_ASSERT(tzOffset <= 24 * 60);
-        *buffer++ = timezoneSign;
-        buffer = generateInt(buffer, tzOffset / 60        , 2, ':');
-        buffer = generateInt(buffer, tzOffset % 60        , 2     );
+        if (configuration.omitColonInZoneDesignator()) {
+            p += generateInt(p, tzOffset / 60, 2);
+        }
+        else {
+            p += generateInt(p, tzOffset / 60, 2, ':');
+        }
+
+        p += generateInt(p, tzOffset % 60, 2);
     }
-    return buffer;
+
+    return static_cast<int>(p - buffer);
 }
 
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 static
-int copyBuf(char *dest, int destLen, const char *src, int srcLen)
-    // Copy the contents of the specified 'src' string having the specified
-    // 'srcLen' into the specified 'dest' buffer having the specified
-    // 'destLen' and return 'srcLen'.  If 'destLen > srcLen', add a null
-    // terminator.  If 'srcLen >= destLen', then copy only 'destLen' bytes
-    // and add do not add a null terminator.
+int generatedLengthForTzObject(int                             defaultLength,
+                               int                             tzOffset,
+                               const Iso8601UtilConfiguration& configuration)
+    // Return the number of bytes generated, when the specified 'configuration'
+    // is used, for a "Tz" 'bdlt' object having the specified 'tzOffset' whose
+    // ISO 8601 representation has the specified 'defaultLength' (in bytes).
+    // The behavior is undefined unless '0 <= defaultLength' and
+    // '-(24 * 60) < tzOffset < 24 * 60'.
 {
-    BSLS_ASSERT(dest);
-    BSLS_ASSERT(0 <= destLen);
+    BSLS_ASSERT_SAFE(0 <= defaultLength);
+    BSLS_ASSERT_SAFE(-(24 * 60) < tzOffset);
+    BSLS_ASSERT_SAFE(             tzOffset < 24 * 60);
+
+    // Consider only those 'configuration' options that can affect the length
+    // of the output.
+
+    if (0 == tzOffset && configuration.useZAbbreviationForUtc()) {
+        return defaultLength - static_cast<int>(sizeof "00:00") + 1;  // RETURN
+    }
+
+    if (configuration.omitColonInZoneDesignator()) {
+        return defaultLength - 1;                                     // RETURN
+    }
+
+    return defaultLength;
+}
+#endif
+
+static
+void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
+    // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
+    // specified initial 'srcLen' characters in the specified 'src' string if
+    // 'dstLen >= srcLen', and copy 'dstLen' characters otherwise.  Include a
+    // null terminator if and only if 'dstLen > srcLen'.  The behavior is
+    // undefined unless '0 <= dstLen' and '0 <= srcLen'.
+{
+    BSLS_ASSERT(dst);
+    BSLS_ASSERT(0 <= dstLen);
     BSLS_ASSERT(src);
     BSLS_ASSERT(0 <= srcLen);
 
-    if (destLen > srcLen) {
-        bsl::memcpy(dest, src, srcLen);
-        dest[srcLen] = '\0';
+    if (dstLen > srcLen) {
+        bsl::memcpy(dst, src, srcLen);
+        dst[srcLen] = '\0';
     }
     else {
-        bsl::memcpy(dest, src, destLen);
+        bsl::memcpy(dst, src, dstLen);
     }
-
-    return srcLen;
 }
 
-namespace bdlt {
-                            // --------------------
-                            // struct Iso8601Util
-                            // --------------------
+}  // close unnamed namespace
 
-                           // *** GENERATING FUNCTIONS
+                            // ------------------
+                            // struct Iso8601Util
+                            // ------------------
 
 // CLASS METHODS
-int Iso8601Util::generate(char             *buffer,
-                            const bdlt::Date&  object,
-                            int               bufLen)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATE_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
+    int outLen;
 
-    BSLS_ASSERT(outLen = sizeof(outBuf));
+    if (bufferLength >= k_DATE_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_DATE_STRLEN);
 
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATE_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_DATE_STRLEN);
+
+        bsl::memcpy(buffer, outBuf, bufferLength);
+    }
+
+    return outLen;
 }
 
-int Iso8601Util::generate(char             *buffer,
-                            const bdlt::Time&  object,
-                            int               bufLen)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const Time&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_TIME_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
-    BSLS_ASSERT(outLen == sizeof(outBuf));
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+    int outLen;
+
+    if (bufferLength >= k_TIME_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_TIME_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_TIME_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_TIME_STRLEN);
+
+        bsl::memcpy(buffer, outBuf, bufferLength);
+    }
+
+    return outLen;
 }
 
-int Iso8601Util::generate(char                 *buffer,
-                            const bdlt::Datetime&  object,
-                            int                   bufLen)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const Datetime&                  object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETIME_STRLEN];
-    int  outLen = generateRaw(outBuf, object);
+    int outLen;
 
-    BSLS_ASSERT(outLen == sizeof(outBuf));
+    if (bufferLength >= k_DATETIME_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen == k_DATETIME_STRLEN);
 
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETIME_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen == k_DATETIME_STRLEN);
+
+        bsl::memcpy(buffer, outBuf, bufferLength);
+    }
+
+    return outLen;
 }
 
-
-int Iso8601Util::generate(char               *buffer,
-                            const bdlt::DateTz&  object,
-                            int                 bufLen,
-                            bool                useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const DateTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+    int outLen;
 
-    BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc &&
-                 outLen <= static_cast<int>(sizeof(outBuf))));
+    if (bufferLength >= k_DATETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
 
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
+
+    return outLen;
 }
 
-int Iso8601Util::generate(char               *buffer,
-                            const bdlt::TimeTz&  object,
-                            int                 bufLen,
-                            bool                useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const TimeTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_TIMETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+    int outLen;
 
-    BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc &&
-                 outLen <= static_cast<int>(sizeof(outBuf))));
+    if (bufferLength >= k_TIMETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
 
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_TIMETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_TIMETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
+
+    return outLen;
 }
 
-int Iso8601Util::generate(char                   *buffer,
-                            const bdlt::DatetimeTz&  object,
-                            int                     bufLen,
-                            bool                    useZAbbreviationForUtc)
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
+                          const DatetimeTz&                object,
+                          const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufLen);
+    BSLS_ASSERT(0 <= bufferLength);
 
-    char outBuf[k_DATETIMETZ_STRLEN];
-    int  outLen = generateRaw(outBuf, object, useZAbbreviationForUtc);
+    int outLen;
 
-    BSLS_ASSERT(outLen == sizeof(outBuf) ||
-                (0 == object.offset() && useZAbbreviationForUtc &&
-                 outLen <= static_cast<int>(sizeof(outBuf))));
+    if (bufferLength >= k_DATETIMETZ_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
 
-    return copyBuf(buffer, bufLen, outBuf, outLen);
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_DATETIMETZ_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_DATETIMETZ_STRLEN);
+
+        copyBuf(buffer, bufferLength, outBuf, outLen);
+    }
+    BSLS_ASSERT_SAFE(outLen == generatedLengthForTzObject(k_DATETIMETZ_STRLEN,
+                                                          object.offset(),
+                                                          configuration));
+
+    return outLen;
 }
 
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
 
-int Iso8601Util::generateRaw(char             *buffer,
-                               const bdlt::Date&  object)
+    string->resize(k_DATE_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATE_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Time&                      object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_TIME_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_TIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const Datetime&                  object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETIME_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETIME_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const DateTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const TimeTz&                    object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_TIMETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_TIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
+                          const DatetimeTz&                object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_DATETIMETZ_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_DATETIMETZ_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generateRaw(
+                          char                            *buffer,
+                          const Date&                      object,
+                          const Iso8601UtilConfiguration&  /* configuration */)
 {
     BSLS_ASSERT(buffer);
 
-    char *outp = buffer;
-    outp = generateInt(outp, object.year() , 4, '-');
-    outp = generateInt(outp, object.month(), 2, '-');
-    outp = generateInt(outp, object.day()  , 2     );
+    char *p = buffer;
 
-    return outp - buffer;
+    p += generateInt(p, object.year() , 4, '-');
+    p += generateInt(p, object.month(), 2, '-');
+    p += generateInt(p, object.day()  , 2     );
+
+    return static_cast<int>(p - buffer);
 }
 
-int Iso8601Util::generateRaw(char             *buffer,
-                               const bdlt::Time&  object)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const Time&                      object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    char *outp = buffer;
-    outp = generateInt(outp, object.hour()       , 2, ':');
-    outp = generateInt(outp, object.minute()     , 2, ':');
-    outp = generateInt(outp, object.second()     , 2, '.');
-    outp = generateInt(outp, object.millisecond(), 3     );
+    char *p = buffer;
 
-    return outp - buffer;
+    p += generateInt(p, object.hour()       , 2, ':');
+    p += generateInt(p, object.minute()     , 2, ':');
+
+    const char decimalSign = configuration.useCommaForDecimalSign()
+                             ? ','
+                             : '.';
+
+    p += generateInt(p, object.second()     , 2, decimalSign);
+    p += generateInt(p, object.millisecond(), 3);
+
+    return static_cast<int>(p - buffer);
 }
 
-int Iso8601Util::generateRaw(char                 *buffer,
-                               const bdlt::Datetime&  object)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const Datetime&                  object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    char *outp = buffer;
-    outp = generateInt(outp, object.year()       , 4, '-');
-    outp = generateInt(outp, object.month()      , 2, '-');
-    outp = generateInt(outp, object.day()        , 2, 'T');
-    outp = generateInt(outp, object.hour()       , 2, ':');
-    outp = generateInt(outp, object.minute()     , 2, ':');
-    outp = generateInt(outp, object.second()     , 2, '.');
-    outp = generateInt(outp, object.millisecond(), 3     );
+    const int dateLen = generateRaw(buffer, object.date(), configuration);
+    *(buffer + dateLen) = 'T';
+    const int timeLen = generateRaw(buffer + dateLen + 1,
+                                    object.time(),
+                                    configuration);
 
-    return outp - buffer;
+    return dateLen + timeLen + 1;
 }
 
-int Iso8601Util::generateRaw(char               *buffer,
-                               const bdlt::DateTz&  object,
-                               bool                useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const DateTz&                    object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    bdlt::Date localDate = object.localDate();
+    const int dateLen = generateRaw(buffer,
+                                    object.localDate(),
+                                    configuration);
 
-    char *outp = buffer;
-    outp = generateInt(outp, localDate.year()   , 4, '-');
-    outp = generateInt(outp, localDate.month()  , 2, '-');
-    outp = generateInt(outp, localDate.day()    , 2);
-    outp = generateTimeZoneOffset(outp,
-                                  object.offset(),
-                                  useZAbbreviationForUtc);
+    const int zoneLen = generateZoneDesignator(buffer + dateLen,
+                                               object.offset(),
+                                               configuration);
 
-    return outp - buffer;
+    return dateLen + zoneLen;
 }
 
-
-int Iso8601Util::generateRaw(char               *buffer,
-                               const bdlt::TimeTz&  object,
-                               bool                useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const TimeTz&                    object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
     BSLS_ASSERT(buffer);
 
-    char *outp = buffer;
+    const int timeLen = generateRaw(buffer,
+                                    object.localTime(),
+                                    configuration);
 
-    bdlt::Time localTime = object.localTime();
+    const int zoneLen = generateZoneDesignator(buffer + timeLen,
+                                               object.offset(),
+                                               configuration);
 
-    outp = generateInt(outp, localTime.hour()        , 2, ':');
-    outp = generateInt(outp, localTime.minute()      , 2, ':');
-    outp = generateInt(outp, localTime.second()      , 2, '.');
-    outp = generateInt(outp, localTime.millisecond() , 3);
-    outp = generateTimeZoneOffset(outp,
-                                  object.offset(),
-                                  useZAbbreviationForUtc);
-
-    return outp - buffer;
+    return timeLen + zoneLen;
 }
 
-int Iso8601Util::generateRaw(char                   *buffer,
-                               const bdlt::DatetimeTz&  object,
-                               bool                    useZAbbreviationForUtc)
+int Iso8601Util::generateRaw(char                            *buffer,
+                             const DatetimeTz&                object,
+                             const Iso8601UtilConfiguration&  configuration)
 {
-
     BSLS_ASSERT(buffer);
 
-    bdlt::Datetime localDatetime = object.localDatetime();
+    const int datetimeLen = generateRaw(buffer,
+                                        object.localDatetime(),
+                                        configuration);
 
-    char *outp = buffer;
-    outp = generateInt(outp, localDatetime.year()       , 4, '-');
-    outp = generateInt(outp, localDatetime.month()      , 2, '-');
-    outp = generateInt(outp, localDatetime.day()        , 2, 'T');
-    outp = generateInt(outp, localDatetime.hour()       , 2, ':');
-    outp = generateInt(outp, localDatetime.minute()     , 2, ':');
-    outp = generateInt(outp, localDatetime.second()     , 2, '.');
-    outp = generateInt(outp, localDatetime.millisecond(), 3);
-    outp = generateTimeZoneOffset(outp,
-                                  object.offset(),
-                                  useZAbbreviationForUtc);
+    const int zoneLen     = generateZoneDesignator(buffer + datetimeLen,
+                                                   object.offset(),
+                                                   configuration);
 
-    return outp - buffer;
+    return datetimeLen + zoneLen;
 }
 
-
-
-                           // *** PARSING FUNCTIONS
-
-int Iso8601Util::parse(bdlt::Date  *result,
-                         const char *input,
-                         int         inputLength)
+int Iso8601Util::parse(Date *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    // Sample XML date: "2005-01-31" having a minimum length of 10.
+    // Sample ISO 8601 date: "2005-01-31+04:00"
+    //
+    // The zone designator is optional.
 
-    enum { MINIMUM_LENGTH = 10 };
-    if (inputLength < MINIMUM_LENGTH) {
+    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
+
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *begin = input;
-    const char *end   = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
-    // Parse date.
+    // 1. Parse and validate date.
 
     int year, month, day;
-    if (0 != parseDate(&year, &month, &day, &begin, end)) {
-        return -1;                                                    // RETURN
-    }
-    if (! bdlt::Date::isValidYearMonthDay(year, month, day)) {
+
+    if (0 != parseDate(&p, &year, &month, &day, p, end)
+     || !Date::isValidYearMonthDay(year, month, day)) {
         return -1;                                                    // RETURN
     }
 
-    // parse and ignore timezone, if any
+    // 2. Parse and ignore zone designator, if any.
 
-    if (end != begin) {
+    if (p != end) {
         int tzOffset;
-        if (0 != parseTimezoneOffset(&tzOffset, &begin, end) || end != begin) {
+
+        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
 
     result->setYearMonthDay(year, month, day);
+
     return 0;
 }
 
-int Iso8601Util::parse(bdlt::Time  *result,
-                         const char *input,
-                         int         inputLength)
+int Iso8601Util::parse(Time *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    // Sample XML time: "08:59:59.999" having a minimum length of 8.  Also,
-    // there might be more than 3 decimal places for the fraction of a second.
-    // But when storing in bdlt::Datetime, we only take the 3 most significant
-    // digits.
+    // Sample ISO 8601 time: "08:59:59.999-04:00"
+    //
+    // The fractional second and zone designator are independently optional.
 
-    enum { MINIMUM_LENGTH = 8 };
-    if (inputLength < MINIMUM_LENGTH) {
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
+
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *begin = input;
-    const char *end   = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
-    // Parse time.  Milliseconds could be 1000 (if fraction is .9995 or
-    // greater).  Thus, we have to add it after setting the time else it might
+    // 1. Parse and validate time.
+
+    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
+    // greater).  Thus, we have to add it after setting the time, else it might
     // not validate.
 
-    bdlt::Time localTime;
-    int hour, minute, second, millisecond;
+    int  hour, minute, second, millisecond;
     bool hasLeapSecond;
-    if   (0 != parseTime(&hour,
-                         &minute,
-                         &second,
-                         &millisecond,
-                         &hasLeapSecond,
-                         &begin,
-                         end)
-       || 0 != localTime.setTimeIfValid(hour, minute, second)) {
+    Time localTime;
+
+    if (0 != parseTime(&p,
+                       &hour,
+                       &minute,
+                       &second,
+                       &millisecond,
+                       &hasLeapSecond,
+                       p,
+                       end)
+     || 0 != localTime.setTimeIfValid(hour, minute, second)) {
         return -1;                                                    // RETURN
     }
+
     if (hasLeapSecond) {
         localTime.addSeconds(1);
     }
+
     if (millisecond) {
         localTime.addMilliseconds(millisecond);
     }
 
-    // Parse timezone, if any
+    // 2. Parse zone designator, if any.
 
-    int timezoneOffset = 0;  // minutes from GMT
-    if (end != begin) {
-        if (  0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
-           || end != begin) {
+    int tzOffset = 0;  // minutes from UTC
+
+    if (p != end) {
+        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
-        if (timezoneOffset) {
-            localTime.addMinutes(-timezoneOffset);  // convert to GMT
+
+        if (tzOffset) {
+            localTime.addMinutes(-tzOffset);  // convert to UTC
         }
     }
 
-    // 'addTime' and/or 'addMinutes' will reset '24:00:00' to '00:00:00' (even
-    // if the quantities added are 0), which we don't want to happen.
-    // 'hours == 24' is only allowed for the value '24:00:00.000' with timezone
-    // UTC.
+    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
+    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
+    // (above).
 
-    if (24 == hour && (millisecond || timezoneOffset)) {
+    if (24 == hour && (millisecond || tzOffset)) {
         return -1;                                                    // RETURN
     }
 
     *result = localTime;
+
     return 0;
 }
 
-int Iso8601Util::parse(bdlt::Datetime *result,
-                         const char    *input,
-                         int            inputLength)
+int Iso8601Util::parse(Datetime *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);
-    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    bdlt::DatetimeTz datetimeTz;
+    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
+    //
+    // The fractional second and zone designator are independently optional.
 
-    int rc = parse(&datetimeTz, input, inputLength);
+    // 1. Parse as a 'DatetimeTz'.
+
+    DatetimeTz datetimeTz;
+
+    const int rc = parse(&datetimeTz, string, length);
 
     if (0 != rc) {
         return rc;                                                    // RETURN
     }
 
+    // 2. Account for edge cases.
+
     if (datetimeTz.offset() > 0) {
-        bdlt::Datetime min(0001, 01, 01, 00, 00, 00, 000);
-        min.addMinutes(datetimeTz.offset());
-        if (min > datetimeTz.localDatetime()) {
+        Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000);
+
+        minDatetime.addMinutes(datetimeTz.offset());
+
+        if (minDatetime > datetimeTz.localDatetime()) {
             return -1;                                                // RETURN
         }
     }
     else if (datetimeTz.offset() < 0) {
-        bdlt::Datetime max(9999, 12, 31, 23, 59, 59, 999);
-        max.addMinutes(datetimeTz.offset());
-        if (max < datetimeTz.localDatetime()) {
+        Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+
+        maxDatetime.addMinutes(datetimeTz.offset());
+
+        if (maxDatetime < datetimeTz.localDatetime()) {
             return -1;                                                // RETURN
         }
     }
@@ -799,264 +1035,250 @@ int Iso8601Util::parse(bdlt::Datetime *result,
     return 0;
 }
 
-int Iso8601Util::parse(bdlt::DateTz *result,
-                         const char  *input,
-                         int          inputLength)
+int Iso8601Util::parse(DateTz *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    // Sample XML datetime: "2005-01-31" having a minimum length of 10.
-    // Timezone may be optionally specified: "2005-01-31-04:00".  Also, there
-    // might be more than 3 decimal places for the fraction of a second.  But
-    // when storing in bdlt::Datetime, we only take the 3 most significant
-    // digits.
+    // Sample ISO 8601 date: "2005-01-31+04:00"
+    //
+    // The zone designator is optional.
 
-    enum { MINIMUM_LENGTH = 10 };
+    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DD" - 1 };
 
-    if (inputLength < MINIMUM_LENGTH) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    const char *begin = input;
-    const char *end   = input + inputLength;
+    const char *p   = string;
+    const char *end = string + length;
 
-    // Parse date.
+    // 1. Parse and validate date.
 
-    bdlt::Date localDate;
-    int year, month, day;
-    if   (0 != parseDate(&year, &month, &day, &begin, end)
-       || 0 != localDate.setYearMonthDayIfValid(year, month, day)) {
+    int  year, month, day;
+    Date localDate;
+
+    if (0 != parseDate(&p, &year, &month, &day, p, end)
+     || 0 != localDate.setYearMonthDayIfValid(year, month, day)) {
         return -1;                                                    // RETURN
     }
 
-    // Parse timezone, if any
+    // 2. Parse zone designator, if any.
 
-    int timezoneOffset = 0;  // minutes from GMT
-    if (end != begin) {
-        if (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
-         || end != begin) {
+    int tzOffset = 0;  // minutes from UTC
+
+    if (p != end) {
+        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
 
-    result->setDateTz(localDate, timezoneOffset);
+    result->setDateTz(localDate, tzOffset);
+
     return 0;
 }
 
-int Iso8601Util::parse(bdlt::TimeTz *result,
-                         const char  *input,
-                         int          inputLength)
+int Iso8601Util::parse(TimeTz *result, const char *string, int length)
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(input);    BSLS_ASSERT(0 <= inputLength);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
 
-    // Sample XML time: "08:59:59.999" having a minimum length of 8.  Also,
-    // there might be more than 3 decimal places for the fraction of a second.
+    // Sample ISO 8601 time: "08:59:59.999-04:00"
+    //
+    // The fractional second and zone designator are independently optional.
 
-    enum { MINIMUM_LENGTH = 8 };
-    if (inputLength < MINIMUM_LENGTH) {
-        return -1;                                                    // RETURN
-    }
-    const char *begin = input;
-    const char *end   = input + inputLength;
+    enum { k_MINIMUM_LENGTH = sizeof "hh:mm:ss" - 1 };
 
-    // Parse time.  Milliseconds could be rounded to 1000 (if fraction
-    // is .9995 or greater).  Thus, we have to add it after setting the time
-    // else it might not validate.
-
-    bdlt::Time localTime;
-    int hour, minute, second, millisecond;
-    bool hasLeapSecond;
-    if   (0 != parseTime(&hour,
-                         &minute,
-                         &second,
-                         &millisecond,
-                         &hasLeapSecond,
-                         &begin,
-                         end)
-       || 0 != localTime.setTimeIfValid(hour, minute, second)) {
-        return -1;                                                    // RETURN
-    }
-    if (hasLeapSecond) {
-        localTime.addSeconds(1);
-    }
-    if (millisecond) {
-        localTime.addMilliseconds(millisecond);
-    }
-
-    // Parse timezone, if any.
-
-    int timezoneOffset = 0;  // minutes from GMT
-    if (end != begin) {
-        // Parse timezone.
-
-        if (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
-         || end != begin) {
-            return -1;                                                // RETURN
-        }
-    }
-
-    // 'addMilliseconds' will reset '24:00:00' to '00:00:00' (even if the
-    // quantity added is 0), which we don't want to happen.  'hours == 24' is
-    // only allowed for the value '24:00:00.000' and timezone GMT.
-
-    if (24 == hour && (millisecond || timezoneOffset)) {
+    if (length < k_MINIMUM_LENGTH) {
         return -1;                                                    // RETURN
     }
 
-    result->setTimeTz(localTime, timezoneOffset);
-    return 0;
-}
+    const char *p   = string;
+    const char *end = string + length;
 
-int Iso8601Util::parse(bdlt::DatetimeTz *result,
-                         const char      *input,
-                         int              inputLength)
-{
-    BSLS_ASSERT(result);
-    BSLS_ASSERT(input);    BSLS_ASSERT(0 <= inputLength);
+    // 1. Parse and validate time.
 
-    // Sample XML datetime: "2005-01-31T08:59:59.999" having a minimum length
-    // of 19.  Timezone may be optionally specified:
-    // "2005-01-31T08:59:59.999-04:00".  Also, there might be more than 3
-    // decimal places for the fraction of a second.  But when storing in
-    // bdlt::Datetime, we only take the 3 most significant digits.
+    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
+    // greater).  Thus, we have to add it after setting the time, else it might
+    // not validate.
 
-    enum { MINIMUM_LENGTH = 19 };
-
-    if (inputLength < MINIMUM_LENGTH) {
-        return -1;                                                    // RETURN
-    }
-
-    const char *begin = input;
-    const char *end   = input + inputLength;
-
-    // 1. Parse Date
-    // =============
-
-    int year, month, day;
-    if   (0   != parseDate(&year, &month, &day, &begin, end)
-       || end <= begin
-       || 'T' != *begin) {
-        return -1;                                                    // RETURN
-    }
-    ++begin;  // skip 'T'
-
-    // 2. Parse Time
-    // =============
-
-    bdlt::Datetime localDatetime;
     int  hour, minute, second, millisecond;
     bool hasLeapSecond;
-    if (0 != parseTime(&hour,
+    Time localTime;
+
+    if (0 != parseTime(&p,
+                       &hour,
                        &minute,
                        &second,
                        &millisecond,
                        &hasLeapSecond,
-                       &begin,
+                       p,
+                       end)
+     || 0 != localTime.setTimeIfValid(hour, minute, second)) {
+        return -1;                                                    // RETURN
+    }
+
+    if (hasLeapSecond) {
+        localTime.addSeconds(1);
+    }
+
+    if (millisecond) {
+        localTime.addMilliseconds(millisecond);
+    }
+
+    // 2. Parse zone designator, if any.
+
+    int tzOffset = 0;  // minutes from UTC
+
+    if (p != end) {
+        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.  The
+    // case where '0 != minute || 0 != second' is caught by 'setTimeIfValid'
+    // (above).
+
+    if (24 == hour && (millisecond || tzOffset)) {
+        return -1;                                                    // RETURN
+    }
+
+    result->setTimeTz(localTime, tzOffset);
+
+    return 0;
+}
+
+int Iso8601Util::parse(DatetimeTz *result, const char *string, int length)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999-04:00"
+    //
+    // The fractional second and zone designator are independently optional.
+
+    enum { k_MINIMUM_LENGTH = sizeof "YYYY-MM-DDThh:mm:ss" - 1 };
+
+    if (length < k_MINIMUM_LENGTH) {
+        return -1;                                                    // RETURN
+    }
+
+    const char *p   = string;
+    const char *end = string + length;
+
+    // 1. Parse date.
+
+    int year, month, day;
+
+    if (0   != parseDate(&p, &year, &month, &day, p, end)
+     || p   == end
+     || 'T' != *p) {
+
+        return -1;                                                    // RETURN
+    }
+    ++p;  // skip 'T'
+
+    // 2. Parse time.
+
+    int  hour, minute, second, millisecond;
+    bool hasLeapSecond;
+
+    if (0 != parseTime(&p,
+                       &hour,
+                       &minute,
+                       &second,
+                       &millisecond,
+                       &hasLeapSecond,
+                       p,
                        end)) {
         return -1;                                                    // RETURN
     }
 
-    // 3. Parse Timezone (if any)
-    // ==========================
+    // 3. Parse zone designator, if any.
 
-    int timezoneOffset = 0;  // minutes from GMT
-    if (end != begin) {
-        if   (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
-           || end != begin) {
+    int tzOffset = 0;  // minutes from UTC
+
+    if (p != end) {
+        if (0 != parseZoneDesignator(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
 
-    // 4. Adjust Special ISO-8601 Values
-    // =================================
+    // 4. Account for special ISO 8601 values.
 
-    ///Leap Seconds
-    /// - - - - - -
-    // Note that leap seconds, milliseconds == 1000, cannot be directly
-    // represented with a 'bdlt::Datetime'.  Instead we create the simplest
-    // related 'bdlt::Datetime' value and then adjust it (forward a second).
-    //
-    // Also note milliseconds == 1000 is the result of rounding up a
-    // fractional number of seconds.
+    ///Leap Seconds and Maximum Fractional Seconds
+    ///- - - - - - - - - - - - - - - - - - - - - -
+    // Note that leap seconds or 'millisecond' values of 1000 (which result
+    // from rounding up a fractional second that is .9995 or greater) cannot be
+    // directly represented with a 'Datetime'.  Hence, we create an initial
+    // 'Datetime' object without accounting for these, then adjust it forward
+    // by up to 2 seconds, as needed.
     //
     ///24:00
     ///- - -
-    // The hour value 24 is not valid unless minutes, seconds, and milliseconds
-    // are all 0.  Further, note that supplying an hour of 24 results in a
-    // different interpretation of the hour value than that provided by the
-    // standard (see 'Note Regarding the Time 24:00' in the .h file).
+    // An 'hour' value of 24 is not valid unless 'minute', 'second', and
+    // 'millisecond' are all 0.  Further note that supplying an hour of 24 when
+    // constructing a 'Datetime' results in a different interpretation than
+    // that provided by ISO 8601 (see '{Note Regarding the Time 24:00}' in the
+    // component-level documentation).
 
-    bdlt::DatetimeInterval resultAdjustment;  // for leap-seconds, midnight, etc
+    if (24 == hour) {
+        // '24 == hour' is allowed only for the value '24:00:00.000' in UTC.
 
-    if (hour == 24) {
-        // 'hours == 24' is only allowed for the value '24:00:00.000'.
-        if (0 != minute || 0 != second || 0 != millisecond) {
+        if (minute || second || millisecond || tzOffset) {
             return -1;                                                // RETURN
         }
     }
+
+    DatetimeInterval resultAdjustment;  // adjust for leap second and maximum
+                                        // fractional second
+
     if (hasLeapSecond) {
         resultAdjustment.addSeconds(1);
     }
+
     if (1000 == millisecond) {
         millisecond = 0;
         resultAdjustment.addSeconds(1);
     }
 
+    // 5. Load a 'Datetime'.
 
-    // 5. Load a Datetime
-    // ==================
+    Datetime localDatetime;
 
     if (0 != localDatetime.setDatetimeIfValid(
                         year, month, day, hour, minute, second, millisecond)) {
         return -1;                                                    // RETURN
     }
 
-    // 6. Apply Adjustments for Special ISO-8601 Values
-    // ================================================
+    // 6. Apply adjustments for special ISO 8601 values.
 
-    if (bdlt::DatetimeInterval() != resultAdjustment) {
+    if (DatetimeInterval() != resultAdjustment) {
 
-        BSLS_ASSERT(resultAdjustment > bdlt::DatetimeInterval());
-        // We assert 'resultAdjustment > bdlt::DatetimeInterval()' to prevent
-        // future developers from accidentaly introducing negative adjustments
-        // (which are not handled by the following logic).
+        BSLS_ASSERT(resultAdjustment > DatetimeInterval());
+        // We assert the above to prevent future developers from accidentally
+        // introducing negative adjustments, which are not handled by the
+        // following logic.
 
-        const bdlt::Datetime MAX(9999, 12, 31, 23, 59, 59, 999);
-        if (MAX - resultAdjustment < localDatetime) {
+        const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999);
+
+        if (maxDatetime - resultAdjustment < localDatetime) {
             return -1;                                                // RETURN
         }
+
         localDatetime += resultAdjustment;
     }
 
-    result->setDatetimeTz(localDatetime, timezoneOffset);
+    result->setDatetimeTz(localDatetime, tzOffset);
+
     return 0;
 }
+
 }  // close package namespace
-
-                        // ---------------------------------
-                        // struct bdlt::Iso8601UtilConfiguration
-                        // ---------------------------------
-
-// GLOBAL CONFIGURATION
-bool bdlt::Iso8601UtilConfiguration::s_useZAbbreviationForUtc = false;
-
-namespace bdlt {
-// CLASS METHODS
-void Iso8601UtilConfiguration::setUseZAbbreviationForUtc(
-                                               bool useZAbbreviationForUtcFlag)
-{
-    s_useZAbbreviationForUtc = useZAbbreviationForUtcFlag;
-}
-
-bool Iso8601UtilConfiguration::useZAbbreviationForUtc()
-{
-    return s_useZAbbreviationForUtc;
-}
-}  // close package namespace
-
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
