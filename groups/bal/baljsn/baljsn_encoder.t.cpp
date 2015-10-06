@@ -29281,9 +29281,9 @@ STREAM& Address::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_street, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_city, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_state, 1);
+            stream.getString(d_street);
+            stream.getString(d_city);
+            stream.getString(d_state);
           } break;
           default: {
             stream.invalidate();
@@ -29395,9 +29395,9 @@ STREAM& Address::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_street, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_city, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_state, 1);
+        stream.putString(d_street);
+        stream.putString(d_city);
+        stream.putString(d_state);
       } break;
     }
     return stream;
@@ -29933,9 +29933,9 @@ STREAM& Employee::bdexStreamIn(STREAM& stream, int version)
     if (stream) {
         switch (version) {  // Switch on the schema version (starting with 1).
           case 1: {
-            bdex_InStreamFunctions::streamIn(stream, d_name, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_homeAddress, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_age, 1);
+            stream.getString(d_name);
+            d_homeAddress.bdexStreamIn(stream, 1);
+            stream.getInt32(d_age);
           } break;
           default: {
             stream.invalidate();
@@ -30048,9 +30048,9 @@ STREAM& Employee::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        bdex_OutStreamFunctions::streamOut(stream, d_name, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_homeAddress, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_age, 1);
+        stream.putString(d_name);
+        d_homeAddress.bdexStreamOut(stream, 1);
+        stream.putInt32(d_age);
       } break;
     }
     return stream;
