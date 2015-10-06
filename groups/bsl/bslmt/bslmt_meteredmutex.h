@@ -26,11 +26,11 @@ BSLS_IDENT("$Id: $")
 // Wait time is defined as the sum of the time intervals between each call to
 // 'lock' (or 'tryLock') on the underlying mutex and the return of that call.
 // Note that if one or more threads are waiting for the lock at the point when
-// `waitTime` is called, those waiting time intervals are *not* included in the
+// 'waitTime' is called, those waiting time intervals are *not* included in the
 // returned wait time.  Hold time is defined as the sum of the time intervals
 // between return from each call to 'lock' (or a successful call to 'tryLock')
 // on the underlying mutex and the subsequent call to 'unlock'.  Note that if a
-// thread is holding the lock at the point when `holdTime` is called, then that
+// thread is holding the lock at the point when 'holdTime' is called, then that
 // holding time is *not* included in the returned hold time.
 //
 ///Performance
@@ -241,7 +241,7 @@ class MeteredMutex {
     // ACCESSORS
     bsls::Types::Int64 holdTime() const;
         // Return the hold time (in nanoseconds) accumulated since the most
-        // recent call to 'resetMetrics' (or `MeteredMutex` if 'resetMetrics'
+        // recent call to 'resetMetrics' (or 'MeteredMutex' if 'resetMetrics'
         // was never called).
 
     bsls::Types::Int64 lastResetTime() const;
@@ -254,7 +254,7 @@ class MeteredMutex {
 
     bsls::Types::Int64 waitTime() const;
         // Return the wait time (in nanoseconds), accumulated since the most
-        // recent call to 'resetMetrics' (or `MeteredMutex` if 'resetMetrics'
+        // recent call to 'resetMetrics' (or 'MeteredMutex' if 'resetMetrics'
         // was never called).
 };
 

@@ -51,17 +51,18 @@ BSLS_IDENT("$Id: $")
 // the 'ball::RecordBuffer' protocol by delegating to an instance of
 // 'bsl::vector<bsl::shared_ptr<ball::Record> > ':
 //..
-// my_recordbuffer.h
+//  // my_recordbuffer.h
 //
 //  class my_RecordBuffer : public ball::RecordBuffer {
 //      // This class provides a thread-safe implementation of the
-//      // 'ball::RecordBuffer' protocol.  This implementation employs a
-//      // vector to hold an unlimited number of record handles.
+//      // 'ball::RecordBuffer' protocol.  This implementation employs a vector
+//      // to hold an unlimited number of record handles.
 //
-//      mutable bslmt::RecursiveMutex d_mutex; // thread safety provider (see
-                                // the implementation notes for the
-                                // justification for using recursive mutex
-                                // rather a plain mutex)
+//      mutable bslmt::RecursiveMutex d_mutex;
+//                                   // thread safety provider (see
+//                                   // the implementation notes for the
+//                                   // justification for using recursive mutex
+//                                   // rather a plain mutex)
 //
 //      bsl::vector<bsl::shared_ptr<ball::Record> >
 //                         d_buffer; // buffer of record handles

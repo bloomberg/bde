@@ -24,8 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// For a usage example, see 'btlmt_sessionpool'.
-//..
+// For a usage example, see {'btlmt_sessionpool'}.
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

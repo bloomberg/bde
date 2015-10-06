@@ -149,29 +149,32 @@ BSLS_IDENT("$Id: $")
 //
 // The names and exact meanings of the four severity threshold levels are as
 // follows:
-//..
-//   Record:       If the severity level of the record is at least as severe
-//                 as the Record threshold level of the associated category,
-//                 then the record will be stored by the logger in its
-//                 log record buffer (i.e., it will be recorded).
 //
-//   Pass:         If the severity of the record is at least as severe as the
-//                 Pass threshold level of the associated category, then the
-//                 record will be immediately published by the logger (i.e., it
-//                 will be transmitted to the logger's downstream recipient --
-//                 the observer).
+//: Record:
+//:     If the severity level of the record is at least as severe as the Record
+//:     threshold level of the associated category, then the record will be
+//:     stored by the logger in its log record buffer (i.e., it will be
+//:     recorded).
+//:
+//: Pass:
+//:     If the severity of the record is at least as severe as the Pass
+//:     threshold level of the associated category, then the record will be
+//:     immediately published by the logger (i.e., it will be transmitted to
+//:     the logger's downstream recipient -- the observer).
+//:
+//: Trigger:
+//:     If the severity of the record is at least as severe as the Trigger
+//:     threshold level of the associated category, then the record will cause
+//:     immediate publication of that record and any records in the logger's
+//:     log record buffer (i.e., this record will trigger a general log record
+//:     dump).
+//:
+//: Trigger-All:
+//:     If the severity of the record is at least as severe as the Trigger-All
+//:     threshold level of the associated category, then the record will cause
+//:     immediate publication of that record and all other log records stored
+//:     by *all* active loggers.
 //
-//   Trigger:      If the severity of the record is at least as severe as the
-//                 Trigger threshold level of the associated category, then the
-//                 record will cause immediate publication of that record and
-//                 any records in the logger's log record buffer (i.e., this
-//                 record will trigger a general log record dump).
-//
-//   Trigger-All:  If the severity of the record is at least as severe as the
-//                 Trigger-All threshold level of the associated category, then
-//                 the record will cause immediate publication of that record
-//                 and all other log records stored by *all* active loggers.
-//..
 // Note that more than one of the above actions can apply to a given log
 // record, since the four threshold levels are independent of one another.
 // Note also that *all* of these actions are governed by the threshold levels
@@ -387,7 +390,6 @@ BSLS_IDENT("$Id: $")
 //        return 0;
 //    }
 //..
-//
 //
 ///Usage 2 -- Initialization #2
 /// - - - - - - - - - - - - - -
@@ -629,7 +631,6 @@ BSLS_IDENT("$Id: $")
 //        assert( 96 == ballCategory->passLevel());
 //        assert( 64 == ballCategory->triggerLevel());
 //        assert( 32 == ballCategory->triggerAllLevel());
-//..
 //..
 // Finally add a third category named "Other.equities", again by calling
 // 'setCategory'.  This category has no ancestor currently in the registry, so

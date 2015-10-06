@@ -61,6 +61,7 @@ BSLS_IDENT("$Id: $")
 //
 //    assert(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
 // }
+//..
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>

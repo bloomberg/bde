@@ -35,33 +35,32 @@ BSLS_IDENT("$Id: $")
 // The following two macros establish the logging context required by the other
 // macros.  A use of one of these two macros must be visible from within the
 // lexical scope where the C++ stream-based and 'printf'-style macros are used:
-//..
-//  BALL_LOG_SET_CATEGORY(CATEGORY)
-//      Set the category for logging to the specified 'CATEGORY' (assumed to be
-//      of type convertible to 'const char *').  On the *first* invocation of
-//      this macro in a code block, the 'ball::Log::setCategory' method is
-//      invoked to retrieve the address of an appropriate category structure
-//      for its scope; subsequent invocations will use a cached address of the
-//      category.  (See the function-level documentation of
-//      'ball::Log::setCategory' for more information.)  Note that this macro
-//      must be used at block scope, and can be used at most once in any given
-//      block (or else a compiler diagnostic will result).
 //
-//  BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)
-
-//      Set, *on EACH invocation*, the category for logging to the specified
-//      'CATEGORY' (assumed to be of type convertible to 'const char *').  On
-//      *EVERY* invocation of this macro in a code block, the
-//      'ball::Log::setCategory' method is invoked to retrieve the address of
-//      an appropriate category structure for its scope; the address returned
-//      from 'ball::Log::setCategory' is *NOT* cached for subsequent calls.
-//      (See the function-level documentation of 'ball::Log::setCategory' for
-//      more information.)  Note that this macro should be used to create
-//      categories that depend on *RUN-TIME* values only (e.g., LUW or UUID).
-//      Also note that this macro must be used at block scope and can be used
-//      at most once in any given block (or else a compiler diagnostic will
-//      result).
-//..
+//: 'BALL_LOG_SET_CATEGORY(CATEGORY)':
+//:     Set the category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *').  On the *first* invocation of
+//:     this macro in a code block, the 'ball::Log::setCategory' method is
+//:     invoked to retrieve the address of an appropriate category structure
+//:     for its scope; subsequent invocations will use a cached address of the
+//:     category.  (See the function-level documentation of
+//:     'ball::Log::setCategory' for more information.)  Note that this macro
+//:     must be used at block scope, and can be used at most once in any given
+//:     block (or else a compiler diagnostic will result).
+//:
+//: 'BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)':
+//:      Set, *on EACH invocation*, the category for logging to the specified
+//:     'CATEGORY' (assumed to be of type convertible to 'const char *').  On
+//:     *EVERY* invocation of this macro in a code block, the
+//:     'ball::Log::setCategory' method is invoked to retrieve the address of
+//:     an appropriate category structure for its scope; the address returned
+//:     from 'ball::Log::setCategory' is *NOT* cached for subsequent calls.
+//:     (See the function-level documentation of 'ball::Log::setCategory' for
+//:     more information.)  Note that this macro should be used to create
+//:     categories that depend on *RUN-TIME* values only (e.g., LUW or UUID).
+//:     Also note that this macro must be used at block scope and can be used
+//:     at most once in any given block (or else a compiler diagnostic will
+//:     result).
+//
 // Note that there can be at most one use of either 'BALL_LOG_SET_CATEGORY' or
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY' in any given block (or else a compiler
 // diagnostic will result).  Also note that categories that are set, including

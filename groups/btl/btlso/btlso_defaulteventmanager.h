@@ -72,7 +72,6 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that '/dev/poll' is available only on Solaris and this instantiation
 // fails (at compile time) on other platforms.
-//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

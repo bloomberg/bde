@@ -124,6 +124,7 @@ BSLS_IDENT("$Id: $")
 //      assert(127 == mask);
 //      return 0;
 //  }
+//..
 
 #define BSLS_MACROREPEAT(N, MACRO) BSLS_MACROREPEAT_##N(MACRO)
     // Expand to 'N' invocations of 'MACRO(x)', where 'x' in each invocation

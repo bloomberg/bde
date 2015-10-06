@@ -482,7 +482,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == d_channelPool_p->write(channelId, *msg));
 //
 //      msg->removeAll();
-
+//
 //      *numNeeded = 1;
 //
 //      d_channelPool_p->shutdown(channelId,

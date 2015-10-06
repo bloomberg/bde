@@ -126,7 +126,6 @@ BSLS_IDENT("$Id: $")
 //   int main()
 //   {
 //       ball::TestObserver testObserver(bsl::cout);
-
 //..
 // Now, we load the logger manager 'configuration' with the desired "payload"
 // function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
@@ -135,7 +134,7 @@ BSLS_IDENT("$Id: $")
 // each invocation.
 //..
 //       using namespace bdlf::PlaceHolders;
-
+//
 //       ball::LoggerManagerConfiguration configuration;
 //       char delimiter = '.';
 //       configuration.setDefaultThresholdLevelsCallback(

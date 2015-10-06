@@ -52,7 +52,6 @@ BSLS_IDENT("$Id: $")
 //  btlso::DefaultEventManager<> eventManager(&metrics);
 //..
 // Note that the time metrics is optional.
-//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
