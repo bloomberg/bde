@@ -28,7 +28,7 @@ void bslmt::MeteredMutex::resetMetrics()
     do {
         old = d_lastResetTime;
         t1 = bsls::TimeUtil::getTimer();
-    } while(d_lastResetTime.testAndSwap(old, t1) != old);
+    } while (d_lastResetTime.testAndSwap(old, t1) != old);
 }
 
 }  // close enterprise namespace

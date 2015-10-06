@@ -126,7 +126,7 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
     Obj evenMutex;
     Obj globalMutex;
 
-    enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 1 };
+    enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 100000 };
     bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 
     void executeInParallel(int                               numThreads,
@@ -209,7 +209,7 @@ extern "C" {
         barrier4.wait();
 
         previous = mutex4.lastResetTime();
-        for(int i = 0; i < k_NUM_ITERATION; ++i) {
+        for (int i = 0; i < k_NUM_ITERATION; ++i) {
             mutex4.resetMetrics();
             current = mutex4.lastResetTime();
             ASSERT(current >= previous);
@@ -268,7 +268,7 @@ extern "C" {
             mutex2.lock();
         }
         else {
-            while(mutex2.tryLock() != 0) {
+            while (mutex2.tryLock() != 0) {
             }
         }
         ASSERT(state == e_VALID);

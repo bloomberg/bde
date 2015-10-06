@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //  Obj evenMutex;
 //  Obj globalMutex;
 //
-//  enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 1 };
+//  enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 100000 };
 //  bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 //
 //  void executeInParallel(int                               numThreads,
