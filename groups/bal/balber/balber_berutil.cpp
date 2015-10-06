@@ -331,7 +331,7 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
     // non-zero value otherwise.
 {
     char buf[bdlt::Iso8601Util::k_DATETIME_STRLEN];
-    int len = bdlt::Iso8601Util::generate(buf, value, sizeof(buf));
+    int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value);
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
 }
 

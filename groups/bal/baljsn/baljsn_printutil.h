@@ -202,7 +202,7 @@ inline
 int PrintUtil::printDateAndTime(bsl::ostream& stream, const TYPE& value)
 {
     char buffer[bdlt::Iso8601Util::k_MAX_STRLEN + 1];
-    bdlt::Iso8601Util::generate(buffer, value, sizeof buffer);
+    bdlt::Iso8601Util::generate(buffer, sizeof buffer, value);
     return printValue(stream, buffer);
 }
 
