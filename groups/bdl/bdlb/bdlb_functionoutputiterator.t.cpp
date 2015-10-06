@@ -618,13 +618,14 @@ int main(int argc, char *argv[])
 
         // original iterator
         Iterator itOriginal(value.createSetter());
+        const Iterator& ItOriginal = itOriginal;
 
         *itOriginal = theValue1;
 
         const int originalSetterId = value.getLastCalledSetterId();
 
         // copy of the original iterator
-        Iterator itCopy(static_cast<const Iterator>(itOriginal));
+        Iterator itCopy(ItOriginal);
 
         *itCopy = theValue2;
 
