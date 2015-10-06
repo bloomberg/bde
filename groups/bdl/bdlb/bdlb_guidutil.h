@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::GuidUtil: namespace for methods for creating UUIDs.
 //
-//@SEE ALSO: bdlb::Guid
+//@SEE_ALSO: bdlb::Guid
 //
 //@AUTHOR: Mickey Sweatt (msweatt1)
 //

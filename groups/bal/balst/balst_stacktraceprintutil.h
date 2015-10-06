@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
-//@SEE ALSO: balst_stacktraceutil
+//@SEE_ALSO: balst_stacktraceutil
 //
 //@DESCRIPTION: This component defines a namespace 'struct',
 // 'balst::StackTracePrintUtil', containing static platform-independent

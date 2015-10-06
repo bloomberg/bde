@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@SEE ALSO: bsls_byteorderutil
+//@SEE_ALSO: bsls_byteorderutil
 //
 //@MACROS:
 //  BSLS_BYTEORDER_HTONS(x):  Convert 16-bit value from host to network order

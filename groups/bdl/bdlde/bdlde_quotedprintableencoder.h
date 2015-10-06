@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alex Fung (afung8)
 //
-//@SEE_ALSO 'bdlde::QuotedPrintableDecoder'
+//@SEE_ALSO: 'bdlde::QuotedPrintableDecoder'
 //
 //@DESCRIPTION: This component provides a class that can be used to encode byte
 // sequences of arbitrary length into the Quoted Printable representation

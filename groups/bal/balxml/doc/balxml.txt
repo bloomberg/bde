@@ -6,7 +6,7 @@
 
 @AUTHOR: Rohan Bhindwale (rbhindwa)
 
-@SEE ALSO: a_xercesc, a_xml2
+@SEE_ALSO: a_xercesc, a_xml2
 
 @DESCRIPTION: The 'balxml' package provides utilities for working with XML and
  XSD.  Clients can use the components provided by 'balxml' for parsing and

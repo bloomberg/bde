@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //  BSLIM_TESTUTIL_L_: current line number
 //  BSLIM_TESTUTIL_T_: print tab without '\n'
 //
-//@SEE ALSO: bsls_bsltestutil
+//@SEE_ALSO: bsls_bsltestutil
 //
 //@DESCRIPTION: This component provides the standard print macros used in
 // BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',

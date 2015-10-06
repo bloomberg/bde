@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::OsUtil: namespace for operating system information utilities
 //
-//@SEE ALSO:
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a namespace, 'bdls::OsUtil',
 // containing utility functions for retrieving information at runtime about the

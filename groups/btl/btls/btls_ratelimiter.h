@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Mikhail Kunitskiy (mkunitskiy1)
 //
-//@SEE ALSO btls_leakybucket
+//@SEE_ALSO: btls_leakybucket
 //
 //@DESCRIPTION: This component provides a mechanism, 'btls::RateLimiter', that
 // enables clients to monitor and control the use of a resource such that the

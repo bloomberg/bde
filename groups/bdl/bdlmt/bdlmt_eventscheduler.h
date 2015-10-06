@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::EventSchedulerEventHandle: handle to a single scheduled event
 //  bdlmt::EventSchedulerRecurringEventHandle: handle to a recurring event
 //
-//@SEE ALSO: bdlmt_timereventscheduler
+//@SEE_ALSO: bdlmt_timereventscheduler
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //

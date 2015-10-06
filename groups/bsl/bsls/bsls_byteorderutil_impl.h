@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(x)  return 'x' with bytes swapped
 //   BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(x)  return 'x' with bytes swapped
 //
-//@SEE ALSO: bsls_byteorderutil, bsls_byteorder
+//@SEE_ALSO: bsls_byteorderutil, bsls_byteorder
 //
 //@DESCRIPTION: This component provides a template class 'ByteOrderUtil_Impl'
 // and a set of macros suitable for swapping byte orders of all integral types.

@@ -21,7 +21,7 @@ BSLS_IDENT("$Id$")
 //  BDLDFP_DECIMAL_DD: Portable Decimal64 literal macro
 //  BDLDFP_DECIMAL_DL: Portable Decimal128 literal macro
 //
-//@SEE ALSO: bdldfp_decimalutil, bdldfp_decimalconvertutil,
+//@SEE_ALSO: bdldfp_decimalutil, bdldfp_decimalconvertutil,
 //           bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides classes that implement decimal

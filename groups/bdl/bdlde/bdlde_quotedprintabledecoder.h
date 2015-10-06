@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alex Fung (afung8)
 //
-//@SEE_ALSO 'bdlde::QuotedPrintableEncoder'
+//@SEE_ALSO: 'bdlde::QuotedPrintableEncoder'
 //
 //@DESCRIPTION: This component provides a template class (parameterized
 // separately on both input and output iterators) that can be used to decode

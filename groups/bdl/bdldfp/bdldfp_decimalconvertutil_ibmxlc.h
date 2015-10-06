@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalConvertUtil_IbmXlc: IBM xlC conversion functions
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides conversion operations between the
 // decimal types supplied in this package ('Decimal32', 'Decimal64',
