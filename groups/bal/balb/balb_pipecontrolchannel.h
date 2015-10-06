@@ -44,8 +44,12 @@ BSLS_IDENT("$Id: $")
 // each message.  This trailing newline is stripped from the message before
 // the message is passed to the control callback.
 //
-///Usage Example
-///-------------
+///Usage 
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Controlling a Simple Server
+/// - - - - - - - - - - - - - - - - - - -
 // This example illustrates how to construct a simple server that records
 // messages sent on a pipe control channel until "EXIT" is received, at which
 // point the channel is closed and the server stops.

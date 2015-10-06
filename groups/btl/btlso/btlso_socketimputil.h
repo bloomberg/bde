@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a client and server
+///Example 1: Implementing a Client and Server
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,

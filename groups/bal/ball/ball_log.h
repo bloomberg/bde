@@ -189,8 +189,9 @@ BSLS_IDENT("$Id: $")
 //      (which must be established using 'BALL_LOG_SET_CATEGORY'), and 'false'
 //      otherwise.
 //..
-///Macro Usage
-///-----------
+//
+///Usage
+///-----
 // The following code fragments illustrate the standard pattern of macro usage.
 //
 ///Example 1: A Basic Logging Example

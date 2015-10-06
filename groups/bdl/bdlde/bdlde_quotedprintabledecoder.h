@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 // characters consumed) or possibly the iterator itself (for iterators with
 // reference-semantics) identifies the offending character.
 //
-///Usage Example
-///- - - - - - -
+///Usage
+///- - -
 // TBD
 
 #ifndef INCLUDED_BDLSCM_VERSION

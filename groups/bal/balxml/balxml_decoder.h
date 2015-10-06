@@ -49,8 +49,12 @@ BSLS_IDENT("$Id: $")
 // to use a binary encoding (such as BER) if the encoding format is under your
 // control.  (See 'balber_berdecoder'.)
 //
-///Usage Example 1
-///---------------
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Generating Code from a Schema
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have the following XML schema inside a file called
 // 'employee.xsd':
 //..
@@ -136,8 +140,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Usage Example 2
-///---------------
+//
+///Example 2: Error and Warning Streams
+/// - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to pass an error stream and
 // warning stream to the 'decode' function.  We will use the same
 // 'test_employee' component from the previous usage example.  Note that the

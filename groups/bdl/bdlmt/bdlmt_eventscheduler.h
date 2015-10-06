@@ -117,8 +117,12 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
-///Usage Example 1: Simple Clock
-///-----------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Simple Clock
+///- - - - - - - - - - - -
 // In this example we wish to log some statistics periodically.  We define a
 // method to store the value of a variable into an array, and set up a
 // scheduler to call that as a recurring event.
@@ -160,8 +164,8 @@ BSLS_IDENT("$Id: $")
 //     At 06MAY2008_21:19:21.592 g_data was 3267721
 //..
 //
-///Usage Example 2: Server Timeouts
-///--------------------------------
+///Example 2: Server Timeouts
+/// - - - - - - - - - - - - -
 // The following example shows how to use a 'bdlmt::EventScheduler' to
 // implement a timeout mechanism in a server.  'my_Session' maintains several
 // connections.  It closes a connection if the data for it does not arrive

@@ -40,8 +40,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-/// Example 1: Catalog Usage
+///Example 1: Catalog Usage
 /// - - - - - - - - - - - -
 // Consider a client sending queries to a server asynchronously.  When the
 // response to a query arrives, the client needs to invoke the callback

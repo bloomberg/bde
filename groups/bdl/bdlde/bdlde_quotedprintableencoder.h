@@ -177,8 +177,12 @@ BSLS_IDENT("$Id: $")
 // the input, allowing straight pass-through of character sets that cannot be
 // interpreted.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Encoding
+///- - - - - - - - - -
 // The following example shows how to use a 'bdlde::QuotedPrintableEncoder'
 // object to implement a function, 'streamconverter', that reads text from a
 // 'bsl::istream', encodes that text in Quoted-Printable representation, and

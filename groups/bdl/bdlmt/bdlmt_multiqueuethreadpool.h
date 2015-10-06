@@ -49,13 +49,12 @@ BSLS_IDENT("$Id: $")
             // rephrased to work on an array of strings instead of a file, or
             // perhaps re-written entirely.
 
-///Usage Examples
-///--------------
-// The first example illustrates how to use a 'bdlmt::MultiQueueThreadPool' in
-// a word search application.
+///Usage
+///-----
+// This section illustrates intended use of this component.
 //
-///Example 1
-///- - - - -
+///Example 1: A Word Search Application
+/// - - - - - - - - - - - - - - - - - -
 // This example illustrates the use of a 'bdlmt::MultiQueueThreadPool' in a
 // word search application called 'fastSearch'.  'fastSearch' searches a list
 // of files for a list of words, and returns the set of files which contain

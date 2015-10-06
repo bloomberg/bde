@@ -28,8 +28,12 @@
 // safe to access and manipulate a single shared instance from different
 // threads.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.                     
+//
+///Example 1: Creating an ECHO Message Handler
+///- - - - - - - - - - - - - - - - - - - - - -
 // First define a trivial callback to be invoked when an "ECHO" message is
 // received:
 //..
