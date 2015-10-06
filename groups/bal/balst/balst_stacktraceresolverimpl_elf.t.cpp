@@ -234,10 +234,10 @@ UintPtr bigRand()
     typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
-    UintPtr lowBits = next >> 32;
+    UintPtr lowBits = static_cast<UintPtr>(next >> 32);
     bigRandSeed = randA * next + randC;
 
-    return (UintPtr) bigRandSeed ^ lowBits;
+    return static_cast<UintPtr>(bigRandSeed) ^ lowBits;
 }
 
 void stuffRandomAddresses(balst::StackTrace *stackTrace)

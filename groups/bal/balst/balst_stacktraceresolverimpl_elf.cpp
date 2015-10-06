@@ -72,27 +72,105 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // ============================================================================
 
 #undef  TRACES
-#define TRACES 0    // 0 == debugging traces off
-                    // 1 == debugging traces on
-                    // 2 == debugging traces on, eprintf core dumps
+#define TRACES 0    // 0 == debugging traces off, eprintf and zprint do nothing
+                    // 1 == debugging traces on, eprintf is like zprintf
+                    // 2 == debugging traces on, eprintf exits
+
+// zprintf: For non-error debug traces.  Traces:  0: null function
+//                                               >0: like printf
+// eprintf: Called when errors occur in data.  Traces: 0: null function
+//                                                     1: like printf
+//                                                     2: printf, then exit
+// ASSERT_BAIL(expr) gentle assert.  Traces: 0: if !(expr) return -1;
+//                                          >0: if !(expr) message & return -1
+//     // 'ASSERT_BAIL' is needed because we need asserts for the DWARF code,
+//     // but it's totally inappropriate to core dump if the DWARF data is
+//     // corrupt, because we can give a prety good stack trace without the
+//     // DWARF information, so if 'expr' fails, just quit the DWARF analysis
+//     // and continue showing the rest of the stack trace to the user.
+//
+// P(expr): TRACES:  0: evaluates to 'false'.
+//                  >0: output << #expr << (expr) then evaluate to false.
+//    // P(expr) is to be used in ASSERT_BAIL, i.e.
+//    // 'ASSERT_BAIL(5 == x || P(x))' will, if (5 != x), print out the value
+//    // of x then print the assert message and return -1.
+//
+// PH(expr): like P(expr), except prints it in hex.
 
 #undef eprintf
 #undef zprintf
-#undef ASSERT_WARN
+#undef ASSERT_BAIL
 #undef P
 #undef PH
-#define EPRINTF
 
 #if TRACES > 0
 # include <stdio.h>
 
 #define zprintf printf
 
+static const char assertBailString[] = {
+                "Warning: assertion (%s) failed at line %d in function %s\n" };
+
+#define ASSERT_BAIL(expr)    do {                                             \
+        if (!(expr)) {                                                        \
+            eprintf(assertBailString, #expr, __LINE__, rn);                   \
+            return -1;                                                        \
+        }                                                                     \
+    } while (false)
+
+#if 0 // comment until used, avoid "never called" warnings.
+static bool warnPrint(const char *name, const void *value)
+    // Print out the specified 'value' and the specified 'name', which is the
+    // name of the expression have value 'value'.  This function is intended
+    // only to be called by the macro 'PH'.  Return 'false'.
+{
+    zprintf("%s = %p\n", name, value);
+
+    return false;
+}
+#endif
+#if defined(BALST_DWARF)
+// 'P()' and 'PH()' are only uused in ASSERT_BAIL in DWARF code, only define
+// these functions in DWARF compiles, otherwise get unused messages.
+
+static bool warnPrint(const char                       *name,
+                      BloombergLP::bsls::Types::Uint64  value)
+    // Print out the specified 'value' and the specified 'name', which is the
+    // name of the expression have value 'value'.  This function is intended
+    // only to be called by the macro 'P'.  Return 'false'.
+{
+    zprintf("%s = %llu\n", name, value);
+
+    return false;
+}
+
+static bool warnPrintHex(const char                        *expr,
+                         BloombergLP::bsls::Types::Uint64   value)
+    // Print out the specified 'value' and the specified 'name', which is the
+    // name of the expression have value 'value'.  This function is intended
+    // only to be called by the macro 'PH'.  Return 'false'.
+{
+    zprintf("%s = 0x%llx\n", expr, value);
+
+    return false;
+}
+#endif
+
+#define P(expr)     warnPrint(   #expr, (expr))
+    // Print '<source code for 'expr'> = <value of expr' with the value in
+    // decimal and return 'false'.
+
+#define PH(expr)    warnPrintHex(#expr, (expr))
+    // Print '<source code for 'expr'> = <value of expr' with the value in
+    // hex and return 'false'.
+
 #if 1 == TRACES
 # define eprintf printf
 #else
 static
 void eprintf(const char *format, ...)
+    // Do with the arguments, including the specified 'format', exactly what
+    // 'printf' would do, then exit.
 {
     va_list ap;
     va_start(ap, format);
@@ -101,72 +179,46 @@ void eprintf(const char *format, ...)
 
     va_end(ap);
 
-    BSLS_ASSERT_OPT(0 && "eprintf called");
+    exit(1);    // If traces are enabled, there are so many traces that the
+                // only way to draw attention to an error is to exit.
 }
 #endif
-
-static bool warnHandler(const char *expr,
-                        const char *functionName,
-                        int         line)
-{
-    zprintf("Warning: assertion (%s) failed at line %d in function %s\n",
-            expr, line, functionName);
-
-    return false;
-}
-
-#define ASSERT_WARN(expr)    ((expr) || warnHandler(#expr, (fn), __LINE__))
-
-static bool warnPrint(const char *expr, void *value)
-{
-    zprintf("%s = %p\n", expr, value);
-
-    return false;
-}
-static bool warnPrint(const char                        *expr,
-                      BloombergLP::bsls::Types::UintPtr  value)
-{
-    zprintf("%s = %lu\n", expr, value);
-
-    return false;
-}
-static bool warnPrint(const char *expr, int value)
-{
-    zprintf("%s = %d\n", expr, value);
-
-    return false;
-}
-
-static bool warnPrintHex(const char                        *expr,
-                         BloombergLP::bsls::Types::UintPtr  value)
-{
-    zprintf("%s = 0x%lx\n", expr, value);
-
-    return false;
-}
-
-#define P(expr)     warnPrint(   #expr, (expr))
-#define PH(expr)    warnPrintHex(#expr, (expr))
 
 #else
 
 static inline
 void eprintf(const char *, ...)
-    // called on debug output - output is very voluminous if this is turned on
+    // do nothing
 {
 }
 
 static inline
 void zprintf(const char *, ...)
-    // called on debug output - output is very voluminous if this is turned on
+    // do nothing
 {
 }
 
+#define ASSERT_BAIL(expr) do {                                                \
+        if (!(expr)) {                                                        \
+            return -1;                                                        \
+        }                                                                     \
+    } while (false)
+    // If the specified 'expr' evaluates to 'false', return -1, otherwise do
+    // nothing.
 
-#define ASSERT_WARN(expr)
-#define P(expr)
-#define PH(expr)
+#define P(expr)            (false)
+    // Ignore 'expr' and return 'false'.
+#define PH(expr)           (false)
+    // Ignore 'expr' and return 'false'.
 
+#endif
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+# define ASSERT_BAIL_SAFE(expr) ASSERT_BAIL(expr)
+    // Do ASSERT_BAIL
+#else
+# define ASSERT_BAIL_SAFE(expr)
+    // Do nothing.
 #endif
 
 // Rohan's:
@@ -509,14 +561,36 @@ void zprintf(const char *, ...)
 // .debug_line:        Line number information.
 //..
 
+static inline
+long long ll(long long value)
+{
+    return value;
+}
+
+static inline
+long l(long value)
+{
+    return value;
+}
+
 namespace BloombergLP {
 
 namespace {
 
 namespace local {
 
-typedef bsls::Types::UintPtr UintPtr;
-typedef bsls::Types::IntPtr  IntPtr;
+typedef bdls::FilesystemUtil::Offset Offset;
+typedef bsls::Types::Uint64          Uint64;
+typedef bsls::Types::UintPtr         UintPtr;
+typedef bsls::Types::IntPtr          IntPtr;
+
+static const Offset  maxOffset = LLONG_MAX;
+static const UintPtr minusOne  = ~static_cast<UintPtr>(0);
+
+BSLMF_ASSERT(sizeof(Uint64) == sizeof(Offset));
+BSLMF_ASSERT(static_cast<Offset>(-1) < 0);
+BSLMF_ASSERT(maxOffset > 0);
+BSLMF_ASSERT(static_cast<Offset>(static_cast<Uint64>(maxOffset) + 1) < 0);
 
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
                                                             StackTraceResolver;
@@ -546,11 +620,10 @@ enum { e_IS_BIG_ENDIAN = 0,
                                    // ---------
 
 enum {
-    k_SCRATCH_BUF_LEN = 32 * 1024 - 64,    // length in bytes of
-                                           // d_scratchBuf_p, 32K minus a
+    k_SCRATCH_BUF_LEN = 32 * 1024 - 64     // length in bytes of
+                                           // d_scratchBuf_p, d_symbolBuf_p,
+                                           // and d_rangeBuf_p, 32K minus a
                                            // little so we don't waste a page
-
-    k_SYMBOL_BUF_LEN  = k_SCRATCH_BUF_LEN  // length in bytes of d_symbolBuf_p
 };
 
                                 // ---------------
@@ -593,86 +666,567 @@ struct Section {
     // Refers to one section of a segment.
 
     // DATA
-    UintPtr d_offset;    // offset of the section in the file
-    UintPtr d_size;      // size of that section
+    Offset d_offset;    // offset of the section in the file
+    Offset d_size;      // size of that section
 
     // CREATOR
     Section()
     : d_offset(0)
     , d_size(0)
+        // Create a zero-value 'Section' object.
     {
     }
 
     // MANIPULATOR
-    void reset(UintPtr offset = 0, UintPtr size = 0)
+    void reset(Offset offset = 0, Offset size = 0)
+        // Reset this 'Section' object to have the specified 'offset' and the
+        // specified 'size'.
     {
+        if (offset < 0 || size < 0) {
+            eprintf("reset: negative offset or size\n");
+            offset = 0;
+            size   = 0;
+        }
+
         d_offset = offset;
         d_size   = size;
-    }
-
-    // ACCESSORS
-    bool contains(UintPtr offset) const
-    {
-        return d_offset <= offset && offset <= d_offset + d_size;
-    }
-
-    bool contains(const void *address) const
-    {
-        return contains(reinterpret_cast<UintPtr>(address));
-    }
-
-    bool contains(const Section& section) const
-    {
-        return d_offset <= section.d_offset &&
-                        section.d_offset + section.d_size <= d_offset + d_size;
-    }
-
-    bool overlaps(const Section& section) const
-    {
-        return d_offset <= section.d_offset
-               ? d_offset + d_size > section.d_offset
-               : section.d_offset + section.d_size > d_offset;
     }
 };
 
 #ifdef BALST_DWARF
-template <class TYPE>
-inline
-void readValue(TYPE        *dst,
-               const char **readPtr)
-    // Copy the memory pointed at by the specified '*readPtr' to the specified
-    // '*dst', then increment the '*readPtr' by the size of the memory read.
+enum {
+    // DWARF 4 flags not necessarily defined in our dwarf.h.
+
+    e_DW_AT_main_subprogram = 0x6a,
+
+    e_DW_FORM_sec_offset    = 0x17,
+    e_DW_FORM_exprloc       = 0x18,
+    e_DW_FORM_flag_present  = 0x19,
+    e_DW_FORM_ref_sig8      = 0x20 };
+
+class Reader {
+
+    enum { k_ULEB128_OFFSET_SIZE = 0xffff };
+
+    // DATA
+    balst::StackTraceResolver_FileHelper&
+                                    d_helper;        // filehelper for currentt
+                                                     // segment
+    char                           *d_buffer_p;      // buffer.
+                                                     // k_SCRATCH_BUF_LEN long
+    bdls::FilesystemUtil::Offset    d_offset;        // offset last read from
+    bdls::FilesystemUtil::Offset    d_beginOffset;   // beg of current section
+    bdls::FilesystemUtil::Offset    d_endOffset;     // end of current section
+    const char                     *d_readPtr;       // current place to read
+                                                     // from
+    const char                     *d_endPtr;        // end of what's in buffer
+    int                             d_offsetSize;    // offset size determined
+                                                     // by 'readInitalLength'
+    int                             d_addressSize;   // address read by
+                                                     // 'getAddress' or set by
+                                                     // 'setAddress'.
+
+
+  private:
+    // NOT IMPLEMENTED
+    Reader(const Reader&);
+    Reader& operator=(const Reader&);
+
+  private:
+    // PRIVATE MANIPULATORS
+    int needBytes(bsl::size_t numBytes)
+    {
+        static const char rn[] = { "Reader::needBytes:" };    (void) rn;
+
+        ASSERT_BAIL_SAFE(d_readPtr <= d_endPtr);
+
+        if (static_cast<bsl::size_t>(d_endPtr - d_readPtr) < numBytes) {
+            return reload(numBytes);                                  // RETURN
+        }
+
+        return 0;
+    }
+
+    int reload(bsl::size_t numBytes);
+
+  public:
+    // CREATOR
+    Reader(balst::StackTraceResolver_FileHelper *fileHelper,
+           char                                 *buffer,
+           const Section&                        section);
+
+    // MANIPULATORS
+    int readAddress(UintPtr *dst)
+        // Read to the specified 'dst'.  This function will fail if
+        // 'd_addressZie' is not initialized by 'readAddressSize' or
+        // 'setAddressSize'.
+    {
+        static const char rn[] = { "Reader::readAddress:" };    (void) rn;
+
+        int rc;
+
+        if (sizeof(unsigned) != sizeof(UintPtr) &&
+                                           sizeof(unsigned) == d_addressSize) {
+            unsigned u;
+            rc = readValue(&u);
+            *dst = u;
+        }
+        else {
+            ASSERT_BAIL_SAFE(sizeof(UintPtr) == d_addressSize);
+
+            rc = readValue(dst);
+        }
+
+        ASSERT_BAIL(0 == rc && "readValue failed");
+        return 0;
+    }
+
+    int readAddressSize();
+
+    int readInitialLength(Offset *dst);
+
+    template <class TYPE>
+    int readLEB128(TYPE *dst);
+
+    template <class TYPE>
+    int readULEB128(TYPE *dst);
+
+    int readOffset(Offset      *dst,
+                   bsl::size_t  offsetSize);
+        // Read to the specified 'dst', where the specified 'offsetSize' is
+        // the number of bytes to store the offset.
+
+    int readOffsetFromForm(Offset   *dst,
+                           unsigned  form);
+
+    int readSectionOffset(Offset *dst);
+
+    int readString(bsl::string *dst = 0);
+        // Read a null-terminated string to the specified '*dst'.  If no 'dst'
+        // is specified, skip over the string without copying it anywhere.
+        // This function will fail if the string length is greater than
+        // 'k_SCRATCH_BUFFER_LEN - 1'.
+
+    int readUintPtr(UintPtr     *dst,
+                    bsl::size_t  addressSize)
+        // Read to the specified 'dst'.  If the specified 'isShortUintPtr' is
+        // set, read only 4 bytes and assign that to '*dst'.
+    {
+        static const char rn[] = { "Reader::readUintPtr:" };    (void) rn;
+
+        int rc;
+
+        if (sizeof(unsigned) != sizeof(UintPtr) &&
+                                             sizeof(unsigned) == addressSize) {
+            unsigned u;
+            rc = readValue(&u);
+            *dst = u;
+        }
+        else {
+            ASSERT_BAIL_SAFE(sizeof(UintPtr) == addressSize);
+
+            rc = readValue(dst);
+        }
+
+        ASSERT_BAIL(0 == rc && "readValue failed");
+        return 0;
+    }
+
+    template <class TYPE>
+    int readValue(TYPE *dst)
+        // Read a value into the specified '*dst'.
+    {
+        static const char rn[] = { "Reader::readValue:" };    (void) rn;
+
+        int rc = needBytes(sizeof(*dst));
+        ASSERT_BAIL(0 == rc && "needBytes failed");
+
+        bsl::memcpy(dst, d_readPtr, sizeof(*dst));
+        d_readPtr += sizeof(*dst);
+
+        return 0;
+    }
+
+    int skipBytes(int bytes);
+
+    int skipString()
+    {
+        return readString(0);
+    }
+
+    int skipTo(Offset offset);
+
+    // ACCESSOR
+    bool atEndOfSection() const
+    {
+        return d_readPtr == d_endPtr &&
+                              d_endOffset - d_offset == d_readPtr - d_buffer_p;
+    }
+
+    Offset offset() const
+    {
+        return d_offset + (d_readPtr - d_buffer_p);
+    }
+};
+
+// PRIVATE MANIPULATORS
+int Reader::reload(bsl::size_t numBytes)
 {
-    bsl::memcpy(dst, *readPtr, sizeof(*dst));
-    *readPtr += sizeof(*dst);
+    static const char rn[] = { "Reader::reload:" };    (void) rn;
+
+    ASSERT_BAIL_SAFE(numBytes <= k_SCRATCH_BUF_LEN);
+    ASSERT_BAIL_SAFE(static_cast<int>(numBytes) <= d_endOffset - offset());
+    ASSERT_BAIL_SAFE(d_readPtr <= d_endPtr);
+
+    d_offset += d_readPtr - d_buffer_p;
+    ASSERT_BAIL_SAFE(d_offset <= d_endOffset);
+
+    unsigned lengthToRead = static_cast<unsigned>(
+              bsl::min<Offset>(d_endOffset - d_offset, k_SCRATCH_BUF_LEN));
+    ASSERT_BAIL(lengthToRead >= numBytes || P(lengthToRead) ||
+                                                              P(numBytes));
+    d_helper.readExact(d_buffer_p, lengthToRead, d_offset);
+
+    d_readPtr = d_buffer_p;
+    d_endPtr  = d_readPtr + lengthToRead;
+
+    return 0;
 }
 
-inline
-UintPtr minArangesReadLength(bool shortInitialLength,
-                             bool shortAddresses)
-{
-    enum { MIN_SIZE_INITIAL_LENGTH    = sizeof(unsigned),
-           MAX_SIZE_INITIAL_LENGTH    = sizeof(unsigned) + sizeof(UintPtr),
-           SIZE_VERSION               = sizeof(short),
-           MIN_SIZE_DEBUG_INFO_OFFSET = sizeof(unsigned),
-           MAX_SIZE_DEBUG_INFO_OFFSET = sizeof(UintPtr),
-           SIZE_ADDRESS_SIZE          = sizeof(char),
-           SIZE_SEGMENT_SIZE          = sizeof(char),
-           MIN_SIZE_PAIR_PAIRS        = 4 * sizeof(unsigned),
-           MAX_SIZE_PAIR_PAIRS        = 4 * sizeof(UintPtr) };
+// CREATOR
+Reader::Reader(balst::StackTraceResolver_FileHelper *fileHelper,
+               char                                 *buffer,
+               const Section&                        section)
+: d_helper(*fileHelper)
+, d_buffer_p(buffer)
+, d_offset(     section.d_offset)
+, d_beginOffset(section.d_offset)
+, d_endOffset(  section.d_offset + section.d_size)
+, d_readPtr(buffer)
+, d_endPtr( buffer)
+, d_offsetSize(-1)
+, d_addressSize(-1)
+{}
 
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-   return SIZE_VERSION + SIZE_ADDRESS_SIZE + SIZE_SEGMENT_SIZE +
-                     (shortInitialLength
-                      ? MIN_SIZE_INITIAL_LENGTH + MIN_SIZE_DEBUG_INFO_OFFSET
-                      : MAX_SIZE_INITIAL_LENGTH + MAX_SIZE_DEBUG_INFO_OFFSET) +
-                                        (shortAddresses ? MIN_SIZE_PAIR_PAIRS
-                                                        : MAX_SIZE_PAIR_PAIRS);
-#else
-   return SIZE_VERSION + SIZE_ADDRESS_SIZE + SIZE_SEGMENT_SIZE +
-                         MIN_SIZE_INITIAL_LENGTH + MIN_SIZE_DEBUG_INFO_OFFSET +
-                                                           MIN_SIZE_PAIR_PAIRS;
-#endif
+// MANIPULATORS
+int Reader::readAddressSize()
+{
+    static const char rn[] = { "Reader::readAddressSize:" };    (void) rn;
+
+    unsigned char u;
+    int rc = readValue(&u);
+    ASSERT_BAIL(0 == rc && "read address size failed");
+
+    if (sizeof(unsigned) == sizeof(UintPtr)) {
+        ASSERT_BAIL(sizeof(unsigned) == u || P(u));
+    }
+    else {
+        ASSERT_BAIL(sizeof(UintPtr) == u || sizeof(unsigned) == u || P(u));
+    }
+    d_addressSize = u;
+
+    // zprintf("%s addressSize: %u\n", rn, u);
+
+    return 0;
+}
+
+int Reader::readInitialLength(Offset *dst)
+    // Read the initial length to '*dst', and set '*isShortInitialLength' to
+    // reflect whether that initial length was short or long.
+{
+    static const char rn[] = { "Reader::readIniitialLength:" };    (void) rn;
+
+    int rc = readOffset(dst, sizeof(unsigned));
+    ASSERT_BAIL(0 == rc);
+
+    if (0xffffffff == *dst) {
+        rc = readValue(dst);
+        ASSERT_BAIL(0 == rc);
+        ASSERT_BAIL(0 <= *dst && "negative initial length");
+        d_offsetSize = static_cast<int>(sizeof(*dst));
+    }
+    else {
+        ASSERT_BAIL((*dst < 0xfffffff0 && "illegal preNum") || PH(*dst));
+        d_offsetSize = static_cast<int>(sizeof(unsigned));
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+int Reader::readLEB128(TYPE *dst)
+{
+    static const char rn[] = { "Reader::readLEB128:" };    (void) rn;
+
+    int rc;
+
+    *dst = 0;
+
+    unsigned char u = 0x80;
+
+    enum { k_MAX_SHIFT = sizeof(*dst) * 8 };
+
+    unsigned shift = 0;
+    for (; (0x80 & u); shift += 7) {
+        ASSERT_BAIL(shift < k_MAX_SHIFT);
+
+        rc = readValue(&u);
+        ASSERT_BAIL(0 == rc);
+
+        *dst |= static_cast<TYPE>(u) << shift;
+    }
+
+    if (static_cast<TYPE>(-1) < 0) {
+        // signed type, extend sign
+
+        const TYPE negFlag = static_cast<TYPE>(0x40) << shift;
+        if (negFlag & *dst) {
+            *dst |= ~(negFlag - 1);
+        }
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+int Reader::readULEB128(TYPE *dst)
+{
+    static const char rn[] = { "Reader::readULEB128:" };    (void) rn;
+
+    int rc;
+
+    *dst = 0;
+
+    unsigned char u = 0x80;
+
+    enum { k_MAX_SHIFT = sizeof(*dst) * 8 };
+
+    unsigned shift = 0;
+    for (; (0x80 & u); shift += 7) {
+        ASSERT_BAIL(shift < k_MAX_SHIFT);
+
+        rc = readValue(&u);
+        ASSERT_BAIL(0 == rc);
+
+        *dst |= static_cast<TYPE>(u) << shift;
+    }
+
+    return 0;
+}
+
+int Reader::readOffset(Offset      *dst,
+                       bsl::size_t  offsetSize)
+{
+    static const char rn[] = { "Reader::readOffset:" };    (void) rn;
+
+    enum { k_SIZE_OF_OFFSET_TYPE = sizeof(Offset) };
+
+    int rc;
+
+    if (offsetSize <= sizeof(*dst)) {
+        ASSERT_BAIL(offsetSize > 0);
+
+        rc = needBytes(offsetSize);
+        ASSERT_BAIL(0 == rc && "needBytes failed");
+
+        *dst = 0;
+        char *dstPtr = reinterpret_cast<char *>(dst);
+        dstPtr += e_IS_BIG_ENDIAN ? k_SIZE_OF_OFFSET_TYPE - offsetSize : 0;
+        bsl::memcpy(dstPtr, d_readPtr, offsetSize);
+        d_readPtr += offsetSize;
+        return 0;                                                     // RETURN
+    }
+    else if (0xffff == offsetSize) {
+        return readULEB128(dst);                                      // RETURN
+    }
+
+    // error
+
+    ASSERT_BAIL(0 || P(offsetSize));
+
+    return -1;
+}
+
+int Reader::readOffsetFromForm(Offset   *dst,
+                               unsigned  form)
+{
+    static const char rn[] = { "Reader::readOffsetFromForm:" };    (void) rn;
+
+    int rc;
+
+    switch (form) {
+      case local::e_DW_FORM_flag_present: {
+        ; // do nothing
+      } break;
+      case DW_FORM_data1:
+      case DW_FORM_ref1: {
+        rc = readOffset(dst, 1);
+        ASSERT_BAIL((0 == rc && "trouble reading 1 byte value") || P(form));
+      } break;
+      case DW_FORM_data2:
+      case DW_FORM_ref2: {
+        rc = readOffset(dst, 2);
+        ASSERT_BAIL((0 == rc && "trouble reading 2 byte value") || P(form));
+      } break;
+      case DW_FORM_data4:
+      case DW_FORM_ref4: {
+        rc = readOffset(dst, 4);
+        ASSERT_BAIL((0 == rc && "trouble reading 4 byte value") || P(form));
+      } break;
+      case DW_FORM_data8:
+      case DW_FORM_ref8: {
+        rc = readOffset(dst, 8);
+        ASSERT_BAIL((0 == rc && "trouble reading 8 byte value") || P(form));
+      } break;
+      case e_DW_FORM_sec_offset: {
+        rc = readSectionOffset(dst);
+        ASSERT_BAIL(0 == rc && "failure to read section offset");
+      } break;
+      case DW_FORM_sdata: {
+        rc = readLEB128(dst);
+        ASSERT_BAIL(0 == rc && "failure to read sdata");
+      } break;
+      case DW_FORM_udata: {
+        rc = readULEB128(dst);
+        ASSERT_BAIL(0 == rc && "failure to read udata");
+      } break;
+      case DW_FORM_indirect: {
+        unsigned iForm;
+        rc = readULEB128(&iForm);
+        ASSERT_BAIL((0 == rc && "trouble reading indirect form") || P(iForm));
+        ASSERT_BAIL(DW_FORM_indirect != iForm);
+        rc = readOffsetFromForm(dst, iForm);
+        ASSERT_BAIL((0 == rc && "trouble recursing on indirect offset") ||
+                                                                     P(iForm));
+      } break;
+      default: {
+        ASSERT_BAIL((0 && "strange form ") || P(form));
+      }
+    }
+
+    return 0;
+}
+
+int Reader::readSectionOffset(Offset *dst)
+{
+    static const char rn[] = { "Reader::readSectionOffset:" };    (void) rn;
+
+    enum { k_SIZE_OF_OFFSET_TYPE   = sizeof(Offset),
+           k_SIZE_OF_UNSIGNED_TYPE = sizeof(unsigned),
+           k_DELTA = e_IS_BIG_ENDIAN
+                     ? k_SIZE_OF_OFFSET_TYPE - k_SIZE_OF_UNSIGNED_TYPE
+                     : 0
+         };
+
+    int rc;
+
+    if (k_SIZE_OF_OFFSET_TYPE == d_offsetSize) {
+        rc = readValue(dst);
+        ASSERT_BAIL(0 == rc && "readValue of sequential offset failed");
+
+        return 0;                                                     // RETURN
+    }
+
+    ASSERT_BAIL(0 < d_offsetSize ||
+                           "readSectionOffset with uninitialized offset size");
+    ASSERT_BAIL(k_SIZE_OF_UNSIGNED_TYPE == d_offsetSize);
+
+    rc = needBytes(k_SIZE_OF_UNSIGNED_TYPE);
+    ASSERT_BAIL(0 == rc && "needBytes failed");
+
+    *dst = 0;
+    bsl::memcpy(reinterpret_cast<char *>(dst) + k_DELTA,
+                d_readPtr,
+                k_SIZE_OF_UNSIGNED_TYPE);
+    d_readPtr += k_SIZE_OF_UNSIGNED_TYPE;
+
+    return 0;
+}
+
+int Reader::readString(bsl::string *dst)
+{
+    static const char rn[] = { "Reader::readString:" };    (void) rn;
+    int rc;
+
+    const char *pc = d_readPtr;
+    while (pc < d_endPtr && *pc) {
+        ++pc;
+    }
+
+    if (pc >= d_endPtr) {
+        ASSERT_BAIL(pc == d_endPtr);
+
+        rc = needBytes(1 + (d_endPtr - d_readPtr));
+        ASSERT_BAIL(0 == rc);
+
+        pc = d_readPtr;
+        while (pc < d_endPtr && *pc) {
+            ++pc;
+        }
+    }
+
+    if (pc >= d_endPtr) {
+        ASSERT_BAIL(pc == d_endPtr);
+
+        ASSERT_BAIL(pc - d_readPtr < local::k_SCRATCH_BUF_LEN &&
+                                           "string longer than buffer length");
+        ASSERT_BAIL(d_offset + (pc - d_readPtr) < d_endOffset &&
+                                          "string longer than section length");
+        ASSERT_BAIL(0 && "unknown error");
+    }
+
+    ASSERT_BAIL(!*pc && "unknown error");
+
+    bsl::size_t len = pc - d_readPtr;
+    if (dst) {
+        dst->assign(reinterpret_cast<const char *>(d_readPtr), len);
+    }
+    d_readPtr += len + 1;
+
+    return 0;
+}
+
+int Reader::skipBytes(int bytes)
+{
+    static const char rn[] = { "Reader::skipBytes:" };    (void) rn;
+
+    if (static_cast<IntPtr>(bytes) > d_endPtr - d_readPtr) {
+        Offset off = offset();
+
+        ASSERT_BAIL(off         >= d_beginOffset);
+        ASSERT_BAIL(off + bytes <= d_endOffset);
+
+        d_offset  += bytes + (d_readPtr - d_buffer_p);
+        d_readPtr =  d_buffer_p;
+        d_endPtr  =  d_readPtr;
+    }
+    else {
+        d_readPtr += bytes;
+    }
+
+    return 0;
+}
+
+int Reader::skipTo(Offset offset)
+{
+    static const char rn[] = { "Reader::skipTo:" };    (void) rn;
+
+    Offset diff = offset - d_offset;
+    if (diff > d_endPtr - d_readPtr || diff < d_buffer_p - d_readPtr) {
+        ASSERT_BAIL(offset >= d_beginOffset);
+        ASSERT_BAIL(offset <= d_endOffset);
+
+        d_offset  = offset;
+        d_readPtr = d_buffer_p;
+        d_endPtr  = d_readPtr;
+    }
+    else {
+        ASSERT_BAIL_SAFE(static_cast<IntPtr>(diff) == diff);
+
+        d_readPtr += static_cast<IntPtr>(diff);
+    }
+
+    return 0;
 }
 #endif
 
@@ -682,24 +1236,18 @@ UintPtr minArangesReadLength(bool shortInitialLength,
 
 class FrameRec {
     // A struct consisting of the things we want stored associated with a given
-    // frame.  We put these into a vector and sort them for O(log n) lookup by
-    // address.
+    // frame.  We put these into a vector and sort them for O(log n) lookup of
+    // frames by address.  (The code was previously always doing an exhaustive
+    // search of all the addresses).
 
     // DATA
     const void             *d_address;
     balst::StackTraceFrame *d_frame_p;
 #ifdef BALST_DWARF
-    UintPtr                 d_compileUnitOffset;
-    local::Section          d_lineNumbers;
+    Offset                  d_compileUnitOffset;
+    Offset                  d_lineNumberOffset;
 #endif
-    bool                    d_isDone;        // This has differrent meanings in
-                                             // different contexts.  When
-                                             // resolving, this flag, if true,
-                                             // means the symbol in this frame
-                                             // is resolved.  When reading
-                                             // DWARF information, means this
-                                             // frame has had line numbers and
-                                             // source file name resolved.
+    bool                    d_isSymbolResolved;
 
   public:
     // CREATORS
@@ -709,10 +1257,10 @@ class FrameRec {
     : d_address(address)
     , d_frame_p(framePtr)
 #ifdef BALST_DWARF
-    , d_compileUnitOffset(0)
-    , d_lineNumbers()
+    , d_compileUnitOffset(maxOffset)
+    , d_lineNumberOffset( maxOffset)
 #endif
-    , d_isDone(false)
+    , d_isSymbolResolved(false)
         // Create a 'FrameRec' referring to the specified 'address' and the
         // specified 'framePtr'.
     {
@@ -726,32 +1274,35 @@ class FrameRec {
     // inline operator=(const FrameRec&) = default;
 
     void setAddress(const void *value)
+        // Set tthe 'address' field to the specified 'value'.
     {
         d_address = value;
     }
 
-    void setAddress(const UintPtr value)
+    void setAddress(UintPtr value)
+        // Set tthe 'address' field to the specified 'value'.
     {
         d_address = reinterpret_cast<const void *>(value);
     }
 
 #ifdef BALST_DWARF
-    void setCompileUnitOffset(const UintPtr value)
+    void setCompileUnitOffset(const Offset value)
+        // Set tthe compilation unit offset field to the specified 'value'.
     {
         d_compileUnitOffset = value;
     }
+
+    void setLineNumberOffset(Offset value)
+        // Set tthe line number offset field to the specified 'value'.
+    {
+        d_lineNumberOffset = value;
+    }
 #endif
 
-    void setDone()
+    void setSymbolResolved()
         // Set this frame as being done.
     {
-        d_isDone = true;
-    }
-
-    void setNotDone()
-        // Set this frame as being done.
-    {
-        d_isDone = false;
+        d_isSymbolResolved = true;
     }
 
     // ACCESSORS
@@ -769,9 +1320,16 @@ class FrameRec {
     }
 
 #ifdef BALST_DWARF
-    UintPtr compileUnitOffset()
+    Offset compileUnitOffset() const
+        // Return the compile unit offset field.
     {
         return d_compileUnitOffset;
+    }
+
+    Offset lineNumberOffset() const
+        // Return the line number offset field.
+    {
+        return d_lineNumberOffset;
     }
 #endif
 
@@ -783,16 +1341,40 @@ class FrameRec {
         return *d_frame_p;
     }
 
-    bool isDone() const
+    bool isSymbolResolved() const
         // Return 'true' if this frame is done and 'false' otherwise.
     {
-        return d_isDone;
+        return d_isSymbolResolved;
     }
 };
 
 typedef bsl::vector<local::FrameRec> FrameRecVec;     // Vector of 'FrameRec's.
 typedef FrameRecVec::iterator        FrameRecVecIt;   // Iterator of
                                                       // 'FrameRecVec'.
+
+struct AddressRange {
+    UintPtr d_address;
+    UintPtr d_size;
+
+    // ACCESSORS
+    bool contains(const void *address) const
+    {
+        UintPtr a = reinterpret_cast<UintPtr>(address);
+        return d_address <= a && a < d_address + d_size;
+    }
+
+    bool contains(UintPtr address) const
+    {
+        return d_address <= address && address < d_address + d_size;
+    }
+
+    bool overlaps(const AddressRange& other) const
+    {
+        return d_address <= other.d_address
+               ? d_address + d_size > other.d_address
+               : other.d_address + other.d_size > d_address;
+    }
+};
 
 }  // close namespace local
 
@@ -833,11 +1415,11 @@ int checkElfHeader(local::ElfHeader *elfHeader)
     return 0;
 }
 
-                  // -----------------------------------------
-                  // local::StackTraceResolver::CurrentSegment
-                  // -----------------------------------------
+                    // ------------------------------------
+                    // local::StackTraceResolver::HiddenRec
+                    // ------------------------------------
 
-struct local::StackTraceResolver::CurrentSegment {
+struct local::StackTraceResolver::HiddenRec {
     // This 'struct' contains all fields of this resolver that are local to the
     // current segment.  The resolver iterates over multiple segments,
     // resolving symbols within one at a time.
@@ -846,7 +1428,10 @@ struct local::StackTraceResolver::CurrentSegment {
     typedef local::UintPtr
                    UintPtr;             // 32 bit unsigned on 32 bit, 64 bit
                                         // unsigned on 64 bit, usually used for
-                                        // absolute offsets into a file
+                                        // absolute offsets into a file and
+                                        // some pointers
+    typedef local::Offset
+                   Offset;              // 8 bit signed file offset
 
     // DATA
     StackTraceResolver_FileHelper
@@ -854,6 +1439,9 @@ struct local::StackTraceResolver::CurrentSegment {
                                         // segment
 
     StackTrace    *d_stackTrace_p;      // the stack trace we are resolving
+
+    local::AddressRange
+                   d_addressRange;      // address range of the current segment
 
     local::FrameRecVec
                    d_frameRecs;         // Vector of address frame pairs for
@@ -881,17 +1469,20 @@ struct local::StackTraceResolver::CurrentSegment {
                                         // beginning of the file
 
 #ifdef BALST_DWARF
+    local::Section d_abbrevSec;         // .debug_abbrev section
+
     local::Section d_arangesSec;        // .debug_aranges section
 
     local::Section d_infoSec;           // .debug_info section
 
     local::Section d_lineSec;           // .debug_line section
+
+    local::Section d_rangesSec;         // .debug_ranges section
 #endif
 
-    char          *d_scratchBuf_p;      // scratch buffer (from resolver)
+    char          *d_scratchBufA_p;     // crratch buffer A (from resolver)
 
-    char          *d_symbolBuf_p;       // scratch space for symbols (from
-                                        // resolver)
+    char          *d_scratchBufB_p;     // scratch buffer B (from resolver)
 
     int            d_numTotalUnmatched; // Total number of unmatched frames
                                         // remaining in this resolve.
@@ -899,33 +1490,54 @@ struct local::StackTraceResolver::CurrentSegment {
     bool           d_isMainExecutable;  // 'true' if in main executable
                                         // segment, as opposed to a shared
                                         // library
+    bslma::Allocator
+                  *d_allocator_p;       // The resolver's heap bypass
+                                        // allocator.
 
   private:
     // NOT IMPLEMENTED
-    CurrentSegment(const CurrentSegment&);
-    CurrentSegment& operator=(const CurrentSegment&);
+    HiddenRec(const HiddenRec&);
+    HiddenRec& operator=(const HiddenRec&);
 
   public:
     // CREATORS
-    CurrentSegment(local::StackTraceResolver *resolver);
+    explicit
+    HiddenRec(local::StackTraceResolver *resolver);
         // Create this 'Seg' object, initialize 'd_numFrames' to 'numFrames',
         // and initialize all other fields to 0.
 
     // MANIPULATORS
 #ifdef BALST_DWARF
-    int readAranges();
-        // Read the .debug_aranges section.
-
-    int readDwarf();
+    int dwarfReadAll();
         // Read the DWARF information.
+
+    int dwarfReadAranges();
+        // Read the .debug_aranges section.  Return the number of frames
+        // matched.
+
+    int dwarfReadDebugInfo();
+        // Read the .debug_info and .debug_abbrev sections.
+
+    int dwarfReadDebugInfoFrameRec(local::FrameRec *frameRec);
+        // Read the dwarf info for a single compilation unit for a single
+        // frame.  Return
+        //..
+        //: o rc <  0: failure
+        //: o rc == 0: successfully parsed, but no match
+        //: o rc == 1: successfully parsed, matched address & line number info
+        //..
 #endif
 
     void reset();
         // Zero numerous fields.
+
+    // ACCESSORS
+    int frameIndex(const balst::StackTraceFrame& fr) const;
+        // Give the stack trace index of the specified 'fr'.
 };
 
 // CREATORS
-local::StackTraceResolver::CurrentSegment::CurrentSegment(
+local::StackTraceResolver::HiddenRec::HiddenRec(
                                            local::StackTraceResolver *resolver)
 : d_helper_p(0)
 , d_stackTrace_p(resolver->d_stackTrace_p)
@@ -936,14 +1548,17 @@ local::StackTraceResolver::CurrentSegment::CurrentSegment(
 , d_symTableSec()
 , d_stringTableSec()
 #ifdef BALST_DWARF
+, d_abbrevSec()
 , d_arangesSec()
 , d_infoSec()
 , d_lineSec()
+, d_rangesSec()
 #endif
-, d_scratchBuf_p(resolver->d_scratchBuf_p)
-, d_symbolBuf_p( resolver->d_symbolBuf_p)
+, d_scratchBufA_p(resolver->d_scratchBufA_p)
+, d_scratchBufB_p(resolver->d_scratchBufB_p)
 , d_numTotalUnmatched(resolver->d_stackTrace_p->length())
 , d_isMainExecutable(0)
+, d_allocator_p(&resolver->d_hbpAlloc)
 {
     d_frameRecs.reserve(d_numTotalUnmatched);
     for (int ii = 0; ii < d_numTotalUnmatched; ++ii) {
@@ -955,299 +1570,458 @@ local::StackTraceResolver::CurrentSegment::CurrentSegment(
 
 // MANIPULATORS
 #ifdef BALST_DWARF
-int local::StackTraceResolver::CurrentSegment::readAranges()
+int local::StackTraceResolver::HiddenRec::dwarfReadAll()
 {
-    static const char fn[] = { "readAranges:" };
+    static const char rn[] = { "dwarfReadAll" };    (void) rn;
 
-    local::FrameRecVecIt end = d_frameRecsEnd;
-    int matched = static_cast<int>(end - d_frameRecsBegin);
-    BSLS_ASSERT(matched > 0);    // otherwise we should not have been called.
-
-    zprintf("%s starting, matched=%d\n", fn, matched);
-
-    UintPtr offset     = d_arangesSec.d_offset;
-    UintPtr arangesEnd = offset + d_arangesSec.d_size;
-
-    local::Section  addressRange, prevRange;
-    local::FrameRec dummyFrameRec(0);
-
-    const int shortMinReadLength = local::minArangesReadLength(true, true);
-
-    const char *readPtr;
-    for (; offset < arangesEnd; offset += readPtr - d_scratchBuf_p) {
-        int lengthToRead = static_cast<int>(
-                                    bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
-                                                      arangesEnd - offset));
-        if (lengthToRead < shortMinReadLength) {
-            eprintf("%s Unacceptably short read %u bytes, < min %d bytes\n",
-                                         fn, lengthToRead, shortMinReadLength);
-            return -1;                                                // RETURN
-        }
-
-        int rc = d_helper_p->readExact(d_scratchBuf_p,
-                                       lengthToRead,
-                                       offset);
-        if (rc) {
-            eprintf("fn read failed\n", fn);
-            return -1;                                                // RETURN
-        }
-
-        // Note 'arangesEndPtr' may point way past the end of the buffer.
-
-        const char *arangesEndPtr = d_scratchBuf_p +
-                        d_arangesSec.d_size - (offset - d_arangesSec.d_offset);
-
-        readPtr = d_scratchBuf_p;
-        const char *endPtr = readPtr + lengthToRead;
-        BSLS_ASSERT(endPtr <= arangesEndPtr);
-        for (;;) {
-            if (endPtr - readPtr < local::minArangesReadLength(true, true)) {
-                break;    // go back and re-read buffer
-            }
-
-            const char *startPtr = readPtr;
-
-            UintPtr rangeLength;
-            unsigned u, u2;
-            local::readValue(&u, &readPtr);
-            bool isShortInitialLength;
-            if (0xffffffff == u) {
-                local::readValue(&rangeLength, &readPtr);
-                isShortInitialLength = false;
-            }
-            else {
-                if (u >= 0xfffffff0) {
-                    eprintf("%s illegal preNum:0x%x\n", fn, u);
-                    return -1;                                        // RETURN
-                }
-                isShortInitialLength = true;
-                rangeLength = u;
-            }
-            const bool isLongRangeLength =
-                                   rangeLength > local::k_SCRATCH_BUF_LEN - 12;
-            if (isLongRangeLength) {
-                zprintf("Long range, length %lu, encountered\n", rangeLength);
-            }
-            const char *rangeEnd = readPtr + rangeLength;
-            if (rangeEnd > arangesEndPtr) {
-                eprintf("%s attempt to read 0%ld bytes past end of aranges\n",
-                                                 fn, rangeEnd - arangesEndPtr);
-                return -1;
-            }
-            if (rangeEnd > endPtr) {
-                if (rangeEnd > arangesEndPtr) {
-                    eprintf("%s range end:%p > arangesEndPtr:%p\n", fn,
-                                                      rangeEnd, arangesEndPtr);
-                    return -1;                                        // RETURN
-                }
-
-                if (!isLongRangeLength) {
-                    readPtr = startPtr;
-                    break;    // go back and re-read buffer
-                }
-            }
-            BSLS_ASSERT(rangeEnd <= endPtr || isLongRangeLength);
-            unsigned short version;
-            local::readValue(&version, &readPtr);
-            if (2 != version) {
-                eprintf("%s invalid version:%u\n", fn, version);
-                return -1;                                            // RETURN
-            }
-            UintPtr debugInfoOffset;
-            if (isShortInitialLength) {
-                local::readValue(&u, &readPtr);
-                debugInfoOffset = u;
-            }
-            else {
-                local::readValue(&debugInfoOffset, &readPtr);
-            }
-            if (!debugInfoOffset > d_infoSec.d_size) {
-                eprintf("%s invalid debugInfoOffset:%lx\n",
-                                                          fn, debugInfoOffset);
-                return -1;                                            // RETURN
-            }
-            zprintf("%s %s debugInfoOffset: 0x%lx\n", fn,
-                     isShortInitialLength ? "short" : "long", debugInfoOffset);
-            const unsigned char addressSize = *readPtr++;
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-            bool isShortAddressSize;
-            if      (sizeof(UintPtr)  == addressSize) {
-                isShortAddressSize = false;
-            }
-            else if (sizeof(unsigned) == addressSize) {
-                isShortAddressSize = true;
-            }
-            else {
-#else
-            const bool isShortAddressSize = false;
-            if (sizeof(UintPtr) != addressSize) {
-#endif
-                eprintf("%s invalid address size:%u\n", fn, addressSize);
-                return -1;                                            // RETURN
-            }
-            // zprintf("%s addressSize: %u\n", fn, addressSize);
-
-            if (endPtr - startPtr < local::minArangesReadLength(
-                                                         isShortInitialLength,
-                                                         isShortAddressSize)) {
-                readPtr = startPtr;
-                break;    // go back and re-read buffer
-            }
-            const unsigned char segmentSize = *readPtr++;
-            if (0 != segmentSize) {
-                eprintf("%s invalid segment size:%u\n", fn, segmentSize);
-                return -1;                                            // RETURN
-            }
-            readPtr += sizeof(unsigned);    // This isn't in the spec, but
-                                            // everything didn't start working
-                                            // until I put it in.
-
-            if (0 != (rangeEnd - readPtr) % (isShortAddressSize
-                                             ? 2 * sizeof(unsigned)
-                                             : 2 * sizeof(UintPtr))) {
-                eprintf("%s strange rangeLength\n", fn);
-                return -1;                                            // RETURN
-            }
-            for (;;) {
-                const char *afterReadPtr = readPtr + 2 * addressSize;
-
-                if (afterReadPtr > rangeEnd) {
-                    eprintf("%s set not terminated by 0's\n", fn);
-                    return -1;                                        // RETURN
-                }
-                if (afterReadPtr > endPtr) {
-                    BSLS_ASSERT(isLongRangeLength);
-
-                    // We're in a long range and have run to the end of the
-                    // buffer.  Read more.
-
-                    const unsigned shift = readPtr - d_scratchBuf_p;
-                    rangeEnd      -= shift;
-                    offset        += shift;
-                    lengthToRead = static_cast<int>(
-                                    bsl::min<UintPtr>(local::k_SCRATCH_BUF_LEN,
-                                                      arangesEnd - offset));
-                    rc = d_helper_p->readExact(d_scratchBuf_p,
-                                               lengthToRead,
-                                               offset);
-                    if (rc) {
-                        eprintf("fn read failed\n", fn);
-
-                        return -1;                                    // RETURN
-                    }
-                    readPtr       = d_scratchBuf_p;
-                    startPtr      = d_scratchBuf_p;
-                    endPtr        = d_scratchBuf_p + lengthToRead;
-                    arangesEndPtr = d_scratchBuf_p + (arangesEnd - offset);
-                }
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-                if (isShortAddressSize) {
-                    local::readValue(&u,  &readPtr);
-                    local::readValue(&u2, &readPtr);
-                    addressRange.reset(u, u2);
-                }
-                else {
-                    local::readValue(&addressRange.d_offset, &readPtr);
-                    local::readValue(&addressRange.d_size,   &readPtr);
-                }
-#else
-                local::readValue(&addressRange.d_offset, &readPtr);
-                local::readValue(&addressRange.d_size,   &readPtr);
-#endif
-
-                if (0 == addressRange.d_offset && 0 == addressRange.d_size) {
-                    if (readPtr != rangeEnd) {
-                        eprintf("%s terminating 0's %s range end\n", fn,
-                                          readPtr < rangeEnd ? "reached before"
-                                                             : "overlap");
-                        readPtr = rangeEnd;
-                    }
-
-                    break;
-                }
-
-#ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-                if (prevRange.overlaps(addressRange)) {
-                    eprintf("%s overlapping ranges [%p, %p) & [%p, %p)\n",
-                                          prevRange.d_offset, prevRange.d_size,
-                                   addressRange.d_offset, addressRange.d_size);
-                    return -1;                                        // RETURN
-                }
-                prevRange = addressRange;
-#endif
-
-                // zprintf("%s range:[%p, 0x%lx)\n", fn, addressRange.d_offset,
-                //                                        addressRange.d_size);
-
-                dummyFrameRec.setAddress(addressRange.d_offset);
-                local::FrameRecVecIt begin =
-                        bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
-                for (local::FrameRecVecIt it = begin; it < end &&
-                                  addressRange.contains(it->address()); ++it) {
-                    const bool isRedundant = 0 != it->compileUnitOffset();
-                    zprintf("%s%s range (%p, 0x%lx) matches frame %ld,"
-                                                    " address: %p\n",
-                                           fn, isRedundant ? " redundant" : "",
-                                    addressRange.d_offset, addressRange.d_size,
-                                          &it->frame() - &(*d_stackTrace_p)[0],
-                                                                it->address());
-                    if (isRedundant) {
-                        continue;
-                    }
-
-                    it->setCompileUnitOffset(d_infoSec.d_offset +
-                                                              debugInfoOffset);
-                    if (0 == --matched) {
-                        zprintf("%s last frame matched\n", fn);
-                        return 0;                                     // RETURN
-                    }
-                }
-            }
-        }
-    }
-
-    zprintf("%s failed to complete -- %d frames unmatched.\n", fn, matched);
-
-    return 0;
-}
-
-int local::StackTraceResolver::CurrentSegment::readDwarf()
-{
     if (0 == d_arangesSec.d_offset || 0 == d_infoSec.d_offset) {
-        zprintf("readDwarf: Not enough information to find file names or line"
-                                                                " numbers.\n");
-        return -1;
+        zprintf("%s Not enough information to find file names or line"
+                                                            " numbers.\n", rn);
+        return -1;                                                    // RETURN
     }
 
-    int rc = readAranges();      // Get the locations of the compile unit info
-    if (rc) {                    // for each frame, from .debug_aranges.
-        zprintf("readDwarf: .debug_aranges failed\n");
-        return -1;
+    int rc = dwarfReadAranges();  // Get the locations of the compile unit info
+    ASSERT_BAIL(rc >= 0 && ".debug_aranges failed");
+    if (0 == rc) {
+        zprintf(".debug_aranges did not match\n");
+        return -1;                                                    // RETURN
     }
+
 #if 0
-    rc = readInfo();             // Get the source filenames and the location
-    if (rc) {                    // of the line number info, from .debug_info.
-        zprintf("readDwarf: .debug_info failed\n");
-        return -1;
-    }
+    rc = dwarfReadDebugInfo();   // Get the source filenames and the location
+                                 // of the line number info, from .debug_info.
+    ASSERT_BAIL(rc >= 0 && ".debug_info failed");
+    ASSERT_BAIL(rc >  0 && ".debug_info did not match");
 
     if (0 == d_lineSec.d_offset) {
-        zprintf("readDwarf: Line number info not found.\n");
+        zprintf("%s Line number info not found.\n", rn);
         return -1;
     }
 
-    rc = readLine();             // Get the line numbers, from .debug_line.
+    rc = dwarfReadLineInfo();        // Get the line numbers, from .debug_line.
     if (rc) {
-        zprintf("readDwarf: .debug_line failed\n");
+        zprintf("%s .debug_line failed\n", rn);
         return -1;
     }
 #endif
     return 0;
 }
-#endif
 
-void local::StackTraceResolver::CurrentSegment::reset()
+int local::StackTraceResolver::HiddenRec::dwarfReadAranges()
+{
+    static const char rn[] = { "dwarfReadAranges:" };    (void) rn;
+
+    // Buffer use: this function usee only scratch buf A.
+
+    const local::FrameRecVecIt end = d_frameRecsEnd;
+    const int toMatch = static_cast<int>(end - d_frameRecsBegin);
+    BSLS_ASSERT(toMatch > 0);       // otherwise we should not have been called
+    int matched = 0;
+
+    zprintf("%s starting, toMatch=%d\n", rn, toMatch);
+
+    local::Reader reader(d_helper_p, d_scratchBufA_p, d_arangesSec);
+
+    local::AddressRange addressRange, prevRange = { 0, 0 };
+    local::FrameRec dummyFrameRec(0);
+
+    while (!reader.atEndOfSection()) {
+        Offset      rangeLength;
+        int rc = reader.readInitialLength(&rangeLength);
+        ASSERT_BAIL(0 == rc && "read initial length failed");
+
+        Offset endOffset = reader.offset() + rangeLength;
+        ASSERT_BAIL(endOffset <= d_arangesSec.d_offset + d_arangesSec.d_size);
+
+        unsigned short version;
+        rc = reader.readValue(&version);
+        ASSERT_BAIL(0 == rc && "read version failed");
+        ASSERT_BAIL(2 == version || P(version));
+
+        Offset debugInfoOffset;
+        reader.readSectionOffset(&debugInfoOffset);
+        ASSERT_BAIL(0 <= debugInfoOffset || PH(debugInfoOffset));
+        ASSERT_BAIL(     debugInfoOffset < d_infoSec.d_size ||
+                                                          PH(debugInfoOffset));
+
+        rc = reader.readAddressSize();
+        ASSERT_BAIL(0 == rc);
+
+        unsigned char segmentSize;
+        rc = reader.readValue(&segmentSize);
+        ASSERT_BAIL(0 == rc && "read segment size failed");
+        ASSERT_BAIL(0 == segmentSize);
+
+        // The 'mysteryZero' field is not in the spec, but everything didn't
+        // start working until I skipped those 4 bytes.
+
+        unsigned mysteryZero;
+        reader.readValue(&mysteryZero);
+        if (0 != mysteryZero) {
+            eprintf("%s mysteryZero = %u\n", rn, mysteryZero);
+
+            // Don't return, we aren't sure those 4 bytes are supposed to be
+            // zero.
+        }
+
+        bool foundZeroes = false;
+        while (reader.offset() < endOffset) {
+            if (sizeof(UintPtr) == sizeof(unsigned)) {
+                reader.readValue(&addressRange);
+            }
+            else {
+                reader.readAddress(&addressRange.d_address);
+                reader.readAddress(&addressRange.d_size);
+            }
+
+            if (0 == addressRange.d_address && 0 == addressRange.d_size) {
+                if (reader.offset() != endOffset) {
+                    eprintf("%s terminating 0's %s range end\n", rn,
+                                 reader.offset() < endOffset ? "reached before"
+                                                             : "overlap");
+                    rc = reader.skipTo(endOffset);
+                    ASSERT_BAIL(0 == rc);
+                }
+
+                foundZeroes = true;
+                break;
+            }
+
+            if (!d_addressRange.contains(addressRange.d_address)) {
+                // Sometimes the address ranges are just garbage.
+
+                zprintf("Garbage address range [0x%lx, 0x%lx)\n",
+                            l(addressRange.d_address), l(addressRange.d_size));
+                continue;
+            }
+
+            ASSERT_BAIL((!prevRange.overlaps(addressRange) &&
+                                                            "range overlap") ||
+                       PH(prevRange.   d_address) || PH(prevRange.   d_size) ||
+                       PH(addressRange.d_address) || PH(addressRange.d_size));
+            prevRange = addressRange;
+            // zprintf("%s range:[0x%lx, 0x%lx)\n",
+            //                                   rn, l(addressRange.d_address),
+            //                                       l(addressRange.d_size));
+
+            dummyFrameRec.setAddress(addressRange.d_address);
+            local::FrameRecVecIt begin =
+                        bsl::lower_bound(d_frameRecsBegin, end, dummyFrameRec);
+            for (local::FrameRecVecIt it = begin; it < end &&
+                                  addressRange.contains(it->address()); ++it) {
+                const bool isRedundant =
+                                   local::maxOffset != it->compileUnitOffset();
+                zprintf("%s%s range (0x%lx, 0x%lx) matches frame %d,"
+                                               " address: %p, offset 0x%llx\n",
+                                           rn, isRedundant ? " redundant" : "",
+                             l(addressRange.d_address), l(addressRange.d_size),
+                                                       frameIndex(it->frame()),
+                                           it->address(), ll(debugInfoOffset));
+                if (isRedundant) {
+                    continue;
+                }
+
+                it->setCompileUnitOffset(debugInfoOffset);
+                if (toMatch == ++matched) {
+                    zprintf("%s last frame matched\n", rn);
+                    return matched;                                   // RETURN
+                }
+            }
+        }
+
+        ASSERT_BAIL(foundZeroes);
+    }
+
+    zprintf("%s failed to complete -- %d frames unmatched.\n",
+                                                        rn, toMatch - matched);
+
+    return matched;
+}
+
+int local::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
+                                                     local::FrameRec *frameRec)
+{
+    static const char rn[] = { "dwarfDebugInfoFrameRec:" };    (void) rn;
+
+    // We shouldn't have been called unless we have the compile unit offset.
+
+    ASSERT_BAIL(local::maxOffset != frameRec->compileUnitOffset());
+    ASSERT_BAIL(local::maxOffset != d_infoSec.d_offset);
+    ASSERT_BAIL(local::maxOffset != d_abbrevSec.d_offset);
+
+    enum ObtainedFlags {
+        k_OBTAINED_ADDRESS_MATCH = 0x1,
+        k_OBTAINED_DIR_NAME      = 0x2,
+        k_OBTAINED_BASE_NAME     = 0x4,
+        k_OBTAINED_LINE_OFFSET   = 0x8,
+
+        k_OBTAINED_SOURCE_NAME   = 0x7,
+        k_OBTAINED_ALL           = 0xf };
+
+    int obtained = 0;
+
+    local::Reader infoReader(d_helper_p, d_scratchBufA_p, d_infoSec);
+    int rc = infoReader.skipTo(
+                           d_infoSec.d_offset + frameRec->compileUnitOffset());
+    ASSERT_BAIL(0 == rc && "skipTo failed");
+
+    Offset compileUnitLength;
+    rc = infoReader.readInitialLength(&compileUnitLength);
+    ASSERT_BAIL(0 == rc);
+
+    {
+        unsigned short version;
+        rc = infoReader.readValue(&version);
+        ASSERT_BAIL(0 == rc && "read version failed");
+        ASSERT_BAIL(4 == version || P(version));
+    }
+
+    // This is the compilation unit headers as outlined in 7.5.1.1
+
+    Offset abbrevOffset;
+    rc = infoReader.readSectionOffset(&abbrevOffset);
+    ASSERT_BAIL(0 == rc && "read abbrev offset failed");
+
+    rc = infoReader.readAddressSize();
+    ASSERT_BAIL(0 == rc && "read address size failed");
+
+    local::Reader abbrevReader(d_helper_p, d_scratchBufB_p, d_abbrevSec);
+    rc = abbrevReader.skipTo(d_abbrevSec.d_offset + abbrevOffset);
+    ASSERT_BAIL(0 == rc);
+
+    UintPtr loPtr = local::minusOne, hiPtr = 0;
+    bsl::string baseName(d_allocator_p), dirName(d_allocator_p);
+    dirName.reserve(200);
+    Offset lineNumberInfoOffset;
+
+    BSLMF_ASSERT(false == DW_CHILDREN_no && true == DW_CHILDREN_yes);
+    int childDepth = 0;
+    unsigned char hasChildren = false;
+    const bool skip = false;
+
+//  for (;; childDepth += hasChildren) {
+    do {
+        hasChildren = false;
+
+        unsigned tag;
+        rc = abbrevReader.readLEB128(&tag);
+        ASSERT_BAIL(0 == rc);
+
+        if (0 == tag) {
+            if (0 == childDepth) {
+                break;
+            }
+            ASSERT_BAIL(0 <= --childDepth);
+            continue;
+        }
+
+        ASSERT_BAIL(DW_TAG_compile_unit == tag || DW_TAG_partial_unit == tag);
+
+//      const bool skip = 0 < childDepth ||
+//                  (DW_TAG_compile_unit != tag && DW_TAG_partial_unit != tag);
+
+        rc == abbrevReader.readValue(&hasChildren);
+        ASSERT_BAIL(0 == rc);
+
+        while (k_OBTAINED_ALL != obtained) {
+            unsigned attr;
+            rc == abbrevReader.readULEB128(&attr);
+            ASSERT_BAIL(0 == rc);
+
+            unsigned char form;
+            rc == abbrevReader.readValue(&form);
+            ASSERT_BAIL(0 == rc);
+            ASSERT_BAIL(0 == (0x80 & form) && "strange form");
+
+            if (0 == attr) {
+                ASSERT_BAIL(0 == form);
+                break;
+            }
+
+            if (!skip) {
+                switch (attr) {
+                  case DW_AT_low_pc: {                    // DWARF doc 3.1.1.1
+                    ASSERT_BAIL(DW_FORM_addr == form);
+                    ASSERT_BAIL(0 == (k_OBTAINED_ADDRESS_MATCH & obtained));
+                    ASSERT_BAIL(local::minusOne == loPtr);
+
+                    rc = infoReader.readAddress(&loPtr);
+                    ASSERT_BAIL(0 == rc);
+                    ASSERT_BAIL(loPtr <=
+                               reinterpret_cast<UintPtr>(frameRec->address()));
+                    if (0 != hiPtr) {
+                        obtained |= k_OBTAINED_ADDRESS_MATCH;
+                    }
+                  } break;
+                  case DW_AT_high_pc: {                   // DWARF doc 3.1.1.1
+                    ASSERT_BAIL(DW_FORM_addr == form);
+                    ASSERT_BAIL(0 == (k_OBTAINED_ADDRESS_MATCH & obtained));
+                    ASSERT_BAIL(0 == hiPtr);
+
+                    rc = infoReader.readAddress(&hiPtr);
+                    ASSERT_BAIL(0 == rc);
+                    ASSERT_BAIL(hiPtr >
+                               reinterpret_cast<UintPtr>(frameRec->address()));
+                    if (local::minusOne != loPtr) {
+                        obtained |= k_OBTAINED_ADDRESS_MATCH;
+                    }
+                  } break;
+                  case DW_AT_name: {                      // DWARF doc 3.1.1.2
+                    ASSERT_BAIL(0 == (obtained & k_OBTAINED_BASE_NAME));
+                    ASSERT_BAIL(baseName.empty());
+
+                    ASSERT_BAIL(DW_FORM_string == form);
+                    rc = infoReader.readString(&baseName);
+                    ASSERT_BAIL(0 == rc);
+
+                    if (!baseName.empty()) {
+                        obtained |= k_OBTAINED_BASE_NAME |
+                              ('/' == baseName.c_str()[0] ? k_OBTAINED_DIR_NAME
+                                                          : 0);
+                    }
+                  } break;
+                  case DW_AT_language: {                  // DWARF doc 3.1.1.3
+                    ASSERT_BAIL(DW_FORM_udata == form ||
+                                                        DW_FORM_data1 == form);
+
+                    const char *lang;    (void) lang;
+                    unsigned langNum;
+                    rc = infoReader.readULEB128(&langNum);
+                    ASSERT_BAIL(0 == rc);
+
+#if TRACES > 0
+                    switch (langNum) {
+                      case DW_LANG_C89:
+                      case DW_LANG_C: {
+                        lang = "C";
+                      } break;
+                      case DW_LANG_C_plus_plus: {
+                        lang = "C++";
+                      } break;
+                      case DW_LANG_Fortran77:
+                      case DW_LANG_Fortran90:
+                      case DW_LANG_Fortran95: {
+                        lang = "Fortran";
+                      } break;
+                      default: {
+                        lang = "Unknown";
+                      } break;
+                    }
+                    zprintf("%s language: 0x%x %s\n", rn, langNum, lang);
+#endif
+                  } break;
+                  case DW_AT_stmt_list: {                 // DWARF doc 3.1.1.4
+                    ASSERT_BAIL(0 == (obtained & k_OBTAINED_LINE_OFFSET));
+
+                    rc = infoReader.readOffsetFromForm(
+                                                  &lineNumberInfoOffset, form);
+                    ASSERT_BAIL(0 == rc && "trouble reading line offset");
+
+                    obtained |= k_OBTAINED_LINE_OFFSET;
+                  } break;
+                  case DW_AT_macro_info: {                // DWARF doc 3.1.1.5
+                    Offset dummy;
+                    rc = infoReader.readOffsetFromForm(&dummy, form);
+                    ASSERT_BAIL(0 == rc &&
+                                          "trouble reading macro info offset");
+                  } break;
+                  case DW_AT_comp_dir: {                  // DWARF doc 3.1.1.6
+                    ASSERT_BAIL(0 == (obtained & k_OBTAINED_DIR_NAME));
+
+                    ASSERT_BAIL(DW_FORM_string == form || PH(form));
+                    rc = infoReader.readString(&dirName);
+                    ASSERT_BAIL(0 == rc);
+
+                    if (!dirName.empty()) {
+                        obtained |= k_OBTAINED_DIR_NAME;
+                    }
+                  } break;
+                  case DW_AT_producer: {                  // DWARF doc 3.1.1.7
+                    ASSERT_BAIL(DW_FORM_string == form);
+                    rc = infoReader.skipString();
+                    ASSERT_BAIL(0 == rc);
+                  } break;
+                  case DW_AT_identifier_case: {           // DWARF doc 3.1.1.8
+                    ASSERT_BAIL(DW_FORM_data1 == form);
+                    rc = infoReader.skipBytes(1);
+                    ASSERT_BAIL(0 == rc);
+                  } break;
+                  case DW_AT_base_types: {                // DWARF doc 3.1.1.9
+                    Offset dummy;
+                    rc = infoReader.readOffsetFromForm(&dummy, form);
+                    ASSERT_BAIL(0 == rc &&
+                                          "trouble reading base types offset");
+                  } break;
+                  case DW_AT_use_UTF8: {                  // DWARF doc 3.1.1.10
+                    ASSERT_BAIL(DW_FORM_flag == form ||
+                            local::e_DW_FORM_flag_present == form || PH(form));
+                    rc = infoReader.skipBytes(DW_FORM_flag == form);
+                    ASSERT_BAIL(0 == rc && "problem skipping UTF8 flag");
+                  } break;
+                  case local::e_DW_AT_main_subprogram: {  // DWARF doc 3.1.1.11
+                    ASSERT_BAIL(DW_FORM_flag == form ||
+                            local::e_DW_FORM_flag_present == form || PH(form));
+                    rc = infoReader.skipBytes(DW_FORM_flag == form);
+                    ASSERT_BAIL(0 == rc && "problem skipping main flag");
+                  } break;
+                  case DW_AT_ranges: {
+                    ASSERT_BAIL(0 && "ranges encoungered");
+                  } break;
+                  default: {
+                    ASSERT_BAIL((0 && "compile unit: unrecognized attribute")
+                                                                  || PH(attr));
+                  }
+                }
+            }
+            else {
+                // Children.  Skip everything.
+
+                ASSERT_BAIL(!skip);
+            }
+        } // for attrs
+
+        ASSERT_BAIL(k_OBTAINED_ADDRESS_MATCH & obtained);
+
+        const int index = frameIndex(frameRec->frame()); (void) index;
+
+        if (k_OBTAINED_SOURCE_NAME & obtained) {
+
+            if (frameRec->frame().isSourceFileNameKnown()) {
+                zprintf("Source file name for frame %d found twice.  Old"
+                                                            " value: \"%s\"\n",
+                            index, frameRec->frame().sourceFileName().c_str());
+            }
+
+            if ('/' == baseName.c_str()[0]) {
+                // 'baseName' is a full path, ignore dirName.
+
+                frameRec->frame().setSourceFileName(baseName);
+            }
+            else {
+                if (!dirName.empty() && '/' != dirName[dirName.length() - 1]) {
+                    dirName += '/';
+                }
+
+                dirName += baseName;
+                frameRec->frame().setSourceFileName(dirName);
+            }
+
+            zprintf("New source file name for frame %d found, \"%s\"\n",
+                            index, frameRec->frame().sourceFileName().c_str());
+        }
+
+        ASSERT_BAIL((k_OBTAINED_LINE_OFFSET & obtained) || P(index));
+
+        frameRec->setLineNumberOffset(lineNumberInfoOffset);
+
+        return 0;                                                     // RETURN
+    } while (false);
+
+    return -1;
+}
+#endif // BALST_DWARF
+
+void local::StackTraceResolver::HiddenRec::reset()
 {
     // Note that 'd_frameRecs' and 'd_numTotalUnmatched' are not to be cleared
     // or reinitialized, they have a lifetime of the length of the resolve.
@@ -1259,10 +2033,18 @@ void local::StackTraceResolver::CurrentSegment::reset()
     d_symTableSec.reset();
     d_stringTableSec.reset();
 #ifdef BALST_DWARF
+    d_abbrevSec. reset();
     d_arangesSec.reset();
-    d_infoSec.reset();
-    d_lineSec.reset();
+    d_infoSec.   reset();
+    d_lineSec.   reset();
+    d_rangesSec. reset();
 #endif
+}
+
+int local::StackTraceResolver::HiddenRec::frameIndex(
+                                     const balst::StackTraceFrame& frame) const
+{
+    return static_cast<int>(&frame - &(*d_stackTrace_p)[0]);
 }
 
      // -----------------------------------------------------------------
@@ -1274,17 +2056,16 @@ void local::StackTraceResolver::CurrentSegment::reset()
 local::StackTraceResolver::StackTraceResolverImpl(
                                     balst::StackTrace *stackTrace,
                                     bool               demanglingPreferredFlag)
-: d_stackTrace_p(stackTrace)
-, d_scratchBuf_p(0)
-, d_symbolBuf_p(0)
+: d_hbpAlloc()
+, d_stackTrace_p(stackTrace)
+, d_scratchBufA_p(static_cast<char *>(
+                                d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN)))
+, d_scratchBufB_p(static_cast<char *>(
+                                d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN)))
+, d_hidden(*(new (d_hbpAlloc) HiddenRec(this)))    // must be after scratch
+                                                   // buffers
 , d_demangle(demanglingPreferredFlag)
-, d_hbpAlloc()
 {
-    d_scratchBuf_p = static_cast<char *>(
-                                d_hbpAlloc.allocate(local::k_SCRATCH_BUF_LEN));
-    d_symbolBuf_p  = static_cast<char *>(
-                                 d_hbpAlloc.allocate(local::k_SYMBOL_BUF_LEN));
-    d_seg_p        = new (d_hbpAlloc) CurrentSegment(this);
 }
 
 local::StackTraceResolver::~StackTraceResolverImpl()
@@ -1292,244 +2073,38 @@ local::StackTraceResolver::~StackTraceResolverImpl()
 }
 
 // PRIVATE MANIPULATORS
-int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
-                                              void       *segmentPtr,
-                                              UintPtr     segmentSize,
-                                              const char *libraryFileName)
-{
-    int rc;
-
-    const char *sp = static_cast<char *>(segmentPtr);
-    const char *se = sp + segmentSize;
-
-    d_seg_p->d_frameRecsBegin = bsl::lower_bound(d_seg_p->d_frameRecs.begin(),
-                                                 d_seg_p->d_frameRecs.end(),
-                                                 local::FrameRec(sp));
-    d_seg_p->d_frameRecsEnd   = bsl::lower_bound(d_seg_p->d_frameRecs.begin(),
-                                                 d_seg_p->d_frameRecs.end(),
-                                                 local::FrameRec(se));
-
-    int matched = static_cast<int>(
-                          d_seg_p->d_frameRecsEnd - d_seg_p->d_frameRecsBegin);
-    BSLS_ASSERT(0 <= matched);
-    BSLS_ASSERT(matched <= d_stackTrace_p->length());
-
-    zprintf("ResolveSegment lfn=%s\nba=%p sp=%p se=%p matched=%d\n",
-            libraryFileName, segmentBaseAddress, sp, se, matched);
-
-    if (0 == matched) {
-        zprintf("0 addresses match in library %s\n", libraryFileName);
-
-        return 0;                                                     // RETURN
-    }
-
-    local::FrameRecVecIt it, end  = d_seg_p->d_frameRecsEnd;
-    for (it = d_seg_p->d_frameRecsBegin; it < end; ++it) {
-        zprintf("address %p MATCH\n", it->address());
-        it->frame().setLibraryFileName(libraryFileName);
-    }
-
-    // read the elf header
-
-    local::ElfHeader elfHeader;
-    rc = d_seg_p->d_helper_p->readExact(&elfHeader,
-                                        sizeof(local::ElfHeader),
-                                        0);
-    if (0 != rc) {
-        return -1;                                                    // RETURN
-    }
-
-    if (0 != checkElfHeader(&elfHeader)) {
-        return -1;                                                    // RETURN
-    }
-
-    d_seg_p->d_adjustment = reinterpret_cast<UintPtr>(segmentBaseAddress);
-
-    // find the section headers we're interested in, that is, .symtab and
-    // .strtab, or, if the file was stripped, .dynsym and .dynstr
-
-    local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    bsl::memset(&symTabHdr, 0, sizeof(local::ElfSectionHeader));
-    bsl::memset(&strTabHdr, 0, sizeof(local::ElfSectionHeader));
-    bsl::memset(&dynSymHdr, 0, sizeof(local::ElfSectionHeader));
-    bsl::memset(&dynStrHdr, 0, sizeof(local::ElfSectionHeader));
-
-    // Possible speedup: read all the section headers at once instead of one at
-    // a time.
-
-    int     numSections = elfHeader.e_shnum;
-    UintPtr sectionHeaderSize = elfHeader.e_shentsize;
-    UintPtr sectionHeaderOffset = elfHeader.e_shoff;
-    if (local::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
-        return -1;                                                    // RETURN
-    }
-    local::ElfSectionHeader *sec = static_cast<local::ElfSectionHeader *>(
-                                          static_cast<void *>(d_scratchBuf_p));
-
-    // read the string table that is used for section names
-
-    int     stringSectionIndex = elfHeader.e_shstrndx;
-    UintPtr stringSectionHeaderOffset =
-                  sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
-    if (0 != d_seg_p->d_helper_p->readExact(sec,
-                                            sectionHeaderSize,
-                                            stringSectionHeaderOffset)) {
-        return -1;                                                    // RETURN
-    }
-    UintPtr headerStringsOffset = sec->sh_offset;
-
-    for (int i = 0; i < numSections; ++i) {
-        if (0 != d_seg_p->d_helper_p->readExact(sec,
-                                                sectionHeaderSize,
-                                                sectionHeaderOffset +
-                                                i * sectionHeaderSize)) {
-            return -1;                                                // RETURN
-        }
-        char sectionName[16];
-        if (0 !=  d_seg_p->d_helper_p->readExact(sectionName,
-                                                 sizeof(sectionName),
-                                                 headerStringsOffset +
-                                                               sec->sh_name)) {
-            return -1;                                                // RETURN
-        }
-
-        // zprintf("Other section: type:%d name:%s\n", sec->sh_type,
-        //                                                        sectionName);
-
-        switch (sec->sh_type) {
-          case SHT_STRTAB: {
-            if      (!bsl::strcmp(sectionName, ".strtab")) {
-                strTabHdr = *sec;
-            }
-            else if (!bsl::strcmp(sectionName, ".dynstr")) {
-                dynStrHdr = *sec;
-            }
-          } break;
-          case SHT_SYMTAB: {
-            if      (!bsl::strcmp(sectionName, ".symtab")) {
-                symTabHdr = *sec;
-            }
-          } break;
-          case SHT_DYNSYM: {
-            if      (!bsl::strcmp(sectionName, ".dynsym")) {
-                dynSymHdr = *sec;
-            }
-          } break;
-#ifdef BALST_DWARF
-          case SHT_PROGBITS: {
-            if ('d' != sectionName[1]) {
-                ; // do nothing
-            }
-            else if (!bsl::strcmp(sectionName, ".debug_aranges")) {
-                d_seg_p->d_arangesSec.reset(sec->sh_offset, sec->sh_size);
-            }
-            else if (!bsl::strcmp(sectionName, ".debug_info")) {
-                d_seg_p->d_infoSec.   reset(sec->sh_offset, sec->sh_size);
-            }
-            else if (!bsl::strcmp(sectionName, ".debug_line")) {
-                d_seg_p->d_lineSec.   reset(sec->sh_offset, sec->sh_size);
-            }
-          } break;
-#endif
-        }
-    }
-
-    zprintf("symtab:(0x%lx, %lu), strtab:(0x%lx, %lu)\n",
-            symTabHdr.sh_offset, symTabHdr.sh_size, strTabHdr.sh_offset,
-            strTabHdr.sh_size);
-    zprintf("dynsym:(0x%lx, %lu), dynstr:(0x%lx, %lu)\n",
-            dynSymHdr.sh_offset, dynSymHdr.sh_size, dynStrHdr.sh_offset,
-            dynStrHdr.sh_size);
-
-    if (0 != strTabHdr.sh_size && 0 != symTabHdr.sh_size) {
-        // use the full symbol table if it is available
-
-        d_seg_p->d_symTableSec.   reset(symTabHdr.sh_offset,
-                                        symTabHdr.sh_size);
-        d_seg_p->d_stringTableSec.reset(strTabHdr.sh_offset,
-                                        strTabHdr.sh_size);
-    }
-    else if (0 != dynSymHdr.sh_size && 0 != dynStrHdr.sh_size) {
-        // otherwise use the dynamic symbol table
-
-        d_seg_p->d_symTableSec.   reset(dynSymHdr.sh_offset,
-                                        dynSymHdr.sh_size);
-        d_seg_p->d_stringTableSec.reset(dynStrHdr.sh_offset,
-                                        dynStrHdr.sh_size);
-    }
-    else {
-        // otherwise fail
-
-        return -1;                                                    // RETURN
-    }
-
-    zprintf("Sym table:(0x%lx, %lu) string table:(0x%lx %lu)\n",
-            d_seg_p->d_symTableSec.d_offset,
-            d_seg_p->d_symTableSec.d_size,
-            d_seg_p->d_stringTableSec.d_offset,
-            d_seg_p->d_stringTableSec.d_size);
-
-#ifdef BALST_DWARF
-    zprintf("Aranges:(0x%lx, %lu) info:(0x%lx %lu) line::(0x%lx %lu)\n",
-            d_seg_p->d_arangesSec.d_offset,
-            d_seg_p->d_arangesSec.d_size,
-            d_seg_p->d_infoSec.d_offset,
-            d_seg_p->d_infoSec.d_size,
-            d_seg_p->d_lineSec.d_offset,
-            d_seg_p->d_lineSec.d_size);
-#endif
-
-    rc = loadSymbols(matched);
-    if (rc) {
-        eprintf("loadSymbols failed\n");
-        return -1;                                                    // RETURN
-    }
-
-    // we return 'rc' at the end.
-
-#ifdef BALST_DWARF
-    rc = d_seg_p->readDwarf();
-    if (rc) {
-        zprintf("readDwarf failed\n");
-        return -1;                                                    // RETURN
-    }
-#endif
-
-    if (0 == (d_seg_p->d_numTotalUnmatched -= matched)) {
-        zprintf("Last address matched\n");
-    }
-
-    return 0;
-}
-
 int local::StackTraceResolver::loadSymbols(int matched)
 {
-    const int     symSize = static_cast<int>(sizeof(local::ElfSymbol));
-    const UintPtr maxSymbolsPerPass = local::k_SYMBOL_BUF_LEN / symSize;
-    const UintPtr numSyms = d_seg_p->d_symTableSec.d_size / symSize;
-    UintPtr       sourceFileNameOffset = ~static_cast<UintPtr>(0);
+    char *symbolBuf = d_scratchBufA_p;
+    char *stringBuf = d_scratchBufB_p;
 
-    UintPtr      numSymsThisTime;
-    for (UintPtr symIndex = 0; symIndex < numSyms;
+    const int           symSize = static_cast<int>(sizeof(local::ElfSymbol));
+    const local::Offset maxSymbolsPerPass = local::k_SCRATCH_BUF_LEN / symSize;
+    const local::Offset numSyms = d_hidden.d_symTableSec.d_size / symSize;
+    local::Offset       sourceFileNameOffset = local::maxOffset;
+
+    UintPtr            numSymsThisTime;
+    for (local::Offset symIndex = 0; symIndex < numSyms;
                                                  symIndex += numSymsThisTime) {
-        numSymsThisTime = bsl::min(numSyms - symIndex, maxSymbolsPerPass);
+        numSymsThisTime = static_cast<UintPtr>(
+                              bsl::min(numSyms - symIndex, maxSymbolsPerPass));
 
-        const UintPtr offsetToRead = d_seg_p->d_symTableSec.d_offset +
+        const local::Offset offsetToRead = d_hidden.d_symTableSec.d_offset +
                                                             symIndex * symSize;
-        int           rc = d_seg_p->d_helper_p->readExact(
-                                                     d_symbolBuf_p,
+        int          rc = d_hidden.d_helper_p->readExact(
+                                                     symbolBuf,
                                                      numSymsThisTime * symSize,
                                                      offsetToRead);
         if (rc) {
-            eprintf("failed to read %lu symbols from offset %lu, errno %d\n",
-                    numSymsThisTime,
-                    offsetToRead,
+            eprintf("failed to read %lu symbols from offset %llu, errno %d\n",
+                    l(numSymsThisTime),
+                    ll(offsetToRead),
                     errno);
             return -1;                                                // RETURN
         }
 
         const local::ElfSymbol *symBufStart = static_cast<local::ElfSymbol *>(
-                                           static_cast<void *>(d_symbolBuf_p));
+                                               static_cast<void *>(symbolBuf));
         const local::ElfSymbol *symBufEnd   = symBufStart + numSymsThisTime;
         for (const local::ElfSymbol *sym = symBufStart; sym < symBufEnd;
                                                                        ++sym) {
@@ -1540,20 +2115,20 @@ int local::StackTraceResolver::loadSymbols(int matched)
               case STT_FUNC: {
                 if (SHN_UNDEF != sym->st_shndx) {
                     const void *symbolAddress = reinterpret_cast<const void *>(
-                                        sym->st_value + d_seg_p->d_adjustment);
+                                        sym->st_value + d_hidden.d_adjustment);
                     const void *endSymbolAddress =
                                      static_cast<const char *>(symbolAddress) +
                                                                   sym->st_size;
                     const local::FrameRecVecIt begin =
-                              bsl::lower_bound(d_seg_p->d_frameRecsBegin,
-                                               d_seg_p->d_frameRecsEnd,
+                              bsl::lower_bound(d_hidden.d_frameRecsBegin,
+                                               d_hidden.d_frameRecsEnd,
                                                local::FrameRec(symbolAddress));
                     const local::FrameRecVecIt end =
-                           bsl::lower_bound(d_seg_p->d_frameRecsBegin,
-                                            d_seg_p->d_frameRecsEnd,
+                           bsl::lower_bound(d_hidden.d_frameRecsBegin,
+                                            d_hidden.d_frameRecsEnd,
                                             local::FrameRec(endSymbolAddress));
                     for (local::FrameRecVecIt it = begin; it < end; ++it) {
-                        if (it->isDone()) {
+                        if (it->isSymbolResolved()) {
                             continue;
                         }
 
@@ -1566,35 +2141,35 @@ int local::StackTraceResolver::loadSymbols(int matched)
                         // in ELF, filename information is only accurate
                         // for statics in the main executable
 
-                        if (d_seg_p->d_isMainExecutable
-                           && STB_LOCAL == ELF32_ST_BIND(sym->st_info)) {
+                        if (d_hidden.d_isMainExecutable
+                           && STB_LOCAL == ELF32_ST_BIND(sym->st_info)
+                           && local::maxOffset != sourceFileNameOffset) {
                             frame.setSourceFileName(
-                                      d_seg_p->d_helper_p->loadString(
-                                           d_seg_p->d_stringTableSec.d_offset +
+                                      d_hidden.d_helper_p->loadString(
+                                           d_hidden.d_stringTableSec.d_offset +
                                                           sourceFileNameOffset,
-                                           d_scratchBuf_p,
+                                           stringBuf,
                                            local::k_SCRATCH_BUF_LEN,
                                            &d_hbpAlloc));
                         }
 
                         frame.setMangledSymbolName(
-                                  d_seg_p->d_helper_p->loadString(
-                                           d_seg_p->d_stringTableSec.d_offset +
+                                  d_hidden.d_helper_p->loadString(
+                                           d_hidden.d_stringTableSec.d_offset +
                                                                   sym->st_name,
-                                           d_scratchBuf_p,
+                                           stringBuf,
                                            local::k_SCRATCH_BUF_LEN,
                                            &d_hbpAlloc));
                         if (frame.isMangledSymbolNameKnown()) {
                             setFrameSymbolName(&frame);
 
-                            it->setDone();
+                            it->setSymbolResolved();
 
-                            zprintf(
-                                   "Resolved symbol %s, frame %ld, [%p, %p)\n",
-                                   frame.symbolName().c_str(),
-                                   &frame - &(*d_stackTrace_p)[0],
-                                   symbolAddress,
-                                   endSymbolAddress);
+                            zprintf("Resolved symbol %s, frame %d, [%p, %p)\n",
+                                    frame.symbolName().c_str(),
+                                    d_hidden.frameIndex(frame),
+                                    symbolAddress,
+                                    endSymbolAddress);
 
                             if (0 == --matched) {
                                 zprintf("Last symbol in segment loaded\n");
@@ -1622,11 +2197,18 @@ int local::StackTraceResolver::processLoadedImage(
                                                  int         numProgramHeaders,
                                                  void       *textSegPtr,
                                                  void       *baseAddress)
-    // note this must be public so 'linkMapCallBack' can call it on Solaris
+    // Note this must be public so 'linkMapCallBack' can call it on Solaris.
+    // Also note that it assumes that both scratch buffers are available for
+    // writing.
 {
+    static const char rn[] = { "processLoadedImage" };    (void) rn;
+
     BSLS_ASSERT(!textSegPtr || !baseAddress);
 
-    d_seg_p->reset();
+    // Scratch buffers: some platforms use A to read the link, then
+    // 'resolveSegment' will trash both A and B.
+
+    d_hidden.reset();
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
     const char *name = fileName;
@@ -1634,14 +2216,17 @@ int local::StackTraceResolver::processLoadedImage(
     const char *name = 0;
     if (fileName && fileName[0]) {
         if (local::e_IS_LINUX) {
-            d_seg_p->d_isMainExecutable = false;
+            d_hidden.d_isMainExecutable = false;
         }
 
         name = fileName;
     }
     else {
         if (local::e_IS_LINUX) {
-            d_seg_p->d_isMainExecutable = true;
+            d_hidden.d_isMainExecutable = true;
+        }
+        else {
+            ASSERT_BAIL(d_hidden.d_isMainExecutable);
         }
 
         // On Solaris and Linux, 'fileName' is sometimes null for the main
@@ -1650,12 +2235,12 @@ int local::StackTraceResolver::processLoadedImage(
 
         const int numChars = static_cast<int>(
                                            readlink("/proc/self/exe",
-                                                    d_scratchBuf_p,
+                                                    d_scratchBufA_p,
                                                     local::k_SCRATCH_BUF_LEN));
         if (numChars > 0) {
-            BSLS_ASSERT(numChars < local::k_SCRATCH_BUF_LEN);
-            d_scratchBuf_p[numChars] = 0;
-            name = d_scratchBuf_p;
+            ASSERT_BAIL(numChars < local::k_SCRATCH_BUF_LEN);
+            d_scratchBufA_p[numChars] = 0;
+            name = d_scratchBufA_p;
         }
         else {
             zprintf("readlink of /proc/self/exe failed\n");
@@ -1664,16 +2249,17 @@ int local::StackTraceResolver::processLoadedImage(
         }
     }
 #endif
-    name = bdlb::String::copy(name, &d_hbpAlloc);
+    name = bdlb::String::copy(name, &d_hbpAlloc);   // so we can trash the
+                                                    // scratch buffers later
 
     zprintf("processing loaded image: fn:\"%s\", name:\"%s\" main:%d"
                                                  " numHdrs:%d unmatched:%ld\n",
                         fileName ? fileName : "(null)", name ? name : "(null)",
-                                 static_cast<int>(d_seg_p->d_isMainExecutable),
-                               numProgramHeaders, d_seg_p->d_frameRecs.size());
+                                 static_cast<int>(d_hidden.d_isMainExecutable),
+                            numProgramHeaders, l(d_hidden.d_frameRecs.size()));
 
     balst::StackTraceResolver_FileHelper helper(name);
-    d_seg_p->d_helper_p = &helper;
+    d_hidden.d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
         const local::ElfProgramHeader *ph =
@@ -1698,6 +2284,9 @@ int local::StackTraceResolver::processLoadedImage(
 
                 textSegPtr = static_cast<char *>(baseAddress) + ph->p_vaddr;
             }
+
+            // 'resolveSegment' trashes scratch buffers A and B
+
             int rc = resolveSegment(baseAddress,    // base address
                                     textSegPtr,     // seg ptr
                                     ph->p_memsz,    // seg size
@@ -1711,6 +2300,238 @@ int local::StackTraceResolver::processLoadedImage(
     }
 
     return -1;
+}
+
+int local::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
+                                              void       *segmentPtr,
+                                              UintPtr     segmentSize,
+                                              const char *libraryFileName)
+{
+    int rc;
+
+    // Scratch Buffers: beginning: 'sec' is A
+    // Then 'loadSymbols' trashes both A and B
+    // Then 'readDwarfAll' trasnes both A and B
+
+    d_hidden.d_addressRange.d_address = reinterpret_cast<UintPtr>(segmentPtr);
+    d_hidden.d_addressRange.d_size    = segmentSize;
+
+    const char *sp = static_cast<char *>(segmentPtr);
+    const char *se = sp + segmentSize;
+
+    d_hidden.d_frameRecsBegin = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
+                                                 d_hidden.d_frameRecs.end(),
+                                                 local::FrameRec(sp));
+    d_hidden.d_frameRecsEnd   = bsl::lower_bound(d_hidden.d_frameRecs.begin(),
+                                                 d_hidden.d_frameRecs.end(),
+                                                 local::FrameRec(se));
+
+    int matched = static_cast<int>(
+                          d_hidden.d_frameRecsEnd - d_hidden.d_frameRecsBegin);
+    BSLS_ASSERT(0 <= matched);
+    BSLS_ASSERT(matched <= d_stackTrace_p->length());
+
+    zprintf("ResolveSegment lfn=%s\nba=%p sp=%p se=%p matched=%d\n",
+            libraryFileName, segmentBaseAddress, sp, se, matched);
+
+    if (0 == matched) {
+        zprintf("0 addresses match in library %s\n", libraryFileName);
+
+        return 0;                                                     // RETURN
+    }
+
+    local::FrameRecVecIt it, end  = d_hidden.d_frameRecsEnd;
+    for (it = d_hidden.d_frameRecsBegin; it < end; ++it) {
+        zprintf("address %p MATCH\n", it->address());
+        it->frame().setLibraryFileName(libraryFileName);
+    }
+
+    // read the elf header
+
+    local::ElfHeader elfHeader;
+    rc = d_hidden.d_helper_p->readExact(&elfHeader,
+                                        sizeof(local::ElfHeader),
+                                        0);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
+    if (0 != checkElfHeader(&elfHeader)) {
+        return -1;                                                    // RETURN
+    }
+
+    d_hidden.d_adjustment = reinterpret_cast<UintPtr>(segmentBaseAddress);
+
+    // find the section headers we're interested in, that is, .symtab and
+    // .strtab, or, if the file was stripped, .dynsym and .dynstr
+
+    local::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
+    bsl::memset(&symTabHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&strTabHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&dynSymHdr, 0, sizeof(local::ElfSectionHeader));
+    bsl::memset(&dynStrHdr, 0, sizeof(local::ElfSectionHeader));
+
+    // Possible speedup: read all the section headers at once instead of one at
+    // a time.
+
+    int     numSections = elfHeader.e_shnum;
+    UintPtr sectionHeaderSize = elfHeader.e_shentsize;
+    UintPtr sectionHeaderOffset = elfHeader.e_shoff;
+    if (local::k_SCRATCH_BUF_LEN < sectionHeaderSize) {
+        return -1;                                                    // RETURN
+    }
+    local::ElfSectionHeader *sec = static_cast<local::ElfSectionHeader *>(
+                                         static_cast<void *>(d_scratchBufA_p));
+
+    // read the string table that is used for section names
+
+    int     stringSectionIndex = elfHeader.e_shstrndx;
+    UintPtr stringSectionHeaderOffset =
+                  sectionHeaderOffset + stringSectionIndex * sectionHeaderSize;
+    if (0 != d_hidden.d_helper_p->readExact(sec,
+                                            sectionHeaderSize,
+                                            stringSectionHeaderOffset)) {
+        return -1;                                                    // RETURN
+    }
+    UintPtr headerStringsOffset = sec->sh_offset;
+
+    for (int i = 0; i < numSections; ++i) {
+        if (0 != d_hidden.d_helper_p->readExact(sec,
+                                                sectionHeaderSize,
+                                                sectionHeaderOffset +
+                                                i * sectionHeaderSize)) {
+            return -1;                                                // RETURN
+        }
+        char sectionName[16];
+        if (0 !=  d_hidden.d_helper_p->readExact(sectionName,
+                                                 sizeof(sectionName),
+                                                 headerStringsOffset +
+                                                               sec->sh_name)) {
+            return -1;                                                // RETURN
+        }
+
+        // zprintf("Section: type:%d name:%s\n", sec->sh_type, sectionName);
+
+        switch (sec->sh_type) {
+          case SHT_STRTAB: {
+            if      (!bsl::strcmp(sectionName, ".strtab")) {
+                strTabHdr = *sec;
+            }
+            else if (!bsl::strcmp(sectionName, ".dynstr")) {
+                dynStrHdr = *sec;
+            }
+          } break;
+          case SHT_SYMTAB: {
+            if      (!bsl::strcmp(sectionName, ".symtab")) {
+                symTabHdr = *sec;
+            }
+          } break;
+          case SHT_DYNSYM: {
+            if      (!bsl::strcmp(sectionName, ".dynsym")) {
+                dynSymHdr = *sec;
+            }
+          } break;
+#ifdef BALST_DWARF
+          case SHT_PROGBITS: {
+            if ('d' != sectionName[1] || bsl::strncmp(
+                                                  sectionName, ".debug_", 7)) {
+                ; // do nothing
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_abbrev")) {
+                d_hidden.d_abbrevSec.reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_aranges")) {
+                d_hidden.d_arangesSec.reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_info")) {
+                d_hidden.d_infoSec.   reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_line")) {
+                d_hidden.d_lineSec.   reset(sec->sh_offset, sec->sh_size);
+            }
+            else if (!bsl::strcmp(sectionName, ".debug_ranges")) {
+                d_hidden.d_rangesSec.reset(sec->sh_offset, sec->sh_size);
+            }
+          } break;
+#endif
+        }
+    }
+
+    zprintf("symtab:(0x%llx, 0x%llx), strtab:(0x%llx, 0x%llx)\n",
+            ll(symTabHdr.sh_offset), ll(symTabHdr.sh_size),
+            ll(strTabHdr.sh_offset), ll(strTabHdr.sh_size));
+    zprintf("dynsym:(0x%llx, %llu), dynstr:(0x%llx, %llu)\n",
+            ll(dynSymHdr.sh_offset), ll(dynSymHdr.sh_size),
+            ll(dynStrHdr.sh_offset), ll(dynStrHdr.sh_size));
+
+    if (0 != strTabHdr.sh_size && 0 != symTabHdr.sh_size) {
+        // use the full symbol table if it is available
+
+        d_hidden.d_symTableSec.   reset(symTabHdr.sh_offset,
+                                        symTabHdr.sh_size);
+        d_hidden.d_stringTableSec.reset(strTabHdr.sh_offset,
+                                        strTabHdr.sh_size);
+    }
+    else if (0 != dynSymHdr.sh_size && 0 != dynStrHdr.sh_size) {
+        // otherwise use the dynamic symbol table
+
+        d_hidden.d_symTableSec.   reset(dynSymHdr.sh_offset,
+                                        dynSymHdr.sh_size);
+        d_hidden.d_stringTableSec.reset(dynStrHdr.sh_offset,
+                                        dynStrHdr.sh_size);
+    }
+    else {
+        // otherwise fail
+
+        return -1;                                                    // RETURN
+    }
+
+    zprintf("Sym table:(0x%llx, 0x%llx) string table:(0x%llx 0x%llx)\n",
+            ll(d_hidden.d_symTableSec.d_offset),
+            ll(d_hidden.d_symTableSec.d_size),
+            ll(d_hidden.d_stringTableSec.d_offset),
+            ll(d_hidden.d_stringTableSec.d_size));
+
+#ifdef BALST_DWARF
+    zprintf("abbrev:(0x%llx, 0x%llx) aranges:(0x%llx, 0x%llx)"
+            " info:(0x%llx 0x%llx) line::(0x%llx 0x%llx)"
+            " ranges:(0x%llx, 0x%llx)\n",
+            ll(d_hidden.d_abbrevSec.d_offset),
+            ll(d_hidden.d_abbrevSec.d_size),
+            ll(d_hidden.d_arangesSec.d_offset),
+            ll(d_hidden.d_arangesSec.d_size),
+            ll(d_hidden.d_infoSec.d_offset),
+            ll(d_hidden.d_infoSec.d_size),
+            ll(d_hidden.d_lineSec.d_offset),
+            ll(d_hidden.d_lineSec.d_size),
+            ll(d_hidden.d_rangesSec.d_offset),
+            ll(d_hidden.d_rangesSec.d_size));
+#endif
+
+    // Note that 'loadSymbols' trashes scratchBufA and scratchBufB.
+
+    rc = loadSymbols(matched);
+    if (rc) {
+        eprintf("loadSymbols failed\n");
+        return -1;                                                    // RETURN
+    }
+
+    // we return 'rc' at the end.
+
+#ifdef BALST_DWARF
+    // Note that 'readDwarfAll' trashes scratchBufA and scratchBufB.
+
+    rc = d_hidden.dwarfReadAll();
+    if (rc) {
+        zprintf("readDwarf failed\n");
+    }
+#endif
+
+    if (0 == (d_hidden.d_numTotalUnmatched -= matched)) {
+        zprintf("Last address matched\n");
+    }
+
+    return 0;
 }
 
 // PRIVATE ACCESSORS
@@ -1824,6 +2645,8 @@ int local::StackTraceResolver::resolve(
                                     balst::StackTrace *stackTrace,
                                     bool               demanglingPreferredFlag)
 {
+    static const char rn[] = { "resolve" };    (void) rn;
+
 #if defined(BSLS_PLATFORM_OS_HPUX)
 
     int rc;
@@ -1857,22 +2680,20 @@ int local::StackTraceResolver::resolve(
 
             zprintf("(%d) %s 0x%lx-0x%lx\n",
                     i,
-                    desc.filename,
+                    desc.filename && desc.fileName[0] ? desc.fileName :"(null)"
                     desc.tstart,
                     desc.tend);
 
             // index 0 is for the main executable
 
-            resolver.d_seg_p->d_isMainExecutable = (0 == i);
+            resolver.d_hidden.d_isMainExecutable = (0 == i);
 
             // note this will be opened twice, here and in 'processLoadedImage'
 
             balst::StackTraceResolver_FileHelper helper(desc.filename);
 
             rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
-            if (rc) {
-                return -1;                                            // RETURN
-            }
+            ASSERT_BAIL(0 == rc);
 
             numProgramHeaders = elfHeader.e_phnum;
             if (numProgramHeaders > maxNumProgramHeaders) {
@@ -1886,9 +2707,7 @@ int local::StackTraceResolver::resolve(
                            programHeaders,
                            numProgramHeaders * sizeof(local::ElfProgramHeader),
                            elfHeader.e_phoff);
-            if (rc) {
-                return -1;                                            // RETURN
-            }
+            ASSERT_BAIL(0 == rc);
         }
 
         rc = resolver.processLoadedImage(
@@ -1897,9 +2716,7 @@ int local::StackTraceResolver::resolve(
                                    numProgramHeaders,
                                    static_cast<void *>(desc.tstart),
                                    0);
-        if (rc) {
-            return -1;                                                // RETURN
-        }
+        ASSERT_BAIL(0 == rc);
     }
 
 #elif defined(BSLS_PLATFORM_OS_LINUX)
@@ -1920,45 +2737,36 @@ int local::StackTraceResolver::resolve(
 
     struct link_map *linkMap = 0;
 
+#if 0
     // This method of getting the linkMap was deemed less desirable because it
     // calls 'malloc'.
-    //
-    //    dlinfo(RTLD_SELF, RTLD_DI_LINKMAP, &linkMap);
-    //    if (0 == linkMap) {
-    //        return -1;                                              // RETURN
-    //    }
 
+    dlinfo(RTLD_SELF, RTLD_DI_LINKMAP, &linkMap);
     if (0 == linkMap) {
-        // This method was adopted as superior to the above (commented out)
-        // method.
+        return -1;                                                    // RETURN
+    }
+#else
+    // This method was adopted as superior to the above (commented out) method.
 
-        local::ElfDynamic *dynamic = reinterpret_cast<local::ElfDynamic *>(
+    local::ElfDynamic *dynamic = reinterpret_cast<local::ElfDynamic *>(
                                                                     &_DYNAMIC);
-        if (0 == dynamic) {
-            return -1;                                                // RETURN
-        }
+    ASSERT_BAIL(dynamic);
 
-        while (true) {
-            if (DT_DEBUG == dynamic->d_tag) {
-                r_debug *rdb = reinterpret_cast<r_debug *>(
-                                                          dynamic->d_un.d_ptr);
-                if (rdb) {
-                    linkMap = rdb->r_map;
-                    break;
-                }
-                else {
-                    return -1;                                        // RETURN
-                }
-            }
-            else if (DT_NULL == dynamic->d_tag) {
-                // end of list without finding the link map
+    for (; true; ++dynamic) {
+        // DT_NULL means we reached then end of list without finding the link
+        // map
 
-                return -1;                                            // RETURN
-            }
+        ASSERT_BAIL(DT_NULL != dynamic->d_tag);
 
-            ++dynamic;
+        if (DT_DEBUG == dynamic->d_tag) {
+            r_debug *rdb = reinterpret_cast<r_debug *>(dynamic->d_un.d_ptr);
+            ASSERT_BAIL(0 != rdb);
+
+            linkMap = rdb->r_map;
+            break;
         }
     }
+#endif
 
     for (int i = 0; 0 < resolver.numUnmatchedFrames() && linkMap;
                                               ++i, linkMap = linkMap->l_next) {
@@ -1974,7 +2782,7 @@ int local::StackTraceResolver::resolve(
                 reinterpret_cast<char *>(elfHeader) + elfHeader->e_phoff));
         int numProgramHeaders = elfHeader->e_phnum;
 
-        resolver.d_seg_p->d_isMainExecutable = (0 == i);
+        resolver.d_hidden.d_isMainExecutable = (0 == i);
 
         // Here the text segment address is known, not base address.  On this
         // platform, but not necessarily on other platforms, the text segment
@@ -2000,7 +2808,7 @@ int local::StackTraceResolver::resolve(
 // PUBLIC ACCESSOR
 int local::StackTraceResolver::numUnmatchedFrames() const
 {
-    return static_cast<int>(d_seg_p->d_numTotalUnmatched);
+    return static_cast<int>(d_hidden.d_numTotalUnmatched);
 }
 
 }  // close enterprise namespace

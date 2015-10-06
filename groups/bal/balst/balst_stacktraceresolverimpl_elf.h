@@ -100,14 +100,14 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
                                             // used for absolute offsets into a
                                             // file
 
-    struct CurrentSegment;                  // 'struct' that contains
-                                            // information pertaining only to
-                                            // the current segment being
-                                            // resolved (during resolution, the
-                                            // resolver iterates over multiple
-                                            // segments)
+    struct HiddenRec;                       // 'struct' defined locally in
+                                            // in the imp file containing
+                                            // additional information
 
     // DATA
+    bdlma::HeapBypassAllocator
+                       d_hbpAlloc;          // heap bypass allocator -- owned
+
     StackTrace        *d_stackTrace_p;      // pointer to stack trace object.
                                             // The frames contained in this
                                             // have their 'address' fields and
@@ -116,17 +116,13 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
                                             // as many other fields of them as
                                             // possible.
 
-    CurrentSegment    *d_seg_p;             // pointer to the 'CurrentSegment'
-                                            // struct
+    char              *d_scratchBufA_p;     // scratch buffer A
 
-    char              *d_scratchBuf_p;      // scratch buffer
+    char              *d_scratchBufB_p;     // scratch buffer B
 
-    char              *d_symbolBuf_p;       // scratch space for symbols
+    HiddenRec&         d_hidden;            // reference to the 'HiddenRec'.
 
     bool               d_demangle;          // whether we demangle names
-
-    bdlma::HeapBypassAllocator
-                       d_hbpAlloc;          // heap bypass allocator -- owned
 
   private:
     // NOT IMPLEMENTED
