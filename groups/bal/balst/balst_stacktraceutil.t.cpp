@@ -9,6 +9,7 @@
 
 #include <bdlma_sequentialallocator.h>
 
+#include <bdlf_function.h>
 #include <bdlt_currenttime.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -883,7 +884,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                if (bsl::strstr(sn, "bdlf") && bsl::strstr(sn, "Function")) {
+                if (bsl::strstr(sn, "bsl") && bsl::strstr(sn, "function")) {
                     continue;
                 }
 
