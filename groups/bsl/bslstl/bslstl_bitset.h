@@ -480,7 +480,6 @@ class bitset : Bitset_ImpBase<N> {
                           basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
            CHAR_TYPE zeroChar = CHAR_TYPE('0'),
            CHAR_TYPE oneChar = CHAR_TYPE('1'));
-
         // Create a bitset with its first 'M' bit positions corresponding to 0 the
         // characters in the specified 'pos' of the specified 'str'. 'M' is
         // the smaller of the parameterized 'N' and 'str.length()'. If
@@ -490,6 +489,7 @@ class bitset : Bitset_ImpBase<N> {
 
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
+    explicit
     bitset(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
            typename bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::
                       size_type pos = 0,
@@ -497,7 +497,7 @@ class bitset : Bitset_ImpBase<N> {
                       size_type n = bsl::
                           basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>::npos,
            CHAR_TYPE zeroChar = CHAR_TYPE('0'),
-           CHAR_TYPE oneChar = CHAR_TYPE('1'));
+           CHAR_TYPE oneChar  = CHAR_TYPE('1'));
         // Create a bitset with its first 'M' bit positions correspond to the
         // characters in the specified 'pos' of the specified 'str'.  'M' is
         // the smaller of the parameterized 'N' and 'str.length()'.  If

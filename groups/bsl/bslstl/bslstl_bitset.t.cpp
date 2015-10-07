@@ -59,8 +59,8 @@ using namespace std;
 // CREATORS:
 // [ 2] BSLS_CPP11_CONSTEXPR bitset()
 // [ 3] BSLS_CPP11_CONSTEXPR bitset(unsigned long)
-// [ 4] bitset(native_std::basic_string, size_type, size_type)
-// [ 4] bitset(bslstl::basic_string, size_type, size_type)
+// [ 4] bitset(native_std::basic_string, size_type, size_type, char, char)
+// [ 4] bitset(bslstl::basic_string, size_type, size_type, char, char)
 // [ 2] ~bitset()
 //
 // MANIPULATORS:
@@ -750,8 +750,9 @@ int main(int argc, char *argv[])
       //   bitset is as expected.
       //
       // Testing:
-      //   bitset(native_std::basic_string, size_type, size_type);
-      //   bitset(bsl::basic_string, size_type, size_type);
+      //   explicit bitset(native_std::basic_string, size_type, size_type,
+      //                   char, char);
+      //   explicit bitset(bsl::basic_string, size_type, size_type, char, char);
       // --------------------------------------------------------------------
 
       if (verbose) cout << endl << "STRING CONSTRUCTOR TEST"
@@ -765,6 +766,8 @@ int main(int argc, char *argv[])
           unsigned int d_lineNum;  // source line number
           unsigned int d_value;    // bitset value
           const char*  d_string;   // bitset string
+          char         d_zeroChar; // bitset zero character
+          char         d_oneChar;  // bitset one character
       } DATA[] = {
           //LINE  VALUE         STRING
           //----  ----------    -----------------------------------
@@ -774,6 +777,8 @@ int main(int argc, char *argv[])
           { L_,   0x12345678,   "00010010001101000101011001111000" },
           { L_,   0xffffffff,   "11111111111111111111111111111111" },
           { L_,   0x87654321,   "10000111011001010100001100100001" },
+          { L_,   0x87654321,   "10000111011001010100001100100001" },
+          
       };
       const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -793,6 +798,8 @@ int main(int argc, char *argv[])
           native_std::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
+
+          native-
 
           if (veryVeryVerbose) { T_ T_ P(X) }
           LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
