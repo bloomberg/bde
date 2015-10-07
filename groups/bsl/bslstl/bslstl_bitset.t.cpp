@@ -243,7 +243,10 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
   }
   { // constexpr test
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-  constexpr bsl::bitset<TESTSIZE> v;
+    constexpr bsl::bitset<TESTSIZE> v;
+    ASSERT(TESTSIZE == v.size());
+    ASSERT(v.none());
+    ASSERT(!v.any());
 #endif
   }
 }
