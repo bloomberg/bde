@@ -30,7 +30,11 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
+#ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlt_delegatingdateimputil.h>
+#else
+#include <bdlt_serialdateimputil.h>
+#endif
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
 #include <bdlt_time.h>
@@ -287,9 +291,15 @@ static int toSerialDate(bdlt::Date date)
     // Return the elapsed number of days between 01JAN0001 and the specified
     // 'date'.
 {
+#ifndef BDE_OPENSOURCE_PUBLICATION
     return bdlt::DelegatingDateImpUtil::ymdToSerial(date.year(),
                                                     date.month(),
                                                     date.day());
+#else
+    return bdlt::SerialDateImpUtil::ymdToSerial(date.year(),
+                                                date.month(),
+                                                date.day());
+#endif
 }
 
 

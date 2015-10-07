@@ -88,8 +88,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdlt::PosixDateImpUtil  DateUtil;
+typedef bdlt::SerialDateImpUtil DateUtil;
 
 static bool         verbose = false;
 static bool     veryVerbose = false;
@@ -10741,8 +10740,7 @@ int main(int argc, char *argv[])
                 const int MONTH = MONTHS[j];
                 const int DAY   = DAYS[k];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -11079,8 +11077,7 @@ int main(int argc, char *argv[])
                 const int MONTH = MONTHS[dj];
                 const int DAY   = DAYS[dk];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;
