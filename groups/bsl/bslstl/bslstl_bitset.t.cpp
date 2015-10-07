@@ -57,7 +57,7 @@ using namespace std;
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
-// [ 2] bitset()
+// [ 2] BSLS_CPP11_CONSTEXPR bitset()
 // [ 3] bitset(unsigned long)
 // [ 4] bitset(native_std::basic_string, size_type, size_type)
 // [ 4] bitset(bslstl::basic_string, size_type, size_type)
@@ -87,7 +87,7 @@ using namespace std;
 // [  ] bool operator!=(std::size_t pos) const
 // [ 3] bool any() const
 // [ 3] bool none() const
-// [  ] std::size_t size() const
+// [ 2] BSLS_CPP11_CONSTEXPR std::size_t size() const
 // [  ] std::size_t count() const
 // [  ] bool test(std::size_t) const
 // [  ] unsigned long to_ulong() const
@@ -244,7 +244,10 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
   { // constexpr test
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     constexpr bsl::bitset<TESTSIZE> v;
+
+    static_assert(TESTSIZE == v.size(), "");
     ASSERT(TESTSIZE == v.size());
+
     ASSERT(v.none());
     ASSERT(!v.any());
 #endif

@@ -466,7 +466,7 @@ class bitset {
         // Return 'true' if all the bits in this bitset has the value of 0 and
         // 'false' otherwise.
 
-    std::size_t size() const;
+    BSLS_CPP11_CONSTEXPR std::size_t size() const;
         // Return the number of bits this bitset holds.
 
     std::size_t count() const;
@@ -1063,7 +1063,7 @@ bool bitset<N>::none() const
 
 template <std::size_t N>
 inline
-std::size_t bitset<N>::size() const
+BSLS_CPP11_CONSTEXPR std::size_t bitset<N>::size() const
 {
     return N;
 }
