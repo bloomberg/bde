@@ -58,7 +58,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // CREATORS:
 // [ 2] BSLS_CPP11_CONSTEXPR bitset()
-// [ 3] bitset(unsigned long)
+// [ 3] BSLS_CPP11_CONSTEXPR bitset(unsigned long)
 // [ 4] bitset(native_std::basic_string, size_type, size_type)
 // [ 4] bitset(bslstl::basic_string, size_type, size_type)
 // [ 2] ~bitset()
@@ -254,50 +254,47 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
   }
 }
 
+template <int TESTSIZE, unsigned int LINE, unsigned long VALUE>
+void testCase3Imp(int verbose, int veryVerbose)
+{
+    typedef bsl::bitset<TESTSIZE> Obj;
+    if (veryVerbose) {
+        T_ P_(TESTSIZE) P_(LINE) P(VALUE);
+    }
+
+    Obj mX(VALUE);
+    ASSERT(verifyBitset(mX, VALUE, verbose));
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+    BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
+    static_assert(mX2.size() == TESTSIZE, "");
+    ASSERT(verifyBitset(mX2, VALUE, verbose));
+#endif
+};
+
 template <int TESTSIZE>
 void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
 {
-    static const struct {
-        unsigned int  d_lineNum;  // source line number
-        unsigned long d_value;    // bitset value
-    } DATA[] = {
-        //LINE  VALUE
-        //----  -------------------
-        { L_,   0,                 },
-        { L_,   0x10101010         },
-        { L_,   0xabcdef01         },
-        { L_,   0x12345678         },
-        { L_,   0xffffffff         },
-        { L_,   0x87654321         },
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-        { L_,   0x1010101010101010 },
-        { L_,   0xabcdef01abcdef01 },
-        { L_,   0x1234567812345678 },
-        { L_,   0xffffffffffffffff },
-        { L_,   0x8765432187654321 },
-#endif
-    };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-    typedef bsl::bitset<TESTSIZE> Obj;
-
     if (verbose) cout << "Testing bitset<"
                       << TESTSIZE
                       << ">(unsigned long) constructor"
                       << endl;
+                          //LINE  VALUE
+                          //----  -------------------
+    testCase3Imp<TESTSIZE, L_,   0                  >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0x10101010         >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0xabcdef01         >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0x12345678         >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0xffffffff         >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0x87654321         >(verbose, veryVerbose);
+#if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+    testCase3Imp<TESTSIZE, L_,   0x1010101010101010 >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0xabcdef01abcdef01 >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0x1234567812345678 >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0xffffffffffffffff >(verbose, veryVerbose);
+    testCase3Imp<TESTSIZE, L_,   0x8765432187654321 >(verbose, veryVerbose);
+#endif
 
-    for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const unsigned int  LINE      = DATA[ti].d_lineNum;
-        const unsigned long VALUE     = DATA[ti].d_value;
-
-        if (veryVerbose) {
-            T_ P_(TESTSIZE) P_(LINE) P(VALUE);
-        }
-
-        Obj mX(VALUE);
-
-        ASSERT(verifyBitset(mX, VALUE, verbose));
-    }
 }
 
 }  // close unnamed namespace

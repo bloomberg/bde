@@ -217,12 +217,156 @@ namespace bsl {
 template <std::size_t N>
 class bitset;
 
+                          // ====================
+                          // class Bitset_ImpBase
+                          // ====================
+template <std::size_t BITSETSIZE>
+class Bitset_ImpBase {
+    // This component private 'class' describes the basic data layout for a
+    // bitset class and provides constructors to help the internal constexpr
+    // initialization details.  The 'N' template parameter specifies
+    // the size of the bitset.
+  public:
+    // PRIVATE TYPES
+    enum {
+        BYTESPERINT = sizeof(int),
+        BITSPERINT  = 8 * sizeof(int)
+    };
+
+    // DATA
+    unsigned int d_data[BITSETSIZE];
+
+    // CREATORS
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long);
+};
+
+
+template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE>::Bitset_ImpBase()
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+  : d_data{0}
+{
+}
+#else
+{
+  std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
+}
+#endif
+
+template <std::size_t BITSETSIZE>
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<BITSETSIZE>::Bitset_ImpBase(unsigned long val)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#if __SIZEOF_LONG__ == __SIZEOF_INT__
+  : d_data{val}
+{
+}
+#elif __SIZEOF_LONG__ == 2 * __SIZEOF_INT__
+  : d_data{static_cast<unsigned int>(val),
+           static_cast<unsigned int>(val >> (__SIZEOF_INT__ * 8))}
+{
+}
+#else
+// TODO(EricWF)
+#error UNIMPLEMENTED
+#endif
+#else
+{
+    enum {
+        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
+    };
+
+    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
+
+    if (1 == BSLSTL_INTS_IN_LONG) {
+        d_data[0] = static_cast<unsigned int>(val);
+    }
+    else {
+        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
+                                                    < (unsigned int) BITSETSIZE
+                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
+                                     : (unsigned int) BITSETSIZE;
+
+        for (unsigned int i = 0; i < numInts; ++i) {
+            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
+        }
+    }
+}
+#endif
+
+template <>
+class Bitset_ImpBase<1> {
+
+public:
+    // PRIVATE TYPES
+    enum {
+        BYTESPERINT = sizeof(int),
+        BITSPERINT  = 8 * sizeof(int),
+        BITSETSIZE  = 1
+    };
+
+    unsigned int d_data[BITSETSIZE];
+
+    // CREATORS
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long);
+};
+
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<1>::Bitset_ImpBase()
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+  : d_data{0}
+{
+}
+#else
+{
+  *d_data = 0;
+}
+#endif
+
+inline BSLS_CPP11_CONSTEXPR
+Bitset_ImpBase<1>::Bitset_ImpBase(unsigned long val)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#if __SIZEOF_LONG__ == __SIZEOF_INT__ || \
+    __SIZEOF_LONG__ == 2 * __SIZEOF_INT__
+  : d_data{static_cast<unsigned int>(val)}
+{
+}
+#else
+// TODO(EricWF)
+#error UNIMPLEMENTED
+#endif
+#else
+{
+    enum {
+        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
+    };
+
+    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
+
+    if (1 == BSLSTL_INTS_IN_LONG) {
+        d_data[0] = static_cast<unsigned int>(val);
+    }
+    else {
+        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
+                                                    < (unsigned int) BITSETSIZE
+                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
+                                     : (unsigned int) BITSETSIZE;
+
+        for (unsigned int i = 0; i < numInts; ++i) {
+            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
+        }
+    }
+}
+#endif
                         // =================
                         // class bsl::bitset
                         // =================
 
 template <std::size_t N>
-class bitset {
+class bitset : Bitset_ImpBase<N> {
     // This class template provides an STL-compliant 'bitset'.  For the
     // requirements of a 'bitset' class, consult the second revision of the
     // ISO/IEC 14882 Programming Language c++ (2003).
@@ -239,9 +383,8 @@ class bitset {
         BITSETSIZE  = N ? (N - 1) / BITSPERINT + 1 : 1
     };
 
-    // DATA
-    unsigned int d_data[BITSETSIZE];  // storage for bitset, d_data[0] holds
-                                      // the least significant bit.
+    typedef Bitset_ImpBase<N> Base;
+    using Base::d_data;
 
     // FRIENDS
     friend class reference;
@@ -319,7 +462,7 @@ class bitset {
     BSLS_CPP11_CONSTEXPR bitset();
         // Create a bitset with all bits initialized to 0.
 
-    bitset(unsigned long val);
+    BSLS_CPP11_CONSTEXPR bitset(unsigned long val);
         // Create a bitset with its first 'M' bit positions correspond to bit
         // values in the specified 'val'.  'M' is the smaller of the
         // parameterized 'N' and '8 * sizeof(unsigned long)'.  If 'M < N', the
@@ -708,40 +851,16 @@ std::size_t bitset<N>::numOneSet(unsigned int src) const
 // CREATORS
 template <std::size_t N>
 inline BSLS_CPP11_CONSTEXPR
-bitset<N>::bitset()
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-  : d_data{0}
+bitset<N>::bitset() : Base()
 {
 }
-#else
-{
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-}
-#endif
 
 template <std::size_t N>
-bitset<N>::bitset(unsigned long val)
+BSLS_CPP11_CONSTEXPR
+bitset<N>::bitset(unsigned long val) : Base(val)
 {
-    enum {
-        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
-    };
-
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-
-    if (1 == BSLSTL_INTS_IN_LONG) {
-        d_data[0] = static_cast<unsigned int>(val);
-    }
-    else {
-        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
-                                                    < (unsigned int) BITSETSIZE
-                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
-                                     : (unsigned int) BITSETSIZE;
-
-        for (unsigned int i = 0; i < numInts; ++i) {
-            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
-        }
-    }
 }
+
 
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
