@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 #include <bdlb_print.h>
 #include <bdlb_string.h>
 
-#include <bdlt_delegatingdateimputil.h>
 #include <bdlt_timeunitratio.h>
 
 #include <bslmf_assert.h>
