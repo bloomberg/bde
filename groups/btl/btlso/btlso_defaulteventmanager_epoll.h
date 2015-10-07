@@ -47,6 +47,7 @@ BSLS_IDENT("$Id: $")
 //                 _______/    |           |         |        \_________
 //                 *_poll   *_epoll     *_select  *_devpoll    *_pollset
 //..
+//
 ///Thread-safety
 ///-------------
 // This component depends on a 'bslma::Allocator' instance to supply memory.
@@ -87,6 +88,7 @@ BSLS_IDENT("$Id: $")
 //  | isRegistered             |        O(1)         |        O(S)          |
 //  +=======================================================================+
 //..
+//
 ///Metrics
 ///-------
 // The event manager provided by this component can use external (i.e.,

@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 //                                    behavior.
 //
 //..
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this

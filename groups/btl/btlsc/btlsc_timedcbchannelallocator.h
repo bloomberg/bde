@@ -261,6 +261,7 @@ BSLS_IDENT("$Id: $")
 //      stream << tick;
 //  }
 //..
+//
 ///Server Side
 ///-----------
 // The following class illustrates how we might implement a tick-reporter

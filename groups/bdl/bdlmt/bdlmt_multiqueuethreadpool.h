@@ -43,12 +43,12 @@ BSLS_IDENT("$Id: $")
 // in a non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *thread-aware*, *fully thread-safe*, and *thread-enabled*.
 //
-
-            // ARB: This usage example is entirely broken, because it relies on
-            // absolute paths that no longer exist.  The example should be
-            // rephrased to work on an array of strings instead of a file, or
-            // perhaps re-written entirely.
-
+//
+//          // ARB: This usage example is entirely broken, because it relies on
+//          // absolute paths that no longer exist.  The example should be
+//          // rephrased to work on an array of strings instead of a file, or
+//          // perhaps re-written entirely.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

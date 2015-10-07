@@ -59,6 +59,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
 // This example demonstrates how we might use a 'bdlcc::MultipriorityQueue' to
@@ -219,6 +221,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+//
 ///Example 2: Multi-Threaded Observer
 ///- - - - - - - - - - - - - - - - -
 // The previous example shows a simple mechanism for distributing work requests

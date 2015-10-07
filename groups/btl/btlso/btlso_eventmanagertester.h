@@ -390,6 +390,7 @@ BSLS_IDENT("$Id: $")
 //  ctrlFlag |= btlso::EventManagerTester::k_ABORT;
 //  btlso::EventManagerTester::testRegisterSocketEvent(&mX, ctrlFlag);
 //..
+//
 ///Example 2: Testing using test specification
 ///- - - - - - - - - - - - - - - - - - - - - -
 // Because different event managers may be implemented differently, it's

@@ -20,18 +20,28 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: The 'balxml::TypesPrintUtil' 'struct' provided by this
 // component contains the following functions:
-//..
-//  o 'print':        Print an object using the supplied formatting mode.
-//  o 'printBase64':  Print an object using
-//                    'bdlat_FormattingMode::e_BASE64'.
-//  o 'printDecimal': Print an object using 'bdlat_FormattingMode::e_DEC'.
-//  o 'printDefault': Print an object using
-//                    'bdlat_FormattingMode::e_DEFAULT'.
-//  o 'printHex':     Print an object using 'bdlat_FormattingMode::e_HEX'.
-//  o 'printList':    Print an object using
-//                    'bdlat_FormattingMode::e_IS_LIST'.
-//  o 'printText':    Print an object using 'bdlat_FormattingMode::e_TEXT'.
-//..
+//
+//: 'print':
+//:   Print an object using the supplied formatting mode.
+//:
+//: 'printBase64':
+//:   Print an object using 'bdlat_FormattingMode::e_BASE64'.
+//:
+//: 'printDecimal':
+//:   Print an object using 'bdlat_FormattingMode::e_DEC'.
+//:
+//: 'printDefault':
+//:   Print an object using 'bdlat_FormattingMode::e_DEFAULT'.
+//:
+//: 'printHex':
+//:   Print an object using 'bdlat_FormattingMode::e_HEX'.
+//:
+//: 'printList':
+//:   Print an object using 'bdlat_FormattingMode::e_IS_LIST'.
+//:
+//: 'printText':
+//:   Print an object using 'bdlat_FormattingMode::e_TEXT'.
+//
 // The output is generated according to each type's lexical representation as
 // described in the XML Schema Specification, which is available at
 // 'http://www.w3.org/TR/xmlschema-2/'.  The text input is parsed and output
@@ -91,7 +101,8 @@ BSLS_IDENT("$Id: $")
 //      ---------------------               -----------------------
 //      Enumeration                         TEXT
 //..
-///Behavior of 'printText' on non-valid strings
+//
+///Behavior of 'printText' on Non-Valid Strings
 ///--------------------------------------------
 // The output of 'printText' will always be valid XML 1.0 with UTF-8 encoding.
 // When attempting to print text data that contains non-valid UTF-8 characters

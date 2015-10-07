@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 //                 *_poll  *_pollset *_select *_devpoll  *_epoll
 //
 //..
+//
 ///Thread-safety
 ///-------------
 // The 'select'-based multiplexers provided by this component depend on a

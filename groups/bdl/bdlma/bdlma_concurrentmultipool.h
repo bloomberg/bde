@@ -64,6 +64,7 @@ BSLS_IDENT("$Id: $")
 //: 1 NUMBER OF POOLS -- the number of internal pools (the block size managed
 //:   by the first pool is eight bytes, with each successive pool managing
 //:   block of a size twice that of the previous pool).
+//:
 //: 2 GROWTH STRATEGY -- geometrically growing chunk size starting from 1 (in
 //:   terms of the number of memory blocks per chunk), or fixed chunk size,
 //:   specified as either:
@@ -72,6 +73,7 @@ BSLS_IDENT("$Id: $")
 //:     corresponding to each individual pool
 //:   If the growth strategy is not specified, geometric growth is used for all
 //:   pools.
+//:
 //: 3 MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
 //:   chunk, specified as either:
 //:     o the unique maximum-blocks-per-chunk value for all of the pools, or
@@ -81,6 +83,7 @@ BSLS_IDENT("$Id: $")
 //:   implementation-defined default value is used.  Note that the maximum
 //:   blocks per chunk can be configured only if the number of pools is also
 //:   configured.
+//:
 //: 4 BASIC ALLOCATOR -- the allocator used to supply memory (to replenish an
 //:   internal pool, or directly if the maximum block size is exceeded).  If
 //:   not specified, the currently installed default allocator (see
@@ -108,6 +111,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
 ///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipool' can be used by containers that hold different

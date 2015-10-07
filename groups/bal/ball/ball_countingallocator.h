@@ -37,6 +37,7 @@ BSLS_IDENT("$Id: $")
 //                       allocate
 //                       deallocate
 //..
+//
 ///Byte Count
 ///----------
 // The byte count maintained by 'ball::CountingAllocator' is set to 0 upon

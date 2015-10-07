@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // also made available through 'bdlcc::Queue'.
 //
 ///Thread-Enabled Idioms in the 'bdlcc::Queue' Interface
-///---------------------------------------------------
+///-----------------------------------------------------
 // The thread-enabled 'bdlcc::Queue' is similar to 'bdlc::Queue' in many
 // regards, but there are several differences in method behavior and signature
 // that arise due to the thread-enabled nature of the queue and its anticipated
@@ -106,6 +106,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
 // The following example demonstrates a typical usage of a 'bdlcc::Queue'.
@@ -228,6 +230,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+//
 ///Example 2: Multi-Threaded Observer
 /// - - - - - - - - - - - - - - - - -
 // The previous example shows a simple mechanism for distributing work requests

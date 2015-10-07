@@ -158,6 +158,7 @@ BSLS_IDENT("$Id: $")
 //  assert('e'  == secondUtf16String[4]);
 //  assert(0    == secondUtf16String[5]);
 //..
+//
 ///Example 2: Translation to STL Containers
 /// - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the

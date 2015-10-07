@@ -177,6 +177,7 @@ BSLS_IDENT("$Id: $")
 //  Another second has passed.
 //  A three second interval has elapsed.
 //..
+//
 ///Example 2: Creating a Simple Thread with User-Specified Attributes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will choose to override the default thread attribute

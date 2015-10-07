@@ -96,6 +96,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_HOST_U32_TO_BE(x)
 //  BSLS_BYTEORDER_HOST_U64_TO_BE(x)
 //..
+//
 ///Usage
 ///-----
 // To use these macros, simply pass a 16-, 32-, or 64-bit value to the macros.

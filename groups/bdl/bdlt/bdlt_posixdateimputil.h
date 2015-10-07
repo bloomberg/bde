@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 //  assert(4 == bdlt::PosixDateImpUtil::yd2month(2011, 120));
 //                                                           // 4 means April.
 //..
+//
 ///Implementing a Value-Semantic Date Type
 ///- - - - - - - - - - - - - - - - - - - -
 // Using the functions supplied in this component, we can easily implement a

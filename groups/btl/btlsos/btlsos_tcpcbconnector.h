@@ -52,8 +52,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
 //
-///Example 1: An example echo client
+///Example 1: An Example Echo Client
 ///- - - - - - - - - -  - - - - - -
 // The following usage example shows a possible implementation of an echo
 // client.  An echo client sends connection requests to an echo server, and for
@@ -301,7 +302,8 @@ BSLS_IDENT("$Id: $")
 //      return d_allocator.allocateTimed(d_allocateFunctor);
 //  }
 //..
-///Example 2: Dual control and data channels
+//
+///Example 2: Dual Control and Data Channels
 ///- - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a client-side
 // communication layer where two communication channels are established for a

@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 //      // Return the 'KeyType' information associated with the specified
 //      // 'object'.
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.

@@ -89,8 +89,8 @@ BSLS_IDENT("$Id: $")
 // The following two examples illustrate use of the multi-priority thread pool
 // provided in this component.
 //
-///Usage Example 1: The 'void function'/'void pointer' Interface
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: The 'void function'/'void pointer' Interface
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is possible to enqueue a job to a multi-priority thread pool as a pointer
 // to a function that takes a single 'void *' argument.  This first usage
 // example will demonstrate that high-priority traffic through a thread pool is
@@ -161,8 +161,9 @@ BSLS_IDENT("$Id: $")
 //       bsl::cout << "Jobs done: urgent: " << urgentJobsDone <<
 //                    ", less urgent: "     << lessUrgentJobsDone << bsl::endl;
 //..
-///Usage Example 2: The Functor-Based Interface
-/// - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: The Functor-Based Interface
+/// - - - - - - - - - - - - - - - - - - -
 // In this second example we present a multi-threaded algorithm for calculating
 // prime numbers.  This is just to serve as an illustration; although it works,
 // it is not really any faster than doing it with a single thread.

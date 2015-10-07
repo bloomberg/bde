@@ -92,6 +92,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
 ///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a method, 'calculate', that performs

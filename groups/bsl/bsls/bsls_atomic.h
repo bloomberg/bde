@@ -262,6 +262,7 @@ BSLS_IDENT("$Id: $")
 //      int decrement();
 //  };
 //..
+//
 ///Class 'my_CountedHandle'
 ///-  -  -  -  -  -  -  - -
 // Then, we create class 'my_CountedHandle' that provides an individual handle
@@ -302,6 +303,7 @@ BSLS_IDENT("$Id: $")
 //      int numReferences() const;
 //  };
 //..
+//
 ///Function Definitions for 'my_CountedHandleRep'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we provide a definition for the 'static' 'deleteObject' method, which

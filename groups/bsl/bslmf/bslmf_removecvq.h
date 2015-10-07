@@ -30,8 +30,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::RemoveCvq<MyType           >::Type m1; // MyType m1;
 //  bslmf::RemoveCvq<MyType const     >::Type m2; // MyType m2;
 //..
-///Usage Example
-///-------------
+//
+///Usage
+///-----
 // We can make a simple template function that shows whether two objects are
 // the same type, ignoring 'const' and 'volatile' qualifiers.
 //

@@ -164,6 +164,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.                     
+//
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
 // In this example, we start with a (relative) native path to a directory
@@ -215,6 +217,7 @@ BSLS_IDENT("$Id: $")
 //    bdls::PathUtil::popLeaf(whichDirectory);
 //  }
 //..
+//
 ///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to

@@ -82,6 +82,7 @@ BSLS_IDENT("$Id: $")
 //..
 // 27AUG2007_16:09:46.161 2040:1 WARN subdir/process.cpp:542 FOO.BAR.BAZ <text>
 //..
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use an instance of

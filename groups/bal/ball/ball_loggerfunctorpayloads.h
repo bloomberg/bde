@@ -63,6 +63,7 @@ BSLS_IDENT("$Id: $")
 //      // to publish all record buffers of all active loggers (i.e., loggers
 //      // allocated by the logger manager that have not yet been deallocated).
 //..
+//
 ///Synopsis
 ///--------
 // The following is a list of functions available in this component, each
@@ -70,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    loadParentCategoryThresholdValues     DefaultThresholdsCallback
 //..
+//
 ///Support for Hierarchical Category Names
 ///---------------------------------------
 // The 'ball' logging toolkit does not explicitly support any structure in the

@@ -246,6 +246,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Example 2: bslma Allocator Propagation
 ///- - - - - - - - - - - - - - - - - - -
 // To exercise the propagation of the allocator of 'MyContainer' to its
@@ -304,6 +305,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Example 3: C++03 Allocators
 ///- - - - - - - - - - - - - -
 // This example shows that when 'MyContainer' is instantiated with a C++03

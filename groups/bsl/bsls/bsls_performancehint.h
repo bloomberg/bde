@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 //
 // The following describes the macros provided by this component:
 //..
-///               Macro Name                          Description of Macro
-///----------------------------------------       -----------------------------
+//                Macro Name                          Description of Macro
+// ----------------------------------------       -----------------------------
 // BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)      Hint to the compiler that the
 //                                                specified *integral* 'expr'
 //                                                expression is likely to
@@ -71,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //                                                'PREDICT_UNLIKELY' clause for
 //                                                maximum portability.
 //..
+//
 ///Warning
 ///- - - -
 // Please use the macros provided in this component *with* *caution*.  Always

@@ -198,10 +198,9 @@ BSLS_IDENT("$Id: $")
 //: 14 Made function names lower case (had to change 'Final' to 'finalize' and
 //:    'Short' to 'shortHash' to avoid using a keyword)
 //
-//..
 ///Third Party Doc
 ///---------------
-//
+//..
 // SpookyHash: a 128-bit non cryptographic hash function
 //
 // By Bob Jenkins, public domain

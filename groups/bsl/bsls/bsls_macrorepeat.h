@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 // }
 //..
-// 
+//
 ///Example 2: Repeated Function Arguments
 /// - - - - - - - - - - - - - - - - - - -
 // In this example, we supply as series of identical arguments to a function

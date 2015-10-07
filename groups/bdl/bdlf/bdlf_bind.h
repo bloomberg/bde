@@ -296,6 +296,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  }
 //..
+//
 ///Duplicating Parameters
 ///- - - - - - - - - - -
 // A place-holder can be specified multiple times, effectively passing the same
@@ -338,6 +339,7 @@ BSLS_IDENT("$Id: $")
 //      assert(marker, 10 == marker);
 //  }
 //..
+//
 ///Bound Functors
 ///--------------
 // There are a few issues to be aware of concerning the kind of bound functors

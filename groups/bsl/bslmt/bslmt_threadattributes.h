@@ -35,6 +35,7 @@ BSLS_IDENT("$Id: $")
 //  stackSize     'e_UNSET_STACK_SIZE == stackSize || 0 <= stackSize'
 //  guardSize     'e_UNSET_GUARD_SIZE == guardSize || 0 <= guardSize'
 //..
+//
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
 // The 'detachedState' attribute indicates whether an associated thread should

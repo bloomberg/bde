@@ -147,6 +147,7 @@ BSLS_IDENT("$Id: $")
 //      MyLoaderImp a;
 //  }
 //..
+//
 ///Example 2: Using a 'baltzo::Loader'
 ///- - - - - - - - - - - - - - - - - -
 // In this example we use a 'MyLoaderImpl' to load the data for one time zone,

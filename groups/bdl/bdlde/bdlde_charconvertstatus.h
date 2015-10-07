@@ -34,8 +34,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Usage
-///-----
 // In this section we show intended usage of this component.
 //
 ///Example 1: Basic Syntax

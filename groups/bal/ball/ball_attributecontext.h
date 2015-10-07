@@ -114,6 +114,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to call the 'hasRelevantActiveRules()'

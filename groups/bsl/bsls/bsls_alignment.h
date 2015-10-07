@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 //  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
 //  alignment requirement.
 //..
+//
 ///Usage
 ///-----
 // Suppose that we want to create a static function, 'allocateFromBuffer', that

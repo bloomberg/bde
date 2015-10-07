@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 // use the 'tokenizer' as a non-standard "iterator" directly.
 //
 ///Iterating using a 'Tokenizer' object (ACCESS TO TOKENS AND DELIMITERS)
-///---------------------------------------------------------------------=
+///----------------------------------------------------------------------
 // The second mechanism, not intended for generic use, provides direct access
 // to the previous and current (trailing) delimiters as well as the current
 // token:

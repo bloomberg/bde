@@ -100,6 +100,7 @@ BSLS_IDENT("$Id: $")
 //  | numSocketEvents          |        O(1)         |        O(S)           |
 //  +========================================================================+
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

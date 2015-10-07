@@ -31,6 +31,7 @@ BSLS_IDENT("$Id: $")
 //                        allocate
 //                        deallocate
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
