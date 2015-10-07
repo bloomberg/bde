@@ -106,8 +106,7 @@ int numOctets(const char *s)
     return length / 2;
 }
 
-typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdlt::PosixDateImpUtil  DateUtil;
+typedef bdlt::SerialDateImpUtil DateUtil;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
@@ -9546,10 +9545,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                            DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
@@ -9768,10 +9764,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                            DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
 
@@ -10405,10 +10398,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                            DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -10860,10 +10850,7 @@ int main(int argc, char *argv[])
                 const int   LEN   = numOctets(EXP);
 
                 LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                            DateUtil::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(BIN)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
