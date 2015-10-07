@@ -217,21 +217,56 @@ namespace bsl {
 template <std::size_t N>
 class bitset;
 
+// ====================
+                          // class Bitset_ImpBase
+                          // ====================
+struct Bitset_ImpUtil {
+  enum {
+        BYTESPERINT = sizeof(int),
+        BITSPERINT  = 8 * sizeof(int),
+        BSLSTL_INTS_IN_LONG = sizeof(long) / sizeof(int)
+    };
+
+    static void defaultInit(unsigned int* data, size_t size, unsigned long val = 0);
+};
+
+void Bitset_ImpUtil::defaultInit(unsigned int *data,
+                                 size_t size,
+                                 unsigned long val)
+{
+    std::memset(data, 0, size * BYTESPERINT);
+    if (val == 0) {
+      return;
+    }
+    if (1 == BSLSTL_INTS_IN_LONG) {
+        data[0] = static_cast<unsigned int>(val);
+    }
+    else {
+        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
+                                                    < (unsigned int) size
+                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
+                                     : (unsigned int) size;
+
+        for (unsigned int i = 0; i < numInts; ++i) {
+            data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
+        }
+    }
+}
+
                           // ====================
                           // class Bitset_ImpBase
                           // ====================
+template <std::size_t BITSETSIZE,
+          std::size_t NUM_INIT = sizeof(long) / sizeof(int)>
+class Bitset_ImpBase;
+
 template <std::size_t BITSETSIZE>
-class Bitset_ImpBase {
+class Bitset_ImpBase<BITSETSIZE, 1> {
     // This component private 'class' describes the basic data layout for a
     // bitset class and provides constructors to help the internal constexpr
     // initialization details.  The 'N' template parameter specifies
     // the size of the bitset.
   public:
-    // PRIVATE TYPES
-    enum {
-        BYTESPERINT = sizeof(int),
-        BITSPERINT  = 8 * sizeof(int)
-    };
 
     // DATA
     unsigned int d_data[BITSETSIZE];
@@ -244,68 +279,33 @@ class Bitset_ImpBase {
 
 template <std::size_t BITSETSIZE>
 inline BSLS_CPP11_CONSTEXPR
-Bitset_ImpBase<BITSETSIZE>::Bitset_ImpBase()
+Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
   : d_data{0}
 {
 }
 #else
 {
-  std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
+  Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE);
 }
 #endif
 
 template <std::size_t BITSETSIZE>
 inline BSLS_CPP11_CONSTEXPR
-Bitset_ImpBase<BITSETSIZE>::Bitset_ImpBase(unsigned long val)
+Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long val)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#if __SIZEOF_LONG__ == __SIZEOF_INT__
   : d_data{val}
 {
 }
-#elif __SIZEOF_LONG__ == 2 * __SIZEOF_INT__
-  : d_data{static_cast<unsigned int>(val),
-           static_cast<unsigned int>(val >> (__SIZEOF_INT__ * 8))}
-{
-}
-#else
-// TODO(EricWF)
-#error UNIMPLEMENTED
-#endif
+
 #else
 {
-    enum {
-        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
-    };
-
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-
-    if (1 == BSLSTL_INTS_IN_LONG) {
-        d_data[0] = static_cast<unsigned int>(val);
-    }
-    else {
-        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
-                                                    < (unsigned int) BITSETSIZE
-                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
-                                     : (unsigned int) BITSETSIZE;
-
-        for (unsigned int i = 0; i < numInts; ++i) {
-            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
-        }
-    }
+  Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE, val);
 }
 #endif
 
-template <>
-class Bitset_ImpBase<1> {
-
-public:
-    // PRIVATE TYPES
-    enum {
-        BYTESPERINT = sizeof(int),
-        BITSPERINT  = 8 * sizeof(int),
-        BITSETSIZE  = 1
-    };
+template <std::size_t BITSETSIZE>
+class Bitset_ImpBase<BITSETSIZE, 2> {
 
     unsigned int d_data[BITSETSIZE];
 
@@ -314,51 +314,30 @@ public:
     BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long);
 };
 
+template <std::size_t BITSETSIZE>
 inline BSLS_CPP11_CONSTEXPR
-Bitset_ImpBase<1>::Bitset_ImpBase()
+Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
   : d_data{0}
 {
 }
 #else
 {
-  *d_data = 0;
+  Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE);
 }
 #endif
 
+  template <std::size_t BITSETSIZE>
 inline BSLS_CPP11_CONSTEXPR
-Bitset_ImpBase<1>::Bitset_ImpBase(unsigned long val)
+Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long val)
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#if __SIZEOF_LONG__ == __SIZEOF_INT__ || \
-    __SIZEOF_LONG__ == 2 * __SIZEOF_INT__
-  : d_data{static_cast<unsigned int>(val)}
+  : d_data{static_cast<unsigned int>(val),
+           static_cast<unsigned int>(val >> (sizeof(int) * CHAR_BIT))}
 {
 }
 #else
-// TODO(EricWF)
-#error UNIMPLEMENTED
-#endif
-#else
 {
-    enum {
-        BSLSTL_INTS_IN_LONG = sizeof(unsigned long) / sizeof(int)
-    };
-
-    std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
-
-    if (1 == BSLSTL_INTS_IN_LONG) {
-        d_data[0] = static_cast<unsigned int>(val);
-    }
-    else {
-        const unsigned int numInts = (unsigned int) BSLSTL_INTS_IN_LONG
-                                                    < (unsigned int) BITSETSIZE
-                                     ? (unsigned int) BSLSTL_INTS_IN_LONG
-                                     : (unsigned int) BITSETSIZE;
-
-        for (unsigned int i = 0; i < numInts; ++i) {
-            d_data[i] = static_cast<unsigned int>(val >> (BITSPERINT * i));
-        }
-    }
+    Bitset_ImpUtil::defaultInit(d_data, BITSETSIZE, val);
 }
 #endif
                         // =================

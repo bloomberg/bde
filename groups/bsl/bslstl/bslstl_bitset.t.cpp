@@ -247,7 +247,7 @@ struct VerifyBitsetHelper<0, N> {
 
 template <size_t N>
 BSLS_CPP11_CONSTEXPR bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsigned long value) {
-  return VerifyBitsetHelper<N, N>()(obj, value);
+  return VerifyBitsetHelper<N - 1, N>()(obj, value);
 }
 
 #endif
