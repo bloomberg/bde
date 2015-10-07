@@ -366,7 +366,7 @@ Bitset_ImpBase<1>::Bitset_ImpBase(unsigned long val)
                         // =================
 
 template <std::size_t N>
-class bitset : Bitset_ImpBase<N> {
+class bitset : Bitset_ImpBase<N ? (N - 1) / (8 * sizeof(int)) + 1 : 1> {
     // This class template provides an STL-compliant 'bitset'.  For the
     // requirements of a 'bitset' class, consult the second revision of the
     // ISO/IEC 14882 Programming Language c++ (2003).
@@ -383,7 +383,7 @@ class bitset : Bitset_ImpBase<N> {
         BITSETSIZE  = N ? (N - 1) / BITSPERINT + 1 : 1
     };
 
-    typedef Bitset_ImpBase<N> Base;
+    typedef Bitset_ImpBase<BITSETSIZE> Base;
     using Base::d_data;
 
     // FRIENDS
