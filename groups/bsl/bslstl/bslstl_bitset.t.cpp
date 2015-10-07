@@ -82,7 +82,7 @@ using namespace std;
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
 // [  ] bsl::string to_string() const
-// [  ] bool operator[](std::size_t pos) const
+// [  ] BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const
 // [  ] bool operator==(std::size_t pos) const
 // [  ] bool operator!=(std::size_t pos) const
 // [ 3] bool any() const
@@ -203,6 +203,43 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
     return true;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+
+template <size_t N>
+BSLS_CPP11_CONSTEXPR bool verifyBitConstexpr(size_t bitIndex,
+                                             const bsl::bitset<N>& obj,
+                                             unsigned long expected) {
+  return bitIndex < sizeof(unsigned long) * CHAR_BIT ?
+      (((expected >> bitIndex) & 1)) == obj[bitIndex]
+    : 0 == obj[bitIndex];
+}
+
+template <size_t BIT_INDEX, size_t N>
+struct VerifyBitsetHelper {
+  constexpr VerifyBitsetHelper() {}
+
+  constexpr bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const {
+    return verifyBitConstexpr(BIT_INDEX, obj, expected) &&
+        VerifyBitsetHelper<BIT_INDEX - 1, N>()(obj, expected);
+  }
+};
+
+template <size_t N>
+struct VerifyBitsetHelper<0, N> {
+  constexpr VerifyBitsetHelper() {}
+  constexpr bool operator()(const bsl::bitset<N>& obj, unsigned long expected) const {
+    return verifyBitConstexpr(0, obj, expected);
+  }
+};
+
+template <size_t N>
+BSLS_CPP11_CONSTEXPR bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsigned long value) {
+  return VerifyBitsetHelper<N, N>()(obj, value);
+}
+
+#endif
+
+
 //=============================================================================
 //                      TEST CASE SUPPORT FUNCTIONS
 //-----------------------------------------------------------------------------
@@ -246,8 +283,8 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
     constexpr bsl::bitset<TESTSIZE> v;
 
     static_assert(TESTSIZE == v.size(), "");
+    static_assert(0 == v[0], "");
     ASSERT(TESTSIZE == v.size());
-
     ASSERT(v.none());
     ASSERT(!v.any());
 #endif
@@ -268,7 +305,7 @@ void testCase3Imp(int verbose, int veryVerbose)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
     static_assert(mX2.size() == TESTSIZE, "");
-    ASSERT(verifyBitset(mX2, VALUE, verbose));
+    static_assert(verifyBitsetConstexpr(mX2, VALUE), "");
 #endif
 };
 

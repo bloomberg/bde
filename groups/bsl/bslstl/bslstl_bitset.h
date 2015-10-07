@@ -587,7 +587,7 @@ class bitset : Bitset_ImpBase<N> {
         // string, and the least-significant bit is placed at the end of the
         // string.
 
-    bool operator[](std::size_t pos) const;
+    BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const;
         // Return the value of the bit position at the specified 'pos'.
 
     bool operator==(const bitset& rhs) const;
@@ -1138,14 +1138,11 @@ bitset<N> bitset<N>::operator~() const
 }
 
 template <std::size_t N>
-inline
+inline BSLS_CPP11_CONSTEXPR
 bool bitset<N>::operator[](std::size_t pos) const
 {
     BSLS_ASSERT_SAFE(pos < N);
-
-    const std::size_t shift  = pos / BITSPERINT;
-    const std::size_t offset = pos % BITSPERINT;
-    return ((d_data[shift] & (1 << offset)) != 0);
+    return ((d_data[pos / BITSPERINT] & (1 << (pos % BITSPERINT))) != 0);
 }
 
 template <std::size_t N>
