@@ -81,7 +81,7 @@ using namespace std;
 // [  ] bitset operator<<(std::size_t pos) const
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
-// [  ] bsl::string to_string() const
+// [ 3] bsl::string to_string(char, char) const
 // [ 3] BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const
 // [  ] bool operator==(std::size_t pos) const
 // [  ] bool operator!=(std::size_t pos) const
@@ -167,6 +167,18 @@ void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+
+template <class StringType>
+StringType changeBitString(const StringType& input,
+                           char zeroChar, char oneChar)
+{
+  StringType out(input.size(), zeroChar);
+  for (size_t i = 0; i < input.size(); ++i) {
+    out[i] = input[i] == '0' ? zeroChar : oneChar;
+  }
+  return out;
+}
 
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
@@ -745,9 +757,11 @@ int main(int argc, char *argv[])
       //   and bslstl strings.
       //
       // Plan:
-      //   Using the table-driven technique, construct bitset from both
+      //   Using the table-driven technique, construct a bitset, 'X', from both
       //   native and bslstl strings.  Verify the value of the constructed
-      //   bitset is as expected.
+      //   bitset is as expected. Then transform those strings so that they
+      //   use different characters to represent '0' and '1'. For each
+      //   transformed string construct a bitset 'Y' and verify its value.
       //
       // Testing:
       //   explicit bitset(native_std::basic_string, size_type, size_type,
@@ -766,8 +780,6 @@ int main(int argc, char *argv[])
           unsigned int d_lineNum;  // source line number
           unsigned int d_value;    // bitset value
           const char*  d_string;   // bitset string
-          char         d_zeroChar; // bitset zero character
-          char         d_oneChar;  // bitset one character
       } DATA[] = {
           //LINE  VALUE         STRING
           //----  ----------    -----------------------------------
@@ -777,10 +789,20 @@ int main(int argc, char *argv[])
           { L_,   0x12345678,   "00010010001101000101011001111000" },
           { L_,   0xffffffff,   "11111111111111111111111111111111" },
           { L_,   0x87654321,   "10000111011001010100001100100001" },
-          { L_,   0x87654321,   "10000111011001010100001100100001" },
-          
       };
       const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+      static const struct {
+          unsigned int d_lineNum;
+          char d_zeroChar;
+          char d_oneChar;
+      } TRANSLATION_DATA[] = {
+            { L_, '0', '1'},
+            { L_, '1', '0'},
+            { L_, '!', 'A'}
+      };
+      const int NUM_TRANSLATION_DATA =
+              sizeof TRANSLATION_DATA / sizeof *TRANSLATION_DATA;
 
       if (verbose) cout << "\nTesting constructor with native string"
                         << endl;
@@ -792,18 +814,40 @@ int main(int argc, char *argv[])
 
           if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
 
-//          Obj mX(native_std::string(STRING));         // fails to compile
-//          Obj mX(native_std::string(STRING), 0, ~0);  // works
-
           native_std::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
-
-          native-
-
           if (veryVeryVerbose) { T_ T_ P(X) }
+
           LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
           LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+          LOOP_ASSERT(LINE, (X.to_string<char, native_std::char_traits<char>,
+                             native_std::allocator<char> >() == s));
+
+          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+
+              native_std::string sY = changeBitString(s, ZERO_CHAR, ONE_CHAR);
+              Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
+              const Obj& Y = mY;
+              if (veryVeryVerbose) { T_ T_ P(Y) }
+
+              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
+              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+              LOOP_ASSERT(LINE2, (Y.to_string<char,
+                      native_std::string::traits_type,
+                      native_std::string::allocator_type>() == s));
+              LOOP_ASSERT(LINE2, (X.to_string<char,
+                      native_std::string::traits_type,
+                      native_std::string::allocator_type>(
+                          ZERO_CHAR, ONE_CHAR) == sY));
+#if __cplusplus >= 201103L
+              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+#endif
+              LOOP2_ASSERT(LINE, LINE2, X == Y);
+          }
       }
 
       if (verbose) cout << "\nTesting constructor with bslstl string"
@@ -814,18 +858,36 @@ int main(int argc, char *argv[])
           const unsigned int VALUE  = DATA[ti].d_value;
           const char *       STRING = DATA[ti].d_string;
 
-          if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
-
-//          Obj mX(bsl::string(STRING));         // fails to compile
-//          Obj mX(bsl::string(STRING), 0, ~0);  // works
-
           bsl::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
-
           if (veryVeryVerbose) { T_ T_ P(X) }
+
           LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
           LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+          LOOP_ASSERT(LINE, (X.to_string<char, bsl::string::traits_type, bsl::string::allocator_type>() == s));
+
+          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+
+              bsl::string sY = changeBitString(s, ZERO_CHAR, ONE_CHAR);
+              Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
+              const Obj& Y = mY;
+              if (veryVeryVerbose) { T_ T_ P(Y) }
+
+              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
+              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+              LOOP_ASSERT(LINE2, (Y.to_string<char, bsl::string::traits_type,
+                      bsl::string::allocator_type>() == s));
+              LOOP_ASSERT(LINE2, (X.to_string<char, bsl::string::traits_type,
+                      bsl::string::allocator_type>(ZERO_CHAR, ONE_CHAR) == sY));
+#if __cplusplus >= 201103L
+              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+#endif
+              LOOP2_ASSERT(LINE, LINE2, X == Y);
+          }
       }
 
     } break;
@@ -839,11 +901,14 @@ int main(int argc, char *argv[])
       // Concerns:
       //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
       //:   low bits of 'k'.
+      //:
+      //: 2 'bitset<N>(k)' can be used in a constant expression. (C++11 only).
       //
       // Plan:
       //   Construct bitsets of different sizes with different unsigned long
       //   arguments 'k', and check that all 'N' bits in the bitset match the
-      //   'N' lowest bits of 'k'.
+      //   'N' lowest bits of 'k'. Then repeat the same process except that
+      //   the construction and checks are done at compile time (C++11 only).
       //
       // TESTING:
       //  'unsigned long' construction.
@@ -883,11 +948,16 @@ int main(int argc, char *argv[])
       //:   0.
       //:
       //: 2 'bitset<N>' implies 'size()==N'.
+      //:
+      //: 3 'bitset<N>' has a constexpr default constructor.
       //
       // Plan:
       //   Default construct bitsets of different sizes and check 'size',
       //   'none', and 'any', then modify the first and last bits back and
       //   forth and make sure 'none' and 'any' report the expected results.
+      //   Also default construct the bitsets as constant expressions and use
+      //   the constexpr members 'size()' and 'operator[0]' to check the
+      //   invariants in a static_assert.
       //
       // TESTING:
       //  Default construction, 'size', 'none', 'any'

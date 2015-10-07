@@ -580,8 +580,16 @@ class bitset : Bitset_ImpBase<N> {
         // Toggle all bits of this bitset and return a reference to this
         // modifiable bitset.
 
+#if __cplusplus >= 201103L
+    template <class CHAR_TYPE = char,
+              class TRAITS = char_traits<CHAR_TYPE>,
+              class ALLOCATOR = allocator<CHAR_TYPE> >
+#else
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string() const;
+#endif
+    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string(
+                                            CHAR_TYPE zero = CHAR_TYPE('0'),
+                                            CHAR_TYPE one = CHAR_TYPE('1')) const;
         // Return a 'basic_string' representation of this bitset, where bit
         // value 1 is represented with '1' and bit value 0 is represented with
         // '0'.  The most-significant bit is placed at the beginning of the
@@ -1177,13 +1185,13 @@ std::size_t bitset<N>::count() const
 
 template <std::size_t N>
 template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> bitset<N>::to_string() const
+basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> bitset<N>::to_string(
+                                            CHAR_TYPE zero, CHAR_TYPE one) const
 {
-    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> str(N,
-                                                   TRAITS::to_char_type('0'));
+    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> str(N, zero);
     for (std::size_t i = 0; i < N; ++i) {
         if (this->operator[](i)) {
-            str[N - i - 1] = TRAITS::to_char_type('1');
+            str[N - i - 1] = one;
         }
     }
     return str;
