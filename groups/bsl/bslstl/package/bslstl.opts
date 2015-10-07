@@ -4,3 +4,6 @@
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
 !! *			_	STL_DEFINES	= -DBDE_NO_CPP_STDLIB -D_RWSTD_COMPILE_INSTANTIATE=1
 !! *			_	STL_INCLUDE	=
+
+# /bigobj is required to build the test driver of bslstl_hashtable.
+++ windows-*-*-*-cl-15.00  _  TESTDRIVER_BDEBUILD_CXXFLAGS  =  /bigobj
