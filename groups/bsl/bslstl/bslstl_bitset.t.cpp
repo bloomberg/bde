@@ -5,6 +5,8 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_compilerfeatures.h>
+
 #include <bsls_nativestd.h>
 
 #include <cstdlib>
@@ -210,8 +212,9 @@ namespace {
 template <int TESTSIZE>
 void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
 {
-    if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
+  if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
 
+  { // Runtime test
     bsl::bitset<TESTSIZE> v;
 
     ASSERT(TESTSIZE == v.size());
@@ -237,6 +240,12 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
 
     ASSERT(v.none());
     ASSERT(!v.any());
+  }
+  { // constexpr test
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+  constexpr bsl::bitset<TESTSIZE> v;
+#endif
+  }
 }
 
 template <int TESTSIZE>

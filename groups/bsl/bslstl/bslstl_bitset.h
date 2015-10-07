@@ -163,6 +163,14 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -308,7 +316,7 @@ class bitset {
 
   public:
     // CREATORS
-    bitset();
+    BSLS_CPP11_CONSTEXPR bitset();
         // Create a bitset with all bits initialized to 0.
 
     bitset(unsigned long val);
@@ -699,11 +707,17 @@ std::size_t bitset<N>::numOneSet(unsigned int src) const
 
 // CREATORS
 template <std::size_t N>
-inline
+inline BSLS_CPP11_CONSTEXPR
 bitset<N>::bitset()
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+  : d_data{0}
+{
+}
+#else
 {
     std::memset(d_data, 0, BITSETSIZE * BYTESPERINT);
 }
+#endif
 
 template <std::size_t N>
 bitset<N>::bitset(unsigned long val)
