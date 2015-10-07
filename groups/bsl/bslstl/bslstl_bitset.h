@@ -601,6 +601,10 @@ class bitset : Bitset_ImpBase<N> {
         // value when either the sequence or the value of bits they hold are
         // not the same.
 
+    bool all() const;
+        // Return 'true' if all of the bits in this bitset have the value of 1
+        // and 'false' otherwise.
+
     bool any() const;
         // Return 'true' if any of the bits in this bitset has the value of 1
         // and 'false' otherwise.
@@ -1157,6 +1161,17 @@ inline
 bool bitset<N>::operator!=(const bitset& rhs) const
 {
     return !operator==(rhs);
+}
+
+template <std::size_t N>
+bool bitset<N>::all() const
+{
+    for (std::size_t i = 0; i < BITSETSIZE; ++i) {
+        if (d_data[i] == 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 template <std::size_t N>

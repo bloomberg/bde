@@ -82,9 +82,10 @@ using namespace std;
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
 // [  ] bsl::string to_string() const
-// [  ] BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const
+// [ 3] BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const
 // [  ] bool operator==(std::size_t pos) const
 // [  ] bool operator!=(std::size_t pos) const
+// [  ] bool all() const
 // [ 3] bool any() const
 // [ 3] bool none() const
 // [ 2] BSLS_CPP11_CONSTEXPR std::size_t size() const
