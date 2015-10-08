@@ -153,10 +153,10 @@ void aSsErT(int c, const char *s, int i) {
 // In optimized builds, some compilers will elide some of the operations in the
 // destructors of the test classes defined below.  In order to force the
 // compiler to retain all of the code in the destructors, we provide the
-// following function that can be used to (conditionally) print out the state
-// of a 'my_ClassDef' data member.  If the destructor calls this function as
-// its last operation, then all values set in the destructor have visible
-// side-effects, but non-verbose test runs do not have to be burdened with
+// following function that can be used to (conditionally) print out some of the
+// state of a data member.  If the destructor calls this function after
+// updating a data member, then the value set in the destructor will have
+// visible side-effects, but normal test runs do not have to be burdened with
 // additional output.
 
 static bool forceDestructorCall = false;
