@@ -9373,7 +9373,7 @@ int main(int argc, char *argv[])
 
 //                     bslmt::ThreadUtil::microSleep(0, 1);
                     LOOP_ASSERT(LINE, 0 <= length);
-                    LOOP3_ASSERT(LINE, 
+                    LOOP3_ASSERT(LINE,
                                  SCRIPTS[i][j].d_numPendingRead,
                                  channel.numPendingReadOperations(),
                                  SCRIPTS[i][j].d_numPendingRead ==

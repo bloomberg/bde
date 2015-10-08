@@ -29,7 +29,7 @@ namespace BloombergLP {
 
 typedef bsl::map<const char *, int>  CategoryMap;
 
-namespace ball { 
+namespace ball {
 
 namespace {
                     // =====================
@@ -219,7 +219,7 @@ Category *CategoryManager::addCategory(
                                             triggerLevel,
                                             triggerAllLevel);
         if (categoryHolder) {
-            CategoryManagerImpUtil::linkCategoryHolder(category, 
+            CategoryManagerImpUtil::linkCategoryHolder(category,
                                                        categoryHolder);
         }
 
@@ -237,7 +237,7 @@ Category *CategoryManager::addCategory(
                                                       rule->triggerLevel(),
                                                       rule->triggerAllLevel());
                 if (threshold > category->ruleThreshold()) {
-                    CategoryManagerImpUtil::setRuleThreshold(category, 
+                    CategoryManagerImpUtil::setRuleThreshold(category,
                                                              threshold);
                 }
             }
@@ -343,7 +343,7 @@ Category *CategoryManager::setThresholdLevels(
                                                       rule->triggerLevel(),
                                                       rule->triggerAllLevel());
                 if (threshold > category->ruleThreshold()) {
-                    CategoryManagerImpUtil::setRuleThreshold(category, 
+                    CategoryManagerImpUtil::setRuleThreshold(category,
                                                              threshold);
                 }
             }
@@ -423,7 +423,7 @@ int CategoryManager::removeRule(const Rule& value)
             BSLS_ASSERT(numBits == RuleSet::maxNumRules());
             while((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
                                                                   != numBits) {
-                relevantRuleMask = 
+                relevantRuleMask =
                     bdlb::BitUtil::withBitCleared(relevantRuleMask, j);
 
                 const Rule *r = d_ruleSet.getRuleById(j);

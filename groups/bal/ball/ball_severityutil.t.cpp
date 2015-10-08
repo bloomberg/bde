@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
                 bool result = Util::isValidName(SEVERITYNAME);
                 LOOP_ASSERT(LINE, result == RESULT);
             }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED 
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 4: {
         // --------------------------------------------------------------------

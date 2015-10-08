@@ -138,10 +138,10 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // Then, we use 'bslmf::NthParameter' to implement 'my_tuple_element':
 //..
    #include <bslmf_nthparameter.h>
-  
+
    template <std::size_t I, class TUPLE>
    struct my_tuple_element;  // Not defined
-  
+
    template <std::size_t I, class... ELEMS>
    struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
@@ -150,15 +150,15 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // Finally, we test this implementation using 'bsl::is_same':
 //..
    #include <bslmf_issame.h>
-  
+
    int usageExample1()
    {
       typedef my_tuple<int, short, char*> ttype;
-  
+
       ASSERT((bsl::is_same<int,    my_tuple_element<0, ttype>::Type>::value));
       ASSERT((bsl::is_same<short,  my_tuple_element<1, ttype>::Type>::value));
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
-  
+
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
 
       return 0;
@@ -315,10 +315,10 @@ template <class ELEMS_01,
    };
 
    #include <bslmf_nthparameter.h>
-  
+
    template <std::size_t I, class TUPLE>
    struct my_tuple_element;
-  
+
    template <std::size_t I>
    struct my_tuple_element<I, my_tuple<> > {
        typedef typename bslmf::NthParameter<I>::Type Type;
@@ -510,15 +510,15 @@ template <class ELEMS_01,
    };
 
    #include <bslmf_issame.h>
-  
+
    int usageExample1()
    {
       typedef my_tuple<int, short, char*> ttype;
-  
+
       ASSERT((bsl::is_same<int,    my_tuple_element<0, ttype>::Type>::value));
       ASSERT((bsl::is_same<short,  my_tuple_element<1, ttype>::Type>::value));
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
-  
+
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
 
       return 0;
@@ -530,24 +530,24 @@ template <class ELEMS_01,
    class my_tuple {
    };
    #include <bslmf_nthparameter.h>
-  
+
    template <std::size_t I, class TUPLE>
    struct my_tuple_element;
-  
+
    template <std::size_t I, class... ELEMS>
    struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
    };
    #include <bslmf_issame.h>
-  
+
    int usageExample1()
    {
       typedef my_tuple<int, short, char*> ttype;
-  
+
       ASSERT((bsl::is_same<int,    my_tuple_element<0, ttype>::Type>::value));
       ASSERT((bsl::is_same<short,  my_tuple_element<1, ttype>::Type>::value));
       ASSERT((bsl::is_same<char *, my_tuple_element<2, ttype>::Type>::value));
-  
+
       ASSERT(! (bsl::is_same<short, my_tuple_element<0, ttype>::Type>::value));
 
       return 0;

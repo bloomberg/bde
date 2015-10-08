@@ -21,10 +21,10 @@ typedef HANDLE    ThreadId;
 static int rand_r(unsigned *seed) {
     unsigned int next = *seed;
     int result;
-    
+
     next *= 1103515245; next += 12345;
     result = (unsigned int) (next / 65536) % 2048;
-    
+
     next *= 1103515245; next += 12345;
     result <<= 10;
     result ^= (unsigned int) (next / 65536) % 1024;
@@ -209,7 +209,7 @@ extern "C" void *usageExampleFn(void *arg) {
 //
 // In particular, imagine we want a threadsafe "multi-queue". In this case,
 // we would have an array of queues, each with a SpinLock member for
-// fine-grained locking.  First, we define the type to be held in the array. 
+// fine-grained locking.  First, we define the type to be held in the array.
 template<typename TYPE>
 class LightweightThreadsafeQueue {
   // This type implements a threadsafe queue with a small memory
@@ -223,7 +223,7 @@ class LightweightThreadsafeQueue {
 
        Node(const TYPE& item) : d_item(item), d_next_p(0) {}
    };
-    
+
   // DATA
   Node           *d_front_p; // Front of queue, or 0 if empty
   Node           *d_back_p; // Back of queue, or 0 if empty
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
         // Concern:
         //: 1 The usage examples provided in the component header file compile,
         //:   link, and run as shown.
-        // 
+        //
         // Plan:
         //: 1 Place the block of code from usage example 1 in a function
         //:   to be executed by N threads. In the parallelizable region, sleep
@@ -373,16 +373,16 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) printf("Example 1...\n");
             enum { NUM_THREADS = 10 };
-            
+
             ThreadId threads[NUM_THREADS];
-            
+
             for (int i = 0; i < NUM_THREADS; ++i) {
                 threads[i] = createThread(&usageExampleFn, 0);
             }
             for (int i = 0; i < NUM_THREADS; ++i) {
                 joinThread(threads[i]);
             }
-            
+
             ASSERTV(usageExampleThreadCount,
                     0 == usageExampleThreadCount);
             ASSERTV(usageExampleMaxThreads,
@@ -406,10 +406,10 @@ int main(int argc, char *argv[])
                 threadIds[i] =
                     createThread(addToRandomQueues, threadParams + i);
             }
-            
+
             // Join the threads, then count the number of values pushed by
             // each thread into all queues. This should be exactly
-            // NUM_ITERATIONS for each. 
+            // NUM_ITERATIONS for each.
             int elementCount[NUM_THREADS];
             for (int i = 0; i < NUM_THREADS; ++i) {
                 joinThread(threadIds[i]);
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
                     ++elementCount[element.d_threadId - 1];
                 }
             }
-            
+
             for (int i = 0; i < NUM_THREADS; ++i) {
                 ASSERTV(i, elementCount[i],
                         NUM_ITERATIONS == elementCount[i]);

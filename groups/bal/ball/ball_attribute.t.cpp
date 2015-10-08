@@ -239,7 +239,7 @@ Obj::Value createValue(int type, int v1, Int64 v2, const char *v3)
     return variant;
 }
 
-bool compareText(bslstl::StringRef lhs, 
+bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
    // Return 'true' if the specified 'lhs' has the same value as the specified'

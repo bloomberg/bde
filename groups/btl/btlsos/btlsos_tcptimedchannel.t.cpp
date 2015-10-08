@@ -1134,15 +1134,14 @@ int processTest(btlsos::TcpTimedChannel     *channel,
     // specified 'commands' to invoke functions in the specified 'channel', or
     // the 'helperSocket' which is the control part of the socket pair.  If the
     // 'signals' is set, a thread taking the specified 'threadFunction'
-    // function will be 
-    // will be compared against those expected which are also specified in the
-    // 'commands'.  For a read operation, load either the specified 'buffer' or
-    // 'ioBuffer' corresponding to the request.  Note because the behaviors are
-    // different for "write" operations on different platform, the specified
-    // 'ioType' is to indicate that the type of the function being tested, e.g.
-    // it's a "read" or "write" operation so that different
-    //  testing configuration can be set on a specific platform.  For a write
-    // operation, write data from either 'buffer' or 'ioBuffer' or the
+    // function will be compared against those expected which are also
+    // specified in the 'commands'.  For a read operation, load either the
+    // specified 'buffer' or 'ioBuffer' corresponding to the request.  Note
+    // because the behaviors are different for "write" operations on different
+    // platform, the specified 'ioType' is to indicate that the type of the
+    // function being tested, e.g. it's a "read" or "write" operation so that
+    // different testing configuration can be set on a specific platform.  For
+    // a write operation, write data from either 'buffer' or 'ioBuffer' or the
     // specified 'oBuffer' corresponding to the request.  Return 0 on success,
     // and a non-zero value otherwise.
 {

@@ -516,14 +516,14 @@ void LoggerManager::initSingletonImpl(
 
 
         LoggerManager *singleton =  new (*allocator) LoggerManager(
-                                                                configuration, 
-                                                                observer, 
+                                                                configuration,
+                                                                observer,
                                                                 allocator);
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
 
         s_singleton_p = singleton;
-        
+
 
         // Configure 'bsls_log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
@@ -601,7 +601,7 @@ void LoggerManager::shutDownSingleton()
         LoggerManager *singleton = s_singleton_p;
 
         s_singleton_p = 0;
-        
+
         singleton->allocator()->deleteObjectRaw(singleton);
     }
 }
