@@ -157,9 +157,8 @@ using namespace bdlf::PlaceHolders;
 // [27] CONCERN: Read timeout
 // [28] TESTING: 'busyMetrics' and time metrics collection.
 // [28] CONCERN: Event Manager Allocation
-// [36] USAGE EXAMPLE 2
-// [37] (OLD) USAGE EXAMPLE my_QueueProcessor
-// [38] USAGE EXAMPLE 3
+// [30] Implementing a QueueProcessor
+// [37] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -1107,9 +1106,14 @@ void *connectFunction(void *args)
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> serverSockets(NT);
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> acceptSockets(NT);
 
+struct ListenData {
+    int d_index;
+};
+
 void *listenFunction(void *args)
 {
-    const int INDEX = (int) args;
+    ListenData data  = *(const ListenData *) args;
+    const int  INDEX = data.d_index;
 
     serverSockets[INDEX] = factory.allocate();
 
@@ -6824,7 +6828,7 @@ static void caseErrorPoolStateCb(int              poolState,
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-/// monitorPool, from usage example 2, is reused.
+/// monitorPool is reused.
 //-----------------------------------------------------------------------------
 
 static void monitorPool(bslmt::Mutex              *coutLock,
@@ -6856,267 +6860,7 @@ static void monitorPool(bslmt::Mutex              *coutLock,
     }
 }
 
-//-----------------------------------------------------------------------------
-/// Usage Example 1:
-// Appears unused
-//-----------------------------------------------------------------------------
-
-struct my_LocalCallback {
-    int d_status;
-    int d_id;
-    int d_channelExpected;
-    void connectCb(int, int id, int status, void *) {
-        MTCOUT << "Callback invoked" << MTENDL;
-        ASSERT(id == d_id);
-        ASSERT(d_status == status);
-    }
-};
-
-int usageExample1(bslma::Allocator *allocator) {
-    my_LocalCallback testCb;
-    btlmt::ChannelPoolConfiguration config;
-    config.setMaxThreads(2);
-    config.setMetricsInterval(10.0);
-
-    btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                bsl::allocator_arg_t(),
-                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
-                                                                    allocator),
-                bdlf::MemFnUtil::memFn(&my_LocalCallback::connectCb, &testCb));
-
-    btlmt::ChannelPool::PoolStateChangeCallback    poolCb;
-    btlmt::ChannelPool::BlobBasedReadCallback      dataCb;
-
-    testCb.d_id = 5;
-    testCb.d_status = btlmt::ChannelPool::e_CHANNEL_UP;
-    testCb.d_channelExpected = 1;
-    btlmt::ChannelPool pool(channelCb, dataCb, poolCb, config, allocator);
-    btlso::IPv4Address peer("127.0.0.1", 7); // echo server
-    if (0 != pool.connect(peer, 1, bsls::TimeInterval(10.0), 5)) {
-        // Some machines do not run an echo server
-        if (veryVerbose) {
-            cout << "The local host does not appear to be running "
-                 << "an echo server." << endl;
-        }
-        return 1;                                                     // RETURN
-    }
-    ASSERT(0 == pool.start());
-    enum { NUM_MONITOR = 5 };
-    MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
-    monitorPool(&coutMutex, pool, NUM_MONITOR, true);
-    MTCOUT << "Stopping the event manager" << MTENDL;
-    ASSERT(0 == pool.stop());
-    MTCOUT << "Exiting" << MTENDL;
-    return 0;
-}
-
-class my_Clock {
-    int   d_numInvocations;
-    int   d_totalNumber;
-    int   d_regId;
-    btlmt::ChannelPool *d_pool;
-  private:
-    void clockCb() {
-        if (++d_numInvocations == d_totalNumber) {
-            d_pool->deregisterClock(d_regId);
-        }
-    }
-  public:
-      my_Clock(int numCbs, btlmt::ChannelPool *pool, int Id)
-      : d_numInvocations(0)
-      , d_totalNumber(numCbs)
-      , d_pool(pool) {
-            bsl::function<void()> functor(
-                             bdlf::MemFnUtil::memFn(&my_Clock::clockCb, this));
-
-            d_regId = d_pool->registerClock(functor,
-                                            bdlt::CurrentTime::now(),
-                                            bsls::TimeInterval(0, 50000),
-                                            Id);
-            ASSERT(0 <= d_regId);
-        }
-      ~my_Clock();
-};
-
-my_Clock::~my_Clock() {
-    if (veryVerbose) {
-        P(d_numInvocations);
-        P(d_totalNumber);
-    }
-    ASSERT(d_numInvocations == d_totalNumber);
-}
-
-//-----------------------------------------------------------------------------
-// USAGE EXAMPLE 3: A variable-length-message echo server.
-//-----------------------------------------------------------------------------
-namespace USAGE_EXAMPLE_3_NAMESPACE {
-
-class vlm_EchoServer
-{
-    // A variable-length-message echo server.  Messages are formatted
-    // as a four-byte length value (in network byte order) followed
-    // by a null-terminated string.
-
-    enum { SERVER_ID = 1066 };
-
-    int    d_port;           // well-known port for service requests
-
-    bslma::Allocator   *d_allocator_p;
-    btlmt::ChannelPool *d_cp_p;
-
-  private:
-    // ChannelPool Callback Functions
-    void poolCB(int state, int source, int severity);
-    void chanCB(int channelId, int serverId, int state, void *arg);
-    void blobCB(int *numNeeded, btlb::Blob *msg, int channelId, void *arg);
-
-    // Not Implemented
-    vlm_EchoServer(const vlm_EchoServer&);
-    vlm_EchoServer& operator=(const vlm_EchoServer&);
-
-  public:
-    // CREATORS
-    vlm_EchoServer(int                port,
-                   bslma::Allocator  *allocator = 0);
-        // Create a server object which accepts connections
-        // on localhost at the specified by 'port'.  The server
-        // uses the specified 'allocator' for internal memory
-        // management.
-
-   ~vlm_EchoServer();
-        // Terminate all open connections, and destroy the server.
-
-    // MANIPULATORS
-    int start();
-        // Start the server.  Return 0 on success, and a non-zero value if
-        // an error occurred.  The server is started in listen-mode with a
-        // backlog equal to 'd_maxClients'.
-
-    int stop();
-        // Stop the server.  Immediately terminate all connections, but
-        // leave server in listen-mode.  Returns zero if successful,
-        // and non-zero if an error occurs.
-
-    // ACCESSORS
-    int portNumber();
-        // Return the port number on the local host on which this server
-        // listens to connections.
-};
-
-vlm_EchoServer::vlm_EchoServer(int port, bslma::Allocator *allocator)
-: d_port(port)
-, d_allocator_p(bslma::Default::allocator(allocator))
-{
-    enum { BUFSIZE = 1 << 10 };    // 1K buffers
-
-    btlmt::ChannelPool::PoolStateChangeCallback    poolCb(
-                   bsl::allocator_arg_t(),
-                   bsl::allocator<btlmt::ChannelPool::PoolStateChangeCallback>(
-                                                                d_allocator_p),
-                   bdlf::MemFnUtil::memFn(&vlm_EchoServer::poolCB, this));
-
-    btlmt::ChannelPool::ChannelStateChangeCallback channelCb(
-                bsl::allocator_arg_t(),
-                bsl::allocator<btlmt::ChannelPool::ChannelStateChangeCallback>(
-                                                                d_allocator_p),
-                bdlf::MemFnUtil::memFn(&vlm_EchoServer::chanCB, this));
-
-    btlmt::ChannelPool::BlobBasedReadCallback      dataCb(
-                     bsl::allocator_arg_t(),
-                     bsl::allocator<btlmt::ChannelPool::BlobBasedReadCallback>(
-                                                                d_allocator_p),
-                     bdlf::MemFnUtil::memFn(&vlm_EchoServer::blobCB, this));
-
-    btlmt::ChannelPoolConfiguration    cpc;
-    cpc.setMaxConnections(5);
-    cpc.setMaxThreads(1);
-    cpc.setMetricsInterval(10.0);
-    cpc.setIncomingMessageSizes(sizeof(int), 1<<8, 1024*2);
-
-    d_cp_p = new(*d_allocator_p)
-                 btlmt::ChannelPool(channelCb, dataCb, poolCb, cpc, allocator);
-}
-
-vlm_EchoServer::~vlm_EchoServer()
-{
-    d_cp_p->stop();
-    d_allocator_p->deleteObjectRaw(d_cp_p);
-}
-
-int vlm_EchoServer::start()
-{
-    int    src = d_cp_p->start();
-    int    lrc = d_cp_p->listen(d_port, 5, SERVER_ID);
-    btlso::IPv4Address address = getServerLocalAddress(d_cp_p, SERVER_ID);
-    d_port = address.portNumber();
-    return src || lrc;
-}
-
-int vlm_EchoServer::stop()
-{
-    return d_cp_p->stop();
-}
-
-int vlm_EchoServer::portNumber()
-{
-    btlso::IPv4Address address = getServerLocalAddress(d_cp_p, SERVER_ID);
-    return address.portNumber();
-}
-
-void vlm_EchoServer::poolCB(int, int, int)
-{
-}
-
-void vlm_EchoServer::chanCB(int channelId, int, int state, void *)
-{
-    if (btlmt::ChannelPool::e_CHANNEL_DOWN == state) {
-        d_cp_p->shutdown(channelId, btlmt::ChannelPool::e_IMMEDIATE);
-    }
-}
-
-void vlm_EchoServer::blobCB(int        *numNeeded,
-                            btlb::Blob *msg,
-                            int         ,
-                            void       *)
-{
-    ASSERT(numNeeded);
-    ASSERT(msg);
-
-    const int INT_SIZE = sizeof(int);
-    if (msg->length() < INT_SIZE) {
-        *numNeeded = INT_SIZE;
-        return;                                                       // RETURN
-    }
-
-    // Find Message Boundary
-
-    int length;
-    bslx::MarshallingUtil::getInt32(&length, msg->buffer(0).data());
-    ASSERT(0 < length);
-
-    if (length > msg->length() - INT_SIZE) {
-        *numNeeded = length - msg->length() + INT_SIZE;
-        return;                                                       // RETURN
-    }
-
-    *numNeeded = INT_SIZE;
-
-    // Process Request
-    ASSERT(1 == msg->numDataBuffers());
-    LOOP2_ASSERT(length, msg->length(),
-                 length == (int)(msg->length() - INT_SIZE));
-
-    btlb::BlobUtil::erase(msg, 0, length + INT_SIZE);
-//     d_cp_p->write(channelId, *msg);
-}
-
-
-}  // close namespace USAGE_EXAMPLE_3_NAMESPACE
-
-//-----------------------------------------------------------------------------
-/// USAGE EXAMPLE 2: queue-based message processor
-//-----------------------------------------------------------------------------
-namespace USAGE_EXAMPLE_2_NAMESPACE {
+namespace QUEUE_PROCESSOR_NAMESPACE {
 
 static
 int parseMessages(int *numNeeded, btlb::Blob *blob)
@@ -7381,12 +7125,9 @@ void my_QueueProcessor::blobCB(int          *numNeeded,
     }
 }
 
-}  // close namespace USAGE_EXAMPLE_2_NAMESPACE
+}  // close namespace QUEUE_PROCESSOR_NAMESPACE
 
-//-----------------------------------------------------------------------------
-/// USAGE EXAMPLE 2: echo server
-//-----------------------------------------------------------------------------
-namespace USAGE_EXAMPLE_2_NAMESPACE {
+namespace USAGE_EXAMPLE_NAMESPACE {
 
 ///Usage Example 2
 ///- - - - - - - -
@@ -7623,13 +7364,9 @@ namespace USAGE_EXAMPLE_2_NAMESPACE {
     }
 //..
 
-}  // close namespace USAGE_EXAMPLE_2_NAMESPACE
+}  // close namespace USAGE_EXAMPLE_NAMESPACE
 
-//-----------------------------------------------------------------------------
-/// ADDITIONAL USAGE EXAMPLE: queue-based client (used in case -1)
-//-----------------------------------------------------------------------------
-
-namespace USAGE_EXAMPLE_M1_NAMESPACE {
+namespace QUEUE_CLIENT_NAMESPACE {
 
 typedef bsl::pair<int, btlb::Blob> BlobTypeWithId;
 
@@ -7865,7 +7602,7 @@ void my_QueueClient::blobCB(int        *numNeeded,
     ASSERT(msg);
     ASSERT(0 < msg->length());
 
-    int numConsumed = USAGE_EXAMPLE_2_NAMESPACE::parseMessages(numNeeded, msg);
+    int numConsumed = QUEUE_PROCESSOR_NAMESPACE::parseMessages(numNeeded, msg);
 
     if (numConsumed) {
         BlobTypeWithId data(channelId, *msg);
@@ -7966,7 +7703,7 @@ void *usageExampleMinusOne(void *arg)
     return NULL;
 }
 
-}  // close namespace USAGE_EXAMPLE_M1_NAMESPACE
+}  // close namespace QUEUE_CLIENT_NAMESPACE
 
 
 // ============================================================================
@@ -7979,11 +7716,8 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase38();
-        // Test usage example 2.
-
     static void testCase37();
-        // Test usage example 1.
+        // Test usage example.
 
     static void testCase36();
         // Test the new constructor form that takes a BlobBufferFactory.
@@ -8110,11 +7844,10 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-
-void TestDriver::testCase38()
+void TestDriver::testCase37()
 {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // TESTING USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -8126,14 +7859,14 @@ void TestDriver::testCase38()
         //   example with calls to 'ASSERT'.
         //
         // Testing:
-        //   USAGE EXAMPLE 2
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << "\nTESTING USAGE EXAMPLE - AN ECHO SERVER"
                  << "\n======================================" << endl;
 
-        using namespace USAGE_EXAMPLE_2_NAMESPACE;
+        using namespace USAGE_EXAMPLE_NAMESPACE;
 
         enum {
             MAX_CONNECTIONS = 1000,
@@ -8146,30 +7879,6 @@ void TestDriver::testCase38()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
-}
-
-void TestDriver::testCase37()
-{
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and execute as shown.
-        //
-        // Plan:
-        //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'assert' in the usage
-        //   example with calls to 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 1
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE 1"
-                 << "\n=======================" << endl;
-
 }
 
 void TestDriver::testCase36()
@@ -8384,11 +8093,13 @@ void TestDriver::testCase35()
         }
 
         bslmt::ThreadUtil::Handle listenThreads[NT];
+        ListenData                listenData[NT];
 
         for (int i = 0; i < NT; ++i) {
+            listenData[i].d_index = i;
             ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                                   &listenFunction,
-                                                  (void *) i));
+                                                  (void *) &listenData[i]));
 
             bslmt::ThreadUtil::microSleep(100, 0);
         }
@@ -8916,8 +8627,8 @@ void TestDriver::testCase30()
             cout << "\nIMPLEMENTING A QUEUE PROCESSOR"
                  << "\n==============================" << endl;
 
-        using namespace USAGE_EXAMPLE_2_NAMESPACE;
-        using namespace USAGE_EXAMPLE_M1_NAMESPACE;
+        using namespace QUEUE_PROCESSOR_NAMESPACE;
+        using namespace QUEUE_CLIENT_NAMESPACE;
 
         if (verbose) {
             cout << "In another window, run this test driver's case -1, e.g.:";
@@ -14653,7 +14364,6 @@ void TestDriver::testCase4()
             // One server -- system specified port numbers.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            const btlmt::ChannelPool& X = mX;
             ASSERT(0 == mX.stop());
             int retCode = mX.listen(0, 1, 0);
             LOOP_ASSERT(retCode, 0 == retCode);
@@ -14679,7 +14389,6 @@ void TestDriver::testCase4()
             // Two servers -- system specified port numbers.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
-            const btlmt::ChannelPool& X = mX;
             ASSERT(0 == mX.stop());
             int retCode = mX.listen(0, 1, 0);
             LOOP_ASSERT(retCode, 0 == retCode);
@@ -14705,7 +14414,6 @@ void TestDriver::testCase4()
             // Two servers - duplicate IDs.
 
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config);
-            const btlmt::ChannelPool& X = mX;
             ASSERT(0 == mX.stop());
             int retCode = mX.listen(0, 1, 0);
             LOOP_ASSERT(retCode, 0 == retCode);
@@ -15051,7 +14759,7 @@ void TestDriver::testCase1()
 static void negativeCase1()
 {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST:  my_QueueClient
+        // TESTING a QueueClient
         //
         // Plan:
         //
@@ -15060,8 +14768,8 @@ static void negativeCase1()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING USAGE EXAMPLE - QUEUE PROCESSOR" << endl
-                          << "=======================================" << endl;
+                          << "TESTING QUEUE PROCESSOR" << endl
+                          << "=======================" << endl;
 
         if (verbose) {
             cout << "This test case (to be run manually) complements "
@@ -15075,7 +14783,7 @@ static void negativeCase1()
                  << " 3 = veryVeryVerbose)\n";
         }
 
-        using namespace USAGE_EXAMPLE_M1_NAMESPACE;
+        using namespace QUEUE_CLIENT_NAMESPACE;
 
         enum {
             DEFAULT_PORT_NUMBER = 2564,
@@ -15447,7 +15155,6 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
-      CASE(38);
       CASE(37);
       CASE(36);
       CASE(35);
