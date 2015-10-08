@@ -53,10 +53,7 @@ static void aSsErT(int c, const char *s, int i) {
 // verify that the tag is evaluated at compile-time
 
 template <int N>
-bslmf::Tag<static_cast<unsigned>(N)> tag() {
-    ASSERT(0);
-    return bslmf::Tag<static_cast<unsigned>(N)>();
-}
+bslmf::Tag<N> tag();
 
 enum {
     C0  = 1 + BSLMF_TAG_TO_INT(tag<0>()),  // 1
