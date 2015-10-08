@@ -6802,6 +6802,7 @@ int main(int argc, char *argv[])
 // to the code:
 //..
     ASSERT(3 == List::TypeList::LENGTH);
+    ASSERT(3 == List3::TypeList::LENGTH);
 //..
 // We can check whether the variant defaults to the unset state by using the
 // 'is<TYPE>' and 'typeIndex' methods:
@@ -7686,6 +7687,7 @@ int main(int argc, char *argv[])
 
         {
             enum { LENGTH = Obj::TypeList::LENGTH };
+            ASSERT(4 == LENGTH);
 
             Obj mXs[LENGTH]; Obj mYs[LENGTH];
             mXs[0].createInPlace<int>(INT_DATA[0]);

@@ -236,6 +236,7 @@ BSLS_IDENT("$Id: $")
 // to the code:
 //..
 //  assert(3 == List::TypeList::LENGTH);
+//  assert(3 == List3::TypeList::LENGTH);
 //..
 // We can check whether the variant defaults to the unset state by using the
 // 'is<TYPE>' and 'typeIndex' methods:
@@ -674,6 +675,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -691,6 +696,13 @@ BSLS_IDENT("$Id: $")
 #include <bsl_typeinfo.h>
 #endif
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#define BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+    // Note that this macro definition parallels that of a similar macro
+    // defined in 'bslmf_typelist.h'.
+#endif
 
 namespace BloombergLP {
 namespace bdlb {
@@ -2087,6 +2099,11 @@ void swap(VariantImp<TYPES>& a, VariantImp<TYPES>& b);
                        // class Variant<...>
                        // ==================
 
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+template <class ...TYPES>
+class Variant : public VariantImp<typename bslmf::TypeList<TYPES...>::ListType>
+                                                                              {
+#else
 template <class A1  = bslmf::Nil, class A2  = bslmf::Nil,
           class A3  = bslmf::Nil, class A4  = bslmf::Nil,
           class A5  = bslmf::Nil, class A6  = bslmf::Nil,
@@ -2102,6 +2119,7 @@ class Variant : public VariantImp<typename bslmf::TypeList<
                                           A6,  A7,  A8,  A9,  A10,
                                           A11, A12, A13, A14, A15,
                                           A16, A17, A18, A19, A20>::ListType> {
+#endif
     // This class provides a "variant" type, i.e., a type capable of storing
     // values from a list of template parameter types 'A1' to 'A20'.  Note that
     // if the number 'N' of types is smaller than 20, 'AN+1' up to 'A20'
@@ -2110,10 +2128,14 @@ class Variant : public VariantImp<typename bslmf::TypeList<
     // symbols and debug string information.
 
     // TYPES
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+    typedef VariantImp<typename bslmf::TypeList<TYPES...>::ListType> Imp;
+#else
     typedef VariantImp<typename bslmf::TypeList<A1,  A2,  A3,  A4,  A5,  A6,
                                                 A7,  A8,  A9,  A10, A11, A12,
                                                 A13, A14, A15, A16, A17, A18,
                                                 A19, A20>::ListType> Imp;
+#endif
 
     typedef VariantImp_Traits<typename Imp::TypeList>                Traits;
 
@@ -2179,6 +2201,56 @@ class Variant : public VariantImp<typename bslmf::TypeList<
 };
 
 // CREATORS
+#if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
+template <class ...TYPES>
+Variant<TYPES...>::Variant()
+{
+}
+
+template <class ...TYPES>
+template <class TYPE_OR_ALLOCATOR>
+Variant<TYPES...>::Variant(const TYPE_OR_ALLOCATOR& typeOrAlloc)
+: Imp(typeOrAlloc)
+{
+}
+
+template <class ...TYPES>
+template <class TYPE>
+Variant<TYPES...>::Variant(const TYPE&       value,
+                           bslma::Allocator *basicAllocator)
+: Imp(value, basicAllocator)
+{
+}
+
+template <class ...TYPES>
+Variant<TYPES...>::Variant(const Variant&    original,
+                           bslma::Allocator *basicAllocator)
+: Imp(static_cast<const Imp &>(original), basicAllocator)
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+{
+}
+
+template <class ...TYPES>
+template <class TYPE>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(const TYPE& value)
+{
+    Imp::operator=(value);
+    return *this;
+}
+
+template <class ...TYPES>
+inline
+Variant<TYPES...>& Variant<TYPES...>::operator=(const Variant& rhs)
+{
+    // Up-cast needed since template matching has higher overloading precedence
+    // than derived-to-base matching.
+
+    Imp::operator=(static_cast<const Imp&>(rhs));
+    return *this;
+}
+#else
 template <class A1,  class A2,  class A3,  class A4,  class A5,  class A6,
           class A7,  class A8,  class A9,  class A10, class A11, class A12,
           class A13, class A14, class A15, class A16, class A17, class A18,
@@ -2258,6 +2330,11 @@ Variant<A1,  A2,  A3,  A4,  A5,  A6,  A7,  A8, A9, A10, A11, A12,
     Imp::operator=(static_cast<const Imp&>(rhs));
     return *this;
 }
+#endif
+
+#ifdef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#undef BDLB_VARIANT_USING_VARIADIC_TEMPLATES
+#endif
 
                        // ===================
                        // class Variant2<...>
