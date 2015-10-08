@@ -675,9 +675,14 @@ bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
 
 bsls::AtomicInt numUpConnections(0);
 
+struct ListenData {
+    int d_index;
+};
+
 void *listenFunction(void *args)
 {
-    const int INDEX = (int) args;
+    ListenData data  = *(const ListenData *) args;
+    const int  INDEX = data.d_index;
 
     btlso::StreamSocket<btlso::IPv4Address> *serverSocket = factory.allocate();
     serverSockets[INDEX] = serverSocket;
@@ -736,10 +741,14 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
 
     numUpConnections = 0;
 
+    ListenData listenData[NUM_THREADS];
+
     for (int i = 0; i < NUM_THREADS; ++i) {
+        listenData[i].d_index = i;
+
         ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                               &listenFunction,
-                                              (void *) i));
+                                              (void *) &listenData[i]));
         bslmt::ThreadUtil::microSleep(100, 0);
     }
 
