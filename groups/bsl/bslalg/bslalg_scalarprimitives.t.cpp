@@ -1300,8 +1300,6 @@ int main(int argc, char *argv[])
 
     forceDestructorCall = veryVeryVerbose;
 
-    (void)veryVeryVerbose;      // suppress warning
-
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
