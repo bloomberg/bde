@@ -3855,9 +3855,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMOVE CONSTRUCTORS"
                             "\n=================\n");
 
-        // Test that small-object buffer and total footprint are as expected.
         typedef bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
-#ifdef BSLS_PLATFORM_OS_DARWIN
+
+        // Test that the small-object buffer meets the minimum size constraints.
+
+        LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
+                     sizeof(MaxAlignedType),
+                     sizeof(SmallObjectBuffer) >= 6 * sizeof(void*));
+
+        // Test our assumptions about the platform specific small-object buffer 
+        // size.  Note that this test is platform specific.
+
+#if BSLS_PLATFORM_OS_DARWIN && BSLS_PLATFORM_CPU_32_BIT
+        // Max aligned type is 16 bytes on OSX, clang, 32 bit builds.
+
         LOOP3_ASSERT(sizeof(SmallObjectBuffer), sizeof(void*),
                      sizeof(MaxAlignedType),
                      sizeof(SmallObjectBuffer) == 8 * sizeof(void*));
