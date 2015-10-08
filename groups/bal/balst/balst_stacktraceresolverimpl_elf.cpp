@@ -1,4 +1,12 @@
 // balst_stacktraceresolverimpl_elf.cpp                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <balst_stacktraceresolverimpl_elf.h>
 
 #include <bsls_ident.h>

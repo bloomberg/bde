@@ -1,5 +1,13 @@
 // balxml_encodingstyle.cpp   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_encodingstyle_cpp,"$Id$ $CSID$ $CCId$")
 

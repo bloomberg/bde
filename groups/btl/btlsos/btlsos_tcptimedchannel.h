@@ -1,4 +1,12 @@
 // btlsos_tcptimedchannel.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSOS_TCPTIMEDCHANNEL
 #define INCLUDED_BTLSOS_TCPTIMEDCHANNEL
 

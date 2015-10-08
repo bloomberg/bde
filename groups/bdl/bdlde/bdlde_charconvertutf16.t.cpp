@@ -1,5 +1,13 @@
 // bdlde_charconvertutf16.t.cpp                                       -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bdlde_charconvertutf16.h>
 
 #include <bdlde_charconvertstatus.h>

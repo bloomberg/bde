@@ -1,4 +1,12 @@
 // bdls_processutil.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLS_PROCESSUTIL
 #define INCLUDED_BDLS_PROCESSUTIL
 

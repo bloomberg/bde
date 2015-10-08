@@ -1,4 +1,12 @@
 // ball_loggermanager.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_LOGGERMANAGER
 #define INCLUDED_BALL_LOGGERMANAGER
 

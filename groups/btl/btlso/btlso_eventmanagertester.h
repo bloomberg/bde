@@ -1,4 +1,12 @@
 // btlso_eventmanagertester.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_EVENTMANAGERTESTER
 #define INCLUDED_BTLSO_EVENTMANAGERTESTER
 

@@ -1,4 +1,12 @@
 // bdls_memoryutil.cpp                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <bdls_memoryutil.h>
 
 #include <bsls_ident.h>

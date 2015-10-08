@@ -1,5 +1,13 @@
 // ball_loggermanager.t.cpp                                           -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_loggermanager.h>
 
 #include <ball_defaultobserver.h>               // for testing only

@@ -1,5 +1,13 @@
 // btls_reservationguard.t.cpp                                        -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <btls_reservationguard.h>
 
 #include <btls_leakybucket.h>  // for testing only

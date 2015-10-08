@@ -1,5 +1,13 @@
 // balm_publicationtype.t.cpp                                         -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balm_publicationtype_t_cpp,"$Id$ $CSID$")
 

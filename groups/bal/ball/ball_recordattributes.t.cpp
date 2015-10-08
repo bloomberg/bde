@@ -1,5 +1,13 @@
 // ball_recordattributes.t.cpp                                        -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_recordattributes.h>
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only

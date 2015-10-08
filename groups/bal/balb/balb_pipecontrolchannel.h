@@ -1,4 +1,12 @@
 // balb_pipecontrolchannel.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALB_PIPECONTROLCHANNEL
 #define INCLUDED_BALB_PIPECONTROLCHANNEL
 
