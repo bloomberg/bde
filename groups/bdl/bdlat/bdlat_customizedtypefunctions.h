@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 // The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::Cusip' as a "customized" type.
 //
-/// Shorter usage
+///Shorter Usage
 ///- - - - - - -
 // We can bypass all the code from the longer usage example by simply
 // declaring 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType'

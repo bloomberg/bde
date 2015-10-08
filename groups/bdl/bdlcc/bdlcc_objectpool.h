@@ -220,7 +220,7 @@ BSLS_IDENT("$Id: $")
 // use object pool to *pool* the database connections.
 //
 ///Object Pool Creation and Functor Argument
-/// - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - -
 // In order to create an object pool, we may specify, at construction time, a
 // functor encapsulating object creation.  The pool invokes this functor to
 // create an object in a memory location supplied by the allocator specified at
@@ -240,7 +240,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Creating an Object Pool that Constructs Non-Default Objects
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, if we decide that connection IDs must be supplied to
 // objects allocated from the pool, we must define a function which invokes
 // placement new appropriately.  When using a custom creator functor, it is the

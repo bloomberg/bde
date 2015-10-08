@@ -114,8 +114,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///struct 'my_Connection'
-///- - - - - - - - - - -
+///'struct my_Connection'
+/// - - - - - - - - - - -
 // The 'my_Connection' structure is used by 'my_Server' to manage a single
 // physical connection on behalf of a 'my_Session'.
 //..

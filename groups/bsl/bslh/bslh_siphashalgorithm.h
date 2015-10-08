@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // to protect a hash table from malicious Denial of Service (DoS) attacks.
 //
 ///Denial of Service (DoS) Protection
-/// - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Given a cryptographically secure seed, this algorithm will produce hashes
 // with a distribution that is indistinguishable from random.  This
 // distribution means that there is no way for an attacker to predict which

@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///The "void function/void pointer" Interface
-///- - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - -
 // 'myFastSearchJob' is the search function to be executed as a job by threads
 // in the thread pool, matching the "void function/void pointer" interface.
 // The single 'void *' argument is received and cast to point to a 'struct

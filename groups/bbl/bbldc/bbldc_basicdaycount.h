@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Definition and Use of a Concrete Day-Count Convention
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows the definition and use of a simple concrete day-count
 // convention.  This functionality suffices to demonstrate the requisite steps
 // for having a working day-count convention:

@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // used in the "Raw" API of this class and must be used carefully.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
-/// - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - -
 // This component was written after 'bdlmt_timereventscheduler', which suffered
 // from a couple of short-comings: 1) there was a maximum number of events it
 // could manage, and 2) it was inefficient at dealing with large numbers of
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // will be executed at or near their scheduled times.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which times supplied to other methods should be based.
 // If the clock type indicated at construction is

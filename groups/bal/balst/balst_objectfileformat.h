@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show the intended usage of this component.
 //
 ///Example 1: Accessing 'balst::ObjectFileFormat' Information at Run Time
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The templated (specialized) 'typeTest' function returns a unique, non-zero
 // value when passed an object of types
 // 'balst::ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.

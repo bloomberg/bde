@@ -324,7 +324,7 @@ BSLS_IDENT("$Id: $")
 // all relevant records.
 //
 ///'bsls::Log' Logging Redirection
-///------------------------------
+///-------------------------------
 // The 'ball::LoggerManager' singleton, on construction, will redirect the
 // 'bsls::Log' records to 'ball' in the log category 'BSLS.LOG' at the severity
 // level 'ERROR'.  Upon its destruction the logger manager singleton will

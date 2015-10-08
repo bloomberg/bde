@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // identifier.
 //
 ///Properties of a Populated 'baltzo::Zoneinfo'
-///-------------------------------------------
+///--------------------------------------------
 // Implementations of 'baltzo::Loader' must return a 'baltzo::Zoneinfo' object
 // that is well-formed (see 'baltzo::ZoneinfoUtil::isWellFormed'), and whose
 // 'identifier' property matches the requested time zone id.  Implementations
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'baltzo::Loader'
-///- - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an implementation of 'baltzo::Loader' that can
 // only return data for "America/New_York".
 //

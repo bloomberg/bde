@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // sub-sections describe these traits and their affects on printing.
 //
 ///Effect of 'bdlb::TypeTraitHasPrintMethod' Trait
-/// - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bdlb::TypeTraitHasPrintMethod' trait, then it
 // must provide a 'print' method with the following signature:
 //..
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Effect of 'bslalg::TypeTraitHasStlIterators' Trait
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bslalg::TypeTraitHasStlIterators' trait, then
 // it must provide access to iterators using the standard STL protocol.  The
 // BDE implementation of STL declares this trait for all STL container types
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // the container.
 //
 ///Effect of 'bslalg::TypeTraitPair' Trait
-/// - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - -
 // If a class 'X' declares the 'bslalg::TypeTraitPair' trait, then the class
 // must contain two 'public' data members named 'first' and 'second'.  The BDE
 // implementation of STL declares this trait for the 'bsl::pair' 'struct'.

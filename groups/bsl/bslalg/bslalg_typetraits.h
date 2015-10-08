@@ -216,7 +216,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Generic Container Implementation
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // With these utilities, we can now implement 'MyGenericContainer'.
 //..
 //  // CREATORS
@@ -266,7 +266,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Usage Verification
-///- - - - - - - - -
+/// - - - - - - - - -
 // We can check that our container actually forwards the correct allocator to
 // its contained objects with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that

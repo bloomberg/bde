@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // otherwise (see-below).
 //
 ///What Classes Are Not Bitwise Moveable?
-///---------------------------------------
+///--------------------------------------
 // A class that has any of the following attributes is !not! bitwise
 // moveable:
 //

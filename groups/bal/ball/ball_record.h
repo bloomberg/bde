@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // thread-safe.
 //
 ///Usage
-///------
+///-----
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Use of 'ball::Record'

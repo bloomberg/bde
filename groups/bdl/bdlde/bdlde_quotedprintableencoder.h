@@ -42,14 +42,14 @@ BSLS_IDENT("$Id: $")
 // The data stream is processed one byte at a time from left to right as
 // follows:
 //
-///1. General 8-bit representation
+///1. General 8-Bit Representation
 ///- - - - - - - - - - - - - - - -
 // Any 8-bit input character, except a CR or LF, *may* be represented by an "="
 // followed by a 2-digit hexadecimal representation of its ASCII value.  Only
 // uppercase hexadecimal digits are allowed.  For example, the letter 'n' can
 // be encoded into '=6E'.
 //
-///2. Literal representation
+///2. Literal Representation
 ///- - - - - - - - - - - - -
 // Characters with decimal values in the range [33..126], with the exception of
 // 61 ('='), *may* be represented literally as they appear before encoding.
@@ -68,12 +68,12 @@ BSLS_IDENT("$Id: $")
 // in a Quoted-Printable body must necessarily be added by intermediate
 // transport agents and must be deleted during decoding.
 //
-///4. Line breaks
-///- - - - - - -
+///4. Line Breaks
+/// - - - - - - -
 // A line break must be represented in the Quoted-Printable encoding as in rule
 // number 1, i.e., LF -> =0A; CR -> =0D.
 //
-///5. Soft Line breaks
+///5. Soft Line Breaks
 ///- - - - - - - - - -
 // Encoded lines are required to be no longer than 76 characters in this
 // encoding scheme.  Soft line breaks in the form of an '=' sign placed at the
@@ -116,8 +116,8 @@ BSLS_IDENT("$Id: $")
 // made for this implementation.  Note that there is a hard line break at the
 // 77th character position, immediately after "dozing".
 //
-///Example 1:
-///- - - - - -
+///Example 1
+///- - - - -
 // Data:
 //..
 // From point A to point B, the distance is 1245.56 miles.  Driving at a dozing
@@ -132,8 +132,8 @@ BSLS_IDENT("$Id: $")
 // to complete the trip.
 //..
 //
-///Example 2:
-///- - - - - -
+///Example 2
+///- - - - -
 // Data:
 //..
 // Hello, world.
@@ -156,15 +156,15 @@ BSLS_IDENT("$Id: $")
 //
 // The decoding process for this encoding scheme involves:
 //
-// 1. transforming any encoded character triplets back into their original
-// representation (rule #1 and rule #4).
-//
-// 2. literally writing out characters that have not been changed (rule #2).
-//
-// 3. deleting any trailing whitespace at the end of an encoded line (rule #3).
-//
-// 4. removing the soft line breaks including the '=' prefix (i.e.,
-// concatenating broken sentences) (rule #5).
+//: 1 transforming any encoded character triplets back into their original
+//:   representation (rule #1 and rule #4).
+//:
+//: 2 literally writing out characters that have not been changed (rule #2).
+//:
+//: 3 deleting any trailing whitespace at the end of an encoded line (rule #3).
+//:
+//: 4 removing the soft line breaks including the '=' prefix (i.e.,
+//:   concatenating broken sentences) (rule #5).
 //
 // The standard imposes a maximum of 76 characters exclusive of CRLF; however,
 // the decoder implemented in this component will handle lines of arbitrary

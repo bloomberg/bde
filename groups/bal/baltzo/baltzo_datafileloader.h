@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 // 'test' directory.
 //
 ///Example 2: Using a 'baltzo::DataFileLoader' to Load a Zoneinfo File
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to use a 'baltzo::DataFileLoader' to load
 // a time-zone data file into a 'baltzo::Zoneinfo' object.  We start by
 // creating a 'baltzo::DataFileLoader' object, 'loader', and configure it with

@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // protocol.
 //
 ///Example 1: An Implementation of 'ball::AttributeContainer'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we develop a 'ball::AttributeContainer'
 // implementation specifically intended for a service offline that will perform
 // rule-based logging, governed by the service client's bloomberg "uuid",
@@ -142,7 +142,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: A Generic Implementation of 'ball::AttributeContainer'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this second example we define a 'ball::AttributeContainer' that can
 // contain any valid 'ball::Attribute' value (a "generic"
 // 'ball::AttributeContainer').  In practice, an implementation that can

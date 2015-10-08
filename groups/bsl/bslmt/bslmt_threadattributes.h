@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating and modifying thread attributes objects
+///Example 1: Creating and Modifying Thread Attributes Objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will demonstrate creating and configuring a
 // 'bslmt::ThreadAttributes' object, then using it with a hypothetical

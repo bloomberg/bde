@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.                     
 //
 ///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipool' can be used by containers that hold different
 // types of elements, each of uniform size, for efficient memory allocation of
 // new elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -377,7 +377,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Implementing an Allocator Using 'bdlma::ConcurrentMultipool'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple

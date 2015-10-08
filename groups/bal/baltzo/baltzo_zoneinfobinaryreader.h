@@ -179,7 +179,7 @@ BSLS_IDENT("$Id: $")
 // supplied binary data.
 //
 ///Additional Information
-///- - - - - - - - - - -
+/// - - - - - - - - - - -
 // Additional documentation for the Zoneinfo file format can be found at
 // various places on the internet:
 //

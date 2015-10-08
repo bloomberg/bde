@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which times supplied to other methods should be based.
 // If the clock type indicated at construction is

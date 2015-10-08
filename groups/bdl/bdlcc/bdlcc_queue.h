@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // not an invariant.
 //
 ///Use of the 'bdlc::Queue' Interface
-///---------------------------------
+///----------------------------------
 // Class 'bdlcc::Queue' provides access to an underlying 'bdlc::Queue', so
 // clients of 'bdlcc::Queue' have full access to the interface behavior of
 // 'bdlc::Queue' to inspect and modify the 'bdlcc::Queue'.

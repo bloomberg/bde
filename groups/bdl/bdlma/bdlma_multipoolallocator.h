@@ -272,7 +272,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Performance of a 'bdlma::MultipoolAllocator'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::MultipoolAllocator' can greatly improve efficiency when it is used
 // to supply memory to node-based data structures that frequently both insert
 // and remove nodes, while growing to significant size before being destroyed.

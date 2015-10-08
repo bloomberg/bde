@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // time and hold time.  This class can be used, for example, in evaluating the
 // performance of an application, based on its lock contention behavior.
 //
-///Precise definitions of wait and hold time
+///Precise Definitions of Wait and Hold Time
 ///-----------------------------------------
 // Wait time is defined as the sum of the time intervals between each call to
 // 'lock' (or 'tryLock') on the underlying mutex and the return of that call.
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // to a mutex) to update these times atomically.
 //
 ///Inaccuracy of 'waitTime' and 'holdTime'
-///--------------------------------------
+///---------------------------------------
 // Times reported by 'waitTime' and 'holdTime' are (close) approximate times
 // and *not* 100% accurate.  This inaccuracy can sometime cause surprising
 // behavior.  For example, one can incorrectly assume 'lock()' and

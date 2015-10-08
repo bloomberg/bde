@@ -43,7 +43,7 @@ BSLS_IDENT("$Id$")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'bdlma::AlignedAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'bdlma::AlignedAllocator' protocol provided in this component defines a
 // bilateral contract between suppliers and consumers of raw aligned memory.
 // In order for the 'bdlma::AlignedAllocator' interface to be useful, we must
@@ -197,8 +197,8 @@ BSLS_IDENT("$Id$")
 //..
 // Note that the memory is not released when the allocator goes out of scope.
 //
-///Example 2: Using the 'bdlma::AlignedAllocator' protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Using the 'bdlma::AlignedAllocator' Protocol
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate how to use the 'bdlma::AlignedAllocator'
 // protocol to allocate memory that is aligned to the beginning of a memory
 // page.  Third party libraries, for example device drivers that perform DMA

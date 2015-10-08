@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // advanced realtime POSIX extensions (e.g., 'sem_timedwait').
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is

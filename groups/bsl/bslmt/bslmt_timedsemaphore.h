@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // method is *intentionally* not provided.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is

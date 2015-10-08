@@ -83,7 +83,7 @@ BSLS_IDENT("$Id: $")
 //:     has not yet been released, or a 'bdlcc::SkipListPairHandle' object.
 //
 ///"R" Methods: Optimized Search From The Back Of The List
-///------------------------------------------------------
+///-------------------------------------------------------
 // All methods of 'bdlcc::SkipList' that result in a search through the list
 // have corresponding "R" versions: for example, there are 'add' and 'addR'
 // methods, 'find' and 'findR' methods, etc.  The "R" versions of these methods

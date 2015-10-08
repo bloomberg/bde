@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // the default constructor of 'ball::RecordAttributes'.
 //
 ///Usage
-///------
+///-----
 // This section illustrates intended use of this component.                     
 //
 ///Example 1: Syntax

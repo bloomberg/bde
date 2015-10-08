@@ -81,8 +81,8 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == strncmp("The answer is 42.", storage, 17));
 //..
 //
-///Example 2: Fixed buffer's size illustration
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Fixed buffer's Size Illustration
+///- - - - - - - - - - - - - - - - - - - - - -
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
 // 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
 // constructor together with the address of the storage buffer.  That limit

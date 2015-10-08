@@ -293,12 +293,11 @@ BSLS_IDENT("$Id: $")
 //                                                     &singleArgumentFunction,
 //                                                     _2));
 //      assert(10 == marker);
-//..
 //  }
 //..
 //
 ///Duplicating Parameters
-///- - - - - - - - - - -
+/// - - - - - - - - - - -
 // A place-holder can be specified multiple times, effectively passing the same
 // value to different arguments of the function.  The value will be evaluated
 // only once.  To illustrate this, consider another example that reuses the

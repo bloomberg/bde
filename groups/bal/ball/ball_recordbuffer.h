@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Implementation Notes
-///- - - - - - - - - - -
+/// - - - - - - - - - -
 // Recursive mutex (rather than plain mutex) is chosen to provide thread
 // safety.  This allows the manipulation of the record buffer between the call
 // to 'beginSequence' and 'endSequence'.  If we had used plain mutex, calling

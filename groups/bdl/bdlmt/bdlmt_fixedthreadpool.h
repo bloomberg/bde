@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 // multiple threads, access to the array is controlled via a 'bslmt::Mutex'.
 //
 ///Setting FixedThreadPool Attributes
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // To get started, we declare thread attributes, to be used in constructing the
 // thread pool.  In this example, our choices for number of threads and queue
 // capacity are arbitrary.
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///The "void function/void pointer" Interface
-///- - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - -
 // 'myFastSearchJob' is the search function to be executed as a job by threads
 // in the thread pool, matching the "void function/void pointer" interface.
 // The single 'void *' argument is received and cast to point to a 'struct

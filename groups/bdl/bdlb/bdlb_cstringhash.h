@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Use of 'bdlb::CStringHash'
-/// - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need an associative container to store some objects, uniquely
 // identified by C-strings.   The following code illustrates how to use
 // 'bdlb::CStringHash' as a hash function for the standard container

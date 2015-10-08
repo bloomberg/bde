@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Creation and Use of a 'baltzo::LocalDatetime' Object
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we default-construct a 'baltzo::LocalDatetime' object:
 //..
 //  baltzo::LocalDatetime localDatetime;

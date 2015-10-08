@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Base Class For Metafunctions
-/// - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - -
 // Hard-coding the value of an 'integral_constant' is not especially useful.
 // Rather, 'integral_constant' is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
