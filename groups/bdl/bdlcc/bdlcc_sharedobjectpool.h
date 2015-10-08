@@ -357,8 +357,7 @@ class SharedObjectPool {
                             ObjectPoolFunctors::Reset<RepType> >
                                                            PoolType;
 
-    typename OPCP<CREATOR>::template X<TYPE>::TYPE
-    //ObjectPool_CreatorProxy<CREATOR, TYPE>
+    typename ObjectPool_ProxyPicker<CREATOR>::template Selector<TYPE>::Proxy
                                 d_objectCreator; // functor for object creation
 
     bslalg::ConstructorProxy<RESETTER>
