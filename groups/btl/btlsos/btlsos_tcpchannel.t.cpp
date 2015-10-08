@@ -2252,8 +2252,6 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case 9: {
-// TBD FIX ME
-#ifndef BSLS_PLATFORM_OS_SOLARIS
         // -------------------------------------------------------------------
         // TESTING 'writeRaw' METHOD:
         //
@@ -2315,6 +2313,8 @@ int main(int argc, char *argv[]) {
             QT("Testing 'writeRaw' method");
             QT("=========================");
         }
+        // TBD FIX ME
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_OS_WINDOWS)
         {
             TestCommand COMMANDS_SET[][k_MAX_CMD] =
             //line   command    numToUse   interruptFlags   expRet   expAugStat

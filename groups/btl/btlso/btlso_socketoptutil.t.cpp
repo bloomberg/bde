@@ -670,7 +670,10 @@ int main(int argc, char *argv[])
                   {   L_,   "LN",         0, 0 },
                   {   L_,   "LY",         0, 0 },
 #endif
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
                   {   L_,   "NN",         0, -1 },
+#endif
                   {   L_,   "NY",         0, -1 },
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
