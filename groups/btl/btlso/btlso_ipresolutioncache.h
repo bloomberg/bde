@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Using Address Cache with 'btlso::ResolveUtil'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to configure the 'bteso::ResolverUtil'
 // component to use a 'btlso::IpResolutionCache' object for resolving IP
 // addresses.

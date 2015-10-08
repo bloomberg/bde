@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::stringbuf' with a user-defined 'STREAMBUF'.
 //
 ///Example 1: Basic Externalization
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // A 'bslx::GenericOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 // example of using 'bslx' streams.
 //
 ///Example 2: Sample 'STREAMBUF' Implementation
-///- - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - -
 // For this example, we will implement 'MyOutStreamBuf', a minimal 'STREAMBUF'
 // to be used with 'bslx::GenericOutStream'.  The implementation will consist
 // of only what is required of the type and two accessors to verify correct

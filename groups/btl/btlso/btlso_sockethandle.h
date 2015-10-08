@@ -25,8 +25,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a socket class
-///- - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing a Socket Class
+/// - - - - - - - - - - - - - - - - - - -
 // Writing portable software involves providing a generic interface while
 // specializing implementations to work with platform-provided interfaces.  As
 // an example, we provide a platform-independent socket 'class', 'my_Socket'

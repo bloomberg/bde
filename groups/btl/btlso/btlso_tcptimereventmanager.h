@@ -102,8 +102,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a command mediator
-///- - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing a Command Mediator
+/// - - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows the implementation of a command mediator.
 // Given that this event manager is not thread enabled, a workaround is
 // required if we are to use this manager in a multithreaded program.  Let's

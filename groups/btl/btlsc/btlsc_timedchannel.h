@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // method call the 'btlsc::Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
-///- - - -
+/// - - - -
 // A timeout is registered by the caller, when a method is invoked, as a
 // 'bsls::TimeInterval' value indicating the absolute *system* time after which
 // the operation should be interrupted.  A timeout expiration will return a
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // will be attempted, but will not block.
 //
 ///Raw Transmissions Cannot Produce "Partial Results"
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // All read and unbuffered write methods support a "raw" variant in which the
 // operation is allowed to return after transmitting at least one byte, but
 // less than a "partial result" if (1) *at* *least* *one* *byte* has been

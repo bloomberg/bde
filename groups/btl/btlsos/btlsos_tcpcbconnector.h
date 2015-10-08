@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.                     
 //
 ///Example 1: An Example Echo Client
-///- - - - - - - - - -  - - - - - -
+///- - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of an echo
 // client.  An echo client sends connection requests to an echo server, and for
 // every connection, sends and receives data.  Various configuration parameters

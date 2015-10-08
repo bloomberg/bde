@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 // integer 'flags' argument to the method call.
 //
 ///Timeouts
-///- - - -
+/// - - - -
 // A timeout is registered by the caller, when a method is invoked, as a
 // 'bsls::TimeInterval' value indicating the absolute *system* time after which
 // the operation should be interrupted.  A timeout expiration will result in a

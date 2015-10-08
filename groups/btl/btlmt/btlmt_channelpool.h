@@ -209,8 +209,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Establishing a connection
-///- - - - - - - - - - - - - - - - - -
+///Example 1: Establishing a Connection
+/// - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to establish connection
 // to a remote host.  First of all, we need to create a callback to be invoked
 // once the channel status change (i.e., a new connection is established, in
@@ -284,8 +284,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: Implementing an echo server
-///- - - - - - - - - - - - - - - - - - -
+///Example 2: Implementing an Echo Server
+/// - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a multi-user
 // echo server.  An echo server accepts connections and, for every connection,
 // sends any received data back to the client (until the connection is

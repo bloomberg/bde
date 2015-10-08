@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a timed socket multiplexer
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing a Timed Socket Multiplexer
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the implementation of periodic timed
 // socket events using the (separate) timer and socket event registration
 // mechanisms provided by 'btlso::TimerEventManager', such that a

@@ -37,7 +37,7 @@ BSLS_IDENT("$: $")
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Wrapping a C++ Invokable Type
-///- - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have an existing interface for invoking a C-linkage function and
 // passing a void* argument to it.  This situation may arise when starting
 // threads or in general when registering a C-style callback.  A simplistic

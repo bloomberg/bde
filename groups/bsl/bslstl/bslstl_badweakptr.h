@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: ...
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: TBD
+/// - - - - - - -
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

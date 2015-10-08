@@ -290,7 +290,7 @@ BSLS_IDENT("$Id: $")
 // the representation object, in turn, deletes the managed object ('INSTANCE').
 //
 ///Class 'my_CountedHandleRep'
-///-  -  -  -  -  -  -  -  -
+///- - - - - - - - - - - - - -
 // First, we define class 'my_CountedHandleRep'.  This class manages a single
 // 'INSTANCE' object on behalf of multiple "handle" objects; since different
 // "handle" objects may be active in different threads, class

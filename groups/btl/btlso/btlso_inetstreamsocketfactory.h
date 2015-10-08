@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Create a 'btlso::StreamSocket' Object From Existing Socket Handle
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use 'btlso::InetStreamSocketFactory' to allocate a
 // 'btlso::StreamSocket' object that attaches to an existing socket handle.
 // This socket handle may be created from a third-party library (such as

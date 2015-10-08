@@ -1208,7 +1208,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // this goal using a 'shared_ptr'.
 //
 ///Example 7: Hidden Interfaces
-/// -  -  -  -  -  -  -  -  -  -
+/// - - - - - - - - - - - - - -
 // Example 7 demonstrates the use of incomplete types to hide the interface of
 // a 'my_Session' type.  We begin by declaring the 'my_SessionManager' 'class',
 // which allocates and manages 'my_Session' objects.  The interface ('.h')

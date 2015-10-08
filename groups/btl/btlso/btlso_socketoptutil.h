@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Setting 'k_REUSEADDRESS' option on a socket
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Setting 'k_REUSEADDRESS' Option on a Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to set 'k_REUSEADDRESS' flag
 // on a socket.  Note that we assume that a socket of type 'SOCK_STREAM' is
 // already created and socket allocation 'btlso_socketimputil' can be used.
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 3: Illustrating Pass-Through Ability
-///- - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the pass-through ability.
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS

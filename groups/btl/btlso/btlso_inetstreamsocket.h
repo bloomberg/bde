@@ -44,8 +44,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Exchanging data using a stream socket
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Exchanging Data Using a Stream Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will show how to create two stream sockets, establish a
 // connection, and then exchange data between them.
 //

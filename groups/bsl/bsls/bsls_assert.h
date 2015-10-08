@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 // "Runtime-Configurable Assertion-Failure Behavior" below).
 //
 ///Build Targets Only
-///- - - - - - - - -
+/// - - - - - - - - -
 // If no assertion-level flags are defined (see "Assertion-Level Flags" below),
 // the presence or absence of the definitions of the three relevant build
 // targets control the build mode, and, therefore, which of the (BSLS) "ASSERT"
@@ -272,7 +272,7 @@ BSLS_IDENT("$Id: $")
 // written by the user (see {Usage} below).
 //
 ///Exception-Throwing Failure Handlers and 'bsls::AssertFailureHandlerGuard'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Among the failure handlers provided is 'bsls::Assert::failThrow', which
 // throws an 'bsls::AssertTestException' object.  Throwing an exception,
 // however, is not safe in all environments and deliberately aborting is more

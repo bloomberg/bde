@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // each message.  This trailing newline is stripped from the message before
 // the message is passed to the control callback.
 //
-///Usage 
+///Usage
 ///-----
 // This section illustrates intended use of this component.                     
 //
