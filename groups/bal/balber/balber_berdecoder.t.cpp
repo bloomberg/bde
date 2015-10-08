@@ -10729,9 +10729,9 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int i = 0; i <= NUM_YEARS; ++i) {
-            for (int j = 0; j <= NUM_MONTHS; ++j) {
-            for (int k = 0; k <= NUM_DAYS; ++k) {
+            for (int i = 0; i < NUM_YEARS; ++i) {
+            for (int j = 0; j < NUM_MONTHS; ++j) {
+            for (int k = 0; k < NUM_DAYS; ++k) {
 
                 const int YEAR  = YEARS[i];
                 const int MONTH = MONTHS[j];
@@ -11069,9 +11069,9 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int di = 0; di <= NUM_YEARS; ++di) {
-            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
-            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+            for (int di = 0; di < NUM_YEARS; ++di) {
+            for (int dj = 0; dj < NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk < NUM_DAYS; ++dk) {
 
                 const int YEAR  = YEARS[di];
                 const int MONTH = MONTHS[dj];
