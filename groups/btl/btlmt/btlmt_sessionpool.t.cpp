@@ -692,7 +692,8 @@ void *listenFunction(void *args)
     btlso::StreamSocket<btlso::IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
 
-    ASSERT(0 == acceptSocket->setBlockingMode(btlso::Flag::e_NONBLOCKING_MODE));
+    ASSERT(0 == acceptSocket->setBlockingMode(
+                                             btlso::Flag::e_NONBLOCKING_MODE));
 
     acceptSockets[INDEX] = acceptSocket;
 
@@ -2173,7 +2174,8 @@ int main(int argc, char *argv[])
                 ASSERT(socket);
 
                 SocketOptions opt;  opt.setSendTimeout(1); // fails on all
-                                                           // platforms except windows
+                                                           // platforms except
+                                                           // windows
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2523,7 +2525,6 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             bslmt::ThreadUtil::join(connectThreads[i]);
-            bslmt::ThreadUtil::join(listenThreads[i]);
         }
       } break;
       case 7: {

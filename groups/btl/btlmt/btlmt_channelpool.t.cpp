@@ -5374,7 +5374,7 @@ void runTestCaseEnableDisable(
         if (NUM_EVENTS / 2 >= NUM_SOCKETS) {
             break;
         }
-    }                
+    }
 
     ASSERT(NUM_SOCKETS     == mX.numChannels());
     ASSERT(2 * NUM_SOCKETS == channelEvents.size());
@@ -8409,7 +8409,7 @@ void TestDriver::testCase35()
 
         for (int i = 0; i < NT; ++i) {
             ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
-        }        
+        }
 
         for (int i = 0; i < NT; ++i) {
             btlso::StreamSocket<btlso::IPv4Address> *socket = clientSockets[i];
@@ -13269,7 +13269,7 @@ void TestDriver::testCase12()
                 cout << "*** Warning: " << ARGV[0] << ":" << L_ << ":\n"
                      << "*** Warning: anomalous timing results ***" << endl;
             }
-#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_WINDOWS) 
+#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
             LOOP2_ASSERT(rr, exp, exp_really_lo < rr && rr < exp_really_hi);
 #endif
             if (verbose) { P_(exp_lo); P_(exp); P_(exp_hi); P(rr); }
@@ -14473,7 +14473,7 @@ void TestDriver::testCase5()
                 if (NUM_EVENTS / 2 >= NUM_SOCKETS) {
                     break;
                 }
-            }                
+            }
 
             int numChannels = mX.numChannels();
             LOOP_ASSERT(numChannels, NUM_SOCKETS == numChannels);
@@ -14564,7 +14564,7 @@ void TestDriver::testCase5()
                 if (NUM_EVENTS >= NUM_SOCKETS) {
                     break;
                 }
-            }                
+            }
 
             numEvents = channelEvents.size();
             if (veryVerbose) { P(numEvents); PV(channelEvents); }
@@ -14891,7 +14891,7 @@ void TestDriver::testCase3()
                     int ret = mX.connect(peer, 1, TIMEOUT, DATA[j].d_sourceId);
                     LOOP2_ASSERT(j, ret, 0 == ret);
                 }
-            
+
                 ASSERT(0 == mX.stop());
 
                 if (veryVerbose) {
