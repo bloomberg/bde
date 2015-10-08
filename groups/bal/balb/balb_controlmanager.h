@@ -30,7 +30,7 @@
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.                     
+// This section illustrates intended use of this component.
 //
 ///Example 1: Creating an ECHO Message Handler
 ///- - - - - - - - - - - - - - - - - - - - - -

@@ -108,7 +108,7 @@ struct NthParameter {
 template <class FIRST_PARAM, class... PARAMS>
 struct NthParameter<0, FIRST_PARAM, PARAMS...> {
     // Specialization of 'NthParameter' for when 'N' is zero.
-    
+
     typedef FIRST_PARAM Type;
         // The type of the 0th parameter.
 };
@@ -553,13 +553,13 @@ struct NthParameter<N, FIRST_PARAM, PARAMS_01,
 
 template <class FIRST_PARAM>
 struct NthParameter<0, FIRST_PARAM> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
 template <class FIRST_PARAM, class PARAMS_01>
 struct NthParameter<0, FIRST_PARAM, PARAMS_01> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -567,7 +567,7 @@ template <class FIRST_PARAM, class PARAMS_01,
                              class PARAMS_02>
 struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_02> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -577,7 +577,7 @@ template <class FIRST_PARAM, class PARAMS_01,
 struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_02,
                                     PARAMS_03> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -589,7 +589,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_02,
                                     PARAMS_03,
                                     PARAMS_04> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -603,7 +603,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_03,
                                     PARAMS_04,
                                     PARAMS_05> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -619,7 +619,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_04,
                                     PARAMS_05,
                                     PARAMS_06> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -637,7 +637,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_05,
                                     PARAMS_06,
                                     PARAMS_07> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -657,7 +657,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_06,
                                     PARAMS_07,
                                     PARAMS_08> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -679,7 +679,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_07,
                                     PARAMS_08,
                                     PARAMS_09> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -703,7 +703,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_08,
                                     PARAMS_09,
                                     PARAMS_10> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -729,7 +729,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_09,
                                     PARAMS_10,
                                     PARAMS_11> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -757,7 +757,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_10,
                                     PARAMS_11,
                                     PARAMS_12> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -787,7 +787,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_11,
                                     PARAMS_12,
                                     PARAMS_13> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -819,7 +819,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_12,
                                     PARAMS_13,
                                     PARAMS_14> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -853,7 +853,7 @@ struct NthParameter<0, FIRST_PARAM, PARAMS_01,
                                     PARAMS_13,
                                     PARAMS_14,
                                     PARAMS_15> {
-    
+
     typedef FIRST_PARAM Type;
 };
 
@@ -871,7 +871,7 @@ struct NthParameter {
 
 template <class FIRST_PARAM, class... PARAMS>
 struct NthParameter<0, FIRST_PARAM, PARAMS...> {
-    
+
     typedef FIRST_PARAM Type;
 };
 

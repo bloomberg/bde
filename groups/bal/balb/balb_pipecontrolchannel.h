@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.                     
+// This section illustrates intended use of this component.
 //
 ///Example 1: Controlling a Simple Server
 /// - - - - - - - - - - - - - - - - - - -

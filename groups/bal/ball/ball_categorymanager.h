@@ -427,7 +427,7 @@ class CategoryManager {
         // had the following signature:
         //..
         //  void operator()(Category *);
-        //..      
+        //..
 
     // ACCESSORS
     int ruleSequenceNumber() const;
@@ -505,7 +505,7 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
          it != d_categories.end();
          ++it) {
         visitor(*it);
-    }   
+    }
 }
 
 // ACCESSORS

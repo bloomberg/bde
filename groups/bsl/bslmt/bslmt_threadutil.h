@@ -445,7 +445,7 @@ public:
         // made to reclaim any system resources associated with the
         // newly-created thread.  Also note that users are encouraged to either
         // explicitly provide a stack size attribute, or configure a
-        // 'bslmt'-wide default using 'bslmt::Configuration',  because the 
+        // 'bslmt'-wide default using 'bslmt::Configuration',  because the
         // default stack size is surprisingly small on some platforms.
 
     template <class INVOKABLE>
@@ -725,7 +725,7 @@ int bslmt::ThreadUtil::create(Handle         *handle,
 template <class INVOKABLE>
 inline
 int bslmt::ThreadUtil::create(Handle           *handle,
-                              const INVOKABLE&  function) 
+                              const INVOKABLE&  function)
 {
     return createWithAllocator(handle,
                                function,
@@ -736,10 +736,10 @@ template <class INVOKABLE>
 inline
 int bslmt::ThreadUtil::create(Handle                  *handle,
                               const ThreadAttributes&  attributes,
-                              const INVOKABLE&         function) 
+                              const INVOKABLE&         function)
 {
     return createWithAllocator(handle,
-                               attributes, 
+                               attributes,
                                function,
                                bslma::Default::globalAllocator());
 }
@@ -749,7 +749,7 @@ inline
 int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
                                            const ThreadAttributes&  attributes,
                                            const INVOKABLE&         function,
-                                           bslma::Allocator        *allocator) 
+                                           bslma::Allocator        *allocator)
 {
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
     EntryPointFunctorAdapterUtil::allocateAdapter(

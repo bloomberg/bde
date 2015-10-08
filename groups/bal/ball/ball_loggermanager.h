@@ -358,7 +358,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    // myApp.cpp
 //
-//    int main() 
+//    int main()
 //    {
 //
 //        // ...

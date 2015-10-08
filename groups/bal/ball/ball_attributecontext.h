@@ -483,7 +483,7 @@ class AttributeContext {
 
     // CLASS DATA
     static CategoryManager  *s_categoryManager_p;  // holds the rule set, rule
-                                                   // sequence number, and 
+                                                   // sequence number, and
                                                    // rule set mutex
 
     static bslma::Allocator *s_globalAllocator_p;  // an allocator for thread
@@ -493,7 +493,7 @@ class AttributeContext {
     AttributeContainerList   d_containerList;      // list of attribute
                                                    // containers
 
-    mutable RuleEvaluationCache  
+    mutable RuleEvaluationCache
                              d_ruleCache_p;        // cache of rule
                                                    // evaluations
 
