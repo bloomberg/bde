@@ -506,11 +506,11 @@ class ObjectPool_CreatorConverter<ObjectPoolFunctors::DefaultCreator,
 };
 
                        // =============================
-                       // class ObjectPool_CreatorProxy
+                       // class General
                        // =============================
 
 template <class TYPE, class OTHERTYPE>
-class ObjectPool_CreatorProxy {
+class General {
     // This private class provides a default constructor which simply invokes
     // the default constructor of the parameterized 'TYPE'; the parameterized
     // 'OTHERTYPE' is ignored.
@@ -519,30 +519,30 @@ class ObjectPool_CreatorProxy {
     bsls::ObjectBuffer<TYPE> d_object;
 
     // NOT IMPLEMENTED
-    ObjectPool_CreatorProxy& operator=(const ObjectPool_CreatorProxy&);
-    ObjectPool_CreatorProxy(const ObjectPool_CreatorProxy&);
+    General& operator=(const General&);
+    General(const General&);
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ObjectPool_CreatorProxy,
+    BSLALG_DECLARE_NESTED_TRAITS(General,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    ObjectPool_CreatorProxy (bslma::Allocator *basicAllocator);
+    General (bslma::Allocator *basicAllocator);
         // Create a new proxy and a new object of the parameterized 'TYPE'.  If
         // 'TYPE' declares the "Uses Allocator" trait, the specified
         // 'basicAllocator' is supplied to its default constructor; otherwise
         // 'basicAllocator' is ignored.
 
-    ObjectPool_CreatorProxy(const TYPE&       other,
+    General(const TYPE&       other,
                             bslma::Allocator *basicAllocator);
         // Create a new proxy and a new object constructed from the specified
         // 'other' object.  If 'TYPE' declares the "Uses Allocator" trait, the
         // specified 'basicAllocator' is supplied to its copy constructor;
         // otherwise 'basicAllocator' is ignored.
 
-    ~ObjectPool_CreatorProxy();
+    ~General();
         // Destroy this proxy and the underlying object.
 
     // MANIPULATORS
@@ -552,23 +552,21 @@ class ObjectPool_CreatorProxy {
 
 // SPECIALIZATIONS
 template <class OTHERTYPE>
-class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE> {
+class Specific {
     // This partial specialization of the 'ObjectPool_CreatorProxy' class
     // template provides a default constructor that creates a proxied
     // 'bsl::function' object that invokes the default constructor of the
     // parameterized 'OTHERTYPE' with placement 'new'.
 
     // PRIVATE TYPES
-    typedef
-    ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
-                                                                        MyType;
+    typedef Specific MyType;
 
     // DATA
     ObjectPoolFunctors::DefaultCreator d_object;
 
     // NOT IMPLEMENTED
-    ObjectPool_CreatorProxy(const ObjectPool_CreatorProxy&);
-    ObjectPool_CreatorProxy& operator=(const ObjectPool_CreatorProxy&);
+    Specific(const Specific&);
+    Specific& operator=(const Specific&);
 
   private:
     // PRIVATE CLASS METHODS
@@ -580,24 +578,24 @@ class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE> {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(ObjectPool_CreatorProxy,
+    BSLALG_DECLARE_NESTED_TRAITS(Specific,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit
-    ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator);
+    Specific(bslma::Allocator *basicAllocator);
         // Create a new proxy for a function object which invokes the default
         // constructor of OTHERTYPE.  Use the specified 'basicAllocator' to
         // supply memory.
 
-    ObjectPool_CreatorProxy(
+    Specific(
                     const ObjectPoolFunctors::DefaultCreator&  rhs,
                     bslma::Allocator                          *basicAllocator);
         // Create a proxy for a newly created function object constructed from
         // the specified 'rhs' creator.  Use a 'basicAllocator' to supply
         // memory.
 
-    ~ObjectPool_CreatorProxy();
+    ~Specific();
         // Destroy this proxy and the underlying object.
 
     // MANIPULATORS
@@ -606,6 +604,17 @@ class ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE> {
         // proxy.
 };
 
+template <class T> struct OPCP {
+    template <class O> struct X {
+        typedef General<T, O> TYPE;
+    };
+};
+
+template <> struct OPCP<ObjectPoolFunctors::DefaultCreator> {
+    template <class O> struct X {
+        typedef Specific<O> TYPE;
+    };
+};
                               // ================
                               // class ObjectPool
                               // ================
@@ -750,7 +759,8 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     bsls::AtomicPointer<ObjectNode>
                            d_freeObjectsList;      // list of free objects
 
-    ObjectPool_CreatorProxy<CREATOR, TYPE>
+    typename OPCP<CREATOR>::template X<TYPE>::TYPE
+    //ObjectPool_CreatorProxy<CREATOR, TYPE>
                            d_objectCreator;        // functor for object
                                                    // creation
 
@@ -1351,13 +1361,13 @@ ObjectPool_CreatorConverter(const bsl::function<void(void *)>& creator)
 }
 
                          // -----------------------
-                         // ObjectPool_CreatorProxy
+                         // Specific
                          // -----------------------
 
 // CLASS METHODS
 template <class OTHERTYPE>
 inline
-void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+void Specific<OTHERTYPE>
 ::defaultConstruct(void *arena, bslma::Allocator *allocator)
 {
     bslalg::ScalarPrimitives::defaultConstruct((OTHERTYPE*)arena, allocator);
@@ -1366,8 +1376,8 @@ void ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
 // CREATORS
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
-::ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
+General<TYPE, OTHERTYPE>
+::General(bslma::Allocator *basicAllocator)
 {
     bslalg::ScalarPrimitives::defaultConstruct(&d_object.object(),
                                                basicAllocator);
@@ -1375,8 +1385,8 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
 
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
-::ObjectPool_CreatorProxy(const TYPE& other, bslma::Allocator *basicAllocator)
+General<TYPE, OTHERTYPE>
+::General(const TYPE& other, bslma::Allocator *basicAllocator)
 {
     bslalg::ScalarPrimitives::copyConstruct(&d_object.object(),
                                             other,
@@ -1385,16 +1395,16 @@ ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
 
 template <class TYPE, class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<TYPE, OTHERTYPE>
-::~ObjectPool_CreatorProxy()
+General<TYPE, OTHERTYPE>
+::~General()
 {
     bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
 }
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
-::ObjectPool_CreatorProxy(bslma::Allocator *basicAllocator)
+Specific<OTHERTYPE>
+::Specific(bslma::Allocator *basicAllocator)
 : d_object(bsl::allocator_arg_t(),
            bsl::allocator<ObjectPoolFunctors::DefaultCreator>(basicAllocator),
            &MyType::defaultConstruct)
@@ -1403,8 +1413,8 @@ ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
-::ObjectPool_CreatorProxy(
+Specific<OTHERTYPE>
+::Specific(
                      const ObjectPoolFunctors::DefaultCreator&  rhs,
                      bslma::Allocator                          *basicAllocator)
 : d_object(bsl::allocator_arg_t(),
@@ -1415,15 +1425,15 @@ ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
 
 template <class OTHERTYPE>
 inline
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
-::~ObjectPool_CreatorProxy()
+Specific<OTHERTYPE>
+::~Specific()
 {
 }
 
 // MANIPULATORS
 template <class TYPE, class OTHERTYPE>
 inline
-TYPE& ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::object()
+TYPE& General<TYPE, OTHERTYPE>::object()
 {
     return d_object.object();
 }
@@ -1431,7 +1441,7 @@ TYPE& ObjectPool_CreatorProxy<TYPE, OTHERTYPE>::object()
 template <class OTHERTYPE>
 inline
 ObjectPoolFunctors::DefaultCreator&
-ObjectPool_CreatorProxy<ObjectPoolFunctors::DefaultCreator, OTHERTYPE>
+Specific<OTHERTYPE>
 ::object()
 {
     return d_object;
