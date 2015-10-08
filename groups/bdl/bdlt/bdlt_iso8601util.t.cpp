@@ -23,6 +23,8 @@
 #include <bsls_log.h>
 #endif
 
+#undef SEC
+
 using namespace BloombergLP;
 using namespace bsl;
 
