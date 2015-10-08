@@ -170,14 +170,12 @@ void aSsErT(int c, const char *s, int i) {
 
 
 template <class StringType>
-StringType changeBitString(const StringType& input,
-                           char zeroChar, char oneChar)
+void changeBitString(StringType& str, char zeroChar, char oneChar)
 {
-  StringType out(input.size(), zeroChar);
-  for (size_t i = 0; i < input.size(); ++i) {
-    out[i] = input[i] == '0' ? zeroChar : oneChar;
-  }
-  return out;
+    for (size_t i = 0; i < str.size(); ++i) {
+      char newChar = str[i] == '0' ? zeroChar : oneChar;
+      str[i] = newChar;
+    }
 }
 
 template <size_t N>
@@ -216,12 +214,12 @@ bool verifyBitset(const bsl::bitset<N> obj, unsigned long expected, int verbose)
     return true;
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 
 template <size_t N>
-BSLS_CPP11_CONSTEXPR bool verifyBitConstexpr(size_t bitIndex,
-                                             const bsl::bitset<N>& obj,
-                                             unsigned long expected) {
+constexpr bool verifyBitConstexpr(size_t bitIndex,
+                                  const bsl::bitset<N>& obj,
+                                  unsigned long expected) {
   return bitIndex < sizeof(unsigned long) * CHAR_BIT ?
       (((expected >> bitIndex) & 1)) == obj[bitIndex]
     : 0 == obj[bitIndex];
@@ -260,7 +258,7 @@ BSLS_CPP11_CONSTEXPR bool verifyBitsetConstexpr(const bsl::bitset<N>& obj, unsig
 namespace {
 
 template <int TESTSIZE>
-void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
+void testCase2(bool verbose, bool /* veryVerbose */, bool /* veryVeryVerbose */)
 {
   if (verbose) cout << "\tCheck bitset<" << TESTSIZE << ">" << endl;
 
@@ -294,18 +292,19 @@ void testCase2(int verbose, int /* veryVerbose */, int /* veryVeryVerbose */)
   { // constexpr test
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     constexpr bsl::bitset<TESTSIZE> v;
-
-    static_assert(TESTSIZE == v.size(), "");
-    static_assert(0 == v[0], "");
     ASSERT(TESTSIZE == v.size());
     ASSERT(v.none());
     ASSERT(!v.any());
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+    static_assert(TESTSIZE == v.size(), "");
+    static_assert(0 == v[0], "");
+#endif
 #endif
   }
 }
 
-template <int TESTSIZE, unsigned int LINE, unsigned long VALUE>
-void testCase3Imp(int verbose, int veryVerbose)
+template <unsigned int LINE, int TESTSIZE, unsigned long VALUE>
+void testCase3Imp(bool verbose, bool veryVerbose)
 {
     typedef bsl::bitset<TESTSIZE> Obj;
     if (veryVerbose) {
@@ -317,13 +316,16 @@ void testCase3Imp(int verbose, int veryVerbose)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
+    ASSERT(verifyBitset(mX2, VALUE, verbose));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
     static_assert(mX2.size() == TESTSIZE, "");
     static_assert(verifyBitsetConstexpr(mX2, VALUE), "");
+#endif
 #endif
 };
 
 template <int TESTSIZE>
-void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
+void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 {
     if (verbose) cout << "Testing bitset<"
                       << TESTSIZE
@@ -331,18 +333,18 @@ void testCase3(int verbose, int veryVerbose, int /* veryVeryVerbose */)
                       << endl;
                           //LINE  VALUE
                           //----  -------------------
-    testCase3Imp<TESTSIZE, L_,   0                  >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0x10101010         >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0xabcdef01         >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0x12345678         >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0xffffffff         >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0x87654321         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0                  >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x10101010         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xabcdef01         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x12345678         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xffffffff         >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x87654321         >(verbose, veryVerbose);
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-    testCase3Imp<TESTSIZE, L_,   0x1010101010101010 >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0xabcdef01abcdef01 >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0x1234567812345678 >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0xffffffffffffffff >(verbose, veryVerbose);
-    testCase3Imp<TESTSIZE, L_,   0x8765432187654321 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x1010101010101010 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xabcdef01abcdef01 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x1234567812345678 >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0xffffffffffffffff >(verbose, veryVerbose);
+    testCase3Imp<L_, TESTSIZE,   0x8765432187654321 >(verbose, veryVerbose);
 #endif
 
 }
@@ -453,9 +455,9 @@ bool isPrime(int candidate)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:  // zero is always the leading case
@@ -764,9 +766,8 @@ int main(int argc, char *argv[])
       //   transformed string construct a bitset 'Y' and verify its value.
       //
       // Testing:
-      //   explicit bitset(native_std::basic_string, size_type, size_type,
-      //                   char, char);
-      //   explicit bitset(bsl::basic_string, size_type, size_type, char, char);
+      //   bitset(native_std::basic_string, size_type, size_type, char, char);
+      //   bitset(bsl::basic_string, size_type, size_type, char, char);
       // --------------------------------------------------------------------
 
       if (verbose) cout << endl << "STRING CONSTRUCTOR TEST"
@@ -814,7 +815,7 @@ int main(int argc, char *argv[])
 
           if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
 
-          native_std::string s(STRING);
+          const native_std::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
           if (veryVeryVerbose) { T_ T_ P(X) }
@@ -829,7 +830,8 @@ int main(int argc, char *argv[])
               const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
               const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
-              native_std::string sY = changeBitString(s, ZERO_CHAR, ONE_CHAR);
+              native_std::string sY(STRING);
+              changeBitString(sY, ZERO_CHAR, ONE_CHAR);
               Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
               const Obj& Y = mY;
               if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -858,7 +860,7 @@ int main(int argc, char *argv[])
           const unsigned int VALUE  = DATA[ti].d_value;
           const char *       STRING = DATA[ti].d_string;
 
-          bsl::string s(STRING);
+          const bsl::string s(STRING);
           Obj mX(s);
           const Obj& X = mX;
           if (veryVeryVerbose) { T_ T_ P(X) }
@@ -872,7 +874,8 @@ int main(int argc, char *argv[])
               const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
               const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
-              bsl::string sY = changeBitString(s, ZERO_CHAR, ONE_CHAR);
+              bsl::string sY(STRING);
+              changeBitString(sY, ZERO_CHAR, ONE_CHAR);
               Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
               const Obj& Y = mY;
               if (veryVeryVerbose) { T_ T_ P(Y) }
