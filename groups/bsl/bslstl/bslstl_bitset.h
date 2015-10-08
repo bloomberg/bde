@@ -217,7 +217,7 @@ namespace bsl {
 template <std::size_t N>
 class bitset;
 
-// ====================
+                          // ====================
                           // class Bitset_ImpBase
                           // ====================
 struct Bitset_ImpUtil {
