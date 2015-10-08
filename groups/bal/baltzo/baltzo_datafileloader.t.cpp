@@ -465,13 +465,13 @@ static void writeData(const char *fileName, const char *data, int numBytes)
 {
     int rc = bdls::FilesystemUtil::createDirectories(fileName, false);
 
-    if (true) {
+    if (rc != 0) {
         // If this test-driver is being run in parallel, its possible for two
         // instances to attempt to create the directory simultaneously, and
-        // for one of them to fail.
+        // for one of them to fail.  But the directory should still exist.
 
         bslmt::ThreadUtil::microSleep(0,1);
-        bsl::string path;
+        bsl::string path(fileName);
         bdls::PathUtil::popLeaf(&path);
         ASSERT(bdls::FilesystemUtil::exists(path));
     }
