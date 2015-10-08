@@ -477,8 +477,13 @@ int main(int argc, char *argv[])
                 }
 
                 SM(0, "funcGlobalOne(int)");
+#if !defined(BSLS_PLATFORM_OS_LINUX)
+                // The linux demangler has a bug where it fails on file-scope
+                // statics.
+
                 SM(1, "funcStaticOne(int)");
                 SM(2, "funcStaticInlineOne(int)");
+#endif
                 const char *resName = "BloombergLP::"
                                       "balst::StackTraceResolverImpl"
                                       "<BloombergLP::"
