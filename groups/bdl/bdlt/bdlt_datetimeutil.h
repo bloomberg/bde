@@ -259,7 +259,10 @@ int DatetimeUtil::convertFromTm(Datetime       *result,
 inline
 bsl::tm DatetimeUtil::convertToTm(const Datetime& datetime)
 {
-    bsl::tm    result;
+    bsl::tm result;
+
+    // 'struct tm' may contain non POSIX standard fields (e.g., on Linux/OSX).
+    bsl::memset(&result, 0, sizeof(result));
 
     result.tm_sec   = datetime.second();
     result.tm_min   = datetime.minute();
