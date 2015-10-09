@@ -718,10 +718,10 @@ class function<RET(ARGS...)> :
             return &functionPtrInvoker<FUNC>;                         // RETURN
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             // G++ 4.3.5 64-bit with optimization has an error which causes
             // this function to seemingly always return null unless this
             // useless use of 'f' is present.
@@ -742,10 +742,10 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;                          // RETURN
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             // G++ 4.3.5 64-bit with optimization has an error which causes
             // this function to seemingly always return null unless this
             // useless use of 'f' is present.
@@ -956,10 +956,10 @@ class function<RET()> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -975,10 +975,10 @@ class function<RET()> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1122,10 +1122,10 @@ class function<RET(ARGS_01)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1141,10 +1141,10 @@ class function<RET(ARGS_01)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1296,10 +1296,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1315,10 +1315,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1479,10 +1479,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1498,10 +1498,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1671,10 +1671,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1690,10 +1690,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1872,10 +1872,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -1891,10 +1891,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2082,10 +2082,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2101,10 +2101,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2301,10 +2301,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2320,10 +2320,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2529,10 +2529,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2548,10 +2548,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2766,10 +2766,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -2785,10 +2785,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3012,10 +3012,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3031,10 +3031,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3267,10 +3267,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3286,10 +3286,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3531,10 +3531,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3550,10 +3550,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3804,10 +3804,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -3823,10 +3823,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -4086,10 +4086,10 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -4105,10 +4105,10 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -5557,10 +5557,10 @@ class function<RET(ARGS...)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
@@ -5576,10 +5576,10 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
-    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
-            __LP64__                                                       && \
-            __GNUC_GNU_INLINE__
+#if BSLS_PLATFORM_CMP_GNU              &&                                     \
+    BSLS_PLATFORM_CMP_VERSION <= 40305 &&                                     \
+    BSLS_PLATFORM_CPU_64_BIT           &&                                     \
+    __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
             return NULL;
