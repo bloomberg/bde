@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // currently supported is IPv4 (as provided by 'btlso_ipv4address' component).
 // Therefore, the template parameter will always be 'btlso::IPv4Address'.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The classes provided by this component depend on a 'bslma::Allocator'
 // instance to supply memory.  If the allocator is not thread enabled then the

@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // generating log records.  The utility functions are only intended for use by
 // the macros and should *not* be called directly.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // All macros defined in this component are thread-safe, and can be invoked
 // concurrently by multiple threads.

@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The 'select'-based multiplexers provided by this component depend on a
 // 'bdema'-style allocator to supply memory.  The allocator is installed at

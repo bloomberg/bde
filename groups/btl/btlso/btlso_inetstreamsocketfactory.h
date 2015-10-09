@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // the destruction will disable socket operations (by calling
 // 'btlso::SocketImpUtil::cleanup' method).
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The classes provided by this component depend on a 'bslma::Allocator'
 // instance to supply memory.  If the allocator is not thread enabled then the

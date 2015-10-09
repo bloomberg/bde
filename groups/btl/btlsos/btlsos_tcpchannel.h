@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // Additionally, operations to set various socket options and to get local and
 // remote addresses are provided.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The channel is *thread safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,

@@ -301,7 +301,7 @@ BSLS_IDENT("$Id: $")
 //       Read 18 bytes when read event occurs on 'fds[0]'.
 //..
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The thread-safety of 'btlso::EventManagerTester' depends on the event
 // manager to be tested.  If the event manager is not thread safe (thread

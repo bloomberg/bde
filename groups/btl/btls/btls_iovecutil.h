@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // length of a sequence of buffers, and rewriting the data from a sequence of
 // buffers into a 'btlb::Blob' object.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // It is safe to invoke methods of this utility with distinct instances of
 // their arguments in different threads.  It is safe to access a 'btlb::Blob'

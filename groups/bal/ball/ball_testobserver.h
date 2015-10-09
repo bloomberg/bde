@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // 'publish'; that information is available via the accessors
 // 'lastPublishedRecord' and 'lastPublishedContext'.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // The 'ball::TestObserver' provides a 'publish' method that is *thread-safe*,
 // meaning that the test observer may be used to log records from multiple

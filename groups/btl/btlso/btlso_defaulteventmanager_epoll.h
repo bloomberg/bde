@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //                 *_poll   *_epoll     *_select  *_devpoll    *_pollset
 //..
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // This component depends on a 'bslma::Allocator' instance to supply memory.
 // If the allocator is not thread enabled then the instances of this component

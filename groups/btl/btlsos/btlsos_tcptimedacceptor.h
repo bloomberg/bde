@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // The acceptor has the flexibility of opening and closing a listening socket
 // with no effect on any existing channels managed by this object.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The acceptor is *thread safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,

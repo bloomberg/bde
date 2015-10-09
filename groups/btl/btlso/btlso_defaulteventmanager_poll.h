@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // This component depends on a 'bslma::Allocator' instance to supply memory.
 // If the allocator is not thread enabled then the instances of this component

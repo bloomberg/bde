@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // invalidating the allocator) and the associated callbacks will be invoked
 // when the peer address is changed.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The connector is *thread* *safe*, meaning that any operation can be called
 // on *distinct* *instances* from different threads without any side-effects

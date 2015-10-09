@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // order of registration (i.e., this timer event manager is stable with respect
 // to timers).
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // This event manager is *thread* *safe*, meaning that any operation can be
 // called on *distinct* *instances* from different threads without any

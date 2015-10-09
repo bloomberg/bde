@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // the added cost of shared ownership for each individual buffer and random
 // access to the buffer.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // Different instances of the classes defined in this component can be
 // concurrently modified by different threads.  Thread safety of a particular

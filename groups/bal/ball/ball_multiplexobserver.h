@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // registered, an observer receives all log records that its associated
 // multiplexing observer receives.
 //
-///THREAD SAFETY
+///Thread Safety
 ///-------------
 // 'ball::MultiplexObserver' is thread-safe and thread-enabled, meaning that
 // multiple threads may share the same instance, or may have their own
