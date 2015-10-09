@@ -1,4 +1,12 @@
 // btlmt_session.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_SESSION
 #define INCLUDED_BTLMT_SESSION
 
@@ -24,8 +32,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// For a usage example, see 'btlmt_sessionpool'.
-//..
+// For a usage example, see {'btlmt_sessionpool'}.
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

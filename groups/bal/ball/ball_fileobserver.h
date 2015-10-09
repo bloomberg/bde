@@ -1,4 +1,12 @@
 // ball_fileobserver.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_FILEOBSERVER
 #define INCLUDED_BALL_FILEOBSERVER
 
@@ -176,7 +184,7 @@ BSLS_IDENT("$Id: $")
 // Note that timestamp pattern elements in a log file name are typically
 // selected so they produce unique names for each rotation.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // All methods of 'ball::FileObserver' are thread-safe, and can be called
 // concurrently by multiple threads.

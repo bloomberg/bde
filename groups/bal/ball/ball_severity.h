@@ -1,4 +1,12 @@
 // ball_severity.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_SEVERITY
 #define INCLUDED_BALL_SEVERITY
 
@@ -22,8 +30,12 @@ BSLS_IDENT("$Id: $")
 // supports functions that convert the 'Level' enumerators to a well-defined
 // ASCII representation.
 //
-///USAGE EXAMPLE 1 - SYNTAX
-///------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Syntax
+///- - - - - - - - -
 // The following snippets of code provide a simple illustration of ordinary
 // 'ball::Severity' operation.  (The next example discusses a more elaborate
 // usage scenario.)
@@ -47,8 +59,9 @@ BSLS_IDENT("$Id: $")
 //..
 //      ERROR
 //..
-///USAGE EXAMPLE 2 - LOGGING
-///-------------------------
+//
+///Example 2: Logging
+/// - - - - - - - - -
 // Consider a general-purpose logging facility that provides two interfaces:
 // one for developers to use when logging from subroutines and another to be
 // used by the owner of the main program to administer how much information is

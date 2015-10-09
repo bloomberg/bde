@@ -50,6 +50,7 @@ BSLS_IDENT("$Id: $")
 //                       allocate
 //                       deallocate
 //..
+//
 ///Alignment Strategy
 ///------------------
 // The 'bslma::SequentialPool' allocates memory using one of the two alignment

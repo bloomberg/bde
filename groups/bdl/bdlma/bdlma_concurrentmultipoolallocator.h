@@ -1,4 +1,12 @@
 // bdlma_concurrentmultipoolallocator.h                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
 #define INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
 
@@ -60,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlma::ConcurrentMultipoolAllocator' is more general purposed than a
 // 'bdlma::ConcurrentMultipool'.
 //
-///Configuration At Construction
+///Configuration at Construction
 ///-----------------------------
 // When creating a 'bdlma::ConcurrentMultipoolAllocator', clients can
 // optionally configure:
@@ -114,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::ConcurrentMultipoolAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipoolAllocator' can be used to supply memory to
 // node-based data structures such as 'bsl::set', 'bsl::list' or 'bsl::map'.
 // Suppose we are implementing a container of named graphs data structure,

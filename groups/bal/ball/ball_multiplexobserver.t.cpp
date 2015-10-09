@@ -1,5 +1,13 @@
 // ball_multiplexobserver.t.cpp                                       -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_multiplexobserver.h>
 
 #include <ball_context.h>                       // for testing only

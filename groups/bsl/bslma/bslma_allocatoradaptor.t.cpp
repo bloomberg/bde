@@ -128,22 +128,22 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     #include <bslma_allocator.h>
     #include <bslma_default.h>
     #include <bsls_nullptr.h>
-  
+
     #include <cstring>
     #include <cstdlib>
-  
+
     namespace my {
-  
+
     class FilePath {
         // Store the path of a file or directory
         bslma::Allocator *d_allocator;
         char             *d_data;
-  
+
     public:
         FilePath(bslma::Allocator* basicAllocator = 0 /* nullptr */)
             : d_allocator(bslma::Default::allocator(basicAllocator))
             , d_data(0 /* nullptr */) { }
-  
+
         FilePath(const char* s, bslma::Allocator* basicAllocator = 0)
             : d_allocator(bslma::Default::allocator(basicAllocator))
         {
@@ -151,12 +151,12 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                  static_cast<char*>(d_allocator->allocate(std::strlen(s) + 1));
             std::strcpy(d_data, s);
         }
-  
+
         bslma::Allocator *getAllocator() const { return d_allocator; }
-  
+
         //...
     };
-  
+
     } // close namespace my
 //..
 // Next, assume that an STL-allocator exists that uses memory exactly the way
@@ -171,50 +171,50 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         typedef const TYPE *const_pointer;
         typedef unsigned    size_type;
         typedef int         difference_type;
-  
+
         template <class U>
         struct rebind {
             typedef MagicAllocator<U> other;
         };
-  
+
         explicit MagicAllocator(bool useMalloc = false)
             : d_useMalloc(useMalloc) { }
-  
+
         template <class U>
         MagicAllocator(const MagicAllocator<U>& other)
             : d_useMalloc(other.getUseMalloc()) { }
-  
+
         value_type *allocate(std::size_t n, void* = 0 /* nullptr */) {
             if (d_useMalloc)
                 return (value_type*) std::malloc(n * sizeof(value_type));
             else
                 return (value_type*) ::operator new(n * sizeof(value_type));
         }
-  
+
         void deallocate(value_type *p, std::size_t) {
             if (d_useMalloc)
                 std::free(p);
             else
                 ::operator delete(p);
         }
-  
+
         static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
-  
+
         void construct(pointer p, const TYPE& value)
             { new((void *)p) TYPE(value); }
-  
+
         void destroy(pointer p) { p->~TYPE(); }
-  
+
         int getUseMalloc() const { return d_useMalloc; }
     };
-            
+
     template <class T, class U>
     inline
     bool operator==(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
     {
         return a.getUseMalloc() == b.getUseMalloc();
     }
-  
+
     template <class T, class U>
     inline
     bool operator!=(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
@@ -230,12 +230,12 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     {
         MagicAllocator<char> ma(true);
         bslma::AllocatorAdaptor<MagicAllocator<char> >::Type maa(ma);
-  
+
         my::FilePath usrbin("/usr/local/bin", &maa);
-  
+
         ASSERT(&maa == usrbin.getAllocator());
         ASSERT(ma == maa.adaptedAllocator());
-  
+
         return 0;
     }
 //..
@@ -255,12 +255,12 @@ public:
     typedef const TYPE *const_pointer;
     typedef unsigned    size_type;
     typedef int         difference_type;
-  
+
     template <class U>
     struct rebind {
         typedef STLAllocator<U> other;
     };
-  
+
     explicit STLAllocator(bslma::TestAllocator *ta) : d_mechanism(ta) { }
 
     template <class U>
@@ -274,10 +274,10 @@ public:
     void deallocate(TYPE *p, std::size_t) { d_mechanism->deallocate(p); }
 
     static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
-  
+
     void construct(pointer p, const TYPE& value)
         { new((void *)p) TYPE(value); }
-  
+
     void destroy(pointer p) { p->~TYPE(); }
 
     bslma::TestAllocator *mechanism() const { return d_mechanism; }

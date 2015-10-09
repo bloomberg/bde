@@ -1,4 +1,12 @@
 // balb_pipecontrolchannel.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALB_PIPECONTROLCHANNEL
 #define INCLUDED_BALB_PIPECONTROLCHANNEL
 
@@ -44,8 +52,12 @@ BSLS_IDENT("$Id: $")
 // each message.  This trailing newline is stripped from the message before
 // the message is passed to the control callback.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Controlling a Simple Server
+/// - - - - - - - - - - - - - - - - - - -
 // This example illustrates how to construct a simple server that records
 // messages sent on a pipe control channel until "EXIT" is received, at which
 // point the channel is closed and the server stops.

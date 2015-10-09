@@ -1,4 +1,12 @@
 // ball_observeradapter.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_OBSERVERADAPTER
 #define INCLUDED_BALL_OBSERVERADAPTER
 
@@ -33,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Concrete Observer Derived From 'ball::ObserverAdapter'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of defining and using
 // a concrete observer inherited from 'ball::ObserverAdapter'.
 //

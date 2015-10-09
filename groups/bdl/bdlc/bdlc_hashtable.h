@@ -1,4 +1,12 @@
 // bdlc_hashtable.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLC_HASHTABLE
 #define INCLUDED_BDLC_HASHTABLE
 
@@ -385,14 +393,13 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Default Traits
-///- - - - - - - -
+/// - - - - - - -
 // The default traits, identified by 'bdlc::HashTableDefaultTraits', can be
 // used when 'KEY' and 'VALUE' are either:
-//..
-//    o const char*
-//    o bsl::string
-//    o POD types
-//..
+// o 'const char *'
+// o 'bsl::string'
+// o POD types
+//
 // The following expressions are implemented as:
 //..
 //  Expression                                Implementation

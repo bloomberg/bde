@@ -21,10 +21,10 @@ BSLS_IDENT("$Id: $")
 // 'class' contains a parameterized 'encode' function that encodes an object
 // into a specified stream.  There are two overloaded versions of this
 // function:
-//..
+//
 //: o one that writes to a 'bsl::streambuf'
 //: o one that writes to an 'bsl::ostream'
-//..
+//
 // This component can be used with types that support the 'bdeat' framework
 // (see the 'bdeat' package for details), which is a compile-time interface for
 // manipulating struct-like and union-like objects.  In particular, types
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a 'bas_codegen.pl'-generated object into JSON
+///Example 1: Encoding a 'bas_codegen.pl'-Generated Object into JSON
 ///-----------------------------------------------------------------
 // Consider that we want to exchange an employee's information between two
 // processes.  To allow this information exchange we will define the XML schema

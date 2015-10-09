@@ -1,4 +1,12 @@
 // btlmt_asyncchannel.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_ASYNCCHANNEL
 #define INCLUDED_BTLMT_ASYNCCHANNEL
 
@@ -26,7 +34,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a concrete channel type
+///Example 1: Implementing a Concrete Channel Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This 'class', 'btlmt::AsyncChannel', provides a pure protocol for a network
 // connection type that once connected to the peer allows asynchronous reads

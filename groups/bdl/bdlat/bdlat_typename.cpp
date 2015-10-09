@@ -1,5 +1,13 @@
 // bdlat_typename.cpp                                                 -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bdlat_typename.h>
 #include <bsls_assert.h>
 

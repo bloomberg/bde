@@ -1,4 +1,12 @@
 // bslmt_meteredmutex.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_METEREDMUTEX
 #define INCLUDED_BSLMT_METEREDMUTEX
 
@@ -21,16 +29,16 @@ BSLS_IDENT("$Id: $")
 // time and hold time.  This class can be used, for example, in evaluating the
 // performance of an application, based on its lock contention behavior.
 //
-///Precise definitions of wait and hold time
+///Precise Definitions of Wait and Hold Time
 ///-----------------------------------------
 // Wait time is defined as the sum of the time intervals between each call to
 // 'lock' (or 'tryLock') on the underlying mutex and the return of that call.
 // Note that if one or more threads are waiting for the lock at the point when
-// `waitTime` is called, those waiting time intervals are *not* included in the
+// 'waitTime' is called, those waiting time intervals are *not* included in the
 // returned wait time.  Hold time is defined as the sum of the time intervals
 // between return from each call to 'lock' (or a successful call to 'tryLock')
 // on the underlying mutex and the subsequent call to 'unlock'.  Note that if a
-// thread is holding the lock at the point when `holdTime` is called, then that
+// thread is holding the lock at the point when 'holdTime' is called, then that
 // holding time is *not* included in the returned hold time.
 //
 ///Performance
@@ -41,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // to a mutex) to update these times atomically.
 //
 ///Inaccuracy of 'waitTime' and 'holdTime'
-///--------------------------------------
+///---------------------------------------
 // Times reported by 'waitTime' and 'holdTime' are (close) approximate times
 // and *not* 100% accurate.  This inaccuracy can sometime cause surprising
 // behavior.  For example, one can incorrectly assume 'lock()' and
@@ -241,7 +249,7 @@ class MeteredMutex {
     // ACCESSORS
     bsls::Types::Int64 holdTime() const;
         // Return the hold time (in nanoseconds) accumulated since the most
-        // recent call to 'resetMetrics' (or `MeteredMutex` if 'resetMetrics'
+        // recent call to 'resetMetrics' (or 'MeteredMutex' if 'resetMetrics'
         // was never called).
 
     bsls::Types::Int64 lastResetTime() const;
@@ -254,7 +262,7 @@ class MeteredMutex {
 
     bsls::Types::Int64 waitTime() const;
         // Return the wait time (in nanoseconds), accumulated since the most
-        // recent call to 'resetMetrics' (or `MeteredMutex` if 'resetMetrics'
+        // recent call to 'resetMetrics' (or 'MeteredMutex' if 'resetMetrics'
         // was never called).
 };
 

@@ -1,5 +1,13 @@
 // ball_loggermanager.t.cpp                                           -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_loggermanager.h>
 
 #include <ball_defaultobserver.h>               // for testing only
@@ -147,7 +155,7 @@ using namespace bdlf::PlaceHolders;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] TESTING: USER FIELDS POPULATOR CALLBACK 
+// [ 4] TESTING: USER FIELDS POPULATOR CALLBACK
 // [ 8] TESTING: LOGMESSAGE LOG ORDER and TRIGGER MARKERS
 // [10] PERFORMANCE TEST
 // [11] TESTING CONCURRENT ACCESS TO 'd_loggers'
@@ -2993,12 +3001,12 @@ int main(int argc, char *argv[])
 
                 const int MAX_LIMIT = 1000000;
                 mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
-               
+
                 Obj mLM(mLMC, &testObserver, &testAllocator);
 
                 // Set the default threshold.
-                mLM.setDefaultThresholdLevels(RECORD, 
-                                              PASS, 
+                mLM.setDefaultThresholdLevels(RECORD,
+                                              PASS,
                                               TRIGGER,
                                               TRIGGERALL);
 
@@ -4177,7 +4185,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << endl 
+            cout << endl
                  << "Testing Default Threshold-Levels Callback\n"
                  << "=========================================\n";
 

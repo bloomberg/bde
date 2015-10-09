@@ -1,4 +1,12 @@
 // ball_multiplexobserver.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_MULTIPLEXOBSERVER
 #define INCLUDED_BALL_MULTIPLEXOBSERVER
 
@@ -40,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // registered, an observer receives all log records that its associated
 // multiplexing observer receives.
 //
-///THREAD SAFETY
+///Thread Safety
 ///-------------
 // 'ball::MultiplexObserver' is thread-safe and thread-enabled, meaning that
 // multiple threads may share the same instance, or may have their own

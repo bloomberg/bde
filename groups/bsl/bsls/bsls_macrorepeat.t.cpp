@@ -146,16 +146,16 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // 'BSLS_MACROREPEAT' macro:
 //..
     int usageExample1() {
-  
+
         #define FOO_STMNT(X) foo<X+1>();  // Semicolon at end of each statement
         BSLS_MACROREPEAT(5, FOO_STMNT)
         ASSERT(20 == total);
         return 0;
    }
 //..
-// 
+//
 ///Usage Example 2: Repeated function arguments
-///- - - - - - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - - - - - -
 // In this example, we supply as series of identical arguments to a function
 // invocation, using 'BSLS_MACROREPEAT_COMMA'.  First, assume a function,
 // 'fmtQuartet' that takes four integer arguments and formats them into a
@@ -163,7 +163,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
     #include <cstring>
     #include <cstdio>
-  
+
     void fmtQuartet(char *result, int a, int b, int c, int d) {
         std::sprintf(result, "%d %d %d %d", a, b, c, d);
     }
@@ -190,7 +190,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 //
 ///Usage Example 3: Bitmask computation
-///- - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - -
 // In this example, we Compute (at compile time) a 7-bit mask.  First, we
 // defined a macro 'BITVAL' that computes the value of a single bit 'B' in the
 // mask:
@@ -201,7 +201,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // separating the repetitions with the bitwise OR operator:
 //..
     const unsigned mask = BSLS_MACROREPEAT_SEP(7, BITVAL, |);
-  
+
     int usageExample3() {
         ASSERT(127 == mask);
         return 0;

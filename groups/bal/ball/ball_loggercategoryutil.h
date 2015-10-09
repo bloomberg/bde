@@ -1,4 +1,12 @@
 // ball_loggercategoryutil.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_LOGGERCATEGORYUTIL
 #define INCLUDED_BALL_LOGGERCATEGORYUTIL
 
@@ -33,8 +41,12 @@ BSLS_IDENT("$Id: $")
 // be treated as a special flag to turn on the prefix name matching, thus
 // causing trouble for categories whose name ends with '*'.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
 // The following code fragments illustrate basic usage of this component's
 // 'setThresholdLevelsHierarchically' and 'addCategoryHierarchically' methods.
 //

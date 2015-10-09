@@ -1,5 +1,13 @@
 // ball_severityutil.t.cpp                                            -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_severityutil.h>
 
 #include <ball_severity.h>
@@ -270,7 +278,7 @@ int main(int argc, char *argv[])
                 bool result = Util::isValidName(SEVERITYNAME);
                 LOOP_ASSERT(LINE, result == RESULT);
             }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED 
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 4: {
         // --------------------------------------------------------------------

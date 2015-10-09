@@ -1,4 +1,12 @@
 // btlsos_tcpcbacceptor.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSOS_TCPCBACCEPTOR
 #define INCLUDED_BTLSOS_TCPCBACCEPTOR
 
@@ -36,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // (without invalidating the allocator) and the associated callbacks will be
 // invoked when the listening port is closed.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The acceptor is *thread* *safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,

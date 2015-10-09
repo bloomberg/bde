@@ -1,5 +1,13 @@
 // btlso_platform.t.cpp                                               -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <btlso_platform.h>
 
 #include <bsls_platform.h>

@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // for time zones.
 //
 ///'baltzo::ZoneinfoTransition'
-///---------------------------
+///----------------------------
 // A 'baltzo::ZoneinfoTransition' contains:
 //..
 //  Name        Type
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // is -14,400 (-4 * 60 * 60)).
 //
 ///'baltzo::Zoneinfo'
-///-----------------
+///------------------
 // A 'baltzo::Zoneinfo' contains:
 //
 //: o the time zone identifier (e.g., "America/New_York" or "Asia/Tokyo")
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 // object and use it to transform a UTC time into a local time.
 //
 ///Example 1: Populate a 'baltzo::Zoneinfo'
-///- - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to represent the time-zone information for New York, in 2010
 // using a 'baltzo::Zoneinfo' object.  In order to do so, we need to provide
 // the UTC date-times (transitions) after which the time zone changes its

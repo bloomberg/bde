@@ -1,4 +1,12 @@
 // bslmt_once.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_ONCE
 #define INCLUDED_BSLMT_ONCE
 
@@ -78,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // Objects of the 'bslmt::Once' class are intended to be shared among threads
 // and may be accessed and modified simultaneously in multiple threads by using

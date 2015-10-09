@@ -1,4 +1,12 @@
 // balm_metricsample.t.cpp                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <balm_metricsample.h>
 
 #include <bslma_testallocator.h>
@@ -895,7 +903,7 @@ int main(int argc, char *argv[])
         //   bool operator!=(balm::MetricSample&, balm::MetricSample&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << 
+        if (verbose) cout <<
                             "\nTesting equality: 'balm::MetricSample'" << endl;
 
         if (veryVerbose) cout << "\tTest basic equality." << endl;

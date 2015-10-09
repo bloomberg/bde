@@ -1,4 +1,12 @@
 // balscm_version.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALSCM_VERSION
 #define INCLUDED_BALSCM_VERSION
 
@@ -21,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // information may be extracted from binary files using common UNIX utilities
 // (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
 // function in the 'balscm::Version' struct can be used to query version
-// information for the 'bal' package group at runtime.  The following USAGE
+// information for the 'bal' package group at runtime.  The following {Usage}
 // examples illustrate these two basic capabilities.
 //
 // Note that unless the 'version' method will be called, it is not necessary to
@@ -29,8 +37,12 @@ BSLS_IDENT("$Id: $")
 // embedded in an executable.  It is only necessary to use one or more 'bal'
 // components (and, hence, link in the 'bal' library).
 //
-///USAGE 1
-///-------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Embedding Version Information
+/// - - - - - - - - - - - - - - - - - - - -
 // The version of the 'bal' package group linked into a program can be
 // obtained at runtime using the 'version' 'static' member function as follows:
 //..
@@ -48,8 +60,8 @@ BSLS_IDENT("$Id: $")
 // The "0.01.0" portion of the string distinguishes different versions of the
 // 'bal' package group.
 //
-///USAGE 2
-///-------
+///Example 2: Accessing the Embedded Version informaiton
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The versioning information embedded into a binary file by this component can
 // be examined under UNIX using several well-known utilities.  For example:
 //..

@@ -1,4 +1,12 @@
 // btlso_defaulteventmanager_devpoll.h                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_DEVPOLL
 #define INCLUDED_BTLSO_DEFAULTEVENTMANAGER_DEVPOLL
 
@@ -52,7 +60,8 @@ BSLS_IDENT("$Id: $")
 //                 _______/    |        |        |    \_______
 //                 *_epoll *_select *_devpoll *_pollset *_poll
 //..
-///Thread-safety
+//
+///Thread Safety
 ///-------------
 // This component depends on a 'bslma::Allocator' instance to supply memory.
 // If the allocator is not thread enabled then the instances of this component
@@ -97,6 +106,7 @@ BSLS_IDENT("$Id: $")
 // regardless of the number of sockets.  See tables at the beginning of
 // 'btlso_eventmanagertester.t.cpp' for actual test results.
 //..
+//
 ///Metrics
 ///-------
 // The event manager provided by this component can use external (i.e.,
@@ -108,7 +118,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using an event manager
+///Example 1: Using an Event Manager
 ///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a

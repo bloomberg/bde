@@ -1985,7 +1985,7 @@ int main(int argc, char **argv)
                 // softInput string: "s0t1u2v3s0t1u ... 2v3s0t1u2"
                 // hardInput string: "0H1I2J3K0H1I2 ... J3K0H1I2J"
 
-                for (int i = 0; i+2 < INPUT_SIZE; i+=2) {
+                for (int i = 0; i < INPUT_SIZE; i+=2) {
                     const int INDEX = (i/2)%4;
                     softInput[i]   = SOFT_DELIM_CHARS[INDEX];
                     softInput[i+1] =      TOKEN_CHARS[INDEX];
@@ -2005,7 +2005,7 @@ int main(int argc, char **argv)
                                   StringRef(HARD_DELIM_CHARS));
                 const Obj& hardT = hardMT;
 
-                for (int i = 0; i+2 < INPUT_SIZE; i+=2) {
+                for (int i = 0; i < INPUT_SIZE; i+=2) {
                     const int       INDEX      = (i/2)%4;
                     const StringRef SOFT_PREV  = softT.previousDelimiter();
                     const StringRef SOFT_TOKEN = softT.token();

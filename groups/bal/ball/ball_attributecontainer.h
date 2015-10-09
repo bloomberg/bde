@@ -1,4 +1,12 @@
 // ball_attributecontainer.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #define INCLUDED_BALL_ATTRIBUTECONTAINER
 
@@ -33,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // protocol.
 //
 ///Example 1: An Implementation of 'ball::AttributeContainer'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we develop a 'ball::AttributeContainer'
 // implementation specifically intended for a service offline that will perform
 // rule-based logging, governed by the service client's bloomberg "uuid",
@@ -142,13 +150,13 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: A Generic Implementation of 'ball::AttributeContainer'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this second example we define a 'ball::AttributeContainer' that can
 // contain any valid 'ball::Attribute' value (a "generic"
 // 'ball::AttributeContainer').  In practice, an implementation that can
 // contain any attribute values may be less efficient than one specifically
 // created for a particular group of attributes needed by an application (as
-// shown in example 1).
+// shown in {Example 1}).
 //
 // Note that the 'ball' package provides a similar 'ball::AttributeContainer'
 // implementation in the 'ball_defaultattributecontainer' component.
@@ -287,7 +295,7 @@ BSLS_IDENT("$Id: $")
 //
 // First we create an object of a concrete type that implements the
 // 'ball::AttributeContainer' protocol (e.g., 'ServiceAttributes' defined in
-// example 1).  Then we obtain a reference to this object.
+// {Example 1}).  Then we obtain a reference to this object.
 //..
 //  ServiceAttributes serviceAttributes(3938908, 1, 9001);
 //  const ball::AttributeContainer& attributes = serviceAttributes;

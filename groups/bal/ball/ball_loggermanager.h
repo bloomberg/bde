@@ -1,4 +1,12 @@
 // ball_loggermanager.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_LOGGERMANAGER
 #define INCLUDED_BALL_LOGGERMANAGER
 
@@ -85,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // user-defined "default" values and other options.  However, to obtain the
 // "default" logging behavior, it is sufficient to instantiate a default
 // 'ball::LoggerManagerConfiguration' object and pass that to the constructor
-// of the scoped guard along with an observer.  (See "Usage Examples" below.)
+// of the scoped guard along with an observer.  (See {Usage} below.)
 //
 // As an alternative to using the scoped guard, the 'initSingleton' method that
 // takes the same arguments as the scoped guard may be used to initialize the
@@ -149,29 +157,32 @@ BSLS_IDENT("$Id: $")
 //
 // The names and exact meanings of the four severity threshold levels are as
 // follows:
-//..
-//   Record:       If the severity level of the record is at least as severe
-//                 as the Record threshold level of the associated category,
-//                 then the record will be stored by the logger in its
-//                 log record buffer (i.e., it will be recorded).
 //
-//   Pass:         If the severity of the record is at least as severe as the
-//                 Pass threshold level of the associated category, then the
-//                 record will be immediately published by the logger (i.e., it
-//                 will be transmitted to the logger's downstream recipient --
-//                 the observer).
+//: Record:
+//:     If the severity level of the record is at least as severe as the Record
+//:     threshold level of the associated category, then the record will be
+//:     stored by the logger in its log record buffer (i.e., it will be
+//:     recorded).
+//:
+//: Pass:
+//:     If the severity of the record is at least as severe as the Pass
+//:     threshold level of the associated category, then the record will be
+//:     immediately published by the logger (i.e., it will be transmitted to
+//:     the logger's downstream recipient -- the observer).
+//:
+//: Trigger:
+//:     If the severity of the record is at least as severe as the Trigger
+//:     threshold level of the associated category, then the record will cause
+//:     immediate publication of that record and any records in the logger's
+//:     log record buffer (i.e., this record will trigger a general log record
+//:     dump).
+//:
+//: Trigger-All:
+//:     If the severity of the record is at least as severe as the Trigger-All
+//:     threshold level of the associated category, then the record will cause
+//:     immediate publication of that record and all other log records stored
+//:     by *all* active loggers.
 //
-//   Trigger:      If the severity of the record is at least as severe as the
-//                 Trigger threshold level of the associated category, then the
-//                 record will cause immediate publication of that record and
-//                 any records in the logger's log record buffer (i.e., this
-//                 record will trigger a general log record dump).
-//
-//   Trigger-All:  If the severity of the record is at least as severe as the
-//                 Trigger-All threshold level of the associated category, then
-//                 the record will cause immediate publication of that record
-//                 and all other log records stored by *all* active loggers.
-//..
 // Note that more than one of the above actions can apply to a given log
 // record, since the four threshold levels are independent of one another.
 // Note also that *all* of these actions are governed by the threshold levels
@@ -321,15 +332,15 @@ BSLS_IDENT("$Id: $")
 // all relevant records.
 //
 ///'bsls::Log' Logging Redirection
-///------------------------------
+///-------------------------------
 // The 'ball::LoggerManager' singleton, on construction, will redirect the
 // 'bsls::Log' records to 'ball' in the log category 'BSLS.LOG' at the severity
 // level 'ERROR'.  Upon its destruction the logger manager singleton will
 // redirect 'bsls::Log' records back to the default 'bsls::Log' message
 // handler.
 //
-///Usage Examples
-///--------------
+///Usage
+///-----
 // This section illustrates instantiation of the logger manager singleton,
 // which is required (once!) in 'main', and also shows *direct* use of the
 // logger and logger manager interfaces, much of which is actually *not*
@@ -338,8 +349,8 @@ BSLS_IDENT("$Id: $")
 // documentation and the 'ball_log' component documentation for recommended
 // real-world usage examples.
 //
-///Usage 1 -- Initialization #1
-///- - - - - - - - - - - - - -
+///Example 1: Initialization #1
+/// - - - - - - - - - - - - - -
 // Clients that perform logging must first instantiate the singleton logger
 // manager using the 'ball::LoggerManagerScopedGuard' class.  This example
 // shows how to create a logger manager with the most basic "default behavior".
@@ -355,7 +366,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    // myApp.cpp
 //
-//    int main() 
+//    int main()
 //    {
 //
 //        // ...
@@ -388,8 +399,7 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 //
-//
-///Usage 2 -- Initialization #2
+///Example 2: Initialization #2
 /// - - - - - - - - - - - - - -
 // In this example, we demonstrate a more elaborate initial configuration for
 // the logger manager.  In particular, we create the singleton logger manager
@@ -514,7 +524,7 @@ BSLS_IDENT("$Id: $")
 //        }
 //    }
 //..
-// As in "Usage 1" above, we assume that the initialization sequence occurs
+// As in {Example 1} above, we assume that the initialization sequence occurs
 // somewhere near the top of 'main', and again we use a 'ball::DefaultObserver'
 // to publish to 'stdout':
 //..
@@ -630,7 +640,6 @@ BSLS_IDENT("$Id: $")
 //        assert( 64 == ballCategory->triggerLevel());
 //        assert( 32 == ballCategory->triggerAllLevel());
 //..
-//..
 // Finally add a third category named "Other.equities", again by calling
 // 'setCategory'.  This category has no ancestor currently in the registry, so
 // its threshold levels match those of the *Default* *Category*:
@@ -652,7 +661,7 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 //
-///Usage 3 -- Efficient Logging of 'ostream'-able Objects
+///Example 3: Efficient Logging of 'ostream'-able Objects
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates how instances of a class supporting
 // streaming to 'bsl::ostream' (via overloaded 'operator<<') can be logged.  It
@@ -727,7 +736,7 @@ BSLS_IDENT("$Id: $")
 // object contents into.  That would have required an extra copy and the cost
 // of allocation and deallocation, and thus would have been more inefficient.
 //
-///Usage 4 -- Logging using a 'ball::Logger'
+///Example 4: Logging Using a 'ball::Logger'
 ///- - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using the a 'ball::Logger' directly to log
 // messages.  In practice, clients are encouraged to use the logging macros
@@ -777,7 +786,7 @@ BSLS_IDENT("$Id: $")
 // used by the administration methods to "induce" a hierarchical behavior on
 // our category, should that be useful.  See, e.g., the callback functor
 // 'ball::LoggerManager::DefaultThresholdLevelsCallback' and its documentation,
-// and Usage Example 2 above for information on how to use category names to
+// and {Example 2} above for information on how to use category names to
 // customize logger behavior:
 //..
 //   int factorial(int n)

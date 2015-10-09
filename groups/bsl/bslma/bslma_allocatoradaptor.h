@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //
 //      int getUseMalloc() const { return d_useMalloc; }
 //  };
-//          
+//
 //  template <class T, class U>
 //  inline
 //  bool operator==(const MagicAllocator<T>& a, const MagicAllocator<U>& b)
@@ -238,7 +238,7 @@ class AllocatorAdaptor_Imp : public Allocator {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 template <class STL_ALLOC>
-using AllocatorAdaptor = 
+using AllocatorAdaptor =
     AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>;
     // Polymorphic wrapper around an STL-style allocator.  Note that
     // 'AllocatorAdaptor<A>::Type' is the same type regardless of whether or

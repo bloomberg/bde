@@ -71,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsPair                                 "TYPE has the pair trait"
 //                                                or "TYPE is a pair"
 //..
+//
 ///Usage
 ///-----
 // This component is for use primarily by the 'bslstl' package.  Other clients

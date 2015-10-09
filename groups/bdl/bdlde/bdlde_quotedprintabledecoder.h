@@ -1,4 +1,12 @@
 // bdlde_quotedprintabledecoder.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 #define INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alex Fung (afung8)
 //
-//@SEE_ALSO 'bdlde::QuotedPrintableEncoder'
+//@SEE_ALSO: 'bdlde::QuotedPrintableEncoder'
 //
 //@DESCRIPTION: This component provides a template class (parameterized
 // separately on both input and output iterators) that can be used to decode
@@ -37,15 +45,15 @@ BSLS_IDENT("$Id: $")
 //
 // The decoding process for this encoding scheme involves:
 //
-// 1. transforming any encoded character triplets back into their original
-// representation (rule #1 and rule #4).
+//: 1 transforming any encoded character triplets back into their original
+//:   representation (rule #1 and rule #4).
+//:
+//: 2 literally writing out characters that have not been changed (rule #2).
+//:
+//: 3 deleting any trailing whitespace at the end of an encoded line (rule #3).
 //
-// 2. literally writing out characters that have not been changed (rule #2).
-//
-// 3. deleting any trailing whitespace at the end of an encoded line (rule #3).
-//
-// 4. removing the soft line breaks including the '=' prefix (i.e.,
-// concatenating broken sentences) (rule #5).
+//: 4 removing the soft line breaks including the '=' prefix (i.e.,
+//:   concatenating broken sentences) (rule #5).
 //
 // The standard imposes a maximum of 76 characters exclusive of CRLF; however,
 // the decoder implemented in this component will handle lines of arbitrary
@@ -60,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // The following kinds of errors can be encountered during decoding, listed in
 // order of decreasing order of precedence:
 //..
-// E1. BAD_DATA
+//  E1. BAD_DATA
 //..
 // An '=' character is not followed by either two uppercase hexadecimal digits,
 // or a soft line break -- e.g.,
@@ -69,31 +77,32 @@ BSLS_IDENT("$Id: $")
 //   '=K3' (K3 is not a hexadecimal number)
 //   '=1f' (lower case f is a literally encoded character)
 //..
+//
 // Note that:
 //
-// 1.  In the relaxed error-reporting mode of this implementation, lowercase
-// hexadecimal digits are treated as valid numerals.
-//
-// 2.  E1 can be caused by a missing or corrupted numeric, a corrupted
-// character disguised as an '=', or an accidental insertion of a '=' that does
-// not belong.
-//
-// 3.  The case where a seemingly valid character is found in place of a
-// missing numeric cannot be detected, e.g., '=4F' where 'F' is actually a
-// literally encoded character.
-//
-// 4.  An erroneous occurrence of a '=' character preceding 2 seemingly valid
-// hexadecimal numerics is also undetectable, e.g., '=4F' where '=' was
-// actually a 't' corrupted during transmission.
+//: 1 In the relaxed error-reporting mode of this implementation, lowercase
+//:   hexadecimal digits are treated as valid numerals.
+//:
+//: 2 E1 can be caused by a missing or corrupted numeric, a corrupted character
+//:   disguised as an '=', or an accidental insertion of a '=' that does not
+//:   belong.
+//:
+//: 3 The case where a seemingly valid character is found in place of a missing
+//:   numeric cannot be detected, e.g., '=4F' where 'F' is actually a literally
+//:   encoded character.
+//:
+//: 4 An erroneous occurrence of a '=' character preceding 2 seemingly valid
+//:   hexadecimal numerics is also undetectable, e.g., '=4F' where '=' was
+//:   actually a 't' corrupted during transmission.
 //..
-// E2. BAD_LINEBREAK
+//  E2. BAD_LINEBREAK
 //..
 // A '\r' is not followed by a '\n'.  In the relaxed mode, each stand-alone
 // '\r' or '\n' will be copied straight through to the output.  For soft line
 // breaks, whitespace is ignored between the '=' character and the CRLF as they
 // are to be treated and removed as transport padding.
 //..
-// E3. BAD_LINELENTH
+//  E3. BAD_LINELENTH
 //..
 // An encoded line exceeds the specified maximum line length with missing soft
 // line breaks.  (Because input of flexible line lengths is allowed in this
@@ -110,8 +119,8 @@ BSLS_IDENT("$Id: $")
 // characters consumed) or possibly the iterator itself (for iterators with
 // reference-semantics) identifies the offending character.
 //
-///Usage Example
-///- - - - - - -
+///Usage
+///- - -
 // TBD
 
 #ifndef INCLUDED_BDLSCM_VERSION

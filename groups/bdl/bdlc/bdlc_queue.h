@@ -1,4 +1,12 @@
 // bdlc_queue.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLC_QUEUE
 #define INCLUDED_BDLC_QUEUE
 
@@ -49,6 +57,7 @@ BSLS_IDENT("$Id: $")
 //                    q[0]   q[1]                       q[n-1]
 //                  <------------ n = q.length() --//--------->
 //..
+//
 ///Performance
 ///-----------
 // The following characterizes the performance of representative operations
@@ -78,6 +87,7 @@ BSLS_IDENT("$Id: $")
 //     N.OP[]()            O[1]
 //     N.length()          O[1]
 //..
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to create and use a queue.

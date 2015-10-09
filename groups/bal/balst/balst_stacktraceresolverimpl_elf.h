@@ -1,4 +1,12 @@
 // balst_stacktraceresolverimpl_elf.h                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 #define INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 

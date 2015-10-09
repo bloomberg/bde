@@ -1141,7 +1141,7 @@ bool bsls::operator>=(double lhs, const TimeInterval& rhs)
 //..
 //  namespace bsl {
 //  template <>
-//  struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> : 
+//  struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> :
 //                                                            bsl::true_type {
 //      // This template specialization for 'is_trivially_copyable' indicates
 //      // that 'Date' is a trivially copyable type.

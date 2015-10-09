@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1 - Force a Link-Time Dependency on 's_coerce'
+///Example 1: Force a Link-Time Dependency on 's_coerce'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, declare a variable 's_coerce' of type 'const char *':
 //..

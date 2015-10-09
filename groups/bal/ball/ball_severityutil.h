@@ -1,4 +1,12 @@
 // ball_severityutil.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_SEVERITYUTIL
 #define INCLUDED_BALL_SEVERITYUTIL
 
@@ -36,6 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 //    static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
 //..
+//
 ///Usage
 ///-----
 // In this example, we show how to validate that a set of C-style strings

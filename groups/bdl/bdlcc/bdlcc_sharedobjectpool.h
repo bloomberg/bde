@@ -1,4 +1,12 @@
 // bdlcc_sharedobjectpool.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLCC_SHAREDOBJECTPOOL
 #define INCLUDED_BDLCC_SHAREDOBJECTPOOL
 
@@ -70,7 +78,7 @@ BSLS_IDENT("$Id: $")
 // user's responsibility to ensure that it correctly passes its allocator
 // argument through to the constructor of 'TYPE' if 'TYPE' uses allocator.
 //
-///Exception-Safety
+///Exception Safety
 ///----------------
 // There are two potential sources of exceptions in this component: memory
 // allocation and object construction.  The object pool is exception-neutral

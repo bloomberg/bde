@@ -1,4 +1,12 @@
 // bdlma_concurrentpool.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #define INCLUDED_BDLMA_CONCURRENTPOOL
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@SEE ALSO: bdema_pool
+//@SEE_ALSO: bdema_pool
 //
 //@DESCRIPTION: This component implements a memory pool,
 // 'bdlma::ConcurrentPool', that allocates and manages memory blocks of some

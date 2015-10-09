@@ -1,4 +1,12 @@
 // bdlde_utf8util.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_UTF8UTIL
 #define INCLUDED_BDLDE_UTF8UTIL
 
@@ -25,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // above 'U+10ffff' are also not allowed.
 //
 // Three types of functions are provided:
-//..
+//
 //: o 'isValid', which checks for validity, per RFC 3629, of a (candidate)
 //:   UTF-8 string.  "Overlong values", that is, values encoded in more bytes
 //:   than necessary, are not tolerated; nor are "surrogate values", which are
@@ -41,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //:   a sequence of UTF-8 characters, each of which may be encoded in multiple
 //:   bytes.  Note that 'numCharactersIfValid' both validates a (candidate)
 //:   UTF-8 string and counts the number of UTF-8 characters that it contains.
-//..
+//
 // Embedded null characters are allowed in strings that are accompanied by an
 // explicit length argument.  Naturally, null-terminated C-style strings cannot
 // contain embedded null characters.
@@ -54,6 +62,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  http://en.wikipedia.org/wiki/Utf-8
 //..
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.
@@ -169,7 +178,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsl::string stringWithSurrogate = string;
 //  utf8Append(&stringWithSurrogate, 0xd8ab);
-//..
+//
 //  assert(false == bdlde::Utf8Util::isValid(stringWithSurrogate.data(),
 //                                          stringWithSurrogate.length()));
 //  assert(false == bdlde::Utf8Util::isValid(stringWithSurrogate.c_str()));

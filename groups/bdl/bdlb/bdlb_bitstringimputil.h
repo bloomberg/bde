@@ -146,6 +146,7 @@ BSLS_IDENT("$Id: $")
 //  bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0x5555, 8);
 //  assert(static_cast<uint64_t>(0x77227777) == dstValue);
 //..
+//
 ///Accessors
 ///- - - - -
 // This example demonstrates the "accessor" static functions, which read, but

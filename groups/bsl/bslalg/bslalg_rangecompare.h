@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Defining Equality-Comparison Operators on a Container
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will use the 'bslalg::RangeCompare::equal' class method
 // to implement the equality-comparison operators for an iterable container
 // type residing in the 'bslstl' package, and highlight the circumstances under

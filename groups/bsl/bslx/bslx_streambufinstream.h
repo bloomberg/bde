@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Unexternalization
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Suppose we wish to implement a (deliberately simple) 'MyPerson' class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose

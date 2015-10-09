@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example: Compute storage requirements for a type
-///- - - - - - - - - - - - - - - - - - - - - - - - 
+///Example 1: Compute Storage Requirements for a Type
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to create a generic function which will allocate a record
 // comprising a value of specified 'TYPE' and a description in the form of a
 // null-terminated character string.  First, we declare the function

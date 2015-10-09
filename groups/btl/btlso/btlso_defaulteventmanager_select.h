@@ -1,4 +1,12 @@
 // btlso_defaulteventmanager_select.h                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_SELECT
 #define INCLUDED_BTLSO_DEFAULTEVENTMANAGER_SELECT
 
@@ -43,7 +51,8 @@ BSLS_IDENT("$Id: $")
 //                 *_poll  *_pollset *_select *_devpoll  *_epoll
 //
 //..
-///Thread-safety
+//
+///Thread Safety
 ///-------------
 // The 'select'-based multiplexers provided by this component depend on a
 // 'bdema'-style allocator to supply memory.  The allocator is installed at
@@ -55,20 +64,23 @@ BSLS_IDENT("$Id: $")
 // *thread* *enabled*.  If no allocator is provided at creation, the default
 // allocator, which is *thread* *enabled*, is used.  Otherwise, the following
 // is guaranteed:
-//..
+//
 //: o A single instance of this event manager is *not* *thread* *safe* with
 //:   respect to operations invoked on the same instance from different
 //:   threads: such operations are *not* guaranteed to work correctly.
+//:
 //: o An instance of this event manager *is* *thread* *safe* with respect to
 //:   operations invoked on *different* *instances* from different threads:
 //:   there will be no side-effects from such operations (which, generally
 //:   speaking, means that there is no 'static' data).
+//:
 //: o Distinct instances of this event manager are *thread* *enabled* meaning
 //:   that operations invoked on distinct instances from different threads can
 //:   proceed in parallel.
+//:
 //: o This event manager is not *async-safe*, meaning that one or more
 //:   functions cannot be invoked safely from a signal handler.
-//..
+//
 ///Performance
 ///-----------
 // Given that S is the number of socket events registered, the two classes of
@@ -99,7 +111,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using an event manager
+///Example 1: Using an Event Manager
 ///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a

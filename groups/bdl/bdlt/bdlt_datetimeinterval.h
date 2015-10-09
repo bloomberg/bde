@@ -54,6 +54,7 @@ BSLS_IDENT("$Id: $")
 //  seconds        [ -59 ..  59]         all fields non-pos. or all non-neg.
 //  milliseconds   [-999 .. 999]         all fields non-pos. or all non-neg.
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

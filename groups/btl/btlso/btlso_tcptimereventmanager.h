@@ -1,4 +1,12 @@
 // btlso_tcptimereventmanager.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_TCPTIMEREVENTMANAGER
 #define INCLUDED_BTLSO_TCPTIMEREVENTMANAGER
 
@@ -42,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // order of registration (i.e., this timer event manager is stable with respect
 // to timers).
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // This event manager is *thread* *safe*, meaning that any operation can be
 // called on *distinct* *instances* from different threads without any
@@ -102,8 +110,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a command mediator
-///- - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing a Command Mediator
+/// - - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows the implementation of a command mediator.
 // Given that this event manager is not thread enabled, a workaround is
 // required if we are to use this manager in a multithreaded program.  Let's

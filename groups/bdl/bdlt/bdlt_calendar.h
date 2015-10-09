@@ -372,7 +372,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Using Calendars
-///- - - - - - - - - - - - -
+/// - - - - - - - - - - - - -
 // What makes a 'bdlt::Calendar' substantially different from a
 // 'bdlt::PackedCalendar' is the speed with which the 'bdlt::Calendar' can
 // report whether a given date is or is not a business day.  An important use

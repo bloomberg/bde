@@ -1,5 +1,13 @@
 // btlso_socketoptions.t.cpp                                          -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bteso_socketoptions_t_cpp,"$Id$ $CSID$")
 

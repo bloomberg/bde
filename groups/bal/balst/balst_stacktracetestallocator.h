@@ -1,4 +1,12 @@
 // balst_stacktracetestallocator.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALST_STACKTRACETESTALLOCATOR
 #define INCLUDED_BALST_STACKTRACETESTALLOCATOR
 
@@ -66,8 +74,8 @@ BSLS_IDENT("$Id: $")
 // Note that the overhead increases and efficiency decreases as the
 // 'numRecordedFrames' argument to the constructor is increased.
 //
-///FailureHandler
-///--------------
+///Failure Handler
+///---------------
 // An object of type 'balst::StackTraceTestAllocator' always has a failure
 // handler associated with it.  This a a configurable 'bdef::Functton' object
 // that will be called if any error condition is detected, after the error

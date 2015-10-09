@@ -1,4 +1,12 @@
 // balm_publisher.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALM_PUBLISHER
 #define INCLUDED_BALM_PUBLISHER
 
@@ -27,8 +35,8 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 // 'balm::Publisher', and then use it to publish metrics recorded by a trivial
 // event manager.
 //
-///Example 1 -- Implementing the 'balm::Publisher' Protocol
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing the 'balm::Publisher' Protocol
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates a simple implementation of the
 // 'balm::Publisher' protocol.  This implementation publishes the metric
 // records to an output stream provided on construction.
@@ -98,8 +106,9 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //      }
 //  }
 //..
-///Example 2 -- Using the 'balm::Publisher' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Using the 'balm::Publisher' Protocol
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following example defines a trivial 'EventManager' class that uses the
 // 'balm::Publisher' protocol to publish metrics related to the incoming
 // event.  Note that this event manager does no actual processing and is
@@ -167,8 +176,9 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //      }
 //  };
 //..
-///Example 3 -- Publishing Collected Metrics Using 'EventManager'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 3: Publishing Collected Metrics Using 'EventManager'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this final example, we publish metrics collected for the 'EventManager'
 // object (defined above).
 //

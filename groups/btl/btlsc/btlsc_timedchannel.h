@@ -1,4 +1,12 @@
 // btlsc_timedchannel.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSC_TIMEDCHANNEL
 #define INCLUDED_BTLSC_TIMEDCHANNEL
 
@@ -105,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // method call the 'btlsc::Flag::k_ASYNC_INTERRUPT' value.
 //
 ///Timeouts
-///- - - -
+/// - - - -
 // A timeout is registered by the caller, when a method is invoked, as a
 // 'bsls::TimeInterval' value indicating the absolute *system* time after which
 // the operation should be interrupted.  A timeout expiration will return a
@@ -122,7 +130,7 @@ BSLS_IDENT("$Id: $")
 // will be attempted, but will not block.
 //
 ///Raw Transmissions Cannot Produce "Partial Results"
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // All read and unbuffered write methods support a "raw" variant in which the
 // operation is allowed to return after transmitting at least one byte, but
 // less than a "partial result" if (1) *at* *least* *one* *byte* has been
@@ -133,8 +141,8 @@ BSLS_IDENT("$Id: $")
 // methods whose names end in the suffix 'Raw'.  Note that the "raw" mode is
 // not supported for buffered-write operations.
 //
-///augStatus
-///- - - - -
+///'augStatus'
+///- - - - - -
 // Since there are several possible reasons for a "partial result", the caller
 // may wish to know the specific cause.  A second status value, 'augStatus'
 // ("augmented status") may be requested as an optional *initial* ('int *')
@@ -144,8 +152,8 @@ BSLS_IDENT("$Id: $")
 // that 'augStatus' will not be modified on success or error, but only on a
 // partial result.
 //
-///Scatter/Gather (readv/writev)
-///-----------------------------
+///Scatter/Gather ('readv'/'writev')
+///---------------------------------
 // This interface supports "vector I/O" -- the simultaneous reading from or
 // writing to multiple buffers -- via Unix-style 'readv' and 'writev' variants
 // of the normal single-buffer methods.  Scatter/Gather operations use either
@@ -226,6 +234,7 @@ BSLS_IDENT("$Id: $")
 //         // authorize any partial write operations whatsoever.
 //    }
 //..
+//
 ///Synopsis
 ///--------
 // The following chart summarizes the set of 20 transmission methods that are

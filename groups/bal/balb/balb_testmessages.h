@@ -1,4 +1,12 @@
 // balb_testmessages.h       -- GENERATED FILE - DO NOT EDIT --       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALB_TESTMESSAGES
 #define INCLUDED_BALB_TESTMESSAGES
 

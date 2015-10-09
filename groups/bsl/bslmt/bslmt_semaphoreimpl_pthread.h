@@ -1,4 +1,12 @@
 // bslmt_semaphoreimpl_pthread.h                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 #define INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 

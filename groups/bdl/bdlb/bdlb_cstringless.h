@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Use of 'bdlb::CStringLess'
-/// - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of unique C-strings. The following
 // code illustrates how to use 'bdlb::CStringLess' as a comparator for the
 // standard container 'set', to create a set of unique C-string values.

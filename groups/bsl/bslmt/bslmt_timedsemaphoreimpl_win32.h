@@ -1,4 +1,12 @@
 // bslmt_timedsemaphoreimpl_win32.h                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 #define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 
@@ -27,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // should instead use 'bslmt::TimedSemaphore'.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is

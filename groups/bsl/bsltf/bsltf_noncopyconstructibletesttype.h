@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Demonstrating The Type Can't Be Copy Constructed
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrating The Type Cannot Be Copy Constructed
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to show 'NonCopyConstructibleTestType' can't be copy
 // constructed:
 //

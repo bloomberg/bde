@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // the means of adjustment may change in the future.
 //
 ///Well-Formed 'HashTableAnchor' Objects
-///--------------------------------------
+///-------------------------------------
 // Many of the algorithms defined in this component operate on
 // 'HashTableAnchor' objects, which describe the attributes of a hash table.
 // The 'HashTableAnchor' objects supplied to 'HashTableImpUtil' are required
@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 //      // Return the 'KeyType' information associated with the specified
 //      // 'object'.
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.

@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // requests for that time-zone's data will fail.  Additional information about
 // TZ Database files can be found in 'baltzo_datafileloader'.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // The 'baltzo::DefaultZoneinfoCache::defaultCache' method is *thread-safe*
 // unless it is called concurrently with either the 'setDefaultCache' method or

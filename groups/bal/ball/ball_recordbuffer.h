@@ -1,4 +1,12 @@
 // ball_recordbuffer.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_RECORDBUFFER
 #define INCLUDED_BALL_RECORDBUFFER
 
@@ -51,17 +59,18 @@ BSLS_IDENT("$Id: $")
 // the 'ball::RecordBuffer' protocol by delegating to an instance of
 // 'bsl::vector<bsl::shared_ptr<ball::Record> > ':
 //..
-// my_recordbuffer.h
+//  // my_recordbuffer.h
 //
 //  class my_RecordBuffer : public ball::RecordBuffer {
 //      // This class provides a thread-safe implementation of the
-//      // 'ball::RecordBuffer' protocol.  This implementation employs a
-//      // vector to hold an unlimited number of record handles.
+//      // 'ball::RecordBuffer' protocol.  This implementation employs a vector
+//      // to hold an unlimited number of record handles.
 //
-//      mutable bslmt::RecursiveMutex d_mutex; // thread safety provider (see
-                                // the implementation notes for the
-                                // justification for using recursive mutex
-                                // rather a plain mutex)
+//      mutable bslmt::RecursiveMutex d_mutex;
+//                                   // thread safety provider (see
+//                                   // the implementation notes for the
+//                                   // justification for using recursive mutex
+//                                   // rather a plain mutex)
 //
 //      bsl::vector<bsl::shared_ptr<ball::Record> >
 //                         d_buffer; // buffer of record handles
@@ -94,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Implementation Notes
-///- - - - - - - - - - -
+/// - - - - - - - - - -
 // Recursive mutex (rather than plain mutex) is chosen to provide thread
 // safety.  This allows the manipulation of the record buffer between the call
 // to 'beginSequence' and 'endSequence'.  If we had used plain mutex, calling

@@ -9,7 +9,7 @@ namespace BloombergLP {
 namespace bsls {
 
 const SpinLock SpinLock::s_unlocked = BSLS_SPINLOCK_UNLOCKED;
-    
+
 }  // close package namespace
 
 }  // close enterprise namespace

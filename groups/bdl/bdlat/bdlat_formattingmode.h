@@ -1,4 +1,12 @@
 // bdlat_formattingmode.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #define INCLUDED_BDLAT_FORMATTINGMODE
 
@@ -24,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // a bit-field for the original type (i.e., schema type), and a number of
 // flags.
 //
-///Original Type (schema type)
+///Original Type (Schema Type)
 ///---------------------------
 // This bit-field defines the formatting modes that are derived based on the
 // type of an element, as defined in the schema.  The available modes are:

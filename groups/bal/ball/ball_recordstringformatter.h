@@ -1,4 +1,12 @@
 // ball_recordstringformatter.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_RECORDSTRINGFORMATTER
 #define INCLUDED_BALL_RECORDSTRINGFORMATTER
 
@@ -82,6 +90,7 @@ BSLS_IDENT("$Id: $")
 //..
 // 27AUG2007_16:09:46.161 2040:1 WARN subdir/process.cpp:542 FOO.BAR.BAZ <text>
 //..
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use an instance of

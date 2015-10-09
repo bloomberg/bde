@@ -1,4 +1,12 @@
 // bdlde_charconvertucs2.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_CHARCONVERTUCS2
 #define INCLUDED_BDLDE_CHARCONVERTUCS2
 
@@ -55,8 +63,12 @@ BSLS_IDENT("$Id: $")
 // (where characters that could be expressed in one octet are encoded using two
 // octets).
 //
-///Usage #1: C-Style Interface
-///---------------------------
+///Usage
+///- - -
+// This section illustrates intended use of this component.
+//
+///Example 1: C-Style Interface
+/// - - - - - - - - - - - - - -
 // The following snippet of code illustrates a typical use of the
 // 'bdlde::CharConvertUcs2' struct's C-style utility functions, converting a
 // simple UTF-8 string to UCS-2.
@@ -83,8 +95,9 @@ BSLS_IDENT("$Id: $")
 //     assert( 6  == charsWritten);
 // }
 //..
-///Usage #2: C-Style Round-Trip
-///----------------------------
+//
+///Example 2: C-Style Round-Trip
+///- - - - - - - - - - - - - - -
 // The following snippet of code illustrates another typical use of the
 // 'bdlde::CharConvertUcs2' struct's C-style utility functions, converting a
 // simple UTF-8 string to UCS-2, then converting the UCS-2 back and making sure
@@ -180,8 +193,9 @@ BSLS_IDENT("$Id: $")
 //     }
 // }
 //..
-///Usage #3: C++-Style Interface
-///-----------------------------
+//
+///Example 3: C++-Style Interface
+/// - - - - - - - - - - - - - - -
 // The following snippet of code illustrates a typical use of the
 // 'bdlde::CharConvertUcs2' struct's C++-style utility functions, converting a
 // simple UTF-8 string to UCS-2.

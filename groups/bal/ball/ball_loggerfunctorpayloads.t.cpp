@@ -1,5 +1,13 @@
 // ball_loggerfunctorpayloads.t.cpp                                   -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_loggerfunctorpayloads.h>
 
 #include <ball_loggermanager.h>
@@ -269,7 +277,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
     }
 //..
 
-}  // close namespace BALL_USAGE_EXAMPLE_1 
+}  // close namespace BALL_USAGE_EXAMPLE_1
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

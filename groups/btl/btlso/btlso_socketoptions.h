@@ -1,4 +1,12 @@
 // btlso_socketoptions.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_SOCKETOPTIONS
 #define INCLUDED_BTLSO_SOCKETOPTIONS
 
@@ -105,8 +113,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Setting the socket option on a socket
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Setting the Socket Option on a Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // 'btlso::SocketOptions' can be used to specify whether local addresses should
 // be reused.  The following snippets of code illustrate how to set the
 // 'BTESO_REUSEADDRESS' flag on a socket.  Note that we assume that a socket of

@@ -1,4 +1,12 @@
 // bdlde_md5.h                                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_MD5
 #define INCLUDED_BDLDE_MD5
 

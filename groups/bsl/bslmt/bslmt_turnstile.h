@@ -1,4 +1,12 @@
 // bslmt_turnstile.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_TURNSTILE
 #define INCLUDED_BSLMT_TURNSTILE
 
@@ -23,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // performed at each interval), the turnstile is said to be "lagging behind."
 // The amount of lag time is obtained from the 'lagTime' method.
 //
-///Comparison With Sleep
+///Comparison with Sleep
 ///---------------------
 // A straightforward implementation of metering is to call some form of sleep
 // (e.g., 'bslmt::ThreadUtil::microSleep') with a computed rate after each

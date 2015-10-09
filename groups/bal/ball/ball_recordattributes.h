@@ -1,4 +1,12 @@
 // ball_recordattributes.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_RECORDATTRIBUTES
 #define INCLUDED_BALL_RECORDATTRIBUTES
 
@@ -51,10 +59,11 @@ BSLS_IDENT("$Id: $")
 // the default constructor of 'ball::RecordAttributes'.
 //
 ///Usage
-///------
+///-----
+// This section illustrates intended use of this component.
 //
-///Example 1:
-///- - - - -
+///Example 1: Syntax
+///- - - - - - - - -
 // The 'ball::RecordAttributes' class holds sufficient information on which to
 // base a rudimentary logging, tracing, or reporting facility.  The following
 // code fragments illustrate the essentials of working with these attributes.
@@ -113,8 +122,9 @@ BSLS_IDENT("$Id: $")
 //              Category:  Futures
 //              Message:   sugar up (locust infestations on the rise)
 //..
-///Example 2:
-///- - - - -
+//
+///Example 2: Streaming Data Into a Message Attribute
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Following example demonstrates how an object of a class supporting 'ostream'
 // operation ('operator<<') can be streamed into the message
 // attribute.  Suppose we want to stream objects of following class.
@@ -143,7 +153,6 @@ BSLS_IDENT("$Id: $")
 //        return stream;
 //    }
 //..
-//
 // The following function streams an 'Information' object into the message
 // attribute of a 'ball::RecordAttributes' object.
 //..
@@ -151,14 +160,14 @@ BSLS_IDENT("$Id: $")
 //                                          ball::RecordAttributes& attributes,
 //                                          const Information&     information)
 //    {
-//        // first clear the message attributes
+//        // First clear the message attributes.
 //        attributes.clearMessage();
 //
-//        // create an 'ostream' from message stream buffer
+//        // Create an 'ostream' from message stream buffer.
 //        bsl::ostream os(&attributes.messageStreamBuf());
 //
-//        // now stream the information object into the created ostream,
-//        // this will set the message attribute of 'attributes' to the
+//        // Now stream the information object into the created ostream,
+//        // This will set the message attribute of 'attributes' to the
 //        // streamed contents.
 //        os << information;
 //    }

@@ -1,4 +1,12 @@
 // ball_attributecontext.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #define INCLUDED_BALL_ATTRIBUTECONTEXT
 
@@ -114,6 +122,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to call the 'hasRelevantActiveRules()'
@@ -482,7 +491,7 @@ class AttributeContext {
 
     // CLASS DATA
     static CategoryManager  *s_categoryManager_p;  // holds the rule set, rule
-                                                   // sequence number, and 
+                                                   // sequence number, and
                                                    // rule set mutex
 
     static bslma::Allocator *s_globalAllocator_p;  // an allocator for thread
@@ -492,7 +501,7 @@ class AttributeContext {
     AttributeContainerList   d_containerList;      // list of attribute
                                                    // containers
 
-    mutable RuleEvaluationCache  
+    mutable RuleEvaluationCache
                              d_ruleCache_p;        // cache of rule
                                                    // evaluations
 

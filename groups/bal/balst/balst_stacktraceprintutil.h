@@ -1,4 +1,12 @@
 // balst_stacktraceprintutil.h                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALST_STACKTRACEPRINTUTIL
 #define INCLUDED_BALST_STACKTRACEPRINTUTIL
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
-//@SEE ALSO: balst_stacktraceutil
+//@SEE_ALSO: balst_stacktraceutil
 //
 //@DESCRIPTION: This component defines a namespace 'struct',
 // 'balst::StackTracePrintUtil', containing static platform-independent

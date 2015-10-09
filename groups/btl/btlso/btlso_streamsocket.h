@@ -1,4 +1,12 @@
 // btlso_streamsocket.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_STREAMSOCKET
 #define INCLUDED_BTLSO_STREAMSOCKET
 
@@ -29,7 +37,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a simple client
+///Example 1: Implementing a Simple Client
 ///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates a simple dictionary client.  The client program
 // connects to a dictionary server at a know address and port, transmits a word
@@ -106,7 +114,8 @@ BSLS_IDENT("$Id: $")
 //     client->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
 // }
 //..
-///Example 2: Implementing a simple server
+//
+///Example 2: Implementing a Simple Server
 ///- - - - - - - - - - - - - - - - - - - -
 // This example demonstrates a simple dictionary server.  The server accepts
 // connections on a well known address/port, receives a word, looks up the

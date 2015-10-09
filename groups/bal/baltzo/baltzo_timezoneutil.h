@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 // standards, and varies among implementations.
 //
 ///Result of 'convertLocalToUtc' for Various 'baltzo::DstPolicy' Values
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following table summarizes the effect that the different
 // 'baltzo::DstPolicy' values have on a call to 'convertLocalToUtc' for several
 // possible time values in New York.  Note that standard local time in New York

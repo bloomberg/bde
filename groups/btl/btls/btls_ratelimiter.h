@@ -1,4 +1,12 @@
 // btls_ratelimiter.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLS_RATELIMITER
 #define INCLUDED_BTLS_RATELIMITER
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Mikhail Kunitskiy (mkunitskiy1)
 //
-//@SEE ALSO btls_leakybucket
+//@SEE_ALSO: btls_leakybucket
 //
 //@DESCRIPTION: This component provides a mechanism, 'btls::RateLimiter', that
 // enables clients to monitor and control the use of a resource such that the

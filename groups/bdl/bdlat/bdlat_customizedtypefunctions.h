@@ -1,4 +1,12 @@
 // bdlat_customizedtypefunctions.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #define INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 
@@ -202,8 +210,8 @@ BSLS_IDENT("$Id: $")
 // method, we show how to bypass this by simply declaring the class
 // 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType' trait.
 //
-/// Longer usage
-///- - - - - - -
+///Longer Usage
+/// - - - - - -
 // First, we should forward declare all the functions that we will implement
 // inside the 'mine' namespace:
 //..
@@ -259,7 +267,7 @@ BSLS_IDENT("$Id: $")
 // The 'bdlat' infrastructure (and any component that uses this infrastructure)
 // will now recognize 'mine::Cusip' as a "customized" type.
 //
-/// Shorter usage
+///Shorter Usage
 ///- - - - - - -
 // We can bypass all the code from the longer usage example by simply
 // declaring 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType'

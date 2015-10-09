@@ -1,4 +1,12 @@
 // bdlmt_threadmultiplexor.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMT_THREADMULTIPLEXOR
 #define INCLUDED_BDLMT_THREADMULTIPLEXOR
 
@@ -57,8 +65,12 @@ BSLS_IDENT("$Id: $")
 // non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
-///Usage Examples
-///--------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Multiple Work Queues
+///- - - - - - - - - - - - - - - -
 // The following usage example illustrates how the 'bdlmt::ThreadMultiplexor'
 // can be used to share thread resources between three separate work queues.
 // Assume that there are three classes of jobs: jobs that are important, jobs

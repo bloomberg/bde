@@ -1,5 +1,13 @@
 // bdlde_quotedprintableencoder.t.cpp                                 -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <bdlde_quotedprintableencoder.h>
 
 #include <bsl_cstdlib.h>   // atoi()
