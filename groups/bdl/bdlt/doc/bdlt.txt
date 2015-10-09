@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 27 components having 7 levels of physical
+ The 'bdlt' package currently has 28 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -54,6 +54,7 @@
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
+     bdlt_iso8601utilconfiguration
      bdlt_monthofyear
      bdlt_posixdateimputil                               !DEPRECATED!
      bdlt_serialdateimputil
@@ -117,7 +118,10 @@
 :      Provide functions to convert between time-interval representations.
 :
 : 'bdlt_iso8601util':
-:      Provide functions that convert date/time objects to/from ISO 8601.
+:      Provide conversions between date/time objects and ISO 8601 strings.
+:
+: 'bdlt_iso8601utilconfiguration':
+:      Provide an attribute class to configure ISO 8601 string generation.
 :
 : 'bdlt_localtimeoffset':
 :      Provide utilities to retrieve the local time offset.
