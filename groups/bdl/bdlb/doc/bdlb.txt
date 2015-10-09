@@ -25,7 +25,6 @@
      bdlb_variant
 
   2. bdlb_bitmaskutil
-     bdlb_cstringhash
      bdlb_guidutil
      bdlb_printmethods
 
@@ -33,6 +32,7 @@
      bdlb_bitutil
      bdlb_chartype
      bdlb_cstringequalto
+     bdlb_cstringhash
      bdlb_cstringless
      bdlb_float
      bdlb_functionoutputiterator
@@ -74,7 +74,7 @@
 :      Provide a standard compatible equality predicate for C-strings.
 :
 : 'bdlb_cstringhash':
-:      Provide a functor enabling C strings as unordered container keys.
+:      Provide a functor enabling C-strings as unordered-container keys.
 :
 : 'bdlb_cstringless':
 :      Provide a standard compatible less-than predicate for C-strings.
@@ -83,7 +83,7 @@
 :      Provide floating-point classification types and functions.
 :
 : 'bdlb_functionoutputiterator':
-:      Provides a output iterator for a client supplied functor.
+:      Provides an output iterator for a client-supplied functor.
 :
 : 'bdlb_guid':
 :      Provide a value-semantic type for Globally Unique Identifiers.
@@ -104,7 +104,7 @@
 :      Provide a pure input iterator for an empty range.
 :
 : 'bdlb_nulloutputiterator':
-:      Provide a bit-bucket for functions that take output iterators.
+:      Provide an output iterator type that discards output.
 :
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.
