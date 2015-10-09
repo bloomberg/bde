@@ -500,8 +500,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     if (!bdls::FilesystemUtil::exists(TEST_DIRECTORY)) {
-        ASSERT(0 ==
-               bdls::FilesystemUtil::createDirectories(TEST_DIRECTORY, true));
+        bdls::FilesystemUtil::createDirectories(TEST_DIRECTORY, true);
     }
 
     if (!bdls::FilesystemUtil::exists(TEST_GMT_FILE)) {

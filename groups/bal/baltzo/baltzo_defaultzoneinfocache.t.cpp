@@ -7,6 +7,7 @@
 #include <baltzo_zoneinfo.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -17,7 +18,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-
+#include <bslmt_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
@@ -541,7 +542,17 @@ static const char *AMERICA_NEW_YORK_ID = "America/New_York";
 void writeData(const char *fileName, const char *data, int numBytes)
 {
     int rc = bdls::FilesystemUtil::createDirectories(fileName, false);
-    ASSERT(0 == rc);
+
+    if (rc != 0) {
+        // If this test-driver is being run in parallel, its possible for two
+        // instances to attempt to create the directory simultaneously, and
+        // for one of them to fail.  But the directory should still exist.
+
+        bslmt::ThreadUtil::microSleep(0,1);
+        bsl::string path(fileName);
+        bdls::PathUtil::popLeaf(&path);
+        ASSERT(bdls::FilesystemUtil::exists(path));
+    }
 //..
 // Then we create a file for Bangkok and write the binary time zone data to
 // that file.
