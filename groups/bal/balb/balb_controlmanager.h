@@ -1,4 +1,12 @@
 // balb_controlmanager.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALB_CONTROLMANAGER
 #define INCLUDED_BALB_CONTROLMANAGER
 
@@ -28,8 +36,12 @@
 // safe to access and manipulate a single shared instance from different
 // threads.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating an ECHO Message Handler
+///- - - - - - - - - - - - - - - - - - - - - -
 // First define a trivial callback to be invoked when an "ECHO" message is
 // received:
 //..

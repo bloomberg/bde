@@ -1,4 +1,12 @@
 // btlso_inetstreamsocketfactory.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_INETSTREAMSOCKETFACTORY
 #define INCLUDED_BTLSO_INETSTREAMSOCKETFACTORY
 
@@ -38,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // the destruction will disable socket operations (by calling
 // 'btlso::SocketImpUtil::cleanup' method).
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The classes provided by this component depend on a 'bslma::Allocator'
 // instance to supply memory.  If the allocator is not thread enabled then the
@@ -77,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Create a 'btlso::StreamSocket' Object From Existing Socket Handle
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use 'btlso::InetStreamSocketFactory' to allocate a
 // 'btlso::StreamSocket' object that attaches to an existing socket handle.
 // This socket handle may be created from a third-party library (such as

@@ -1,4 +1,12 @@
 // btlso_socketoptutil.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_SOCKETOPTUTIL
 #define INCLUDED_BTLSO_SOCKETOPTUTIL
 
@@ -29,8 +37,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Setting 'k_REUSEADDRESS' option on a socket
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Setting 'k_REUSEADDRESS' Option on a Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to set 'k_REUSEADDRESS' flag
 // on a socket.  Note that we assume that a socket of type 'SOCK_STREAM' is
 // already created and socket allocation 'btlso_socketimputil' can be used.
@@ -69,7 +77,8 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == result);
 //  assert(SOCK_STREAM == sockettype);
 //..
-///Example 2: Setting linger options
+//
+///Example 2: Setting Linger Options
 ///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to set and get linger data
 // option values for a socket.  First set the linger interval to 2 seconds:
@@ -102,8 +111,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == result);
 //  assert(0 == errorcode);
 //..
-///Example 3: Illustrating pass-through ability
-///- - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 3: Illustrating Pass-Through Ability
+/// - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the pass-through ability.
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS

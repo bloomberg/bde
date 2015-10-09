@@ -1,4 +1,12 @@
 // bdlma_concurrentmultipool.h                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOL
 #define INCLUDED_BDLMA_CONCURRENTMULTIPOOL
 
@@ -64,6 +72,7 @@ BSLS_IDENT("$Id: $")
 //: 1 NUMBER OF POOLS -- the number of internal pools (the block size managed
 //:   by the first pool is eight bytes, with each successive pool managing
 //:   block of a size twice that of the previous pool).
+//:
 //: 2 GROWTH STRATEGY -- geometrically growing chunk size starting from 1 (in
 //:   terms of the number of memory blocks per chunk), or fixed chunk size,
 //:   specified as either:
@@ -72,6 +81,7 @@ BSLS_IDENT("$Id: $")
 //:     corresponding to each individual pool
 //:   If the growth strategy is not specified, geometric growth is used for all
 //:   pools.
+//:
 //: 3 MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
 //:   chunk, specified as either:
 //:     o the unique maximum-blocks-per-chunk value for all of the pools, or
@@ -81,6 +91,7 @@ BSLS_IDENT("$Id: $")
 //:   implementation-defined default value is used.  Note that the maximum
 //:   blocks per chunk can be configured only if the number of pools is also
 //:   configured.
+//:
 //: 4 BASIC ALLOCATOR -- the allocator used to supply memory (to replenish an
 //:   internal pool, or directly if the maximum block size is exceeded).  If
 //:   not specified, the currently installed default allocator (see
@@ -108,8 +119,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using a 'bdlma::ConcurrentMultipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::ConcurrentMultipool' can be used by containers that hold different
 // types of elements, each of uniform size, for efficient memory allocation of
 // new elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -372,7 +385,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Implementing an Allocator Using 'bdlma::ConcurrentMultipool'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a multipool allocator,
 // 'my_MultipoolAllocator', that allocates memory from multiple

@@ -1,4 +1,12 @@
 // bslmt_sluice.t.cpp                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <bslmt_sluice.h>
 
 #include <bslmt_lockguard.h>

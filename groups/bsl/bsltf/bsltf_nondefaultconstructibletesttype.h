@@ -35,8 +35,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Demonstrating The Type Can't Be Default Constructed
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrating The Type Cannot Be Default Constructed
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We show that create a 'NonDefaultConstructibleTestType' by using the default
 // constructor will not compile:
 //..

@@ -1,4 +1,12 @@
 // bdlc_indexclerk.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLC_INDEXCLERK
 #define INCLUDED_BDLC_INDEXCLERK
 
@@ -26,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // to the currently decommissioned indices.  Note that the order of iteration
 // is not defined.
 //
-///PERFORMANCE
+///Performance
 ///-----------
 // The following characterizes the performance of representative operations
 // using "big-oh" notation, O[f(N,M)], where the names 'N' and 'M' also refer
@@ -49,6 +57,7 @@ BSLS_IDENT("$Id: $")
 //     N.nextNewIndex()              O[1]
 //     N.isInUse(index)              O[N]
 //..
+//
 ///Usage
 ///-----
 // A 'bdlc::IndexClerk' is commonly used in conjunction with an array to enable

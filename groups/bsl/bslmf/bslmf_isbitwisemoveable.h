@@ -53,21 +53,25 @@ BSLS_IDENT("$Id: $")
 // objects are deduced as bitwise moveable unless explicitly annotated
 // otherwise (see-below).
 //
-///What classes are not bitwise moveable?
-///---------------------------------------
+///What Classes are Not Bitwise Moveable?
+///--------------------------------------
 // A class that has any of the following attributes is !not! bitwise
 // moveable:
 //
 //: o Its address is one of the salient attributes that comprise its value.
+//:
 //: o It contains a pointer that might (directly or indirectly) point to
 //:   itself or to one of its own members or which stores an encoding of its
 //:   own address or the address of one of its members.  For example, a list
 //:   implementation that includes an embedded sentinel node such that the
 //:   last node in the list points back to the sentinel node within the list
 //:   class object is not bitwise moveable.
+//:
 //: o Its constructor registers a pointer to itself in some static registry.
+//:
 //: o Its constructor or destructor have some side effect that, if omited
 //:   during destructive move, would render the program incorrect.
+//:
 //: o It contains a data member or base class that is not bitwise moveable.
 //
 // Because of the destructive nature of a bitwise move (the original object
@@ -79,23 +83,27 @@ BSLS_IDENT("$Id: $")
 // incorrectly cause the original and the copy to share the same
 // heap-allocated storage.
 //
-///One-byte objects
-///- - - - - - - -
+///One-Byte Objects
+/// - - - - - - - -
 // An object whose size does not exceede one byte are deduced to be bitwise
 // moveable. The validity of this heuristic can be deduced by examining the
 // criteria for non-bitwise moveable classes above:
 //
 //: o Very few types have their own address as a salient attribute.
+//:
 //: o It is not possible for an object to store a pointer to itself in only
 //:   one byte. It is difficult to conceive of why an object would store a
 //:   (compressed) encoding of own address in one byte.
+//:
 //: o Static registries of objects of any size are rare and are almost never
 //:   a good design.
+//:
 //: o Constructors and destructors with side effects are also rare, and appear
 //:   almost entirely within test code (i.e., counting constructions and
 //:   destructions).  Even in those cases, it is often acceptable or even
 //:   preferable to skip the balanced side effects of the constructor and
 //:   destructor during a destructive move.
+//:
 //: o Any data member or base class of a one-byte class must also be either
 //:   an empty base class or a one-byte object, so the above rationalle
 //:   applies recursively to them.
@@ -127,7 +135,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Example 1: Using the trait to implement `destructiveMoveArray`
+// This section illustrates intended use of this component.
+//
+///Example 1: Using the Trait to Implement 'destructiveMoveArray'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
@@ -392,7 +402,7 @@ BSLS_IDENT("$Id: $")
 //  } // Close enterprise namespace
 //..
 //
-///Example 2: Associating a trait with a class template
+///Example 2: Associating a Trait with a Class Template
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we associate a trait not with a class, but with a class
 // *template*.  We create three class templates, each of which uses a
@@ -489,7 +499,7 @@ BSLS_IDENT("$Id: $")
 //  } // Close enterprise namespace
 //..
 //
-///Example 3: Avoiding false positives on one-byte clases
+///Example 3: Avoiding False Positives on One-Byte Clases
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we define an empty class that has a non-trivial copy
 // constructor that has a global side effect.  The side effect should not be

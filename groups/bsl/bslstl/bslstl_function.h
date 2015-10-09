@@ -337,11 +337,10 @@ class Function_SmallObjectOptimization {
         // the small object optimization (SOO).  The 'VALUE' member is encoded
         // as follows:
         //
-        //:  o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
-        //:    destructive move operation (and therefore should not be
-        //:    allocated inplace), then 'VALUE == sizeof(TP) +
-        //:    k_NON_SOO_SMALL_SIZE'.
-        //:  o Otherwise, 'VALUE == sizeof(TP)'.
+        //: o If 'TP' is not larger than 'InplaceBuffer' but has a throwing
+        //:   destructive move operation (and therefore should not be allocated
+        //:   inplace), then 'VALUE == sizeof(TP) + k_NON_SOO_SMALL_SIZE'.
+        //: o Otherwise, 'VALUE == sizeof(TP)'.
         //
         // Note that the 'Soo' prefix is used to indicate that an identifier
         // uses the above protocol.  Thus a variable called 'SooSize' is

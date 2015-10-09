@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Externalization
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // A 'bslx::StreambufOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply

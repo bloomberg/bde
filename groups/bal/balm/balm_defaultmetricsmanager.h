@@ -1,4 +1,12 @@
 // balm_defaultmetricsmanager.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
 #define INCLUDED_BALM_DEFAULTMETRICSMANAGER
 
@@ -42,8 +50,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to create, configure, and destroy
 // the default 'balm::MetricsManager' instance.
 //
-///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Create and Access the Default 'balm::MetricsManager' Instance
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricManager'
 // instance and publish a single metric to the console.  See the documentation
 // of 'balm_metric' and 'balm_metricsmanager' for information on how to record

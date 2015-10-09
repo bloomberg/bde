@@ -1,4 +1,12 @@
 // bslmt_readlockguard.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_READLOCKGUARD
 #define INCLUDED_BSLMT_READLOCKGUARD
 
@@ -54,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // constructed guard objects proctor no lock.  The destructor of each of the
 // guard types has no effect if no lock is under management.
 //
-///Behavior of the 'release' method
+///Behavior of the 'release' Method
 ///--------------------------------
 // Like all BDE proctor classes, each of the three 'bslmt::ReadLockGuard*'
 // classes provides a 'release' method that terminates the proctor's management

@@ -1,4 +1,12 @@
 // ball_asyncfileobserver.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_ASYNCFILEOBSERVER
 #define INCLUDED_BALL_ASYNCFILEOBSERVER
 
@@ -187,7 +195,7 @@ BSLS_IDENT("$Id: $")
 // Note that timestamp pattern elements in a log file name are typically
 // selected so they produce unique names for each rotation.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // All public methods of 'ball::AsyncFileObserver' are thread-safe, and can be
 // called concurrently by multiple threads.

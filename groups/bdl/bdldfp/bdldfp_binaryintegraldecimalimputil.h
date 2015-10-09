@@ -24,8 +24,8 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: none
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: TBD
+/// - - - - - - -
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

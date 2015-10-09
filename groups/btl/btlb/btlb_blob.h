@@ -1,4 +1,12 @@
 // btlb_blob.h                                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLB_BLOB
 #define INCLUDED_BTLB_BLOB
 
@@ -68,7 +76,7 @@ BSLS_IDENT("$Id: $")
 // the added cost of shared ownership for each individual buffer and random
 // access to the buffer.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // Different instances of the classes defined in this component can be
 // concurrently modified by different threads.  Thread safety of a particular
@@ -76,6 +84,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Simple Blob Buffer Factory
 ///- - - - - - - - - - - - - - - - - - - -
@@ -200,6 +209,7 @@ BSLS_IDENT("$Id: $")
 //          // 'blob.buffer(0)'.
 //  }
 //..
+//
 ///Example 2: Data-Oriented Manipulation of a Blob
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // There are several typical ways of manipulating a blob: the simplest lets the

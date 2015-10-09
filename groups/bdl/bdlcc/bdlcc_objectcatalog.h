@@ -1,4 +1,12 @@
 // bdlcc_objectcatalog.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLCC_OBJECTCATALOG
 #define INCLUDED_BDLCC_OBJECTCATALOG
 
@@ -40,8 +48,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-/// Example 1: Catalog Usage
+///Example 1: Catalog Usage
 /// - - - - - - - - - - - -
 // Consider a client sending queries to a server asynchronously.  When the
 // response to a query arrives, the client needs to invoke the callback

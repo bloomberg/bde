@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::MultipoolAllocator'
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::MultipoolAllocator' can be used to supply memory to node-based
 // data structures such as 'bsl::set', 'bsl::list', and 'bsl::map'.  Suppose we
 // are implementing a container of named graphs, where a graph is defined by a
@@ -272,7 +272,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Performance of a 'bdlma::MultipoolAllocator'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::MultipoolAllocator' can greatly improve efficiency when it is used
 // to supply memory to node-based data structures that frequently both insert
 // and remove nodes, while growing to significant size before being destroyed.

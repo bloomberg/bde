@@ -1,4 +1,12 @@
 // btlso_streamsocketfactory.h                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_STREAMSOCKETFACTORY
 #define INCLUDED_BTLSO_STREAMSOCKETFACTORY
 
@@ -59,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Binding a Stream Socket to a 'bslma::ManagedPtr'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is occasionally necessary to create smart pointers to manage a
 // 'btlso::StreamSocket' object.  The example below shows the syntax for
 // constructing managed pointer object for a stream socket using

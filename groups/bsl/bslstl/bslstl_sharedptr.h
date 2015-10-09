@@ -616,8 +616,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following examples demonstrate various features and uses of shared
 // pointers.
 //
-///Example 1 - Basic Usage
-///- - - - - - - - - - - -
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following example demonstrates the creation of a shared pointer.  First,
 // we declare the type of object that we wish to manage:
 //..
@@ -689,8 +689,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // The following examples demonstrate the use of custom deleters with shared
 // pointers.
 //
-///Example 2 - Nil deleters
-///  -  -  -  -  -  -  -  -
+///Example 2: Nil Deleters
+/// -  -  -  -  -  -  -  -
 // There are cases when an interface calls for an object to be passed as a
 // shared pointer, but the object being passed is not owned by the caller
 // (e.g., a pointer to a static variable).  In these cases, it is possible to
@@ -773,8 +773,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 //
-///Example 3 - Basic Weak Pointer Usage
-/// - - - - - - - - - - - - - - - - - -
+///Example 3: Basic Weak Pointer Usage
+///- - - - - - - - - - - - - - - - - -
 // This example illustrates the basic syntax needed to create and use a
 // 'bsl::weak_ptr'.  Suppose that we want to construct a weak pointer that
 // refers to an 'int' managed by a shared pointer.  Next we define the shared
@@ -829,8 +829,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(intWeakPtr2.expired());
 //  assert(!intWeakPtr2.lock());
 //..
-// Example 4 - Breaking cyclical dependencies
-//- - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 4: Breaking Cyclical Dependencies
+///- - - - - - - - - - - - - - - - - - - - -
 // Weak pointers are frequently used to break cyclical dependencies between
 // objects that store references to each other via a shared pointer.  Consider
 // for example a simplified news alert system that sends news alerts to users
@@ -947,8 +948,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //  };
 //..
 //
-// Usage example 5 - Caching example
-// - - - - - - - - - - - - - - - - -
+///Example 5: Caching
+/// - - - - - - - - -
 // Suppose we want to implement a peer to peer file sharing system that allows
 // users to search for files that match specific keywords.  A simplistic
 // version of such a system with code not relevant to the usage example elided
@@ -1085,7 +1086,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 //
-///Example 6 - Custom Deleters
+///Example 6: Custom Deleters
 /// -  -  -  -  -  -  -  -  -
 // The role of a "deleter" is to allow users to define a custom "cleanup" for a
 // shared object.  Although cleanup generally involves destroying the object,
@@ -1206,8 +1207,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // be exposed.  The following examples demonstrate two techniques for achieving
 // this goal using a 'shared_ptr'.
 //
-///Example 7 - Hidden Interfaces
-/// -  -  -  -  -  -  -  -  -  -
+///Example 7: Hidden Interfaces
+/// - - - - - - - - - - - - - -
 // Example 7 demonstrates the use of incomplete types to hide the interface of
 // a 'my_Session' type.  We begin by declaring the 'my_SessionManager' 'class',
 // which allocates and manages 'my_Session' objects.  The interface ('.h')
@@ -1338,8 +1339,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return handle->sessionName();
 //  }
 //..
-///Example 8 - Opaque Types
-///  -  -  -  -  -  -  -  -
+//
+///Example 8: Opaque Types
+/// -  -  -  -  -  -  -  -
 // In the above example, users could infer that 'my_Handle' is a pointer to a
 // 'my_Session' but have no way to directly access it's methods since the
 // interface is not exposed.  In the following example, 'my_SessionManager' is

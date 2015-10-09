@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Basic Use of 'bdlb::CStringEqualTo'
+///Example 1: Basic Use of 'bdlb::CStringEqualTo'
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
 // 'bdlb::CStringEqualTo' object as a binary predicate for the standard library

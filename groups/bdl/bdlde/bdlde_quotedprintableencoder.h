@@ -1,4 +1,12 @@
 // bdlde_quotedprintableencoder.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_QUOTEDPRINTABLEENCODER
 #define INCLUDED_BDLDE_QUOTEDPRINTABLEENCODER
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alex Fung (afung8)
 //
-//@SEE_ALSO 'bdlde::QuotedPrintableDecoder'
+//@SEE_ALSO: 'bdlde::QuotedPrintableDecoder'
 //
 //@DESCRIPTION: This component provides a class that can be used to encode byte
 // sequences of arbitrary length into the Quoted Printable representation
@@ -42,15 +50,15 @@ BSLS_IDENT("$Id: $")
 // The data stream is processed one byte at a time from left to right as
 // follows:
 //
-///1. General 8-bit representation
-///- - - - - - - - - - - - - - - -
+///General 8-Bit Representation
+/// - - - - - - - - - - - - - -
 // Any 8-bit input character, except a CR or LF, *may* be represented by an "="
 // followed by a 2-digit hexadecimal representation of its ASCII value.  Only
 // uppercase hexadecimal digits are allowed.  For example, the letter 'n' can
 // be encoded into '=6E'.
 //
-///2. Literal representation
-///- - - - - - - - - - - - -
+///Literal Representation
+/// - - - - - - - - - - -
 // Characters with decimal values in the range [33..126], with the exception of
 // 61 ('='), *may* be represented literally as they appear before encoding.
 // Hence, in addition to [0-9][a-z][A-Z], the following characters may
@@ -59,8 +67,8 @@ BSLS_IDENT("$Id: $")
 // [!"#$%&'()*+,-./:;<>?@[\]^_`{|}~]
 //..
 //
-///3. Whitespace
-///- - - - - - -
+///Whitespace
+/// - - - - -
 // Space and tab *may* be represented literally, unless they appear at the end
 // of an encoded line, in which case they must be followed by a '=' character
 // serving as a soft line break (see rule #5), or they must be encoded
@@ -68,13 +76,13 @@ BSLS_IDENT("$Id: $")
 // in a Quoted-Printable body must necessarily be added by intermediate
 // transport agents and must be deleted during decoding.
 //
-///4. Line breaks
-///- - - - - - -
+///Line Breaks
+///- - - - - -
 // A line break must be represented in the Quoted-Printable encoding as in rule
 // number 1, i.e., LF -> =0A; CR -> =0D.
 //
-///5. Soft Line breaks
-///- - - - - - - - - -
+///Soft Line Breaks
+/// - - - - - - - -
 // Encoded lines are required to be no longer than 76 characters in this
 // encoding scheme.  Soft line breaks in the form of an '=' sign placed at the
 // end of an encoded line are used to break up longer lines, either necessarily
@@ -116,8 +124,8 @@ BSLS_IDENT("$Id: $")
 // made for this implementation.  Note that there is a hard line break at the
 // 77th character position, immediately after "dozing".
 //
-///Example 1:
-///- - - - - -
+///Example 1
+///- - - - -
 // Data:
 //..
 // From point A to point B, the distance is 1245.56 miles.  Driving at a dozing
@@ -132,8 +140,8 @@ BSLS_IDENT("$Id: $")
 // to complete the trip.
 //..
 //
-///Example 2:
-///- - - - - -
+///Example 2
+///- - - - -
 // Data:
 //..
 // Hello, world.
@@ -156,15 +164,15 @@ BSLS_IDENT("$Id: $")
 //
 // The decoding process for this encoding scheme involves:
 //
-// 1. transforming any encoded character triplets back into their original
-// representation (rule #1 and rule #4).
-//
-// 2. literally writing out characters that have not been changed (rule #2).
-//
-// 3. deleting any trailing whitespace at the end of an encoded line (rule #3).
-//
-// 4. removing the soft line breaks including the '=' prefix (i.e.,
-// concatenating broken sentences) (rule #5).
+//: 1 transforming any encoded character triplets back into their original
+//:   representation (rule #1 and rule #4).
+//:
+//: 2 literally writing out characters that have not been changed (rule #2).
+//:
+//: 3 deleting any trailing whitespace at the end of an encoded line (rule #3).
+//:
+//: 4 removing the soft line breaks including the '=' prefix (i.e.,
+//:   concatenating broken sentences) (rule #5).
 //
 // The standard imposes a maximum of 76 characters exclusive of CRLF; however,
 // the decoder implemented in this component will handle lines of arbitrary
@@ -177,8 +185,12 @@ BSLS_IDENT("$Id: $")
 // the input, allowing straight pass-through of character sets that cannot be
 // interpreted.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Encoding
+///- - - - - - - - - -
 // The following example shows how to use a 'bdlde::QuotedPrintableEncoder'
 // object to implement a function, 'streamconverter', that reads text from a
 // 'bsl::istream', encodes that text in Quoted-Printable representation, and

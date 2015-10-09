@@ -1,4 +1,12 @@
 // btlmt_channelstatus.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_CHANNELSTATUS
 #define INCLUDED_BTLMT_CHANNELSTATUS
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Chen He (che2)
 //
-//@SEE ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
+//@SEE_ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
 //
 //@DESCRIPTION: This component provides namespace, 'btlmt::ChannelStatus', for
 // the 'enum' type listing the possible return codes for methods that operate

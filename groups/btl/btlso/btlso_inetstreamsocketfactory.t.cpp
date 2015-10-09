@@ -1,5 +1,13 @@
 // btlso_inetstreamsocketfactory.t.cpp                                -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <btlso_inetstreamsocketfactory.h>
 
 #include <btlso_socketimputil.h>

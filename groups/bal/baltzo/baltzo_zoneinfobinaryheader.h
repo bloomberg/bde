@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Creating a 'baltzo::ZoneinfoBinaryHeader' from User Input
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We define the 'getNextZoneinfoBinaryHeader' helper function, reads data from
 // a stream, validates the data, and constructs a
 // 'baltzo::ZoneinfoBinaryHeader' object.

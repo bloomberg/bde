@@ -1,4 +1,12 @@
 // btlso_ipv4address.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_IPV4ADDRESS
 #define INCLUDED_BTLSO_IPV4ADDRESS
 
@@ -32,26 +40,26 @@ BSLS_IDENT("$Id: $")
 // *place* *holder* for the four bytes in the 32-bit logical IP *in* *network*
 // *byte* *order*, and therefore must be interpreted accordingly.
 //
-// Valid String Representations of IPv4 Addresses
-// ----------------------------------------------
+///Valid String Representations of IPv4 Addresses
+///----------------------------------------------
 // Many methods in this component accept or return IP addresses represented as
 // strings.  Strings representing IP addresses are considered valid only if
 // they are in one of the following four formats:
 //..
-//o "a.b.c.d"  where a, b, c, and d are each 8-bit ints
-//o "a.b.c"    where a and b are both 8-bit ints and c is a 16-bit int
-//o "a.b"      where a is an 8-bit int and b is a 24-bit int
-//o "a"        where a is a 32-bit int
+//  "a.b.c.d"  where a, b, c, and d are each 8-bit ints
+//  "a.b.c"    where a and b are both 8-bit ints and c is a 16-bit int
+//  "a.b"      where a is an 8-bit int and b is a 24-bit int
+//  "a"        where a is a 32-bit int
 //..
 // Additionally, an IP 'address' in string format represents 255.255.255.255 if
 // it has one of the following four formats:
 //..
-//o "a.b.c.d"  where a, b, c, and d are each 8-bit ints representing -1 or 255
-//o "a.b.c"    where a and b are both 8-bit ints representing -1 or
+//  "a.b.c.d"  where a, b, c, and d are each 8-bit ints representing -1 or 255
+//  "a.b.c"    where a and b are both 8-bit ints representing -1 or
 //             255 and c is a 16-bit int representing -1 or 65536.
-//o "a.b"      where a is an 8-bit int representing -1 or 255 and b is
+//  "a.b"      where a is an 8-bit int representing -1 or 255 and b is
 //             a 24-bit int representing -1 or 16777215.
-//o "a"        where a is a 32-bit int representing -1 or 4294967295.
+//  "a"        where a is a 32-bit int representing -1 or 4294967295.
 //..
 // In both those cases a, b, c, and d can each be represented in decimal,
 // octal, or (upper or lower case) hexadecimal format, e.g., 0xeA.0277.3.5.

@@ -1,4 +1,12 @@
 // bdlmt_timereventscheduler.h                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 #define INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 
@@ -84,7 +92,7 @@ BSLS_IDENT("$Id: $")
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which times supplied to other methods should be based.
 // If the clock type indicated at construction is

@@ -1,4 +1,12 @@
 // ball_log.t.cpp                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <ball_log.h>
 
 #include <ball_administration.h>
@@ -1409,7 +1417,7 @@ int main(int argc, char *argv[])
                                 thresholds[j].triggerAllLevel());
                 manager.addRule(rule);
                 for (int k = 0; k < NUM_VALUES; ++k) {
-                    ball::Record *record = 
+                    ball::Record *record =
                                          manager.getLogger().getRecord("X",1);
 
                     // Each level is the minimum severity (maximum value)

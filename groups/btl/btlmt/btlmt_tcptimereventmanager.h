@@ -1,4 +1,12 @@
 // btlmt_tcptimereventmanager.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
 #define INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
 
@@ -45,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // should be provided to this event manager at construction for optimal
 // performance.
 //
-///Thread safety
+///Thread Safety
 ///-------------
 // This event manager is *thread* *safe*, i.e., operations can be invoked
 // simultaneously on a single instance of this event manager from multiple
@@ -100,6 +108,7 @@ BSLS_IDENT("$Id: $")
 //  | numSocketEvents          |        O(1)         |        O(S)           |
 //  +========================================================================+
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

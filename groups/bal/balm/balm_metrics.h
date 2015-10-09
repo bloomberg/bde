@@ -1,4 +1,12 @@
 // balm_metrics.h                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALM_METRICS
 #define INCLUDED_BALM_METRICS
 
@@ -376,8 +384,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Create and Configure the Default 'balm::MetricsManager' Instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricsManager'
 // instance and perform a trivial configuration.
 //
@@ -408,8 +416,8 @@ BSLS_IDENT("$Id: $")
 // explicitly call 'balm::DefaultMetricsManager::create()' must also explicitly
 // call 'balm::DefaultMetricsManager::release()'.
 //
-///Example 2 - Updating a Metric
-///- - - - - - - - - - - - - - -
+///Example 2: Updating a Metric
+/// - - - - - - - - - - - - - -
 // Once a metrics manager is initialized, we can use the various macros to
 // record metric values.  In this second example, we collect metrics from a
 // hypothetical event-processing function.  We use 'BALM_METRICS_UPDATE' to
@@ -443,8 +451,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3 - Using 'BALM_METRICS_IF_CATEGORY_ENABLED'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Using 'BALM_METRICS_IF_CATEGORY_ENABLED'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this next example, we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to
 // conditionally disable a (relatively) expensive operation involved in
 // computing a metric value.  The 'processEvent2' function, defined below, uses

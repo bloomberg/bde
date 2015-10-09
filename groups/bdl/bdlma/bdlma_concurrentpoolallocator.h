@@ -1,4 +1,12 @@
 // bdlma_concurrentpoolallocator.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 #define INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 
@@ -61,8 +69,8 @@ BSLS_IDENT("$Id: $")
 // similar sizes, and a likely maximum for the largest allocation is known at
 // the time of construction.
 //
-///Example 1 - Uniform Sized Allocations
-///- - - - - - - - - - - - - - - - - - -
+///Example 1: Uniform Sized Allocations
+/// - - - - - - - - - - - - - - - - - -
 // The following example illustrates the use of
 // 'bdlma::ConcurrentPoolAllocator' when all allocations are of uniform size.
 // A 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
@@ -306,8 +314,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2 - Variable Allocation Size
-/// - - - - - - - - - - - - - - - - - -
+///Example 2: Variable Allocation Size
+///- - - - - - - - - - - - - - - - - -
 // The following example illustrates the use of
 // 'bdlma::ConcurrentPoolAllocator' when allocations are of varying size.  A
 // 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work

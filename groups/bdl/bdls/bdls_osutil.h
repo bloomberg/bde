@@ -1,4 +1,12 @@
 // bdls_osutil.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLS_OSUTIL
 #define INCLUDED_BDLS_OSUTIL
 
@@ -12,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::OsUtil: namespace for operating system information utilities
 //
-//@SEE ALSO:
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a namespace, 'bdls::OsUtil',
 // containing utility functions for retrieving information at runtime about the

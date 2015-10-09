@@ -1,4 +1,12 @@
 // btlmt_channelpoolchannel.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_CHANNELPOOLCHANNEL
 #define INCLUDED_BTLMT_CHANNELPOOLCHANNEL
 
@@ -26,7 +34,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a secure channel type
+///Example 1: Implementing a Secure Channel Type
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This 'class', 'btlmt::ChannelPoolChannel', provides a concrete
 // implementation of the 'btlmt::AsyncChannel' protocol for a network

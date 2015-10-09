@@ -189,6 +189,7 @@ BSLS_IDENT("$Id: $")
 //  | a.equal_range(k)                                   | O[log(n)]          |
 //  +----------------------------------------------------+--------------------+
 //..
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.

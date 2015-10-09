@@ -1,4 +1,12 @@
 // bdlcc_queue.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLCC_QUEUE
 #define INCLUDED_BDLCC_QUEUE
 
@@ -23,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // also made available through 'bdlcc::Queue'.
 //
 ///Thread-Enabled Idioms in the 'bdlcc::Queue' Interface
-///---------------------------------------------------
+///-----------------------------------------------------
 // The thread-enabled 'bdlcc::Queue' is similar to 'bdlc::Queue' in many
 // regards, but there are several differences in method behavior and signature
 // that arise due to the thread-enabled nature of the queue and its anticipated
@@ -55,7 +63,7 @@ BSLS_IDENT("$Id: $")
 // not an invariant.
 //
 ///Use of the 'bdlc::Queue' Interface
-///---------------------------------
+///----------------------------------
 // Class 'bdlcc::Queue' provides access to an underlying 'bdlc::Queue', so
 // clients of 'bdlcc::Queue' have full access to the interface behavior of
 // 'bdlc::Queue' to inspect and modify the 'bdlcc::Queue'.
@@ -106,6 +114,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
 // The following example demonstrates a typical usage of a 'bdlcc::Queue'.
@@ -228,6 +238,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+//
 ///Example 2: Multi-Threaded Observer
 /// - - - - - - - - - - - - - - - - -
 // The previous example shows a simple mechanism for distributing work requests

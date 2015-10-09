@@ -1,4 +1,12 @@
 // bslmt_qlock.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_QLOCK
 #define INCLUDED_BSLMT_QLOCK
 
@@ -63,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // the most efficient manner.
 //
 ///The 'bslmt::QLockGuard' Class
-///----------------------------
+///-----------------------------
 // A 'bslmt::QLock' is different from other locking classes such as
 // 'bslmt::Mutex' and 'bsls::SpinLock' in that it cannot be manipulated except
 // through the auxiliary 'bslmt::QLockGuard' class.  The reason for this
@@ -126,7 +134,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using 'bslmt::QLock' to Implement a Thread-Safe Singleton
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For this example, assume that we have the need to use the string "Hello"
 // repeatedly in the form of an 'bsl::string' object.  Rather than construct
 // the string each time we use it, it would be nice to have only one copy so

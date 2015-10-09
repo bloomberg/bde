@@ -1,4 +1,12 @@
 // ball_testobserver.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_TESTOBSERVER
 #define INCLUDED_BALL_TESTOBSERVER
 
@@ -41,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // 'publish'; that information is available via the accessors
 // 'lastPublishedRecord' and 'lastPublishedContext'.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // The 'ball::TestObserver' provides a 'publish' method that is *thread-safe*,
 // meaning that the test observer may be used to log records from multiple
@@ -60,8 +68,12 @@ BSLS_IDENT("$Id: $")
 // printing.  A subsequent call of 'setVerbose(0)' restores the default "quiet"
 // behavior.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // The following snippets of code illustrate the basic usage of testing
 // observer objects.  The example focuses on the individual features that are
 // useful for testing larger systems (not shown) that use observers derived

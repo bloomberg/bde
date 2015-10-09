@@ -106,6 +106,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
+//
 ///Aliasing
 ///--------
 // There are some aliasing concerns in this component, due to the presence of

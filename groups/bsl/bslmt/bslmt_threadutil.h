@@ -1,4 +1,12 @@
 // bslmt_threadutil.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_THREADUTIL
 #define INCLUDED_BSLMT_THREADUTIL
 
@@ -105,7 +113,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is
@@ -177,6 +185,7 @@ BSLS_IDENT("$Id: $")
 //  Another second has passed.
 //  A three second interval has elapsed.
 //..
+//
 ///Example 2: Creating a Simple Thread with User-Specified Attributes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will choose to override the default thread attribute

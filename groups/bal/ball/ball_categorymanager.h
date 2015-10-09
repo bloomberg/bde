@@ -1,4 +1,12 @@
 // ball_categorymanager.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALL_CATEGORYMANAGER
 #define INCLUDED_BALL_CATEGORYMANAGER
 
@@ -427,7 +435,7 @@ class CategoryManager {
         // had the following signature:
         //..
         //  void operator()(Category *);
-        //..      
+        //..
 
     // ACCESSORS
     int ruleSequenceNumber() const;
@@ -505,7 +513,7 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
          it != d_categories.end();
          ++it) {
         visitor(*it);
-    }   
+    }
 }
 
 // ACCESSORS

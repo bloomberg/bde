@@ -268,8 +268,8 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == allocator2.numBlocksInUse());
 //..
 //
-///Example 2: 'string' as a data member
-///- - - - - - - - - - - - - - - - - -
+///Example 2: 'string' as a Data Member
+/// - - - - - - - - - - - - - - - - - -
 // The most common use of 'string' objects are as data members in user-defined
 // classes.  In this example, we will show how 'string' objects can be used as
 // data members.
@@ -497,7 +497,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: A stream text replacement filter
+///Example 3: A Stream Text Replacement Filter
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will utilize the 'string' type and its associated
 // utility functions to define a function that reads data from an input stream,

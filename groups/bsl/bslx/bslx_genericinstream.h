@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // 'bsl::stringbuf' with a user-defined 'STREAMBUF'.
 //
 ///Example 1: Basic Unexternalization
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Suppose we wish to implement a (deliberately simple) 'MyPerson' class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose
@@ -345,7 +345,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Sample 'STREAMBUF' Implementation
-///- - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - -
 // For this example, we will implement 'MyStreamBuf', a minimal 'STREAMBUF' to
 // to be used with 'bslx::GenericInStream' and 'bslx::GenericOutStream'.  The
 // implementation will consist of only what is required of the type.  For

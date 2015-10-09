@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 // use the 'tokenizer' as a non-standard "iterator" directly.
 //
 ///Iterating using a 'Tokenizer' object (ACCESS TO TOKENS AND DELIMITERS)
-///---------------------------------------------------------------------=
+///----------------------------------------------------------------------
 // The second mechanism, not intended for generic use, provides direct access
 // to the previous and current (trailing) delimiters as well as the current
 // token:
@@ -384,24 +384,25 @@ BSLS_IDENT("$Id: $")
 //                 ""         na       na         invalid
 //  ------------   ---------  -------  ---------  --------
 //..
-/// Usage
-/// -----
+//
+///Usage
+///-----
 // This section illustrates intended use of this component.
 //
-/// Example 1: Iterating over tokens using just *soft* delimiters
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Iterating Over Tokens Using Just *Soft* Delimiters
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-/// Example 2: Iterating over tokens using just *hard* delimiters
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Iterating Over Tokens Using Just *Hard* Delimiters
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-/// Example 3: Iterating over tokens using both *hard* and *soft* delimiters
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//
-/// Example 4: Using the 'Tokenizer' to access delimiters as well as tokens
+///Example 3: Iterating Over Tokens Using Both *Hard* and *Soft* Delimiters
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-/// Example 5: Parsing layers of different tokens using nested 'for' loops
+///Example 4: Using the 'Tokenizer' to Access Delimiters As Well As Tokens
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 5: Parsing Layers of Different Tokens Using Nested 'for' Loops
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

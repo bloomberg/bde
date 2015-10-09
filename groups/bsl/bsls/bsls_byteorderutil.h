@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls::ByteOrderUtil: namespace for byte-order swapping functions
 //
-//@SEE ALSO: bsls_byteorder
+//@SEE_ALSO: bsls_byteorder
 //
 //@DESCRIPTION: This component provides a utility 'class',
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for

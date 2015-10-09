@@ -1,4 +1,12 @@
 // btlso_timemetrics.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_TIMEMETRICS
 #define INCLUDED_BTLSO_TIMEMETRICS
 
@@ -17,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a clock that measures time and
 // accumulates it into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // Thread-enabled -- different threads can access an instance of
 // 'btlso::TimeMetrics' safely.

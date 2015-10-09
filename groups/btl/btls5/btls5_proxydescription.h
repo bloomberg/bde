@@ -1,4 +1,12 @@
 // btls5_proxydescription.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLS5_PROXYDESCRIPTION
 #define INCLUDED_BTLS5_PROXYDESCRIPTION
 
@@ -52,7 +60,6 @@ BSLS_IDENT("$Id: $")
 //  assert(proxy.credentials().password() == "password123");
 //..
 // Finally, we have a fully defined proxy description.
-//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

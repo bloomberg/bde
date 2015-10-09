@@ -1,4 +1,12 @@
 // btlso_flag.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_FLAG
 #define INCLUDED_BTLSO_FLAG
 
@@ -53,6 +61,7 @@ BSLS_IDENT("$Id: $")
 //               e_IO_RW             Wait for data to arrive or buffer space
 //                                   to write on a socket
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

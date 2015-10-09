@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Querying BDEX Version
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // This component may be used by clients to query the version number for types
 // in a convenient manner.  First, define an 'enum', 'my_Enum':
 //..

@@ -178,7 +178,7 @@ BSLS_IDENT("$Id: $")
 // original time-zone identifier.
 //
 ///Example 2: Creating a 'baltzo::LocalDatetime' Object on Windows
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to create on a Windows platform a
 // 'baltzo::LocalDatetime' object with the value of the current time.
 //

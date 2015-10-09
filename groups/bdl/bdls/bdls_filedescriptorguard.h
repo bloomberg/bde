@@ -1,4 +1,12 @@
 // bdls_filedescriptorguard.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLS_FILEDESCRIPTORGUARD
 #define INCLUDED_BDLS_FILEDESCRIPTORGUARD
 

@@ -31,12 +31,13 @@ BSLS_IDENT("$Id: $")
 //                        allocate
 //                        deallocate
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
 ///Example 1: Implementing the 'bdlma::ManagedAllocator' Protocol
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The 'bdlma::ManagedAllocator' interface is especially useful for allocators
 // that are based on an underlying pooling mechanism (e.g., 'bdlma::Multipool'
 // or 'bdlma::BufferedSequentialPool').  In particular, such an allocator that

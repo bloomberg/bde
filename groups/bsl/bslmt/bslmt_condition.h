@@ -1,4 +1,12 @@
 // bslmt_condition.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_CONDITION
 #define INCLUDED_BSLMT_CONDITION
 
@@ -60,7 +68,7 @@ BSLS_IDENT("$Id: $")
 // the call to the 'wait' function.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which timeouts supplied to other methods should be
 // based.  If the clock type indicated at construction is

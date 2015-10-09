@@ -168,6 +168,7 @@ BSLS_IDENT("$Id: $")
 // +--------------------------------------------------------------------------+
 //
 //..
+//
 ///Accessor Functions
 ///------------------
 // Accessor function return a value but do not modify a bit string.
@@ -220,6 +221,7 @@ BSLS_IDENT("$Id: $")
 // +--------------------------------------------------------------------------+
 //
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

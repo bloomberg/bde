@@ -63,10 +63,10 @@ BSLS_IDENT("$Id: $")
 ///Exception Test Macros
 ///---------------------
 // This component also provides a pair of macros:
-//..
-//: o BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(testInStream)
-//: o BSLX_TESTINSTREAM_EXCEPTION_TEST_END
-//..
+//
+//: o 'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(testInStream)'
+//: o 'BSLX_TESTINSTREAM_EXCEPTION_TEST_END'
+//
 // These macros can be used for testing exception-safety of classes and their
 // methods when BDEX streaming is involved.  A reference to an object of type
 // 'bslx::TestInStream' must be supplied as an argument to the '*_BEGIN' macro.

@@ -1,4 +1,12 @@
 // btlso_ioutil.h                                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_IOUTIL
 #define INCLUDED_BTLSO_IOUTIL
 
@@ -27,7 +35,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Changing the blocking mode on a socket
+///Example 1: Changing the Blocking Mode on a Socket
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to make a socket non-blocking.
 //..

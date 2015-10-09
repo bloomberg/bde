@@ -1,4 +1,12 @@
 // btlmt_channelpool.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_CHANNELPOOL
 #define INCLUDED_BTLMT_CHANNELPOOL
 
@@ -209,8 +217,83 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing an echo server
-///- - - - - - - - - - - - - - - - - - -
+///Example 1: Establishing a Connection
+/// - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to establish connection
+// to a remote host.  First of all, we need to create a callback to be invoked
+// once the channel status change (i.e., a new connection is established, in
+// this case):
+//..
+//  struct my_LocalCallback {
+//      int d_sourceId;
+//      void channelStateCb(int                 channelId,
+//                          int                 sourceId,
+//                          int                 status,
+//                          void               *arg,
+//                          btlmt::ChannelPool **poolAddr)
+//      {
+//          assert(sourceId == d_sourceId);
+//          if (btlmt::ChannelPool::e_CHANNEL_DOWN == status) {
+//              // Client disconnected from the server.
+//              assert(poolAddr && *poolAddr);
+//              (*poolAddr)->shutdown(channelId,
+//                                    btlmt::ChannelPool::e_IMMEDIATE);
+//          } else
+//          if (btlmt::ChannelPool::e_CHANNEL_UP == status) {
+//              // Connected to the server.
+//              // ...
+//          }
+//          else {
+//              // Handle various failure modes
+//              // ...
+//          }
+//      }
+//  };
+//..
+// Secondly, we need to create a configuration for the channel pool:
+//..
+//  int main(int argc, char *argv[]) {
+//      my_LocalCallback localCallback;
+//      btlmt::ChannelPoolConfiguration config;
+//      config.setMaxThreads(4);
+//      config.setMetricsInterval(10.0);
+//      config.setMaxConnections(16);
+//      config.setIncomingMessageSizes(1, 128, 256);
+//
+//      bsl::function<void(int, int, int, void*)>
+//                                          ccb;    // channel state callback
+//      bsl::function<void(int, int*, int*, void*)>
+//                                          dcb;    // data callback
+//      bsl::function<void(int, int, int)>
+//                                          pcb;    // pool state callback
+//
+//      bslmt::ChannelPool *poolAddr;
+//      ccb = bdlf::BindUtil::bind( &my_LocalCallback::channelStateCb
+//                               , &local)
+//                               , _1, _2, _3, _4
+//                               , &poolAddr);
+//      makeNull(&dcb);  // not interested in data
+//      makeNull(&pcb);  // not interested in pool state
+//
+//      localCallback.d_sourceId = 5;    // just for a simple verification
+//
+//      btlmt::ChannelPool pool(ccb, dcb, pcb, config);
+//      poolAddr = &pool;
+//..
+// Now, start the channel pool, issue the connect request, and wait for
+// completion.  Note that main thread is never blocked, so we have to put it
+// to sleep explicitly:
+//..
+//      assert(0 == pool.start());
+//      btlso::IPv4Address peer("127.0.0.1", 7); // echo server
+//      assert(0 == pool.connect(peer, 1, bsls::TimeInterval(10.0), 5));
+//      bslmt::ThreadUtil::sleep(15000000); // Give enough time to connect.
+//      return 0;
+//  }
+//..
+//
+///Example 2: Implementing an Echo Server
+/// - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a multi-user
 // echo server.  An echo server accepts connections and, for every connection,
 // sends any received data back to the client (until the connection is
@@ -407,7 +490,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == d_channelPool_p->write(channelId, *msg));
 //
 //      msg->removeAll();
-
+//
 //      *numNeeded = 1;
 //
 //      d_channelPool_p->shutdown(channelId,

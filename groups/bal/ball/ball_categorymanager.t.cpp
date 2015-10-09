@@ -1,5 +1,13 @@
 // ball_categorymanager.t.cpp                                         -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_categorymanager.h>
 
 #include <bslmt_barrier.h>
@@ -1182,10 +1190,10 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard guard(&testAllocator);
             const int NUM_BYTES = testAllocator.numBytesInUse();
 
-            Holder mX = { 
-                Holder::e_DYNAMIC_CATEGORY, 
+            Holder mX = {
+                Holder::e_DYNAMIC_CATEGORY,
                 const_cast<Entry *>(CATEGORY),
-                NEXT 
+                NEXT
             };
             const Holder& X = mX;
             LOOP3_ASSERT(LINE, Holder::e_DYNAMIC_CATEGORY, X.threshold(),

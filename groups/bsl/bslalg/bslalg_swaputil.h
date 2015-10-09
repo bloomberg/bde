@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: using 'bslalg::SwapUtil::swap'
-/// - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using 'bslalg::SwapUtil::swap'
+///- - - - - - - - - - - - - - - - - - - - -
 // In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
 // both implement a user-defined 'swap' for 'Container', and swap two container
 // objects.

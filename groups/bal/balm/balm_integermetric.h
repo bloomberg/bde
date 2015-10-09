@@ -1,4 +1,12 @@
 // balm_integermetric.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALM_INTEGERMETRIC
 #define INCLUDED_BALM_INTEGERMETRIC
 
@@ -61,8 +69,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Metric collection with 'balm::IntegerMetric'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Metric Collection With 'balm::IntegerMetric'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We can use 'balm::IntegerMetric' objects to record metric values.  In this
 // example we implement a hypothetical event manager object.  We use
 // 'balm::IntegerMetric' objects to record metrics for the size of the request,
@@ -110,8 +118,9 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //  };
 //..
-///Example 2 - Create and access the default 'balm::MetricsManager' instance
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Create and Access the Default 'balm::MetricsManager' Instance
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
@@ -144,7 +153,7 @@ BSLS_IDENT("$Id: $")
 //
 // Now that we have created a 'balm::MetricsManager' instance, we can use the
 // instance to publish metrics collected using the event manager described in
-// Example 1:
+// {Example 1}:
 //..
 //      EventManager eventManager;
 //

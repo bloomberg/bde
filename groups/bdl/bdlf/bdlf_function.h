@@ -1,4 +1,12 @@
 // bdlf_function.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLF_FUNCTION
 #define INCLUDED_BDLF_FUNCTION
 
@@ -73,6 +81,7 @@ BSLS_IDENT("$Id: $")
 //      void operator() (int , bsl::string);
 //  };
 //..
+//
 ///Invoking a Functor
 /// - - - - - - - - -
 // Once initialized, the functor objects can be invoked in the same way as

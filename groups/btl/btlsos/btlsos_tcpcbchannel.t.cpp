@@ -1,4 +1,12 @@
 // btlsos_tcpcbchannel.t.cpp                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #include <btlsos_tcpcbchannel.h>
 
 #include <btlso_tcptimereventmanager.h>
@@ -9373,7 +9381,7 @@ int main(int argc, char *argv[])
 
 //                     bslmt::ThreadUtil::microSleep(0, 1);
                     LOOP_ASSERT(LINE, 0 <= length);
-                    LOOP3_ASSERT(LINE, 
+                    LOOP3_ASSERT(LINE,
                                  SCRIPTS[i][j].d_numPendingRead,
                                  channel.numPendingReadOperations(),
                                  SCRIPTS[i][j].d_numPendingRead ==

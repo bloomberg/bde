@@ -1,4 +1,12 @@
 // btlso_socketimputil.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_SOCKETIMPUTIL
 #define INCLUDED_BTLSO_SOCKETIMPUTIL
 
@@ -134,8 +142,8 @@ BSLS_IDENT("$Id: $")
 // the 'btlso::SocketHandle::e_ERROR_EOF' or the
 // 'btlso::SocketHandle::e_ERROR_TIMEDOUT' classifications.
 //
-///Interrupted system calls 'btlso::SocketHandle::e_ERROR_INTERRUPTED'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Interrupted System Calls: 'btlso::SocketHandle::e_ERROR_INTERRUPTED'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // On some platforms, calls can be interrupted without completing the requested
 // operation.  For read or write calls, when some data was transferred the
 // number of bytes transferred is returned and 'ERROR_INTERRUPTED' otherwise.
@@ -146,16 +154,16 @@ BSLS_IDENT("$Id: $")
 // undefined and should be closed.  The platform specific error code on UNIX is
 // EINTR.
 //
-///Would Block 'btlso::SocketHandle::e_ERROR_WOULDBLOCK'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Would Block: 'btlso::SocketHandle::e_ERROR_WOULDBLOCK'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When a socket is in non-blocking mode and the call cannot complete without
 // blocking, the error classification 'BTESO_ERROR_WOULDBLOCK' is returned.
 // The platform specific error codes on UNIX are 'EINPROGRESS', 'EAGAIN' or
 // 'EWOULDBLOCK'.  On Windows, the platform specified error codes are
 // 'WSAEINPROGRESS' or 'WSAEWOULDBLOCK'.
 //
-///Connection Dead 'btlso::SocketHandle::e_ERROR_CONNDEAD'
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
+///Connection Dead: 'btlso::SocketHandle::e_ERROR_CONNDEAD'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This error is returned when an attempt to setup a connection has failed or
 // an operation was attempted on an existing connection that has been
 // terminated.
@@ -174,7 +182,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a client and server
+///Example 1: Implementing a Client and Server
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This component supports inter-process communication functionality, and so
 // possible usage within a single process would consist of half of a dialog,
@@ -236,7 +244,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Typical Server Usage
-///- - - - - - - - - -
+/// - - - - - - - - - -
 // The following snippets of code illustrate a simple single user echo server
 // implemented using 'btlso_socketimputil'.  Note that the server binds to and
 // the client connects to the specified IP_ADDR.
@@ -296,7 +304,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Typical Client Usage
-///- - - - - - - - - -
+/// - - - - - - - - - -
 // The following snippets of code illustrate a simple client implemented using
 // 'bteso_socketutil'.
 //..

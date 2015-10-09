@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //  bslx::GenericInStream<bdlsb::FixedMemInput>  inStream(&streamBuffer);
 //..
 // Now, use resulting 'inStream' to unexternalize user data:
-//
+//..
 //  unsigned int  magic;
 //  int           key;
 //  bsl::string   value;

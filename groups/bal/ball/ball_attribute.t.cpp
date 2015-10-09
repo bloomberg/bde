@@ -1,5 +1,13 @@
 // ball_attribute.t.cpp                                               -*-C++-*-
 
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+
 #include <ball_attribute.h>
 
 #include <bdlb_hashutil.h>
@@ -239,7 +247,7 @@ Obj::Value createValue(int type, int v1, Int64 v2, const char *v3)
     return variant;
 }
 
-bool compareText(bslstl::StringRef lhs, 
+bool compareText(bslstl::StringRef lhs,
                  bslstl::StringRef rhs,
                  bsl::ostream&     errorStream = bsl::cout)
    // Return 'true' if the specified 'lhs' has the same value as the specified'

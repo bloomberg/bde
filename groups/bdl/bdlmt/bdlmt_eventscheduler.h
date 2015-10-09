@@ -1,4 +1,12 @@
 // bdlmt_eventscheduler.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMT_EVENTSCHEDULER
 #define INCLUDED_BDLMT_EVENTSCHEDULER
 
@@ -14,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //  bdlmt::EventSchedulerEventHandle: handle to a single scheduled event
 //  bdlmt::EventSchedulerRecurringEventHandle: handle to a recurring event
 //
-//@SEE ALSO: bdlmt_timereventscheduler
+//@SEE_ALSO: bdlmt_timereventscheduler
 //
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
@@ -33,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // used in the "Raw" API of this class and must be used carefully.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
-/// - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - -
 // This component was written after 'bdlmt_timereventscheduler', which suffered
 // from a couple of short-comings: 1) there was a maximum number of events it
 // could manage, and 2) it was inefficient at dealing with large numbers of
@@ -105,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // will be executed at or near their scheduled times.
 //
 ///Supported Clock-Types
-///-------------------------
+///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
 // the system clock on which times supplied to other methods should be based.
 // If the clock type indicated at construction is
@@ -117,8 +125,12 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
-///Usage Example 1: Simple Clock
-///-----------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Simple Clock
+///- - - - - - - - - - - -
 // In this example we wish to log some statistics periodically.  We define a
 // method to store the value of a variable into an array, and set up a
 // scheduler to call that as a recurring event.
@@ -160,8 +172,8 @@ BSLS_IDENT("$Id: $")
 //     At 06MAY2008_21:19:21.592 g_data was 3267721
 //..
 //
-///Usage Example 2: Server Timeouts
-///--------------------------------
+///Example 2: Server Timeouts
+/// - - - - - - - - - - - - -
 // The following example shows how to use a 'bdlmt::EventScheduler' to
 // implement a timeout mechanism in a server.  'my_Session' maintains several
 // connections.  It closes a connection if the data for it does not arrive

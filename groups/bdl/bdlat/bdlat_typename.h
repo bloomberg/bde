@@ -1,4 +1,12 @@
 // bdlat_typename.h                                                   -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLAT_TYPENAME
 #define INCLUDED_BDLAT_TYPENAME
 
@@ -20,11 +28,11 @@ BSLS_IDENT("$Id: $")
 // provides a namespace for functions returning information about the object
 // types.  Functions in this namespace allow users to get access to three
 // categories of information:
-//..
-//  o class name from the metadata associated with the object type
-//  o generic type name
-//  o XML/XSD type name, based on object type and formatting mode.
-//..
+//
+//: o class name from the metadata associated with the object type
+//: o generic type name
+//: o XML/XSD type name, based on object type and formatting mode.
+//
 ///Class Name Information
 ///----------------------
 // The template function 'className' returns the object class name from the
@@ -59,6 +67,7 @@ BSLS_IDENT("$Id: $")
 //  o name obtained from 'type_info' object provided by C++ runtime, if no
 //    class name is available
 //..
+//
 ///XSD Type Name Information
 ///-------------------------
 // The template functions 'xsdName' returns the XML/XSD type name, based on
@@ -104,6 +113,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::vector<char>             TEXT                        string
 //  bsl::vector<short>            TEXT                        string
 //..
+//
 ///Usage
 ///-----
 // We begin by creating abbreviations for formatting modes and by declaring

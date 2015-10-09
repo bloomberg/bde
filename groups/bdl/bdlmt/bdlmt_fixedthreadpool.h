@@ -1,4 +1,12 @@
 // bdlmt_fixedthreadpool.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMT_FIXEDTHREADPOOL
 #define INCLUDED_BDLMT_FIXEDTHREADPOOL
 
@@ -69,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
-///Synchronous signals on unix
+///Synchronous Signals on Unix
 ///---------------------------
 // A thread pool ensures that, on unix platforms, all the threads in the pool
 // block all asynchronous signals.  Specifically all the signals, except the
@@ -103,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // multiple threads, access to the array is controlled via a 'bslmt::Mutex'.
 //
 ///Setting FixedThreadPool Attributes
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // To get started, we declare thread attributes, to be used in constructing the
 // thread pool.  In this example, our choices for number of threads and queue
 // capacity are arbitrary.
@@ -125,7 +133,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///The "void function/void pointer" Interface
-///- - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - -
 // 'myFastSearchJob' is the search function to be executed as a job by threads
 // in the thread pool, matching the "void function/void pointer" interface.
 // The single 'void *' argument is received and cast to point to a 'struct

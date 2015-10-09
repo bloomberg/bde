@@ -1,4 +1,12 @@
 // bdlmt_multiqueuethreadpool.h                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 #define INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 
@@ -43,19 +51,18 @@ BSLS_IDENT("$Id: $")
 // in a non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *thread-aware*, *fully thread-safe*, and *thread-enabled*.
 //
-
-            // ARB: This usage example is entirely broken, because it relies on
-            // absolute paths that no longer exist.  The example should be
-            // rephrased to work on an array of strings instead of a file, or
-            // perhaps re-written entirely.
-
-///Usage Examples
-///--------------
-// The first example illustrates how to use a 'bdlmt::MultiQueueThreadPool' in
-// a word search application.
 //
-///Example 1
-///- - - - -
+//          // ARB: This usage example is entirely broken, because it relies on
+//          // absolute paths that no longer exist.  The example should be
+//          // rephrased to work on an array of strings instead of a file, or
+//          // perhaps re-written entirely.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: A Word Search Application
+/// - - - - - - - - - - - - - - - - - -
 // This example illustrates the use of a 'bdlmt::MultiQueueThreadPool' in a
 // word search application called 'fastSearch'.  'fastSearch' searches a list
 // of files for a list of words, and returns the set of files which contain

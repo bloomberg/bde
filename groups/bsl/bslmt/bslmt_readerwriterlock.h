@@ -1,4 +1,12 @@
 // bslmt_readerwriterlock.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BSLMT_READERWRITERLOCK
 #define INCLUDED_BSLMT_READERWRITERLOCK
 
@@ -47,8 +55,8 @@ BSLS_IDENT("$Id: $")
 //
 // The component supports both optimistic and pessimistic lock conversions.
 //
-///1. Optimistic lock conversions
-///- - - - - - - - - - - - - - -
+///Optimistic Lock Conversions
+///- - - - - - - - - - - - - -
 // Any basic *read* *lock* can be converted to a *write* *lock*, but the
 // conversion is not guaranteed to be atomic.  If the conversion cannot be
 // performed atomically, which means the lock was first released, then a lock
@@ -56,8 +64,8 @@ BSLS_IDENT("$Id: $")
 // released a write lock themselves), the state of the resource must be
 // re-evaluated, since the resource may have been changed by another thread.
 //
-///2. Pessimistic lock conversions
-///- - - - - - - - - - - - - - -
+///Pessimistic Lock Conversions
+/// - - - - - - - - - - - - - -
 // For conditions with high probably for write contention, or where the cost of
 // re-evaluating the update condition is too high, clients may choose to
 // acquire a *read* *lock* that is guaranteed to upgrade atomically, that is

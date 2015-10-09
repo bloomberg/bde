@@ -1,4 +1,12 @@
 // btlsos_tcptimedacceptor.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSOS_TCPTIMEDACCEPTOR
 #define INCLUDED_BTLSOS_TCPTIMEDACCEPTOR
 
@@ -34,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // The acceptor has the flexibility of opening and closing a listening socket
 // with no effect on any existing channels managed by this object.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The acceptor is *thread safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,

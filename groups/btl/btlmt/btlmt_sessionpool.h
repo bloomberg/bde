@@ -1,4 +1,12 @@
 // btlmt_sessionpool.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLMT_SESSIONPOOL
 #define INCLUDED_BTLMT_SESSIONPOOL
 
@@ -55,8 +63,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing an echo server
-///- - - - - - - - - - - - - - - - - - -
+///Example 1: Implementing an Echo Server
+/// - - - - - - - - - - - - - - - - - - -
 // The following example implements a simple echo server.  This server accepts
 // connections, reads what it receives right away from the network stream,
 // sends it back and closes the connection.

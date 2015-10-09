@@ -1,4 +1,12 @@
 // balxml_encodingstyle.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BALXML_ENCODINGSTYLE
 #define INCLUDED_BALXML_ENCODINGSTYLE
 

@@ -1,4 +1,12 @@
 // bdlcc_fixedqueueindexmanager.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLCC_FIXEDQUEUEINDEXMANAGER
 #define INCLUDED_BDLCC_FIXEDQUEUEINDEXMANAGER
 

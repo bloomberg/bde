@@ -1,4 +1,12 @@
 // bdls_filesystemutil.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #define INCLUDED_BDLS_FILESYSTEMUTIL
 
@@ -44,12 +52,14 @@ BSLS_IDENT("$Id: $")
 // 'bdls::FilesystemUtil::FileOpenPolicy' governs whether 'open' creates a new
 // file or opens an existing one.  The following values are possible:
 //
-//: o e_OPEN          : Open an existing file.
+//: 'e_OPEN':
+//:   Open an existing file.
 //:
-//: o e_CREATE        : Create a new file.
+//: 'e_CREATE':
+//:   Create a new file.
 //:
-//: o e_OPEN_OR_CREATE: Open a file if it exists, and create a new file
-//:                     otherwise.
+//: 'e_OPEN_OR_CREATE':
+//:   Open a file if it exists, and create a new file otherwise.
 //
 ///Input/Output Access Policy: 'bdls::FilesystemUtil::FileIOPolicy'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,11 +67,20 @@ BSLS_IDENT("$Id: $")
 // are allowed on a file after it is opened.  The following values are
 // possible:
 //
-//: o e_READ_ONLY  : Allow reading only.
-//: o e_WRITE_ONLY : Allow writing only.
-//: o e_READ_WRITE : Allow both reading and writing.
-//: o e_APPEND_ONLY: Allow appending to end-of-file only.
-//: o e_READ_APPEND: Allow both reading and appending to end-of-file.
+//: 'e_READ_ONLY':
+//:   Allow reading only.
+//:
+//: 'e_WRITE_ONLY':
+//:    Allow writing only.
+//:
+//: 'e_READ_WRITE':
+//:    Allow both reading and writing.
+//:
+//: 'e_APPEND_ONLY':
+//:    Allow appending to end-of-file only.
+//:
+//: 'e_READ_APPEND':
+//:    Allow both reading and appending to end-of-file.
 //
 ///Truncation Policy: 'bdls::FilesystemUtil::FileTruncatePolicy'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,17 +88,25 @@ BSLS_IDENT("$Id: $")
 // the existing contents of a file when it is opened.  The following values are
 // possible:
 //
-//: o e_TRUNCATE: Delete the file's contents.
-//: o e_KEEP    : Keep the file's contents.
+//: 'e_TRUNCATE':
+//:   Delete the file's contents.
+//:
+//: 'e_KEEP':
+//:    Keep the file's contents.
 //
-///Starting points for 'seek'
+///Starting Points for 'seek'
 ///--------------------------
 // The behavior of the 'seek' method is governed by an enumeration that
 // determines the point from which the seek operation starts:
 //
-//: o e_SEEK_FROM_BEGINNING: Seek from the beginning of the file.
-//: o e_SEEK_FROM_CURRENT  : Seek from the current position in the file.
-//: o e_SEEK_FROM_END      : Seek from the end of the file.
+//: 'e_SEEK_FROM_BEGINNING':
+//:   Seek from the beginning of the file.
+//:
+//: 'e_SEEK_FROM_CURRENT':
+//:   Seek from the current position in the file.
+//:
+//: 'e_SEEK_FROM_END':
+//:   Seek from the end of the file.
 //
 ///Platform-Specific File Locking Caveats
 ///--------------------------------------
@@ -115,15 +142,15 @@ BSLS_IDENT("$Id: $")
 //:   Similarly, file searches returning file names call the Windows
 //:   wide-character 'W' APIs and convert the resulting UTF-16 names to UTF-8.
 //:
-//:   Narrow-character file names in other encodings, containing characters
-//:   with values in the range 128 - 255, will likely result in files being
-//:   created with names that appear garbled if the conversion from UTF-8 to
-//:   UTF-16 happens to succeed.
+//:   o Narrow-character file names in other encodings, containing characters
+//:     with values in the range 128 - 255, will likely result in files being
+//:     created with names that appear garbled if the conversion from UTF-8 to
+//:     UTF-16 happens to succeed.
 //:
-//:   Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
-//:   the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
-//:   possible to have sets of file names that have the same visual
-//:   representation but are treated as different names by the filesystem.
+//:   o Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
+//:     the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
+//:     possible to have sets of file names that have the same visual
+//:     representation but are treated as different names by the filesystem.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
 //:   'bdls::FilesystemUtil' as a 'char*' or 'bsl::string' type is passed
@@ -145,6 +172,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
 // In this example, we start with a (relative) native path to a directory
@@ -196,6 +225,7 @@ BSLS_IDENT("$Id: $")
 //    bdls::PathUtil::popLeaf(whichDirectory);
 //  }
 //..
+//
 ///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to

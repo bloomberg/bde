@@ -1,4 +1,12 @@
 // bdlde_charconvertutf16.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLDE_CHARCONVERTUTF16
 #define INCLUDED_BDLDE_CHARCONVERTUTF16
 
@@ -158,6 +166,7 @@ BSLS_IDENT("$Id: $")
 //  assert('e'  == secondUtf16String[4]);
 //  assert(0    == secondUtf16String[5]);
 //..
+//
 ///Example 2: Translation to STL Containers
 /// - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate a typical use of the

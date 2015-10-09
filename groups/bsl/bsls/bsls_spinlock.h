@@ -29,7 +29,7 @@ BSLS_IDENT("$: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Maintaining Static Count/Max Values
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the maximum number of threads executing a
 // block of code concurrently.  Note that such a use case naturally calls for
 // a statically initialized lock and the critical region involves a few integer
@@ -96,7 +96,7 @@ BSLS_IDENT("$: $")
 //   }
 //..
 //
-///Example 2: Fine-grained locking
+///Example 2: Fine-Grained Locking
 ///- - - - - - - - - - - - - - - -
 // Suppose that we have a large array of objects to be manipulated concurrently
 // by multiple threads, but the size of the array itself does not change.

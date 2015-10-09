@@ -181,7 +181,7 @@ enum EnumType { ENUMERATOR };
 //-----------------------------------------------------------------------------
 
 ///Example: Compute storage requirements for a type
-///- - - - - - - - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to create a generic function which will allocate a record
 // comprising a value of specified 'TYPE' and a description in the form of a
 // null-terminated character string.  First, we declare the function
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
 
         ASSERT(!bsl::is_empty<NonEmptyStruct>::value);
         ASSERT(!bsl::is_empty<NonEmptyStruct>::type::value);
-        
+
       } break;
 
       default: {

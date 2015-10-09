@@ -70,6 +70,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Recommended Usage
 /// - - - - - - - - - - - - - -
 // Suppose we have a function which takes a map of items to update in some

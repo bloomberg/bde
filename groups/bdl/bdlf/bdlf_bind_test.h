@@ -60,8 +60,8 @@ BSLS_IDENT("$Id: $")
 // ascertain that they work as expected.  For more examples of use, see the
 // test drivers 'bdlf_bind_test[0--14]' themselves.
 //
-///Testing 'bdlf::Bind' *without* allocators
-///- - - - - - - - - - - - - - - - - - - -
+///Testing 'bdlf::Bind' *Without* Allocators
+///- - - - - - - - - - - - - - - - - - - - -
 // In this test code, we bind a 'bdlf::Bind_TestTypeNoAlloc' invocable by a
 // 'bdlf::Bind' object constructed with and without placeholders.
 //..
@@ -175,8 +175,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Testing 'bdlf_bind' *with* allocators
-///- - - - - - - - - - - - - - - - - - - -
+///Testing 'bdlf_bind' *With* Allocators
+///- - - - - - - - - - - - - - - - - - -
 // In this test code, we bind a 'bdlf::Bind_TestTypeAlloc' invocable using a
 // 'bdlf::Bind' object constructed with and without placeholders.
 //..

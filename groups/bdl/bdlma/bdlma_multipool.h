@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::Multipool' Directly
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::Multipool' can be used by containers that hold different types of
 // elements, each of uniform size, for efficient memory allocation of new
 // elements.  Suppose we have a factory class, 'my_MessageFactory', that
@@ -372,7 +372,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Implementing an Allocator Using 'bdlma::Multipool'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to create a multipool allocator (i.e., that implements
 // the 'bslma::Allocator' interface) that allocates memory from multiple
 // 'bdlma::Pool' objects in a similar fashion to 'bdlma::Multipool'.  In this

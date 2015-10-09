@@ -1,4 +1,12 @@
 // btlso_ipresolutioncache.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BTLSO_IPRESOLUTIONCACHE
 #define INCLUDED_BTLSO_IPRESOLUTIONCACHE
 
@@ -95,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Using Address Cache with 'btlso::ResolveUtil'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to configure the 'bteso::ResolverUtil'
 // component to use a 'btlso::IpResolutionCache' object for resolving IP
 // addresses.

@@ -1,4 +1,12 @@
 // bdlcc_objectpool.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLCC_OBJECTPOOL
 #define INCLUDED_BDLCC_OBJECTPOOL
 
@@ -26,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // destruction).  A major requirement of using the object pool is that any call
 // to 'getObject' can be satisfied by any object in the pool.
 //
-///Object construction and destruction
+///Object Construction and Destruction
 ///-----------------------------------
 // The object pool owns the memory required to store the pooled objects, and
 // manages the construction, resetting, and destruction of objects.  The user
@@ -120,9 +128,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1
-/// - - - -
+///Example 1: Handling Database Queries
+/// - - - - - - - - - - - - - - - - - -
 // In this example, we simulate a database server accepting queries from
 // clients and executing each query in a separate thread.  Client requests are
 // simulated by function 'getClientQuery' which returns a query to be executed.
@@ -218,8 +227,8 @@ BSLS_IDENT("$Id: $")
 // and closing a database connection.  Now we show an implementation that will
 // use object pool to *pool* the database connections.
 //
-///Object pool creation and functor argument
-/// - - - - - - - - - - - - - - - - - - - -
+///Object Pool Creation and Functor Argument
+///- - - - - - - - - - - - - - - - - - - - -
 // In order to create an object pool, we may specify, at construction time, a
 // functor encapsulating object creation.  The pool invokes this functor to
 // create an object in a memory location supplied by the allocator specified at
@@ -229,16 +238,17 @@ BSLS_IDENT("$Id: $")
 // by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this
 // behavior is not sufficient, we can supply our own functor for type creation.
 //
-///Creating an object pool that constructs default objects
-/// - - - - - - - - - - - - - - - - - - -
+///Creating an Object Pool that Constructs Default Objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the default constructor of our type is sufficient, whether or not that
 // type uses 'bslma::Allocator', we can simply use the default behavior of
 // 'bdlcc::ObjectPool':
 //..
 //  bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
 //..
-///Creating an object pool that constructs non-default objects
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+//
+///Creating an Object Pool that Constructs Non-Default Objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, if we decide that connection IDs must be supplied to
 // objects allocated from the pool, we must define a function which invokes
 // placement new appropriately.  When using a custom creator functor, it is the
@@ -272,6 +282,7 @@ BSLS_IDENT("$Id: $")
 //      bslmt::ThreadUtil::join(threads[i]);
 //  }
 //..
+//
 ///Modified 'queryHandler'
 ///- - - - - - - - - - - -
 // Now each thread, instead of creating a new connection, gets a connection

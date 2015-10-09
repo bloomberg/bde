@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Dumping out hash values
+///Example 1: Dumping Out Hash Values
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to analyze our hash function by seeing how it distributes
 // integers across buckets.   We will declare 64 buckets, and distribute hits
