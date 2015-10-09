@@ -3689,7 +3689,7 @@ int main(int argc, char *argv[])
         {
             SharedPtr ptr(new ShareThis(&destructorCount));
             ASSERT(ptr.use_count() == 1);
-            ConstSharedPtr ptr_cp = ptr->shared_from_this();
+            SharedPtr ptr_cp = ptr->shared_from_this();
             ASSERT(ptr.get() == ptr_cp.get());
             ASSERT(ptr.use_count() == 2);
 
@@ -3702,6 +3702,19 @@ int main(int argc, char *argv[])
         {
             ConstSharedPtr ptr(static_cast<const ShareThis*>(
                                              new ShareThis(&destructorCount)));
+            ASSERT(ptr.use_count() == 1);
+            ConstSharedPtr ptr_cp = ptr->shared_from_this();
+            ASSERT(ptr.get() == ptr_cp.get());
+            ASSERT(ptr.use_count() == 2);
+
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n'shared_from_this' into shared<constT>'\n");
+        {
+            SharedPtr ptr(new ShareThis(&destructorCount));
             ASSERT(ptr.use_count() == 1);
             ConstSharedPtr ptr_cp = ptr->shared_from_this();
             ASSERT(ptr.get() == ptr_cp.get());

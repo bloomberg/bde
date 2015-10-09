@@ -5355,13 +5355,23 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
 {
     BSLS_ASSERT_OPT(0 != sp);
 
-    if (shareable) {
+    if (shareable && shareable->d_weakThis.d_rep_p != sp->d_rep_p) {
+#if !defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
+        // 'shareable' cannot be already menaged
+        BSLS_ASSERT_OPT(!shareable->d_weakThis.d_ptr_p);
+        BSLS_ASSERT_OPT(!shareable->d_weakThis.d_rep_p);
+#endif
+
         shareable->d_weakThis.d_ptr_p =
                                   const_cast<ENABLE_TYPE      *>(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
+
+#if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
+        // proposal to support objects managed by multiple 'shared_ptr's
         if (shareable->d_weakThis.d_rep_p) {
             shareable->d_weakThis.d_rep_p->releaseWeakRef();
         }
+#endif
         shareable->d_weakThis.d_rep_p = sp->d_rep_p;
         shareable->d_weakThis.d_rep_p->acquireWeakRef();
     }
