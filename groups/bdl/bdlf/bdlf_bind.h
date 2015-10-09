@@ -134,7 +134,6 @@ BSLS_IDENT("$Id: $")
 //      bdlf::BindUtil::bindS(allocator,                    // allocator,
 //                            &invocable,                   // bound object and
 //                            10, 14, (const char*)"p3")(); // bound arguments
-//..
 //  }
 //..
 // In the function call above, the 'invocable' will be bound with the arguments
