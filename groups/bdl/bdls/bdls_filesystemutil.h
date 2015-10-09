@@ -228,10 +228,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to
-// operate on file paths that match a specified pattern.  In this example, we
-// create a function that can be used to filter out files that have a last
-// modified time within a particular time frame.
+// 'bdls::FilesystemUtil::visitPaths' enables clients to define a function
+// objectto operate on file paths that match a specified pattern.  In this
+// example, we create a function that can be used to filter out files that have
+// a last modified time within a particular time frame.
 //
 // First we define our filtering function:
 //..
@@ -366,16 +366,16 @@ struct FilesystemUtil {
 #endif
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-    static const Offset k_OFFSET_MAX =  (9223372036854775807L);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807L-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFL-1);
         // minimum representable file offset value
 #else
-    static const Offset k_OFFSET_MAX =  (9223372036854775807LL);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807LL-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #endif
 
@@ -391,8 +391,8 @@ struct FilesystemUtil {
     };
 
     enum {
-        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which
-                                                 // to grow files
+        k_DEFAULT_FILE_GROWTH_INCREMENT = 0x10000  // default block size to
+                                                   // files by
     };
 
     enum {
@@ -559,19 +559,56 @@ struct FilesystemUtil {
         // function may return an error status if another task attempts to
         // create a directory in 'path' concurrently to this function call.
 
+    static FileDescriptor createTemporaryFile(const bslstl::StringRef& prefix,
+                                              bsl::string             *outPath)
+        // Create and open a new file with a name constructed by appending an
+        // automatically-generated suffix to the specified 'prefix', and return
+        // its file descriptor open for reading and writing.  A return value of
+        // 'k_INVALID_FD' indicates that no such file could be created;
+        // otherwise, the name of the file created is assigned to the specified
+        // 'outPath'.  The file is created with permissions restricted, as
+        // closely as possible, to the caller only.  If the prefix is a
+        // relative path, the file is created relative to the process current
+        // directory.  Responsibility for deleting the file is left to the
+        // caller.  Note that on Posix systems, if 'outPath' is unlinked
+        // immediately, the file will remain usable until its descriptor is
+        // closed.
+
+    static int createTemporaryDirectory(const bslstl::StringRef& prefix,
+                                        bsl::string             *outPath)
+        // Create a new directory with a name constructed by appending an
+        // automatically-generated suffix to the specified 'prefix'. A non-zero
+        // return value indicates that no such directory could be created;
+        // otherwise the name of the directory created is assigned to the
+        // specified 'outPath'.  The directory is created with permissions
+        // restricted, as closely as possible, to the caller only.  If the
+        // prefix is a relative path, the directory is created relative to the
+        // process current directory.  Responsibility for deleting the
+        // directory (and any files subsequently created in it) is left to the
+        // caller.
+
+    static void makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
+                                            bsl::string             *outPath)
+        // Construct a file name by appending an automatically-generated suffix
+        // to the specified 'prefix'.  The file name constructed is assigned to
+        // the specified 'outPath'.  Note that this function is called "unsafe"
+        // because a file with the constructed name may be externally created
+        // before the caller has opportunity to use the name, which creates a
+        // security vulnerability; this method is intended for use only in
+        // testing.
+
     static void visitPaths(
                          const bsl::string&                           pattern,
                          const bsl::function<void(const char *path)>& visitor);
     static void visitPaths(
                         const char                                   *pattern,
                         const bsl::function<void(const char *path)>&  visitor);
-        // Call the specified 'visitor' functor for each path in the filesystem
-        // matching the specified 'pattern'.  If 'visitor' deletes files or
-        // directories during the search, the behavior is
-        // implementation-dependent: 'visitor' may subsequently be called with
-        // paths which have already been deleted, or it may not.  Note that
-        // there is no stability risk in that case.  See 'findMatchingPaths'
-        // for a discussion of how 'pattern' is interpreted.
+        // Call the specified 'visitor' function object for each path in the
+        // filesystem matching the specified 'pattern'.  Note that if 'visitor'
+        // deletes files or directories during the search, 'visitor' may
+        // subsequently be called with paths which have already been deleted,
+        // so must be prepared for this event.  See 'findMatchingPaths' for a
+        // discussion of how 'pattern' is interpreted.
 
     static void findMatchingPaths(bsl::vector<bsl::string> *result,
                                   const char               *pattern);
