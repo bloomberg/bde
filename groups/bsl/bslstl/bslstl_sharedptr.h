@@ -5353,13 +5353,18 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                     bsl::shared_ptr<SHARED_TYPE>                    *sp,
                     const bsl::enable_shared_from_this<ENABLE_TYPE> *shareable)
 {
-    BSLS_ASSERT_OPT(0 != sp);
+    BSLS_ASSERT(0 != sp);
 
     if (shareable && shareable->d_weakThis.d_rep_p != sp->d_rep_p) {
 #if !defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        // 'shareable' cannot be already menaged
-        BSLS_ASSERT_OPT(!shareable->d_weakThis.d_ptr_p);
-        BSLS_ASSERT_OPT(!shareable->d_weakThis.d_rep_p);
+        // 'shareable' cannot be already menaged, unless creating a new
+        // 'shared_ptr' object for a 'shared_from_this' call, which calls a
+        // chain of constructors, ultimately resulting in a 'weak_ptr::lock'
+        // call, which calls the 'shared_ptr' constructor that takes a
+        // 'SharedPtrRep *', which will in turn call this method.
+
+        BSLS_ASSERT(!shareable->d_weakThis.d_ptr_p);
+        BSLS_ASSERT(!shareable->d_weakThis.d_rep_p);
 #endif
 
         shareable->d_weakThis.d_ptr_p =
@@ -5367,7 +5372,8 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
 
 #if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        // proposal to support objects managed by multiple 'shared_ptr's
+        // proposal to support objects managed by multiple 'shared_ptr's:
+        // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0033r0.html
         if (shareable->d_weakThis.d_rep_p) {
             shareable->d_weakThis.d_rep_p->releaseWeakRef();
         }

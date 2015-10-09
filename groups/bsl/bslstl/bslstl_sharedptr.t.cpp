@@ -2207,6 +2207,10 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // Return the data pointer stored by this representation.
 };
 
+                // ================================
+                // class template PerformanceTester
+                // ================================
+
 template <class POINTER>
 struct PerformanceTester
 {
@@ -2222,22 +2226,47 @@ struct PerformanceTester
         // the level of feedback on allocator operations.
 };
 
+                        // ===============
+                        // class ShareThis
+                        // ===============
+
 class ShareThis : public bsl::enable_shared_from_this<ShareThis>
 {
+    // This class publicly derives from 'bsl::enable_shared_from_this' to
+    // support testing of the 'shared_from_this' method.  It is instrumented
+    // with a destructor that updates an externally managed integer to track
+    // when destruction occurs.
+
   protected:
     int *d_destructorCount_p;
 
   public:
     // CREATORS
-    explicit ShareThis(int *destructorCount) : d_destructorCount_p(destructorCount) {}
+    explicit ShareThis(int *destructorCount)
+        : d_destructorCount_p(destructorCount)
+    {}
+
     virtual ~ShareThis() { ++*d_destructorCount_p; }
 };
 
+                        // ======================
+                        // class ShareThisDerived
+                        // ======================
+
 class ShareThisDerived : public ShareThis
 {
+    // This class publicly derives from 'ShareThis' to support testing of the
+    // 'shared_from_this' method where a base/derived relationship exists
+    // between the shared pointer-to-base and a derived object.  It updates
+    // the base class instrumented destructor to updates the externally managed
+    // integer with a different value when the derived ckass destructor is run.
+
   public:
     // CREATORS
-    explicit ShareThisDerived(int *destructorCount) : ShareThis(destructorCount) {}
+    explicit ShareThisDerived(int *destructorCount)
+        : ShareThis(destructorCount)
+    {}
+
     ~ShareThisDerived() { *d_destructorCount_p += 10; }
 };
 
