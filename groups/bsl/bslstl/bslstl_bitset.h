@@ -498,9 +498,9 @@ template <class CHAR_TYPE, class TRAITS, std::size_t N>
 std::basic_ostream<CHAR_TYPE, TRAITS>&
 operator<<(std::basic_ostream<CHAR_TYPE, TRAITS>& os, const bitset<N>& x);
 
-// ==========================================================================
+// ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ==========================================================================
+// ============================================================================
 
                         // -----------------------
                         // class bitset::reference
@@ -1034,7 +1034,7 @@ bool bitset<N>::any() const
 {
     for (std::size_t i = 0; i < BITSETSIZE; ++i) {
         if (d_data[i] != 0) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;

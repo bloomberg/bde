@@ -288,7 +288,7 @@ BSLS_IDENT("$Id: $")
 // the representation object, in turn, deletes the managed object ('INSTANCE').
 //
 ///Class 'my_CountedHandleRep'
-///-  -  -  -  -  -  -  -  -
+///- - - - - - - - - - - - - -
 // First, we define class 'my_CountedHandleRep'.  This class manages a single
 // 'INSTANCE' object on behalf of multiple "handle" objects; since different
 // "handle" objects may be active in different threads, class
@@ -336,6 +336,7 @@ BSLS_IDENT("$Id: $")
 //      int decrement();
 //  };
 //..
+//
 ///Class 'my_CountedHandle'
 ///-  -  -  -  -  -  -  - -
 // Then, we create class 'my_CountedHandle' that provides an individual handle
@@ -372,6 +373,7 @@ BSLS_IDENT("$Id: $")
 //      int numReferences() const;
 //  };
 //..
+//
 ///Function Definitions for 'my_CountedHandleRep'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we provide a definition for the 'static' 'deleteObject' method, which
@@ -436,6 +438,7 @@ BSLS_IDENT("$Id: $")
 //      return bsls::AtomicOperations::decrementIntNv(&d_count);
 //  }
 //..
+//
 ///Function Definitions for 'my_CountedHandle'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we define the first constructor for 'my_CountedHandle', which is used
@@ -1104,9 +1107,9 @@ struct AtomicOperations {
         // guarantee.  The whole operation is performed atomically.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // -----------------------
                            // struct AtomicOperations

@@ -378,7 +378,7 @@ bool operator!=(const Allocator<T1>& lhs, const Allocator<T2>& rhs)
 int TestType::s_numCopyConstruct = 0;
 int TestType::s_numDestroy = 0;
 
-} // close anonymous namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                              USAGE EXAMPLES
@@ -496,11 +496,11 @@ bool operator==(const MyFixedSizeArray<VALUE,ALLOCATOR>& lhs,
                 const MyFixedSizeArray<VALUE,ALLOCATOR>& rhs)
 {
     if (lhs.size() != rhs.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     for (int i = 0; i < lhs.size(); ++i) {
         if (lhs[i] != rhs[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;

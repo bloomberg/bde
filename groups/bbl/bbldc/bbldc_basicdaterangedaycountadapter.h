@@ -48,7 +48,8 @@ BSLS_IDENT("$Id: $")
 // adapted day-count convention and obtain a reference to the
 // 'bbldc::DateRangeDayCount':
 //..
-//  const bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> myDcc;
+//  const bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> myDcc =
+//               bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360>();
 //
 //  const bbldc::DateRangeDayCount& dcc = myDcc;
 //..

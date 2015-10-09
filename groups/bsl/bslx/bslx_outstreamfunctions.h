@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 // contract.
 //
 ///Implementing BDEX Streaming in Value-Semantic Template Classes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The author of a non-template value-semantic type has full knowledge of the
 // details of the "value" of that type, and may choose to use the appropriate
 // output stream 'put' methods directly when implementing the required
@@ -920,7 +920,7 @@ namespace OutStreamFunctions {
         // more information on BDEX streaming of value-semantic types and
         // containers.
 
-}  // close OutStreamFunctions namespace
+}  // close namespace OutStreamFunctions
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS

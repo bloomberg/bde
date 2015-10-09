@@ -34,7 +34,7 @@ namespace bsl
     using native_std::move;
     using native_std::forward;
 #endif
-}
+}  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

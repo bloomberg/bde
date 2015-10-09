@@ -9,9 +9,9 @@ BSLS_IDENT_RCSID(bdlma_sequentialallocator_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlma {
 
-                      // -------------------------
-                      // class SequentialAllocator
-                      // -------------------------
+                        // -------------------------
+                        // class SequentialAllocator
+                        // -------------------------
 
 // CREATORS
 SequentialAllocator::~SequentialAllocator()
@@ -57,7 +57,7 @@ void SequentialAllocator::reserveCapacity(int numBytes)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

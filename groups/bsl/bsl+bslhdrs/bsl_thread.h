@@ -31,9 +31,9 @@ namespace bsl {
         using native_std::this_thread::yield;
         using native_std::this_thread::sleep_until;
         using native_std::this_thread::sleep_for;
-    }
+    }  // close namespace this_thread
     using native_std::thread;
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

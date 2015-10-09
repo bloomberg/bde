@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: (TBD)
-/// - - - - - - - - - - - - - - - -
+///Example 1: TBD
+/// - - - - - - -
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -68,9 +68,9 @@ struct ConvertibleValueWrapper {
 };
 
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
 
                        // -----------------------------

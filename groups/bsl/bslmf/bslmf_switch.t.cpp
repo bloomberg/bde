@@ -336,7 +336,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch2<2,A,B>::Type()));
             ASSERT('0' == f(bslmf::Switch2<10,A,B>::Type()));
-            ASSERT('0' == f(bslmf::Switch2<-1,A,B>::Type()));
+            ASSERT('0' ==
+                 f(bslmf::Switch2<static_cast<unsigned int>(-1),A,B>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch3.\n");
@@ -349,7 +350,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch3<3,A,B,C>::Type()));
             ASSERT('0' == f(bslmf::Switch3<10,A,B,C>::Type()));
-            ASSERT('0' == f(bslmf::Switch3<-1,A,B,C>::Type()));
+            ASSERT('0' ==
+               f(bslmf::Switch3<static_cast<unsigned int>(-1),A,B,C>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch4.\n");
@@ -363,7 +365,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch4<4,A,B,C,D>::Type()));
             ASSERT('0' == f(bslmf::Switch4<10,A,B,C,D>::Type()));
-            ASSERT('0' == f(bslmf::Switch4<-1,A,B,C,D>::Type()));
+            ASSERT('0' ==
+             f(bslmf::Switch4<static_cast<unsigned int>(-1),A,B,C,D>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch5.\n");
@@ -378,7 +381,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch5<5,A,B,C,D,E>::Type()));
             ASSERT('0' == f(bslmf::Switch5<10,A,B,C,D,E>::Type()));
-            ASSERT('0' == f(bslmf::Switch5<-1,A,B,C,D,E>::Type()));
+            ASSERT('0' ==
+           f(bslmf::Switch5<static_cast<unsigned int>(-1),A,B,C,D,E>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch6.\n");
@@ -394,7 +398,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch6<6,A,B,C,D,E,F>::Type()));
             ASSERT('0' == f(bslmf::Switch6<10,A,B,C,D,E,F>::Type()));
-            ASSERT('0' == f(bslmf::Switch6<-1,A,B,C,D,E,F>::Type()));
+            ASSERT('0' ==
+         f(bslmf::Switch6<static_cast<unsigned int>(-1),A,B,C,D,E,F>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch7.\n");
@@ -411,7 +416,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch7<7,A,B,C,D,E,F,G>::Type()));
             ASSERT('0' == f(bslmf::Switch7<10,A,B,C,D,E,F,G>::Type()));
-            ASSERT('0' == f(bslmf::Switch7<-1,A,B,C,D,E,F,G>::Type()));
+            ASSERT('0' ==
+       f(bslmf::Switch7<static_cast<unsigned int>(-1),A,B,C,D,E,F,G>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch8.\n");
@@ -429,7 +435,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch8<8,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('0' == f(bslmf::Switch8<10,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('0' == f(bslmf::Switch8<-1,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('0' ==
+     f(bslmf::Switch8<static_cast<unsigned int>(-1),A,B,C,D,E,F,G,H>::Type()));
         }
 
         if (verbose) printf("\tTesting 'bslmf_Switch9.\n");
@@ -448,7 +455,8 @@ int main(int argc, char *argv[])
             if (verbose) printf("Testing SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch9<9,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('0' == f(bslmf::Switch9<10,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('0' == f(bslmf::Switch9<-1,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('0' ==
+   f(bslmf::Switch9<static_cast<unsigned int>(-1),A,B,C,D,E,F,G,H,I>::Type()));
         }
 #endif  // BSLMF_SWITCH_TEST_SWITCH_WITH_NAMED_LENGTH
       } break;
@@ -493,7 +501,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Testing SELECTOR out of range\n");
         ASSERT('0' == f(bslmf::Switch<10,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('0' == f(bslmf::Switch<100,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('0' == f(bslmf::Switch<-1,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('0' ==
+  f(bslmf::Switch<static_cast<unsigned int>(-1),A,B,C,D,E,F,G,H,I,J>::Type()));
 
         if (verbose) printf("Testing Default arguments\n");
         ASSERT('A' == f(bslmf::Switch<0,A>::Type()));
@@ -506,7 +515,8 @@ int main(int argc, char *argv[])
         ASSERT('0' == f(bslmf::Switch<7,A>::Type()));
         ASSERT('0' == f(bslmf::Switch<8,A>::Type()));
         ASSERT('0' == f(bslmf::Switch<10,A>::Type()));
-        ASSERT('0' == f(bslmf::Switch<-1,A>::Type()));
+        ASSERT('0' ==
+               f(bslmf::Switch<static_cast<unsigned int>(-1),A>::Type()));
         ASSERT('B' == f(bslmf::Switch<1,A,B>::Type()));
         ASSERT('0' == f(bslmf::Switch<2,A,B>::Type()));
 
@@ -523,7 +533,6 @@ int main(int argc, char *argv[])
         ASSERT('0' == f(bslmf::Switch<9,A,B,A,B,A,C,C,C,C>::Type()));
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

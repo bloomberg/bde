@@ -1,4 +1,12 @@
 // bdlma_buffermanager.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
 #ifndef INCLUDED_BDLMA_BUFFERMANAGER
 #define INCLUDED_BDLMA_BUFFERMANAGER
 
@@ -129,8 +137,9 @@ BSLS_IDENT("$Id: $")
 //  int my_IntegerCountingHashTable::calculateBufferSize(int tableLength,
 //                                                       int numNodes)
 //  {
-//      return tableLength * sizeof(my_Node *) + numNodes * sizeof(my_Node)
-//                                   + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+//      return static_cast<int>(tableLength * sizeof(my_Node *)
+//                            + numNodes * sizeof(my_Node)
+//                            + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 //  }
 //..
 // Note that, in case the allocated buffer is not aligned, the size calculation
@@ -166,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //              tmp = &((*tmp)->d_next_p);
 //          }
 //          else {
-//              return ++((*tmp)->d_count);
+//              return ++((*tmp)->d_count);                           // RETURN
 //          }
 //      }
 //
@@ -197,7 +206,6 @@ BSLS_IDENT("$Id: $")
 //      const int MAX_SIZE = my_IntegerCountingHashTable::
 //                                         calculateBufferSize(length, length);
 //..
-//
 // We then allocate an external buffer to be used by 'bdlma::BufferManager'.
 // Normally, this buffer will be created on the program stack if we know the
 // length in advance (for example, if we specify in the contract of this
@@ -258,9 +266,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ===================
-                        // class BufferManager
-                        // ===================
+                           // ===================
+                           // class BufferManager
+                           // ===================
 
 class BufferManager {
     // This class implements a buffer manager that dispenses heterogeneous
@@ -300,8 +308,8 @@ class BufferManager {
   public:
     // CREATORS
     explicit
-    BufferManager(bsls::Alignment::Strategy strategy =
-                                                bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+           bsls::Alignment::Strategy strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks.  Optionally
         // specify an alignment 'strategy' used to align allocated memory
         // blocks.  If 'strategy' is not specified, natural alignment is used.
@@ -309,10 +317,10 @@ class BufferManager {
         // memory until an external buffer is provided by calling the
         // 'replaceBuffer' method.
 
-    BufferManager(char                      *buffer,
-                  int                        bufferSize,
-                  bsls::Alignment::Strategy  strategy
-                                              = bsls::Alignment::BSLS_NATURAL);
+    BufferManager(
+          char                      *buffer,
+          int                        bufferSize,
+          bsls::Alignment::Strategy  strategy = bsls::Alignment::BSLS_NATURAL);
         // Create a buffer manager for allocating memory blocks from the
         // specified external 'buffer' having the specified 'bufferSize' (in
         // bytes).  Optionally specify an alignment 'strategy' used to align
@@ -327,8 +335,8 @@ class BufferManager {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // 'size' (in bytes) on success, according to the alignment strategy
-        // specified at construction, and 0 if the allocation request
-        // exceeds the remaining free memory space in the external buffer.  The
+        // specified at construction, and 0 if the allocation request exceeds
+        // the remaining free memory space in the external buffer.  The
         // behavior is undefined unless '0 < size' and this object is currently
         // managing a buffer.
 
@@ -337,8 +345,8 @@ class BufferManager {
         // 'size' (in bytes) according to the alignment strategy specified at
         // construction.  The behavior is undefined unless the allocation
         // request does not exceed the remaining free memory space in the
-        // external buffer, '0 < size', and this object is currently managing
-        // a buffer.
+        // external buffer, '0 < size', and this object is currently managing a
+        // buffer.
 
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
@@ -369,8 +377,8 @@ class BufferManager {
         // Replace the buffer currently managed by this object with the
         // specified 'newBuffer' of the specified 'newBufferSize' (in bytes);
         // return the address of the previously held buffer, or 0 if this
-        // object currently manages no buffer.  The replaced buffer (if any)
-        // is removed from the management of this object with no effect on the
+        // object currently manages no buffer.  The replaced buffer (if any) is
+        // removed from the management of this object with no effect on the
         // outstanding allocated memory blocks.  Subsequent allocations will
         // allocate memory from the beginning of the new external buffer.  The
         // behavior is undefined unless '0 < newBufferSize' and 'newBuffer' has
@@ -390,17 +398,17 @@ class BufferManager {
         // blocks.
 
     int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified 'address'
-        // of the specified 'originalSize' (in bytes) to the specified
-        // 'newSize' (in bytes).  Return 'newSize' after truncating, or
-        // 'originalSize' if the memory at 'address' cannot be truncated.  This
-        // method can only 'truncate' the memory block returned by the most
-        // recent 'allocate' or 'allocateRaw' request from this object, and
-        // otherwise has no effect.  The behavior is undefined unless the
-        // memory at 'address' was originally allocated by this buffer manager,
-        // the size of the memory at 'address' is 'originalSize',
-        // 'newSize <= originalSize', '0 <= newSize', and 'release' was not
-        // called after allocating the memory at 'address'.
+        // Reduce the amount of memory allocated at the specified 'address' of
+        // the specified 'originalSize' (in bytes) to the specified 'newSize'
+        // (in bytes).  Return 'newSize' after truncating, or 'originalSize' if
+        // the memory at 'address' cannot be truncated.  This method can only
+        // 'truncate' the memory block returned by the most recent 'allocate'
+        // or 'allocateRaw' request from this object, and otherwise has no
+        // effect.  The behavior is undefined unless the memory at 'address'
+        // was originally allocated by this buffer manager, the size of the
+        // memory at 'address' is 'originalSize', 'newSize <= originalSize',
+        // '0 <= newSize', and 'release' was not called after allocating the
+        // memory at 'address'.
 
     // ACCESSORS
     char *buffer() const;
@@ -421,12 +429,12 @@ class BufferManager {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------
-                        // class Buffer
-                        // ------------
+                               // ------------
+                               // class Buffer
+                               // ------------
 
 // CREATORS
 inline
@@ -566,7 +574,7 @@ bool BufferManager::hasSufficientCapacity(int size) const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

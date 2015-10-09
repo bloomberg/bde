@@ -10,16 +10,16 @@ BSLS_IDENT_RCSID(bdlma_bufferedsequentialpool_cpp,"$Id$ $CSID$")
 #include <bsl_climits.h>  // 'INT_MAX'
 
 enum {
-    GROWTH_FACTOR = 2  // multiplicative factor by which to grow allocation
-                       // size
+    k_GROWTH_FACTOR = 2  // multiplicative factor by which to grow allocation
+                         // size
 };
 
 namespace BloombergLP {
 namespace bdlma {
 
-                    // ----------------------------
-                    // class BufferedSequentialPool
-                    // ----------------------------
+                       // ----------------------------
+                       // class BufferedSequentialPool
+                       // ----------------------------
 
 // PRIVATE ACCESSORS
 int BufferedSequentialPool::calculateNextBufferSize(int size) const
@@ -33,7 +33,7 @@ int BufferedSequentialPool::calculateNextBufferSize(int size) const
     int oldSize;
     do {
         oldSize   = nextSize;
-        nextSize *= GROWTH_FACTOR;
+        nextSize *= k_GROWTH_FACTOR;
     } while (nextSize < size && oldSize < nextSize);
 
     // If 'nextSize' overflows, use 'oldSize'.
@@ -192,10 +192,10 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    const int nextSize = calculateNextBufferSize(size);
+    const int nextSize = calculateNextBufferSize(static_cast<int>(size));
 
     if (nextSize < static_cast<int>(size)) {
-        return d_blockList.allocate(size);                            // RETURN
+        return d_blockList.allocate(static_cast<int>(size));          // RETURN
     }
 
     // Manage the new buffer using 'BufferManager'.
@@ -203,14 +203,14 @@ void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
     d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
                            nextSize);
 
-    return d_buffer.allocateRaw(size);
+    return d_buffer.allocateRaw(static_cast<int>(size));
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

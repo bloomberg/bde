@@ -58,7 +58,7 @@ namespace bsl
     using native_std::wcstombs;
     using native_std::wctomb;
 
-}
+}  // close package namespace
 
 #endif
 

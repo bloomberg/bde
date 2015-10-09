@@ -68,7 +68,7 @@ namespace bsl
     using native_std::toupper;
     using native_std::use_facet;
 
-}
+}  // close package namespace
 
 #endif
 

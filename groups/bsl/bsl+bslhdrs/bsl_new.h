@@ -32,7 +32,7 @@ namespace bsl
     using native_std::nothrow_t;
     using native_std::set_new_handler;
 
-}
+}  // close package namespace
 
 #endif
 

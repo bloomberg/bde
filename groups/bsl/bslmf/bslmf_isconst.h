@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'Const' Types
+///Example 1: Verify 'const' Types
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
 // 'const'-qualified.

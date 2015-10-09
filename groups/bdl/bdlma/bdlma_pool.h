@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::Pool' for Efficient Memory Allocation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::Pool' can be used by node-based containers (such as lists, trees,
 // and hash tables that hold multiple elements of uniform size) for efficient
 // memory allocation of new elements.  The following container template class,
@@ -158,9 +158,13 @@ BSLS_IDENT("$Id: $")
 //      bsl::vector<TYPE *> d_array_p;  // array of pooled elements
 //      bdlma::Pool         d_pool;     // memory manager for array elements
 //
+//    private:
+//      // Not implemented:
+//      my_PooledArray(const my_PooledArray&);
+//
 //    public:
 //      // CREATORS
-//      my_PooledArray(bslma::Allocator *basicAllocator = 0);
+//      explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
 //          // Create a pooled array that stores the 'TYPE' element values
 //          // "out-of-place".  Optionally specify a 'basicAllocator' used to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
@@ -177,7 +181,7 @@ BSLS_IDENT("$Id: $")
 //          // Remove all elements from this array.
 //
 //      // ACCESSORS
-//      int length() const;
+//      bsl::size_t length() const;
 //          // Return the number of elements in this array.
 //
 //      const TYPE& operator[](int index) const;
@@ -205,7 +209,7 @@ BSLS_IDENT("$Id: $")
 //  // ACCESSORS
 //  template <class TYPE>
 //  inline
-//  int my_PooledArray<TYPE>::length() const
+//  bsl::size_t my_PooledArray<TYPE>::length() const
 //  {
 //      return d_array_p.size();
 //  }
@@ -215,7 +219,7 @@ BSLS_IDENT("$Id: $")
 //  const TYPE& my_PooledArray<TYPE>::operator[](int index) const
 //  {
 //      assert(0     <= index);
-//      assert(index <  length());
+//      assert(index <  static_cast<int>(length()));
 //
 //      return *d_array_p[index];
 //  }
@@ -227,7 +231,6 @@ BSLS_IDENT("$Id: $")
 // those provided by 'bdlma::Pool':
 //..
 //  // my_poolarray.cpp
-//  #include <my_poolarray.h>
 //
 //  // CREATORS
 //  template <class TYPE>
@@ -288,15 +291,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>        // for 'bsl::size_t'
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ==========
-                        // class Pool
-                        // ==========
+                                // ==========
+                                // class Pool
+                                // ==========
 
 class Pool {
     // This class implements a memory pool that allocates and manages memory
@@ -320,8 +323,8 @@ class Pool {
     int   d_blockSize;          // size (in bytes) of each allocated memory
                                 // block returned to client
 
-    int   d_internalBlockSize;  // actual size of each block maintained on
-                                // free list (contains overhead for 'Link')
+    int   d_internalBlockSize;  // actual size of each block maintained on free
+                                // list (contains overhead for 'Link')
 
     int   d_chunkSize;          // current chunk size (in blocks-per-chunk)
 
@@ -353,8 +356,7 @@ class Pool {
   public:
     // CREATORS
     explicit
-    Pool(int                          blockSize,
-         bslma::Allocator            *basicAllocator = 0);
+    Pool(int blockSize, bslma::Allocator *basicAllocator = 0);
     Pool(int                          blockSize,
          bsls::BlockGrowth::Strategy  growthStrategy,
          bslma::Allocator            *basicAllocator = 0);
@@ -495,15 +497,15 @@ void operator delete(void *address, BloombergLP::bdlma::Pool& pool);
     // to be called in the case of an exception.
 
 // ============================================================================
-//                          INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ----------
-                        // class Pool
-                        // ----------
+                                // ----------
+                                // class Pool
+                                // ----------
 
 // MANIPULATORS
 inline

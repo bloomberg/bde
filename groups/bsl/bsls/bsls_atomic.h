@@ -125,11 +125,11 @@ BSLS_IDENT("$Id: $")
 // 'y' in a different order, i.e., 'r3 == 1 && r4 == 0'.
 //
 ///Usage
-///------
+///-----
 // This section illustrates intended use of this component.
 //
 ///Example 1: Usage Statistics on a Thread Pool
-///- - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates a common use of atomic integer types for
 // statistics counters.  The program creates a series of threads to process
 // transactions.  As each thread completes a transaction, it atomically
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 // the representation object, in turn, deletes the managed object ('INSTANCE').
 //
 ///Class 'my_CountedHandleRep'
-/// -  -  -  -  -  -  -  -  -
+///- - - - - - - - - - - - - -
 // First, we define class 'my_CountedHandleRep'.  This class manages a single
 // 'INSTANCE' object on behalf of multiple "handle" objects; since different
 // "handle" objects may be active in different threads, class
@@ -260,6 +260,7 @@ BSLS_IDENT("$Id: $")
 //      int decrement();
 //  };
 //..
+//
 ///Class 'my_CountedHandle'
 ///-  -  -  -  -  -  -  - -
 // Then, we create class 'my_CountedHandle' that provides an individual handle
@@ -300,6 +301,7 @@ BSLS_IDENT("$Id: $")
 //      int numReferences() const;
 //  };
 //..
+//
 ///Function Definitions for 'my_CountedHandleRep'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Next, we provide a definition for the 'static' 'deleteObject' method, which
@@ -952,9 +954,9 @@ class AtomicPointer {
         // 'bslmf_Assert' can't be used here because of package dependency
         // rules.
 
-    template <typename TYPE1>
+    template <class TYPE1>
     struct RemoveConst              { typedef TYPE1 Type; };
-    template <typename TYPE1>
+    template <class TYPE1>
     struct RemoveConst<TYPE1 const> { typedef TYPE1 Type; };
 
     typedef typename RemoveConst<TYPE>::Type NcType;
@@ -1043,9 +1045,9 @@ class AtomicPointer {
 
 namespace bsls {
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                                // ---------------
                                // class AtomicInt

@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Demonstrating The Type Can't Be Assigned To
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrating The Type Cannot Be Assigned To
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to show 'NonAssignableTestType' can't be assigned to:
 //
 // First, we create two 'NonAssignableTestType' objects, 'X' and 'Y':
@@ -112,9 +112,9 @@ bool operator!=(const NonAssignableTestType& lhs,
     // objects do not have the same value if their 'data' attributes are not
     // the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------------
                         // class NonAssignableTestType

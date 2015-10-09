@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // a union.  It is a convenient way to create a small heap from which one or
 // more objects are allocated at run-time.
 //
-///Single-object buffers
+///Single-Object Buffers
 ///---------------------
 // Although, for a given type 'T',
 // 'bsls::AlignedBuffer<sizeof(T), bsls::AlignmentFromType<T>::VALUE>' will
@@ -222,9 +222,9 @@ class AlignedBuffer {
         // 'const char*' pointer.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 template <int SIZE, int ALIGNMENT>

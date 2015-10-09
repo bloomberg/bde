@@ -113,6 +113,7 @@ BSLS_IDENT("$Id: $")
 //  31DEC2005_12:00:00.000-0500
 //  01JAN2001_10:33:25.000-0800
 //..
+//
 ///Example 2: Delivery Estimation System
 ///- - - - - - - - - - - - - - - - - - -
 // Let us suppose that we are implementing a delivery estimation system for a

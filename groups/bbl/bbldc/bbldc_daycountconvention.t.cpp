@@ -1,7 +1,7 @@
 // bbldc_daycountconvention.t.cpp                                     -*-C++-*-
 #include <bbldc_daycountconvention.h>
 
-#include <bdls_testutil.h>
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
@@ -91,23 +91,23 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BDLS_TESTUTIL_ASSERT
-#define ASSERTV      BDLS_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BDLS_TESTUTIL_Q   // Quote identifier literally.
-#define P            BDLS_TESTUTIL_P   // Print identifier and value.
-#define P_           BDLS_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BDLS_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -116,7 +116,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bbldc::DayCountConvention Obj;
 typedef Obj::Enum                 Enum;
 
-enum { ABOVE_ENUM_RANGE = Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL + 1 };
+enum { k_ABOVE_ENUM_RANGE = Obj::e_CALENDAR_BUS_252 + 1 };
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -713,8 +713,7 @@ int main(int argc, char *argv[])
             Out out(VERSION_SELECTOR, &allocator);
 
             // Stream out "new" value.
-            out.putInt8(static_cast<char>(
-                                        Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL + 1));
+            out.putInt8(static_cast<char>(k_ABOVE_ENUM_RANGE));
 
             const char *const OD  = out.data();
             const bsl::size_t LOD = out.length();
@@ -745,17 +744,18 @@ int main(int argc, char *argv[])
                 bsl::size_t  d_length;       // expect output length
                 const char  *d_fmt_p;        // expected output format
             } DATA[] = {
-                //LINE  VALUE                      VER  LEN  FORMAT
-                //----  -------------------------  ---  ---  -------
-                { L_,   Obj::e_ACTUAL_360,           1,   1,  "\x00" },
-                { L_,   Obj::e_ACTUAL_365_FIXED,     1,   1,  "\x01" },
-                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,   1,   1,  "\x03" },
-                { L_,   Obj::e_ISMA_30_360,          1,   1,  "\x05" },
-                { L_,   Obj::e_PSA_30_360_EOM,       1,   1,  "\x06" },
-                { L_,   Obj::e_SIA_30_360_EOM,       1,   1,  "\x07" },
-                { L_,   Obj::e_SIA_30_360_NEOM,      1,   1,  "\x08" },
+                //LINE  VALUE                      VERSION  LEN  FORMAT
+                //----  -------------------------  -------  ---  -------
+                { L_,   Obj::e_ACTUAL_360,               1,   1,  "\x00" },
+                { L_,   Obj::e_ACTUAL_365_FIXED,         1,   1,  "\x01" },
+                { L_,   Obj::e_ISDA_ACTUAL_ACTUAL,       1,   1,  "\x03" },
+                { L_,   Obj::e_ISMA_30_360,              1,   1,  "\x05" },
+                { L_,   Obj::e_PSA_30_360_EOM,           1,   1,  "\x06" },
+                { L_,   Obj::e_SIA_30_360_EOM,           1,   1,  "\x07" },
+                { L_,   Obj::e_SIA_30_360_NEOM,          1,   1,  "\x08" },
                 { L_,   Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
-                                                     1,   1,  "\x09" },
+                                                         1,   1,  "\x09" },
+                { L_,   Obj::e_CALENDAR_BUS_252,         1,   1,  "\x0A" },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -909,8 +909,9 @@ int main(int argc, char *argv[])
             { L_,     Obj::e_SIA_30_360_NEOM,     "SIA_30_360_NEOM"    },
             { L_,     Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
                                            "PERIOD_ICMA_ACTUAL_ACTUAL" },
+            { L_,     Obj::e_CALENDAR_BUS_252,      "CALENDAR_BUS_252" },
 
-            { L_,     ABOVE_ENUM_RANGE,           UNKNOWN_FORMAT       },
+            { L_,     k_ABOVE_ENUM_RANGE,           UNKNOWN_FORMAT       },
             { L_,     -1,                         UNKNOWN_FORMAT       },
             { L_,     -5,                         UNKNOWN_FORMAT       },
             { L_,     99,                         UNKNOWN_FORMAT       },
@@ -1020,7 +1021,7 @@ int main(int argc, char *argv[])
             const char *d_exp;      // expected result
         } DATA[] = {
 #define NL "\n"
-            //LN  Lv  S    enumerator value         expected result
+            //LN  Lv  S    enumerator value           expected result
             //--  --  --  -------------------------  ------------------
             { L_,  0,  4, Obj::e_ACTUAL_360,         "ACTUAL_360" NL         },
             { L_,  0,  4, Obj::e_ACTUAL_365_FIXED,   "ACTUAL_365_FIXED" NL   },
@@ -1031,9 +1032,10 @@ int main(int argc, char *argv[])
             { L_,  0,  4, Obj::e_SIA_30_360_NEOM,    "SIA_30_360_NEOM" NL    },
             { L_,  0,  4, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,
                                            "PERIOD_ICMA_ACTUAL_ACTUAL" NL    },
+            { L_,  0,  4, Obj::e_CALENDAR_BUS_252,   "CALENDAR_BUS_252" NL   },
 
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            { L_,  0,  4, ABOVE_ENUM_RANGE,          UNKNOWN_FORMAT NL       },
+            { L_,  0,  4, k_ABOVE_ENUM_RANGE,        UNKNOWN_FORMAT NL       },
             { L_,  0,  4, -1,                        UNKNOWN_FORMAT NL       },
             { L_,  0,  4, -5,                        UNKNOWN_FORMAT NL       },
             { L_,  0,  4, 99,                        UNKNOWN_FORMAT NL       },
@@ -1176,7 +1178,7 @@ int main(int argc, char *argv[])
             int         d_valid;   // is a valid enum valid
             const char *d_exp;     // expected String Rep.
         } DATA[] = {
-            // LN  Enumerated Value                Valid  Expected output
+            // LN Enumerated Value Valid Expected output
             // --  ------------------------------  -----  ---------------
             {  L_, Obj::e_ACTUAL_360,                  1, "ACTUAL_360"       },
             {  L_, Obj::e_ACTUAL_365_FIXED,            1, "ACTUAL_365_FIXED" },
@@ -1192,14 +1194,13 @@ int main(int argc, char *argv[])
             {  L_, Obj::e_SIA_30_360_NEOM,             1, "SIA_30_360_NEOM"  },
             {  L_, Obj::e_PERIOD_ICMA_ACTUAL_ACTUAL,   1,
                                                  "PERIOD_ICMA_ACTUAL_ACTUAL" },
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            {  L_, 0,                                  0,
+            {  L_, Obj::e_CALENDAR_BUS_252,            1, "CALENDAR_BUS_252" },
+            {  L_, -1,                                 0,
                                                   "(* Unknown Enumerator *)" },
-            {  L_, ABOVE_ENUM_RANGE,                   0,
+            {  L_, k_ABOVE_ENUM_RANGE,                   0,
                                                   "(* Unknown Enumerator *)" },
             {  L_, 19,                                 0,
                                                   "(* Unknown Enumerator *)" },
-#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

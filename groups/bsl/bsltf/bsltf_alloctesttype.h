@@ -168,9 +168,9 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
     // same value, and 'false' otherwise.  Two 'AllocTestType' objects do not
     // have the same value if their 'data' attributes are not the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------
                         // class AllocTestType

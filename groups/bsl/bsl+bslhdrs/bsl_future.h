@@ -36,7 +36,7 @@ namespace bsl {
     using native_std::async;
     using native_std::future_category;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

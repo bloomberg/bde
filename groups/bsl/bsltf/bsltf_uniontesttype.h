@@ -102,9 +102,9 @@ bool operator!=(const UnionTestType& lhs, const UnionTestType& rhs);
     // same value, and 'false' otherwise.  Two 'UnionTestType' objects do not
     // have the same value if their 'data' attributes are not the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // -------------------
                         // class UnionTestType

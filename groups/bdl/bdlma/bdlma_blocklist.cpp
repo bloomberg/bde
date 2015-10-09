@@ -35,9 +35,9 @@ int alignedAllocationSize(int size, int sizeOfBlock)
            & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 }
 
-                        // ---------------
-                        // class BlockList
-                        // ---------------
+                             // ---------------
+                             // class BlockList
+                             // ---------------
 
 // CREATORS
 BlockList::~BlockList()
@@ -51,7 +51,7 @@ void *BlockList::allocate(int size)
     BSLS_ASSERT(0 <= size);
 
     if (0 == size) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     size = alignedAllocationSize(size, sizeof(Block));
@@ -102,7 +102,7 @@ void BlockList::release()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

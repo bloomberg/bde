@@ -52,7 +52,7 @@ namespace bsl
     using native_std::wclog;
     using native_std::wcout;
 
-}
+}  // close package namespace
 
 #endif
 

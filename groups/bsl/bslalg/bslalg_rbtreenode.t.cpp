@@ -170,8 +170,8 @@ void debugprint(const Obj& val) {
             val.color(), val.parent(), val.leftChild(), val.rightChild());
 }
 
-} // close namespace bslalg
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 static Obj& gg(Obj *result, Color color, Obj *parent, Obj *left, Obj *right)
     // Initialize the specified 'result' with the specified 'color', 'parent',

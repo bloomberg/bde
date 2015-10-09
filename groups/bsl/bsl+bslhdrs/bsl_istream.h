@@ -35,7 +35,7 @@ namespace bsl
     using native_std::wistream;
     using native_std::ws;
 
-}
+}  // close package namespace
 
 #endif
 

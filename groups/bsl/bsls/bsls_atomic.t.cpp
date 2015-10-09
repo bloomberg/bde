@@ -165,7 +165,7 @@ typedef bsls::AtomicPointer<const APTestObj> CAP;
 typedef bsls::Types::Int64            Int64;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -907,7 +907,7 @@ int my_CountedHandle<INSTANCE>::numReferences() const
 // 'bsls_atomicoperations', presenting a different implementation of
 // 'my_PtrStack<T>', with an identical public interface.  Note that, where the
 // 'bsls_atomicoperations' example uses the basic data type
-// 'bsls::AtomicOperations::Types::Pointer' for members 'd_list' and
+// 'bsls::AtomicOperations::AtomicTypes::Pointer' for members 'd_list' and
 // 'd_freeList', this implementation uses instead the higher-level type
 // 'bsls::AtomicPointer<T>'.
 //
@@ -1038,7 +1038,7 @@ template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
     if (!node) {
-        return;
+        return;                                                       // RETURN
     }
 
     while (1) {

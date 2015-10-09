@@ -36,7 +36,7 @@ namespace bsl
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::unexpected_handler;
-}
+}  // close package namespace
 
 #endif
 

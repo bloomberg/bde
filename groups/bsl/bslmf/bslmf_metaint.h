@@ -74,8 +74,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Example 2: Reading the 'VALUE' member
-/// - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Reading the 'VALUE' Member
+///- - - - - - - - - - - - - - - - - - -
 // In addition to forming new types, the value of the integral parameter to
 // 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
 // in compile-time or run-time operations.
@@ -248,9 +249,9 @@ struct MetaInt<1> : public bsl::true_type {
     // expression, 'expr', is not evaluated at run-time.
 
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE FUNCTIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template <int INT_VALUE>

@@ -215,7 +215,7 @@ struct is_trivially_copyable<owner_less<POINTER_TYPE> >
 : bsl::true_type
 {};
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 #endif
 

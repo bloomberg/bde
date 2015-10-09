@@ -70,7 +70,7 @@ namespace bsl {
     using ::intptr_t;
     using ::uintptr_t;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #else
 

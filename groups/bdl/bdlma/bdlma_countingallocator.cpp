@@ -14,7 +14,6 @@ BSLS_IDENT_RCSID(bdlma_countingallocator_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlma {
-
 namespace {
 
 // LOCAL CONSTANTS
@@ -22,7 +21,7 @@ namespace {
 // Define the number of bytes by which the address returned to the user is
 // *offset* from the actual address of the allocated memory block.
 
-const bslma::Allocator::size_type OFFSET =
+static const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 }  // close unnamed namespace
@@ -126,7 +125,7 @@ bsl::ostream& CountingAllocator::print(bsl::ostream& stream) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

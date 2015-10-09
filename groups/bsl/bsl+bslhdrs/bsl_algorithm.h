@@ -103,7 +103,7 @@ namespace bsl {
     using native_std::unique_copy;
     using native_std::upper_bound;
 
-}  // close namespace bsl
+}  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

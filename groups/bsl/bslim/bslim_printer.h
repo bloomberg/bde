@@ -215,7 +215,7 @@ BSLS_IDENT("$Id: $")
 //  ]
 //..
 //
-///Example 3: Foreign (3rd - Party) Classes, and Printing STL Containers
+///Example 3: Foreign (Third-Party) Classes, and Printing STL Containers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we use a 'Printer' object to help format the properties of
 // a class supplied by a third-party that does not implement the standard
@@ -378,6 +378,7 @@ BSLS_IDENT("$Id: $")
 //      ]
 //  ]
 //..
+//
 ///Example 4: Printing Ranges, and Typed Pointers
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // In this examples we demonstrate two capabilities of a 'bslim::Printer'
@@ -427,6 +428,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  [ 0xffbfd688 [ 0 1 2 ] 0xffbfd678 [ 4 5 ] 0xffbfd668 [ 8 ] ]
 //..
+//
 ///Example 5: 'print' Method for a Low-Level Value-Semantic Class
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For very simple classes, it may be desirable always to format the attributes

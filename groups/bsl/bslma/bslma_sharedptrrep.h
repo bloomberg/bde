@@ -514,8 +514,8 @@ int SharedPtrRep::numWeakReferences() const
     return weakCount / 2;
 }
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

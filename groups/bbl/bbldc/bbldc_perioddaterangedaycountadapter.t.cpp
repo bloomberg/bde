@@ -159,8 +159,8 @@ int main(int argc, char *argv[])
     sched.push_back(bdlt::Date(2003, 10, 1));
     sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Then, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DateRangeDayCount':
+// Then, we define an instance of the adapted day-count convention and obtain a
+// reference to the 'bbldc::DateRangeDayCount':
 //..
     const bbldc::PeriodDateRangeDayCountAdapter<bbldc::PeriodIcmaActualActual>
                                                                    myDcc(sched,

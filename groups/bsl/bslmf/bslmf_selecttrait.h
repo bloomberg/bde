@@ -12,7 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bslmf::SelectTrait        Template that selects the first of multiple traits
 // bslmf::SelectTraitCase    Template that identifies a selected trait
-// bslmf::SelectTraitDefault Class that identifies no traits
 //
 //@SEE_ALSO:
 //
@@ -22,8 +21,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates the intended usage of this component.
 //
-///Example 1: Dispatch on traits
-/// - - - - - - - - - - - - - -
+///Example 1: Dispatch On Traits
+///- - - - - - - - - - - - - - -
 // We would like to create a function template,
 // 'ScalarPrimitives::copyConstruct', that takes an original object and an
 // allocator constructs a copy of 'original' using the most efficient valid

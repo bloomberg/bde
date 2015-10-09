@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Iterating a Hash Table Bucket Using 'HashTableIterator'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple hashtable and then use a
 // 'HashTableBucketIterator' to iterate through the elements in one of its
 // buckets.

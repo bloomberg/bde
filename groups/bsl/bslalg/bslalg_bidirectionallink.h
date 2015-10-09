@@ -349,9 +349,9 @@ class BidirectionalLink {
 
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //------------------------
                         // class BidirectionalLink
@@ -390,7 +390,7 @@ BidirectionalLink *BidirectionalLink::previousLink() const
     return d_prev_p;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -157,6 +157,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == lsi.count(33));
 //  assert(1 == lsi.count(32));
 //..
+//
 ///Example 2: Using Our List Set For a Custom Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a list set containing objects of a custom type.  We

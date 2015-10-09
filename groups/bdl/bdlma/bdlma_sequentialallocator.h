@@ -113,6 +113,9 @@ BSLS_IDENT("$Id: $")
 //      void increaseCapacity();
 //          // Increase the capacity of this stack by at least one element.
 //
+//      // Not implemented:
+//      my_DoubleStack(const my_DoubleStack&);
+//
 //    public:
 //      // CREATORS
 //      explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
@@ -147,10 +150,6 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //
 //  // my_doublestack.cpp
-//  #include <my_doublestack.h>
-//
-//  #include <bslma_allocator.h>
-//  #include <bslma_default.h>
 //
 //  // PRIVATE MANIPULATORS
 //  void my_DoubleStack::increaseCapacity()
@@ -190,12 +189,8 @@ BSLS_IDENT("$Id: $")
 // In 'main', users can create a 'bdlma::SequentialAllocator' and pass it to
 // the constructor of 'my_DoubleStack':
 //..
-//  int main()
-//  {
 //      bdlma::SequentialAllocator sequentialAlloc;
 //      my_DoubleStack dstack(&sequentialAlloc);
-//      // ...
-//  }
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -229,18 +224,18 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                      // =========================
-                      // class SequentialAllocator
-                      // =========================
+                        // =========================
+                        // class SequentialAllocator
+                        // =========================
 
 class SequentialAllocator : public ManagedAllocator {
-    // This class implements the 'ManagedAllocator' protocol to provide
-    // a fast allocator that dispenses heterogeneous blocks of memory (of
-    // varying, user-specified sizes) from a sequence of dynamically-allocated
-    // buffers.  Memory for the internal buffers is supplied by an (optional)
-    // allocator supplied at construction; if no allocator is supplied, the
-    // currently installed default allocator is used.  If an allocation exceeds
-    // the remaining free memory space in the current buffer, the allocator
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from a sequence of dynamically-allocated buffers.
+    // Memory for the internal buffers is supplied by an (optional) allocator
+    // supplied at construction; if no allocator is supplied, the currently
+    // installed default allocator is used.  If an allocation exceeds the
+    // remaining free memory space in the current buffer, the allocator
     // replenishes its internal buffer with new memory to satisfy the request.
     // This class is *exception* *neutral*: If memory cannot be allocated, the
     // behavior is defined by the (optional) allocator specified at
@@ -257,13 +252,13 @@ class SequentialAllocator : public ManagedAllocator {
   public:
     // CREATORS
     explicit
-    SequentialAllocator(bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
     explicit
-    SequentialAllocator(bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
                         bslma::Allocator            *basicAllocator = 0);
@@ -280,14 +275,13 @@ class SequentialAllocator : public ManagedAllocator {
         // geometric growth is used.
 
     explicit
-    SequentialAllocator(int                          initialSize,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int initialSize, bslma::Allocator *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int                        initialSize,
+                        bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bsls::Alignment::Strategy    alignmentStrategy,
@@ -310,18 +304,17 @@ class SequentialAllocator : public ManagedAllocator {
         // internal buffers will always be the same as the
         // implementation-defined value.
 
-
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int               initialSize,
+                        int               maxBufferSize,
+                        bslma::Allocator *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         int                          maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
                         bslma::Allocator            *basicAllocator = 0);
-    SequentialAllocator(int                          initialSize,
-                        int                          maxBufferSize,
-                        bsls::Alignment::Strategy    alignmentStrategy,
-                        bslma::Allocator            *basicAllocator = 0);
+    SequentialAllocator(int                        initialSize,
+                        int                        maxBufferSize,
+                        bsls::Alignment::Strategy  alignmentStrategy,
+                        bslma::Allocator          *basicAllocator = 0);
     SequentialAllocator(int                          initialSize,
                         int                          maxBufferSize,
                         bsls::BlockGrowth::Strategy  growthStrategy,
@@ -389,26 +382,26 @@ class SequentialAllocator : public ManagedAllocator {
         // dynamic allocation.
 
     int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified 'address'
-        // of the specified 'originalSize' (in bytes) to the specified
-        // 'newSize'.  Return 'newSize' after truncating, or 'originalSize' if
-        // the memory at 'address' cannot be truncated.  This method can only
-        // 'truncate' the memory block returned by the most recent 'allocate'
-        // request from this allocator, and otherwise has no effect.  The
-        // behavior is undefined unless the memory at 'address' was originally
-        // allocated by this allocator, the size of the memory block at
-        // 'address' is 'originalSize', 'newSize <= originalSize',
-        // '0 <= newSize', and 'release' was not called after allocating the
-        // memory block at 'address'.
+        // Reduce the amount of memory allocated at the specified 'address' of
+        // the specified 'originalSize' (in bytes) to the specified 'newSize'.
+        // Return 'newSize' after truncating, or 'originalSize' if the memory
+        // at 'address' cannot be truncated.  This method can only 'truncate'
+        // the memory block returned by the most recent 'allocate' request from
+        // this allocator, and otherwise has no effect.  The behavior is
+        // undefined unless the memory at 'address' was originally allocated by
+        // this allocator, the size of the memory block at 'address' is
+        // 'originalSize', 'newSize <= originalSize', '0 <= newSize', and
+        // 'release' was not called after allocating the memory block at
+        // 'address'.
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                      // -------------------------
-                      // class SequentialAllocator
-                      // -------------------------
+                        // -------------------------
+                        // class SequentialAllocator
+                        // -------------------------
 
 // CREATORS
 inline
@@ -554,9 +547,7 @@ void SequentialAllocator::release()
 }
 
 inline
-int SequentialAllocator::truncate(void *address,
-                                  int   originalSize,
-                                  int   newSize)
+int SequentialAllocator::truncate(void *address, int originalSize, int newSize)
 {
     return d_sequentialPool.truncate(address, originalSize, newSize);
 }
@@ -567,7 +558,7 @@ int SequentialAllocator::truncate(void *address,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

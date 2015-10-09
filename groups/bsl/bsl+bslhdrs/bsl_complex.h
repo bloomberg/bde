@@ -47,7 +47,7 @@ namespace bsl
     using native_std::tan;
     using native_std::tanh;
 
-}
+}  // close package namespace
 
 #endif
 

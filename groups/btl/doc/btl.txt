@@ -1,0 +1,111 @@
+ btl.txt
+
+@PURPOSE: Provide support, services, and frameworks for transport (IPC)
+
+@MNEMONIC: Basic Transport Environment (btl)
+
+@DESCRIPTION: The 'btl' ("Basic Transport Environment") package group provides
+ a variety of concrete transport (IPC) mechanisms and services that conform to
+ a uniform set of pure abstract interfaces.  In addition, 'btl' supplies
+ low-level support for sockets and event managers.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btl' package group currently has 8 packages having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. btls5
+
+  5. btlmt
+
+  4. btlso
+
+  3. btls
+
+  2. btlb
+
+  1. btlsc
+     btlscm
+     btlsos
+..
+
+/Package Synopsis
+/----------------
+: 'btlb':
+:      Provide flexible, efficient management of message buffers.
+:
+: 'btlmt':
+:      Provide framework for multi-threaded TCP/IP transport.
+:
+: 'btls':
+:      Provide transport-specific system level services.
+:
+: 'btls5':
+:      Support connecting through a network of SOCKS5 proxies.
+:
+: 'btlsc':
+:      Provide abstract interfaces for transport channels and factories.
+:
+: 'btlscm':
+:      Provide versioning information for 'btl' library components.
+:
+: 'btlso':
+:      Provide low-level support for sockets and event managers.
+:
+: 'btlsos':
+:      Provide concrete TCP/IPv4 channels derived from 'btlsc' protocols.
+
+/Package Overview
+/----------------
+ This section provides a brief introduction to some of the packages in 'btl'
+ package group.  See the respective Package Level documents for more details.
+
+/'btlmt'
+/- - - -
+ The {'btlmt'} package provides a multi-threaded framework that supports
+ TCP/IPv4 transport.  In functionality, 'btlmt' is similar to 'ptdispatch'
+ except that there is no support for 'fstsnd' at this time.
+
+/'btls'
+/ - - -
+ The {'btls'} package provides "system level" services that are required by
+ this transport package group in a form that is portable across all suported
+ platforms.  Currently, the package supplies objects and utilities to implement
+ the Unix 'iovec' ("scatter/gather") buffer structure in a platform-neutral
+ form.
+
+/'btls5'
+/- - - -
+ {'btls5'} provides connectivity through a network of SOCKS5 proxies with
+ optional username/password authentication.
+
+/'btlsc'
+/- - - -
+ The {'btlsc'} package provides a suite of protocols (i.e., pure abstract
+ interfaces) abstracting the general behavior of communications "channels".
+ All abstractions in this package consider stream-based (as opposed to
+ message-based) transport.  The three general abstractions are called
+ "channel", "channel allocator", and "allocator factory".  In our usage,
+ "allocator" and "factory" are synonymous; we use different words to avoid
+ repetition.  In simplest form, "channel" abstracts the concept of an endpoint
+ of a communication mechanism, providing appropriate "read" and "write"
+ methods, while a "channel allocator" dispenses channels as resources, and
+ hence abstracts the concepts of creating and destroying channels.  Finally, a
+ "(channel) allocator factory" is substantially a naming service that is
+ capable of dispensing channel allocators that will in turn dispense channels
+ that are appropriately connected of concrete event managers.  Each of the
+ above interfaces is available in blocking and non-blocking form, and with and
+ without support for timeouts.
+
+/'btlso'
+/- - - -
+ The {'btlso'} package provides relatively low-level support for sockets as
+ well as a number of concrete event managers.
+
+/'btlsos'
+/ - - - -
+ The {'btlsos'} package provides concrete impementations of 'btlsc' channels
+ using TCP/IPv4 sockets.  Timed and untimed, and blocking and non-blocking
+ versions of generic channels, acceptors, and connectors are provided.

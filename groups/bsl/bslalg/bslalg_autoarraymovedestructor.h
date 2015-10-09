@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // example.
 //
 // Overview of the operation of 'AutoArrayMoveDestructor':
-// ------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Supposee we want to double the length of an array by prepending copies a
 // 'value' at the start of the array.  Note that we assume there is ample
 // uninitialized memory after the end of the initial array for these new
@@ -352,9 +352,9 @@ class AutoArrayMoveDestructor {
         // Return the address at the middle of the guarded range.
 };
 
-// ===========================================================================
+// ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                     // -----------------------------
                     // class AutoArrayMoveDestructor

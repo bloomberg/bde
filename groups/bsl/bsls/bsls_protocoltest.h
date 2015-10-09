@@ -50,8 +50,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Testing a Protocol Class.
-///- - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Testing a Protocol Class
+///- - - - - - - - - - - - - - - - - -
 // This example demonstrates how to test a protocol class, 'ProtocolClass',
 // using this protocol test component.  Our 'ProtocolClass' provides two of
 // pure virtual methods ('foo' and 'bar'), along with a virtual destructor:

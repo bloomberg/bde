@@ -247,7 +247,7 @@ void TestAllocator::deallocate(void *address)
 bool TestAllocator::isMemoryDeallocated(const void *memory) const
 {
     for (int i = 0; i < d_numDeallocated; ++i) {
-        if (memory == d_deallocatedMemory[i]) return true;
+        if (memory == d_deallocatedMemory[i]) return true;            // RETURN
     }
     return false;
 }

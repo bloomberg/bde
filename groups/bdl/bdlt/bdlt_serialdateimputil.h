@@ -130,8 +130,9 @@ BSLS_IDENT("$Id: $")
 //  assert(4 == bdlt::SerialDateImpUtil::ydToMonth(2011, 120));
 //                                                           // 4 means April.
 //..
-///Example 2: Use to Implement a Value-Semantic Date Type
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Implement a Value-Semantic Date Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Using the functions supplied in this component, we can easily implement a
 // C++ class that represents abstract (*mathematical*) date values and performs
 // common operations on them.  The internal representation could be any of the

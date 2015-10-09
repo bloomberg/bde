@@ -34,7 +34,7 @@ namespace bsl
     using native_std::ostream;
     using native_std::wostream;
 
-}
+}  // close package namespace
 
 #endif
 

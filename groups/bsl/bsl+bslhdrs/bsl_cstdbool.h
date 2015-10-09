@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
     // The cstdbool header adds 'bool' type and the 'true' and 'false' values
     // as macro definitions.
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

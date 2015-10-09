@@ -259,7 +259,7 @@ template <>
 struct IsBitwiseMoveable<bslma::ManagedPtrDeleter>
     : bsl::integral_constant<bool, true> {};
 
-}  // close package namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 #endif
 

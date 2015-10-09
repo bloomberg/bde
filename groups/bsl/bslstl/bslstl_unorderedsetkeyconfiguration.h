@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19
@@ -244,9 +244,9 @@ struct UnorderedSetKeyConfiguration {
         // is simply the object itself.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                       //------------------------------------
                       // struct UnorderedSetKeyConfiguration
@@ -261,7 +261,7 @@ UnorderedSetKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& object)
     return object;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 }  // close enterprise namespace
 

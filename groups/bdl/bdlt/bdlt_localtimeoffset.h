@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic 'bdlt::LocalTimeOffset' Usage
-///- - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to use 'bdlt::LocalTimeOffset'.
 //
 // First, obtain the current UTC time - ignoring milliseconds - using

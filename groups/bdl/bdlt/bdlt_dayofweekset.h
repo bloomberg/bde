@@ -50,9 +50,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Manipulation and Traversal of Day of Week Sets
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments,
-// or special days (e.g., weekend days), in a calendar.  The following
-// snippets of code illustrate how to create and use a 'bdlt::DayOfWeek' set.
+// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments, or
+// special days (e.g., weekend days), in a calendar.  The following snippets of
+// code illustrate how to create and use a 'bdlt::DayOfWeek' set.
 //
 // First, we create a couple of commonly useful sets.  First we define the
 // 'bdlt::DayOfWeekSet' 'weekendDays':
@@ -455,6 +455,10 @@ class DayOfWeekSet {
         // Return an iterator indicating one position past the last possible
         // element in this set.
 
+    bool isEmpty() const;
+        // Return 'true' if there are no elements in this set, and 'false'
+        // otherwise.
+
     bool isMember(DayOfWeek::Enum value) const;
         // Return 'true' if the specified 'value' is an element of this set,
         // and 'false' otherwise.
@@ -501,8 +505,8 @@ class DayOfWeekSet {
 
 // FREE OPERATORS
 DayOfWeekSet operator~(const DayOfWeekSet& set);
-    // Return a set containing the complement of the specified 'set'
-    // (i.e., those members *not* contained in 'set').
+    // Return a set containing the complement of the specified 'set' (i.e.,
+    // those members *not* contained in 'set').
 
 DayOfWeekSet operator|(const DayOfWeekSet& lhs, const DayOfWeekSet& rhs);
     // Return a set containing the union of the specified 'lhs' and 'rhs' sets
@@ -616,8 +620,8 @@ bool bdlt::operator==(const DayOfWeekSet_Iter& lhs,
 {
     BSLS_ASSERT_SAFE(lhs.d_data == rhs.d_data);
 
-    // If the data is not the same, either the objects were not initially
-    // the same, or one has subsequently been modified.
+    // If the data is not the same, either the objects were not initially the
+    // same, or one has subsequently been modified.
 
     return lhs.d_index == rhs.d_index;
 }
@@ -710,8 +714,8 @@ void DayOfWeekSet::add(DayOfWeek::Enum value)
 inline
 bool DayOfWeekSet::remove(DayOfWeek::Enum value)
 {
-    const int mask = 1 << value;
-    const bool rv  = d_days & mask;
+    const int  mask = 1 << value;
+    const bool rv   = d_days & mask;
     d_days &= static_cast<unsigned char>(~mask);
     return rv;
 }
@@ -765,6 +769,12 @@ inline
 DayOfWeekSet::iterator DayOfWeekSet::end() const
 {
     return DayOfWeekSet::iterator(DayOfWeekSet_Iter(d_days, 8));
+}
+
+inline
+bool DayOfWeekSet::isEmpty() const
+{
+    return 0 == d_days;
 }
 
 inline

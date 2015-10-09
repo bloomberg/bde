@@ -3014,29 +3014,29 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template <typename VALUE_TYPE, typename ALLOCATOR>
+template <class VALUE_TYPE, class ALLOCATOR>
 struct HasStlIterators<bsl::deque<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
-template <typename VALUE_TYPE, typename ALLOCATOR>
+template <class VALUE_TYPE, class ALLOCATOR>
 struct IsBitwiseMoveable<bsl::deque<VALUE_TYPE, ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
-template <typename VALUE_TYPE, typename ALLOCATOR>
+template <class VALUE_TYPE, class ALLOCATOR>
 struct UsesBslmaAllocator<bsl::deque<VALUE_TYPE, ALLOCATOR> >
     : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

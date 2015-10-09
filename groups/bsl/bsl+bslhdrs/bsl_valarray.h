@@ -49,7 +49,7 @@ namespace bsl
     using native_std::tan;
     using native_std::tanh;
     using native_std::valarray;
-}
+}  // close package namespace
 
 #endif
 

@@ -1,0 +1,144 @@
+ btlso.txt
+
+@PURPOSE: Provide low-level support for sockets and event managers.
+
+@MNEMONIC: Basic Transport Environment SOcket (btlso)
+
+@DESCRIPTION: The 'btlso' package provides relatively low-level support for
+ sockets as well as a number of concrete event managers.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlso' package currently has 30 components having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. btlso_inetstreamsocketfactory
+     btlso_tcptimereventmanager
+
+  5. btlso_defaulteventmanager
+     btlso_inetstreamsocket
+
+  4. btlso_defaulteventmanager_devpoll                                !PRIVATE!
+     btlso_defaulteventmanager_epoll                                  !PRIVATE!
+     btlso_defaulteventmanager_poll                                   !PRIVATE!
+     btlso_defaulteventmanager_pollset                                !PRIVATE!
+     btlso_defaulteventmanager_select                                 !PRIVATE!
+     btlso_eventmanagertester
+     btlso_streamsocket
+
+  3. btlso_defaulteventmanagerimpl
+     btlso_event
+     btlso_eventmanager
+     btlso_ioutil
+     btlso_ipresolutioncache
+     btlso_socketimputil
+     btlso_socketoptutil
+     btlso_timereventmanager
+
+  2. btlso_resolveutil
+     btlso_sockethandle
+     btlso_socketoptions
+
+  1. btlso_endpoint
+     btlso_eventtype
+     btlso_flag
+     btlso_ipv4address
+     btlso_lingeroptions
+     btlso_platform
+     btlso_streamsocketfactory
+     btlso_timemetrics
+..
+
+/Component Synopsis
+/------------------
+: 'btlso_defaulteventmanager':
+:      Provide an interface for default event manager.
+:
+: 'btlso_defaulteventmanager_devpoll':                                !PRIVATE!
+:      Provide socket multiplexer implementation using '/dev/poll'.
+:
+: 'btlso_defaulteventmanager_epoll':                                  !PRIVATE!
+:      Provide socket multiplexer implementation using Linux 'epoll'.
+:
+: 'btlso_defaulteventmanager_poll':                                   !PRIVATE!
+:      Provide socket multiplexer implementation using 'poll'.
+:
+: 'btlso_defaulteventmanager_pollset':                                !PRIVATE!
+:      Provide socket multiplexer implementation using 'pollset'.
+:
+: 'btlso_defaulteventmanager_select':                                 !PRIVATE!
+:      Provide a 'select'-based socket-event multiplexer.
+:
+: 'btlso_defaulteventmanagerimpl':
+:      Provide forward declaration and constants for event managers.
+:
+: 'btlso_endpoint':
+:      Provide a hostname-based address of a TCP or UDP endpoint.
+:
+: 'btlso_event':
+:      Provide component to describe an event on a socket.
+:
+: 'btlso_eventmanager':
+:      Define a protocol for socket-event multiplexer.
+:
+: 'btlso_eventmanagertester':
+:      Provide programmable and preset test apparatus for event managers.
+:
+: 'btlso_eventtype':
+:      Enumerate the set of socket event types.
+:
+: 'btlso_flag':
+:      Enumerate all flags for stream-based-channel transport.
+:
+: 'btlso_inetstreamsocket':
+:      Implementation for TCP based stream sockets.
+:
+: 'btlso_inetstreamsocketfactory':
+:      Implementation for TCP based stream sockets.
+:
+: 'btlso_ioutil':
+:      Provide operations to set socket I/O modes.
+:
+: 'btlso_ipresolutioncache':
+:      Provide a cache for IP addresses resolved from given hostnames.
+:
+: 'btlso_ipv4address':
+:      Provide a representation of an IPv4 address.
+:
+: 'btlso_lingeroptions':
+:      Provide an attribute class to describe socket linger options.
+:
+: 'btlso_platform':
+:      Provide platform trait definitions.
+:
+: 'btlso_resolveutil':
+:      Provide operations to resolve an IPv4 address given a name.
+:
+: 'btlso_sockethandle':
+:      Provide a platform-independent socket handle type
+:
+: 'btlso_socketimputil':
+:      Provide platform-independent operations on sockets.
+:
+: 'btlso_socketoptions':
+:      Provide a value-semantic class to store socket options.
+:
+: 'btlso_socketoptutil':
+:      Provide operations to manipulate socket options.
+:
+: 'btlso_streamsocket':
+:      Define a protocol for stream-based socket communications.
+:
+: 'btlso_streamsocketfactory':
+:      Provide protocol for a factory producing stream sockets.
+:
+: 'btlso_tcptimereventmanager':
+:      Provide a multiplexer of events on sockets and timers.
+:
+: 'btlso_timemetrics':
+:      Provide thread-safe time-based categorized metrics.
+:
+: 'btlso_timereventmanager':
+:      Provide a protocol for multiplexing sockets events and timers.

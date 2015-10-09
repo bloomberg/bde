@@ -163,7 +163,7 @@ namespace bsl
         return native_std::nouppercase(str);
     }
 #endif
-}
+}  // close package namespace
 
 #endif
 

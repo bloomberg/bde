@@ -341,11 +341,11 @@ bool operator==(const MyFixedSizeArray<VALUE,SIZE>& lhs,
                 const MyFixedSizeArray<VALUE,SIZE>& rhs)
 {
     if (lhs.size() != rhs.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     for (int i = 0; i < lhs.size(); ++i) {
         if (lhs[i] != rhs[i]) {
-            return false;
+            return false;                                             // RETURN
         }
     }
     return true;

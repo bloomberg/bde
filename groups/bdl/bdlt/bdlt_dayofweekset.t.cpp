@@ -67,6 +67,7 @@ using bsl::flush;
 // [ 5] ostream& print(ostream& stream, int level, int spacesPerLevel);
 // [ 4] iterator begin() const;
 // [ 4] iterator end() const;
+// [ 4] bool isEmpty() const;
 // [ 4] bool isMember(Month::Month value) const;
 // [ 4] int length() const;
 // [ 4] reverse_iterator rbegin() const;
@@ -415,9 +416,9 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Manipulation and Traversal of Day of Week Sets
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments,
-// or special days (e.g., weekend days), in a calendar.  The following
-// snippets of code illustrate how to create and use a 'bdlt::DayOfWeek' set.
+// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments, or
+// special days (e.g., weekend days), in a calendar.  The following snippets of
+// code illustrate how to create and use a 'bdlt::DayOfWeek' set.
 //
 // First, we create a couple of commonly useful sets.  First we define the
 // 'bdlt::DayOfWeekSet' 'weekendDays':
@@ -2681,6 +2682,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   iterator begin() const;
         //   iterator end() const;
+        //   bool isEmpty() const;
         //   bool isMember(Month::Month value) const;
         //   int length() const;
         //   reverse_iterator rbegin() const;
@@ -2928,9 +2930,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) CR;
         }
 
-        if (verbose) cout << "\nTesting 'isMember', 'length', 'begin', 'end', "
-                          << "'rbegin', 'rend', 'operator++', 'operator--', "
-                          << "and 'operator*'." << endl;
+        if (verbose) cout << "\nTesting 'isEmpty', 'isMember', 'length', "
+                          << "'begin', 'end', 'rbegin', 'rend', 'operator++',"
+                          << " 'operator--', and 'operator*'."
+                          << endl;
         for (ti = 0; ti < NUM_DATA ; ++ti) {
             const int LINE         = DATA[ti].d_lineNum;
             const char *const SPEC = DATA[ti].d_spec_p;
@@ -2941,6 +2944,7 @@ int main(int argc, char *argv[])
             Obj mX;
             const Obj& X = gg(&mX, SPEC);
 
+            ASSERTV(ti, (0 == curLen) == X.isEmpty());
             ASSERTV(ti, curLen == X.length());
 
             if (curLen != oldLen) {
@@ -2953,6 +2957,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t\tSpec = \"" << SPEC << '"' << endl;
             if (veryVeryVerbose) { cout << "\t\t\t"; P(X); }
 
+            ASSERTV(LINE, (0 == LENGTH) == X.isEmpty());
             ASSERTV(LINE, LENGTH == X.length());
 
             int i;
@@ -3188,6 +3193,8 @@ int main(int argc, char *argv[])
                     cout << "\t\t\t"; P(Y);
                 }
 
+                ASSERTV(LINE, (0 == LENGTH) == X.isEmpty());
+                ASSERTV(LINE, (0 == LENGTH) == Y.isEmpty());
                 ASSERTV(LINE, LENGTH == X.length());
                 ASSERTV(LINE, LENGTH == Y.length());
                 for (int i = 0; i < LENGTH; ++i) {

@@ -328,9 +328,9 @@ struct HashTableBucket {
         // Return the number of nodes in this hash bucket.
 };
 
-// ===========================================================================
+// ============================================================================
 //                               FREE OPERATORS
-// ===========================================================================
+// ============================================================================
 
 bool operator==(const HashTableBucket& lhs, const HashTableBucket& rhs);
     // Return 'true' if the specified hash table buckets 'lhs' and 'rhs' are
@@ -340,9 +340,9 @@ bool operator!=(const HashTableBucket& lhs, const HashTableBucket& rhs);
     // Return 'true' if the specified hash table buckets 'lhs' and 'rhs' are
     // not equivalent and 'false' otherwise.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //----------------------
                         // class HashTableBucket
@@ -400,7 +400,7 @@ BidirectionalLink *HashTableBucket::last() const
     return d_last_p;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 // FREE OPERATORS
 inline

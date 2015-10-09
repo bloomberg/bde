@@ -1,0 +1,159 @@
+ bdlcc.txt
+
+@PURPOSE: Provide containers that support concurrent (multi-thread) access.
+
+@MNEMONIC: Basic Development Library Concurrency Containers (bdlcc)
+
+@SEE_ALSO: bdec, bcemt
+
+@DESCRIPTION: The 'bdlcc' package provides a set of containers that allow
+ concurrent access and manipulation.  Components in this package are similar in
+ *intent* to the corresponding 'bdlc' components, except that all operations
+ which change the internal state of the containers are guaranteed to be atomic
+ in the presence of multiple threads.
+
+ Support for true multi-threading causes some significant interface changes
+ when compared to the analogous 'bdlc' components.  A thread-safe collection
+ cannot, in general, guarantee thread safety for its contained objects while
+ still allowing access to those objects.  So, for instance, a canonical
+ implementation of 'operator[]', yielding a reference to the contained object,
+ would violate thread safety.  Therefore, thread-safe collections will, in
+ general, return items *by* *value* rather than *by* *reference*.
+
+ In addition, thread-aware collection components must make policy decisions
+ regarding behavior of manipulators at the "edge conditions" when a collection
+ is empty or full.  In a multi-threading context, it is often reasonable for a
+ manipulator to block if it cannot complete a requested operation, and to wait
+ for the collection state to change.  For instance, when called for an empty
+ collection, 'bdlcc_Queue<T>::popFront()' will block and then wait until an
+ element is available to satisfy the request.
+
+ In general, components in 'bdlcc' support this blocking behavior where it
+ makes sense.  Refer to the individual component documentation to understand
+ how this general principle is carried out in specific components.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlcc' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdlcc_sharedobjectpool
+
+  3. bdlcc_objectpool
+
+  2. bdlcc_fixedqueue
+
+  1. bdlcc_fixedqueueindexmanager
+     bdlcc_multipriorityqueue
+     bdlcc_objectcatalog
+     bdlcc_queue
+     bdlcc_skiplist
+     bdlcc_timequeue
+..
+
+/Component Synopsis
+/------------------
+: 'bdlcc_fixedqueue':
+:      Provide a thread-enabled fixed-size queue of values.
+:
+: 'bdlcc_fixedqueueindexmanager':
+:      Provide thread-enabled state management for a fixed-size queue.
+:
+: 'bdlcc_multipriorityqueue':
+:      Provide a thread-enabled parameterized multi-priority queue.
+:
+: 'bdlcc_objectcatalog':
+:      Provide an efficient indexed, thread-safe object container.
+:
+: 'bdlcc_objectpool':
+:      Provide a thread-safe object pool.
+:
+: 'bdlcc_queue':
+:      Provide a thread-enabled queue of items of parameterized 'TYPE'.
+:
+: 'bdlcc_sharedobjectpool':
+:      Provide a thread-safe pool of shared objects.
+:
+: 'bdlcc_skiplist':
+:      Provide a generic thread-safe Skip List.
+:
+: 'bdlcc_timequeue':
+:      Provide an efficient queue for time events.
+
+/Component Overview
+/------------------
+ This section provides a brief introduction to some of the components of the
+ 'bdlcc' package.  Full details are available in the documentation of each
+ component.
+
+/'bdlcc_objectcatalog'
+/ - - - - - - - - - -
+ The {'bdlcc_objectcatalog'} component provides a thread-safe, indexable
+ catalog of object.  Clients instantiate a template class,
+ 'bdlcc_ObjectCatalog<T>', where type 'T' is the data type of elements that the
+ catalog will hold.  Type 'T' must be defined to be copyable either by a copy
+ constructor or by 'T::operator=()'; class 'bdlcc_ObjectCatalog' places no
+ additional requirements on 'T'.
+
+ When clients add elements to a 'bdlcc_ObjectCatalog', the 'add' method returns
+ a handle which can be used to refer to the element until the element is
+ 'remove'd.  Addition is not guaranteed to succeed and the return vaslue must
+ be checked.  An element can be accessed through its handle by using the 'find'
+ function and passing a buffer for holding the value.  Passing a null buffer
+ can be used for testing whether the handle is still valid (i.e., refers to an
+ element that has not yet been removed from the catalog).
+
+ The 'bdlcc_ObjectCatalog' is designed to support direct access to individual
+ queued elements based upon their 'Handle'.  This means that 'bdlcc_Catalog'
+ can support frequent additions and removals more efficiently than traditional
+ queue structures designed for sequential access.
+
+/'bdlcc_pool'
+/- - - - - -
+ The {'bdlcc_pool'} component provides a thread-safe memory pool of objects
+ from a parameterized type 'T'.  Clients instantiate a 'bdlcc_ObjectPool<T>'
+ where the type 'T' has no requirements.  The pool owns the memory and objects
+ it contains.  An object pool manages creation of its objects via a
+ user-installed functor (given to the pool constructor), and provides automatic
+ destruction of its objects either upon the 'destroyObject' method, or upon the
+ pool destruction.  An object can be obtained from the pool by calling the
+ 'getObject' method, and can be released back to the pool for further use
+ within 'getObject' by calling the 'releaseObject' method.
+
+ An object pool is most useful when the objects are equivalent (i.e., any
+ object in the pool can be used to satisfy an object request) and object
+ creation is potentially expensive.  Pooling enables the object to be reused at
+ a later time without going through destruction and re-creation.  For instance,
+ the object constructor may get access to some resource (e.g., a connection)
+ and the resource may remain valid after several uses and thus can be reused.
+
+/'bdlcc_queue'
+/- - - - - - -
+ The {'bdlcc_queue'} component provides an in-place, indexable, double-ended
+ queue.  Clients instantiate a template class, 'bdlcc_Queue<T>', where type 'T'
+ is the data type of elements that the queue will hold.  Type 'T' must be
+ defined to be copyable either by a copy constructor or by 'T::operator=()';
+ class 'bdlcc_Queue' Places no additional requirements on 'T'.
+
+/'bdlcc_timequeue'
+/ - - - - - - - -
+ The {'bdlcc_timequeue'} component provides an in-place, indexable queue,
+ managed in time order.  Clients instantiate a template class,
+ 'bdlcc_TimeQueue<T>', where type 'T' is the data type of elements that the
+ queue will hold.  Type 'T' must be defined to be copyable either by a copy
+ constructor or by 'T::operator=()'; class 'bdlcc_TimeQueue' places no
+ additional requirements on 'T'.
+
+ When clients add elements to a 'bdlcc_TimeQueue', they provide both the
+ element 'T' to be added and a time value, of type 'bdet_TimeInterval'.
+ Elements can be extracted individually in time order using the overloaded
+ 'popFront()' member functions; a block of elements can also be popped in a
+ single operation, 'popLE()', which pops all elements before a given time
+ value.
+
+ The 'bdlcc_TimeQueue' class template supports direct access to individual
+ queued elements based upon their 'Handle'.  This means that 'bdlcc_TimeQueue'
+ can support frequent additions and removals more efficiently than traditional
+ queue structures designed for sequential access.

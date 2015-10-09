@@ -74,7 +74,7 @@ using namespace bsl;
 // grouping of members per BDE convention (CREATORS, MANIPULATORS, ACCESSORS).
 // ----------------------------------------------------------------------------
 // class list<T,A> (list)
-// =================================
+// ============================================================================
 //
 // TYPES:
 // [21] reference
@@ -174,9 +174,9 @@ using namespace bsl;
 // [ 4] bool is_mutable(const T&);
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -307,7 +307,7 @@ inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 // List-specific print function.
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 void dbg_print(const list<TYPE,ALLOC>& v)
 {
     if (v.empty()) {
@@ -324,7 +324,7 @@ void dbg_print(const list<TYPE,ALLOC>& v)
 }
 
 // Generic debug print function (3-arguments).
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
@@ -333,7 +333,7 @@ void dbg_print(const char* s, const T& val, const char* nl)
 }
 
 // Return the 'n'th iterator after 'it':
-template <typename ITER>
+template <class ITER>
 inline ITER succ(ITER it, int n = 1)
 {
     for (int i = 0; i < n; ++i)
@@ -343,32 +343,32 @@ inline ITER succ(ITER it, int n = 1)
 
 // Return the 'n'th element of container x, counting from 0.  (I.e., if for
 // n == 0, return x.front().)
-template <typename C>
+template <class C>
 inline typename C::value_type& nthElem(C& x, int n)
 {
     return *succ(x.begin(), n);
 }
 
-template <typename C>
+template <class C>
 inline const typename C::value_type& nthElem(const C& x, int n)
 {
     return *succ(x.begin(), n);
 }
 
-template <typename T>
+template <class T>
 inline bool is_mutable(T& /* x */) { return true; }
     // Return 'true'.  Preferred match if 'x' is a modifiable lvalue.
 
-template <typename T>
+template <class T>
 inline bool is_mutable(const T& /* x */) { return false; }
     // Return 'false'.  Preferred match if 'x' is an rvalue or const lvalue.
 
-template <typename T>
+template <class T>
 inline T as_rvalue(const T& x) { return x; }
     // Return a copy of 'x' as an rvalue, even if called on a (possibly
     // const-qualified) lvalue or reference argument.
 
-template <typename T>
+template <class T>
 inline char value_of(const T& x) { return static_cast<char>(x); }
     // Return the char value corresponding to 'x'.  Specialized for each test
     // type.
@@ -720,7 +720,7 @@ inline char value_of<TestTypeNoAlloc>(const TestTypeNoAlloc& x)
 
 bslma::TestAllocator OtherAllocatorDefaultImp;
 
-template <typename T>
+template <class T>
 class OtherAllocator
 {
     bslma::Allocator* d_implementation;
@@ -739,7 +739,7 @@ class OtherAllocator
     typedef size_t     size_type;
     typedef ptrdiff_t  difference_type;
 
-    template <typename U>
+    template <class U>
     struct rebind
     {
         typedef OtherAllocator<U> other;
@@ -748,7 +748,7 @@ class OtherAllocator
     // Constructors
     explicit OtherAllocator(bslma::Allocator* a) : d_implementation(a) { }
     OtherAllocator() : d_implementation(&OtherAllocatorDefaultImp) { }
-    template <typename U> OtherAllocator(const OtherAllocator<U>& other)
+    template <class U> OtherAllocator(const OtherAllocator<U>& other)
         : d_implementation(other.implementation()) { }
 
     // Manipulators
@@ -763,14 +763,14 @@ class OtherAllocator
     bslma::Allocator* implementation() const { return d_implementation; }
 };
 
-template <typename T, typename U>
+template <class T, class U>
 inline
 bool operator==(const OtherAllocator<T>& a, const OtherAllocator<U>& b)
 {
     return a.implementation() == b.implementation();
 }
 
-template <typename T, typename U>
+template <class T, class U>
 inline
 bool operator!=(const OtherAllocator<T>& a, const OtherAllocator<U>& b)
 {
@@ -1025,7 +1025,7 @@ class InputSeqConstIterator {
         // but it may be assigned a new value.
 
     friend class InputSeq<TYPE>;
-    template <typename T>
+    template <class T>
     friend bool operator==(InputSeqConstIterator<T> a,
                            InputSeqConstIterator<T> b);
 
@@ -1165,11 +1165,11 @@ class LimitAllocator : public ALLOC {
         : d_limit(-1) {}
 
     // Templatize to make this a better match than the next constructor.
-    template <typename BSLMA_ALLOC>
+    template <class BSLMA_ALLOC>
     explicit LimitAllocator(BSLMA_ALLOC *mechanism)
         : AllocBase(mechanism), d_limit(-1) { }
 
-    template <typename U_ALLOC>
+    template <class U_ALLOC>
     LimitAllocator(const U_ALLOC& rhs)
         : AllocBase(rhs), d_limit(rhs.max_size()) { }
 
@@ -1185,7 +1185,7 @@ class LimitAllocator : public ALLOC {
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename ALLOCATOR>
+template <class ALLOCATOR>
 struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
@@ -1194,13 +1194,13 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
 
 namespace bslma {
 
-template <typename ALLOCATOR>
+template <class ALLOCATOR>
 struct UsesBslmaAllocator<LimitAllocator<ALLOCATOR> >
     : bsl::is_convertible<Allocator*, ALLOCATOR>
 {};
 
 }  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
                               // ====================
                               // class PointerWrapper
@@ -1274,7 +1274,7 @@ class SmallAllocator : public bsl::allocator<T> {
     explicit SmallAllocator(bslma::Allocator *mechanism)
         : AllocBase(mechanism) { }
 
-    template <typename U>
+    template <class U>
     SmallAllocator(const SmallAllocator<U>& rhs) : AllocBase(rhs) { }
 
     ~SmallAllocator() { }
@@ -1311,7 +1311,7 @@ bool operator!=(IntWrapper a, IntWrapper b)
 enum TestEnum { TWO = 2, NINETYNINE = 99 };
 
 //=============================================================================
-//                       USAGE EXAMPLES
+//                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
 ///Example 1: Filter "Twinkle Star"
@@ -1585,15 +1585,15 @@ bool operator!=(const Star& lhs, const Star& rhs)
 bool operator<(const Star& lhs, const Star& rhs)
 {
     if (lhs.x() < rhs.x())
-        return true;
+        return true;                                                  // RETURN
     else if (rhs.x() < lhs.x())
-        return false;
+        return false;                                                 // RETURN
     else if (lhs.y() < rhs.y())
-        return true;
+        return true;                                                  // RETURN
     else if (rhs.y() < lhs.y())
-        return true;
+        return true;                                                  // RETURN
     else
-        return lhs.brightness() < rhs.brightness();
+        return lhs.brightness() < rhs.brightness();                   // RETURN
 }
 //..
 
@@ -1990,7 +1990,7 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
         // Dereference the iterator and verify that the value is within the
         // expected range.
         char v = value_of(*it);
-        if (v != DEFAULT_CVALUE && (v < VA || VH < v)) return false;
+        if (v != DEFAULT_CVALUE && (v < VA || VH < v)) return false;  // RETURN
         if (count < MAX_SAVE_ITERS) {
             save_iters[count] = it;
         }
@@ -1999,7 +1999,7 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
     // Verify that 'count' reached 'length' at the same time that 'it' reached
     // 'finish'
     if (it != finish || count != length)
-        return false;
+        return false;                                                 // RETURN
 
     // Iterate over the list in reverse.  Verify that we see the same iterator
     // values on this traversal as we did in the forward direction.
@@ -2499,7 +2499,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
             // Increment length and start over with all 'A's.
             if (i < 0) {
                 ++d_len;
-                if (MAX_SPEC_LEN < d_len) return *this;
+                if (MAX_SPEC_LEN < d_len) return *this;               // RETURN
                 memset(d_spec, 'A', d_len);
                 d_spec[d_len] = '\0';
                 return *this;                                         // RETURN

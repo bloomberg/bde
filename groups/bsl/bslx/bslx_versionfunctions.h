@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Querying BDEX Version
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // This component may be used by clients to query the version number for types
 // in a convenient manner.  First, define an 'enum', 'my_Enum':
 //..
@@ -231,7 +231,7 @@ namespace VersionFunctions_Impl {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-}  // close VersionFunctions_Impl namespace
+}  // close namespace VersionFunctions_Impl
 
                          // ==========================
                          // namespace VersionFunctions
@@ -261,7 +261,7 @@ namespace VersionFunctions {
         // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
-}  // close VersionFunctions namespace
+}  // close namespace VersionFunctions
 
 // ============================================================================
 //                          INLINE DEFINITIONS

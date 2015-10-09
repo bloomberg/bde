@@ -4,12 +4,12 @@
 
 @MNEMONIC: Basic Standard Library eXternalization (bslx)
 
-@DESCRIPTION: The 'bslx' package defines (via documentation) the BDEX
- protocol for externalization (i.e., for an "out stream") and
- "unexternalization" (i.e., for an "in stream"), and provides concrete
- byte-array-based stream implementations of each kind of stream, including
- streams for testing.  In general, concrete streams must be used in matched
- pairs, as described in more detail below.
+@DESCRIPTION: The 'bslx' package defines (via documentation) the BDEX protocol
+ for externalization (i.e., for an "out stream") and "unexternalization" (i.e.,
+ for an "in stream"), and provides concrete byte-array-based stream
+ implementations of each kind of stream, including streams for testing.  In
+ general, concrete streams must be used in matched pairs, as described in more
+ detail below.
 
 /Hierarchical Synopsis
 /---------------------
@@ -99,9 +99,9 @@
 
  The 'bslx' streams provide better support for externalization than 'iostream'
  objects because BDEX specifies a canonical, optimized representation for
- fundamental types, provides component authors the tools to externalize in
- a platform-neutral way any in-core object, and allows versioning of
- types not directly supported by BDEX.
+ fundamental types, provides component authors the tools to externalize in a
+ platform-neutral way any in-core object, and allows versioning of types not
+ directly supported by BDEX.
 
  When externalizing data, the version to be used must be supplied to the
  objects directly serialized (objects nested within these "top-level" objects
@@ -118,10 +118,10 @@
  'bslx::VersionFunctions::k_NO_VERSION' should be supplied for this parameter.
 
  However, when using 'operator<<' it is impractical to directly supply the
- version to be used with each top-level object.  As such, an indirect method
- of versioning is employed, which incorporates data provided to the stream
- during the stream's construction, the 'versionSelector'.  One requirement
- of all BDEX-compliant serializable types is to implement the
+ version to be used with each top-level object.  As such, an indirect method of
+ versioning is employed, which incorporates data provided to the stream during
+ the stream's construction, the 'versionSelector'.  One requirement of all
+ BDEX-compliant serializable types is to implement the
  'maxSupportedBdexVersion' method, which converts this 'versionSelector' to the
  needed version on a per object-type basis.  While the list of versions
  supported by an object is typically a sequential set of numbers starting with
@@ -141,14 +141,13 @@
 
 /Supported Types
 /---------------
- The supported types and required content are listed in the table below.
- All of the fundamental types in the table may be streamed as scalar values or
- as homogeneous arrays.  'bsl::string' is streamed as an 'int' representing the
+ The supported types and required content are listed in the table below.  All
+ of the fundamental types in the table may be streamed as scalar values or as
+ homogeneous arrays.  'bsl::string' is streamed as an 'int' representing the
  string's length and a homogeneous 'char' array for the string's data.  Note
  that 'Int64' and 'Uint64' denote 'bsls::Types::Int64' and
- 'bsls::Types::Uint64', respectively, which in turn are 'typedef' names
- for the signed and unsigned 64-bit integer types, respectively, on the host
- platform:
+ 'bsls::Types::Uint64', respectively, which in turn are 'typedef' names for the
+ signed and unsigned 64-bit integer types, respectively, on the host platform:
 ..
   C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
   --------------    -----------------------------------------------
@@ -166,8 +165,8 @@
 
   bsl::string       BDE implementation of the STL string class
 ..
- BDEX also supports compact streaming of integer types.  In particular,
- 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit
+ BDEX also supports compact streaming of integer types.  In particular, 64-bit
+ integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit
  integers can be streamed as 24- or 32-bit values, at the user's discretion.
  In all cases, the least-significant bytes of the fundamental integer type are
  written to the stream.  Therefore, outputting a signed value may not preserve
@@ -184,8 +183,8 @@
  The protocols specify what types that wish to support BDEX streaming must
  provide (three specifically-named methods), and what services the type can
  expect from all compliant streams (various "put" and "get" methods).  In
- addition, BDEX also documents two interfaces, 'InStream' and 'OutStream',
- that serve as the "documentation protocols" for input and output streams,
+ addition, BDEX also documents two interfaces, 'InStream' and 'OutStream', that
+ serve as the "documentation protocols" for input and output streams,
  respectively.
 
 /Requirements for a BDEX-Compliant Class to be Streamable
@@ -195,46 +194,44 @@
  Class" section below for implementation details.
 
  The required signatures and typical documentation (some behavioral details may
- be implementation-specific) of the three required methods for a
- BDEX-compliant class are as follows:
+ be implementation-specific) of the three required methods for a BDEX-compliant
+ class are as follows:
 ..
-      // CLASS METHODS
-      static int maxSupportedBdexVersion(int versionSelector);
-          // Return the maximum valid BDEX format version, as indicated by the
-          // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-          // method.  Note that it is highly recommended that 'versionSelector'
-          // be formatted as "YYYYMMDD", a date representation.  Also note that
-          // 'versionSelector' should be a *compile*-time-chosen value that
-          // selects a format version supported by both externalizer and
-          // unexternalizer.  See the 'bslx' package-level documentation for
-          // more information on BDEX streaming of value-semantic types and
-          // containers.
+  // CLASS METHODS
+  static int maxSupportedBdexVersion(int versionSelector);
+      // Return the maximum valid BDEX format version, as indicated by the
+      // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+      // method.  Note that it is highly recommended that 'versionSelector' be
+      // formatted as "YYYYMMDD", a date representation.  Also note that
+      // 'versionSelector' should be a *compile*-time-chosen value that selects
+      // a format version supported by both externalizer and unexternalizer.
+      // See the 'bslx' package-level documentation for more information on
+      // BDEX streaming of value-semantic types and containers.
 
-      // MANIPULATORS
-      template <class STREAM>
-      STREAM& bdexStreamIn(STREAM& stream, int version);
-          // Assign to this object the value read from the specified input
-          // 'stream' using the specified 'version' format, and return a
-          // reference to 'stream'.  If 'stream' is initially invalid, this
-          // operation has no effect.  If 'version' is not supported, this
-          // object is unaltered and 'stream' is invalidated, but otherwise
-          // unmodified.  If 'version' is supported but 'stream' becomes
-          // invalid during this operation, this object has an undefined, but
-          // valid, state.  Note that no version is read from 'stream'.  See
-          // the 'bslx' package-level documentation for more information on
-          // BDEX streaming of value-semantic types and containers.
+  // MANIPULATORS
+  template <class STREAM>
+  STREAM& bdexStreamIn(STREAM& stream, int version);
+      // Assign to this object the value read from the specified input 'stream'
+      // using the specified 'version' format, and return a reference to
+      // 'stream'.  If 'stream' is initially invalid, this operation has no
+      // effect.  If 'version' is not supported, this object is unaltered and
+      // 'stream' is invalidated, but otherwise unmodified.  If 'version' is
+      // supported but 'stream' becomes invalid during this operation, this
+      // object has an undefined, but valid, state.  Note that no version is
+      // read from 'stream'.  See the 'bslx' package-level documentation for
+      // more information on BDEX streaming of value-semantic types and
+      // containers.
 
-      // ACCESSORS
-      template <class STREAM>
-      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-          // Write the value of this object, using the specified 'version'
-          // format, to the specified output 'stream', and return a reference
-          // to 'stream'.  If 'stream' is initially invalid, this operation has
-          // no effect.  If 'version' is not supported, 'stream' is
-          // invalidated, but otherwise unmodified.  Note that 'version' is not
-          // written to 'stream'.  See the 'bslx' package-level documentation
-          // for more information on BDEX streaming of value-semantic types and
-          // containers.
+  // ACCESSORS
+  template <class STREAM>
+  STREAM& bdexStreamOut(STREAM& stream, int version) const;
+      // Write the value of this object, using the specified 'version' format,
+      // to the specified output 'stream', and return a reference to 'stream'.
+      // If 'stream' is initially invalid, this operation has no effect.  If
+      // 'version' is not supported, 'stream' is invalidated, but otherwise
+      // unmodified.  Note that 'version' is not written to 'stream'.  See the
+      // 'bslx' package-level documentation for more information on BDEX
+      // streaming of value-semantic types and containers.
 ..
 
 /Selection of Streams
@@ -261,7 +258,6 @@
  individual stream component documentation for specific details about using
  test streams.  The test streams are meant for testing *only*.
 
-
 /Using BDEX with Your Own Class
 /------------------------------
  We will show a very brief example of a fictitious 'MyPoint' class whose
@@ -273,34 +269,34 @@
 
  A simple implementation of 'MyPoint' might be:
 ..
-  class MyPoint {
-      int d_x;
-      int d_y;
- 
-    public:
-      // CREATORS
-      MyPoint() : d_x(0), d_y(0) { }
-      MyPoint(int x, int y) : d_x(x), d_y(y) { }
-      MyPoint(const MyPoint& original)
-        : d_x(original.d_x), d_y(original.d_y) { }
-      ~MyPoint() { }
- 
-      // MANIPULATORS
-      MyPoint& operator=(const MyPoint& rhs)
-          { d_x = rhs.d_x;  d_y = rhs.d_y;  return *this; }
-      void setX(int x) { d_x = x; }
-      void setY(int y) { d_y = y; }
- 
-      // ACCESSORS
-      int x() const { return d_x; }
-      int y() const { return d_y; }
-  };
+   class MyPoint {
+       int d_x;
+       int d_y;
+
+     public:
+       // CREATORS
+       MyPoint() : d_x(0), d_y(0) { }
+       MyPoint(int x, int y) : d_x(x), d_y(y) { }
+       MyPoint(const MyPoint& original)
+         : d_x(original.d_x), d_y(original.d_y) { }
+       ~MyPoint() { }
+
+       // MANIPULATORS
+       MyPoint& operator=(const MyPoint& rhs)
+           { d_x = rhs.d_x;  d_y = rhs.d_y;  return *this; }
+       void setX(int x) { d_x = x; }
+       void setY(int y) { d_y = y; }
+
+       // ACCESSORS
+       int x() const { return d_x; }
+       int y() const { return d_y; }
+   };
 ..
  Putting other design decisions to one side for this discussion, we may ask:
  How would we incorporate BDEX streaming into such a class?  We observe that
- the actual data footprint of such a point class is two 'int' values.  If
- BDEX succeeds in externalizing these two 'int' values (preserving their
- order), then the task is accomplished.
+ the actual data footprint of such a point class is two 'int' values.  If BDEX
+ succeeds in externalizing these two 'int' values (preserving their order),
+ then the task is accomplished.
 
  The function-level documentation should make the purpose of each method clear,
  and we will show the implementations for 'MyPoint' soon, but first let's just
@@ -313,68 +309,68 @@
  Adding the three methods to 'MyPoint' that are required for BDEX-compliance is
  straightforward:
 ..
-  class MyPoint {
-      int d_x;
-      int d_y;
+   class MyPoint {
+       int d_x;
+       int d_y;
 
-    public:
-      // CLASS METHODS
-      static int maxSupportedBdexVersion(int versionSelector);
-          // Return the maximum valid BDEX format version, as indicated by the
-          // specified 'versionSelector', to be passed to the 'bdexStreamOut'
-          // method.  Note that it is highly recommended that 'versionSelector'
-          // be formatted as "YYYYMMDD", a date representation.  Also note that
-          // 'versionSelector' should be a *compile*-time-chosen value that
-          // selects a format version supported by both externalizer and
-          // unexternalizer.  See the 'bslx' package-level documentation for
-          // more information on BDEX streaming of value-semantic types and
-          // containers.
+     public:
+       // CLASS METHODS
+       static int maxSupportedBdexVersion(int versionSelector);
+           // Return the maximum valid BDEX format version, as indicated by the
+           // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+           // method.  Note that it is highly recommended that
+           // 'versionSelector' be formatted as "YYYYMMDD", a date
+           // representation.  Also note that 'versionSelector' should be a
+           // *compile*-time-chosen value that selects a format version
+           // supported by both externalizer and unexternalizer.  See the
+           // 'bslx' package-level documentation for more information on BDEX
+           // streaming of value-semantic types and containers.
 
-      // CREATORS
-      MyPoint() : d_x(0), d_y(0) { }
-      MyPoint(int x, int y) : d_x(x), d_y(y) { }
-      MyPoint(const MyPoint& original)
-        : d_x(original.d_x), d_y(original.d_y) { }
-      ~MyPoint() { }
+       // CREATORS
+       MyPoint() : d_x(0), d_y(0) { }
+       MyPoint(int x, int y) : d_x(x), d_y(y) { }
+       MyPoint(const MyPoint& original)
+         : d_x(original.d_x), d_y(original.d_y) { }
+       ~MyPoint() { }
 
-      // MANIPULATORS
-      MyPoint& operator=(const MyPoint& rhs)
-          { d_x = rhs.d_x;  d_y = rhs.d_y;  return *this; }
-      void setX(int x) { d_x = x; }
-      void setY(int y) { d_y = y; }
+       // MANIPULATORS
+       MyPoint& operator=(const MyPoint& rhs)
+           { d_x = rhs.d_x;  d_y = rhs.d_y;  return *this; }
+       void setX(int x) { d_x = x; }
+       void setY(int y) { d_y = y; }
 
-      template <class STREAM>
-      STREAM& bdexStreamIn(STREAM& stream, int version);
-          // Assign to this object the value read from the specified input
-          // 'stream' using the specified 'version' format, and return a
-          // reference to 'stream'.  If 'stream' is initially invalid, this
-          // operation has no effect.  If 'version' is not supported, this
-          // object is unaltered and 'stream' is invalidated, but otherwise
-          // unmodified.  If 'version' is supported but 'stream' becomes
-          // invalid during this operation, this object has an undefined, but
-          // valid, state.  Note that no version is read from 'stream'.  See
-          // the 'bslx' package-level documentation for more information on
-          // BDEX streaming of value-semantic types and containers.
+       template <class STREAM>
+       STREAM& bdexStreamIn(STREAM& stream, int version);
+           // Assign to this object the value read from the specified input
+           // 'stream' using the specified 'version' format, and return a
+           // reference to 'stream'.  If 'stream' is initially invalid, this
+           // operation has no effect.  If 'version' is not supported, this
+           // object is unaltered and 'stream' is invalidated, but otherwise
+           // unmodified.  If 'version' is supported but 'stream' becomes
+           // invalid during this operation, this object has an undefined, but
+           // valid, state.  Note that no version is read from 'stream'.  See
+           // the 'bslx' package-level documentation for more information on
+           // BDEX streaming of value-semantic types and containers.
 
-      // ACCESSORS
-      int x() const { return d_x; }
-      int y() const { return d_y; }
+       // ACCESSORS
+       int x() const { return d_x; }
+       int y() const { return d_y; }
 
-      template <class STREAM>
-      STREAM& bdexStreamOut(STREAM& stream, int version) const;
-          // Write the value of this object, using the specified 'version'
-          // format, to the specified output 'stream', and return a reference
-          // to 'stream'.  If 'stream' is initially invalid, this operation has
-          // no effect.  If 'version' is not supported, 'stream' is
-          // invalidated, but otherwise unmodified.  Note that 'version' is not
-          // written to 'stream'.  See the 'bslx' package-level documentation
-          // for more information on BDEX streaming of value-semantic types and
-          // containers.
-  };
+       template <class STREAM>
+       STREAM& bdexStreamOut(STREAM& stream, int version) const;
+           // Write the value of this object, using the specified 'version'
+           // format, to the specified output 'stream', and return a reference
+           // to 'stream'.  If 'stream' is initially invalid, this operation
+           // has no effect.  If 'version' is not supported, 'stream' is
+           // invalidated, but otherwise unmodified.  Note that 'version' is
+           // not written to 'stream'.  See the 'bslx' package-level
+           // documentation for more information on BDEX streaming of
+           // value-semantic types and containers.
+   };
 ..
- The implementations of the new BDEX-required methods might be as follows.
- The 'maxSupportedBdexVersion' method simply returns the value 1 regardless of
- the 'versionSelector' requested:
+ The implementations of the new BDEX-required methods might be as follows.  The
+ 'maxSupportedBdexVersion' method simply returns the value 1 regardless of the
+ 'versionSelector' requested:
 ..
   inline
   int MyPoint::maxSupportedBdexVersion(int versionSelector)
@@ -386,8 +382,8 @@
  and is therefore a bit simpler, so we'll show that one first.  Anyway, it's a
  bit more logical to see the output format before implementing the input
  format.  The method is a template method parameterized by 'STREAM', and the
- "protocol" of that 'STREAM' must be compatible with the BDEX contract.  We
- can therefore safely assume that the 'stream' object has the required methods.
+ "protocol" of that 'STREAM' must be compatible with the BDEX contract.  We can
+ therefore safely assume that the 'stream' object has the required methods.
  See the "The BDEX Protocols" section above for the contracts.  The heart of
  the method is the two sequential calls to 'putInt32', which externalize the
  'x' and 'y' coordinates of the point value, in that order.  These two lines
@@ -397,20 +393,20 @@
  this template method is implemented in the header of the component defining
  'MyClass':
 ..
-   template <class STREAM>
-   STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
-   {
-       switch (version) {
-         case 1: { // Implementation-specific code goes here.
-           stream.putInt32(d_x);
-           stream.putInt32(d_y);
-         } break;
-         default: {
-           stream.invalidate();
-         } break;
-       }
-       return stream;
-   }
+  template <class STREAM>
+  STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
+  {
+      switch (version) {
+        case 1: { // Implementation-specific code goes here.
+          stream.putInt32(d_x);
+          stream.putInt32(d_y);
+        } break;
+        default: {
+          stream.invalidate();
+        } break;
+      }
+      return stream;
+  }
 ..
  Having implemented 'bdexStreamOut', implementing 'bdexStreamIn' is extremely
  straightforward, involving a template member function whose body can be safely
@@ -490,12 +486,12 @@
  Clients streaming one or more objects with BDEX create a stream and supply a
  'versionSelector':
 ..
-      MyObject foo( /* some value */ );
-      bslx::ByteOutStream stream(20140725);   // The minimum date that will
-                                              // result in all streamed types
-                                              // using the correct versions
-                                              // during externalization.
-      stream << foo;
+  MyObject foo( /* some value */ );
+  bslx::ByteOutStream stream(20140725);   // The minimum date that will
+                                          // result in all streamed types
+                                          // using the correct versions
+                                          // during externalization.
+  stream << foo;
 ..
  Notice that the 'versionSelector' is a *compile*-time-selected value (in this
  case, the minimum date that will result in all streamed types using the
@@ -536,7 +532,7 @@
       }
       return stream;
   }
- 
+
   template <class STREAM>
   STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
   {
@@ -572,12 +568,12 @@
 /Updating Production Systems
 ----------------------------
  The basic recommendation for choosing a 'versionSelector' (which is supplied
- to the BDEX 'OutStream' constructor) is to use the current date as a 
- *compile*-time constant value.  Using the current date will select the most 
- recent BDEX version.  However, in environments were multiple tasks may be 
- reading the resulting serialized value, it is important to ensure that all
- the tasks participating in the system are capable of reading that BDEX version
- before selecting it as an output version.  
+ to the BDEX 'OutStream' constructor) is to use the current date as a
+ *compile*-time constant value.  Using the current date will select the most
+ recent BDEX version.  However, in environments were multiple tasks may be
+ reading the resulting serialized value, it is important to ensure that all the
+ tasks participating in the system are capable of reading that BDEX version
+ before selecting it as an output version.
 
  The roll-out of a new BDEX version for an existing type ('A') in a production
  system typically involves these steps:
@@ -643,7 +639,7 @@
  as an 8-bit integer as opposed to the default 32-bit integer:
 ..
   namespace ThirdParty {
- 
+
   struct MyStruct {
     public:
       enum Value {
@@ -652,12 +648,12 @@
           e_C = 9
       };
   };
- 
+
   template <class STREAM>
   STREAM& bdexStreamIn(STREAM& stream, MyStruct::Value& value, int version)
   {
       using bslx::InStreamFunctions::bdexStreamIn;
- 
+
       if (stream) {
           switch (version) {
             case 1: {
@@ -674,14 +670,14 @@
       }
       return stream;
   }
- 
+
   template <class STREAM>
   STREAM& bdexStreamOut(STREAM&                stream,
                         const MyStruct::Value& value,
                         int                    version)
   {
       using bslx::OutStreamFunctions::bdexStreamOut;
- 
+
       if (stream) {
           switch (version) {
             case 1: {
@@ -694,16 +690,16 @@
       }
       return stream;
   }
- 
+
   inline
   int maxSupportedBdexVersion(const MyStruct::Value *,
                               int                    versionSelector)
   {
       using bslx::VersionFunctions::maxSupportedBdexVersion;
- 
+
       return 1;
   }
- 
+
   }  // close ThirdParty namespace
 ..
 
@@ -713,7 +709,7 @@
  documentation on compatibility in the older package documentation.
 
 /Appendix I: The BDEX 'OutStream' Protocol
-/ - - - - - - - - - - - - - - - - - - - - -
+/- - - - - - - - - - - - - - - - - - - - -
  In this section we present the function documentation of BDEX 'OutStream',
  which serves as the "documentation protocol" for all BDEX-compliant output
  streams:
@@ -1646,11 +1642,11 @@
           // Return the total number of bytes stored in the external memory
           // buffer.
 
-  // FREE OPERATORS
-  template <class TYPE>
-  InStream& operator>>(InStream& stream, TYPE& value);
-      // Read the specified 'value' from the specified input 'stream' following
-      // the requirements of the BDEX protocol (see the 'bslx' package-level
-      // documentation), and return a reference to 'stream'.  The behavior is
-      // undefined unless 'TYPE' is BDEX-compliant.
+   // FREE OPERATORS
+   template <class TYPE>
+   InStream& operator>>(InStream& stream, TYPE& value);
+       // Read the specified 'value' from the specified input 'stream'
+       // following the requirements of the BDEX protocol (see the 'bslx'
+       // package-level documentation), and return a reference to 'stream'.
+       // The behavior is undefined unless 'TYPE' is BDEX-compliant.
 ..

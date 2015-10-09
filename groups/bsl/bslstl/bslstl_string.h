@@ -266,8 +266,8 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == allocator2.numBlocksInUse());
 //..
 //
-///Example 2: 'string' as a data member
-///- - - - - - - - - - - - - - - - - -
+///Example 2: 'string' as a Data Member
+/// - - - - - - - - - - - - - - - - - -
 // The most common use of 'string' objects are as data members in user-defined
 // classes.  In this example, we will show how 'string' objects can be used as
 // data members.
@@ -495,7 +495,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: A stream text replacement filter
+///Example 3: A Stream Text Replacement Filter
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In this example, we will utilize the 'string' type and its associated
 // utility functions to define a function that reads data from an input stream,
@@ -2573,7 +2573,7 @@ void hashAppend(
     // namespace 'std', and this component essentially provides the interface
     // between 'bsl' and 'std' string types.
 
-}  // close package namespace
+}  // close namespace bslh
 }  // close enterprise namespace
 
 // ============================================================================
@@ -5864,7 +5864,7 @@ struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslmf {
 
@@ -5873,7 +5873,7 @@ struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : IsBitwiseMoveable<ALLOC>
 {};
 
-}  // close package namespace
+}  // close namespace bslmf
 
 namespace bslma {
 
@@ -5882,7 +5882,7 @@ struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : bsl::is_convertible<Allocator *, ALLOC>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

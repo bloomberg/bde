@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DenselyPackedDecimalImpUtil: namespace for DPD functions.
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides a namespace,
 // 'bdldfp::DenselyPackedDecimalImpUtil', that supplies a suite of functions

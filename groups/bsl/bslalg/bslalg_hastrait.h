@@ -60,7 +60,7 @@ namespace bslalg {
                        // struct HasTrait
                        // ===============
 
-template <typename TYPE, typename TRAIT>
+template <class TYPE, class TRAIT>
 struct HasTrait {
     // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
     // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'

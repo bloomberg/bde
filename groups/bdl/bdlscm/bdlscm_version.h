@@ -2,7 +2,7 @@
 #ifndef INCLUDED_BDLSCM_VERSION
 #define INCLUDED_BDLSCM_VERSION
 
-#ifndef INCLUDED_BDLS_IDENT
+#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // printing the version string returned by 'bdlscm::Version::version()' to
 // 'stdout' as follows:
 //..
-//  bsl::printf("BDL version: %s\n", bdlscm::Version::version());
+//  bsl::cout << "BDL version: " <<  bdlscm::Version::version() << bsl::endl;
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -83,6 +83,10 @@ struct Version {
 
     static const char *version();
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 inline
 const char *Version::version()

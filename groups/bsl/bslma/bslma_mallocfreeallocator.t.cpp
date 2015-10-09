@@ -106,9 +106,9 @@ static    int  globalDeleteCalledCount          = 0;
 static    int  globalDeleteCalledCountIsEnabled = 0;
 static   void *globalDeleteCalledLastArg        = 0;
 
-//==========================================================================
+//=============================================================================
 //                 REDEFINED GLOBAL OPERATOR NEW AND DELETE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #ifdef BDE_BUILD_TARGET_EXC
 void *operator new(size_t size) throw(std::bad_alloc)

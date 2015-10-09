@@ -49,12 +49,12 @@ namespace bslalg {
                           // class SelectTrait
                           // =================
 
-template <typename TYPE,
-          typename TRAIT1,
-          typename TRAIT2 = TypeTraitNil,
-          typename TRAIT3 = TypeTraitNil,
-          typename TRAIT4 = TypeTraitNil,
-          typename TRAIT5 = TypeTraitNil>
+template <class TYPE,
+          class TRAIT1,
+          class TRAIT2 = TypeTraitNil,
+          class TRAIT3 = TypeTraitNil,
+          class TRAIT4 = TypeTraitNil,
+          class TRAIT5 = TypeTraitNil>
 struct SelectTrait {
     // Select one trait out of several that the parameterized type 'T' may
     // possess.  If 'T' has the parameterized trait 'TRAIT1', then the nested

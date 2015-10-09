@@ -110,7 +110,7 @@ void aSsErT(bool b, const char *s, int i)
 //
 // First, we define our 'ListSet' template class:
 
-template <typename TYPE, typename EQUALS = bsl::equal_to<TYPE> >
+template <class TYPE, class EQUALS = bsl::equal_to<TYPE> >
 class ListSet {
     // This class implements a crude implementation of a set, that will keep
     // a set of values and be able to determine if an element is a member of

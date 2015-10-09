@@ -1,0 +1,103 @@
+ btlsc.txt
+
+@PURPOSE: Provide abstract interfaces for transport channels and factories.
+
+@MNEMONIC: Basic Transport Environment Stream-based Channels (btlsc)
+
+@DESCRIPTION: The 'btlsc' package is designed to provide three parallel
+ "families" of protocol (i.e., pure abstract interface) for stream-based
+ transport: "channel", "channel allocator", and "(channel) allocator factory".
+ These three concepts -- clearly closely related -- provide the desired
+ factoring of functionality in the concrete objects that implement these
+ protocols.  Note that the allocator factories have not yet been released, but
+ because they are such a fundamental part of the conceptual factored design of
+ 'btlsc' the allocator factories are included in the description in this
+ section.
+
+ A "channel" is the abstraction of a single endpoint of a communication
+ (transport) mechanism.  A channel object that supports various forms of "read"
+ and "write" methods, and very little additional functionality.  The intended
+ design analogy is to a telephone handset.  One can talk and listen, but
+ (almost) all details regarding the transport process itself have been
+ abstracted away.  Such matters are of no concern to a channel -- or, more
+ importantly, to a channel *user*.
+
+ A "channel allocator" is a dispenser of channel objects.  When a client
+ allocates a channel from a channel allocator, the allocator has seen to it
+ that the channel is properly configured and ready for use (whatever that might
+ mean in a specific implementation).  Still, the channel allocator only
+ dispenses one "kind" of channel, i.e., a connection to one specific entity.
+ Details of with whom one is communicating have been (profitably) abstracted
+ away.  These matters are not the concern of the channel allocator.
+
+ An "allocator factory" is a dispenser of channel allocator objects.  In BDE,
+ the terms "allocator" and "factory" are synonymous, but we use the two
+ different words for clarity and to avoid any unintentional humor that the
+ reduplicative "allocator allocator" might evoke.  The initial "channel",
+ logically a part of the name of this entity, has also been omitted for brevity
+ and clarity.  An "allocator factory" is basically a naming service that
+ provides a channel allocator in response to a request for a connection to a
+ specific entity.
+
+ This factoring allows client designers using concrete objects derived from
+ 'btlsc' protocols to provide clear and simple objects whose functionality is
+ well defined and easy to use at each level of the design.
+
+/Specific Functionality in the Protocol Contracts
+/------------------------------------------------
+ For each of the three entities described above, channels, channel allocators,
+ and allocator factories, there exist specific protocols to support blocking
+ and non-blocking objects, and objects that do and do not support timeout
+ capability.  To facilitate good design and usage in the concrete
+ implementations, each "timed" entity is derived from its "untimed"
+ counterpart.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlsc' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. btlsc_cbchannelallocator
+     btlsc_channelallocator
+     btlsc_timedcbchannelallocator
+     btlsc_timedchannelallocator
+
+  3. btlsc_timedcbchannel
+     btlsc_timedchannel
+
+  2. btlsc_cbchannel
+     btlsc_channel
+
+  1. btlsc_flag
+..
+
+/Component Synopsis
+/------------------
+: 'btlsc_cbchannel':
+:      Provide a protocol for stream-based data communication.
+:
+: 'btlsc_cbchannelallocator':
+:      Provide protocol for non-blocking stream-based channel allocators.
+:
+: 'btlsc_channel':
+:      Provide a protocol for synchronous stream-based communication.
+:
+: 'btlsc_channelallocator':
+:      Provide protocol for blocking stream-based channel allocators.
+:
+: 'btlsc_flag':
+:      Enumerate all flags for stream-based-channel transport.
+:
+: 'btlsc_timedcbchannel':
+:      Provide protocol for stream-based data communication with timeout.
+:
+: 'btlsc_timedcbchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.
+:
+: 'btlsc_timedchannel':
+:      Provide a protocol for stream-based communication with a timeout.
+:
+: 'btlsc_timedchannelallocator':
+:      Provide protocol for stream-based channel allocators with timeout.

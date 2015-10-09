@@ -110,7 +110,7 @@ void swap(SwapContainer & a, SwapContainer & b)
     a.swap(b);
 }
 
-}
+}  // close enterprise namespace
 
 using namespace BloombergLP;
 

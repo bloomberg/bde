@@ -106,7 +106,7 @@ namespace bslma {
 
 template <int IS_POLYMORPHIC>
 struct DeleterHelper_Helper {
-    template <typename TYPE>
+    template <class TYPE>
     static void *caster(const TYPE *object)
     {
         return static_cast<void *>(const_cast<TYPE *>(object));
@@ -115,7 +115,7 @@ struct DeleterHelper_Helper {
 
 template <>
 struct DeleterHelper_Helper<1> {
-    template <typename TYPE>
+    template <class TYPE>
     static void *caster(const TYPE *object)
     {
         return dynamic_cast<void *>(const_cast<TYPE *>(object));

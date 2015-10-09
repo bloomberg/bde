@@ -22,7 +22,7 @@
 #include <bsl_c_time.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -2373,7 +2373,7 @@ if (veryVerbose)
         //: 1 Methods produce expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostrstream' to write the
+        //: 1 For a small set of objects, use 'ostringstream' to write the
         //:   object's value to a string buffer and then compare to expected
         //:   output format.  (C-1)
         //
@@ -2440,24 +2440,32 @@ if (veryVerbose)
                 const int         SPL  = DATA[ti].d_spaces;
                 const char *const FMT  = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset 'buf1' to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset 'buf2' to Z2 values.
-
-                if (veryVerbose) cout << "EXPECTED FORMAT:" << endl<<FMT<<endl;
-                ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
-                ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) cout << "ACTUAL FORMAT:" << endl<<buf1<<endl;
+                if (veryVerbose) {
+                    cout << "EXPECTED FORMAT:" << endl << FMT << endl;
+                }
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
+                X.print(out1, IND, SPL) << ends;
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
+                X.print(out2, IND, SPL) << ends;
+                if (veryVerbose) {
+                    cout << "ACTUAL FORMAT:" << endl << out1.str() << endl;
+                }
 
                 const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(ti, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(ti, 0 == strcmp(buf1, FMT));
-                LOOP_ASSERT(ti, 0 == strcmp(buf2, FMT));
-                LOOP_ASSERT(ti, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
-                LOOP_ASSERT(ti, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                LOOP_ASSERT(ti,
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(ti,
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(ti, 0 == strcmp(out1.str().c_str(), FMT));
+                LOOP_ASSERT(ti, 0 == strcmp(out2.str().c_str(), FMT));
+                LOOP_ASSERT(ti, 0 == memcmp(out1.str().c_str() + SZ,
+                                            CTRL_BUF1 + SZ,
+                                            REST));
+                LOOP_ASSERT(ti, 0 == memcmp(out2.str().c_str() + SZ,
+                                            CTRL_BUF2 + SZ,
+                                            REST));
             }
         }
 
@@ -2500,22 +2508,24 @@ if (veryVerbose)
                 const int         MSEC   = DATA[di].d_msec;
                 const char *const FMT    = DATA[di].d_fmt_p;
 
-                char buf[SIZE];
-                memcpy(buf, CTRL_BUF, SIZE); // Preset 'buf' to 'unset' values.
-
                 Obj x;  const Obj& X = x;
                 x.setTime(HOUR, MINUTE, SECOND, MSEC);
 
                 if (veryVerbose) cout << "\tEXPECTED FORMAT: " << FMT << endl;
-                ostrstream out(buf, SIZE);  out << X << ends;
-                if (veryVerbose) cout << "\tACTUAL FORMAT:   " << buf << endl;
+                ostringstream out(std::string(CTRL_BUF, SIZE));
+                out << X << ends;
+                if (veryVerbose) {
+                    cout << "\tACTUAL FORMAT:   " << out.str() << endl;
+                }
 
                 const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, XX == buf[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE,  0 == memcmp(buf, FMT, SZ));
-                LOOP_ASSERT(LINE,  0 ==
-                                     memcmp(buf + SZ, CTRL_BUF + SZ, SIZE-SZ));
+                LOOP_ASSERT(LINE,
+                            XX == out.str()[SIZE - 1]);  // Check for overrun.
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str(), FMT, SZ));
+                LOOP_ASSERT(LINE, 0 == memcmp(out.str().c_str() + SZ,
+                                              CTRL_BUF + SZ,
+                                              SIZE - SZ));
             }
         }
 

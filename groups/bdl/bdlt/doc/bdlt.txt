@@ -20,22 +20,28 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 20 components having 7 levels of physical
+ The 'bdlt' package currently has 28 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   7. bdlt_currenttime
+     bdlt_defaultcalendarcache
+     bdlt_iso8601util
 
-  6. bdlt_datetimetz
+  6. bdlt_calendarcache
+     bdlt_datetimetz
      bdlt_localtimeoffset
 
-  5. bdlt_datetimeutil
+  5. bdlt_calendar
+     bdlt_calendarloader
+     bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
 
   4. bdlt_datetime
      bdlt_dateutil
+     bdlt_packedcalendar
      bdlt_timetz
 
   3. bdlt_date
@@ -46,7 +52,9 @@
      bdlt_dayofweekset
      bdlt_delegatingdateimputil                          !DEPRECATED!
 
-  1. bdlt_dayofweek
+  1. bdlt_calendarreverseiteratoradapter
+     bdlt_dayofweek
+     bdlt_iso8601utilconfiguration
      bdlt_monthofyear
      bdlt_posixdateimputil                               !DEPRECATED!
      bdlt_serialdateimputil
@@ -55,6 +63,18 @@
 
 /Component Synopsis
 /------------------
+: 'bdlt_calendar':
+:      Provide fast repository for accessing weekend/holiday information.
+:
+: 'bdlt_calendarcache':
+:      Provide an efficient cache for read-only 'bdlt::Calendar' objects.
+:
+: 'bdlt_calendarloader':
+:      Provide a protocol (or pure interface) for loading calendars.
+:
+: 'bdlt_calendarreverseiteratoradapter':
+:      Provide reverse iterator adapter for calendar iterators.
+:
 : 'bdlt_currenttime':
 :      Provide utilities to retrieve the current time.
 :
@@ -85,6 +105,9 @@
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
 :
+: 'bdlt_defaultcalendarcache':
+:      Provide a process-wide default 'bdlt::CalendarCache' object.
+:
 : 'bdlt_delegatingdateimputil':                          !DEPRECATED!
 :      Provide low-level support functions for date-value manipulation.
 :
@@ -94,11 +117,20 @@
 : 'bdlt_intervalconversionutil':
 :      Provide functions to convert between time-interval representations.
 :
+: 'bdlt_iso8601util':
+:      Provide conversions between date/time objects and ISO 8601 strings.
+:
+: 'bdlt_iso8601utilconfiguration':
+:      Provide an attribute class to configure ISO 8601 string generation.
+:
 : 'bdlt_localtimeoffset':
 :      Provide utilities to retrieve the local time offset.
 :
 : 'bdlt_monthofyear':
 :      Enumerate the set of month-of-year values.
+:
+: 'bdlt_packedcalendar':
+:      Provide a compact repository for weekend/holiday information.
 :
 : 'bdlt_posixdateimputil':                               !DEPRECATED!
 :      Provide low-level support functions for date-value manipulation.
@@ -308,10 +340,10 @@
 /Example 1: Celebrating Milestone Dates
 / - - - - - - - - - - - - - - - - - - -
  Date and time calculations are simple in principle but tedious and error-
- prone in practice.  Consequently, people tend to schedule events on dates
- that are easy to calculate -- e.g., first of the month, anniversary dates --
- even though we know that not all months and years express intervals of the
- same length.  Access to a rich set of types and utilities for date and time
+ prone in practice.  Consequently, people tend to schedule events on dates that
+ are easy to calculate -- e.g., first of the month, anniversary dates -- even
+ though we know that not all months and years express intervals of the same
+ length.  Access to a rich set of types and utilities for date and time
  calculations affords us other options.
 
  Suppose we wish to commemorate the 20,000th day since our birth.
@@ -334,9 +366,9 @@
   04OCT2024_00:00:00.000
 ..
  The above value represents UTC date and time values.  We, however, plan to
- celebrate the milestone in New York City.  Thus, we must obtain the local
- time offset in NYC for that future date and use it to calculate the
- milestone (date) in that time zone.
+ celebrate the milestone in New York City.  Thus, we must obtain the local time
+ offset in NYC for that future date and use it to calculate the milestone
+ (date) in that time zone.
 ..
     bsls::TimeInterval     localTimeOffset =
                                  bdlt::LocalTimeOffset::localTimeOffset(dt20k);
@@ -368,9 +400,8 @@
     weekendDays.add(bdlt::DayOfWeek::e_SATURDAY);
     weekendDays.add(bdlt::DayOfWeek::e_SUNDAY);
 ..
- Now, we determine if the target date is a weekend day.  If so, we can plan
- our celebration for that date; otherwise, we will plan for the next weekend
- date.
+ Now, we determine if the target date is a weekend day.  If so, we can plan our
+ celebration for that date; otherwise, we will plan for the next weekend date.
 ..
     bdlt::Date milestone = dtz20kLocal.localDatetime().date();
     bdlt::Date holdDate  = weekendDays.isMember(milestone.dayOfWeek())

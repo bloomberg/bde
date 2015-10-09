@@ -24,6 +24,7 @@ BSLS_IDENT("$Id: $")
 //   int convertFromTm(bdlt::Datetime *result, const tm& timeStruct);
 //   bsl::tm convertToTm(const bdlt::Datetime& datetime);
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

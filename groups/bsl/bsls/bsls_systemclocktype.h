@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 //                affected by changes to the system time.
 //..
 //
-///USAGE
+///Usage
 ///-----
 // This section illustrates intended use of this component.
 //

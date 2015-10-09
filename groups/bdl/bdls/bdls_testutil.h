@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //  BDLS_TESTUTIL_L_: current line number
 //  BDLS_TESTUTIL_T_: print tab without '\n'
 //
-//@SEE ALSO: bslim_testutil
+//@SEE_ALSO: bslim_testutil
 //
 //@DESCRIPTION: This component provides the standard print macros used in
 // BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Writing a test driver
+///Example 1: Writing a Test Driver
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
 //  //-------------------------------------------------------------------------
-//  
+//
 //  #define ASSERT       BDLS_TESTUTIL_ASSERT
 //  #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
 //  #define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //  #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
 //  #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
 //  #define ASSERTV      BDLS_TESTUTIL_ASSERTV
-//  
+//
 //  #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
 //  #define P   BDLS_TESTUTIL_P   // Print identifier and value.
 //  #define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
@@ -127,7 +127,7 @@ BSLS_IDENT("$Id: $")
 //  value = 42
 //..
 //
-///Example 2: Print The Value of A Test Type
+///Example 2: Print the Value of a Test Type
 ///- - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to print the value of an object of a test type defined the
 // 'bsltf' package using 'bsl::cout'.  This component supplies the necessary
@@ -213,9 +213,9 @@ BSLS_IDENT("$Id: $")
                aSsErT(1, #X, __LINE__); }
 
 
-// The 'BDLS_TESTUTIL_EXPAND' macro is required to workaround a
-// pre-processor issue on windows that prevents __VA_ARGS__ to be expanded in
-// the definition of 'BDLS_TESTUTIL_NUM_ARGS'
+// The 'BDLS_TESTUTIL_EXPAND' macro is required to workaround a pre-processor
+// issue on windows that prevents __VA_ARGS__ to be expanded in the definition
+// of 'BDLS_TESTUTIL_NUM_ARGS'
 #define BDLS_TESTUTIL_EXPAND(X)                                               \
     X
 
@@ -277,20 +277,22 @@ bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonTypicalOverloadsTestType&     obj);
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonAssignableTestType&           obj);
-// bsl::ostream& operator<<(bsl::ostream&                          stream,
-//                          const NonCopyConstructibleTestType&    obj);
+#if 0
+bsl::ostream& operator<<(bsl::ostream&                          stream,
+                         const NonCopyConstructibleTestType&    obj);
+#endif
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonDefaultConstructibleTestType& obj);
 bsl::ostream& operator<<(bsl::ostream&                          stream,
                          const NonEqualComparableTestType&      obj);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 // FREE OPERATORS
@@ -350,12 +352,14 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
     return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
 }
 
-// inline
-// bsl::ostream& operator<<(bsl::ostream&                       stream,
-//                          const NonCopyConstructibleTestType& obj)
-// {
-//     return stream << obj.data();
-// }
+#if 0
+inline
+bsl::ostream& operator<<(bsl::ostream&                       stream,
+                         const NonCopyConstructibleTestType& obj)
+{
+    return stream << obj.data();
+}
+#endif
 
 inline
 bsl::ostream& operator<<(bsl::ostream&                          stream,
@@ -371,7 +375,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
 }
 
-}  // close package namespace
+}  // close namespace bsltf
 }  // close enterprise namespace
 
 #endif

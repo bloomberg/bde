@@ -369,9 +369,9 @@ class DequeIterator<VALUE_TYPE, 1> {
     VALUE_TYPE *valuePtr() const;
 };
 
-// ===========================================================================
+// ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // -------------------
                          // class DequeIterator
@@ -834,13 +834,13 @@ bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
 
 }  // close enterprise namespace
 
-// ===========================================================================
+// ============================================================================
 //                                TYPE TRAITS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl {
 
-template <typename VALUE_TYPE, int BLOCK_LENGTH>
+template <class VALUE_TYPE, int BLOCK_LENGTH>
 struct is_trivially_copyable<BloombergLP::bslalg::DequeIterator<VALUE_TYPE,
                                                                 BLOCK_LENGTH> >
     : true_type

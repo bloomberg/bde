@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: using 'bslalg::SwapUtil::swap'
-/// - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using 'bslalg::SwapUtil::swap'
+///- - - - - - - - - - - - - - - - - - - - -
 // In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
 // both implement a user-defined 'swap' for 'Container', and swap two container
 // objects.
@@ -137,7 +137,7 @@ class SwapUtil {
 
   public:
     // CLASS METHODS
-    template <typename T>
+    template <class T>
     static
     void swap(T *a, T *b);
         // Exchange the values of the specified 'a' and 'b' objects using
@@ -146,16 +146,16 @@ class SwapUtil {
         // 'bsl::swap' otherwise.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // ---------------
                            // struct SwapUtil
                            // ---------------
 
 // CLASS METHODS
-template <typename T>
+template <class T>
 void SwapUtil::swap(T *a, T *b)
 {
     BSLS_ASSERT_SAFE(a != NULL);

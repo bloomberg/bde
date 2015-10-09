@@ -1,0 +1,60 @@
+ bal.txt
+
+@PURPOSE: Provide application-level support services.
+
+@MNEMONIC: Basic Application Environment (bal)
+
+@DESCRIPTION: The 'bal' ("Basic Applications Environment") package group
+ contains packages that provide application-level support services in varied
+ areas such as encoders/decoders, timezone support, command-line handling,
+ metrics, and logging.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bal' package group currently has 9 packages having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. baljsn
+
+  3. balb
+     balm
+     balst
+     baltzo
+
+  2. balber
+     ball
+
+  1. balscm
+     balxml
+..
+
+/Package Synopsis
+/----------------
+: 'balb':
+:      Provide common application-level facilities.
+:
+: 'balber':
+:      Provide encoding/decoding of data per the (binary) BER rules.
+:
+: 'baljsn':
+:      Provide components for encoding/decoding in the JSON format.
+:
+: 'ball':
+:      Provide thread-safe logging toolkit suitable for all platforms.
+:
+: 'balm':
+:      Provide thread-safe collection and publishing of metrics.
+:
+: 'balscm':
+:      Provide versioning information for library components in 'bal'
+:
+: 'balst':
+:      Provide a portable facility for obtaining & printing a stack trace
+:
+: 'baltzo':
+:      Provide timezone data for use with timezone-enabled vocabulary types.
+:
+: 'balxml':
+:      Provide utility components for using XML and XSD.

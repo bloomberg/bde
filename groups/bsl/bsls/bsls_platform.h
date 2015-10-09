@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 //  =============================================================
 //                           OPERATING SYSTEM
 //  -------------------------------------------------------------
-//       Type                Subtype               Version
+//              Type                Subtype               Version
 //  -----------------   -------------------   -------------------
 //   @_OS_UNIX           @_OS_AIX              @_OS_VER_MAJOR
 //                       @_OS_HPUX             @_OS_VER_MINOR
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //  ============================================================
 //                              PROCESSOR
 //  ------------------------------------------------------------
-//  Instruction Set          Width                 Version
+//          Instruction Set          Width                 Version
 //  ---------------    -------------------   -------------------
 //   @_CPU_88000        @_CPU_32_BIT          @_CPU_VER_MAJOR
 //   @_CPU_ALPHA        @_CPU_64_BIT          @_CPU_VER_MINOR
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //  =============================================================
 //                              COMPILER
 //  -------------------------------------------------------------
-//     Vendor                Version
+//                      Vendor                Version
 //  -----------------   -------------------
 //   @_CMP_CLANG         @_CMP_VER_MAJOR
 //   @_CMP_EDG           @_CMP_VER_MINOR
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //  =============================================================
 //                              INLINING
 //  -------------------------------------------------------------
-//     Flag
+//                                  Flag
 //  -----------------
 //   @_AGGRESSIVE_INLINE
 //
@@ -203,7 +203,7 @@ struct bsls_Platform_Assert;
 // preserve the alphabetical order of the table, inserting the necessary
 // configuration logic in the preprocessor statements below.
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #if defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)
     #define BSLS_PLATFORM_CMP_IBM 1
     #define BSLS_PLATFORM_CMP_VERSION __xlC__
@@ -664,7 +664,7 @@ struct bsls_Platform_Assert;
     #if !defined(BSLS_PLATFORM_CPU_64_BIT)
         #define BSLS_PLATFORM_CPU_32_BIT 1
     #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 #elif defined(__SUNPRO_CC) || defined(__SUNPRO_C)
 
     #define BSLS_PLATFORM_CMP_SUN 1
@@ -742,7 +742,7 @@ struct bsls_Platform_Assert;
     #error "Could not identify the compiler."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // Determine endianness.
 

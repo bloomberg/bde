@@ -16,6 +16,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
@@ -145,8 +146,8 @@ int calcPool(int numPools, int objSize)
     // Return the index of the pool that should allocate objects that are of
     // the specified 'objSize' bytes in size from a multipool managing the
     // specified 'numPools' memory pools, or -1 if 'objSize' exceeds the size
-    // of the blocks managed by all of the pools.  The behavior is
-    // undefined unless '0 < numPools' and '0 < objSize'.
+    // of the blocks managed by all of the pools.  The behavior is undefined
+    // unless '0 < numPools' and '0 < objSize'.
 {
     ASSERT(0 < numPools);
     ASSERT(0 < objSize);
@@ -181,10 +182,10 @@ int recPool(char *address)
 }
 
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-   // Using only primary manipulators, extend the capacity of the specified
-   // 'object' to (at least) the specified 'numElements' each of the specified
-   // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-   // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements' each of the specified
+    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
+    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -217,8 +218,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     class my_Node;
 
     class my_Edge {
-        // This class represents an edge within a graph.  Both ends of an
-        // edge must be connected to nodes.
+        // This class represents an edge within a graph.  Both ends of an edge
+        // must be connected to nodes.
 
         // DATA
         my_Node *d_first;   // first node
@@ -253,6 +254,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Node(const my_Node&);
+
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
@@ -284,6 +289,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
         // ...
 
+      private:
+        // Not implemented:
+        my_Graph(const my_Graph&);
+
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
@@ -312,6 +321,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         // DATA
         bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph name to
                                                      // graph
+
+      private:
+        // Not implemented:
+        my_NamedGraphContainer(const my_NamedGraphContainer&);
 
       public:
         // TRAITS
@@ -347,7 +360,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //..
 //  int main()
 //  {
-//      enum { NUM_POOLS = 3 };
+//      enum { k_NUM_POOLS = 3 };
 //
 //      bdlma::MultipoolAllocator multipoolAllocator(NUM_POOLS);
 //
@@ -361,8 +374,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // to supply memory to node-based data structures that frequently both insert
 // and remove nodes, while growing to significant size before being destroyed.
 // The following experiment will illustrate the benefits of using a
-// 'bdlma::MultipoolAllocator' under this scenario by comparing the following
-// 3 different allocator uses:
+// 'bdlma::MultipoolAllocator' under this scenario by comparing the following 3
+// different allocator uses:
 //
 //: 1 Using the 'bslma::NewDeleteAllocator'.
 //:
@@ -399,6 +412,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         bsl::list<Obj1> d_list1;
         bsl::list<Obj2> d_list2;
         bsl::list<Obj3> d_list3;
+
+      private:
+        // Not implemented:
+        my_TestDataStructure(const my_TestDataStructure&);
 //..
 // The test will consist of the following steps:
 //
@@ -600,7 +617,6 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // Finally, in main, we run the test with the different allocators and
 // different allocator configurations based on command line arguments:
 //..
-//  int main(int argc, char **argv)
 //  {
 //      int testLengthFactor = 5;
 //      const int NUM_POOLS  = 10;
@@ -750,9 +766,9 @@ int main(int argc, char *argv[])
 //..
 //  int main()
 //  {
-        enum { NUM_POOLS = 3 };
+        enum { k_NUM_POOLS = 3 };
 
-        bdlma::MultipoolAllocator multipoolAllocator(NUM_POOLS);
+        bdlma::MultipoolAllocator multipoolAllocator(k_NUM_POOLS);
 
         my_NamedGraphContainer container(&multipoolAllocator);
 //  }
@@ -791,13 +807,13 @@ int main(int argc, char *argv[])
             int d_numPools;      // number of pools
             int d_maxBlockSize;  // maximum block size
         } DATA[] = {
-            //LINE  NUMPOOLS    MAXBLOCKSIZE
-            //----  --------    ------------
-            { L_,   1,          8            },
-            { L_,   2,          16           },
-            { L_,   3,          32           },
-            { L_,   4,          64           },
-            { L_,   5,          128          },
+            //LINE  # POOLS     MAXIMUM BLOCK SIZE
+            //----  -------     ------------------
+            { L_,   1,          8                  },
+            { L_,   2,          16                 },
+            { L_,   3,          32                 },
+            { L_,   4,          64                 },
+            { L_,   5,          128                },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -880,8 +896,10 @@ int main(int argc, char *argv[])
                         stretchRemoveAll(&mX, EXTEND[ei], OBJ_SIZE);
                         mX.reserveCapacity(OBJ_SIZE, 0);
                         mX.reserveCapacity(OBJ_SIZE, NE);
-                        const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                        const int NUM_BYTES  = testAllocator.numBytesInUse();
+                        const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                        const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                         for (int i = 0; i < NE; ++i) {
                             mX.allocate(OBJ_SIZE);
                         }
@@ -941,8 +959,10 @@ int main(int argc, char *argv[])
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { T_ cout << "# pools: "; P(i); }
             Obj mX(i, Z);
-            const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-            const int NUM_BYTES  = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
             int its              = NITERS;
             while (its-- > 0) {  // exercise each pool, as well as "overflow"
                 char *p;
@@ -993,8 +1013,8 @@ int main(int argc, char *argv[])
         const int OVERFLOW_SIZE = MAX_ALIGN * 5;
         const int NITERS        = MAX_ALIGN * 256;
 
-        int numBlocks;
-        int numBytes;
+        bsls::Types::Int64 numBlocks;
+        bsls::Types::Int64 numBytes;
 
         for (int i = 1; i <= MAX_POOLS; ++i) {
             if (veryVerbose) { T_ cout << "# pools: "; P(i); }
@@ -1076,9 +1096,9 @@ int main(int argc, char *argv[])
                                   << "=================" << endl;
 
         enum {
-            INITIAL_CHUNK_SIZE     =  1,
-            DEFAULT_MAX_CHUNK_SIZE = 32,
-            DEFAULT_NUM_POOLS      = 10
+            k_INITIAL_CHUNK_SIZE     =  1,
+            k_DEFAULT_MAX_CHUNK_SIZE = 32,
+            k_DEFAULT_NUM_POOLS      = 10
         };
 
         const int NUM_POOLS           =  5;
@@ -1123,8 +1143,9 @@ int main(int argc, char *argv[])
 
                 Obj mX(NUM_POOLS, SDATA[si], MDATA[mi], &oa);
 
-                int multipoolAllocations = mpta.numAllocations();
-                int objectAllocations    =   oa.numAllocations();
+                bsls::Types::Int64 multipoolAllocations =
+                                                         mpta.numAllocations();
+                bsls::Types::Int64 objectAllocations    = oa.numAllocations();
 
                 LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                              multipoolAllocations == objectAllocations);
@@ -1145,7 +1166,7 @@ int main(int argc, char *argv[])
 
                     // Testing geometric growth.
                     if (GEO == SDATA[si][calcPoolNum]) {
-                        int ri = INITIAL_CHUNK_SIZE;
+                        int ri = k_INITIAL_CHUNK_SIZE;
                         while (ri < MDATA[mi][calcPoolNum]) {
                             multipoolAllocations = mpta.numAllocations();
                             objectAllocations    =   oa.numAllocations();
@@ -1205,15 +1226,16 @@ int main(int argc, char *argv[])
 
             Obj mX(&oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1223,11 +1245,11 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
@@ -1247,14 +1269,14 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1281,8 +1303,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1302,8 +1324,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
-                while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                int ri = k_INITIAL_CHUNK_SIZE;
+                while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
@@ -1323,14 +1345,14 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1357,15 +1379,16 @@ int main(int argc, char *argv[])
 
             Obj mX(CON, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
 
             for (int oi = 0; oi < NUM_ODATA; ++oi) {
                 const int OBJ_SIZE    = ODATA[oi];
-                const int calcPoolNum = calcPool(DEFAULT_NUM_POOLS, OBJ_SIZE);
+                const int calcPoolNum = calcPool(k_DEFAULT_NUM_POOLS,
+                                                 OBJ_SIZE);
 
                 if (-1 == calcPoolNum) {
                     char *p = (char *) mX.allocate(OBJ_SIZE);
@@ -1375,7 +1398,7 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                LOOP_ASSERT(calcPoolNum, calcPoolNum < DEFAULT_NUM_POOLS);
+                LOOP_ASSERT(calcPoolNum, calcPoolNum < k_DEFAULT_NUM_POOLS);
 
                 // Testing constant growth.
                 const int NUM_REPLENISH = 3;
@@ -1383,7 +1406,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1410,8 +1433,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1436,7 +1459,7 @@ int main(int argc, char *argv[])
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1463,8 +1486,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, SDATA[si], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1485,8 +1508,8 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
-                    while (ri < DEFAULT_MAX_CHUNK_SIZE) {
+                    int ri = k_INITIAL_CHUNK_SIZE;
+                    while (ri < k_DEFAULT_MAX_CHUNK_SIZE) {
                         multipoolAllocations = mpta.numAllocations();
                         objectAllocations    =   oa.numAllocations();
 
@@ -1507,14 +1530,14 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
 
-                    for (int j = 0; j < DEFAULT_MAX_CHUNK_SIZE; ++j) {
+                    for (int j = 0; j < k_DEFAULT_MAX_CHUNK_SIZE; ++j) {
                         char *p = (char *)mX.allocate(OBJ_SIZE);
                         const int recordPoolNum = recPool(p);
 
@@ -1542,8 +1565,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, GEO, TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1563,7 +1586,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIAL_CHUNK_SIZE;
                 while (ri < TEST_MAX_CHUNK_SIZE) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
@@ -1584,8 +1607,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
@@ -1620,8 +1643,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, GEO, MDATA[mi], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1641,7 +1664,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
                 // Testing geometric growth.
-                int ri = INITIAL_CHUNK_SIZE;
+                int ri = k_INITIAL_CHUNK_SIZE;
                 while (ri < MDATA[mi][calcPoolNum]) {
                     multipoolAllocations = mpta.numAllocations();
                     objectAllocations    =   oa.numAllocations();
@@ -1662,8 +1685,8 @@ int main(int argc, char *argv[])
                     ri <<= 1;
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
@@ -1697,8 +1720,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1751,8 +1774,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, SDATA[si], TEST_MAX_CHUNK_SIZE, &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1773,7 +1796,7 @@ int main(int argc, char *argv[])
 
                 // Testing geometric growth.
                 if (GEO == SDATA[si][calcPoolNum]) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
                     while (ri < TEST_MAX_CHUNK_SIZE) {
                         multipoolAllocations = mpta.numAllocations();
                         objectAllocations    =   oa.numAllocations();
@@ -1795,8 +1818,8 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
@@ -1831,8 +1854,8 @@ int main(int argc, char *argv[])
 
             Obj mX(NUM_POOLS, CON, MDATA[mi], &oa);
 
-            int multipoolAllocations = mpta.numAllocations();
-            int objectAllocations    =   oa.numAllocations();
+            bsls::Types::Int64 multipoolAllocations = mpta.numAllocations();
+            bsls::Types::Int64 objectAllocations    =   oa.numAllocations();
 
             LOOP2_ASSERT(multipoolAllocations, objectAllocations,
                          multipoolAllocations == objectAllocations);
@@ -1851,8 +1874,8 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(calcPoolNum, calcPoolNum < NUM_POOLS);
 
-                // Testing constant growth (also applies to capped
-                // geometric growth).
+                // Testing constant growth (also applies to capped geometric
+                // growth).
                 const int NUM_REPLENISH = 3;
                 for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
                     multipoolAllocations = mpta.numAllocations();
@@ -1965,7 +1988,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING NUMPOOLS CTOR AND DTOR
+        // TESTING 'NUMPOOLS' CTOR AND DTOR
         //
         // Concerns:
         //   We have the following concerns:
@@ -2054,8 +2077,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                     {
                         Obj mX(NUM_POOLS, Z);
@@ -2097,8 +2122,10 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_PDATA; ++i) {
                 const int NUM_POOLS = PDATA[i];
                 if (veryVerbose) { P(NUM_POOLS); }
-                const int NUM_BLOCKS = testAllocator.numBlocksInUse();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksInUse();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NUM_POOLS, Z);
@@ -2143,8 +2170,8 @@ int main(int argc, char *argv[])
             char *p = (char *) doNotDelete->allocate(2048);  // "overflow"
                                                              // block list
             ASSERT(p);
-            // No destructor is called; will produce memory leak in purify
-            // if internal allocators are not hooked up properly.
+            // No destructor is called; will produce memory leak in purify if
+            // internal allocators are not hooked up properly.
         }
       } break;
       case 1: {
@@ -2240,8 +2267,7 @@ int main(int argc, char *argv[])
 // Finally, in main, we run the test with the different allocators and
 // different allocator configurations based on command line arguments:
 //..
-//  int main(int argc, char **argv)
-//  {
+    {
         int testLengthFactor = 5;
         const int NUM_POOLS  = 10;
 
@@ -2254,7 +2280,7 @@ int main(int argc, char *argv[])
             growth = argv[3][0];
             if (growth != 'g' && growth != 'c') {
                 printf("[g]eometric or [c]onstant growth must be used\n");
-                return -1;
+                return -1;                                            // RETURN
             }
         }
 
@@ -2289,9 +2315,7 @@ int main(int argc, char *argv[])
             bdlma::MultipoolAllocator ma(NUM_POOLS, strategy, maxChunkSize);
             my_TestUtil::testManaged(testLengthFactor, &ma);
         }
-
-//      return 0;
-//  }
+    }
 //..
 
       } break;
@@ -2314,7 +2338,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

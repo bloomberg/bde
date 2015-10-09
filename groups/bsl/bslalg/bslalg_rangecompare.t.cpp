@@ -247,7 +247,7 @@ struct ScalarPrimitives {
 
   private:
     // PRIVATE CLASS METHODS
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
@@ -258,7 +258,7 @@ struct ScalarPrimitives {
         // memory at the specified 'address', as if by using the copy
         // constructor of 'TARGET_TYPE'.
 
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
@@ -271,7 +271,7 @@ struct ScalarPrimitives {
 
   public:
     // CLASS METHODS
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&  original,
                               bslma::Allocator   *allocator);
@@ -281,7 +281,7 @@ struct ScalarPrimitives {
         // copy constructor of 'TARGET_TYPE'.  If the constructor throws, the
         // 'address' is left in an uninitialized state.
 
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *object);
         // Destroy the specified 'object' of (template parameter) type
         // 'TARGET_TYPE', as if by calling the 'TARGET_TYPE' destructor, but do
@@ -289,7 +289,7 @@ struct ScalarPrimitives {
         // destructor may deallocate other memory owned by 'object'.
 };
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
@@ -299,7 +299,7 @@ void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
     new (address) TARGET_TYPE(original);
 }
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
                                        const TARGET_TYPE&   original,
                                        bslma::Allocator    *allocator,
@@ -308,7 +308,7 @@ void ScalarPrimitives::doCopyConstruct(TARGET_TYPE         *address,
     new (address) TARGET_TYPE(original, allocator);
 }
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 void ScalarPrimitives::copyConstruct(TARGET_TYPE               *address,
                                             const TARGET_TYPE&  original,
                                             bslma::Allocator   *allocator)
@@ -328,7 +328,7 @@ void ScalarPrimitives::copyConstruct<int>(int              *address,
     *address = original;
 }
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 void ScalarPrimitives::destroy(TARGET_TYPE *object)
 {
     object->~TARGET_TYPE();
@@ -1008,8 +1008,8 @@ namespace BloombergLP {
 namespace bslmf {
 template <> struct IsBitwiseEqualityComparable<BitWiseNoOpEqual>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 // CREATORS
 BitWiseNoOpEqual::BitWiseNoOpEqual(char value)
@@ -1761,7 +1761,7 @@ void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
 //                  GLOBAL HELPER FUNCTIONS FOR CASE 2
 //-----------------------------------------------------------------------------
 
-template <typename TEST_TYPE>
+template <class TEST_TYPE>
 void testGGG(bool verbose, bool veryVerbose)
 {
     if (verbose) printf("\nTesting generator on invalid specs.\n");
@@ -1829,7 +1829,7 @@ void testGGG(bool verbose, bool veryVerbose)
     }
 }
 
-template <typename TEST_TYPE>
+template <class TEST_TYPE>
 void testGG(bool verbose, bool veryVerbose)
 {
     if (verbose) printf("\nTesting generator on valid specs.\n");
@@ -1902,8 +1902,8 @@ namespace BloombergLP {
 namespace bslmf {
 template <> struct IsBitwiseEqualityComparable<TestPairType>
     : bsl::true_type {};
-}
-}
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 bool operator==(const TestPairType& lhs, const TestPairType& rhs)
 {

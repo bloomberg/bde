@@ -222,11 +222,11 @@ namespace BloombergLP {
 //
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}  // close package namespace
+}  // close namespace bslma
 //
 namespace bslmf {
 template <> struct IsBitwiseMoveable<TestType> : bsl::true_type {};
-}  // close package namespace
+}  // close namespace bslmf
 //
 }  // close enterprise namespace
 //..

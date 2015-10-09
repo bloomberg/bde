@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif 
+#endif
 
 #include <strstream>
 
@@ -35,7 +35,7 @@ namespace bsl
     using native_std::strstream;
     using native_std::strstreambuf;
 
-}
+}  // close package namespace
 
 #endif
 

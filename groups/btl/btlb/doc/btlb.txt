@@ -1,0 +1,42 @@
+ btlb.h
+
+@PURPOSE: Provide flexible, efficient management of message buffers.
+
+@MNEMONIC: Basic Transport Library Blobs (btlb)
+
+@SEE_ALSO: bces, bcemt, bdema, bslma
+
+@DESCRIPTION: This package defines, 'btlb::Blob', a vocabulary type for other
+ 'btl' packages.  A 'btlb::Blob' object consists of a sequence of
+ 'bltb::BlobBuffer' objects, each of which have a shared pointer to underlying
+ memory.  A protocol is defined for factories to manage 'bltb::BlobBuffer'
+ objects, and a concrete implementation is provided.  Other components define
+ non-primitive operations on 'btlb::Blob's.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlb' package currently has 4 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. btlb_blobstreambuf
+     btlb_blobutil
+     btlb_pooledblobbufferfactory
+
+  1. btlb_blob
+..
+
+/Component Synopsis
+/------------------
+: 'btlb_blob':
+:      Provide an indexed set of buffers from multiple sources.
+:
+: 'btlb_blobstreambuf':
+:      Provide blob implementing the 'streambuf' interface.
+:
+: 'btlb_blobutil':
+:      Provide a suite of utilities for I/O operations on 'btlb::Blob'.
+:
+: 'btlb_pooledblobbufferfactory':
+:      Provide a concrete implementation of 'btlb::BlobBufferFactory'.

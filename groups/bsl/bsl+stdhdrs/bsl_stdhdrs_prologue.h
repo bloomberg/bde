@@ -65,7 +65,7 @@ namespace bsl {
     // Only 'rel_ops' is aliased and imported into the 'bsl' namespace here.
     // Other 'std' symbols are imported by files in the 'bsl+bslhdrs' package.
     namespace rel_ops = std::rel_ops;
-}  // close namespace bsl
+}  // close package namespace
 
 }  // extern "C++"
 

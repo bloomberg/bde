@@ -114,6 +114,7 @@ BSLS_IDENT("$Id: $")
 //
 //  assert(sizeof(MyStruct) > MY_STRUCT_ALIGNMENT);
 //..
+//
 ///Example 2: Types Supporting 'AlignmentToType'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we to be able to determine a fundamental or pointer type that has
@@ -433,10 +434,11 @@ struct AlignmentImpMatch {
     // Namespace for a set of overloaded 'match' functions, as defined by the
     // macro 'BSLS_ALIGNMENTIMP_MATCH_FUNC'.
 
-#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                               \
-           bsls::AlignmentImpTag<P> match(bsls::AlignmentImpCalc<T>::Tag,   \
-                                          bsls::AlignmentImpTag<sizeof(T)>, \
-                                          bsls::AlignmentImp_Priority<P>)
+#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                                 \
+           bsls::AlignmentImpTag<P> match(                                    \
+                          bsls::AlignmentImpCalc<T>::Tag,                     \
+                          bsls::AlignmentImpTag<static_cast<int>(sizeof(T))>, \
+                          bsls::AlignmentImp_Priority<P>)
 
     // CLASS METHODS
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                        1);

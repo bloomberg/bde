@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace bsl
 {
 
-}  // close namespace
+}  // close namespace bsl
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

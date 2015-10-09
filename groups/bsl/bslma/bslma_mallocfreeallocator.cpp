@@ -106,7 +106,7 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
 void *MallocFreeAllocator::allocate(size_type size)
 {
     if (!size) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     void *result = std::malloc(size);

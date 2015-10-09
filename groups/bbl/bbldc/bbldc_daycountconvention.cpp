@@ -6,15 +6,9 @@ BSLS_IDENT_RCSID(bbldc_daycountconvention_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bslmf_assert.h>
-
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
-BSLMF_ASSERT(bbldc::DayCountConvention::e_ACTUAL_360
-           < bbldc::DayCountConvention::e_PERIOD_ICMA_ACTUAL_ACTUAL);
-
 namespace bbldc {
 
                         // -------------------------
@@ -49,6 +43,7 @@ const char *DayCountConvention::toAscii(Enum convention)
       CASE(SIA_30_360_EOM);                                           // RETURN
       CASE(SIA_30_360_NEOM);                                          // RETURN
       CASE(PERIOD_ICMA_ACTUAL_ACTUAL);                                // RETURN
+      CASE(CALENDAR_BUS_252);                                         // RETURN
       default: {
         return "(* Unknown Enumerator *)";                            // RETURN
       } break;

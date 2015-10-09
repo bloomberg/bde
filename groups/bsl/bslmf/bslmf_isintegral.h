@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify Integral Types
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is an integral
 // type.
 //

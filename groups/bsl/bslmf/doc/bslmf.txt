@@ -19,29 +19,28 @@
  both.  For instance, in order to evaluate whether two types are the same, one
  could write a meta-function predicate (evaluating to 0 or 1) as follows:
 ..
-    template <class U, class V>
-    struct IsSame {
-        // This 'struct' provides a meta function parameterized by two types
-        // 'U' and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same
-        // type, in which case it takes 'VALUE == 1'.
+  template <class U, class V>
+  struct IsSame {
+      // This 'struct' provides a meta function parameterized by two types 'U'
+      // and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same type,
+      // in which case it takes 'VALUE == 1'.
 
-        // PUBLIC TYPES
-        enum { VALUE = 0 };
-        typedef bslmf_MetaInt<VALUE>  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 0 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
 
-    // SPECIALIZATIONS
-    template <class T>
-    struct IsSame<T, T> {
-        // This specialization of the 'IsSame' meta function is parameterized
-        // by a single type 'T' and is selected if the two parameters of
-        // 'IsSame', 'U' and 'V', are both equal to 'T'.  It takes
-        // 'VALUE == 1'.
+  // SPECIALIZATIONS
+  template <class T>
+  struct IsSame<T, T> {
+      // This specialization of the 'IsSame' meta function is parameterized by
+      // a single type 'T' and is selected if the two parameters of 'IsSame',
+      // 'U' and 'V', are both equal to 'T'.  It takes 'VALUE == 1'.
 
-        // PUBLIC TYPES
-        enum { VALUE = 1 };
-        typedef bslmf_MetaInt<VALUE>  Type;
-    };
+      // PUBLIC TYPES
+      enum { VALUE = 1 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
 ..
  Note the use of a 'bslmf_MetaInt' nested type usually employed for function
  dispatching.  See the 'bslmf_issame' component-level documentation for a more
@@ -53,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 63 components having 15 levels of physical
+ The 'bslmf' package currently has 65 components having 15 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -85,6 +84,7 @@
    8. bslmf_addconst
       bslmf_addvolatile
       bslmf_isarithmetic
+      bslmf_isempty
       bslmf_ismemberobjectpointer
       bslmf_ispolymorphic
       bslmf_removepointer
@@ -110,6 +110,7 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_nthparameter
       bslmf_removeconst
       bslmf_removereference
       bslmf_removevolatile
@@ -217,6 +218,9 @@
 : 'bslmf_isconvertibletoany':
 :      Provide a compile-time check for types convertible to any type.
 :
+: 'bslmf_isempty':
+:      Provide a compile-time check for detecting an empty class type.
+:
 : 'bslmf_isenum':
 :      Provide compile-time check for determining enumerated types.
 :
@@ -298,6 +302,9 @@
 : 'bslmf_nil':
 :      Provide a nil type.
 :
+: 'bslmf_nthparameter':
+:      Metafunction to return the Nth type parameter in a parameter pack
+:
 : 'bslmf_removeconst':
 :      Provide a meta-function for removing top-level 'const'-qualifier.
 :
@@ -327,4 +334,3 @@
 :
 : 'bslmf_typelist':
 :      Provide a typelist component.
-
