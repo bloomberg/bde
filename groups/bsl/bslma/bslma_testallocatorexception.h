@@ -247,9 +247,9 @@ class TestAllocatorException {
         // an allocation request size.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------
                         // class TestAllocatorException
@@ -273,9 +273,9 @@ TestAllocatorException::numBytes() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::TestAllocatorException bslma_TestAllocatorException;
     // This alias is defined for backward compatibility.

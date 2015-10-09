@@ -1,0 +1,4 @@
+*           _  OPTS_FILE       =  btl.defs
+
+unix-SunOS  _  BTE_ENDLDFLAGS  =  $(BDE_DYNAMIC) -lnsl -lsocket
+-- unix-*   _  BDE_ENDLDFLAGS  =  $(BTE_ENDLDFLAGS)

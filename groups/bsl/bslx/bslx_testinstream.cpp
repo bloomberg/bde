@@ -479,7 +479,7 @@ TestInStream& TestInStream::getString(bsl::string& variable)
 
         checkArray(TypeCode::e_UINT8, Util::k_SIZEOF_INT8, length);
 
-        if (isValid()) {
+        if (length > 0 && isValid()) {
             Util::getArrayInt8(&variable.front(), d_buffer + cursor(), length);
             d_cursor += Util::k_SIZEOF_INT8 * length;
         }

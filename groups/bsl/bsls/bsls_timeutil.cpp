@@ -472,7 +472,7 @@ struct MachTimerUtil {
 
   private:
     // CLASS DATA
-    static bsls::AtomicOperations::AtomicTypes::Int  
+    static bsls::AtomicOperations::AtomicTypes::Int
                                          s_initRequired;
 
     static bsls::Types::Int64            s_initialTime;

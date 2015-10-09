@@ -37,8 +37,8 @@ BSLS_IDENT("$Id: $")
 //                            allocate
 //                            deallocate
 //..
-// If an allocation request exceeds the remaining free memory space in
-// the external buffer, the allocator will fall back to a sequence of
+// If an allocation request exceeds the remaining free memory space in the
+// external buffer, the allocator will fall back to a sequence of
 // dynamically-allocated buffers.  Users can optionally specify a growth
 // strategy at construction that governs the growth rate of the
 // dynamically-allocated buffers.  If no growth strategy is specified at
@@ -92,8 +92,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a method, 'calculate', that performs
 // calculations (where the specifics are not important to illustrate the use of
 // this component), which require three vectors of 'double' values.
@@ -109,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // (which triggers more allocations) by reserving for the specific capacity we
 // need:
 //..
-//      enum { SIZE = 3 * 100 * sizeof(double) };
+//      enum { k_SIZE = 3 * 100 * sizeof(double) };
 //..
 // In the above calculation, we assume that the only memory allocation
 // requested by the vector is the allocation for the array that stores the
@@ -121,15 +123,16 @@ BSLS_IDENT("$Id: $")
 // To avoid alignment issues described in the "Warning" section (above), we
 // create a 'bsls::AlignedBuffer':
 //..
-//      bsls::AlignedBuffer<SIZE> bufferStorage;
+//      bsls::AlignedBuffer<k_SIZE> bufferStorage;
 //
-//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(), SIZE);
+//      bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(),
+//                                               k_SIZE);
 //
 //      bsl::vector<double> v1(&alloc);     v1.reserve(100);
 //      bsl::vector<double> v2(&alloc);     v2.reserve(100);
 //      bsl::vector<double> v3(&alloc);     v3.reserve(100);
 //
-//      // ...
+//      return data.empty() ? 0.0 : data.front();
 //  }
 //..
 // By making use of a 'bdlma::BufferedSequentialAllocator', *all* dynamic
@@ -150,24 +153,26 @@ BSLS_IDENT("$Id: $")
 // stack:
 //..
 //  enum {
-//      NUM_SECURITIES = 100,
+//      k_NUM_SECURITIES = 100,
 //
-//      TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
+//      k_TREE_NODE_SIZE = sizeof(bsl::map<bsl::string, double>::value_type)
 //                       + sizeof(void *) * 4,
 //
-//      AVERAGE_SECURITY_LENGTH = 5,
+//      k_AVERAGE_SECURITY_LENGTH = 5,
 //
-//      TOTAL_SIZE = NUM_SECURITIES *
-//                   (TREE_NODE_SIZE + AVERAGE_SECURITY_LENGTH )
+//      k_TOTAL_SIZE = k_NUM_SECURITIES *
+//                               (k_TREE_NODE_SIZE + k_AVERAGE_SECURITY_LENGTH)
 //  };
 //
-//  bsls::AlignedBuffer<TOTAL_SIZE> bufferStorage;
+//  bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
 //..
 // The calculation of the amount of memory needed is just an estimate, as we
 // used the average security size instead of the maximum security size.  We
 // also assume that a 'bsl::map's node size is roughly the size of 4 pointers.
 //..
-//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(), TOTAL_SIZE);
+//  bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(),
+//                                         k_TOTAL_SIZE,
+//                                         &objectAllocator);
 //  bsl::map<bsl::string, double> updateMap(&bsa);
 //
 //  receivePriceQuotes(&updateMap);
@@ -208,17 +213,17 @@ namespace bdlma {
                     // =================================
 
 class BufferedSequentialAllocator : public ManagedAllocator {
-    // This class implements the 'ManagedAllocator' protocol to provide
-    // a fast allocator that dispenses heterogeneous blocks of memory (of
-    // varying, user-specified sizes) from an external buffer whose address and
-    // size (in bytes) are supplied at construction.  If an allocation request
-    // exceeds the remaining free memory space in the external buffer, memory
-    // will be supplied by an (optional) allocator also supplied at
-    // construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  This class is *exception* *neutral*: If
-    // memory cannot be allocated, the behavior is defined by the (optional)
-    // allocator supplied at construction.  Note that in no case will the
-    // buffered sequential allocator attempt to deallocate the external buffer.
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator that dispenses heterogeneous blocks of memory (of varying,
+    // user-specified sizes) from an external buffer whose address and size (in
+    // bytes) are supplied at construction.  If an allocation request exceeds
+    // the remaining free memory space in the external buffer, memory will be
+    // supplied by an (optional) allocator also supplied at construction; if no
+    // allocator is supplied, the currently installed default allocator is
+    // used.  This class is *exception* *neutral*: If memory cannot be
+    // allocated, the behavior is defined by the (optional) allocator supplied
+    // at construction.  Note that in no case will the buffered sequential
+    // allocator attempt to deallocate the external buffer.
 
     // DATA
     BufferedSequentialPool d_pool;  // manager for allocated memory blocks
@@ -230,20 +235,18 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 
   public:
     // CREATORS
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char             *buffer,
+                                int               size,
+                                bslma::Allocator *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                int                        size,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
@@ -268,23 +271,21 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char             *buffer,
+                                int               size,
+                                int               maxBufferSize,
+                                bslma::Allocator *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
                               int                          maxBufferSize,
                               bsls::BlockGrowth::Strategy  growthStrategy,
                               bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialAllocator(
-                              char                        *buffer,
-                              int                          size,
-                              int                          maxBufferSize,
-                              bsls::Alignment::Strategy    alignmentStrategy,
-                              bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialAllocator(char                      *buffer,
+                                int                        size,
+                                int                        maxBufferSize,
+                                bsls::Alignment::Strategy  alignmentStrategy,
+                                bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialAllocator(
                               char                        *buffer,
                               int                          size,
@@ -339,7 +340,7 @@ class BufferedSequentialAllocator : public ManagedAllocator {
 };
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                     // ---------------------------------
@@ -454,7 +455,7 @@ void BufferedSequentialAllocator::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

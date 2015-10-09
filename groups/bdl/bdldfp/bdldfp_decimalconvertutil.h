@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalConvertUtil: Namespace for decimal FP conversion functions
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides namespace,
 // 'bdldfp::DecimalConvertUtil', containing functions that are able to convert
@@ -725,7 +725,7 @@ int DecimalConvertUtil::decimal64ToUnpackedSpecial(
                               BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         // punt on special encodings
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *isNegative = (bidValue & 0x8000000000000000ull) ? 1 : 0;

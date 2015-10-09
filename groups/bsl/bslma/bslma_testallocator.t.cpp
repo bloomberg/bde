@@ -281,6 +281,50 @@ extern "C" void *threadFunction3(void *arg)
 
 }  // close namespace TestCase13
 
+//-----------------------------------------------------------------------------
+//                      REDEFINED GLOBAL OPERATOR NEW
+//-----------------------------------------------------------------------------
+
+static int globalNewCalledCount = 0;
+static int globalNewCalledCountIsEnabled = 0;
+
+static int globalDeleteCalledCount = 0;
+static int globalDeleteCalledCountIsEnabled = 0;
+
+#ifdef BDE_BUILD_TARGET_EXC
+void *operator new(size_t size) throw(std::bad_alloc)
+#else
+void *operator new(size_t size)
+#endif
+    // Trace use of global operator new.  Note that we must use printf
+    // to avoid recursion.
+{
+    void *addr = malloc(size);
+
+    if (globalNewCalledCountIsEnabled) {
+        ++globalNewCalledCount;
+        printf ("global new called, count = %d: %p\n",
+                globalNewCalledCount, addr);
+    }
+
+    return addr;
+}
+
+#ifdef BDE_BUILD_TARGET_EXC
+void operator delete(void *address) throw()
+#else
+void operator delete(void *address)
+#endif
+    // Trace use of global operator delete.
+{
+    if (globalDeleteCalledCountIsEnabled) {
+        ++globalDeleteCalledCount;
+        printf("global delete freeing: %p\n", address);
+    }
+
+    free(address);
+}
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -521,50 +565,6 @@ static int verifyPrint(const bslma::TestAllocator& ta,
     return 0;
 }
 #endif // defined BSLS_PLATFORM_OS_UNIX
-
-//-----------------------------------------------------------------------------
-//                      REDEFINED GLOBAL OPERATOR NEW
-//-----------------------------------------------------------------------------
-
-static int globalNewCalledCount = 0;
-static int globalNewCalledCountIsEnabled = 0;
-
-static int globalDeleteCalledCount = 0;
-static int globalDeleteCalledCountIsEnabled = 0;
-
-#ifdef BDE_BUILD_TARGET_EXC
-void *operator new(size_t size) throw(std::bad_alloc)
-#else
-void *operator new(size_t size)
-#endif
-    // Trace use of global operator new.  Note that we must use printf
-    // to avoid recursion.
-{
-    void *addr = malloc(size);
-
-    if (globalNewCalledCountIsEnabled) {
-        ++globalNewCalledCount;
-        printf ("global new called, count = %d: %p\n",
-                globalNewCalledCount, addr);
-    }
-
-    return addr;
-}
-
-#ifdef BDE_BUILD_TARGET_EXC
-void operator delete(void *address) throw()
-#else
-void operator delete(void *address)
-#endif
-    // Trace use of global operator delete.
-{
-    if (globalDeleteCalledCountIsEnabled) {
-        ++globalDeleteCalledCount;
-        printf("global delete freeing: %p\n", address);
-    }
-
-    free(address);
-}
 
 //=============================================================================
 //                                 MAIN PROGRAM

@@ -770,7 +770,7 @@ DecimalImpUtil_DecNumber::int32ToDecimal32(int value)
         DenselyPackedDecimalImpUtil::StorageType32 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal32(static_cast<long long>(value));
 }
@@ -813,7 +813,7 @@ DecimalImpUtil_DecNumber::uint32ToDecimal32(unsigned int value)
         DenselyPackedDecimalImpUtil::StorageType32 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal32(static_cast<unsigned long long>(value));
 }
@@ -859,7 +859,7 @@ DecimalImpUtil_DecNumber::int64ToDecimal32(long long int value)
         DenselyPackedDecimalImpUtil::StorageType32 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(intValue, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal32(value);
 }
@@ -875,7 +875,7 @@ DecimalImpUtil_DecNumber::int64ToDecimal64(long long int value)
         DenselyPackedDecimalImpUtil::StorageType64 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal64(value);
 }
@@ -907,7 +907,7 @@ DecimalImpUtil_DecNumber::uint64ToDecimal32(unsigned long long int value)
         DenselyPackedDecimalImpUtil::StorageType32 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(intValue, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal32(value);
 }
@@ -923,7 +923,7 @@ DecimalImpUtil_DecNumber::uint64ToDecimal64(unsigned long long int value)
         DenselyPackedDecimalImpUtil::StorageType64 raw;
         raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
         bsl::memcpy(&result, &raw, sizeof(raw));
-        return result;
+        return result;                                                // RETURN
     }
     return roundToDecimal64(value);
 }
@@ -1037,7 +1037,7 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::negate(DecimalImpUtil_DecNumber::ValueType32 value)
 {
-	return convertToDecimal32(negate(convertToDecimal64(value)));
+ return convertToDecimal32(negate(convertToDecimal64(value)));
 }
 
 inline

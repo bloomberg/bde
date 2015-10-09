@@ -149,7 +149,7 @@ typedef bsls::BlockGrowth           Class;
     int my_SequentialPool::calculateNextSize(int size)
     {
         if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
-            return d_currentBufferSize;
+            return d_currentBufferSize;                               // RETURN
         }
 //..
 // Note that, if the growth strategy in effect is constant growth

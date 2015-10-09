@@ -84,9 +84,9 @@ namespace bsl {
         using native_std::regex_constants::error_badrepeat;
         using native_std::regex_constants::error_complexity;
         using native_std::regex_constants::error_stack;
-    }
+    }  // close namespace regex_constants
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

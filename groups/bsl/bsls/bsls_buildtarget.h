@@ -36,32 +36,34 @@ BSLS_IDENT("$Id: $")
 // a macro that determines whether deprecated interfaces are available to
 // programs built on BDE:
 //
-//: o BDE_OMIT_DEPRECATED: This macro, if defined, indicates that all
-//:   deprecated code is excluded from a build of the library.
+//: 'BDE_OMIT_DEPRECATED':
+//:     This macro, if defined, indicates that all deprecated code is excluded
+//:     from a build of the library.
 //
 #ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
 // In addition to 'BDE_OMIT_DEPRECATED', there are two other macros that also
 // determine whether deprecated interfaces are available to programs built on
 // BDE:
 //
-//: o BDE_OMIT_INTERNAL_DEPRECATED: This macro, if defined, indicates that all
-//:   deprecated code that appears only in the internal Bloomberg BDE codebase
-//:   is excluded from a build of the library.  This category consists almost
-//:   entirely of code that was already deprecated at the time of a component's
-//:   initial release to open-source.  Code that is deprecated after a
-//:   component's open-source release should be marked as 'BDE_OMIT_DEPRECATED'
-//:   instead.
+//: 'BDE_OMIT_INTERNAL_DEPRECATED':
+//:     This macro, if defined, indicates that all deprecated code that appears
+//:     only in the internal Bloomberg BDE codebase is excluded from a build of
+//:     the library.  This category consists almost entirely of code that was
+//:     already deprecated at the time of a component's initial release to
+//:     open-source.  Code that is deprecated after a component's open-source
+//:     release should be marked as 'BDE_OMIT_DEPRECATED' instead.
 //:
-//: o BDE_OPENSOURCE_PUBLICATION: This macro marks code that is not deprecated,
-//:   but is nevertheless excluded from the open-source release of BDE.  This
-//:   category consists primarily of code that exists to support STLPort
-//:   containers, which were not included in the open-source release, or that
-//:   documents backward compatibility access to the package-prefix versions of
-//:   non-deprecated symbols in BSL.  'BDE_OPENSOURCE_PUBLICATION' exists for
-//:   purposes of documentation only, and should not be defined for any build
-//:   of the library.  In particular, there is no guarantee that the library
-//:   can be built or will function correctly if 'BDE_OPENSOURCE_PUBLICATION'
-//:   is defined.
+//: 'BDE_OPENSOURCE_PUBLICATION':
+//:     This macro marks code that is not deprecated, but is nevertheless
+//:     excluded from the open-source release of BDE.  This category consists
+//:     primarily of code that exists to support STLPort containers, which were
+//:     not included in the open-source release, or that documents backward
+//:     compatibility access to the package-prefix versions of non-deprecated
+//:     symbols in BSL.  'BDE_OPENSOURCE_PUBLICATION' exists for purposes of
+//:     documentation only, and should not be defined for any build of the
+//:     library.  In particular, there is no guarantee that the library can be
+//:     built or will function correctly if 'BDE_OPENSOURCE_PUBLICATION' is
+//:     defined.
 //
 // Together with 'BDE_OMIT_DEPRECATED', these macros divide the BDE codebase
 // into four categories:
@@ -73,7 +75,6 @@ BSLS_IDENT("$Id: $")
 //: o deprecated universally distributed code  ['BDE_OMIT_DEPRECATED']
 //:
 //: o deprecated Bloomberg-only code           ['BDE_OMIT_INTERNAL_DEPRECATED']
-//:
 //
 // By default, all code in BDE is both current and universally distributed.
 // All code that is deprecated, excluded from our open-source distribution, or
@@ -81,8 +82,8 @@ BSLS_IDENT("$Id: $")
 // without that code, and/or to make it easy to prepare an open-source
 // distribution from the full internal BDE codebase.  The conditional
 // compilation macros are:
-//
 #endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
+//
 ///Usage
 ///-----
 // There is no usage example for this component since it is not meant for
@@ -180,9 +181,9 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                         bsls::BuildTargetMt::s_isBuildTargetMt)
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bsls::BuildTargetExc bsls_ExcBuildTarget;
     // This alias is defined for backward compatibility.

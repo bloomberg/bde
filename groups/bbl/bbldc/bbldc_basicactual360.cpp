@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(bbldc_basicactual360_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // ---------------------
-                         // struct BasicActual360
-                         // ---------------------
+                          // ---------------------
+                          // struct BasicActual360
+                          // ---------------------
 
 // CLASS METHODS
 double BasicActual360::yearsDiff(const bdlt::Date& beginDate,

@@ -12,6 +12,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -28,23 +29,23 @@ using namespace bsl;
 //                                  Overview
 //                                  --------
 // The goals of this 'bdlma::Pool' test driver are to verify that: 1) the
-// 'allocate' method dispenses memory blocks of the correct (uniform) size,
-// 2) the pool replenishes correctly according to the 'growthStrategy' and
+// 'allocate' method dispenses memory blocks of the correct (uniform) size, 2)
+// the pool replenishes correctly according to the 'growthStrategy' and
 // 'maxBlocksPerChunk' constructor parameters, 3) the 'deallocate' method
 // returns the memory to the pool, and 4) the 'release' method and the
 // destructor releases all memory allocated through the pool.
 //
 // To achieve goal 1, initialize pools of varying block sizes.  Invoke
 // 'allocate' repeatedly and verify that the difference between the returned
-// memory addresses of two consecutive requests is equal to the specified
-// block size for the current pool.  To achieve goal 2, initialize a pool with
-// a test allocator and varying 'growthStrategy' and 'maxBlocksPerChunk'.
-// Invoke 'allocate' repeatedly and verify that the pool requests memory blocks
-// of the expected sizes from the allocator.  To achieve goal 3, allocate
-// multiple memory blocks from the pool and store the returned addresses in an
-// array.  Deallocate the memory in reverse order, then allocate memory again
-// and verify that the allocated memory are in the same order as those stored
-// in the array.  Note that this test depends on the implementation details of
+// memory addresses of two consecutive requests is equal to the specified block
+// size for the current pool.  To achieve goal 2, initialize a pool with a test
+// allocator and varying 'growthStrategy' and 'maxBlocksPerChunk'.  Invoke
+// 'allocate' repeatedly and verify that the pool requests memory blocks of the
+// expected sizes from the allocator.  To achieve goal 3, allocate multiple
+// memory blocks from the pool and store the returned addresses in an array.
+// Deallocate the memory in reverse order, then allocate memory again and
+// verify that the allocated memory are in the same order as those stored in
+// the array.  Note that this test depends on the implementation details of
 // 'deallocate' in which a deallocated memory block is placed at the beginning
 // of the free memory list.  To achieve goal 4, initialize two pools, each
 // supplied with its own test allocator.  Invoke 'allocate' repeatedly.  Invoke
@@ -53,7 +54,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 4] Pool(bs, basicAllocator = 0);
 // [ 4] Pool(bs, gs, basicAllocator = 0);
-// [ 3] Pool(bs, gs, mbpc, basicAllocator = 0);
+// [ 3] Pool(bs, gs, maxBlocksPerChunk, basicAllocator = 0);
 // [ 6] ~Pool();
 // [ 4] void *allocate();
 // [ 5] void deallocate(address);
@@ -142,11 +143,11 @@ struct InfrequentDeleteBlock {
 // The following enumerator values must be kept in sync with 'bdlma_pool.cpp'.
 
 enum {
-    INITIAL_NUM_BLOCKS =  1,
-    MAX_NUM_BLOCKS     = 32,
+    k_INITIAL_NUM_BLOCKS =  1,
+    k_MAX_NUM_BLOCKS     = 32,
 
-    INITIAL_CHUNK_SIZE =  1,  // from 'bdlma_pool.cpp'
-    MAX_CHUNK_SIZE     = 32   // from 'bdlma_pool.cpp'
+    k_INITIAL_CHUNK_SIZE =  1,  // from 'bdlma_pool.cpp'
+    k_MAX_CHUNK_SIZE     = 32   // from 'bdlma_pool.cpp'
 };
 
 // ============================================================================
@@ -162,7 +163,7 @@ int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -179,8 +180,8 @@ int myAbs(int n)
 
 static inline
 int roundUp(int x, int y)
-    // Round up the specified 'x' to the nearest multiple of the specified
-    // 'y'.  The behavior is undefined unless '0 <= x' and '0 < y';
+    // Round up the specified 'x' to the nearest multiple of the specified 'y'.
+    // The behavior is undefined unless '0 <= x' and '0 < y';
 {
     ASSERT(0 <= x);
     ASSERT(0 <  y);
@@ -236,8 +237,8 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 //
 // First, we define the interface of our 'my_PooledArray' template class:
 //..
-//  // my_poolarray.h
-//
+    // my_poolarray.h
+
     template <class TYPE>
     class my_PooledArray {
         // This class implements a container that stores values of (template
@@ -248,6 +249,10 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
         // DATA
         bsl::vector<TYPE *> d_array_p;  // array of pooled elements
         bdlma::Pool         d_pool;     // memory manager for array elements
+
+      private:
+        // Not implemented:
+        my_PooledArray(const my_PooledArray&);
 
       public:
         // CREATORS
@@ -268,7 +273,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
             // Remove all elements from this array.
 
         // ACCESSORS
-        int length() const;
+        bsl::size_t length() const;
             // Return the number of elements in this array.
 
         const TYPE& operator[](int index) const;
@@ -296,7 +301,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
     // ACCESSORS
     template <class TYPE>
     inline
-    int my_PooledArray<TYPE>::length() const
+    bsl::size_t my_PooledArray<TYPE>::length() const
     {
         return d_array_p.size();
     }
@@ -306,7 +311,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
     const TYPE& my_PooledArray<TYPE>::operator[](int index) const
     {
         ASSERT(0     <= index);
-        ASSERT(index <  length());
+        ASSERT(index <  static_cast<int>(length()));
 
         return *d_array_p[index];
     }
@@ -317,9 +322,8 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 // Note that the growth strategy and maximum chunk size of the pool defaults to
 // those provided by 'bdlma::Pool':
 //..
-//  // my_poolarray.cpp
-//  #include <my_poolarray.h>
-//
+    // my_poolarray.cpp
+
     // CREATORS
     template <class TYPE>
     my_PooledArray<TYPE>::my_PooledArray(bslma::Allocator *basicAllocator)
@@ -358,7 +362,7 @@ template <class TYPE>
 ostream& operator<<(ostream& stream, const my_PooledArray<TYPE>& array)
 {
     stream << "[ ";
-    for (int i = 0; i < array.length(); ++i) {
+    for (int i = 0; i < static_cast<int>(array.length()); ++i) {
         stream << array[i] << " ";
     }
     return stream << ']' << flush;
@@ -373,6 +377,10 @@ class my_Type {
     // DATA
     char             *d_stuff_p;
     bslma::Allocator *d_allocator_p;
+
+  private:
+    // Not implemented:
+    my_Type(const my_Type&);
 
   public:
     // CREATORS
@@ -523,7 +531,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const double VALUE = DATA[i];
                 array.append(VALUE);
-                LOOP_ASSERT(i, i + 1 == array.length());
+                LOOP_ASSERT(i, i + 1 == static_cast<int>(array.length()));
                 LOOP_ASSERT(i, VALUE == array[i]);
             }
             if (veryVerbose) { cout << '\t' << array << endl; }
@@ -1085,7 +1093,7 @@ int main(int argc, char *argv[])
             { L_,       5,                   10,            CON },
             { L_,      12,                    1,            GEO },
             { L_,      24,                    5,            GEO },
-            { L_,      32,       MAX_CHUNK_SIZE,            GEO }
+            { L_,      32,     k_MAX_CHUNK_SIZE,            GEO }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1156,8 +1164,8 @@ int main(int argc, char *argv[])
         const int NUM_REQUESTS = 100;
 
         // Note that after the NUM_REQUESTS allocations are performed, there
-        // will be unallocated blocks that will be used before the free list;
-        // 'd_availBlocks' provides the expected number of these unallocated
+        // will be un-allocated blocks that will be used before the free list;
+        // 'd_availBlocks' provides the expected number of these un-allocated
         // blocks.
 
         struct {
@@ -1167,14 +1175,14 @@ int main(int argc, char *argv[])
             Strategy d_strategy;
             int      d_availBlocks;
         } DATA[] = {
-            //    block                         avail
-            //LN  size   max chunk size  strat  blocks
-            //--  -----  --------------  -----  ------
-            { L_,     1,              5,   CON,      0 },
-            { L_,     5,             10,   CON,      0 },
-            { L_,    12,              1,   GEO,      0 },
-            { L_,    24,              5,   GEO,      2 },
-            { L_,    32, MAX_CHUNK_SIZE,   GEO,     27 }
+            //    block                              avail
+            //LN  size    max chunk size   strategy  blocks
+            //--  -----  ----------------  --------  ------
+            { L_,     1,                5,      CON,      0 },
+            { L_,     5,               10,      CON,      0 },
+            { L_,    12,                1,      GEO,      0 },
+            { L_,    24,                5,      GEO,      2 },
+            { L_,    32, k_MAX_CHUNK_SIZE,      GEO,     27 }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1250,13 +1258,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   Initialize a pool with a chosen block size, default
         //   'maxBlocksPerChunk', and a test allocator.  Initialize a second
-        //   pool as a reference with the same block size, 'INITIAL_NUM_BLOCKS'
-        //   for 'maxBlocksPerChunk', and a second test allocator.  Invoke
-        //   'allocate' repeatedly on both pools so that the pools deplete and
-        //   replenish until the pools stop growing in size.  Verify that for
-        //   each replenishment the allocator for the pool under test contains
-        //   the same number of memory requests and the same request size as
-        //   the allocator for the reference pool.
+        //   pool as a reference with the same block size,
+        //   'k_INITIAL_NUM_BLOCKS' for 'maxBlocksPerChunk', and a second test
+        //   allocator.  Invoke 'allocate' repeatedly on both pools so that the
+        //   pools deplete and replenish until the pools stop growing in size.
+        //   Verify that for each replenishment the allocator for the pool
+        //   under test contains the same number of memory requests and the
+        //   same request size as the allocator for the reference pool.
         //
         // Testing:
         //   Pool(bs, basicAllocator = 0);
@@ -1279,11 +1287,11 @@ int main(int argc, char *argv[])
             const bslma::TestAllocator& TAY = taY;
             Obj mY(BLOCK_SIZE,
                    bsls::BlockGrowth::BSLS_GEOMETRIC,
-                   MAX_CHUNK_SIZE,
+                   k_MAX_CHUNK_SIZE,
                    &taY);
 
             int exceedMaxNumBlocksCount = 0;
-            int chunkSize = INITIAL_NUM_BLOCKS;
+            int chunkSize = k_INITIAL_NUM_BLOCKS;
             while (1) {
                 // Allocate until current pool is depleted.
                 for (int oi = 0; oi < myAbs(chunkSize); ++oi) {
@@ -1292,14 +1300,14 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize,
                             TAY.numAllocations() == numAllocations);
                 LOOP_ASSERT(chunkSize,
                             (int)TAY.lastAllocatedNumBytes() == numBytes);
 
-                int newChunkSize = growNumBlocks(chunkSize, MAX_CHUNK_SIZE);
+                int newChunkSize = growNumBlocks(chunkSize, k_MAX_CHUNK_SIZE);
                 if (newChunkSize == chunkSize) ++exceedMaxNumBlocksCount;
                 if (2 < exceedMaxNumBlocksCount) break;
                 chunkSize = newChunkSize;
@@ -1316,11 +1324,11 @@ int main(int argc, char *argv[])
             const bslma::TestAllocator& TAY = taY;
             Obj mY(BLOCK_SIZE,
                    bsls::BlockGrowth::BSLS_GEOMETRIC,
-                   MAX_CHUNK_SIZE,
+                   k_MAX_CHUNK_SIZE,
                    &taY);
 
             int exceedMaxNumBlocksCount = 0;
-            int chunkSize = INITIAL_NUM_BLOCKS;
+            int chunkSize = k_INITIAL_NUM_BLOCKS;
             while (1) {
                 // Allocate until current pool is depleted.
                 for (int oi = 0; oi < myAbs(chunkSize); ++oi) {
@@ -1329,13 +1337,13 @@ int main(int argc, char *argv[])
                 }
 
                 bsls::Types::Int64 numAllocations = TAX.numAllocations();
-                int numBytes = TAX.lastAllocatedNumBytes();
+                bsls::Types::Int64 numBytes = TAX.lastAllocatedNumBytes();
                 if (veryVerbose) { T_ P_(numAllocations); T_ P(numBytes); }
                 LOOP_ASSERT(chunkSize, TAY.numAllocations() == numAllocations);
                 LOOP_ASSERT(chunkSize, (int)TAY.lastAllocatedNumBytes()
                                                                   == numBytes);
 
-                int newChunkSize = growNumBlocks(chunkSize, MAX_CHUNK_SIZE);
+                int newChunkSize = growNumBlocks(chunkSize, k_MAX_CHUNK_SIZE);
                 if (newChunkSize == chunkSize) ++exceedMaxNumBlocksCount;
                 if (2 < exceedMaxNumBlocksCount) break;
                 chunkSize = newChunkSize;
@@ -1404,7 +1412,7 @@ int main(int argc, char *argv[])
         //   expected size.
         //
         // Testing:
-        //   Pool(bs, gs, mbps, basicAllocator);
+        //   Pool(bs, gs, maxBlocksPerChunk, basicAllocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "'growthStrategy' TEST" << endl
@@ -1424,6 +1432,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // LINE     BLOCKSIZE    STRATEGY     MAXBLOCKS
             // ----     ---------    --------     ---------
+
             // Constant growth
             {  L_,              1,       CON,           16 },
             {  L_,              1,       CON,           30 },
@@ -1491,7 +1500,7 @@ int main(int argc, char *argv[])
 
                 // If geometric, grow till constant size first.
                 if (GEO == STRATEGY) {
-                    int ri = INITIAL_CHUNK_SIZE;
+                    int ri = k_INITIAL_CHUNK_SIZE;
 
                     while (ri < MAXBLOCKS) {
                         numAllocations = TA.numAllocations();
@@ -1502,7 +1511,7 @@ int main(int argc, char *argv[])
                             char *addr = (char *)mX.allocate();
                             if (j) {
                                 int EXP  = poolBlockSize(BLOCK_SIZE);
-                                int size = addr - lastAddr;
+                                int size = static_cast<int>(addr - lastAddr);
                                 LOOP2_ASSERT(EXP, size, EXP == size);
                             }
                             lastAddr = addr;
@@ -1525,8 +1534,9 @@ int main(int argc, char *argv[])
                     for (int j = 0; j < MAXBLOCKS; ++j) {
                         char *addr = (char *)mX.allocate();
                         if (j) {
-                            int EXP  = poolBlockSize(BLOCK_SIZE);
-                            int size = addr - lastAddr;
+                            bsls::Types::Int64 EXP  =
+                                                     poolBlockSize(BLOCK_SIZE);
+                            bsls::Types::Int64 size = addr - lastAddr;
                             LOOP2_ASSERT(EXP, size, EXP == size);
                         }
                         lastAddr = addr;
@@ -1602,8 +1612,9 @@ int main(int argc, char *argv[])
                     if (oi) {
                         ASSERT(lastP);
 
-                        int       size = p - lastP;
-                        const int EXP  = poolBlockSize(BLOCK_SIZE);
+                        bsls::Types::Int64       size = p - lastP;
+                        const bsls::Types::Int64 EXP  =
+                                                     poolBlockSize(BLOCK_SIZE);
 
                         if (veryVerbose) { T_ P_(size) T_ P(EXP) }
                         LOOP2_ASSERT(ti, oi, EXP == size);
@@ -1660,10 +1671,10 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
-                int blkSize = blockSize(SIZE);
+                bsls::Types::Int64 blkSize = blockSize(SIZE);
                 bl.allocate(SIZE);
 
-                const int EXP = a.lastAllocatedNumBytes();
+                const bsls::Types::Int64 EXP = a.lastAllocatedNumBytes();
 
                 if (veryVerbose) {T_ P_(SIZE); P_(blkSize); P(EXP);}
                 LOOP_ASSERT(i, EXP == blkSize);
@@ -1680,8 +1691,8 @@ int main(int argc, char *argv[])
                 Obj mX(SIZE, bsls::BlockGrowth::BSLS_CONSTANT, 2);
                 char *p = (char *)mX.allocate();
                 char *q = (char *)mX.allocate();
-                int EXP = q - p;
-                int blockSize = poolBlockSize(SIZE);
+                bsls::Types::Int64 EXP = q - p;
+                bsls::Types::Int64 blockSize = poolBlockSize(SIZE);
                 if (veryVerbose) { T_ P_(blockSize); P(EXP); }
                 LOOP_ASSERT(ti, EXP == blockSize);
             }
@@ -1695,9 +1706,9 @@ int main(int argc, char *argv[])
                 int d_maxNumBlocks;
                 int d_exp;
             } DATA[] = {
-                //line    Num.       Maximum         Expected
-                //no.     Blocks     Num. Blocks     Value
-                //----    -------    -----------     --------
+                //line               Maximum         Expected
+                //no.     # Blocks   # Blocks        Value
+                //----    --------   --------        --------
                 { L_,       1,          1,             1      },
                 { L_,       1,          2,             2      },
 

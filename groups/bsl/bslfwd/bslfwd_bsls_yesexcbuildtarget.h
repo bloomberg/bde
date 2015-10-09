@@ -27,12 +27,12 @@
 namespace BloombergLP {
     namespace bsls {
         class BuildTargetYesExc;
-    }
+    }  // close namespace bsls
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
     typedef bsls::BuildTargetYesExc bsls_YesExcBuildTarget;
 #endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
-}
+}  // close enterprise namespace
 
 #else
 

@@ -578,7 +578,7 @@ void SimplePool<VALUE, ALLOCATOR>::release()
 
 }
 
-}  // close namespace bslstl
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

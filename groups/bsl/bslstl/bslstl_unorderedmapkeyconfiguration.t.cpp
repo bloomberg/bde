@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 //..
 //  List of employees, cheapest first:
 //  ==================================
-//  Name   Wage
+//                              Name   Wage
 //  -----  -----
 //  Kenny   7.75
 //  Kyle   12.25

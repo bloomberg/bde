@@ -367,9 +367,9 @@ void NewDeleteAllocator::deallocate(void *address)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::NewDeleteAllocator bslma_NewDeleteAllocator;
     // This alias is defined for backward compatibility.

@@ -111,7 +111,7 @@ namespace bsl {
                     // class reference_wrapper
                     // =======================
 
-template <typename T>
+template <class T>
 class reference_wrapper {
     // This class is a wrapper that encapsulates an object reference, enabling
     // operations not possible on actual references, including assignment,
@@ -152,21 +152,21 @@ class reference_wrapper {
 };
 
 // FREE FUNCTIONS
-template <typename T>
+template <class T>
 reference_wrapper<const T> cref(const T& object);
     // Return a reference wrapper representing a 'const' view of the specified
     // 'object'.
 
-template <typename T>
+template <class T>
 reference_wrapper<const T> cref(reference_wrapper<T> original);
     // Return a reference wrapper representing a 'const' view of the same
     // object as the specified 'original'.
 
-template <typename T>
+template <class T>
 reference_wrapper<T> ref(T& object);
     // Return a reference wrapper that represents the specified 'object'.
 
-template <typename T>
+template <class T>
 reference_wrapper<T> ref(reference_wrapper<T> original);
     // Return a reference wrapper that represents the same object as the
     // specified 'original'.
@@ -182,7 +182,7 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
                     // -----------------------
 
 // CREATORS
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<T>::reference_wrapper(T& object)
   : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
@@ -190,14 +190,14 @@ bsl::reference_wrapper<T>::reference_wrapper(T& object)
 }
 
 // ACCESSORS
-template <typename T>
+template <class T>
 inline
 T& bsl::reference_wrapper<T>::get() const
 {
     return *d_represented_p;
 }
 
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<T>::operator T&() const
 {
@@ -205,28 +205,28 @@ bsl::reference_wrapper<T>::operator T&() const
 }
 
 // FREE FUNCTIONS
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<const T> bsl::cref(const T& object)
 {
     return reference_wrapper<const T>(object);
 }
 
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<const T> bsl::cref(bsl::reference_wrapper<T> original)
 {
     return cref(original.get());
 }
 
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<T> bsl::ref(T& object)
 {
     return reference_wrapper<T>(object);
 }
 
-template <typename T>
+template <class T>
 inline
 bsl::reference_wrapper<T> bsl::ref(bsl::reference_wrapper<T> original)
 {

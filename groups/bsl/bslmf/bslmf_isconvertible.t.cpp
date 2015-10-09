@@ -1421,7 +1421,7 @@ int main(int argc, char *argv[])
         ASSERT(false ==
          (bsl::is_convertible<volatile int (*)[], const    int (*)[]>::value));
 
-        
+
         // C-13: Test function references decay to function pointers
 
         ASSERT(false == (bsl::is_convertible<void(), void>::VALUE));

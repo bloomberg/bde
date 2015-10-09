@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // major benefit of this trait is not for a single object but for an array of
 // such types, as a loop can be replaced by a single call to 'memcpy'.
 //
-///What constitutes bit-wise copyability?
+///What Constitutes Bit-Wise Copyability?
 ///--------------------------------------
 // TBD: A short guide on when to attach this trait to a class should follow.
 //
@@ -86,9 +86,9 @@ struct TypeTraitBitwiseCopyable {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitBitwiseCopyable bslalg_TypeTraitBitwiseCopyable;
     // This alias is defined for backward compatibility.

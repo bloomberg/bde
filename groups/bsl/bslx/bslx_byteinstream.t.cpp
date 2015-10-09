@@ -284,7 +284,7 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
     return versionSelector >= VERSION_SELECTOR ? 2 : 1;
 }
 
-}  // close ThirdParty namespace
+}  // close namespace ThirdParty
 
 
 // ============================================================================

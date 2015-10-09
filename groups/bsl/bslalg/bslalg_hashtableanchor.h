@@ -692,7 +692,7 @@ HashTableBucket *HashTableAnchor::bucketArrayAddress() const
     return d_bucketArrayAddress_p;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 // FREE OPERATORS
 inline

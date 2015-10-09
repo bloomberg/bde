@@ -62,9 +62,9 @@ struct TypeTraitNil
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslalg_TypeTraitNil
 #undef bslalg_TypeTraitNil

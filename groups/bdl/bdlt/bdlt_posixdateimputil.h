@@ -79,8 +79,8 @@ BSLS_IDENT("$Id: $")
 // general-purpose, value-semantic (vocabulary) "Date" type, but also provides
 // many low-level utility functions suitable for direct use by other clients.
 //
-///As a General Purpose Utility
-/// - - - - - - - - - - - - - -
+///Creating a General Purpose Utility
+/// - - - - - - - - - - - - - - - - -
 // Many of the functions provided by this component can be used directly by
 // clients that want to ask questions about a particular date in one of the
 // three supported formats.
@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 //  assert(4 == bdlt::PosixDateImpUtil::yd2month(2011, 120));
 //                                                           // 4 means April.
 //..
+//
 ///Implementing a Value-Semantic Date Type
 ///- - - - - - - - - - - - - - - - - - - -
 // Using the functions supplied in this component, we can easily implement a

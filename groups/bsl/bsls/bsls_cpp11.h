@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
-//	BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
+//  BSLS_CPP11_CONSTEXPR: C++11 'constexpr' keyword
 //  BSLS_CPP11_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_CPP11_FINAL: C++11 'final' keyword
 //  BSLS_CPP11_NOEXCEPT: C++11 'noexcept' keyword
@@ -31,39 +31,44 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // The following are the macros provided by this component.
 //
-//  'BSLS_CPP11_CONSTEXPR'
-//    This macro inserts the keyword 'constexpr' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
+//: 'BSLS_CPP11_CONSTEXPR':
+//:     This macro inserts the keyword 'constexpr' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_EXPLICIT':
+//:     This macro inserts the keyword 'explicit' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_FINAL':
+//:     This macro inserts the keyword 'final' when compiling with C++11 mode
+//:     and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_NOEXCEPT':
+//:     This macro inserts the keyword 'noexcept' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
+//:
+//: 'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)':
+//:     This macro inserts the exception specification
+//:     'noexcept(BOOL_EXPRESSION)' when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.  This macro is used to specify
+//:     which version of noexcept is intended when multiple 'noexcept's are
+//:     used in a single statement.
+//:
+//: 'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)':
+//:     This macro inserts the operation 'noexcept(expr)' when compiling with
+//:     C++11 mode and inserts the literal 'false' when compiling with C++03
+//:     mode.
+//:
+//: 'BSLS_CPP11_OVERRIDE'
+//:     This macro inserts the keyword 'override' when compiling with C++11
+//:     mode and inserts nothing when compiling with C++03 mode.
 //
-//  'BSLS_CPP11_EXPLICIT'
-//    This macro inserts the keyword 'explicit' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-//  'BSLS_CPP11_FINAL'
-//    This macro inserts the keyword 'final' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-//  'BSLS_CPP11_NOEXCEPT'
-//    This macro inserts the keyword 'noexcept' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-//  'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)'
-//    This macro inserts the exception specification 'noexcept(BOOL_EXPRESSION)'
-//    when compiling with C++11 mode and inserts nothing when compiling with
-//    C++03 mode. This macro is used to specify which version of noexcept is
-//    intended when multiple 'noexcept's are used in a single statement.
-//
-//  'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)'
-//    This macro inserts the operation 'noexcept(expr)' when compiling with
-//    C++11 mode and inserts the literal 'false' when compiling with C++03
-//    mode.
-//
-//  'BSLS_CPP11_OVERRIDE'
-//    This macro inserts the keyword 'override' when compiling with C++11 mode
-//    and inserts nothing when compiling with C++03 mode.
-//
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Preparing C++03 Code for C++11 Features
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // To use these macros, simply insert them where the corresponding C++11
 // keyword would go. When compiling with C++03 mode there will be no effect but
 // when compiling with C++11 mode additional restrictions will apply. When
@@ -123,7 +128,7 @@ BSLS_IDENT("$Id: $")
 // class FinalClass BSLS_CPP11_FINAL
 // {
 //     int d_value;
-// public:
+//   public:
 //     explicit FinalClass(int value = 0): d_value(value) {}
 //     int value() const { return d_value; }
 // };

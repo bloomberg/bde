@@ -19,9 +19,9 @@ using namespace bsl;
 
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -74,14 +74,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// Used to test detection of legacy traits
-#define BSLALG_DECLARE_NESTED_TRAITS(T, TRAIT)            \
-    operator TRAIT::NestedTraitDeclaration<T>() const {   \
-        return TRAIT::NestedTraitDeclaration<T>();        \
-    }
-
-//..
-// Now we use this trait in a simple algorithm called 'destructiveMoveArray',
+///Example 1: Using the trait to implement `destructiveMoveArray`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
 // which moves elements from one array to another.  The algorithm is
 // implemented using two implementation functions, one for types that are
 // known to be bit-wise moveable, and one for other types.  THe first takes an
@@ -180,7 +175,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     namespace bslmf {
         template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type {
         };
-    }
+    }  // close package namespace
 //..
 // The third class is also declared to be bitwise moveable, but this time we
 // do it using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro:
@@ -225,6 +220,13 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         ASSERT(  IsBitwiseMoveable<const int*>::value);
         ASSERT(  IsBitwiseMoveable<MoveableEnum>::value);
         ASSERT(! IsBitwiseMoveable<int&>::value);
+        ASSERT(! IsBitwiseMoveable<const int&>::value);
+        ASSERT(  IsBitwiseMoveable<MoveableClass1>::value);
+        ASSERT(  IsBitwiseMoveable<const MoveableClass1>::value);
+        ASSERT(  IsBitwiseMoveable<MoveableClass2>::value);
+        ASSERT(  IsBitwiseMoveable<volatile MoveableClass2>::value);
+        ASSERT(! IsBitwiseMoveable<NonMoveableClass>::value);
+        ASSERT(! IsBitwiseMoveable<const NonMoveableClass>::value);
 
         // For each of our test classes, allocate an array, construct three
         // objects into it, then move it into another array.
@@ -333,6 +335,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         return 0;
     }
+
+    } // Close enterprise namespace
 //..
 //
 ///Example 2: Associating a trait with a class template
@@ -343,9 +347,12 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // trait, plus a "control" template that is not bit-wise moveable.  First, we
 // define the non-bit-wise-moveable template, 'NonMoveableTemplate':
 //..
+    namespace BloombergLP {
+
     template <class TYPE>
     struct NonMoveableTemplate
     {
+        TYPE d_p;
     };
 //..
 // Second, we define a 'MoveableTemplate1', which uses partial template
@@ -355,13 +362,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     template <class TYPE>
     struct MoveableTemplate1
     {
+        TYPE *d_p;
     };
 
     namespace bslmf {
         template <class TYPE>
         struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type {
         };
-    }
+    }  // close package namespace
 //..
 // Third, we define 'MoveableTemplate2', which uses the
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the 'IsBitwiseMoveable'
@@ -370,6 +378,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     template <class TYPE>
     struct MoveableTemplate2
     {
+        TYPE *d_p;
+
         BSLMF_NESTED_TRAIT_DECLARATION(MoveableTemplate2,
                                        bslmf::IsBitwiseMoveable);
     };
@@ -383,13 +393,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     template <class TYPE>
     struct MoveableTemplate3
     {
+        TYPE d_p;
     };
 
     namespace bslmf {
         template <class TYPE>
         struct IsBitwiseMoveable<MoveableTemplate3<TYPE> > :
             IsBitwiseMoveable<TYPE>::type { };
-    }
+    }  // close package namespace
 //..
 // Now, we check that the traits are correctly associated by instantiating
 // each class with both bit-wise moveable and non-moveable types and verifying
@@ -421,75 +432,81 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         return 0;
     }
+
+    } // Close enterprise namespace
+//..
 //
-///Example 3: Support for legacy traits
-/// - - - - - - - - - - - - - - - - - -
-// 'IsBitwiseMoveable' is not a new trait.  Within the legacy type traits
-// system, 'bslalg::TypeTraitBitwiseMoveable' conveys the same
-// information. The example shows how the legacy trait can be built on top of
-// the new trait, how the legacy system for associating traits with types can
-// be supported, and how the new system can be used to query for a trait that
-// was associated using the legacy system.
+///Example 3: Avoiding false positives on one-byte clases
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we define an empty class that has a non-trivial copy
+// constructor that has a global side effect.  The side effect should not be
+// omitted, even in a destructive-move situation, so 'IsBitwiseMoveable'
+// should be false.  However, the heuristic described above would deduce any
+// one-byte class (including an empty class) as bitwise-moveable by default,
+// so we must take specific action to set the trait to false in this (rare)
+// case.
 //
-// First, we define the 'bslalg::TypeTraitBitwiseMoveable' trait, using a
-// special nested type to tie the legacy trait to 'IsBitwiseMoveable':
+// First, we declare a normal empty class which *is* bitwise moveable:
 //..
-    namespace bslalg {
+    namespace BloombergLP {
 
-    struct TypeTraitBitwiseMoveable {
-        // Objects of a type with this trait can be "moved" from one memory
-        // location to another using 'memmove' or 'memcpy'.  Although the
-        // result of such a bitwise copy is two copies of the same object,
-        // this trait guarantees only that one of the copies can be destroyed.
-        // The other copy must be considered invalid and its destructor must
-        // not be called.  Most types, even those that contain pointers, are
-        // bitwise moveable.  Undefined behavior may result if this trait is
-        // assigned to a type that contains pointers to its own internals,
-        // uses virtual inheritance, or places pointers to itself within other
-        // data structures.
-
-        template <class TYPE>
-        struct NestedTraitDeclaration :
-            bslmf::NestedTraitDeclaration<TYPE, bslmf::IsBitwiseMoveable>
-        {
-            // Ties this trait to the 'bslmf::IsBitwiseMoveable' trait.
-        };
-    };
-
-    } // Close package namespace
-//..
-// Second, we declare a class and a class template that use the legacy
-// 'BSLALG_DECLARE_NESTED_TRAITS' macro to associate the above trait with
-// themselves.  (Note: the legacy macro is in 'bslalg', not 'bslmf')
-//..
-    struct MoveableClass3
+    class MoveableEmptyClass
     {
-        BSLALG_DECLARE_NESTED_TRAITS(MoveableClass3,
-                                     bslalg::TypeTraitBitwiseMoveable);
+        // This class is implicitly moveable by virtue of being only one byte
+        // in size.
+    };
+// ..
+// The class above requires no special treatment.  Next, we define an empty
+// class that is not bitwise moveable:
+//..
+    class NonMoveableEmptyClass
+    {
+        // This class is empty, which normally would imply bitwise
+        // moveability.  However, because it has a non-trivial move/copy
+        // constructor, it should not be bitwise moved.
+
+        static int d_count;
+
+    public:
+        NonMoveableEmptyClass() { ++d_count; }
+        NonMoveableEmptyClass(const NonMoveableEmptyClass&) { ++d_count; }
     };
 
-    template <class TYPE>
-    struct MoveableTemplate4
-    {
-        BSLALG_DECLARE_NESTED_TRAITS(MoveableTemplate4,
-                                     bslalg::TypeTraitBitwiseMoveable);
-    };
+    int NonMoveableEmptyClass::d_count = 0;
 //..
-// Third, we use 'IsBitwiseMoveable' to check for the trait.  The
-// 'BSLALG_DECLARE_NESTED_TRAITS' macro has been rewritten to allow for this
-// detection of the 'bslalg::TypeTraitBitwiseMoveable' trait:
+// Next, we specialize the 'IsBitwiseMoveable' trait so that
+// 'NonMoveableEmptyClass' is not incorrectly flagged by trait deduction as
+// having the 'IsBitwiseMoveable' trait:
+//..
+    namespace bslmf {
+
+    template <>
+    struct IsBitwiseMoveable<NonMoveableEmptyClass> : bsl::false_type
+    {
+    };
+
+    } // close namespace bslmf
+//..
+// Finally, we show that the first class has the 'IsBitwiseMoveable' trait and
+// the second class does not:
 //..
     int usageExample3()
     {
         using namespace bslmf;
 
-        ASSERT(  IsBitwiseMoveable<MoveableClass3>::value);
-        ASSERT(  IsBitwiseMoveable<MoveableTemplate4<int> >::value);
+        ASSERT(  IsBitwiseMoveable<MoveableEmptyClass>::value);
+        ASSERT(! IsBitwiseMoveable<NonMoveableEmptyClass>::value);
 
         return 0;
     }
 
-    }  // close enterprise namespace
+    } // Close enterprise namespace
+//..
+
+//=============================================================================
+//                       TEST CLASSES
+//-----------------------------------------------------------------------------
+
 
 //=============================================================================
 //                              MAIN PROGRAM

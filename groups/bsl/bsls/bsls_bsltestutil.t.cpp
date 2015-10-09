@@ -245,7 +245,7 @@ static void realaSsErT(bool b, const char *s, int i)
         return 42;
     }
 
-    }  // close package namespace
+    }  // close namespace bslabc
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -796,7 +796,7 @@ bool tempFileName(char *result)
         result[PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {
-        return false;
+        return false;                                                 // RETURN
     }
 #endif
 

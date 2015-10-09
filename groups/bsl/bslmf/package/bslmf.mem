@@ -24,6 +24,7 @@ bslmf_isclass
 bslmf_isconst
 bslmf_isconvertible
 bslmf_isconvertibletoany
+bslmf_isempty
 bslmf_isenum
 bslmf_isfloatingpoint
 bslmf_isfunction
@@ -51,6 +52,7 @@ bslmf_metaint
 bslmf_movableref
 bslmf_nestedtraitdeclaration
 bslmf_nil
+bslmf_nthparameter
 bslmf_removeconst
 bslmf_removecv
 bslmf_removecvq

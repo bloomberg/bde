@@ -3265,7 +3265,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                   } break;
                   default: {
                       ASSERTV(LINE, CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
                 ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -5019,7 +5019,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
                   } break;
                   default: {
                       ASSERTV(CONFIG, !"Bad allocator config.");
-                      return;
+                      return;                                         // RETURN
                   } break;
                 }
 
@@ -5380,7 +5380,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
-                  return;
+                  return;                                             // RETURN
               } break;
             }
 
@@ -6156,11 +6156,11 @@ struct MyDateLess {
         // if the date represented by 'lhs' is earlier than the date
         // represented by 'rhs' in time.
     {
-        if (lhs.year() < rhs.year()) return true;
+        if (lhs.year() < rhs.year()) return true;                     // RETURN
         if (lhs.year() == rhs.year()) {
-            if (lhs.month() < rhs.month()) return true;
+            if (lhs.month() < rhs.month()) return true;               // RETURN
             if (lhs.month() == rhs.month()) {
-                if (lhs.day() < rhs.day()) return true;
+                if (lhs.day() < rhs.day()) return true;               // RETURN
             }
         }
         return false;

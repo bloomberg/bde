@@ -178,8 +178,8 @@ void BidirectionalLinkListUtil::unlink(BidirectionalLink *node)
     }
 }
 
-}  // close namespace BloombergLP::bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

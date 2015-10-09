@@ -52,11 +52,8 @@ static void aSsErT(int c, const char *s, int i) {
 
 // verify that the tag is evaluated at compile-time
 
-template <int N>
-bslmf::Tag<N> tag() {
-    ASSERT(0);
-    return bslmf::Tag<N>();
-}
+template <unsigned N>
+bslmf::Tag<N> tag();
 
 enum {
     C0  = 1 + BSLMF_TAG_TO_INT(tag<0>()),  // 1
@@ -64,10 +61,9 @@ enum {
     C2  = 1 + BSLMF_TAG_TO_INT(tag<2>())   // 3
 };
 
-const unsigned U5 = -5;
-const unsigned C5 = BSLMF_TAG_TO_UINT(tag<-5>());  // (unsigned)-5
-
-const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
+const unsigned U5  = -5;
+const unsigned C5  = BSLMF_TAG_TO_UINT(tag<-5u>());  // (unsigned)-5
+const int      CM5 = BSLMF_TAG_TO_INT(tag<-5u>());   // -5
 
 // ============================================================================
 //                               USAGE EXAMPLE

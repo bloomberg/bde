@@ -39,7 +39,7 @@ enum {
 
 };
 
-}  // close un-named namespace
+}  // close unnamed namespace
 }  // close package namespace
 }  // close enterprise namespace
 

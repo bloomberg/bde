@@ -49,7 +49,7 @@ namespace bsl
     using native_std::wctype;
     using native_std::wctype_t;
     using native_std::wint_t;
-}
+}  // close package namespace
 
 #endif
 

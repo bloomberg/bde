@@ -896,7 +896,7 @@ namespace bslma {
 template <class TYPE>
 struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 #endif
 

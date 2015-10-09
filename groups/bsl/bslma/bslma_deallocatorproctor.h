@@ -366,9 +366,9 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_DeallocatorProctor
 #undef bslma_DeallocatorProctor

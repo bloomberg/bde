@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 // testing macros, except that there is no check to confirm that the assertion
 // originated in the component under test.
 //
-///Table Driven Negative-Testing
+///Table-Driven Negative Testing
 ///- - - - - - - - - - - - - - -
 // The supplied test macros are useful for testing a small set of boundary
 // conditions, but for more detailed contracts a table-driven approach works
@@ -813,9 +813,9 @@ class AssertTestHandlerGuard {
         // the current assertion handler.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 inline
 AssertTestHandlerGuard::AssertTestHandlerGuard()
@@ -826,9 +826,9 @@ AssertTestHandlerGuard::AssertTestHandlerGuard()
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
     // This alias is defined for backward compatibility.

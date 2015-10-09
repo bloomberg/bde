@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class TypeTraitHasStlIterators;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::TypeTraitHasStlIterators bslalg_TypeTraitHasStlIterators;
-}
+}  // close enterprise namespace
 
 #else
 

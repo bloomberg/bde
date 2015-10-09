@@ -1133,51 +1133,24 @@ bool bsls::operator>=(double lhs, const TimeInterval& rhs)
 
 // BDE_VERIFY pragma: pop
 
+// IMPLEMENTATION NOTE: A 'is_trivially_copyable' trait declaration has been
+// moved to 'bslmf_istriviallycopyable.h' to work around issues on the Sun CC
+// 5.13 compiler.  We had previously forward declared
+// 'bsl::is_trivially_copyable' and specialized it for 'TimeInterval' here (see
+// the 2.24 release tags).
+//..
+//  namespace bsl {
+//  template <>
+//  struct is_trivially_copyable<BloombergLP::bsls::TimeInterval> :
+//                                                            bsl::true_type {
+//      // This template specialization for 'is_trivially_copyable' indicates
+//      // that 'Date' is a trivially copyable type.
+//  };
+//  }
+//..
+
 }  // close enterprise namespace
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -UC01
-// BDE_VERIFY pragma: -CD01
-// BDE_VERIFY pragma: -CB01
-// BDE_VERIFY pragma: -CP01
-// BDE_VERIFY pragma: -TR04
-
-namespace bsl {
-
-// IMPLEMENTATION NOTE: The following declaration of the
-// 'is_trivially_copyable' meta-function (and 'integral_constant') is
-// unfortunate, but necessary as the 'is_trivially_copyable' trait is defined
-// in 'bslmf'.
-
-template <class TYPE>
-struct is_trivially_copyable;
-
-template <class TYPE, TYPE VAL>
-struct integral_constant;
-
-template <>
-struct is_trivially_copyable<BloombergLP::bsls::TimeInterval>  {
-    // This template specialization for 'is_trivially_copyable' indicates that
-    // 'TimeInterval' is a trivially copyable type.  Note that we replicate the
-    // properties of 'bsl::true_type' to avoid a circular dependency.
-
-    // PUBLIC TYPES
-    typedef bool                          value_type;
-    typedef integral_constant<bool, true> type;
-
-    // PUBLIC CLASS DATA
-    static const bool value = true;
-
-    // ACCESSORS
-    operator value_type() const { return true; }
-        // Return 'true'.
-
-    // COMPATIBILITY MEMBERS
-    static const bool VALUE = value;
-};
-// BDE_VERIFY pragma: pop
-
-}  // close namespace bsl
 
 #endif
 

@@ -19,9 +19,9 @@ BSLS_IDENT_RCSID(bbldc_basicdaycountutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                       // ------------------------
-                       // struct BasicDayCountUtil
-                       // ------------------------
+                         // ------------------------
+                         // struct BasicDayCountUtil
+                         // ------------------------
 
 // CLASS METHODS
 int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,

@@ -30,7 +30,7 @@ namespace bsl
     // Import selected symbols into bsl namespace
     using native_std::ptrdiff_t;
     using native_std::size_t;
-}
+}  // close package namespace
 
 #endif
 

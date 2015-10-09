@@ -269,7 +269,7 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
 
 namespace UsageExample {
   // TBD
-}  // close UsageExample namespace
+}  // close namespace UsageExample
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -8162,14 +8162,14 @@ int main(int argc, char* argv[])
                 Decimal64 d = Util::decimal64FromFloat(b);
                 float t = Util::decimalToFloat(d);
                 ASSERTV(s, d, b, t, b == t);
-                P_(s) P_(d) P_(b) Q("float") 
+                P_(s) P_(d) P_(b) Q("float")
             }
             {
                 double b = strtod(s, 0);
                 Decimal64 d = Util::decimal64FromDouble(b);
                 double t = Util::decimalToDouble(d);
                 ASSERTV(s, d, b, t, b == t);
-                P_(s) P_(d) P_(b) Q("double") 
+                P_(s) P_(d) P_(b) Q("double")
             }
         }
       } break;

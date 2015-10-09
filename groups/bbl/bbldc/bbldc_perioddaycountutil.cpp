@@ -38,9 +38,9 @@ static bool isSortedAndUnique(const ITER& begin, const ITER& end)
     return true;
 }
 
-                      // -------------------------
-                      // struct PeriodDayCountUtil
-                      // -------------------------
+                        // -------------------------
+                        // struct PeriodDayCountUtil
+                        // -------------------------
 
 // CLASS METHODS
 int PeriodDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
@@ -85,10 +85,10 @@ double PeriodDayCountUtil::yearsDiff(
                                  DayCountConvention::Enum       convention)
 {
     BSLS_ASSERT(periodDate.size() >= 2);
-    BSLS_ASSERT(beginDate >  endDate || (   beginDate >= periodDate.front()
-                                         && endDate   <= periodDate.back()));
-    BSLS_ASSERT(beginDate <= endDate || (   endDate   >= periodDate.front()
-                                         && beginDate <= periodDate.back()));
+    BSLS_ASSERT(periodDate.front() <= beginDate);
+    BSLS_ASSERT(                      beginDate <= periodDate.back());
+    BSLS_ASSERT(periodDate.front() <= endDate);
+    BSLS_ASSERT(                      endDate   <= periodDate.back());
 
     BSLS_ASSERT_SAFE(isSortedAndUnique(periodDate.begin(), periodDate.end()));
 

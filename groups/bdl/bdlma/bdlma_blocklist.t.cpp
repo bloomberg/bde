@@ -9,6 +9,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -28,8 +29,8 @@ using namespace bsl;
 // that 'bdlma::BlockList' (1) returns maximally-aligned memory blocks of the
 // expected size from the object allocator, and (2) returns memory blocks back
 // to the object allocator via the 'deallocate' and 'release' methods, and upon
-// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure
-// that these concerns are satisfied.
+// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure that
+// these concerns are satisfied.
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::BlockList(bslma::Allocator *ba = 0);
 // [ 3] ~bdlma::BlockList();
@@ -139,8 +140,8 @@ int roundUp(int x, int y)
 //
 // First, we define the interface of our 'my_StrPool' class:
 //..
-//  // my_strpool.h
-//
+    // my_strpool.h
+
     class my_StrPool {
 
         // DATA
@@ -168,8 +169,8 @@ int roundUp(int x, int y)
       public:
         // CREATORS
         my_StrPool(bslma::Allocator *basicAllocator = 0);
-            // Create a memory manager using the specified 'basicAllocator' to
-            // supply memory.  If 'basicAllocator' is 0, the currently
+            // Create a memory manager.  Optionally specify a 'basicAllocator'
+            // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
 
         ~my_StrPool();
@@ -195,16 +196,15 @@ int roundUp(int x, int y)
 //..
 // Finally, we provide the implementation of our 'my_StrPool' class:
 //..
-//  // my_strpool.cpp
-//  #include <my_strpool.h>
-//
+    // my_strpool.cpp
+
     enum {
-        INITIAL_SIZE  = 128,  // initial block size
+        k_INITIAL_SIZE  = 128,  // initial block size
 
-        GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
+        k_GROWTH_FACTOR =   2,  // multiplicative factor by which to grow block
 
-        THRESHOLD     = 128   // size beyond which an individual block may be
-                              // allocated if it doesn't fit in current block
+        k_THRESHOLD     = 128   // size beyond which an individual block may be
+                                // allocated if it doesn't fit in current block
     };
 
     // PRIVATE MANIPULATORS
@@ -212,22 +212,26 @@ int roundUp(int x, int y)
     {
         ASSERT(0 < numBytes);
 
-        if (THRESHOLD < numBytes) { // Alloc separate block if above threshold.
-            return (char *)d_blockList.allocate(numBytes);
+        if (k_THRESHOLD < numBytes) {
+            // Alloc separate block if above threshold.
+
+            return (char *)d_blockList.allocate(numBytes);            // RETURN
         }
         else {
-            if (d_block_p) { // Don't increase block size if no current block.
-                d_blockSize *= GROWTH_FACTOR;
+            if (d_block_p) {
+                // Do not increase block size if no current block.
+
+                d_blockSize *= k_GROWTH_FACTOR;
             }
             d_block_p = (char *)d_blockList.allocate(d_blockSize);
             d_cursor = numBytes;
-            return d_block_p;
+            return d_block_p;                                         // RETURN
         }
     }
 
     // CREATORS
     my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
-    : d_blockSize(INITIAL_SIZE)
+    : d_blockSize(k_INITIAL_SIZE)
     , d_block_p(0)
     , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
     {
@@ -235,7 +239,7 @@ int roundUp(int x, int y)
 
     my_StrPool::~my_StrPool()
     {
-        ASSERT(INITIAL_SIZE <= d_blockSize);
+        ASSERT(k_INITIAL_SIZE <= d_blockSize);
         ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
     }
 
@@ -245,28 +249,28 @@ int roundUp(int x, int y)
         ASSERT(0 <= numBytes);
 
         if (0 == numBytes) {
-            return 0;
+            return 0;                                                 // RETURN
         }
 
         if (d_block_p && numBytes + d_cursor <= d_blockSize) {
             char *p = d_block_p + d_cursor;
             d_cursor += numBytes;
-            return p;
+            return p;                                                 // RETURN
         }
         else {
-            return allocateBlock(numBytes);
+            return allocateBlock(numBytes);                           // RETURN
         }
     }
 //..
 // In the code shown above, the 'my_StrPool' memory manager allocates from its
 // 'bdlma::BlockList' member object an initial memory block of size
-// 'INITIAL_SIZE'.  This size is multiplied by 'GROWTH_FACTOR' each time a
+// 'k_INITIAL_SIZE'.  This size is multiplied by 'k_GROWTH_FACTOR' each time a
 // depleted memory block is replaced by a newly-allocated block.  The
 // 'allocate' method distributes memory from the current memory block
 // piecemeal, except when the requested size either (1) is not available in the
-// current block, or (2) exceeds the 'THRESHOLD_SIZE', in which case a separate
-// memory block is allocated and returned.  When the 'my_StrPool' memory
-// manager is destroyed, its 'bdlma::BlockList' member object is also
+// current block, or (2) exceeds the 'k_THRESHOLD_SIZE', in which case a
+// separate memory block is allocated and returned.  When the 'my_StrPool'
+// memory manager is destroyed, its 'bdlma::BlockList' member object is also
 // destroyed, which, in turn, automatically deallocates all of its managed
 // memory blocks.
 
@@ -394,7 +398,7 @@ int main(int argc, char *argv[])
             int d_numAlloc;       // number of allocations
             int d_deallocSeq[5];  // deallocation sequence
         } DATA[] = {
-            //LINE   NUM. ALLOC  DEALLOC. SEQUENCE
+            //LINE   # ALLOC     DEALLOC SEQUENCE
             //----   ----------  -----------------
             { L_,    1,          { 0 }             },
 
@@ -442,7 +446,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, NUM_ALLOC == oa.numBlocksInUse());
 
             for (int i = 0; i < NUM_ALLOC; ++i) {
-                const int numBlocksInUse = oa.numBlocksInUse();
+                const bsls::Types::Int64 numBlocksInUse = oa.numBlocksInUse();
 
                 mX.deallocate(p[DEALLOC_SEQ[i]]);
                 LOOP_ASSERT(LINE, numBlocksInUse - 1 == oa.numBlocksInUse());
@@ -813,7 +817,7 @@ int main(int argc, char *argv[])
 
             const void *EXP_P = (char *)oa.lastAllocatedAddress() + HDRSZ;
 
-            int numBytes = oa.lastAllocatedNumBytes();
+            bsls::Types::Int64 numBytes = oa.lastAllocatedNumBytes();
 
             int offset = U::calculateAlignmentOffset(p, U::BSLS_MAX_ALIGNMENT);
 
@@ -926,7 +930,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

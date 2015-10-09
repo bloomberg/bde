@@ -22,18 +22,19 @@ BSLS_IDENT("$Id: $")
 // compliant, implementation defined, hash function to fundamental types
 // returning the result of such application.
 //
-/// Standard Hash Function
+///Standard Hash Function
+///----------------------
 // According to the C++ standard the requirements of a standard hash function
 // 'h' are:
 //
 //: 1 Return a 'size_t' value between 0 and
-//:   'numeric_limits<std::size_t>::max()'
+//:   'numeric_limits<std::size_t>::max()'.
 //:
 //: 2 The value returned must depend only on the argument 'k'.  For multiple
 //:   evaluations with the same argument 'k', the value returned must be
 //:   always the same.
 //:
-//: 3 The function should not modify it's argument.
+//: 3 The function should not modify its argument.
 //
 ///Usage
 ///-----
@@ -227,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We want to specialize 'bsl::hash' for a custom class.  We can use the
 // modular hashing system implemented in 'bslh' rather than explicitly
 // specializing 'bsl::hash'.  We will re-use the 'HashCrossReference' template

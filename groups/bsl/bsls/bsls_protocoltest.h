@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Testing a Protocol Class.
-///- - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Testing a Protocol Class
+///- - - - - - - - - - - - - - - - - -
 // This example demonstrates how to test a protocol class, 'ProtocolClass',
 // using this protocol test component.  Our 'ProtocolClass' provides two of
 // pure virtual methods ('foo' and 'bar'), along with a virtual destructor:
@@ -756,9 +756,9 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bsls_ProtocolTest
 #undef bsls_ProtocolTest

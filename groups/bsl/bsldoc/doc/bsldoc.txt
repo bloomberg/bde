@@ -20,4 +20,3 @@
 /------------------
 : 'bsldoc_glossary':
 :      Provide definitions for terms used throughout BDE documentation.
-

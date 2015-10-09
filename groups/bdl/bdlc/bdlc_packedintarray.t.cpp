@@ -29,15 +29,15 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#include <stdint.h>
-#include <utility>
+#include <bsl_cstdint.h>
+#include <bsl_utility.h>
 
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // The component under test implements a (value-semantic) container class, and
@@ -209,46 +209,58 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
-//=============================================================================
-// GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
 
-typedef bdlc::PackedIntArray<int64_t>                  Obj;
-typedef int64_t                                        Element;
-typedef bdlc::PackedIntArray<int64_t>::const_iterator  Iterator;
+typedef bdlc::PackedIntArray<bsl::int64_t>                  Obj;
+typedef bsl::int64_t                                        Element;
+typedef bdlc::PackedIntArray<bsl::int64_t>::const_iterator  Iterator;
 
-typedef bdlc::PackedIntArray<uint64_t>                 UnsignedObj;
-typedef uint64_t                                       UnsignedElement;
-typedef bdlc::PackedIntArray<uint64_t>::const_iterator UnsignedIterator;
+typedef bdlc::PackedIntArray<bsl::uint64_t>                 UnsignedObj;
+typedef bsl::uint64_t                                       UnsignedElement;
+typedef bdlc::PackedIntArray<bsl::uint64_t>::const_iterator UnsignedIterator;
 
-const static int64_t k_INT8_MIN   = bsl::numeric_limits<int8_t >::min();
-const static int64_t k_INT8_MAX   = bsl::numeric_limits<int8_t >::max();
-const static int64_t k_INT16_MIN  = bsl::numeric_limits<int16_t>::min();
-const static int64_t k_INT16_MAX  = bsl::numeric_limits<int16_t>::max();
-const static int64_t k_INT32_MIN  = bsl::numeric_limits<int32_t>::min();
-const static int64_t k_INT32_MAX  = bsl::numeric_limits<int32_t>::max();
-const static int64_t k_INT64_MIN  = bsl::numeric_limits<int64_t>::min();
-const static int64_t k_INT64_MAX  = bsl::numeric_limits<int64_t>::max();
+const static bsl::int64_t k_INT8_MIN
+                                    = bsl::numeric_limits<bsl::int8_t >::min();
+const static bsl::int64_t k_INT8_MAX
+                                    = bsl::numeric_limits<bsl::int8_t >::max();
+const static bsl::int64_t k_INT16_MIN
+                                    = bsl::numeric_limits<bsl::int16_t>::min();
+const static bsl::int64_t k_INT16_MAX
+                                    = bsl::numeric_limits<bsl::int16_t>::max();
+const static bsl::int64_t k_INT32_MIN
+                                    = bsl::numeric_limits<bsl::int32_t>::min();
+const static bsl::int64_t k_INT32_MAX
+                                    = bsl::numeric_limits<bsl::int32_t>::max();
+const static bsl::int64_t k_INT64_MIN
+                                    = bsl::numeric_limits<bsl::int64_t>::min();
+const static bsl::int64_t k_INT64_MAX
+                                    = bsl::numeric_limits<bsl::int64_t>::max();
 
-const static uint64_t k_UINT8_MAX   = bsl::numeric_limits<uint8_t >::max();
-const static uint64_t k_UINT16_MAX  = bsl::numeric_limits<uint16_t>::max();
-const static uint64_t k_UINT32_MAX  = bsl::numeric_limits<uint32_t>::max();
-const static uint64_t k_UINT64_MAX  = bsl::numeric_limits<uint64_t>::max();
+const static bsl::uint64_t k_UINT8_MAX
+                                   = bsl::numeric_limits<bsl::uint8_t >::max();
+const static bsl::uint64_t k_UINT16_MAX
+                                   = bsl::numeric_limits<bsl::uint16_t>::max();
+const static bsl::uint64_t k_UINT32_MAX
+                                   = bsl::numeric_limits<bsl::uint32_t>::max();
+const static bsl::uint64_t k_UINT64_MAX
+                                   = bsl::numeric_limits<bsl::uint64_t>::max();
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
 #define SERIALIZATION_VERSION 20140601
 
-//=============================================================================
+// ============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -294,7 +306,7 @@ typedef bslx::TestOutStream Out;
                          signed char month = 1,
                          signed char day   = 1);
             // Create a 'my_Date' object having the optionally specified 'day',
-            // 'month', and 'year'. Each, if unspecified, will default to 1.
+            // 'month', and 'year'.  Each, if unspecified, will default to 1.
     };
 
     bool operator<(const my_Date& lhs, const my_Date& rhs);
@@ -320,9 +332,9 @@ typedef bslx::TestOutStream Out;
     }
 //..
 
-//=============================================================================
-// GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+// ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.
 //
@@ -346,7 +358,7 @@ typedef bslx::TestOutStream Out;
 //
 // <UELEMENT> ::= 'z' | 'O' | 'C' | 'S' | 'I' | 'L' | 's' | 'i' | 'l'
 
-int getValue(char specChar, int64_t *value, int verboseFlag);
+int getValue(char specChar, bsl::int64_t *value, int verboseFlag);
     // Place into the specified 'value' the value corresponding to the
     // specified 'specChar' and display errors to 'cerr' if the specified
     // 'verboseFlag' is set.  Return 0 if operation successful, return non-zero
@@ -376,7 +388,7 @@ int getValue(char specChar, int64_t *value, int verboseFlag);
 // )       k_INT32_MAX + 1
 //..
 
-int getValue(char specChar, int64_t *value, int verboseFlag)
+int getValue(char specChar, bsl::int64_t *value, int verboseFlag)
 {
     enum { SUCCESS_APPEND = -1, SUCCESS_REMOVEALL = -2, SUCCESS_POPBACK = -3 };
     switch(specChar) {
@@ -448,7 +460,7 @@ int getValue(char specChar, int64_t *value, int verboseFlag)
     return SUCCESS_APPEND;
 }
 
-int getValue(char specChar, uint64_t *value, int verboseFlag);
+int getValue(char specChar, bsl::uint64_t *value, int verboseFlag);
     // Place into the specified 'value' the value corresponding to the
     // specified 'specChar' and display errors to 'cerr' if the specified
     // 'verboseFlag' is set.  Return 0 if operation successful, return non-zero
@@ -470,7 +482,7 @@ int getValue(char specChar, uint64_t *value, int verboseFlag);
 // l      k_UINT32_MAX + 1
 //..
 
-int getValue(char specChar, uint64_t *value, int verboseFlag)
+int getValue(char specChar, bsl::uint64_t *value, int verboseFlag)
 {
     enum { SUCCESS_APPEND = -1, SUCCESS_REMOVEALL = -2, SUCCESS_POPBACK = -3 };
     switch(specChar) {
@@ -560,9 +572,9 @@ OBJ& gg(OBJ *object, const char *spec)
     return *object;
 }
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                               MAIN PROGRAM
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -742,7 +754,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -876,7 +888,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -2538,7 +2550,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3079,7 +3091,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3169,7 +3181,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3241,7 +3253,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3393,7 +3405,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3454,7 +3466,7 @@ int main(int argc, char *argv[])
                 const UnsignedObj& UEXP = mUEXP;
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3619,7 +3631,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3702,7 +3714,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3786,7 +3798,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -3851,7 +3863,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -3933,7 +3945,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -4123,7 +4135,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4200,7 +4212,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4278,7 +4290,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[j].d_spec_p
                                          + DATA[i].d_spec1_p);
 
@@ -4335,7 +4347,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -4407,7 +4419,7 @@ int main(int argc, char *argv[])
                                              defaultAllocator.numAllocations();
 
                 for (int j = 0; j < NUM_INIT; ++j) {
-                    bsl::string SPEC = (std::string()
+                    bsl::string SPEC = (bsl::string()
                                         + INIT[j].d_spec_p
                                         + DATA[i].d_spec_p);
 
@@ -5097,7 +5109,7 @@ int main(int argc, char *argv[])
 
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 In in(OD, i);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
@@ -5164,7 +5176,7 @@ int main(int argc, char *argv[])
 
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 In in(OD, i);
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
@@ -5751,7 +5763,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);   const Obj& X = gg(&mX, SPEC1);
 
-                Obj mZZ(&oa);  const Obj& ZZ = gg(&mX, SPEC1);
+                Obj mZZ(&oa);  const Obj& ZZ = gg(&mZZ, SPEC1);
 
                 const Obj& Z = mX;
 
@@ -6518,7 +6530,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 for (int si = 0; si < NUM_INIT ; ++si) {
                     const int   LINE1 = DATA[ti].d_lineNum;
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[si].d_spec_p
                                          + DATA[ti].d_spec_p);
 
@@ -6527,7 +6539,7 @@ int main(int argc, char *argv[])
                     for (int tj = 0; tj < NUM_DATA; ++tj) {
                         for (int sj = 0; sj < NUM_INIT ; ++sj) {
                             const int   LINE2 = DATA[tj].d_lineNum;
-                            bsl::string SPEC2 = (std::string()
+                            bsl::string SPEC2 = (bsl::string()
                                                  + INIT[sj].d_spec_p
                                                  + DATA[tj].d_spec_p);
 
@@ -6592,7 +6604,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 for (int si = 0; si < NUM_INIT ; ++si) {
                     const int   LINE1 = DATA[ti].d_lineNum;
-                    bsl::string SPEC1 = (std::string()
+                    bsl::string SPEC1 = (bsl::string()
                                          + INIT[si].d_spec_p
                                          + DATA[ti].d_spec_p);
 
@@ -6602,7 +6614,7 @@ int main(int argc, char *argv[])
                     for (int tj = 0; tj < NUM_DATA; ++tj) {
                         for (int sj = 0; sj < NUM_INIT ; ++sj) {
                             const int   LINE2 = DATA[tj].d_lineNum;
-                            bsl::string SPEC2 = (std::string()
+                            bsl::string SPEC2 = (bsl::string()
                                                  + INIT[sj].d_spec_p
                                                  + DATA[tj].d_spec_p);
 

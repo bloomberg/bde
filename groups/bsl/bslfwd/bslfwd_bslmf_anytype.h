@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslmf {
         class MatchAnyType;
-    }
+    }  // close namespace bslmf
 
     typedef bslmf::MatchAnyType bslmf_AnyType;
-}
+}  // close enterprise namespace
 
 #else
 

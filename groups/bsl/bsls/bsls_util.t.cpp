@@ -219,7 +219,7 @@ namespace TestFuncs
 void a() {}
 int b(double&) { return 0; }
 double *c(const int &, volatile double) { return 0; }
-}  // close 'TestFuncs' namespace
+}  // close namespace TestFuncs
 
 //=============================================================================
 //                              MAIN PROGRAM

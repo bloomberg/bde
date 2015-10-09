@@ -313,7 +313,7 @@ namespace BloombergLP {
 namespace bslma {
 template <class TYPE>
 struct UsesBslmaAllocator<MyVector<TYPE> > : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 // BDE_VERIFY pragma: pop  // End of usage example relaxation
@@ -1105,7 +1105,7 @@ class TestType {
 namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 bool operator==(const TestType& lhs, const TestType& rhs)
@@ -1260,11 +1260,11 @@ namespace BloombergLP {
 namespace bslma {
 template <> struct UsesBslmaAllocator<BitwiseMoveableTestType>
     : bsl::true_type {};
-}
+}  // close namespace bslma
 namespace bslmf {
 template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
                        // =============================
@@ -1313,7 +1313,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
 namespace bsl {
 template <> struct is_trivially_copyable<BitwiseCopyableTestType>
     : true_type {};
-}  // close namespace 'bsl'
+}  // close namespace bsl
 
                        // ==================================
                        // class LargeBitwiseMoveableTestType
@@ -1388,13 +1388,13 @@ namespace bslma {
 template <int FOOTPRINT>
 struct UsesBslmaAllocator<LargeBitwiseMoveableTestType<FOOTPRINT> >
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslma
 
 namespace bslmf {
 template <int FOOTPRINT>
 struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
                        // ==================================

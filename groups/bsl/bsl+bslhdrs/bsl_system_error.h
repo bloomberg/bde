@@ -42,7 +42,7 @@ namespace bsl {
     using native_std::system_category;
     using native_std::make_error_code;
     using native_std::make_error_condition;
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

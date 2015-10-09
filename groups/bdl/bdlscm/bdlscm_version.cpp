@@ -6,14 +6,26 @@ BSLS_IDENT_RCSID(bdlscm_version_cpp,"$Id$ $CSID$")
 
 #include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
 
+#include <bslscm_versiontag.h>
+
 namespace BloombergLP {
+
+// 'bdl' is maintained in sync with 'bsl', so they share a patch version.
 
 #define BDL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
 
-#define BDLSCM_VERSION_STRING "BLP_LIB_BDL_BDL_" STRINGIFY(BDL_VERSION_MAJOR) \
+// Required patch version for dependency on 'bsl' is independent of whether or
+// not 'bdl' versioning tracks 'bsl' versioning.
+
+#define BSLSCM_PATCH_REQUIRED 0
+#define BSLSCM_VERSION_STRING "BLP_LIB_BDE_BSL_" STRINGIFY(BSL_VERSION_MAJOR) \
+                                           "." STRINGIFY(BSL_VERSION_MINOR)   \
+                                           "." STRINGIFY(BSLSCM_PATCH_REQUIRED)
+
+#define BDLSCM_VERSION_STRING "BLP_LIB_BDE_BDL_" STRINGIFY(BDL_VERSION_MAJOR) \
                                              "." STRINGIFY(BDL_VERSION_MINOR) \
                                              "." STRINGIFY(BDL_VERSION_PATCH)
 
@@ -21,12 +33,12 @@ const char *bdlscm::Version::s_ident = "$Id: " BDLSCM_VERSION_STRING " $";
 const char *bdlscm::Version::s_what  = "@(#)" BDLSCM_VERSION_STRING;
 
 const char *bdlscm::Version::BDLSCM_S_VERSION    = BDLSCM_VERSION_STRING;
-const char *bdlscm::Version::s_dependencies      = "";
+const char *bdlscm::Version::s_dependencies      = BSLSCM_VERSION_STRING;
 const char *bdlscm::Version::s_buildInfo         = "";
 const char *bdlscm::Version::s_timestamp         = "";
 const char *bdlscm::Version::s_sourceControlInfo = "";
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2012 Bloomberg Finance L.P.

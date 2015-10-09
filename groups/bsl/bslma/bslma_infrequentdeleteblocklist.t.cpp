@@ -168,15 +168,15 @@ inline
 void *my_StrPool::allocate(int numBytes)
 {
     if (numBytes <= 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
     if (d_block_p && numBytes + d_cursor <= d_blockSize) {
         char *p = d_block_p + d_cursor;
         d_cursor += numBytes;
-        return p;
+        return p;                                                     // RETURN
     }
     else {
-        return allocateBlock(numBytes);
+        return allocateBlock(numBytes);                               // RETURN
     }
 }
 
@@ -201,7 +201,7 @@ void *my_StrPool::allocateBlock(int numBytes)
 {
     ASSERT(0 < numBytes);
     if (THRESHOLD < numBytes) { // Allocate separate block if above threshold.
-        return d_blockList.allocate(numBytes);
+        return d_blockList.allocate(numBytes);                        // RETURN
     }
     else {
         if (d_block_p) { // Don't increase block size if no current block.
@@ -209,7 +209,7 @@ void *my_StrPool::allocateBlock(int numBytes)
         }
         d_block_p = (char *) d_blockList.allocate(d_blockSize);
         d_cursor = numBytes;
-        return d_block_p;
+        return d_block_p;                                             // RETURN
     }
 }
 

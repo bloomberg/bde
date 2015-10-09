@@ -38,4 +38,3 @@
 :
 : 'bslscm_versiontag':
 :      Provide versioning information for the 'bsl' package group.
-

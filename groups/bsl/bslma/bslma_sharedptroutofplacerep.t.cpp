@@ -229,7 +229,7 @@ namespace BloombergLP {
 namespace bslma {
 template <>
 struct UsesBslmaAllocator<MyAllocTestDeleter> : bsl::true_type {};
-}  // close namespace bslma
+}  // close package namespace
 }  // close enterprise namespace
 
                           // ------------------------

@@ -242,7 +242,7 @@ class Stopwatch {
 
 
 //=============================================================================
-//                  GLOBAL TEST CASES
+//                              GLOBAL TEST CASES
 //-----------------------------------------------------------------------------
 
 namespace UsageExample1Case {
@@ -472,7 +472,7 @@ void testUsageExample3(int argc, bool assert)
         printf("Adding without prefetch\n");
     }
 
-    UsageExample3Case::init(UsageExample3Case::array1, 
+    UsageExample3Case::init(UsageExample3Case::array1,
                             UsageExample3Case::array2);
 
     Stopwatch timer;
@@ -494,7 +494,7 @@ void testUsageExample3(int argc, bool assert)
         printf("Adding with prefetch\n");
     }
 
-    UsageExample3Case::init(UsageExample3Case::array3, 
+    UsageExample3Case::init(UsageExample3Case::array3,
                             UsageExample3Case::array4);
 
     timer.reset();
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
         //:   verify 'isRunning' it 'true' and 'elapsedTime' is ~1 second.
         //:
         //: 2 Construct a 'Stopwatch', call 'start', sleep for ~1 second and
-        //:   then stop the 'Stopwatch'.  Sleep another second. Verify 
+        //:   then stop the 'Stopwatch'.  Sleep another second. Verify
         //:   'isRunning' it 'false', 'elapsedTime' is ~1, and that the elapsed
         //:   time has not changed since the stopwatch was stopped.
         //
@@ -856,9 +856,9 @@ int main(int argc, char *argv[])
                     EXPECTED + EXPECTED * .00001 > ACTUAL);
             ASSERTV(X.elapsedTime(), 1 - TOLERANCE <  X.elapsedTime());
             ASSERTV(X.elapsedTime(), 1 + TOLERANCE >  X.elapsedTime());
-            
+
             mX.reset();
-            
+
             ASSERT(false == X.isRunning());
             ASSERT(0     == X.elapsedTime());
         }

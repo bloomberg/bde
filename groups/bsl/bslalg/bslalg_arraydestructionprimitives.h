@@ -32,6 +32,7 @@ BSLS_IDENT("$Id: $")
 //                                    behavior.
 //
 //..
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this
@@ -163,9 +164,9 @@ struct ArrayDestructionPrimitives {
         // calls).
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                   // ---------------------------------
                   // struct ArrayDestructionPrimitives
@@ -209,16 +210,17 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
-    destroy(begin, end,
+    destroy(begin,
+            end,
             typename bsl::is_trivially_copyable<TARGET_TYPE>::type());
 }
 
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::ArrayDestructionPrimitives bslalg_ArrayDestructionPrimitives;
     // This alias is defined for backward compatibility.

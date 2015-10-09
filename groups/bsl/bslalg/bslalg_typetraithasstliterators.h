@@ -58,7 +58,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template <typename TYPE>
+template <class TYPE>
 struct HasStlIterators : bslmf::DetectNestedTrait<TYPE, HasStlIterators>
 {
 };
@@ -87,9 +87,9 @@ struct TypeTraitHasStlIterators {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitHasStlIterators bslalg_TypeTraitHasStlIterators;
     // This alias is defined for backward compatibility.

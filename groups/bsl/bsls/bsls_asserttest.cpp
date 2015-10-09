@@ -73,7 +73,7 @@ bool isPathSeparator(char c)
 #endif
     for (int i = 0; i != sizeof(pathSeparators); ++i) {
         if (pathSeparators[i] == c) {
-            return true;
+            return true;                                              // RETURN
         }
     }
     return false;
@@ -105,7 +105,7 @@ bool extractComponentName(const char **componentName,
 
     if (!componentName || !length || !filename) {
          printf("passed at least one null pointer\n");
-         return false;
+         return false;                                                // RETURN
     }
 
     const char *end = filename;
@@ -114,35 +114,35 @@ bool extractComponentName(const char **componentName,
     }
     if (3 > (end - filename)) {
         printf("filename is too short\n");
-        return false;
+        return false;                                                 // RETURN
     }
 
     --end;
     if ('h' == *end) {
         if ('.' != *--end) {
              printf("filename is not a header\n");
-             return false;
+             return false;                                            // RETURN
         }
     }
     else if ('p' == *end) {
         if (4 > (end - filename)) {
              printf("filename is not long enough for a .cpp\n");
-             return false;
+             return false;                                            // RETURN
         }
 
         if ('p' != *--end) {
              printf("filename is not a .cpp(1)\n");
-             return false;
+             return false;                                            // RETURN
         }
 
         if ('c' != *--end) {
              printf("filename is not a .cpp(2)\n");
-             return false;
+             return false;                                            // RETURN
         }
 
         if ('.' != *--end) {
              printf("filename is not a .cpp(3)\n");
-             return false;
+             return false;                                            // RETURN
         }
 
         if (2 < (end - filename)) {
@@ -156,7 +156,7 @@ bool extractComponentName(const char **componentName,
     }
     else {
          printf("filename is not recognized\n");
-         return false;
+         return false;                                                // RETURN
     }
 
     const char *cursor = end;
@@ -192,7 +192,7 @@ bool AssertTest::isValidAssertBuild(const char *specString)
           case 'A':
           case 'O':
             return '\0' == specString[1]
-                || ('2' == specString[1] && '\0' == specString[2]);
+                || ('2' == specString[1] && '\0' == specString[2]);   // RETURN
         }
     }
     return false;
@@ -266,7 +266,7 @@ bool AssertTest::catchProbe(char                        expectedResult,
     // After diagnosing any invalid arguments, we can now return a result.
 
     if ('F' != expectedResult || !validArguments) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     // If 'componentFilename' is null then it is deemed to match any filename.
@@ -277,7 +277,7 @@ bool AssertTest::catchProbe(char                        expectedResult,
 
         if (thisNameLength != exceptionNameLength
          || 0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
-            return false;
+            return false;                                             // RETURN
         }
     }
 

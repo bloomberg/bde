@@ -178,8 +178,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 // size_t is an unsigned type
-const size_t SIZE_T_MAX = size_t(0)-1;
-const size_t SIZE_T_MIN = 1;  // actually, minimum valid array length
+const size_t MY_SIZE_T_MAX = size_t(0)-1;
+const size_t MY_SIZE_T_MIN = 1;  // actually, minimum valid array length
 
 typedef bslalg::HashTableAnchor   Obj;
 typedef bslalg::HashTableBucket   Bucket;
@@ -203,15 +203,15 @@ const DefaultValueRow DEFAULT_VALUES[] =
     //----     ------------------  --------- ---------------
 
     // default (must be first)
-    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MIN, (Link *)    0 },
+    { L_,     (Bucket *) 0xd3adb33f, MY_SIZE_T_MIN, (Link *)    0 },
 
     // 'data'
-    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MIN, &DefaultLink1 },
-    { L_,     (Bucket *) 0xf33db33f,          2, &DefaultLink1 },
-    { L_,     (Bucket *) 0xd3adb33f,          3, &DefaultLink1 },
-    { L_,     (Bucket *) 0xd3adb33f, SIZE_T_MAX, &DefaultLink1 },
-    { L_,     (Bucket *) 0xd3adb33f,          4, &DefaultLink2 },
-    { L_,     (Bucket *) 0xd3adb33f,          5, (Link *)    0 },
+    { L_,     (Bucket *) 0xd3adb33f, MY_SIZE_T_MIN, &DefaultLink1 },
+    { L_,     (Bucket *) 0xf33db33f,             2, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f,             3, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f, MY_SIZE_T_MAX, &DefaultLink1 },
+    { L_,     (Bucket *) 0xd3adb33f,             4, &DefaultLink2 },
+    { L_,     (Bucket *) 0xd3adb33f,             5, (Link *)    0 },
 };
 
 const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;

@@ -14,14 +14,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_buffermanager
 //
-//@DESCRIPTION: This component provides pure procedures for allocating memory
-// from a buffer using an indicated memory alignment strategy.  Each of the
-// procedures take a buffer, the size of the buffer, a cursor pointing to the
-// free memory within the buffer, and the allocation size.  Two of the
-// procedures, 'allocateFromBuffer' and 'allocateFromBufferRaw', take an
-// additional argument that specifies the memory alignment strategy to apply.
-// The other six procedures apply a specific memory alignment strategy as
-// indicated by their names (e.g., 'allocateNaturallyAlignedFromBuffer' and
+//@DESCRIPTION: This component provides a 'struct', 'bdlma::BufferImpUtil',
+// that implements procedures for allocating memory from a buffer using an
+// indicated memory alignment strategy.  Each of the procedures take a buffer,
+// the size of the buffer, a cursor pointing to the free memory within the
+// buffer, and the allocation size.  Two of the procedures,
+// 'allocateFromBuffer' and 'allocateFromBufferRaw', take an additional
+// argument that specifies the memory alignment strategy to apply.  The other
+// six procedures apply a specific memory alignment strategy as indicated by
+// their names (e.g., 'allocateNaturallyAlignedFromBuffer' and
 // 'allocateMaximallyAlignedFromBufferRaw').  In all cases, a pointer to the
 // allocated memory is returned, and the cursor passed in is updated to point
 // to the portion of the buffer that contains the next available free memory.
@@ -73,8 +74,8 @@ BSLS_IDENT("$Id: $")
 // strategy (otherwise, more bytes would have been skipped if maximum alignment
 // was used).  See 'bsls_alignment' for more details about memory alignment.
 //
-///Raw vs. Non-Raw
-///---------------
+///Raw versus Non-Raw
+///------------------
 // The raw and non-raw versions differ in behavior only when the requested
 // memory size is larger than the memory available within the provided buffer
 // (after taking memory alignment into consideration).  The raw versions result
@@ -177,13 +178,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ====================
-                        // struct BufferImpUtil
-                        // ====================
+                           // ====================
+                           // struct BufferImpUtil
+                           // ====================
 
 struct BufferImpUtil {
-    // This 'struct' provides a namespace for a suite of pure procedures
-    // for allocating memory from a buffer.
+    // This 'struct' provides a namespace for a suite of pure procedures for
+    // allocating memory from a buffer.
 
     // CLASS METHODS
     static void *allocateFromBuffer(int                       *cursor,
@@ -233,15 +234,15 @@ struct BufferImpUtil {
                                                   char *buffer,
                                                   int   bufferSize,
                                                   int   size);
-        // Allocate a 1-byte-aligned memory block of the specified 'size'
-        // (in bytes) from the specified 'buffer' having the specified
-        // 'bufferSize' (in bytes) at the specified 'cursor' position.  Return
-        // the address of the allocated memory block if 'buffer' contains
-        // sufficient available memory, and 0 otherwise.  The 'cursor' is set
-        // to the first byte position immediately after the allocated memory if
-        // there is sufficient memory, and not modified otherwise.  The
-        // behavior is undefined unless '0 <= bufferSize', '0 < size',
-        // '0 <= *cursor', and '*cursor <= bufferSize'.
+        // Allocate a 1-byte-aligned memory block of the specified 'size' (in
+        // bytes) from the specified 'buffer' having the specified 'bufferSize'
+        // (in bytes) at the specified 'cursor' position.  Return the address
+        // of the allocated memory block if 'buffer' contains sufficient
+        // available memory, and 0 otherwise.  The 'cursor' is set to the first
+        // byte position immediately after the allocated memory if there is
+        // sufficient memory, and not modified otherwise.  The behavior is
+        // undefined unless '0 <= bufferSize', '0 < size', '0 <= *cursor', and
+        // '*cursor <= bufferSize'.
 
     static void *allocateFromBufferRaw(int                       *cursor,
                                        char                      *buffer,
@@ -277,12 +278,11 @@ struct BufferImpUtil {
         // 'buffer' contains sufficient available memory, and 'cursor' refers
         // to a valid position in 'buffer'.
 
-
     static void *allocateOneByteAlignedFromBufferRaw(int  *cursor,
                                                      char *buffer,
                                                      int   size);
-        // Allocate a 1-byte-aligned memory block of the specified 'size'
-        // (in bytes) from the specified 'buffer' at the specified 'cursor'
+        // Allocate a 1-byte-aligned memory block of the specified 'size' (in
+        // bytes) from the specified 'buffer' at the specified 'cursor'
         // position.  Return the address of the allocated memory block.  The
         // 'cursor' is set to the first byte position immediately after the
         // allocated memory.  The behavior is undefined unless '0 < size',
@@ -296,7 +296,7 @@ struct BufferImpUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

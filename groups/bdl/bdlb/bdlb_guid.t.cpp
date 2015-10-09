@@ -11,7 +11,7 @@
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-#include <bsl_strstream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -626,11 +626,12 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 For each of an enumerated set of object, 'level', and
         //:   'spacesPerLevel' values, ordered by increasing object length, use
-        //:   'ostrstream' to 'print' that object's value, using the tabulated
-        //:   parameters, to two separate character buffers each with different
-        //:   initial values.  Compare the contents of these buffers with the
-        //:   literal expected output format and verify that the characters
-        //:   beyond the null characters are unaffected in both buffers.
+        //:   'ostringstream' to 'print' that object's value, using the
+        //:   tabulated parameters, to two separate character buffers each with
+        //:   different initial values.  Compare the contents of these buffers
+        //:   with the literal expected output format and verify that the
+        //:   characters beyond the null characters are unaffected in both
+        //:   buffers.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level, int sp) const;
@@ -701,31 +702,35 @@ int main(int argc, char *argv[])
                 const int         SPL    = DATA[ti].d_spaces;
                 const char *const FMT    = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
-
                 Obj        mX;
                 const Obj& X = gg(&mX, SPEC);
 
-
                 if (veryVerbose) { P_(SPEC) P_(IND) P_(SPL) P(FMT) }
-                ostrstream out1(buf1, SIZE);  X.print(out1, IND, SPL) << ends;
-                ostrstream out2(buf2, SIZE);  X.print(out2, IND, SPL) << ends;
-                if (veryVerbose) { P(buf1) }
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
+                X.print(out1, IND, SPL) << ends;
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
+                X.print(out2, IND, SPL) << ends;
+                if (veryVerbose) { P(out1.str()) }
                 const int SZ = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP_ASSERT(LINE, SZ < SIZE);  // Check buffer is large enough.
-                LOOP_ASSERT(LINE, Z1 == buf1[SIZE - 1]);  // Check for overrun.
-                LOOP_ASSERT(LINE, Z2 == buf2[SIZE - 1]);  // Check for overrun.
-
-                LOOP2_ASSERT(LINE, SZ, 0 == strncmp(buf1, FMT, SZ - 1));
-                LOOP2_ASSERT(LINE, SZ, 0 == strncmp(buf2, FMT, SZ - 1));
-
                 LOOP_ASSERT(LINE,
-                                 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
+                            Z1 == out1.str()[SIZE - 1]);  // Check for overrun.
                 LOOP_ASSERT(LINE,
-                                 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));
+                            Z2 == out2.str()[SIZE - 1]);  // Check for overrun.
+                LOOP2_ASSERT(LINE,
+                             SZ,
+                             0 == strncmp(out1.str().c_str(), FMT, SZ - 1));
+                LOOP2_ASSERT(LINE,
+                             SZ,
+                             0 == strncmp(out2.str().c_str(), FMT, SZ - 1));
+
+                LOOP_ASSERT(LINE, 0 == memcmp(out1.str().c_str() + SZ,
+                                              CTRL_BUF1 + SZ,
+                                              REST));
+                LOOP_ASSERT(LINE, 0 == memcmp(out2.str().c_str() + SZ,
+                                              CTRL_BUF2 + SZ,
+                                              REST));
             }
         }
       } break;
@@ -1127,7 +1132,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 For each of a small representative set of object values, ordered
-        //:   by increasing length, use 'ostrstream' to write that object's
+        //:   by increasing length, use 'ostringstream' to write that object's
         //:   value to two separate character buffers each with different
         //:   initial values.  Compare the contents of these buffers with the
         //:   literal expected output format and verify that the characters
@@ -1183,31 +1188,29 @@ int main(int argc, char *argv[])
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const char *const FMT    = DATA[ti].d_fmt_p;
 
-                char buf1[SIZE], buf2[SIZE];
-                memcpy(buf1, CTRL_BUF1, SIZE); // Preset buf1 to Z1 values.
-                memcpy(buf2, CTRL_BUF2, SIZE); // Preset buf2 to Z2 values.
-
                 Obj        mX;
                 const Obj& X = gg(&mX, SPEC);
 
                 if (veryVerbose) { P_(SPEC) P(FMT) }
-                ostrstream out1(buf1, SIZE);
+                ostringstream out1(bsl::string(CTRL_BUF1, SIZE));
                 out1 << X << ends;
-                ostrstream out2(buf2, SIZE);
+                ostringstream out2(bsl::string(CTRL_BUF2, SIZE));
                 out2 << X << ends;
-                if (veryVerbose) { P(buf1) }
+                if (veryVerbose) { P(out1.str()) }
                 const int SZ   = strlen(FMT) + 1;
                 const int REST = SIZE - SZ;
                 LOOP2_ASSERT(LINE, ti, SZ < SIZE);  // Check buffer is large
                                                     // enough.
-                LOOP2_ASSERT(LINE, ti, Z1 == buf1[SIZE - 1]);  // Check for
-                                                               // overrun.
-                LOOP2_ASSERT(LINE, ti, Z2 == buf2[SIZE - 1]);  // Check for
-                                                               // overrun.
-                LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf1 + SZ,
+                LOOP2_ASSERT(LINE,
+                             ti,
+                             Z1 == out1.str()[SIZE - 1]); // Check for overrun.
+                LOOP2_ASSERT(LINE,
+                             ti,
+                             Z2 == out2.str()[SIZE - 1]); // Check for overrun.
+                LOOP2_ASSERT(LINE, ti, 0 == memcmp(out1.str().c_str() + SZ,
                                                    CTRL_BUF1 + SZ,
                                                    REST));
-                LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf2 + SZ,
+                LOOP2_ASSERT(LINE, ti, 0 == memcmp(out2.str().c_str() + SZ,
                                                    CTRL_BUF2 + SZ,
                                                    REST));
             }

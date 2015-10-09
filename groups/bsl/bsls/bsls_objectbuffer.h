@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 // which returns a null-terminated string.  'my_String' does not have a default
 // constructor and thus cannot be used in C-style arrays or unions.
 //
-///Usage Example 1:
-///- - - - - - - -
+///Example 1: Creating a Dynamic Array of Objects
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Here we use 'bsls::ObjectBuffer' to create a variable-length array of
 // 'my_String' objects.  For efficiency, the array is created on the stack as
 // a fixed-sized array of 'bsls::ObjectBuffer<my_String>' objects and the
@@ -97,8 +97,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Usage Example 2:
-///- - - - - - - -
+//
+///Example 2: Containing Different Object Types
+/// - - - - - - - - - - - - - - - - - - - - - -
 // Here we use 'bsls::ObjectBuffer' to compose a variable-type object capable
 // of holding a string or an integer:
 //..
@@ -108,9 +109,9 @@ BSLS_IDENT("$Id: $")
 //      enum TypeTag { INT, STRING };
 //
 //    private:
-//      TypeTag                          d_type;
+//      TypeTag                           d_type;
 //      union {
-//          int                          d_int;
+//          int                           d_int;
 //          bsls::ObjectBuffer<my_String> d_string;
 //      };
 //
@@ -275,9 +276,9 @@ union ObjectBuffer {
         // 'const char*' pointer.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 template <class TYPE>
@@ -311,9 +312,9 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                          BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 

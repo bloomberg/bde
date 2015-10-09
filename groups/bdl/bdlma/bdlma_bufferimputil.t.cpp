@@ -28,8 +28,8 @@ using namespace bsl;
 // allocated memory block depends on several parameters: the current cursor
 // position, the size of the allocation, the alignment strategy (which is
 // possibly implied by the name on an alignment-specific method), and also the
-// buffer size (necessary to detect overflow with the non-raw methods).  Due
-// to the large amount of possible combinations, only the corner cases are
+// buffer size (necessary to detect overflow with the non-raw methods).  Due to
+// the large amount of possible combinations, only the corner cases are
 // selected as test data.  These data are then organized first by allocation
 // size, then current cursor position (both of which affects the address of the
 // allocated memory block depending on the indicated alignment strategy) in a
@@ -52,6 +52,7 @@ using namespace bsl;
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
@@ -109,8 +110,8 @@ typedef bdlma::BufferImpUtil Obj;
 // actually gets aligned on a 4-byte boundary.  To work around this, create a
 // static buffer instead.
 
-enum { BUFFER_SIZE = 256 };
-static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
+enum { k_BUFFER_SIZE = 256 };
+static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -296,7 +297,7 @@ int main(int argc, char *argv[])
 
         typedef bsls::Alignment::Strategy Strat;
 
-        enum { MA = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
+        enum { k_MA = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
 #define NAT bsls::Alignment::BSLS_NATURAL
 #define MAX bsls::Alignment::BSLS_MAXIMUM
@@ -364,11 +365,11 @@ int main(int argc, char *argv[])
    {  L_,   32,     64,       8,          NAT,    32,       40 },
 
    {  L_,    0,     64,      16,          NAT,     0,       16 },//ALLOCSIZE=16
-   {  L_,    1,     64,      16,          NAT,    MA,  MA + 16 },
-   {  L_,    2,     64,      16,          NAT,    MA,  MA + 16 },
-   {  L_,    3,     64,      16,          NAT,    MA,  MA + 16 },
-   {  L_,    7,     64,      16,          NAT,    MA,  MA + 16 },
-   {  L_,    8,     64,      16,          NAT,    MA,  MA + 16 },
+   {  L_,    1,     64,      16,          NAT,  k_MA,k_MA + 16 },
+   {  L_,    2,     64,      16,          NAT,  k_MA,k_MA + 16 },
+   {  L_,    3,     64,      16,          NAT,  k_MA,k_MA + 16 },
+   {  L_,    7,     64,      16,          NAT,  k_MA,k_MA + 16 },
+   {  L_,    8,     64,      16,          NAT,  k_MA,k_MA + 16 },
    {  L_,   15,     64,      16,          NAT,    16,       32 },
    {  L_,   16,     64,      16,          NAT,    16,       32 },
    {  L_,   31,     64,      16,          NAT,    32,       48 },
@@ -376,55 +377,55 @@ int main(int argc, char *argv[])
 
    // MAXIMUM ALIGNMENT
    {  L_,   0,      64,       1,          MAX,     0,        1 },// ALLOCSIZE=1
-   {  L_,   1,      64,       1,          MAX,    MA,  MA +  1 },
-   {  L_,   2,      64,       1,          MAX,    MA,  MA +  1 },
-   {  L_,   3,      64,       1,          MAX,    MA,  MA +  1 },
-   {  L_,   7,      64,       1,          MAX,    MA,  MA +  1 },
-   {  L_,   8,      64,       1,          MAX,    MA,  MA +  1 },
+   {  L_,   1,      64,       1,          MAX,  k_MA,k_MA +  1 },
+   {  L_,   2,      64,       1,          MAX,  k_MA,k_MA +  1 },
+   {  L_,   3,      64,       1,          MAX,  k_MA,k_MA +  1 },
+   {  L_,   7,      64,       1,          MAX,  k_MA,k_MA +  1 },
+   {  L_,   8,      64,       1,          MAX,  k_MA,k_MA +  1 },
    {  L_,  15,      64,       1,          MAX,    16,       17 },
    {  L_,  16,      64,       1,          MAX,    16,       17 },
    {  L_,  31,      64,       1,          MAX,    32,       33 },
    {  L_,  32,      64,       1,          MAX,    32,       33 },
 
    {  L_,   0,      64,       2,          MAX,     0,        2 },// ALLOCSIZE=2
-   {  L_,   1,      64,       2,          MAX,    MA,  MA +  2 },
-   {  L_,   2,      64,       2,          MAX,    MA,  MA +  2 },
-   {  L_,   3,      64,       2,          MAX,    MA,  MA +  2 },
-   {  L_,   7,      64,       2,          MAX,    MA,  MA +  2 },
-   {  L_,   8,      64,       2,          MAX,    MA,  MA +  2 },
+   {  L_,   1,      64,       2,          MAX,  k_MA,k_MA +  2 },
+   {  L_,   2,      64,       2,          MAX,  k_MA,k_MA +  2 },
+   {  L_,   3,      64,       2,          MAX,  k_MA,k_MA +  2 },
+   {  L_,   7,      64,       2,          MAX,  k_MA,k_MA +  2 },
+   {  L_,   8,      64,       2,          MAX,  k_MA,k_MA +  2 },
    {  L_,  15,      64,       2,          MAX,    16,       18 },
    {  L_,  16,      64,       2,          MAX,    16,       18 },
    {  L_,  31,      64,       2,          MAX,    32,       34 },
    {  L_,  32,      64,       2,          MAX,    32,       34 },
 
    {  L_,   0,      64,       4,          MAX,     0,        4 },// ALLOCSIZE=4
-   {  L_,   1,      64,       4,          MAX,    MA,  MA +  4 },
-   {  L_,   2,      64,       4,          MAX,    MA,  MA +  4 },
-   {  L_,   3,      64,       4,          MAX,    MA,  MA +  4 },
-   {  L_,   7,      64,       4,          MAX,    MA,  MA +  4 },
-   {  L_,   8,      64,       4,          MAX,    MA,  MA +  4 },
+   {  L_,   1,      64,       4,          MAX,  k_MA,k_MA +  4 },
+   {  L_,   2,      64,       4,          MAX,  k_MA,k_MA +  4 },
+   {  L_,   3,      64,       4,          MAX,  k_MA,k_MA +  4 },
+   {  L_,   7,      64,       4,          MAX,  k_MA,k_MA +  4 },
+   {  L_,   8,      64,       4,          MAX,  k_MA,k_MA +  4 },
    {  L_,  15,      64,       4,          MAX,    16,       20 },
    {  L_,  16,      64,       4,          MAX,    16,       20 },
    {  L_,  31,      64,       4,          MAX,    32,       36 },
    {  L_,  32,      64,       4,          MAX,    32,       36 },
 
    {  L_,   0,      64,       8,          MAX,     0,        8 },// ALLOCSIZE=8
-   {  L_,   1,      64,       8,          MAX,    MA,  MA +  8 },
-   {  L_,   2,      64,       8,          MAX,    MA,  MA +  8 },
-   {  L_,   3,      64,       8,          MAX,    MA,  MA +  8 },
-   {  L_,   7,      64,       8,          MAX,    MA,  MA +  8 },
-   {  L_,   8,      64,       8,          MAX,    MA,  MA +  8 },
+   {  L_,   1,      64,       8,          MAX,  k_MA,k_MA +  8 },
+   {  L_,   2,      64,       8,          MAX,  k_MA,k_MA +  8 },
+   {  L_,   3,      64,       8,          MAX,  k_MA,k_MA +  8 },
+   {  L_,   7,      64,       8,          MAX,  k_MA,k_MA +  8 },
+   {  L_,   8,      64,       8,          MAX,  k_MA,k_MA +  8 },
    {  L_,  15,      64,       8,          MAX,    16,       24 },
    {  L_,  16,      64,       8,          MAX,    16,       24 },
    {  L_,  31,      64,       8,          MAX,    32,       40 },
    {  L_,  32,      64,       8,          MAX,    32,       40 },
 
    {  L_,    0,     64,      16,          MAX,     0,       16 },//ALLOCSIZE=16
-   {  L_,    1,     64,      16,          MAX,    MA,  MA + 16 },
-   {  L_,    2,     64,      16,          MAX,    MA,  MA + 16 },
-   {  L_,    3,     64,      16,          MAX,    MA,  MA + 16 },
-   {  L_,    7,     64,      16,          MAX,    MA,  MA + 16 },
-   {  L_,    8,     64,      16,          MAX,    MA,  MA + 16 },
+   {  L_,    1,     64,      16,          MAX,  k_MA,k_MA + 16 },
+   {  L_,    2,     64,      16,          MAX,  k_MA,k_MA + 16 },
+   {  L_,    3,     64,      16,          MAX,  k_MA,k_MA + 16 },
+   {  L_,    7,     64,      16,          MAX,  k_MA,k_MA + 16 },
+   {  L_,    8,     64,      16,          MAX,  k_MA,k_MA + 16 },
    {  L_,   15,     64,      16,          MAX,    16,       32 },
    {  L_,   16,     64,      16,          MAX,    16,       32 },
    {  L_,   31,     64,      16,          MAX,    32,       48 },
@@ -670,7 +671,7 @@ int main(int argc, char *argv[])
        {  L_,   63,     64,       4,          MAX,    63 },
        {  L_,   62,     64,       4,          MAX,    62 },
        {  L_,   61,     64,       4,          MAX,    61 },
-#if MA > 4
+#if k_MA > 4
        {  L_,   60,     64,       4,          MAX,    60 },
 #endif
 
@@ -682,7 +683,7 @@ int main(int argc, char *argv[])
        {  L_,   59,     64,       8,          MAX,    59 },
        {  L_,   58,     64,       8,          MAX,    58 },
        {  L_,   57,     64,       8,          MAX,    57 },
-#if MA > 8
+#if k_MA > 8
        {  L_,   56,     64,       8,          MAX,    56 },
 #endif
 
@@ -819,7 +820,7 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             char *buffer = bufferStorage.buffer();
-            enum { BUFSIZE = 64, ALLOCSIZE = 4 };
+            enum { k_BUFSIZE = 64, k_ALLOCSIZE = 4 };
 
             if (veryVerbose) cout << "\t'0 <= bufferSize'" << endl;
             {
@@ -828,46 +829,46 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         ALLOCSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
                 ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
                                                          -1,       // FAIL
-                                                         ALLOCSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
 
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          -1,       // FAIL
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
 
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          -1,       // FAIL
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
 
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          0,        // PASS
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
                                                          -1,       // FAIL
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
             }
 
             if (veryVerbose) cout << "\t'0 < size'" << endl;
@@ -876,66 +877,66 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          1,        // PASS
                                                          NAT));
                 ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          0,        // FAIL
                                                          NAT));
                 ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          -1,       // FAIL
                                                          NAT));
 
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          1));      // PASS
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          0));      // FAIL
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          1));      // PASS
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          0));      // FAIL
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          1));      // PASS
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          0));      // FAIL
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
+                                                         k_BUFSIZE,
                                                          -1));     // FAIL
 
                 ASSERT_SAFE_PASS(Obj::allocateFromBufferRaw(
@@ -1001,157 +1002,157 @@ int main(int argc, char *argv[])
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE,
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE,
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
 
                 cursor = 0;
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
                 cursor = -1;
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBufferRaw(
                                                          &cursor,
                                                          buffer,
-                                                         ALLOCSIZE));
+                                                         k_ALLOCSIZE));
             }
 
             if (veryVerbose) cout << "\t'*cursor <= bufferSize'" << endl;
             {
                 int cursor;
 
-                cursor = BUFSIZE;
+                cursor = k_BUFSIZE;
                 ASSERT_SAFE_PASS(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE,
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
-                cursor = BUFSIZE + 1;
+                cursor = k_BUFSIZE + 1;
                 ASSERT_SAFE_FAIL(Obj::allocateFromBuffer(&cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE,
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE,
                                                          NAT));
 
-                cursor = BUFSIZE;
+                cursor = k_BUFSIZE;
                 ASSERT_SAFE_PASS(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
-                cursor = BUFSIZE + 1;
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
+                cursor = k_BUFSIZE + 1;
                 ASSERT_SAFE_FAIL(Obj::allocateMaximallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
 
-                cursor = BUFSIZE;
+                cursor = k_BUFSIZE;
                 ASSERT_SAFE_PASS(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
-                cursor = BUFSIZE + 1;
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
+                cursor = k_BUFSIZE + 1;
                 ASSERT_SAFE_FAIL(Obj::allocateNaturallyAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
 
-                cursor = BUFSIZE;
+                cursor = k_BUFSIZE;
                 ASSERT_SAFE_PASS(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
-                cursor = BUFSIZE + 1;
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
+                cursor = k_BUFSIZE + 1;
                 ASSERT_SAFE_FAIL(Obj::allocateOneByteAlignedFromBuffer(
                                                          &cursor,
                                                          buffer,
-                                                         BUFSIZE,
-                                                         ALLOCSIZE));
+                                                         k_BUFSIZE,
+                                                         k_ALLOCSIZE));
             }
         }
 
@@ -1173,7 +1174,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
