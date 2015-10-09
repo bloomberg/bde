@@ -4,8 +4,6 @@
 
 #include <balber_berencoder.h>        // for testing only
 
-#include <bdlt_serialdateimputil.h>
-
 #include <bdlat_attributeinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_valuetypefunctions.h>
@@ -23,6 +21,7 @@
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
+#include <bdlt_serialdateimputil.h>
 #include <bdlt_time.h>
 
 #include <bdlb_chartype.h>
@@ -87,9 +86,6 @@ static void aSsErT(int c, const char *s, int i) {
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
-
-typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdlt::PosixDateImpUtil  DateUtil;
 
 static bool         verbose = false;
 static bool     veryVerbose = false;
@@ -10733,16 +10729,18 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int i = 0; i <= NUM_YEARS; ++i) {
-            for (int j = 0; j <= NUM_MONTHS; ++j) {
-            for (int k = 0; k <= NUM_DAYS; ++k) {
+            for (int i = 0; i < NUM_YEARS; ++i) {
+            for (int j = 0; j < NUM_MONTHS; ++j) {
+            for (int k = 0; k < NUM_DAYS; ++k) {
 
                 const int YEAR  = YEARS[i];
                 const int MONTH = MONTHS[j];
                 const int DAY   = DAYS[k];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
+                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                 MONTH,
+                                                                 DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -10767,7 +10765,7 @@ int main(int argc, char *argv[])
                         }
 
                         bdlsb::FixedMemInStreamBuf isb(osb.data(),
-                                                      osb.length());
+                                                       osb.length());
                         ASSERT(0 == decoder.decode(&isb, &value));
                         printDiagnostic(decoder);
 
@@ -11071,16 +11069,18 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int di = 0; di <= NUM_YEARS; ++di) {
-            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
-            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+            for (int di = 0; di < NUM_YEARS; ++di) {
+            for (int dj = 0; dj < NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk < NUM_DAYS; ++dk) {
 
                 const int YEAR  = YEARS[di];
                 const int MONTH = MONTHS[dj];
                 const int DAY   = DAYS[dk];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
+                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                 MONTH,
+                                                                 DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;

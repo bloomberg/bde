@@ -27,7 +27,6 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
-#include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_set.h>
 #include <bsl_sstream.h>
@@ -2562,25 +2561,6 @@ int main(int argc, char *argv[])
         for (int i = 0; 0 == rc && i < TC::Functor::NUM_THREADS; ++i) {
             rc = Util::create(&handles[i], TC::Functor(pta));
             ASSERT(0 == rc);
-
-            // TBD: In the switch away from bdlf::Function, we lose this
-            // in-place information.  Pablo Halpern has written our
-            // bsl::function to use the small-object optimization for functors
-            // of the size of six pointers or less.
-            static bool isInplace =
-#if 0
-                bdlf::FunctionUtil::IsInplace<TC::Functor>::VALUE
-#else
-                sizeof(TC::Functor) <= 6 * sizeof(void *)
-#endif
-                ;
-            expectedDefaultAllocations += 0 == isInplace;
-
-            static bool firstTime = true;
-            if (verbose && firstTime) {
-                P(isInplace);
-            }
-            firstTime = false;
         }
 
         TC::Functor::s_underwayBarrier.wait();    // wait for everybody to get
@@ -2589,7 +2569,7 @@ int main(int argc, char *argv[])
         bsl::stringstream otherSs(&touchy);
         pta->reportBlocksInUse(&otherSs);
         const bsl::string& otherStr = otherSs.str();
-        ++expectedDefaultAllocations;                  // otherSs.str() uses da
+        ++expectedDefaultAllocations;
 
         const char *expectedStrings[] = {
                                     " block(s) in allocator 'ta' in use",

@@ -102,6 +102,8 @@ int verbose;
 int veryVerbose;
 int veryVeryVerbose;
 
+bool isPost_5_10;    // On Solairis, is OS post-Solaris 5.0
+
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -334,11 +336,14 @@ class ThreadChecker {
         ThreadChecker *d_checker_p;
 
       public:
-        ThreadCheckerFunctor(ThreadChecker *checker) {
+        explicit
+        ThreadCheckerFunctor(ThreadChecker *checker)
+        {
             d_checker_p = checker;
         }
 
-        void operator()() {
+        void operator()()
+        {
             d_checker_p->eval();
         }
     };
@@ -618,7 +623,11 @@ MyMutex        Functor::s_mutex;
 
 void Functor::operator()()
 {
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+    enum {  k_LIMIT = 2048,
+#else
     enum {  k_LIMIT = 512,
+#endif
 
             // 'TIMER'_MASK controls how often threads wait for other threads
             // to pile up against the mutex.  A lower value of 'k_TIMER_MASK'
@@ -657,7 +666,9 @@ void Functor::operator()()
         if ((++s_timerCounter & k_TIMER_MASK) == 0) {
             int lastLockCount;
             if ((lastLockCount = s_lockCount) < k_NUM_THREADS) {
-                bslmt::ThreadUtil::microSleep(10 * 1000);
+                enum { k_TEN_MILLISEC = 10 * 1000 };
+
+                bslmt::ThreadUtil::microSleep(k_TEN_MILLISEC);
                 if (s_lockCount == lastLockCount) {
                     bslmt::ThreadUtil::yield();
                 }
@@ -673,6 +684,204 @@ void Functor::operator()()
     }
     ++s_finished;
 }
+
+void priorityEffectivenessTest()
+    // Run the priority effectiveness test.
+{
+    typedef Attr::SchedulingPolicy Policy;
+
+    static const struct {
+        int    d_line;
+        Policy d_policy;
+    } DATA[] = {
+        { L_, Attr::e_SCHED_DEFAULT },
+        { L_, Attr::e_SCHED_OTHER   },
+        { L_, Attr::e_SCHED_FIFO    },
+        { L_, Attr::e_SCHED_RR      },
+    };
+    const int DATA_LEN = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
+
+    bsl::multiset<int> urgentPlaces[DATA_LEN];
+
+    for (int i = 0; i < DATA_LEN; ++i) {
+        const int    LINE   = DATA[i].d_line;
+        const Policy POLICY = DATA[i].d_policy;
+
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
+        if (Attr::e_SCHED_FIFO == POLICY ||
+                                          Attr::e_SCHED_RR == POLICY) {
+            continue;
+        }
+#endif
+
+        // Avoid redundant tests (sometimes 'OTHER' and 'DEFAULT' are the same,
+        // ie Sun.
+
+        {
+            bool found = false;
+            for (int j = 0; j < i; ++j) {
+                if (POLICY == DATA[j].d_policy) found = true;
+            }
+            if (found) continue;
+        }
+
+#if   defined(BSLS_PLATFORM_OS_SOLARIS)
+        const int prioritiesWork = !isPost_5_10 ||
+                                       (Attr::e_SCHED_FIFO != POLICY &&
+                                        Attr::e_SCHED_RR   != POLICY);
+#elif defined(BSLS_PLATFORM_OS_AIX)
+        const int prioritiesWork = 1;
+#else
+        const int prioritiesWork = 0;
+#endif
+
+        const int MAX_PRIORITY = Obj::getMaxSchedulingPriority(POLICY);
+        const int MIN_PRIORITY = Obj::getMinSchedulingPriority(POLICY);
+        ASSERT(0 == prioritiesWork || MAX_PRIORITY > MIN_PRIORITY);
+        ASSERT(MAX_PRIORITY >= MIN_PRIORITY);
+
+        if (veryVerbose) {
+            P_(POLICY); P_(MAX_PRIORITY); P(MIN_PRIORITY);
+        }
+
+        // If there's no difference between max and min priority, there's no
+        // point in doing the test.
+
+        if (MAX_PRIORITY == MIN_PRIORITY) {
+            if (verbose) {
+                cout << "Policy " << policyToString(POLICY) <<
+                        ", Max pri " << setw(3) << MAX_PRIORITY <<
+                        ", Min pri " << setw(3) << MIN_PRIORITY << endl;
+            }
+            continue;
+        }
+
+        ASSERT(prioritiesWork);
+
+        // Create two 'Attr' objects, an 'urgent' one with max priority, and a
+        // 'notUrgent' one with min priority.
+
+        Attr urgentAttr;;
+        urgentAttr.setStackSize(64 * 1024);
+        urgentAttr.setInheritSchedule(0);
+        urgentAttr.setSchedulingPolicy(POLICY);
+        urgentAttr.setSchedulingPriority(MAX_PRIORITY);
+
+        Attr notUrgentAttr(urgentAttr);
+        notUrgentAttr.setSchedulingPriority(MIN_PRIORITY);
+
+        // Do twice as many trials if priorities don't work, because Solaris
+        // (one of the platforms where priorities work) is the slow platform,
+        // and a larger number of trials reduces the chance probability (never
+        // 0) that the test that priorities killed us will fail.
+
+        const int numTrials = 5;
+
+        for (int j = 0; j < numTrials; ++j) {
+            Functor::s_urgentPlace =   -1;
+            Functor::s_finished    =    0;
+            Functor::s_firstThread = true;
+            Functor::s_lockCount   =    0;
+
+            Functor fs[k_NUM_THREADS];
+            fs[k_URGENT_THREAD].d_urgent = true;
+
+            Obj::Handle handles[k_NUM_THREADS];
+            int rc;
+            int numThreads = 0;
+            for ( ; numThreads < k_NUM_THREADS; ++numThreads) {
+                errno = 0;
+                const Attr& attr = fs[numThreads].d_urgent
+                                 ? urgentAttr
+                                 : notUrgentAttr;
+                rc = Obj::create(&handles[numThreads],
+                                 attr,
+                                 fs[numThreads]);
+                LOOP4_ASSERT(LINE, rc, numThreads, errno, 0 == rc);
+                if (rc) {
+                    break;
+                }
+            }
+
+            for (int j = 0; j < numThreads; ++j) {
+                rc = Obj::join(handles[j]);
+                LOOP3_ASSERT(LINE, rc, j, 0 == rc);
+                if (rc) {
+                    break;
+                }
+            }
+
+            ASSERT(Functor::s_urgentPlace >= 0);
+            ASSERT(Functor::s_urgentPlace < k_NUM_THREADS);
+            ASSERT(! Functor::s_firstThread);
+            ASSERT(0 == Functor::s_lockCount);
+            ASSERT(k_NUM_THREADS == Functor::s_finished);
+
+            urgentPlaces[i].insert(Functor::s_urgentPlace);  // P-2
+
+            if (veryVeryVerbose) {
+                cout << "Policy " << policyToString(POLICY) <<
+                        ", Max pri " << setw(3) << MAX_PRIORITY <<
+                        ", Min pri " << setw(3) << MIN_PRIORITY <<
+                        ", Place " << Functor::s_urgentPlace << endl;
+            }
+        }
+
+        ASSERT(numTrials == urgentPlaces[i].size());
+
+        bool failed;
+        typedef bsl::multiset<int>::const_iterator Iterator;
+        Iterator       it  = urgentPlaces[i].begin();
+        const Iterator end = urgentPlaces[i].end();
+
+        // If priorities are slaughtering us, the urgent thread will always be
+        // coming near last and '*it', the best performing of the several
+        // trials, will have come within 5 of last.  (P-3)
+
+        LOOP2_ASSERT(*it,
+                     k_NUM_THREADS,
+                     !(failed = *it >= k_NUM_THREADS - 5));
+
+        // Examine the multiset (P-4)
+
+        int thresholdA = 2, thresholdB = 5, thresholdC = 20;
+
+        bool failA = 0, failB = 0, failC = 0;
+
+        // The best performing trial (out of 5) will have the urgent thread
+        // finish in 2nd place or before (out of 129 threads).
+
+        LOOP2_ASSERT(urgentPlaces[i], thresholdA,
+                                       (failA = *it > thresholdA, !failA));
+
+        // The third best performing trial (out of 5) should have finished in
+        // 5th place or before (out of 129 threads).
+
+        ++it;   ++it;    ASSERT(end != it);
+        LOOP2_ASSERT(urgentPlaces[i], thresholdB,
+                                       (failB = *it > thresholdB, !failB));
+
+        // The 4th best performing trial (out of 5) should have finished in
+        // 10th place or before (out of 129 threads).
+
+        ++it;            ASSERT(end != it);
+        LOOP2_ASSERT(urgentPlaces[i], thresholdC,
+                                       (failC = *it > thresholdC, !failC));
+
+        // Verify there were 5 trials.  Should be true whether priorities
+        // worked or not.
+
+        ++it;    ASSERT(end == ++it);
+
+        failed |= failA || failB || failC;
+
+        if (veryVerbose || failed) {
+            cout << "Urgent Places[" << policyToString(POLICY) << "]" <<
+                                         "    " << urgentPlaces[i] << endl;
+        }
+    }
+}
+
 
 }  // close namespace MULTIPRIORITY_EFFECTIVENESS_TEST_CASE
 
@@ -708,21 +917,27 @@ namespace MULTIPRIORITY_USAGE_TEST_CASE {
 // multiple stopped threads are simultaneously ready to run, so we won't see
 // any effect of the different priorities in this case.
 
-void *MostUrgentThreadFunctor(void* arg) {
+extern "C"
+void *MostUrgentThreadFunctor(void* arg)
+{
     if (verbose) {
         bsl::printf("Most urgent\n");
     }
     return 0;
 }
 
-void *FairlyUrgentThreadFunctor(void* arg) {
+extern "C"
+void *FairlyUrgentThreadFunctor(void* arg)
+{
     if (verbose) {
         bsl::printf("Fairly urgent\n");
     }
     return 0;
 }
 
-void *LeastUrgentThreadFunctor(void* arg) {
+extern "C"
+void *LeastUrgentThreadFunctor(void* arg)
+{
     if (verbose) {
         bsl::printf("Least urgent\n");
     }
@@ -1199,7 +1414,7 @@ int main(int argc, char *argv[])
     }
     front = bsl::atoi(utsName.release);
 
-    const bool isPost_5_10 = front > 5 || (5 == front && tail > 10);
+    isPost_5_10 = front > 5 || (5 == front && tail > 10);
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -1324,204 +1539,13 @@ int main(int argc, char *argv[])
                   // 1
 #endif
 
-        typedef Attr::SchedulingPolicy Policy;
-
-        static const struct {
-            int    d_line;
-            Policy d_policy;
-        } DATA[] = {
-            { L_, Attr::e_SCHED_DEFAULT },
-            { L_, Attr::e_SCHED_OTHER   },
-            { L_, Attr::e_SCHED_FIFO    },
-            { L_, Attr::e_SCHED_RR      },
-        };
-        const int DATA_LEN = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
-
-        bsl::multiset<int> urgentPlaces[DATA_LEN];
-
-        for (int i = 0; i < DATA_LEN; ++i) {
-            const int    LINE   = DATA[i].d_line;
-            const Policy POLICY = DATA[i].d_policy;
-
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_LINUX)
-            if (Attr::e_SCHED_FIFO == POLICY ||
-                                              Attr::e_SCHED_RR == POLICY) {
-                continue;
-            }
-#endif
-
-            // Avoid redundant tests (sometimes 'OTHER' and 'DEFAULT' are the
-            // same, ie Sun.
-
-            {
-                bool found = false;
-                for (int j = 0; j < i; ++j) {
-                    if (POLICY == DATA[j].d_policy) found = true;
-                }
-                if (found) continue;
-            }
-
-#if   defined(BSLS_PLATFORM_OS_SOLARIS)
-            const int prioritiesWork = !isPost_5_10 ||
-                                           (Attr::e_SCHED_FIFO != POLICY &&
-                                            Attr::e_SCHED_RR   != POLICY);
-#elif defined(BSLS_PLATFORM_OS_AIX)
-            const int prioritiesWork = 1;
-#else
-            const int prioritiesWork = 0;
-#endif
-
-            const int MAX_PRIORITY = Obj::getMaxSchedulingPriority(POLICY);
-            const int MIN_PRIORITY = Obj::getMinSchedulingPriority(POLICY);
-            ASSERT(0 == prioritiesWork || MAX_PRIORITY > MIN_PRIORITY);
-            ASSERT(MAX_PRIORITY >= MIN_PRIORITY);
-
-            if (veryVerbose) {
-                P_(POLICY); P_(MAX_PRIORITY); P(MIN_PRIORITY);
-            }
-
-            // If there's no difference between max and min priority, there's
-            // no point in doing the test.
-
-            if (MAX_PRIORITY == MIN_PRIORITY) {
-                if (verbose) {
-                    cout << "Policy " << policyToString(POLICY) <<
-                            ", Max pri " << setw(3) << MAX_PRIORITY <<
-                            ", Min pri " << setw(3) << MIN_PRIORITY << endl;
-                }
-                continue;
-            }
-
-            ASSERT(prioritiesWork);
-
-            // Create two 'Attr' objects, an 'urgent' one with max priority,
-            // and a 'notUrgent' one with min priority.
-
-            Attr urgentAttr;;
-            urgentAttr.setStackSize(64 * 1024);
-            urgentAttr.setInheritSchedule(0);
-            urgentAttr.setSchedulingPolicy(POLICY);
-            urgentAttr.setSchedulingPriority(MAX_PRIORITY);
-
-            Attr notUrgentAttr(urgentAttr);
-            notUrgentAttr.setSchedulingPriority(MIN_PRIORITY);
-
-            // Do twice as many trials if priorities don't work, because
-            // Solaris (one of the platforms where priorities work) is the slow
-            // platform, and a larger number of trials reduces the chance
-            // probability (never 0) that the test that priorities killed us
-            // will fail.
-
-            const int numTrials = 5;
-
-            for (int j = 0; j < numTrials; ++j) {
-                TC::Functor::s_urgentPlace =   -1;
-                TC::Functor::s_finished    =    0;
-                TC::Functor::s_firstThread = true;
-                TC::Functor::s_lockCount   =    0;
-
-                TC::Functor fs[TC::k_NUM_THREADS];
-                fs[TC::k_URGENT_THREAD].d_urgent = true;
-
-                Obj::Handle handles[TC::k_NUM_THREADS];
-                int rc;
-                int numThreads = 0;
-                for ( ; numThreads < TC::k_NUM_THREADS; ++numThreads) {
-                    errno = 0;
-                    const Attr& attr = fs[numThreads].d_urgent
-                                     ? urgentAttr
-                                     : notUrgentAttr;
-                    rc = Obj::create(&handles[numThreads],
-                                     attr,
-                                     fs[numThreads]);
-                    LOOP4_ASSERT(LINE, rc, numThreads, errno, 0 == rc);
-                    if (rc) {
-                        break;
-                    }
-                }
-
-                for (int j = 0; j < numThreads; ++j) {
-                    rc = Obj::join(handles[j]);
-                    LOOP3_ASSERT(LINE, rc, j, 0 == rc);
-                    if (rc) {
-                        break;
-                    }
-                }
-
-                ASSERT(TC::Functor::s_urgentPlace >= 0);
-                ASSERT(TC::Functor::s_urgentPlace < TC::k_NUM_THREADS);
-                ASSERT(! TC::Functor::s_firstThread);
-                ASSERT(0 == TC::Functor::s_lockCount);
-                ASSERT(TC::k_NUM_THREADS == TC::Functor::s_finished);
-
-                urgentPlaces[i].insert(TC::Functor::s_urgentPlace);  // P-2
-
-                if (veryVeryVerbose) {
-                    cout << "Policy " << policyToString(POLICY) <<
-                            ", Max pri " << setw(3) << MAX_PRIORITY <<
-                            ", Min pri " << setw(3) << MIN_PRIORITY <<
-                            ", Place " << TC::Functor::s_urgentPlace << endl;
-                }
-            }
-
-            ASSERT(numTrials == urgentPlaces[i].size());
-
-            bool failed;
-            typedef bsl::multiset<int>::const_iterator Iterator;
-            Iterator       it  = urgentPlaces[i].begin();
-            const Iterator end = urgentPlaces[i].end();
-
-            // If priorities are slaughtering us, the urgent thread will always
-            // be coming near last and '*it', the best performing of the
-            // several trials, will have come within 5 of last.  (P-3)
-
-            LOOP2_ASSERT(*it,
-                         TC::k_NUM_THREADS,
-                         !(failed = *it >= TC::k_NUM_THREADS - 5));
-
-            // Examine the multiset (P-4)
-
-            int thresholdA = 2, thresholdB = 5, thresholdC = 10;
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-            if (isPost_5_10) {
-                thresholdA = 50; thresholdB = 90; thresholdC = 120;
-            }
+        break;    // This test takes prohibitive time on Solaris, so it cannot
+                  // be run in the nightly build.  It is available as a
+                  // negative test case.
 #endif
 
-            bool failA = 0, failB = 0, failC = 0;
-
-            // The best performing trial (out of 5) will have the urgent thread
-            // finish in 2nd place or before (out of 129 threads).
-
-            LOOP2_ASSERT(urgentPlaces[i], thresholdA,
-                                           (failA = *it > thresholdA, !failA));
-
-            // The third best performing trial (out of 5) should have finished
-            // in 5th place or before (out of 129 threads).
-
-            ++it;   ++it;    ASSERT(end != it);
-            LOOP2_ASSERT(urgentPlaces[i], thresholdB,
-                                           (failB = *it > thresholdB, !failB));
-
-            // The 4th best performing trial (out of 5) should have finished in
-            // 10th place or before (out of 129 threads).
-
-            ++it;            ASSERT(end != it);
-            LOOP2_ASSERT(urgentPlaces[i], thresholdC,
-                                           (failC = *it > thresholdC, !failC));
-
-            // Verify there were 5 trials.  Should be true whether priorities
-            // worked or not.
-
-            ++it;    ASSERT(end == ++it);
-
-            failed |= failA || failB || failC;
-
-            if (veryVerbose || failed) {
-                cout << "Urgent Places[" << policyToString(POLICY) << "]" <<
-                                             "    " << urgentPlaces[i] << endl;
-            }
-        }
+        TC::priorityEffectivenessTest();
       }  break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2623,8 +2647,28 @@ int main(int argc, char *argv[])
             LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                         (actualTime - expectedTime).totalMilliseconds() < 50);
         }
+      } break;
+      case -6: {
+        // --------------------------------------------------------------------
+        // PRIORITY EFFECTIVENESS TEST
+        //
+        // Concerns:
+        //: 1 The priority effectiveness test cannot be run nightly on Solairs
+        //:   since it takes prohibitive time on that platform, so we enable
+        //:   its running as a negative test case here.
+        //
+        // Testing
+        //: o Attr::setSchedulingPolicy
+        //: o Attr::setSchedulingPriority
+        // --------------------------------------------------------------------
 
-    }  break;
+        if (verbose) cout << "Thread Priorities Test\n"
+                             "======================\n";
+
+        namespace TC = MULTIPRIORITY_EFFECTIVENESS_TEST_CASE;
+
+        TC::priorityEffectivenessTest();
+      }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

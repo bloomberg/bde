@@ -371,7 +371,7 @@ struct ThreadUtil {
     typedef bslmt_KeyDestructorFunction            Destructor;
         // Prototype for thread-specific key destructors.
 
-public:
+  public:
     // PUBLIC CLASS METHODS
                 // *** Thread Management ***
 

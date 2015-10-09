@@ -330,8 +330,8 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
     // specified 'value' in the ISO 8601 format.  Return 0 on success and a
     // non-zero value otherwise.
 {
-    char buf[bdlt::Iso8601Util::k_DATETIME_STRLEN];
-    int len = bdlt::Iso8601Util::generate(buf, value, sizeof(buf));
+    char buf[bdlt::Iso8601Util::k_MAX_STRLEN];
+    int len = bdlt::Iso8601Util::generate(buf, sizeof(buf), value);
     return balber::BerUtil_Imp::putStringValue(streamBuf, buf, len);
 }
 

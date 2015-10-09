@@ -191,7 +191,7 @@ btlso::IPv4Address getLocalAddress() {
     // On Cygwin, binding to btlso::IPv4Address() doesn't seem to work.
     // Wants to bind to localhost/127.0.0.1.
 
-#ifdef BSLS_PLATFORM_OS_CYGWIN
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || defined(BSLS_PLATFORM_OS_WINDOWS)
     return btlso::IPv4Address("127.0.0.1", 0);
 #else
     return btlso::IPv4Address();
@@ -584,7 +584,6 @@ int createConnection(
                       clientSocket(socketFactory->allocate(),
                                    socketFactory,
                                    &Deleter::deleteObject<btlso::IPv4Address>);
-
         const int rc = clientSocket->bind(*ipAddress);
         if (rc) {
             return rc;                                                // RETURN
@@ -643,7 +642,7 @@ void sessionStateCallbackUsingChannelMapAndCounter(
     }
 }
 
-const int NUM_BYTES = 1024 * 1024;
+const int NUM_BYTES   = 1024 * 1024;
 const int NUM_THREADS = 5;
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
@@ -652,7 +651,6 @@ btlso::InetStreamSocketFactory<btlso::IPv4Address>  factory;
 
 struct ConnectData {
     int                d_index;
-    int                d_numBytes;
     btlso::IPv4Address d_serverAddress;
 };
 
@@ -660,7 +658,6 @@ void *connectFunction(void *args)
 {
     ConnectData              data      = *(const ConnectData *) args;
     const int                INDEX     = data.d_index;
-    const int                NUM_BYTES = data.d_numBytes;
     const btlso::IPv4Address ADDRESS   = data.d_serverAddress;
 
     btlso::StreamSocket<btlso::IPv4Address> *socket = factory.allocate();
@@ -668,53 +665,24 @@ void *connectFunction(void *args)
 
     ASSERT(0 == socket->connect(ADDRESS));
 
-    bsl::vector<char> buffer(NUM_BYTES);
-
-    int numRemaining = NUM_BYTES;
-    do {
-        int rc = socket->read(buffer.data(), numRemaining);
-        if (rc < 0) {
-            if (rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK) {
-                continue;
-            }
-            socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
-            return 0;                                                 // RETURN
-        }
-
-        numRemaining -= rc;
-
-        if (0 == socket->connectionStatus()) {
-            rc = socket->write(buffer.data(), numRemaining);
-
-            if (rc < 0) {
-                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
-                return 0;                                             // RETURN
-            }
-
-            bslmt::ThreadUtil::microSleep(1000 , 0);
-        }
-        else {
-            return 0;                                                 // RETURN
-        }
-    } while (numRemaining > 0);
     return 0;
 }
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
                                                     serverSockets(NUM_THREADS);
+bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *>
+                                                    acceptSockets(NUM_THREADS);
+
+bsls::AtomicInt numUpConnections(0);
 
 struct ListenData {
-    int              d_index;
-    int              d_numBytes;
-    bsls::AtomicInt *d_numUpConnections_p;
+    int d_index;
 };
 
 void *listenFunction(void *args)
 {
-    ListenData       data      = *(const ListenData *) args;
-    const int        INDEX     = data.d_index;
-    const int        NUM_BYTES = data.d_numBytes;
-    bsls::AtomicInt *numUpConnections(data.d_numUpConnections_p);
+    ListenData data  = *(const ListenData *) args;
+    const int  INDEX = data.d_index;
 
     btlso::StreamSocket<btlso::IPv4Address> *serverSocket = factory.allocate();
     serverSockets[INDEX] = serverSocket;
@@ -722,45 +690,20 @@ void *listenFunction(void *args)
     ASSERT(0 == serverSocket->bind(getLocalAddress()));
     ASSERT(0 == serverSocket->listen(1));
 
-    ++*numUpConnections;
+    serverSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE);
+
+    ++numUpConnections;
 
     btlso::StreamSocket<btlso::IPv4Address> *acceptSocket;
     ASSERT(!serverSocket->accept(&acceptSocket));
-    ASSERT(0 == acceptSocket->setBlockingMode(btlso::Flag::e_BLOCKING_MODE));
 
-    bsl::vector<char> buffer(NUM_BYTES);
+    ASSERT(0 == acceptSocket->setBlockingMode(
+                                             btlso::Flag::e_NONBLOCKING_MODE));
 
-    int numRemaining = NUM_BYTES;
-    do {
-        int rc = acceptSocket->read(buffer.data(), numRemaining);
-        if (rc < 0) {
-            if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == rc) {
-                continue;
-            }
-            acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
-            return 0;                                                 // RETURN
-        }
+    acceptSockets[INDEX] = acceptSocket;
 
-        numRemaining -= rc;
-
-        if (0 == acceptSocket->connectionStatus()) {
-            rc = acceptSocket->write(buffer.data(), numRemaining);
-
-            if (rc < 0) {
-                acceptSocket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
-                return 0;                                             // RETURN
-            }
-
-            bslmt::ThreadUtil::microSleep(1000 , 0);
-        }
-        else {
-            return 0;                                                 // RETURN
-        }
-    } while (numRemaining > 0);
     return 0;
 }
-
-bsls::AtomicInt numUpConnections(0);
 
 void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
                      bslmt::ThreadUtil::Handle                *listenThreads,
@@ -779,11 +722,9 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
     }
 
     ConnectData connectData[NUM_THREADS];
-    const int   SIZE = 1024 * 1024; // 1 MB
 
     for (int i = 0; i < NUM_THREADS; ++i) {
-        connectData[i].d_index    = i;
-        connectData[i].d_numBytes = SIZE;
+        connectData[i].d_index = i;
 
         const int PORTNUM = pool->portNumber(serverHandles[i]);
         connectData[i].d_serverAddress = btlso::IPv4Address("127.0.0.1",
@@ -803,20 +744,17 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
     ListenData listenData[NUM_THREADS];
 
     for (int i = 0; i < NUM_THREADS; ++i) {
-        listenData[i].d_index              = i;
-        listenData[i].d_numBytes           = SIZE;
-        listenData[i].d_numUpConnections_p = &numUpConnections;
+        listenData[i].d_index = i;
 
         ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                               &listenFunction,
                                               (void *) &listenData[i]));
+        bslmt::ThreadUtil::microSleep(100, 0);
     }
 
     while (numUpConnections < NUM_THREADS) {
         bslmt::ThreadUtil::microSleep(50, 0);
     }
-
-    numUpConnections = 0;
 
     bsl::vector<int> clientHandles(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
@@ -831,8 +769,8 @@ void runTestFunction(bslmt::ThreadUtil::Handle                *connectThreads,
                                   sessionFactory));
     }
 
-    while (numUpConnections < NUM_THREADS) {
-        bslmt::ThreadUtil::microSleep(50, 0);
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
     }
 
     mapMutex.lock();
@@ -2134,7 +2072,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.numSessions());
 
         ASSERT(0 == mX.start());
-
         mapMutex.lock();
         sourceIdToChannelMap.clear();
         mapMutex.unlock();
@@ -2145,8 +2082,6 @@ int main(int argc, char *argv[])
                         &sessionStateCb,
                         &sessionFactory,
                         dataBlob);
-
-        ASSERT(0 != mX.numSessions());
 
         ASSERT(0 == mX.stopAndRemoveAllSessions());
 
@@ -2236,7 +2171,7 @@ int main(int argc, char *argv[])
 
                 channelCbBarrier.wait();
             }
-
+#ifndef BSLS_PLATFORM_OS_WINDOWS
             {
 
                 typedef btlso::StreamSocketFactoryDeleter Deleter;
@@ -2248,7 +2183,8 @@ int main(int argc, char *argv[])
                 ASSERT(socket);
 
                 SocketOptions opt;  opt.setSendTimeout(1); // fails on all
-                                                           // platforms
+                                                           // platforms except
+                                                           // windows
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2259,7 +2195,7 @@ int main(int argc, char *argv[])
                 poolCbBarrier.wait();
                 ASSERT(btlmt::SessionPool::e_CONNECT_FAILED == poolState);
             }
-
+#endif
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
       } break;
@@ -2598,7 +2534,6 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_THREADS; ++i) {
             bslmt::ThreadUtil::join(connectThreads[i]);
-            bslmt::ThreadUtil::join(listenThreads[i]);
         }
       } break;
       case 7: {

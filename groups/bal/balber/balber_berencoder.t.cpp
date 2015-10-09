@@ -10,8 +10,6 @@
 #include <bdlat_valuetypefunctions.h>
 #include <bdlat_sequencefunctions.h>
 
-#include <bdlt_serialdateimputil.h>
-
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlsb_fixedmeminstreambuf.h>
 
@@ -105,9 +103,6 @@ int numOctets(const char *s)
     }
     return length / 2;
 }
-
-typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdlt::PosixDateImpUtil  DateUtil;
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 enum { SUCCESS = 0, FAILURE = -1 };
@@ -9545,11 +9540,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
@@ -9767,11 +9760,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
 
@@ -10404,11 +10395,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -10859,11 +10848,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(BIN)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -10872,9 +10859,9 @@ int main(int argc, char *argv[])
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
                 const bdlt::DatetimeTz VALUE(bdlt::Datetime(YEAR, MONTH, DAY,
-                                                          HOUR, MIN, SECS,
-                                                          MSEC),
-                                            OFF);
+                                                            HOUR, MIN, SECS,
+                                                            MSEC),
+                                             OFF);
 
                 bdlsb::MemOutStreamBuf osb;
                 balber::BerEncoder encoder(&options);

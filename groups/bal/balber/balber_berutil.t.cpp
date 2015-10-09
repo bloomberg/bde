@@ -23,10 +23,9 @@
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_time.h>
-#include <bdlt_serialdateimputil.h>
-
 #include <bdlt_datetz.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_serialdateimputil.h>
 #include <bdlt_timetz.h>
 
 #include <bdlb_print.h>
@@ -95,9 +94,6 @@ typedef bsls::Types::Uint64     Uint64;
 
 typedef balber::BerUtil         Util;
 typedef bslstl::StringRef       StringRef;
-
-typedef bdlt::SerialDateImpUtil ProlepticDateUtil;
-typedef bdlt::PosixDateImpUtil  DateUtil;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -1059,11 +1055,9 @@ int main(int argc, char *argv[])
                            T_ P_(YEAR) P_(MONTH) P_(DAY) P_(BIN) P_(EXP) P(LEN)
                 }
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
 
@@ -1291,10 +1285,7 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                    && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                              MONTH,
-                                                              DAY));
+                ASSERT(bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
 
@@ -1967,11 +1958,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -2431,11 +2420,9 @@ int main(int argc, char *argv[])
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                LOOP_ASSERT(LINE,
-                            DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                         && ProlepticDateUtil::isValidYearMonthDay(YEAR,
-                                                                   MONTH,
-                                                                   DAY));
+                LOOP_ASSERT(LINE, bdlt::Date::isValidYearMonthDay(YEAR,
+                                                                  MONTH,
+                                                                  DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF)
                                    P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
@@ -2505,16 +2492,18 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int i = 0; i <= NUM_YEARS; ++i) {
-            for (int j = 0; j <= NUM_MONTHS; ++j) {
-            for (int k = 0; k <= NUM_DAYS; ++k) {
+            for (int i = 0; i < NUM_YEARS; ++i) {
+            for (int j = 0; j < NUM_MONTHS; ++j) {
+            for (int k = 0; k < NUM_DAYS; ++k) {
 
                 const int YEAR  = YEARS[i];
                 const int MONTH = MONTHS[j];
                 const int DAY   = DAYS[k];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
+                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                 MONTH,
+                                                                 DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -2947,16 +2936,18 @@ int main(int argc, char *argv[])
             const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
             const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-            for (int di = 0; di <= NUM_YEARS; ++di) {
-            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
-            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+            for (int di = 0; di < NUM_YEARS; ++di) {
+            for (int dj = 0; dj < NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk < NUM_DAYS; ++dk) {
 
                 const int YEAR  = YEARS[di];
                 const int MONTH = MONTHS[dj];
                 const int DAY   = DAYS[dk];
 
-                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
-                 && ProlepticDateUtil::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
+                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                 MONTH,
+                                                                 DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;

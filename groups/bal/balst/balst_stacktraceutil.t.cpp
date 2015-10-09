@@ -9,6 +9,7 @@
 
 #include <bdlma_sequentialallocator.h>
 
+#include <bdlf_function.h>
 #include <bdlt_currenttime.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -865,6 +866,10 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
             }
 
+            demangle &= !PLAT_LINUX;    // The LInux demangler has a bug where
+                                        // it fails on file-scope static
+                                        // functions.
+
             match = ".case_5_bottom";
             match += !dot;
             len = (int) bsl::strlen(match);
@@ -883,7 +888,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                if (bsl::strstr(sn, "bdlf") && bsl::strstr(sn, "Function")) {
+                if (bsl::strstr(sn, "bsl") && bsl::strstr(sn, "function")) {
                     continue;
                 }
 
