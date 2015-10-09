@@ -80,7 +80,10 @@ typedef signed bid__int64 BID_SINT64;
 #define BID_ALIGN(n) __declspec(align(n))
 #endif
 #else
-#if !defined HPUX_OS
+// Bloomberg LP:  The following alignment syntax is not supported by all other
+// (for example, Sun CC, IBM xlc), retricting it to gcc & clang.
+
+#if defined(__clang__) || defined(__GNUC__)
 #define BID_ALIGN(n) __attribute__ ((aligned(n)))
 #else
 #define BID_ALIGN(n)
