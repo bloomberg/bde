@@ -1629,7 +1629,9 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl
                           << "Testing waitForIO" << endl
                           << "=================" << endl;
-#if !defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if !defined(BSLS_PLATFORM_OS_AIX)           \
+ && !defined(BSLS_PLATFORM_OS_WINDOWS)       \
+ && !defined(BSLS_PLATFORM_OS_LINUX)
 
         const btlso::Flag::IOWaitType RD = btlso::Flag::e_IO_READ;
         const btlso::Flag::IOWaitType WR = btlso::Flag::e_IO_WRITE;
