@@ -718,9 +718,9 @@ class function<RET(ARGS...)> :
             return &functionPtrInvoker<FUNC>;                         // RETURN
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             // G++ 4.3.5 64-bit with optimization has an error which causes
             // this function to seemingly always return null unless this
@@ -742,9 +742,9 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;                          // RETURN
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             // G++ 4.3.5 64-bit with optimization has an error which causes
             // this function to seemingly always return null unless this
@@ -956,9 +956,9 @@ class function<RET()> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -975,9 +975,9 @@ class function<RET()> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1122,9 +1122,9 @@ class function<RET(ARGS_01)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1141,9 +1141,9 @@ class function<RET(ARGS_01)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1296,9 +1296,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1315,9 +1315,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1479,9 +1479,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1498,9 +1498,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1671,9 +1671,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1690,9 +1690,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1872,9 +1872,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -1891,9 +1891,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2082,9 +2082,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2101,9 +2101,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2301,9 +2301,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2320,9 +2320,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2529,9 +2529,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2548,9 +2548,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2766,9 +2766,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -2785,9 +2785,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3012,9 +3012,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3031,9 +3031,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3267,9 +3267,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3286,9 +3286,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3531,9 +3531,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3550,9 +3550,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3804,9 +3804,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -3823,9 +3823,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -4086,9 +4086,9 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -4105,9 +4105,9 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -5557,9 +5557,9 @@ class function<RET(ARGS...)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
@@ -5576,9 +5576,9 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
-#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
-    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
-            __LP64__                                                     &&   \
+#if 10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 && \
+    10000 * __GNUC__ + 100 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     && \
+            __LP64__                                                       && \
             __GNUC_GNU_INLINE__
             Function_Rep::nothing(f);
 #endif
