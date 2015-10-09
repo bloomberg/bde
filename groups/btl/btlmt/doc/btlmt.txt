@@ -1,0 +1,540 @@
+ btlmt.txt
+
+@PURPOSE: Provide framework for multi-threaded TCP/IP transport.
+
+@MNEMONIC: Basic Transport Environment Multi-Threaded (btlmt)
+
+@DESCRIPTION: The 'btlmt' package offers a multi-threaded framework for
+ TCP/IPv4 interprocess communication (IPC).
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btlmt' package currently has 10 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. btlmt_sessionpool
+
+  3. btlmt_channelpoolchannel
+
+  2. btlmt_channelpool
+
+  1. btlmt_asyncchannel
+     btlmt_channelpoolconfiguration
+     btlmt_channelstatus
+     btlmt_channeltype
+     btlmt_session
+     btlmt_sessionfactory
+     btlmt_tcptimereventmanager
+..
+ 'btlmt' also depends directly upon the 'btlso' and 'btlsos' packages within
+ 'btl', and on the 'bce' ("concurrency" or multi-threaded) and 'bde' package
+ groups.
+
+/Component Synopsis
+/------------------
+: 'btlmt_asyncchannel':
+:      Provide a protocol for asynchronous IO operations
+:
+: 'btlmt_channelpool':
+:      Provide thread-enabled stream-based IPv4 communication.
+:
+: 'btlmt_channelpoolchannel':
+:      Provide a concrete implementation of 'btlmt::AsyncChannel'
+:
+: 'btlmt_channelpoolconfiguration':
+:      Provide a class for configuring channel pools.
+:
+: 'btlmt_channelstatus':
+:      Enumerate the set of channel status codes.
+:
+: 'btlmt_channeltype':
+:      Enumerate the set of channel types.
+:
+: 'btlmt_session':
+:      Provide a *pure* protocol class for a session
+:
+: 'btlmt_sessionfactory':
+:      Provide a *pure* protocol class for creating sessions
+:
+: 'btlmt_sessionpool':
+:      Provide thread-enabled session-based IPv4 communication
+:
+: 'btlmt_tcptimereventmanager':
+:      Provide a thread-enabled multiplexor of socket events and timers.
+
+/Framework Overview
+/------------------
+ The 'btlmt' package can be viewed as a framework for building efficient
+ multi-threaded applications requiring interprocess communication (IPC).
+ 'btlmt' provides the structure whereby multiple threads within a process can
+ engage in IPC via a flexible message format.  In general functionality,
+ 'btlmt' is similar to the 'ptdispatch' framework, except that 'btlmt' uses
+ TCP/IP sockets and not 'fstsnd' as its transport mechanism.  The following
+ overview presents the main 'btlmt' components and types, plus other types used
+ by the framework.
+
+/Channel Queue Pool
+/- - - - - - - - -
+ The heart of the 'btlmt' framework, sitting at the top of the component
+ physical hierarchy, is 'btlmt_channelqueuepool', which provides the
+ 'btlmt_ChannelQueuePool' object (CQP).  The CQP provides queue-based message
+ transport over IPv4-addressed byte-stream communication channels.  (See the
+ {'btlsc'} package documentation for an overview of the 'btl' stream-based
+ channel protocols, and see the {'btlso'} package documentation for details
+ about concrete TCP/IPv4 channels.)  The CQP creates channels automatically as
+ needed when the appropriate events occur, and destroys those channels based on
+ user requests.  For example, a new channel is allocated automatically when an
+ incoming connection is accepted, or when a user explicitly requests a
+ connection to a server.  The CQP creates both client (connector) and server
+ (acceptor) channels as appropriate.
+
+/Message
+/- - - -
+ There are four physical-hierarchy peer components at the bottom (Level 1) of
+ the hierarchy, but we will focus on 'btlmt_message' as being the most central
+ of these to understand, if only because the user will most likely be
+ interacting with messages most directly and frequently in the course of
+ writing useful code.  'btlmt_message' provides several distinct message
+ objects and one generic message container.  The distinct message objects are:
+..
+    Class               Message Contents
+    ---------------     ----------------
+    btlmt_DataMsg       raw data as read from a socket
+    btlmt_ChannelMsg    a new state for a channel
+    btlmt_PoolMsg       an event from the pool
+    btlmt_TimerMsg      notification that a timer is expired
+    btlmt_UserMsg       user-generated message
+    btlmt_Message       container for a generic message
+..
+ Details regarding messages can be found in both the 'btlmt_message' and
+ 'btlmt_channelqueuepool' component documentation.  One point worth mentioning
+ here is that the CPQ messages are protocol-neutral, meaning that CPQ supports
+ message delivery using any application-level (i.e., OSI levels 5-7) protocol.
+ This in turn means that the data in any one Data message may contain a
+ non-integral number of (logical) messages.  The CQP therefore provides a
+ 'ParseMessagesCallback' type, which should be used to distinguish message
+ boundaries.  The Usage Example below illustrates this message-boundary issue.
+
+/Channel Pool
+/- - - - - -
+ The 'btlmt_ChannelPool' object (CP) itself is provided by the
+ 'btlmt_channelpool' component.  The CP is in its own right a useful manager of
+ TCP/IPv4 channels, but in the context of the most straightforward use of the
+ 'btlmt' framework, the CP can be regarded as an implementation detail of the
+ CQP.  (See the {'btlmt_channelpool'} component documentation for information
+ about the CP.)  The main mode of interaction with the CP is through the
+ 'btlmt_ChannelPoolConfiguration' object (CPC), which will be discussed next.
+ Even so, the CPC can be regarded as setting the configuration of a logical CP
+ within the CQP, so the CP itself can be largely ignored by new users of
+ 'btlmt'.
+
+/Channel Pool Configuration
+/- - - - - - - - - - - - -
+ The CPC provides a "constrained attributes" class for the CP, which is to say
+ that althought the CPC is in some sense a 'struct' of parameters
+ characterizing a CP, these parameters are not all independent of one another.
+ The CPC manages the constraints among the attributes.  In particular, the CPC
+ "set" methods for constrained values will fail if their arguments are not
+ consistent with the constraints (see the two tables below).  Also, the CPC
+ constructor does not take any constrained arguments, but rather sets those
+ values to valid defaults unconditionally.  This behavior avoids "silent
+ failures", since the constructor cannot explicitly return a status value.
+
+ The attributes contained by a CPC and the attribute constraints are given,
+ respectively, in two tables below.  The attributes are as follows:
+..
+  TYPE                 NAME                DESCRIPTION
+  ------------------   --------------      --------------------------------
+   int                 maxConnections      maximum number of connections
+                                           that can be managed by a channel
+                                           pool
+   int                 maxThreads          maximum number of threads managed
+                                           by a channel pool
+   int                 maxWriteCache       maximum number of bytesto be
+                                           cached in the outgoingbuffer for
+                                           a managed channel
+   double              readTimeout         timeout for "read" operations
+   double              metricsInterval     periodic-update interval for
+                                           metrics
+   int                 minMessageSizeOut   output message strategy hint
+   int                 typMessageSizeOut   output message strategy hint
+   int                 maxMessageSizeOut   output message strategy hint
+   int                 minMessageSizeIn    input  message strategy hint
+   int                 typMessageSizeIn    input  message strategy hint
+   int                 maxMessageSizeIn    input  message strategy hint
+   int                 workloadThreshold   threshold of the workload for an
+                                           event manager after which
+                                           a new thread will be created,
+                                           or an alert generated if
+                                           no new thread can be created.
+..
+ The constraints are as follows:
+..
+   NAME                 CONSTRAINT
+  +--------------------+---------------------------------------------+
+  | maxConnections     | 0 <= maxConnections                         |
+  +--------------------+---------------------------------------------+
+  | maxThreads         | 0 <= maxThreads                             |
+  +--------------------+---------------------------------------------+
+  | maxWriteCache      | 0 <= maxWriteCache                          |
+  +--------------------+---------------------------------------------+
+  | readTimeout        | 0 <= readTimeout                            |
+  +--------------------+---------------------------------------------+
+  | metricsInterval    | 0 <= metricsInterval                        |
+  +--------------------+---------------------------------------------+
+  | minMessageSizeOut  | 0 <= minMessageSizeOut <= typMessageSizeOut |
+  | typMessageSizeOut  |   <= maxMessageSizeOut                      |
+  | maxMessageSizeOut  |                                             |
+  +--------------------+---------------------------------------------+
+  | minMessageSizeIn   | 0 <= minMessageSizeIn <= typMessageSizeIn   |
+  | typMessageSizeIn   |   <= maxMessageSizeIn                       |
+  | maxMessageSizeIn   |                                             |
+  +--------------------+---------------------------------------------+
+  | workloadThreshold  | 0 <= workloadThreshold                      |
+  +--------------------+---------------------------------------------+
+..
+ Note that the CPC ensures that the channel pool configuration is legal, but it
+ does not insure that the configuration is wise.  The user must still analyze
+ the requirements of the software being developed, and must have a basic
+ understansing of thread and socket performance issues in order to choose an
+ optimal configuration.
+
+/TCP Timer Event Manager
+/- - - - - - - - - - - -
+ The 'btlmt_tcptimereventmanager' component provides the
+ 'btlmt_TcpTimerEventManager' object (TTEM), which is a multi-threaded
+ implememtation of the 'btlso_TimerEventManager' protocol.  (See the
+ {'btlso_timereventmanager'} component documentation for protocol details.)
+ The TTEM is a thread-enabled multiplexor of socket events and timers.  Within
+ the context of the 'btlmt' framework, it is safe to regard the TTEM as an
+ implementation detail.  Information regarding TTEM performance can be found in
+ the 'btlmt_tcptimereventmanager' component documentation.
+
+/Queue
+/- - -
+ 'btlmt' uses the 'bcec_Queue<btlmt_Message>' queue.  Two instances of this
+ queue, one for the input queue and one for the output queue, are used as
+ constructor arguments to the CQP.  These queues are held but not owned by the
+ CQP, so the user is responsible for managing queue lifetimes.  Moreover, the
+ user acceses each queue directly through the 'bcec_Queue' interface.  See the
+ {'bcec_queue'} component documentation for details regarding this template
+ queue.
+
+/'btlmt_ChannelQueuePool::ParseMessagesCallback'
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ 'ParseMessageCallback' is a 'typedef' within the CPQ class.  The type that is
+ aliased is:
+..
+  bcef_Vfunc4<int *, int *, const char *, int>
+..
+ which is used, as its name implies, to parse the body of data messages.  As
+ mentioned above, an instance of a data message as popped from a queue may have
+ a non-integral number of logical messages.  It is the purpose of the message
+ parsing callback to identify message boundaries and to communicate the number
+ of bytes needed (if any) to complete the last (possibly partial) logical
+ message within the buffer of the data message.  See {Usage} for an
+ illustration.
+
+/Resource Management
+/- - - - - - - - - -
+ The 'btlmt_pooldeallocator' component is deprecated, and will be replaced by a
+ component that will perform the required functionality without the need of
+ user intervention.  This aspect of resource management can thus safely be
+ ignored by most users of 'btlmt'.
+
+/Usage
+/-----
+ This section illustrates intended use of this package.
+
+/Example 1: Implementing an Echo Server
+/ - - - - - - - - - - - - - - - - - - -
+ We illustrate the basic usage of the 'btlmt' framework by considering an echo
+ server.  Let's start with a brief overview.  The heart of the server is the
+ 'while(1)' loop, which endlessly pops a message off of the 'incoming' queue
+ and processes it according to a 'switch' statement that dispatches the message
+ depending on the message type.  Data messages are pushed back onto the
+ 'outgoing' queue ("echoed").
+
+ Other steps common to 'btlmt' applications are configuring the channel pool
+ (i.e., constructing and setting the attributes of a CPC object), constructing
+ the two queues, and constructing and populating the 'ParseMessageCallback'
+ function.  These four objects are then provided as constructor arguments to
+ the CQP.  With the CQP constructed, one can enter the infinite loop described
+ above.
+
+ The full, uninterrupted example file appears at the end of this section.  The
+ following snippets drawn from that example highlight the key features as
+ described above.
+
+ First, we define the file-'static' function 'parseMessages', which will be
+ loaded into the 'ParseMessagesCallback' functor within 'main'.  As prescribed
+ by the callback 'typedef', the functor will require four arguments of types as
+ indicated above.
+
+ As a side detail -- not central to this specific example -- note that the
+ function loaded into the 'ParseMessagesCallback' functor could well take more
+ than four arguments (up to nine, at present), if such a function were
+ convenient for our purposes.  In that case, the initial four arguments would
+ match the types of the four required arguments, and the values set for any
+ trailing arguments of the underlying function would be supplied to the 'bcefu'
+ 'make' method.  See the {'bcef'} and {'bcefu'} package documentation for more
+ details on binding functions with extra arguments to functors taking fewer
+ arguments.  For our purposes, no additional arguments are needed, and so the
+ 'parseMessages' function is defined as follows.
+..
+  // btlmt_usage.m.cpp                                                -*-C++-*-
+
+  using namespace BloombergLP;
+
+  static
+  inline void parseMessages(int        *numBytesConsumed,
+                            int        *numBytesNeeded,
+                            const char *data,
+                            int         length)
+      // Parse the specified message 'data' of the specified 'length'.  Load
+      // into the specified 'numBytesConsumed' the number of bytes of 'data'
+      // that comprise the number of *complete* (logical) messages within
+      // 'data' and load into the specified 'numBytesNeeded' the number of
+      // bytes needed to complete a trailing partial logical message within
+      // 'data' or load 0 if the last logical message in 'data' was complete.
+..
+ Basically, the CQP will use this callback function to identify an integral
+ number of complete messages.  Since the CQP is "protocol neutral", the
+ lower-level transport channel has no way of knowing what the significance of
+ any given number of received bytes might be.  This user-supplied function
+ allows the CQP to identify message boundaries.
+
+ In this example, the message header consists of a network-byte-order 'int'
+ value denoting the total number of bytes (including the header) that comprise
+ the message.  The following function body fulfills the documented contract for
+ the example case of a single 'int' header.
+..
+  {
+      int originalLength    = length;
+      int processedMessages = 0;
+
+      while(length > sizeof(int)) {
+          int msgLength = ntohl(*(int*)data);  // decode message length
+..
+ Note here that, as a guard against malicious users, the 'msgLength' should be
+ limited in the protocol.
+..
+          if (length < msgLength) {
+             *numBytesConsumed = originalLength - length;
+             *numBytesNeeded   = msgLength - length;
+             return;
+          }
+          length -= msgLength;
+          data   += msgLength;
+          ++processedMessages;  // count not used in this implementation
+     }
+
+     *numBytesConsumed = originalLength - length;
+     *numBytesNeeded   = sizeof(int) - length;
+  }
+..
+ We are now ready to write 'main' as outlined above.  In this simple example,
+ we hard-code several needed parameters in an 'enum.
+..
+  int main()
+  {
+      enum {
+          SERVER_ID       = 0xAB,    // a cookie
+          PORT_NUMBER     = 4564,
+          MAX_CONNECTIONS = 10000
+      };
+..
+ Next, we construct a default 'btlmt_ChannelPoolConfiguration' object 'config'
+ and use its 'set' methods so that 'config' contains the CP configuration that
+ we want.
+..
+
+      // Configure the channel
+      btlmt_ChannelPoolConfiguration config;
+      config.setMaxThreads(4);
+      config.setMaxConnections(MAX_CONNECTIONS);
+      config.setReadTimeout(5.0);                   // in seconds
+      config.setWorkloadThreshold(75);              // 75% busy
+      config.setMetricsInterval(10.0);              // seconds
+      config.setMaxWriteCache(1<<10);               // 1Mb
+      config.setIncomingMessageSizes(4, 100, 1024);
+      config.setOutgoingMessageSizes(4, 100, 1024);
+..
+ We can write the value of 'config' to 'stdout' to confirm that we have
+ correctly initialized the CPC.
+..
+      bsl::cout << config;
+..
+ Next, we instantiate a default functor 'cb' and use 'bcefu_Vfunc4::makeF' to
+ load into 'cb' the 'parseMessages' function defined above.
+..
+      btlmt_ChannelQueuePool::ParseMessagesCallback cb;
+      bcefu_Vfunc4::makeF(&cb, parseMessages);
+..
+ We now have our CPC and callback functor ready.  The last objects that we need
+ are the 'incoming' and 'outgoing' queues.  We construct the queues, and use
+ them along with the callback and the CPC to construct a CQP object 'qp'.
+..
+      bcec_Queue<btlmt_Message> incoming, outgoing;
+      btlmt_ChannelQueuePool qp(&incoming, &outgoing, cb, config);
+..
+
+ With all of our objects and input data ready, we start the echo server by
+ calling the CQP's 'start' method.  Note that we call the method from within an
+ 'assert' call, since we might as well abort if the CQP cannot start.
+..
+      assert(0 == qp.start());   // fails if no system resources.
+..
+ The final startup step, before entering into the body of the server loop, is
+ to call the 'listen' method.  In this case, we call 'listen' within an 'if'
+ statement and return an error message and call the 'stop' method before
+ returning.
+..
+      if (0 != qp.listen(PORT_NUMBER, MAX_CONNECTIONS, SERVER_ID)) {
+          bsl::cout << "Can't open server port." << bsl::endl;
+          qp.stop();
+          return -1;
+      }
+..
+ The server is now live and running.  We enter an infinite 'while' loop wherein
+ we call the 'popFront' method of the 'incoming' queue to fetch the next
+ available message 'msg' and 'switch' on 'msg.type()'.  'msg' might be a status
+ message generated by the CQP, or it might be a data message, in which case the
+ datat is processed as desired and pushed back onto the 'outgoing' queue.
+..
+      while(1) {
+          btlmt_Message msg = incoming.popFront();
+          switch(msg.type()) {
+            case btlmt_Message::CHANNEL_STATE: {
+              const btlmt_ChannelMsg& data = msg.channelMsg();
+              bsl::cout << data << bsl::endl;
+            } break;
+            case btlmt_Message::POOL_STATE: {
+              bsl::cout << msg.poolMsg() << bsl::endl;
+            } break;
+            case btlmt_Message::TIMER: {
+              bsl::cout << msg.timerMsg().timerId() << bsl::endl;
+            } break;
+            case btlmt_Message::DATA: {
+              // PROCESS DATA MESSAGE HERE
+              outgoing.pushBack(msg);
+            } break;
+         }
+      }
+      return 0;
+  }
+..
+ This completes the echo server example.  The entire example file is repeated
+ below without interruption for ease of reading.
+..
+  // btlmt_usage.m.cpp                                                -*-C++-*-
+
+  #include <bcec_queue.h>
+  #include <bcef_vfunc4.h>
+
+  #include <bcefu_vfunc4.h>
+  #include <btlmt_channelpoolconfiguration.h>
+  #include <btlmt_channelqueuepool.h>
+  #include <btlmt_message.h>
+
+  #include <bsl_cassert.h>
+  #include <bsl_iostream.h>
+
+  using namespace BloombergLP;
+
+  static
+  inline void parseMessages(int        *numBytesConsumed,
+                            int        *numBytesNeeded,
+                            const char *data,
+                            int         length)
+      // Parse the specified message 'data' of the specified 'length'.  Load
+      // into the specified 'numBytesConsumed' the number of bytes of 'data'
+      // that comprise the number of *complete* (logical) messages within
+      // 'data' and load into the specified 'numBytesNeeded' the number of
+      // bytes needed to complete a trailing partial logical message within
+      // 'data' or load 0 if the last logical message in 'data' was complete.
+  {
+      assert(numBytesConsumed);
+      assert(data);
+      assert(0 < length);
+
+      int originalLength    = length;
+      int processedMessages = 0;
+
+      while(length > sizeof(int)) {
+          int msgLength = ntohl(*(int*)data);  // decode message length
+
+          assert(sizeof(int) < msgLength);
+
+          if (length < msgLength) {
+             *numBytesConsumed = originalLength - length;
+             *numBytesNeeded   = msgLength - length;
+             return;
+          }
+          length -= msgLength;
+          data   += msgLength;
+          ++processedMessages;  // count not used in this implementation
+     }
+
+     *numBytesConsumed = originalLength - length;
+     *numBytesNeeded   = sizeof(int) - length;
+  }
+
+  int main()
+  {
+      enum {
+          SERVER_ID       = 0xAB,    // a cookie
+          PORT_NUMBER     = 4564,
+          MAX_CONNECTIONS = 10000
+      };
+
+      // Configure the channel
+      btlmt_ChannelPoolConfiguration config;
+      config.setMaxThreads(4);
+      config.setMaxConnections(MAX_CONNECTIONS);
+      config.setReadTimeout(5.0);                   // in seconds
+      config.setWorkloadThreshold(75);              // 75% busy
+      config.setMetricsInterval(10.0);              // seconds
+      config.setMaxWriteCache(1<<10);               // 1Mb
+      config.setIncomingMessageSizes(4, 100, 1024);
+      config.setOutgoingMessageSizes(4, 100, 1024);
+
+      bsl::cout << config;
+
+      btlmt_ChannelQueuePool::ParseMessagesCallback cb;
+      bcefu_Vfunc4::makeF(&cb, parseMessages);
+
+      bcec_Queue<btlmt_Message> incoming, outgoing;
+      btlmt_ChannelQueuePool qp(&incoming, &outgoing, cb, config);
+
+      assert(0 == qp.start());   // fails if no system resources.
+      if (0 != qp.listen(PORT_NUMBER, MAX_CONNECTIONS, SERVER_ID)) {
+          bsl::cout << "Can't open server port." << bsl::endl;
+          qp.stop();
+          return -1;
+      }
+
+      while(1) {
+          btlmt_Message msg = incoming.popFront();
+          switch(msg.type()) {
+            case btlmt_Message::CHANNEL_STATE: {
+              const btlmt_ChannelMsg& data = msg.channelMsg();
+              bsl::cout << data << bsl::endl;
+            } break;
+            case btlmt_Message::POOL_STATE: {
+              bsl::cout << msg.poolMsg() << bsl::endl;
+            } break;
+            case btlmt_Message::TIMER: {
+              bsl::cout << msg.timerMsg().timerId() << bsl::endl;
+            } break;
+            case btlmt_Message::DATA: {
+              // PROCESS DATA MESSAGE HERE
+              outgoing.pushBack(msg);
+            } break;
+         }
+      }
+      return 0;
+  }
+..

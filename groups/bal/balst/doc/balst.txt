@@ -1,0 +1,154 @@
+ balst.txt
+
+@PURPOSE: Provide a portable facility for obtaining & printing a stack trace
+
+@MNEMONIC: Basic Application Library STack utilities (balst)
+
+@DESCRIPTION: The 'balst' package provides a facility for obtaining and
+ printing a stack trace at run time.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balst' package currently has 14 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. balst_assertionlogger
+     balst_stacktraceprintutil
+     balst_stacktracetestallocator
+
+  4. balst_stacktraceutil
+
+  3. balst_stacktraceresolverimpl_dladdr                              !PRIVATE!
+     balst_stacktraceresolverimpl_elf                                 !PRIVATE!
+     balst_stacktraceresolverimpl_windows                             !PRIVATE!
+     balst_stacktraceresolverimpl_xcoff                               !PRIVATE!
+
+  2. balst_stackaddressutil
+     balst_stacktrace
+     balst_stacktraceresolver_filehelper                              !PRIVATE!
+
+  1. balst_dbghelpdllimpl_windows                                     !PRIVATE!
+     balst_objectfileformat
+     balst_stacktraceframe
+..
+
+/Component Synopsis
+/------------------
+: 'balst_assertionlogger':
+:      Provide configurable logging handler for assertion failures.
+:
+: 'balst_dbghelpdllimpl_windows':                                     !PRIVATE!
+:      Provide access to the 'dbghelp.dll' shared library on Windows.
+:
+: 'balst_objectfileformat':
+:      Provide platform-dependent object file format trait definitions.
+:
+: 'balst_stackaddressutil':
+:      Provide a utility for obtaining return addresses from the stack.
+:
+: 'balst_stacktrace':
+:      Provide a description of a function-call stack.
+:
+: 'balst_stacktraceframe':
+:      Provide an attribute class describing an execution stack frame.
+:
+: 'balst_stacktraceprintutil':
+:      Provide a single function to perform and print a stack trace.
+:
+: 'balst_stacktraceresolver_filehelper':                              !PRIVATE!
+:      Provide platform-independent file input for stack trace resolvers.
+:
+: 'balst_stacktraceresolverimpl_dladdr':                              !PRIVATE!
+:      Provide functions for resolving a stack trace using 'dladdr'.
+:
+: 'balst_stacktraceresolverimpl_elf':                                 !PRIVATE!
+:      Provide a utility to resolve ELF symbols in a stack trace.
+:
+: 'balst_stacktraceresolverimpl_windows':                             !PRIVATE!
+:      Provide resolution of symbols in stack trace for Windows objects.
+:
+: 'balst_stacktraceresolverimpl_xcoff':                               !PRIVATE!
+:      Provide a utility to resolve xcoff symbols in a stack trace.
+:
+: 'balst_stacktracetestallocator':
+:      Provide a test allocator that reports the call stack for leaks.
+:
+: 'balst_stacktraceutil':
+:      Provide low-level utilities for obtaining & printing a stack-trace.
+
+/Usage
+/-----
+ This section illustrates intended use of this package.
+
+/Example 1: Printing a Stack Trace to a Stream
+/- - - - - - - - - - - - - - - - - - - - - - -
+ This example shows how to obtain a stack trace and print it to a stream, all
+ by calling just the static function
+ 'balst_StackTracePrintUtil::printStackTrace'.
+
+ First, we define a recursive function 'recurseAndPrintStack' that recurses to
+ the specified 'depth', then calls 'balst_StackTracePrintUtil::printStackTrace'
+ to obtain a stack trace and print it to 'cout'.  When we call
+ 'printStackTrace', neither of the optional arguments corresponding to
+ 'maxFrames' or 'demanglingPreferredFlag' are supplied; 'maxFrames' defaults to
+ at least 1024 (which is more than we need), and 'demanglingPreferredFlag'
+ defaults to 'true'.
+..
+  static
+  void recurseAndPrintStack(int *depth)
+      // Recurse to the specified 'depth', then print out the stack trace to
+      // 'cout'.
+  {
+      if (--*depth > 0) {
+          recurseAndPrintStack(depth);
+      }
+      else {
+          balst_StackTracePrintUtil::printStackTrace(cout);
+      }
+
+      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+                  // loop.
+  }
+..
+ Then, we call 'recurseAndPrintStack' from the main program.
+..
+  int main()
+  {
+      int depth = 5;
+      recurseAndPrintStack(&depth);
+      assert(5 == depth);
+  }
+..
+ Now, invoking the main program on AIX produces the following output:
+..
+  (0): BloombergLP::balst_StackTracePrintUtil::.printStackTrace(
+       bdl::basic_ostream<char,bdl::char_traits<char> >&,int,bool)+0x170 at
+       0x1000a2c8 source:balst_stacktraceprintutil.cpp:52 in
+       balst_stacktraceprintutil.t.dbg_
+  (1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118
+       source:balst_stacktraceprintutil.t.cpp:652 in
+       balst_stacktraceprintutil.t.dbg_
+  (2): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650
+       in balst_stacktraceprintutil.t.dbg_
+  (3): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (4): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (5): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (6): .main+0x2f4 at 0x10000a4c source:balst_stacktraceprintutil.t.cpp:724
+       in balst_stacktraceprintutil.t.dbg_
+  (7): .__start+0x6c at 0x1000020c source:crt0main.s in
+       balst_stacktraceprintutil.t.dbg_
+..
+ Finally, we observe the following about the above output to 'cout'.  Notice
+ that since the actual output would write each stack trace frame all on a
+ single line, and all the lines here were longer than 80 characters, it has
+ been manually edited to wrap and have every line be less than 80 columns.
+ Also note the program name is truncated to 32 characters in length.

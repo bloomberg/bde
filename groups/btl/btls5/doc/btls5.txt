@@ -1,0 +1,56 @@
+ btls5.txt
+
+@PURPOSE: Support connecting through a network of SOCKS5 proxies.
+
+@MNEMONIC: Basic Transport Environment Socks5 (btls5)
+
+@DESCRIPTION: The 'btls5' package supports connecting through a network of
+ SOCKS5 proxies.  The top-level interface is provided by
+ 'btls5_NetworkConnector'.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btls5' package currently has 8 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. btls5_networkconnector
+
+  4. btls5_networkdescriptionutil
+
+  3. btls5_negotiator
+     btls5_networkdescription
+
+  2. btls5_proxydescription
+     btls5_testserver
+
+  1. btls5_credentials
+     btls5_detailedstatus
+..
+
+/Component Synopsis
+/------------------
+: 'btls5_credentials':
+:      Provide a class for describing SOCKS5 authentication credentials.
+:
+: 'btls5_detailedstatus':
+:      Provide an attribute class to describe SOCKS5 connection status.
+:
+: 'btls5_negotiator':
+:      Provide a mechanism for SOCKS5 client-side handshake.
+:
+: 'btls5_networkconnector':
+:      Provide a mechanism to connect through SOCKS5 proxies.
+:
+: 'btls5_networkdescription':
+:      Provide a description of a network of SOCKS5 proxies.
+:
+: 'btls5_networkdescriptionutil':
+:      Provide operations on 'btls5::NetworkDescription' objects.
+:
+: 'btls5_proxydescription':
+:      Provide an attribute class for characterizing a SOCKS5 proxy.
+:
+: 'btls5_testserver':
+:      Provide a test SOCKS5 proxy server.

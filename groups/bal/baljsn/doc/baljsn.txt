@@ -1,0 +1,52 @@
+ baljsn.txt
+
+@PURPOSE: Provide components for encoding/decoding in the JSON format.
+
+@MNEMONIC: Basic Application Environment JSoN (baljsn)
+
+@DESCRIPTION: The 'baljsn' package provides facilities for encoding and
+ decoding value-semantic objects in the JSON encoding format.  Currently, the
+ encoder and decoder provided in this package work with types that support the
+ 'bdeat' framework (see the {'bdlat'} package for details), which is a
+ compile-time interface for manipulating struct-like and union-like objects.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baljsn' package currently has 7 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  3. baljsn_decoder
+
+  2. baljsn_encoder
+     baljsn_tokenizer
+
+  1. baljsn_decoderoptions
+     baljsn_encoderoptions
+     baljsn_parserutil
+     baljsn_printutil
+..
+
+/Component Synopsis
+/------------------
+: 'baljsn_decoder':
+:      Provide a JSON decoder for 'bdeat' compatible types.
+:
+: 'baljsn_decoderoptions':
+:      Provide an attribute class for specifying JSON decoding options.
+:
+: 'baljsn_encoder':
+:      Provide a JSON encoder for 'bdeat' compatible types.
+:
+: 'baljsn_encoderoptions':
+:      Provide an attribute class for specifying JSON encoding options.
+:
+: 'baljsn_parserutil':
+:      Provide a utility for decoding JSON data into simple types.
+:
+: 'baljsn_printutil':
+:      Provide a utility for encoding simple types in the JSON format.
+:
+: 'baljsn_tokenizer':
+:      Provide a tokenizer for extracting JSON data from a 'streambuf'.

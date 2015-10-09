@@ -1,0 +1,43 @@
+ btls.txt
+
+@PURPOSE: Provide transport-specific system level services.
+
+@MNEMONIC: Basic Transport Environment System-level services (btls)
+
+@DESCRIPTION: The 'btls' package provides "system level" services that are
+ required by this transport package group in a form that is portable across all
+ suported platforms.  Currently, the package supplies objects and utilities to
+ implement the Unix 'iovec' ("scatter/gather") buffer structure in a
+ platform-neutral form.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'btls' package currently has 5 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. btls_iovecutil
+     btls_ratelimiter
+     btls_reservationguard
+
+  1. btls_iovec
+     btls_leakybucket
+..
+
+/Component Synopsis
+/------------------
+: 'btls_iovec':
+:      Provide platform-independent data structures for scatter/gather IO.
+:
+: 'btls_iovecutil':
+:      Provide utilities to manipulate iovec structures.
+:
+: 'btls_leakybucket':
+:      Provide a mechanism to monitor the consumption rate of a resource.
+:
+: 'btls_ratelimiter':
+:      Provide a mechanism to limit peak and sustained consumption rates.
+:
+: 'btls_reservationguard':
+:      Provide a generic proctor for rate controlling objects.

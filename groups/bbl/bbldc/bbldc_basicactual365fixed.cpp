@@ -7,9 +7,9 @@ BSLS_IDENT_RCSID(bbldc_basicactual365fixed_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // --------------------------
-                         // struct BasicActual365Fixed
-                         // --------------------------
+                        // --------------------------
+                        // struct BasicActual365Fixed
+                        // --------------------------
 
 // CLASS METHODS
 double BasicActual365Fixed::yearsDiff(const bdlt::Date& beginDate,

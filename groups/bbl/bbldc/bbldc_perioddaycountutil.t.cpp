@@ -15,7 +15,6 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-
 // ============================================================================
 //                              TEST PLAN
 // ----------------------------------------------------------------------------
@@ -201,7 +200,6 @@ int main(int argc, char *argv[])
         //   double yearsDiff(begin, end, periodDate, periodYearDiff, conv);
         // --------------------------------------------------------------------
 
-
         if (verbose) cout << endl
                           << "TESTING 'yearsDiff'" << endl
                           << "===================" << endl;
@@ -228,8 +226,8 @@ int main(int argc, char *argv[])
             } DATA[] = {
 
     //                           - - first - - -  - - second - -
-    //line  type                 year  mnth  day  year  mnth  day  numYears
-    //----  -------------------  ----  ----  ---  ----  ----  ---  --------
+    //line  type                 year  month day  year  month day  numYears
+    //----  -------------------  ----  ----- ---  ----  ----- ---  --------
     { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
                                  1992,   2,    1, 1993,    3,   1, 1.0769 },
     { L_,   PERIOD_ICMA_ACTUAL_ACTUAL,
