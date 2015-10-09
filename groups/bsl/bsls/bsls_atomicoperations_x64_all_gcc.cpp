@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
 
 namespace BloombergLP {
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

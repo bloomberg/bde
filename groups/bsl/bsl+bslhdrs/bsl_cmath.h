@@ -69,7 +69,7 @@ namespace bsl
     using native_std::islessgreater;
     using native_std::isunordered;
 #endif
-}
+}  // close package namespace
 
 #endif
 

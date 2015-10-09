@@ -138,9 +138,9 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs);
     // same value, and 'false' otherwise.  Two 'SimpleTestType' objects do not
     // have the same value if their 'data' attributes are not the same.
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------
                         // class SimpleTestType

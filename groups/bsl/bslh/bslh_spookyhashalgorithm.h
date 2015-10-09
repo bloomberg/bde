@@ -455,7 +455,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bslh::SpookyHashAlgorithm>
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 

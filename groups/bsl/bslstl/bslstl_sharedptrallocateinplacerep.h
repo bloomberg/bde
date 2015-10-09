@@ -256,7 +256,7 @@ struct UsesBslmaAllocator< bslstl::SharedPtrAllocateInplaceRep<TYPE,
     : bsl::false_type
 {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

@@ -1,3 +1,7 @@
+bdlt_calendar
+bdlt_calendarcache
+bdlt_calendarloader
+bdlt_calendarreverseiteratoradapter
 bdlt_currenttime
 bdlt_date
 bdlt_datetime
@@ -8,10 +12,14 @@ bdlt_datetz
 bdlt_dateutil
 bdlt_dayofweek
 bdlt_dayofweekset
+bdlt_defaultcalendarcache
 bdlt_epochutil
 bdlt_intervalconversionutil
+bdlt_iso8601util
+bdlt_iso8601utilconfiguration
 bdlt_localtimeoffset
 bdlt_monthofyear
+bdlt_packedcalendar
 bdlt_serialdateimputil
 bdlt_time
 bdlt_timetz

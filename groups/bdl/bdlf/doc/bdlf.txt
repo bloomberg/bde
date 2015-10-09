@@ -1,0 +1,674 @@
+ bdlf.txt
+
+@PURPOSE: Provide signature-specific function objects (functors).
+
+@MNEMONIC: Basic Development Environment Functors (bdlf)
+
+@SEE_ALSO: bcef
+
+@DESCRIPTION: The 'bdlf' package provides components to implement function
+ objects (functors) that return void and take between zero and nine arguments
+ of arbitrary type.  Function objects created by 'bdlf' components can be
+ invoked in a manner similar to that of the following free function:
+..
+   void functionObject(arglist);
+..
+ where 'arglist' contains between zero and nine arguments.  Functor classes are
+ differentiated by the number and type of arguments they expect.  The 'bdlf'
+ package contains 10 separate components that differ in the number of arguments
+ their functors expect; within each component, templates are used to support
+ variations in argument type.
+
+ In addition, three components ('bdlf_bind', 'bdlf_memfn' and 'bdlf_function')
+ provide more general functors that can conform to a specified prototype and
+ return an arbitrary type, and that can be invoked in the same manner as
+ before.  The functors created by these two components currently support from
+ zero up to 14 arguments.  'bdlf_bind' provides compile-time polymorphism, and
+ adapts an invocable object so that it conforms to a different interface and
+ can be invoked with fewer arguments and/or with the arguments in a different
+ order.  This transformation is type-safe, in that type violations provoke
+ compilation errors.  'bdlf_memfn' provides a wrapper that allows a member
+ function to be invoked like a free function, either by providing the object
+ instance as first parameter, or by wrapping the object instance inside the
+ function object.  'bdlf_function' provides run-time polymorphism and is
+ especially suited for callbacks because it adapts any invocable with a
+ compatible prototype to a specified callback interface, at run-time and
+ without the need for recompilation.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlf' package currently has 21 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdlf_bind_test1                                                  !PRIVATE!
+     bdlf_bind_test10                                                 !PRIVATE!
+     bdlf_bind_test11                                                 !PRIVATE!
+     bdlf_bind_test12                                                 !PRIVATE!
+     bdlf_bind_test13                                                 !PRIVATE!
+     bdlf_bind_test14                                                 !PRIVATE!
+     bdlf_bind_test2                                                  !PRIVATE!
+     bdlf_bind_test3                                                  !PRIVATE!
+     bdlf_bind_test4                                                  !PRIVATE!
+     bdlf_bind_test5                                                  !PRIVATE!
+     bdlf_bind_test6                                                  !PRIVATE!
+     bdlf_bind_test7                                                  !PRIVATE!
+     bdlf_bind_test8                                                  !PRIVATE!
+     bdlf_bind_test9                                                  !PRIVATE!
+     bdlf_bind_testn                                                  !PRIVATE!
+
+  3. bdlf_bind
+     bdlf_bind_test0                                                  !PRIVATE!
+
+  2. bdlf_bind_test                                                   !PRIVATE!
+     bdlf_function
+
+  1. bdlf_memfn
+     bdlf_placeholder
+..
+
+/Component Synopsis
+/------------------
+: 'bdlf_bind':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdlf_bind_test':                                                   !PRIVATE!
+:      Provide a test apparatus for bdlf_bind.
+:
+: 'bdlf_bind_test0':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 0 arguments.
+:
+: 'bdlf_bind_test1':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 1 argument.
+:
+: 'bdlf_bind_test10':                                                 !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 10 arguments.
+:
+: 'bdlf_bind_test11':                                                 !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 11 arguments.
+:
+: 'bdlf_bind_test12':                                                 !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 12 arguments.
+:
+: 'bdlf_bind_test13':                                                 !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 13 arguments.
+:
+: 'bdlf_bind_test14':                                                 !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 14 arguments.
+:
+: 'bdlf_bind_test2':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 2 arguments.
+:
+: 'bdlf_bind_test3':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 3 arguments.
+:
+: 'bdlf_bind_test4':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 4 arguments.
+:
+: 'bdlf_bind_test5':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 5 arguments.
+:
+: 'bdlf_bind_test6':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 6 arguments.
+:
+: 'bdlf_bind_test7':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 7 arguments.
+:
+: 'bdlf_bind_test8':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 8 arguments.
+:
+: 'bdlf_bind_test9':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with 9 arguments.
+:
+: 'bdlf_bind_testn':                                                  !PRIVATE!
+:      Provide a test sequence for 'bdlf_bind' with N arguments.
+:
+: 'bdlf_function':
+:      Provide a signature-specific function object (functor).
+:
+: 'bdlf_memfn':
+:      Provide member function pointer wrapper classes and utility.
+:
+: 'bdlf_placeholder':
+:      Provide a parameterized placeholder and specialized placeholders.
+
+/Related Packages in Package Group 'bdl'
+/---------------------------------------
+ Package 'bdlf' is designed to use three other packages in 'bdl'.  'bdlf'
+ provides the primary interface that a client will see, and the other packages
+ play supporting roles.
+
+ The packages are:
+
+: 'bdlf':
+:      Provides functors to clients in a canonical form.
+:
+: 'bdlfr':
+:     This package is *DEPRECATED*.  A common reference-counted base class,
+:     used by 'bdlfi'.  These classes provide reference counting and object
+:     deletion for derived classes.
+:
+: 'bdlfi':
+:     This package is *DEPRECATED*.  Concrete reference-counted function
+:     objects, held and managed by a 'bdlf' object; classes in 'bdlfi'
+:     implement behavior declared in 'bdlfr'.
+:
+: 'bdlfu':
+:     This package is *DEPRECATED*.  Factory method utilities to initialize
+:     'bdlf' functors by creating a reference-counted function object (from
+:     'bdlfi') and assigning it to a 'bdlf' functor. Subsequent invocations of
+:     the 'bdlf' functor will be delegated to the  'bdlfi' object.
+
+/Relationship to Packages in 'bdl'
+/---------------------------------
+ The 'bdlf', 'bdlfr', 'bdlfi', and 'bdlfu' packages provide identical
+ functionality to the corresponding packages in the 'bce' package group:
+ 'bcef', 'bcefr', 'bcefi', and 'bcefu', respectively.  The difference between
+ the two sets of packages is that the 'bce' packages provide thread safety,
+ whereas the 'bdl' packages do not.  In particular, package 'bcefr' implements
+ reference counting via atomic operators provided in package 'bces_atomicutil'.
+
+/Functors and Function Pointers
+/------------------------------
+ Function pointers should be familiar to both C and C++ programmers.  A
+ function pointer is a pointer to a C-style function.  In C++, the function
+ pointer is declared to point to a function with a specific return type and a
+ specific number of arguments of specific types.  For instance,
+..
+  void (*fp)(int, const char*);
+..
+ declares a function pointer 'fp' that points to a function returning 'void',
+ and taking exactly two arguments, an 'int' and a const pointer to 'char'.
+
+ Assume, then, that we have one or more functions declared with the matching
+ signature:
+..
+  void f1(int x, const char* s);
+  void f2(int x, const char* s);
+..
+ After assigning a value to the function pointer, we can call the corresponding
+ function:
+..
+  fp = f1;
+       .
+       .
+       .
+  int my_x = 0;
+  int my_s = "Text String";
+  fp(my_x, my_s);          // invokes function f1
+..
+ Functors are objects that behave syntactically and semantically like
+ functions.  Functors implement a function-call operator ('operator()') whose
+ signature characterizes the particular functor's type.  In this example, for
+ instance, we could define a functor like this:
+..
+  class MyFunctor {
+      // Class MyFunctor can be used like a function.
+       .
+       .
+       .
+  public:
+      void operator()(int x, const char* s);
+      // this provides invocation semantics
+       .
+       .
+       .
+  };
+
+  MyFunctor fn;
+       .
+       .
+       .
+  int my_x = 0;
+  int my_s = "Text String";
+  fn(my_x, my_s);          // "invokes" functor fn via fn::operator()
+..
+ Functors provide some interesting advantages over simple function pointers.
+ Unlike a function pointer, a functor may be created with one or more arbitrary
+ objects (sometimes called "user data") to be passed (typically as trailing
+ arguments) to the underlying function.  By "pre-binding" particular arguments
+ to the underlying function, a functor can reduce the number of arguments a
+ caller must supply when the functor is invoked.  In this way, function objects
+ can be used to coerce functions with extra arguments of arbitrary type into a
+ standard calling signature.  Even (non-'static') *member* functions can be
+ encapsulated within functors and treated uniformly, simply by supplying the
+ appropriate object at construction.  Both the *object* pointer and a *member*
+ *function* pointer are stored in the functor; the given object pointer is
+ dereferenced when the functor is invoked.
+
+/Functors in the 'bdlf' package
+/------------------------------
+
+/Signature-Specific Functors
+/- - - - - - - - - - - - - -
+ Individual components are "numbered" to indicate the number of arguments
+ (between 0 and 6) that a particular functor accepts.  Each component defines a
+ templated class, whose template parameters correspond in number to the functor
+ arguments.  When instantiated, the template argument types match the argument
+ types used in invoking the functor.  The component name is 'bdlf_vfunc'
+ followed by 0 to 6; the letter 'v' indicates that the corresponding functor
+ will return 'void'.  For the example above, we would use component
+ 'bdlf_vfunc2' to create a functor object whose 'operator()' member function
+ obeys the required signature.
+..
+  #include <bdlf_vfunc2.h>
+
+      bdlf_Vfunc2<int, const char*> fn;  // template arguments specify arg
+                                         // types
+          // NOTE: This example is incomplete.
+          //       We still need code to initialize 'fn'
+      .
+      .
+      .
+      int my_x = 0;
+      int my_s = "Text String";
+      fn(my_x, my_s);                    // "invokes" functor fn
+..
+ Before a 'bdlf' functor is invoked as illustrated, the client is responsible
+ for ensuring that it is valid; that is, it must contain a pointer to a
+ function that will be called when the functor is invoked.  The function to be
+ called is external to the functor, and supplied by the client.  This "external
+ function" may be a free function, a static class method, or a (non-'static')
+ member function for some class.  The client, then, needs a canonical
+ mechanism, regardless of the function type, to create a reference to that
+ function, and to bind the reference to the 'bdlf' functor.
+
+ The most common way to accomplish this is to use a "factory method" defined in
+ the 'bdlfu' package.  The 'bdlfu' package contains 10 components which provide
+ these factory methods.  Parallel to 'bdlf', these components are "numbered" to
+ support functors with different numbers of arguments.  The factory methods are
+ also templatized to support varying argument types.
+
+ Each 'bdlfu' component contains 4 different types of factory methods, varying
+ by the type of function pointer required.  For example, 'bdlfu_vfunc2' defines
+ the following *factory* *method* *families*:
+..
+  bdlfu_Vfunc2::makeF();    // generate a pointer to a free function
+                            // and assign it to a 'bdlf_Vfunc2' object
+  bdlfu_Vfunc2::makeM();    // generate a pointer to a member function
+                            // and assign it to a 'bdlf_Vfunc2' object
+  bdlfu_Vfunc2::makeC()     // generate a pointer to a const member
+                            // function and assign it to a  'bdlf_Vfunc2'
+                            // object
+  bdlfu_Vfunc2::makeNull(); // initialize a 'bdlf_Vfunc2' object with
+                            // an empty function
+..
+ These factory methods (except for 'makeNull') are templatized to support
+ different return and argument types; in addition, each *factory* *method*
+ *family* consists of a set of overloaded functions that support varying
+ numbers of arguments on the underlying functions (member or free).  All
+ classes returned by functions in component 'bdlfu_vfunc2' are defined in
+ component 'bdlfi_vfunc2'.  See package documentation for the {'bdlfu'} package
+ for details.
+
+ For the simple example above, we would use component 'bdlfu_Vfunc2' as follows
+ to initialize the 'bdlf_Vfunc2' object:
+..
+  #include <bdlf_vfunc2.h>
+  #include <bdlfu_vfunc2.h>
+
+      void f1(int x, const char* s);
+      void f2(int x, const char* s);
+
+      bdlf_Vfunc2<int, const char*> fn;  // template arguments define arg types
+      bdlfu_Vfunc2::makeF(&fn,f1);       // bind functor fn to function f1
+         .
+         .
+         .
+      int my_x = 0;
+      int my_s = "Text String";
+      fn(my_x, my_s);                    // "invokes" functor fn
+..
+ The 'bdlfu_Vfunc2::makeF' *factory* *method* in the above example expects two
+ arguments.  The first is a pointer to the functor object itself, and the
+ second is a pointer to a free function with a signature matching the functor
+ object, that is, expecting args of 'int' and 'const char*', and returning
+ 'void'.
+
+ The 'makeF()' functions create instances of classes from the 'bdlfi'
+ component; the specific classes are determined by the number and types of
+ arguments on the 'bdlf' functor and the free function.  Similarly, class
+ member functions can be used to initialize a 'bdlf' functor by invoking a
+ 'bdlfu_Vfunc2::makeM()' or 'bdlfu_Vfunc2::makeC()' function.
+
+ The 'bdlfu' and 'bdlfi' packages will also allow clients to match a functor to
+ a free or member function in situations where the function requires more
+ arguments than the functor invocation can support.  See the documentation for
+ package {'bdlfu'} for details describing how to do this; see package
+ documentation for {'bdlfi'} for implementation details.
+
+ Note that because each required argument type 'T' is passed by ('const' 'T&'),
+ a compiler will generate an error if the user declares a callback function
+ taking an argument via a non-'const' reference parameter.  This is intended to
+ support and enforce the rule that all modifiable arguments are passed using
+ pointers and not using references.  For rare situations where clients want to
+ use a callback function supplied by a third party, and that callback function
+ uses non-'const' references, a wrapper function must be declared that converts
+ non-'const' references to 'const' references or pointers as appropriate.
+
+/Envelope-Letter Idiom
+/- - - - - - - - - - -
+ The functors in the 'bdlf' package are implemented using the envelope-letter
+ idiom.  The classes in 'bdlf' are *"envelopes"*; classes in 'bdlfr' and
+ 'bdlfi' are *"letters"*. The use of the envelope-letter idiom allows clients
+ to wrap arbitrary functions, whose signatures may differ from the function
+ signatures in 'bdlf', with functors that support standard, well-known
+ signatures.
+
+ Each 'bdlf_Vfunc*' functor *(envelope)* holds a pointer to an
+ object *(letter)* from the corresponding 'bdlfi_vfunc*' component.  The 'bdlf'
+ *envelope* forwards or delegates client requests to its *letter* object: in
+ particular, the 'operator()' member function used by clients to invoke the
+ functor is delegated to the *letter* object for execution.
+
+ The *letter* object is polymorphic: all *letter* classes in a given 'bdlfi'
+ component are derived from a common protocol or abstract base class (defined
+ in 'bdlfr').  The 'bdlf' *envelope* uses the abstract 'bdlfr' protocol to
+ delegate invocation requests.  Different polymorphic *letter* types are used
+ to support different external function types and signatures, and the single
+ *envelope* type is used to provide a consistent function signature to clients.
+
+ Since polymorphism is used to support different bindings to external member or
+ free functions, clients must be able to generate a specific type of *letter*
+ object for a given *envelope*, based upon the type and signature of the
+ specific external function.  This may be done directly through public
+ interfaces of the corresponding 'bdlfi' component, but in most cases it is
+ simpler to use a suite of template functions provided by the corresponding
+ 'bdlfu' package.  Different template functions are provided to match (1) the
+ desired function-call-operator signature and (2) the supplied user data.
+ Because the C++ compiler will deduce template parameters from argument types,
+ clients need not specify them.  See the {'bdlfu'} package for more information
+ on populating 'bdlf' functors with specific *letter* objects.
+
+ See also J.O.  Coplien, "Advanced Programming Styles and Idioms", Sections
+ 5.5-5.6, for a complete discussion of the envelope/letter idiom.
+
+/Binders
+/- - - -
+ The 'bdlf_bind' component provides a mechanism for creating function objects
+ different from the 'bdlf_vfunc*' components.  'bdlf_bind' is used to *adapt*
+ an invocable object so that it conforms to a different interface and can be
+ invoked with fewer arguments and/or with the arguments in a different order.
+ It does this by *binding* some or all of the original invocable's arguments to
+ fixed values that are known at construction time and binding the remaining
+ arguments to placeholders for arguments that are provided at invocation time.
+ A binder can be used as an argument for any template function that requires an
+ invocable with compatible parameters.
+
+ The 'bdlf_bind' component defines binder objects and factory methods that can
+ bind any arguments into a functor in any order, enabling some of the arguments
+ of the invocable to be specified at the construction time, and leaving (via
+ place-holders, defined in component 'bdlf_placeholder') some others to be
+ specified (later) at invocation time.  A binder is created by one of the three
+ *factory* *method* *families* defined in component 'bdlf_bind':
+..
+  bdlf_BindUtil::bind();   // generate a binder with specified invocable and
+                           // bound arguments (invocation arguments are
+                           // indicated by place-holders)
+  bdlf_BindUtil::bindA();  // same as above but also specify the allocator
+                           // used to supply memory for creating the binder
+  bdlf_BindUtil::bindR();  // same as 'bdlf_BindUtil::bind()' but explicitly
+                           // specify the return type (in case it cannot be
+                           // deduced by the compiler but should not be left
+                           // undefined)
+..
+ Binders where the signature of the invocable can be deduced are called
+ *explicit*.  Not all binders are explicit.  For non-explicit binders, the
+ signature of a 'bdlf_Bind' object is not embedded in the type, and several
+ overloads can be invoked through the same binder.  Unlike 'bdlf_Vfunc*'
+ objects, different binders accepting the same signature may have different
+ types depending on the types of the bound arguments if they are non-explicit.
+ The return type (not necessarily void) is also part of the signature.  Thus,
+ 'bdlf_bind' provides compile-time polymorphism but not run-time polymorphism.
+
+ A broad discussion of binding, along with limitations of the 'usage examples,
+ can be found in the component documentation of component 'bdlf_bind'.
+
+/General (Run-Time Polymorphic) Function Objects
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ In addition to signature-specific objects and binders, the 'bdlf' package
+ provides a run-time polymorphic 'bdlf_Function' template.  A 'bdlf_Function'
+ instantiation is capable of holding *any* invocable object of compatible
+ prototype, including a function pointer, 'bdlf_MemFn' wrapper, any concrete
+ implementation of the 'bdlfr_Vfunc*'protocols, any instances of the
+ 'bdlf_Vfunc' family, and any other function object having an 'operator()'
+ method including an instance of a 'bdlf_Bind' instantiation.
+
+ Like a binder, a 'bdlf_Function' instantiation can have a return value (or
+ return 'void').  An instance does not store bound arguments directly.  It
+ accepts all its arguments at invocation time only, although using polymorphic
+ representations and the 'bdlfu_Vfunc*::make*' factory methods, it is possible
+ to bind the last arguments of an invocable and wrap this into a
+ 'bdlf_Function' object which will then accept only the remaining arguments
+ upon invocation.  As mentioned above, it is also possible to assign a
+ 'bdlf_Bind' object to a 'bdlf_Function' instance to bind and route arguments
+ to the invocable in an arbitrary manner.
+
+ Unlike a binder, the signature of a 'bdlf_Function' object is part of the type
+ and invocation arguments are cast to their corresponding type before they are
+ passed to the invocable.  Most importantly, the same functor may be assigned
+ from various types (pointer to function, 'bdlf_MemFn' wrapper, user-defined
+ function objects, or even 'bdlf_Bind' binders).
+
+/Functors and Binders
+/ - - - - - - - - - -
+ 'bdlf_Function' objects (functors) and 'bdlf_Bind' objects (binders) are both
+ mechanisms for binding arguments and calling an invocable.  They differ in
+ their purpose, though.  In the last section, we detailed the main features of
+ the 'bdlf_function' and 'bdlf_bind' components.  In this section we point out
+ the differences, and how they interact.
+
+ The main difference is compile-time (for 'bdlf_bind') vs. run-time (for
+ 'bdlf_function') polymorphism.  An instantiation of 'bdlf_Function' is a type
+ of functor that can hold any invocable object with compatible prototype.
+ Regardless of what type of (compatible) invocable is used to create the
+ 'bdlf_Function', the type of the resulting functor does not change.  Thus,
+ 'bdlf_Function' has run-time polymorphism and is ideally suited for callbacks
+ because it *adapts* the invocable to the callback interface.  Run-time
+ polymorphism is extremely useful for defining callback types and storing
+ callbacks, since passing a new type of callback does not require
+ re-compilation.  Compile-time polymorphism provides the ability to invoke
+ several overloads through the same functor (binder) and to bind and route
+ arguments to the invocable in an arbitrary manner.
+
+ In cases where both binders and functors could be used, 'bdlf_Function' has
+ certain advantages, not least of which is simplicity (leading to shorter
+ compilation times), and the memory optimization documented below, whereby
+ small objects are constructed in-place but larger objects are dynamically
+ allocated.  Note that binders are always constructed in-place and can have
+ rather large footprints.  Functors (including instances of 'bdlfr_Vfunc*'
+ derived types) can implement various strategies like sharing and copy-on-write
+ to reduce the cost of copying and the footprint at the same time.
+
+/Usage
+/-----
+ 'bdlf'-style functors provide a type-neutral, exception-safe (and
+ *potentially*, but not yet, thread-safe) *properly* *managed* alternative to
+ the traditional callback paradigm (where "client data" is placed in a single
+ structure whose address is cast to type 'void *').  The following example
+ illustrates how functor callbacks can be added to a graphical object.
+
+ Let's suppose that the implementor of the 'MyGuiButton' class allows the
+ client to specify a callback function that should be called whenever a button
+ is pressed.  Furthermore, the implementor agrees to provide to the callback
+ function two arguments at its invocation: a modifiable object of type
+ 'MyGuiContext', and a non-modifiable object of type 'MyGuiLocation'.
+..
+  class MyGuiContext {
+      int d_changedFlag;
+
+    public:
+      MyGuiContext() : d_changedFlag(0) { }
+      int isChanged() { return d_changedFlag; }
+      void changeState() { ++d_changedFlag; }
+
+      // 'MyGuiContext' implementation
+  };
+
+  class MyGuiLocation {
+    public:
+      MyGuiLocation() { };
+
+      // 'MyGuiLocation' implementation
+  };
+..
+ Here is the implementation of the 'MyGuiButton' class:
+..
+  class MyGuiButton  {
+      bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> d_callback;
+          // Functor to execute when button is pressed.
+
+    public:
+      MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
+                  MyGuiLocation>& buttonPressCallback);
+          // Create a graphical button object that executes the
+          // specified callback when 'pressButton' is invoked.
+
+      void pressButton(MyGuiContext *context,
+                       const MyGuiLocation& location);
+          // Execute the callback owned by this button object.
+  };
+
+  MyGuiButton::MyGuiButton(const bdlf_Vfunc2<MyGuiContext *,
+                           MyGuiLocation>& buttonPressCallback)
+  : d_callback(buttonPressCallback) // Retain a "copy" of the specified
+                                    // functor.
+  {
+  }
+
+  void MyGuiButton::pressButton(MyGuiContext *context,
+                                const MyGuiLocation& location)
+  {
+      d_callback(context, location);
+          // Execute the contained callback object.
+  }
+..
+ The 'context' and 'location' arguments are mandatory for every function called
+ at the press of the button (the number '2' in the name of 'bdlf_Vfunc2' class
+ specifies the number of required arguments).  However, we also allow the user
+ of 'MyGuiButton' class to invoke the function with a number of additional
+ parameters, as in the 'buttonpressFunction' function presented below.
+..
+  static void buttonpressFunction(MyGuiContext *a,
+                                  const MyGuiLocation& b,
+                                  int *invocationCounter)
+      // This function will be invoked by a functor to increment the
+      // specified 'invocationCounter'.
+  {
+          a->changeState();
+          ++*invocationCounter;
+  }
+..
+ The 'bdlf_Vfunc2<MyGuiContext, MyGuiLocation>' class used in 'MyGuiButton'
+ class has a private member of an abstract class 'bdlfr_vfunc2', whose
+ 'execute' method is called when the functor is being called.  The 'execute'
+ method of the 'bdlfr_vfunc2' class, the functor invocation operator of the
+ 'bdlf_Vfunc2' class, and the 'pressButton' method of 'MyGuiButton' class have
+ two parameters.  The 'buttonpressFunction' callback function, however, has to
+ be called with three arguments.  To achieve the proper calling signature the
+ user implements a concrete class derived from 'bdlfr_vfunc2' as follows:
+..
+  template <class F, class A1, class A2, class D1>
+  class FuncRep : public bdlfr_Vfunc2<A1, A2> {
+      // This class defines the representation for a function object (functor),
+      // characterized by a function-call operator taking two arguments and
+      // returning 'void', that holds a pure procedure (i.e., free function,
+      // static member function, or functor) taking one additional trailing
+      // argument, and this argument's corresponding value.
+
+      F  d_f;  // function pointer or function object (functor)
+      D1 d_d1; // first embedded argument
+
+    private:
+      // not implemented
+      FuncRep(const FuncRep<F, A1, A2, D1>&);
+      FuncRep<F, A1, A2, D1>& operator=(const FuncRep<F, A1, A2, D1>&);
+
+    private:
+      ~FuncRep()
+          // Destroy this functor.  Note that destructor can be invoked only
+          // through the static 'deleteObject' method of the base class.
+      {
+      };
+
+    public:
+      // CREATORS
+      FuncRep(const F&         procedure,
+              const D1&        embeddedArg1,
+              bdlma_Allocator *basicAllocator)
+          // Create a representation for a function object (functor) taking two
+          // arguments and returning 'void', using the specified 'procedure'
+          // taking 1 additional trailing argument, and this argument's
+          // specified 'embeddedArg1' value.  Use the specified
+          // 'basicAllocator' to supply memory.
+      : bdlfr_Vfunc1<A1, A2>(basicAllocator)
+      , d_f(procedure)
+      , d_d1(embeddedArg1)
+      {
+      };
+
+      // ACCESSORS
+      void execute(const A1& argument1, const A2& argument2) const
+          // Invoke the underlying procedure (free function, static member
+          // function, or functor) with the specified 'argument1' and
+          // 'argument2' followed by the argument value specified at
+          // construction.
+      {
+          d_f(argument1, argument2, d_d1);
+      };
+  };
+..
+ Note that the required arguments are passed in at the functor invocation, and
+ optional arguments are passed in at the functor initialization.  By BDE
+ convention, a function signature consists of output parameters, and then input
+ parameters.  Since here we have two parameter lists (one passed in by the
+ caller, and one passed in by the callee) we can follow this convention within
+ each list only.  We choose to pass in first the required arguments (passed by
+ the caller) and then the optional arguments (supplied by the callee).  This
+ order allows a callee to add parameters easily at the end of the function
+ parameter list.  The number of required parameters is a part of the
+ 'MyGuiButton' interface, and hence will never change.
+
+ The following code shows how we:
+
+: 1 Create the functor representation-(letter).
+:
+: 2 Create the functor initialized with the representation.
+:
+: 3 Register the functor as a callback with an instance of the 'MyGuiButton'
+:   class.
+:
+: 4 Invoke the functor.
+
+ The code is as follows:
+..
+  // (1) Create the representation.
+
+  typedef void (*BpFun)(const MyGuiContext *, const MyGuiLocation&, int *);
+  bdlma_Allocator *myAllocator = bdlma_Default::defaultAllocator();
+
+  int globalCounter = 0;
+
+  bdlfr_Vfunc2<MyGuiContext *, MyGuiLocation>  *rep = new(myAllocator)
+      FuncRep<BpFun, MyGuiContext *, MyGuiLocation, int*>
+          (buttonpressFunction, &globalCounter, myAllocator);
+
+  // (2) Create the functor using the representation.
+
+  bdlf_Vfunc2<MyGuiContext *, MyGuiLocation> callbackFunctor(rep);
+
+  // (3) Register the functor as a callback.
+
+  MyGuiButton button(callbackFunctor);
+
+  // (4) Use the object.
+
+  MyGuiContext gc;
+  const MyGuiLocation gl;             assert(0 == globalCounter);
+                                      assert(0 == gc.isChanged());
+  button.pressButton(&gc, gl);        assert(1 == globalCounter);
+                                      assert(1 == gc.isChanged());
+  button.pressButton(&gc, gl);        assert(2 == globalCounter);
+                                      assert(2 == gc.isChanged());
+..

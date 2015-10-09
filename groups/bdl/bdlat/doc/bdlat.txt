@@ -1,0 +1,98 @@
+ bdlat.txt
+
+@PURPOSE: Provide generic functions to manipulate attribute types
+
+@MNEMONIC: Basic Development Environment ATtribute types (bdlat)
+
+@DESCRIPTION: The 'bdlat' package provides generic functions to work with the
+ different concepts of attribute types.  These concepts group common behaviors
+ ("array", "choice", "enumeration", "nullable", "selection", "sequence", or
+ "value type").  Once a type is made a model of one of these concepts, it can
+ be used seamlessly by generic code such as the xml/ber encoders and decoders.
+ Therefore, whenever a new type needs to be encodable, the codecs themselves do
+ not need to be modified, but the type just needs to implement the necessary
+ functions to expose the concept.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlat' package currently has 17 components having 6 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  6. bdlat_arrayiterators
+     bdlat_symbolicconverter
+
+  5. bdlat_valuetypefunctions
+
+  4. bdlat_typecategory
+
+  3. bdlat_arrayfunctions
+     bdlat_choicefunctions
+     bdlat_customizedtypefunctions
+     bdlat_enumfunctions
+     bdlat_sequencefunctions
+     bdlat_typename
+
+  2. bdlat_attributeinfo
+     bdlat_enumeratorinfo
+     bdlat_formattingmode
+     bdlat_nullablevaluefunctions
+     bdlat_selectioninfo
+     bdlat_typetraits
+
+  1. bdlat_bdeatoverrides
+..
+
+/Component Synopsis
+/------------------
+: 'bdlat_arrayfunctions':
+:      Provide a namespace defining array functions.
+:
+: 'bdlat_arrayiterators':
+:      Provide iterator support for bdlat_ArrayFunction-conformant types.
+:
+: 'bdlat_attributeinfo':
+:      Provide a container for attribute information.
+:
+: 'bdlat_bdeatoverrides':
+:      Provide macros to map 'bdeat' names to 'bdlat' names.
+:
+: 'bdlat_choicefunctions':
+:      Provide a namespace defining choice functions.
+:
+: 'bdlat_customizedtypefunctions':
+:      Provide a namespace defining customized type functions.
+:
+: 'bdlat_enumeratorinfo':
+:      Provide a container for enumerator information.
+:
+: 'bdlat_enumfunctions':
+:      Provide a namespace defining enumeration functions.
+:
+: 'bdlat_formattingmode':
+:      Provide formatting mode constants.
+:
+: 'bdlat_nullablevaluefunctions':
+:      Provide a namespace defining nullable value functions.
+:
+: 'bdlat_selectioninfo':
+:      Provide a container for selection information.
+:
+: 'bdlat_sequencefunctions':
+:      Provide a namespace defining sequence functions.
+:
+: 'bdlat_symbolicconverter':
+:      Provide a utility for convert types with matching member symbols.
+:
+: 'bdlat_typecategory':
+:      Provide type category tags and a tag selection meta-function.
+:
+: 'bdlat_typename':
+:      Provide string representations for data type names.
+:
+: 'bdlat_typetraits':
+:      Provide compile-time traits for generated types.
+:
+: 'bdlat_valuetypefunctions':
+:      Provide a namespace for functions on value types.

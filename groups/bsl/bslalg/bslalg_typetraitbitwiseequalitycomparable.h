@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // an array of such types, as a loop can be replaced by a single call to
 // 'memcmp'.
 //
-///What constitutes bit-wise equality comparability?
+///What Constitutes Bit-Wise Equality Comparability?
 ///-------------------------------------------------
 // TBD: A short guide on when to attach this trait to a class should follow.
 //

@@ -260,7 +260,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     {
     };
 
-    }  // close traits namespace
+    }  // close namespace bslma
     }  // close enterprise namespace
 
 //..

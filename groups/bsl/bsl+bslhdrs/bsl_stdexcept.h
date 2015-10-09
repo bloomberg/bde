@@ -44,7 +44,7 @@ namespace bsl
     // because, as a base class of the above, it may be assumed complete.
     using native_std::exception;
 
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

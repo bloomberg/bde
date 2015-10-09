@@ -30,7 +30,7 @@ namespace bsl
     using native_std::bad_typeid;
     using native_std::type_info;
 
-}
+}  // close package namespace
 
 #endif
 

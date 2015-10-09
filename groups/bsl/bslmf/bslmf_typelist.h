@@ -128,9 +128,10 @@ struct TypeListTypeAt {
                          // struct TypeListTypeOf
                          // =====================
 
-template <int INDEX, class LIST, class DEFAULTTYPE=Nil>
-using TypeListTypeOf = TypeListTypeAt<INDEX-1, LIST, DEFAULTTYPE>;
-    // Classic Bloomberg code uses a 1-based index into the type list
+template <int INDEX, class LIST, class DEFAULTTYPE = Nil>
+using TypeListTypeOf =
+       TypeListTypeAt<static_cast<unsigned int>(INDEX - 1), LIST, DEFAULTTYPE>;
+    // Classic Bloomberg code uses a 1-based index into the type list.
 
                             // ===============
                             // struct TypeList

@@ -21,16 +21,17 @@ namespace bdlma {
 
 // TYPES
 enum {
-    DEFAULT_NUM_POOLS      = 10,  // default number of pools
+    k_DEFAULT_NUM_POOLS      = 10,  // default number of pools
 
-    DEFAULT_MAX_CHUNK_SIZE = 32,  // default maximum number of blocks per chunk
+    k_DEFAULT_MAX_CHUNK_SIZE = 32,  // default maximum number of blocks per
+                                    // chunk
 
-    MIN_BLOCK_SIZE         =  8   // minimum block size (in bytes)
+    k_MIN_BLOCK_SIZE         =  8   // minimum block size (in bytes)
 };
 
-                      // ---------------
-                      // class Multipool
-                      // ---------------
+                             // ---------------
+                             // class Multipool
+                             // ---------------
 
 // PRIVATE MANIPULATORS
 void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
@@ -38,7 +39,7 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
 {
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
 
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
@@ -49,7 +50,8 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy growthStrategy,
     bslma::AutoDestructor<Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) Pool(d_maxBlockSize + sizeof(Header),
+        new (d_pools_p + i) Pool(d_maxBlockSize
+                                            + static_cast<int>(sizeof(Header)),
                                  growthStrategy,
                                  maxBlocksPerChunk,
                                  d_allocator_p);
@@ -71,7 +73,7 @@ void Multipool::initialize(
     BSLS_ASSERT(growthStrategyArray);
     BSLS_ASSERT(1 <= maxBlocksPerChunk);
 
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
@@ -82,7 +84,8 @@ void Multipool::initialize(
     bslma::AutoDestructor<Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) Pool(d_maxBlockSize + sizeof(Header),
+        new (d_pools_p + i) Pool(d_maxBlockSize
+                                            + static_cast<int>(sizeof(Header)),
                                  growthStrategyArray[i],
                                  maxBlocksPerChunk,
                                  d_allocator_p);
@@ -102,7 +105,7 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy  growthStrategy,
 {
     BSLS_ASSERT(maxBlocksPerChunkArray);
 
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
@@ -113,7 +116,8 @@ void Multipool::initialize(bsls::BlockGrowth::Strategy  growthStrategy,
     bslma::AutoDestructor<Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) Pool(d_maxBlockSize + sizeof(Header),
+        new (d_pools_p + i) Pool(d_maxBlockSize
+                                            + static_cast<int>(sizeof(Header)),
                                  growthStrategy,
                                  maxBlocksPerChunkArray[i],
                                  d_allocator_p);
@@ -135,7 +139,7 @@ void Multipool::initialize(
     BSLS_ASSERT(growthStrategyArray);
     BSLS_ASSERT(maxBlocksPerChunkArray);
 
-    d_maxBlockSize = MIN_BLOCK_SIZE;
+    d_maxBlockSize = k_MIN_BLOCK_SIZE;
 
     d_pools_p = static_cast<Pool *>(
                       d_allocator_p->allocate(d_numPools * sizeof *d_pools_p));
@@ -146,7 +150,8 @@ void Multipool::initialize(
     bslma::AutoDestructor<Pool> autoDtor(d_pools_p, 0);
 
     for (int i = 0; i < d_numPools; ++i, ++autoDtor) {
-        new (d_pools_p + i) Pool(d_maxBlockSize + sizeof(Header),
+        new (d_pools_p + i) Pool(d_maxBlockSize
+                                            + static_cast<int>(sizeof(Header)),
                                  growthStrategyArray[i],
                                  maxBlocksPerChunkArray[i],
                                  d_allocator_p);
@@ -167,7 +172,7 @@ int Multipool::findPool(int size) const
     BSLS_ASSERT_SAFE(0    <= size);
     BSLS_ASSERT_SAFE(size <= d_maxBlockSize);
 
-    int accumulator = ((size + MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1;
+    int accumulator = ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1;
 
     accumulator |= accumulator >> 16;
     accumulator |= accumulator >>  8;
@@ -197,11 +202,11 @@ int Multipool::findPool(int size) const
 
 // CREATORS
 Multipool::Multipool(bslma::Allocator *basicAllocator)
-: d_numPools(DEFAULT_NUM_POOLS)
+: d_numPools(k_DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 Multipool::Multipool(int               numPools,
@@ -212,16 +217,16 @@ Multipool::Multipool(int               numPools,
 {
     BSLS_ASSERT(1 <= numPools);
 
-    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(bsls::BlockGrowth::BSLS_GEOMETRIC, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 Multipool::Multipool(bsls::BlockGrowth::Strategy  growthStrategy,
                      bslma::Allocator            *basicAllocator)
-: d_numPools(DEFAULT_NUM_POOLS)
+: d_numPools(k_DEFAULT_NUM_POOLS)
 , d_blockList(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    initialize(growthStrategy, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategy, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 Multipool::Multipool(int                          numPools,
@@ -233,7 +238,7 @@ Multipool::Multipool(int                          numPools,
 {
     BSLS_ASSERT(1 <= numPools);
 
-    initialize(growthStrategy, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategy, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 Multipool::Multipool(int                                numPools,
@@ -246,7 +251,7 @@ Multipool::Multipool(int                                numPools,
     BSLS_ASSERT(1 <= numPools);
     BSLS_ASSERT(growthStrategyArray);
 
-    initialize(growthStrategyArray, DEFAULT_MAX_CHUNK_SIZE);
+    initialize(growthStrategyArray, k_DEFAULT_MAX_CHUNK_SIZE);
 }
 
 Multipool::Multipool(int                          numPools,
@@ -331,13 +336,13 @@ void *Multipool::allocate(int size)
         const int pool = findPool(size);
         Header *p = static_cast<Header *>(d_pools_p[pool].allocate());
         p->d_header.d_poolIdx = pool;
-        return p + 1;
+        return p + 1;                                                 // RETURN
     }
 
     // The requested size is large and will not be pooled.
 
     Header *p = static_cast<Header *>(
-                                  d_blockList.allocate(size + sizeof(Header)));
+                d_blockList.allocate(size + static_cast<int>(sizeof(Header))));
     p->d_header.d_poolIdx = -1;
     return p + 1;
 }
@@ -380,7 +385,7 @@ void Multipool::reserveCapacity(int size, int numBlocks)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // 'bslalg_constructorproxy' and 'bslalg_scalarprimitives' components.  The
 // interested reader should refer to the documentation of those components.
 //
-///A generic container
+///A Generic Container
 ///- - - - - - - - - -
 // Suppose we want to implement a generic container of a parameterized 'TYPE',
 // which may or may not follow the 'bslma' allocator model.  If it does, our
@@ -144,7 +144,8 @@ BSLS_IDENT("$Id: $")
 //      const TYPE& object() const;
 //  };
 //..
-///Using the type traits
+//
+///Using the Type Traits
 ///- - - - - - - - - - -
 // The challenge in the implementation lays in using the traits of the
 // contained 'TYPE' to determine whether to pass the allocator argument to its
@@ -211,8 +212,9 @@ BSLS_IDENT("$Id: $")
 //
 //  };
 //..
-///Generic container implementation
-///- - - - - - - - - - - - - - - -
+//
+///Generic Container Implementation
+/// - - - - - - - - - - - - - - - -
 // With these utilities, we can now implement 'MyGenericContainer'.
 //..
 //  // CREATORS
@@ -260,8 +262,9 @@ BSLS_IDENT("$Id: $")
 //      return d_object.object();
 //  }
 //..
-///Usage verification
-///- - - - - - - - -
+//
+///Usage Verification
+/// - - - - - - - - -
 // We can check that our container actually forwards the correct allocator to
 // its contained objects with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that

@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 53 components having 8 levels of physical
+ The 'bslstl' package currently has 54 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -60,6 +60,7 @@
   3. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
      bslstl_forwarditerator
+     bslstl_function
      bslstl_iteratorutil
      bslstl_list
      bslstl_string
@@ -115,6 +116,9 @@
 :
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
+:
+: 'bslstl_function':
+:      Provide a polymorphic function object with a specific prototype.
 :
 : 'bslstl_hash':
 :      Provide a namespace for hash functions.
@@ -244,4 +248,3 @@
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
-

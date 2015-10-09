@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@SEE ALSO: bsls_byteorderutil
+//@SEE_ALSO: bsls_byteorderutil
 //
 //@MACROS:
 //  BSLS_BYTEORDER_HTONS(x):  Convert 16-bit value from host to network order
@@ -94,6 +94,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_HOST_U32_TO_BE(x)
 //  BSLS_BYTEORDER_HOST_U64_TO_BE(x)
 //..
+//
 ///Usage
 ///-----
 // To use these macros, simply pass a 16-, 32-, or 64-bit value to the macros.
@@ -174,8 +175,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-// ======
-// MACROS
+// ============================================================================
+//                                  MACROS
 // ======
 
 // STANDARD NETWORK AND HOST CONVERSIONS
@@ -241,7 +242,7 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSLS_PLATFORM_IS_BIG_ENDIAN
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // ENDIAN CONVERSION MACROS
 

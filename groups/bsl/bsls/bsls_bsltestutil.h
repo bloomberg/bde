@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Writing a test driver
+///Example 1: Writing a Test Driver
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
 //..
@@ -154,6 +154,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  value = 42
 //..
+//
 ///Example 2: Adding Support For A New User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a new user-defined type, 'MyType':
@@ -233,6 +234,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  obj = MyType<9>
 //..
+//
 ///Example 3: Printing Unusual Types with 'printf'
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are writing a test driver that needs to print out the contents of
@@ -632,9 +634,9 @@ void debugprint(RESULT (*v)());
     // as with its argument list, a template function is used, to provide
     // matches for all return types.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                    // ------------------
                    // struct BslTestUtil

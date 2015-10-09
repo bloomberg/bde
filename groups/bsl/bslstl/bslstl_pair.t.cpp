@@ -75,9 +75,9 @@ using namespace bsl;
 // [6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
@@ -97,7 +97,7 @@ void aSsErT(int c, const char *s, int i) {
 }  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -457,7 +457,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
 }  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 struct my_CopyTrivial {};
 
@@ -479,14 +479,22 @@ struct is_trivially_default_constructible<my_EqualityTrivial>
      : bsl::true_type {};
 }  // close namespace bsl
 
+struct my_NoTraits {};
+
 namespace BloombergLP {
 namespace bslmf {
 template <>
 struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
-}  // close namespace bslmf
-}  // close namespace BloombergLP
 
-struct my_NoTraits {};
+// Empty classes are bitwise moveable by default.  Specialize for 'my_NoTraits'
+// to make it NOT bitwise moveable.
+template<>
+struct IsBitwiseMoveable<my_NoTraits> : bsl::false_type {};
+
+}  // close namespace bslmf
+}  // close enterprise namespace
+
+
 
 //=============================================================================
 //                HELPER CLASSES AND FUNCTIONS FOR TESTING SWAP
@@ -539,6 +547,12 @@ struct TypeWithoutSwap {
     : data(d)
     {}
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    // Nothrow moves needed so that std::swap doesn't get SFINAEd out.
+    TypeWithoutSwap(const TypeWithoutSwap&) noexcept = default;
+    TypeWithoutSwap& operator=(const TypeWithoutSwap&) noexcept = default;
+#endif
+
     bool operator==(const TypeWithoutSwap& rhs) const {
         return data == rhs.data;
     }
@@ -548,7 +562,7 @@ struct TypeWithoutSwap {
 };
 
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 void swapTestHelper()
     // Test 'swap' method and free function for 'bsl::pair<T1, T2>'.
 {

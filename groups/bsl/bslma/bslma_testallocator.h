@@ -121,10 +121,10 @@ BSLS_IDENT("$Id: $")
 ///Exception Test Macros
 ///---------------------
 // This component also provides a pair of macros:
-//..
-//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)
-//: o BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-//..
+//
+//: o 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR)'
+//: o 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END'
+//
 // These macros can be used for testing exception-safety of classes and their
 // methods when memory allocation is needed.  A reference to an object of type
 // 'bslma::TestAllocator' must be supplied as an argument to the '_BEGIN'

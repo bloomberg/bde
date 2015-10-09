@@ -65,8 +65,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Direct look at metafunction results
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Direct Look at Metafunction Results
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we invoke 'ForwardingType' on a variety of types and look
 // at the resulting 'Type' member:
 //..
@@ -111,8 +111,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: A logging invocation wrapper
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: A Logging Invocation Wrapper
+///- - - - - - - - - - - - - - - - - - - -
 // This example illustrates the use of 'ForwardingType' to efficiently
 // implement a wrapper class that holds a function pointer and logs
 // information about each call to the pointed-to-function through the wrapper.

@@ -435,8 +435,8 @@ operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int)
     return temp;
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

@@ -349,7 +349,7 @@ void swap(BidirectionalNodePool<VALUE, ALLOCATOR>& a,
         // no-throw exception-safety guarantee.  The behavior is undefined
         // unless 'a.allocator() == b.allocator()'.
 
-}  // close namespace bslstl
+}  // close package namespace
 
 
 // ============================================================================
@@ -504,7 +504,7 @@ BidirectionalNodePool<VALUE, ALLOCATOR>::allocator() const
     return d_pool.allocator();
 }
 
-}  // close namespace bslstl
+}  // close package namespace
 
 template <class VALUE, class ALLOCATOR>
 inline

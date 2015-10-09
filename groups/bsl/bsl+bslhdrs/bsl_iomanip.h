@@ -34,7 +34,7 @@ namespace bsl
     using native_std::setprecision;
     using native_std::setw;
 
-}
+}  // close package namespace
 
 #endif
 

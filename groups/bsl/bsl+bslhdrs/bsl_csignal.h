@@ -29,7 +29,7 @@ namespace bsl
     using native_std::signal;
     using native_std::raise;
     using native_std::sig_atomic_t;
-}
+}  // close package namespace
 
 #endif
 

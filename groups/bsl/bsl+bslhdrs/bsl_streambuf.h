@@ -32,7 +32,7 @@ namespace bsl
     using native_std::streambuf;
     using native_std::wstreambuf;
 
-}
+}  // close package namespace
 
 #endif
 

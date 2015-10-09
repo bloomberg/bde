@@ -89,7 +89,7 @@ struct IsBitwiseEqualityComparable
 
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISECOPYABLE)
 

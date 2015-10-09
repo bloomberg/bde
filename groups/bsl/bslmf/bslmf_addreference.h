@@ -97,6 +97,7 @@ BSLS_IDENT("$Id: $")
 //      assert(42 == TR.value());
 //  }
 //..
+//
 ///Example 2: Expected Results
 ///- - - - - - - - - - - - - -
 // For this example, the associated comments below indicate the expected type

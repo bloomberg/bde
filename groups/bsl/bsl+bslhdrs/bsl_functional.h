@@ -63,7 +63,7 @@ namespace bsl
     using native_std::ptr_fun;
     using native_std::unary_function;
     using native_std::unary_negate;
-}
+}  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
@@ -73,6 +73,7 @@ namespace bsl
 #ifndef BSL_OVERRIDES_STD
 
 #include <bslstl_equalto.h>
+#include <bslstl_function.h>
 #include <bslstl_hash.h>
 #include <bslstl_referencewrapper.h>
 

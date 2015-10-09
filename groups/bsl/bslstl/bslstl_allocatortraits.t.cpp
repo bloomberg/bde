@@ -150,6 +150,25 @@ void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 
+// In optimized builds, some compilers will elide some of the operations in the
+// destructors of the test classes defined below.  In order to force the
+// compiler to retain all of the code in the destructors, we provide the
+// following function that can be used to (conditionally) print out some of the
+// state of a data member.  If the destructor calls this function after
+// updating a data member, then the value set in the destructor will have
+// visible side-effects, but normal test runs do not have to be burdened with
+// additional output.
+
+static bool forceDestructorCall = false;
+
+template <class DATA_TYPE>
+void dumpData(const DATA_TYPE& data)
+{
+    if (forceDestructorCall) {
+        printf("%p: %c\n", &data, *reinterpret_cast<const char *>(&data));
+    }
+}
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -474,7 +493,14 @@ class AttribClass5
     AttribClass5(const AttribClass5& other)
         : d_attrib(other.d_attrib) { ++d_ctorCount; }
 
-    ~AttribClass5() { d_attrib.d_b = 0xdeadbeaf; ++d_dtorCount; }
+    ~AttribClass5()
+    {
+        d_attrib.d_b = 0xdeadbeaf;
+        ++d_dtorCount;
+
+      dumpData(d_attrib.d_b);
+      dumpData(d_dtorCount);
+    }
 
     char        a() const { return d_attrib.d_a; }
     int         b() const { return d_attrib.d_b; }
@@ -544,8 +570,8 @@ namespace bslma {
         bsl::is_convertible<bslma::Allocator*, ALLOC>::type
     {
     };
-} // namespace bslma
-} // namespace BloombergLP
+}  // close namespace bslma
+}  // close enterprise namespace
 
 class AttribClass5bslma
 {
@@ -692,7 +718,7 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
     struct HasStlIterators<MyContainer<TYPE, ALLOC> > : bsl::true_type
     {};
 
-    } // namespace bslalg
+    }  // close namespace bslalg
 
     namespace bslmf {
 
@@ -701,7 +727,7 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
         : IsBitwiseMoveable<ALLOC>
     {};
 
-    } // namespace bslmf
+    }  // close namespace bslmf
 
     namespace bslma {
 
@@ -710,8 +736,8 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
         : bsl::is_convertible<Allocator*, ALLOC>
     {};
 
-    }  // namespace bslma
-    }  // namespace BloombergLP
+    }  // close namespace bslma
+    }  // close enterprise namespace
 //..
 // Then we implement the constructors, which allocate memory and construct a
 // 'TYPE' object in the allocated memory.  Because the allocation and
@@ -1582,6 +1608,11 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+
+    // Output triggered by 'forceDestructorCall' is not meaningful, so
+    // de-couple output from test driver verbosity.
+
+    forceDestructorCall = argc > 6;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 

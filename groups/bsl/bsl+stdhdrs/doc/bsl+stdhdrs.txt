@@ -2,9 +2,7 @@
 
 @PURPOSE: Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
 
-@MNEMONIC: Basic Standard Library STD HeaDerS (bsl+stdhdrs)
-
-@LAST_MODIFIED: Mar 1, 2010
+@MNEMONIC: Basic Standard Library STD HeaDeRS (bsl+stdhdrs)
 
 @DESCRIPTION: The 'bsl+stdhdrs' package provides a compatibility layer for
  BDE-STL mode used by Bloomberg-managed code.  This document describes the
@@ -41,29 +39,29 @@
 :    Provides macros for relative paths to native STL headers.
 :
 
-A majority of the other headers of this package provide the functionality
-of the corresponding C++ Standard headers. In addition, there are a set of
-POSIX standard headers (most of which simply forward to the platform's
-supplied header):
-:   o 'assert.h'
-:   o 'ctype.h'
-:   o 'errno.h'
-:   o 'float.h'
-:   o 'iso646.h'
-:   o 'limits.h'
-:   o 'locale.h'
-:   o 'math.h'
-:   o 'pthread.h'
-:   o 'setjmp.h'
-:   o 'signal.h'
-:   o 'stdarg.h'
-:   o 'stddef.h'
-:   o 'stdio.h'
-:   o 'stdlib.h'
-:   o 'string.h'
-:   o 'time.h'
-:   o 'wchar.h'
-:   o 'wctype.h'
+ A majority of the other headers of this package provide the functionality of
+ the corresponding C++ Standard headers.  In addition, there are a set of POSIX
+ standard headers (most of which simply forward to the platform's supplied
+ header):
+: o 'assert.h'
+: o 'ctype.h'
+: o 'errno.h'
+: o 'float.h'
+: o 'iso646.h'
+: o 'limits.h'
+: o 'locale.h'
+: o 'math.h'
+: o 'pthread.h'
+: o 'setjmp.h'
+: o 'signal.h'
+: o 'stdarg.h'
+: o 'stddef.h'
+: o 'stdio.h'
+: o 'stdlib.h'
+: o 'string.h'
+: o 'time.h'
+: o 'wchar.h'
+: o 'wctype.h'
 
 /Supported Modes
 /---------------
@@ -99,14 +97,14 @@ supplied header):
  introduced to the 'bsl' namespace via aliases to the compiler's native
  implementation.
 
- Bloomberg currently provides its own implementation for eighteen class
+ Bloomberg currently provides its own implementation for the following class
  templates:
 ..
   vector    pair(*)     map             unordered_set
   string    set         priority_queue  unordered_multimap
   deque     multiset    bitset          unordered_multiset
-  list      multimap    stringstream
-  queue     stack       unordered_map
+  list      multimap    stringstream    function
+  queue     stack       unordered_map   reference_wrapper
 ..
 
  (*) Note that Bloomberg provides an implementation of 'pair', but not
@@ -177,23 +175,26 @@ supplied header):
 /Hierarchical Structure of Hybrid 'bsl' Mechanism
 /----------------------------------------------
 
-/bslstl
-/ - - -
- 'bslstl' contains Bloomberg's implementation of allocators and STL containers.
+/'bslstl'
+/ - - - -
+ The {'bslstl'} package contains Bloomberg's implementation of allocators and
+ STL containers.
 
-/bsl+bslhdrs
-/- - - - - -
- 'bsl+bslhdrs' contains all the 'bsl_*' headers (corresponding to standard STL
- headers, e.g., '<bsl_string.h>' for '<string>').  When included, the files in
- this directory inject native STL symbols from the 'std' namespace into the
- 'bsl' namespace, or include the corresponding 'Bloomberg' type.
+/'bsl+bslhdrs'
+/- - - - - - -
+ The {'bsl+bslhdrs'} package (a non-BDE-conformant package) contains all the
+ 'bsl_*' headers (corresponding to standard STL headers, e.g., '<bsl_string.h>'
+ for '<string>').  When included, the files in this directory inject native STL
+ symbols from the 'std' namespace into the 'bsl' namespace, or include the
+ corresponding 'Bloomberg' type.
 
-/bsl+stdhdrs
-/- - - - - -
- 'bsl+stdhdrs' contains all the headers used to intercept the inclusion of
- standard STL headers.  This directory also contains auxiliary files that
- implement pre-processor logic to support BDE-STL mode, such as
- 'bsl_stdhdrs_prologue.h' and 'bsl_stdhdrs_epilogue.h'.
+/'bsl+stdhdrs'
+/- - - - - - -
+ The {'bsl+stdhdrs'} package (a non-BDE-conformant package) contains all the
+ headers used to intercept the inclusion of standard STL headers.  This
+ directory also contains auxiliary files that implement pre-processor logic to
+ support BDE-STL mode, such as 'bsl_stdhdrs_prologue.h' and
+ 'bsl_stdhdrs_epilogue.h'.
 
  Note that when users compile under Native-STL mode, the headers in
  'bsl+stdhdrs' are not necessary (though no harm when included).
@@ -348,15 +349,37 @@ supplied header):
  record all native headers that had been included and include our corresponding
  implementations when inclusion of all native headers finish.  Hence, an
  epilogue file ('bsl_stdhdrs_epilogue.h') was introduced to centralize the
- preprocessor logic that accomplishes the above post processing step.
+ preprocessor logic that accomplishes the above post-processing step.
 
- The epilogue file can recursively include itself (via
- 'bsl_stdhdrs_epilogue_recursive.h') to process all native headers
- independently of their dependencies on each other and independently of
- 'bslstl' header dependencies on native headers.  (Recursion here is a
- preprocessor equivalent for a loop.)  By doing so, it guarantees that it
- finishes only when all native headers are matched with our corresponding
- implementations.
+ Assume the user code '#include's '<iterator>', native and post-processing
+ steps works as follows: 'bsl+stdhdrs/iterator' includes the native 'iterator'
+ header, then it adds 'bslstl_iterator.h' to the "queue" of 'bsl' headers that
+ need to be processed by '#define'ing 'BSL_INCLUDE_BSL_ITERATOR' (not to be
+ confused with the include guard, 'INCLUDED_BSLSTL_ITERATOR').  Then it include
+ 'bsl_stdhdrs_epilog.h', which includes 'bsl_stdhdrs_epilog_recursive.h'.  The
+ recursive epilog, detects that 'BSL_INCLUDE_BSL_ITERATOR' is defined and that
+ 'INCLUDED_BSLSTL_ITERATOR' is not defined, and it includes
+ 'bslstl_iterator.h'.  The interesting part of this process is that, if either
+ the native '<iterator>' header or 'bslstl_iterator.h' includes another
+ standard header, then that standard header will may add more 'bsl' headers to
+ the queue by defining the appropriate 'BSL_INCLUDE_' macros.  The epilog
+ processes any header that is in the queue when the epilog starts.  If ANY
+ files get prossessed, it is assume that more files may have gotten added to
+ the queue, and 'BSL_STDHDRS_RUN_EPILOGUE' is defined.  At the end of the
+ epilog, if 'BSL_STDHDRS_RUN_EPILOGUE' is defined, the epilog is run again,
+ recursively, to pick up any new headers that were added to the queue.  The
+ recursion continues until no new files are added to the queue.
+
+ This complex '#include' processing guarantees that all native headers are
+ matched with our corresponding implementations and enhancements.  The process
+ is not fool-proof, however.  If a 'bsl' component '#include's a standard
+ header, it is still possible that a cycle will be created within the epilog
+ itself.  Although the include guards prevent infinite '#include' recursion,
+ the lower-level headers may depend on symbols that have not yet been defined.
+ The worse offender for this kind of recursion is '<algorithm>' which depends
+ on just about every other native header.  The only fix is to repair the cycles
+ (e.g., by using forward declarations instead), as compilation errors are
+ discovered.
 
 /Other Design Discussions
 /------------------------
@@ -366,7 +389,6 @@ supplied header):
 :   included.  Therefore, the include guards in those files do not guard the
 :   entire file.
 :
-: o '.SUNWCCh' files are needed to override the native STL include files when 
-:   using the Oracle Studio compiler.  The file extension tells the compiler 
-:   that it is an STL header file. 
-
+: o '.SUNWCCh' files are needed to override the native STL include files when
+:   using the Oracle Studio compiler.  The file extension tells the compiler
+:   that it is an STL header file.

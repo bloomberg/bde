@@ -249,7 +249,7 @@ class StringRef : public bslstl::StringRefData<char>
 namespace {
 
 // FREE OPERATORS
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 bool operator==(const bslstl::StringRefData<CHAR_TYPE>& lhs,
                 const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
@@ -260,7 +260,7 @@ bool operator==(const bslstl::StringRefData<CHAR_TYPE>& lhs,
     return lhs.begin() == rhs.begin() && lhs.end() == rhs.end();
 }
 
-template <typename CHAR_TYPE>
+template <class CHAR_TYPE>
 bool operator!=(const bslstl::StringRefData<CHAR_TYPE>& lhs,
                 const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
@@ -271,7 +271,7 @@ bool operator!=(const bslstl::StringRefData<CHAR_TYPE>& lhs,
     return !(lhs == rhs);
 }
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                                MAIN PROGRAM

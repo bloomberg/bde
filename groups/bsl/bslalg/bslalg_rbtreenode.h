@@ -587,7 +587,7 @@ RbTreeNode::Color RbTreeNode::color() const
     return static_cast<Color>(toInt(d_parentWithColor_p) & 0x01);
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -302,7 +302,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP
 {
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 

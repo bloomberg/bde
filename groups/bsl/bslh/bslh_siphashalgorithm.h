@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // to protect a hash table from malicious Denial of Service (DoS) attacks.
 //
 ///Denial of Service (DoS) Protection
-/// - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Given a cryptographically secure seed, this algorithm will produce hashes
 // with a distribution that is indistinguishable from random.  This
 // distribution means that there is no way for an attacker to predict which
@@ -342,8 +342,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: 10 Changed variables to use 'size_t' rather than 'unsigned int'
 //
-///Third Party Doc
-///---------------
+///Third-Party Documentation
+///-------------------------
 //------------------------------- siphash.h -----------------------------------
 //
 // This software is in the public domain.  The only restriction on its use is
@@ -488,7 +488,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bslh::SipHashAlgorithm>
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 

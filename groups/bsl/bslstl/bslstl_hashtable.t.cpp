@@ -1800,7 +1800,7 @@ template <>
 struct UsesBslmaAllocator<UsageExamples::MySalesRecordContainer>
      : bsl::true_type {};
 
-}  // close traits namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 // BDE_VERIFY pragma: pop  // Suppress idiomatic issues with usage examples
 
@@ -2123,7 +2123,7 @@ template <>
 int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
                                     const TestTypes::MostEvilTestType& object);
 
-}  // close aspects namespace
+}  // close namespace bsltf
 }  // close enterprise namespace
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3290,7 +3290,7 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
     return object.data();
 }
 
-}  // close aspects namespace
+}  // close namespace bsltf
 }  // close enterprise namespace
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

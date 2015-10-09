@@ -39,7 +39,7 @@ namespace bsl
     using native_std::isxdigit;
     using native_std::tolower;
     using native_std::toupper;
-}
+}  // close package namespace
 
 #endif
 

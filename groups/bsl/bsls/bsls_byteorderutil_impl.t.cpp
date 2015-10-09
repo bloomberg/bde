@@ -120,7 +120,7 @@ mySwapBytes16(unsigned short x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 #endif
 }
 
@@ -163,7 +163,7 @@ myGenericSwap16(unsigned short x)
 {
     // This macro will return a value of type 'unsigned short'.
 
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 }
 
 inline
@@ -173,7 +173,7 @@ myGenericSwap32(unsigned int x)
 {
     // This macro will return a value of type 'unsigned int'.
 
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_32(unsigned int, x);          // RETURN
 }
 
 inline
@@ -183,7 +183,7 @@ myGenericSwap64(bsls::Types::Uint64 x)
 {
     // This macro will return a value of type 'bsls::Types::Uint64'.
 
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(bsls::Types::Uint64, x);   // RETURN
 }
 
 //=============================================================================

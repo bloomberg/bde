@@ -172,7 +172,7 @@ void SpookyHashAlgorithmImp::hash128(
                                                        k_BLOCK_SIZE-remainder);
 
     BSLS_ASSERT(remainder <= 255);
-    (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] = 
+    (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] =
                                                  static_cast<Uint8>(remainder);
 
     // do some final mixing

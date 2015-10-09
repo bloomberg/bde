@@ -69,11 +69,11 @@ namespace {
 #else
     BSLMF_ASSERT(1); BSLMF_ASSERT(1); // not class scope
 #endif
-}
+}  // close unnamed namespace
 
 namespace {
     BSLMF_ASSERT(1);
-}
+}  // close unnamed namespace
 
 namespace Bar {
 
@@ -83,7 +83,7 @@ namespace Bar {
 #else
     BSLMF_ASSERT(1); BSLMF_ASSERT(1); // not class scope
 #endif
-}
+}  // close namespace Bar
 
 class MyType {
     // class scope

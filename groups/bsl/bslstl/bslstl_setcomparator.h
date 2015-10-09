@@ -245,9 +245,9 @@ void swap(SetComparator<KEY, COMPARATOR>& a,
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                     // -------------------
                     // class SetComparator

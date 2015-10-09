@@ -84,7 +84,7 @@ static void aSsErT(bool b, const char *s, int i)
 //..
     #include <bsls_bslexceptionutil.h>
 
-    template<typename T>
+    template<class T>
     void testFunction(int selector)
         //  Throw a standard exception according to the specified 'selector'.
     {

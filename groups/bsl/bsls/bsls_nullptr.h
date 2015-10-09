@@ -229,15 +229,15 @@ struct Nullptr_Impl {
                                              // pointer type.
 };
 
-}  // close namespace bsls
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl
 {
     typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
         // Alias for a type that can match a null pointer literal, but is not a
         // pointer type itself.
-}
+}  // close namespace bsl
 #endif
 
 #endif

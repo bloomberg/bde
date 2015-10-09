@@ -108,7 +108,7 @@ inline void debugprint(const bsl::string &s) {
     printf("\"%s\"", s.c_str()); fflush(stdout);
 }
 
-} // close namespace bsl
+}  // close namespace bsl
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

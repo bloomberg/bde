@@ -50,7 +50,7 @@ namespace bsl
     using native_std::strstr;
     using native_std::strtok;
     using native_std::strxfrm;
-}
+}  // close package namespace
 
 #endif
 

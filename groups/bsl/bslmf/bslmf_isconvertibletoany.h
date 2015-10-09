@@ -20,11 +20,11 @@ BSLS_IDENT("$Id: $")
 // converted to any other type.
 //
 ///Usage
-//------
+///-----
 // In this section we show the intended use of this component.
 //
 ///Example 1: Determine If a Class Has a Template Conversion Operator
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type has a template
 // conversion operator.
 //

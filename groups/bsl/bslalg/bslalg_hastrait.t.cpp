@@ -114,7 +114,7 @@ const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-template <typename TYPE>
+template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
@@ -152,7 +152,7 @@ unsigned traitBits()
     return result;
 }
 
-template <typename TYPE>
+template <class TYPE>
 struct Identity
 {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
@@ -192,12 +192,26 @@ struct my_Class1
 };
 
 namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_Class0' would normally be implicitly bitwise moveable.
+// Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class0> : bsl::false_type { };
+
+// Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
+// Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
+
+}  // close bslmf namespace
+
 namespace bslma {
 
 template <>
 struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 
-}  // close bslma namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 template <class T>
@@ -230,16 +244,30 @@ struct ConvertibleToAnyNoTraits
     // the "convert to anything" operator shouldn't interfere with the nested
     // trait logic.
 {
-    template <typename T>
+    template <class T>
     operator T() const { return T(); }
 };
 
 struct ConvertibleToAnyWithTraits {
-    template <typename T>
+    template <class T>
     operator T() const { return T(); }
 };
 
 namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_Class4' would normally be implicitly bitwise
+// moveable.  Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_Class4> : bsl::false_type { };
+
+// Being empty, 'ConvertibleToAnyNoTraits' would normally be implicitly bitwise
+// moveable.  Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<ConvertibleToAnyNoTraits> : bsl::false_type { };
+
+}  // close namespace bslmf
+
 namespace bslma {
 
 template <>
@@ -249,8 +277,8 @@ struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
     // work.
 };
 
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -332,7 +360,8 @@ int main(int argc, char *argv[])
 
         // Trait tests for type convertible to anything
         TRAIT_TEST(ConvertibleToAnyNoTraits, TRAIT_NIL);
-        TRAIT_TEST(ConvertibleToAnyWithTraits, TRAIT_USESBSLMAALLOCATOR);
+        TRAIT_TEST(ConvertibleToAnyWithTraits,
+                   TRAIT_USESBSLMAALLOCATOR | TRAIT_BITWISEMOVEABLE);
 
       } break;
 

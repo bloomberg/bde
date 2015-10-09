@@ -63,7 +63,7 @@ struct ConvertibleToAnyConst {
     operator T() const { return T(); }
 };
 
-}
+}  // close unnamed namespace
 
 //=============================================================================
 //                              USAGE EXAMPLES

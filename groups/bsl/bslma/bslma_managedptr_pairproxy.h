@@ -73,7 +73,7 @@ struct IsBitwiseMoveable<bslma::ManagedPtr_PairProxy<POINTER_TYPE,
                                                      ASSOCIATED_TYPE> >
     : IsBitwiseMoveable<ASSOCIATED_TYPE>::type {};
 
-}  // close package namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 #endif

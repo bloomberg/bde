@@ -1,0 +1,12 @@
+bdlde_base64decoder
+bdlde_base64encoder
+bdlde_byteorder
+bdlde_charconvertstatus
+bdlde_charconvertucs2
+bdlde_charconvertutf16
+bdlde_charconvertutf32
+bdlde_crc32
+bdlde_md5
+bdlde_quotedprintabledecoder
+bdlde_quotedprintableencoder
+bdlde_utf8util

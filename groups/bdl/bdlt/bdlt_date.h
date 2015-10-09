@@ -947,7 +947,7 @@ int bdlt::operator-(const Date& lhs, const Date& rhs)
 }
 
 // ASPECTS
-template <typename HASHALG>
+template <class HASHALG>
 void bdlt::hashAppend(HASHALG& hashAlg, const Date& date)
 {
     using ::BloombergLP::bslh::hashAppend;

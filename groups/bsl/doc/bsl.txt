@@ -27,12 +27,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsl' package group currently has 15 packages having 12 levels of physical
+ The 'bsl' package group currently has 16 packages having 12 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  12. bslx
+  12. bslmt
+      bslx
 
   11. bslim
 
@@ -99,6 +100,9 @@
 : 'bslmf':
 :      Provide meta-function versions of useful coding constructs.
 :
+: 'bslmt':
+:      Support for multi-threading and thread-safe processes.
+:
 : 'bsls':
 :      Provide system-level utilities for 'bsl'.
 :
@@ -119,48 +123,47 @@
 
 /Package Overview
 /----------------
- The following provides a brief overview of the packages within the 'bsl'
- package group, arranged in alphabetical order.  Note that several packages,
- especially at lower levels in the physical hierarchy, are primarily intended
- for use by other packages within 'bsl'.  The descriptions here are still very
- brief; see the respective Package Level documents for more details and usage
- examples.
+ This section provides a brief introduction to the packages of the 'bsl'
+ package group.  Note that several packages, especially at lower levels in the
+ physical hierarchy, are primarily intended for use by other packages within
+ 'bsl'.  See the respective Package Level documents for more details.
 
 /'bsl+bslhdrs'
 /- - - - - - -
- {'bsl+bslhdrs'} provides the 'bsl' version of the standard C++ library (e.g.,
- 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead of 'algorithm').
- Users of 'bsl' can include these headers to obtain the corresponding C++ STL
- functionalities.
+ The {'bsl+bslhdrs'} package provides the 'bsl' version of the standard C++
+ library (e.g., 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead
+ of 'algorithm').  Users of 'bsl' can include these headers to obtain the
+ corresponding C++ STL functionalities.
 
 /'bsl+stdhdrs'
 /- - - - - - -
- {'bsl+stdhdrs'} provides a compatibility layer to for the 'BDE-STL' mode.
- When users include standard C++ headers from this directory (e.g., 'vector',
- 'algorithm'), and use standard STL types such as 'std::vector', 'std::cout',
- users will be using the corresponding 'bsl' version instead (i.e.,
- 'std::vector' is the same as 'bsl::vector').
+ The {'bsl+stdhdrs'} package provides a compatibility layer to for the
+ 'BDE-STL' mode.  When users include standard C++ headers from this directory
+ (e.g., 'vector', 'algorithm'), and use standard STL types such as
+ 'std::vector', 'std::cout', users will be using the corresponding 'bsl'
+ version instead (i.e., 'std::vector' is the same as 'bsl::vector').
 
 /'bslalg'
 / - - - -
- {'bslalg'} provides a variety of lower-level algorithms, comparisons, and
- traits.
+ The {'bslalg'} package provides a variety of lower-level algorithms,
+ comparisons, and traits.
 
 /'bsldoc'
 / - - - -
- {'bsldoc'} documents key terminology and concepts used throughout BDE
- documentation.  Note that the components in this package consist entirely of
- comments, no code.
+ The {'bsldoc'} package documents key terminology and concepts used throughout
+ BDE documentation.  Note that the components in this package consist entirely
+ of comments, no code.
 
 /'bslh'
 / - - -
- {'bslh'} provides standard hashing algorithms and components allowing the
- application of those hashing algorithms to types in a modular way.
+ The {'bslh'} package provides standard hashing algorithms and components
+ allowing the application of those hashing algorithms to types in a modular
+ way.
 
 /'bslim'
 /- - - -
- {'bslim'} provides implementation mechanisms for features that must have
- identical syntax and semantics in many disparate classes.
+ The {'bslim'} package provides implementation mechanisms for features that
+ must have identical syntax and semantics in many disparate classes.
 
 /'bslma'
 /- - - -
@@ -168,15 +171,15 @@
 
 /'bslmf'
 /- - - -
- {'bslmf'} provides low-level "meta-functions" implementing "traits" and other
- useful properties of types, determined at compile-time.
+ The {'bslmf'} package provides low-level "meta-functions" implementing
+ "traits" and other useful properties of types, determined at compile-time.
 
 /'bsls'
 / - - -
- {'bsls'} provides the needed platform-independent definitions and utilities
- (with platform-specific implementations) so that the rest of the bsl library,
- and all conforming applications within the Development Framework, can be
- written in a truly portable, platform-neutral dialect of C++ -- one having
+ The {'bsls'} package provides the needed platform-independent definitions and
+ utilities (with platform-specific implementations) so that the rest of the bsl
+ library, and all conforming applications within the Development Framework, can
+ be written in a truly portable, platform-neutral dialect of C++ -- one having
  dependency on 'bsls', but on no other system-specific services.  Among the
  issues dealt with in 'bsls' are hardware, operating system, and compiler
  definitions, "endian-ness" and alignment of type representation in physical
@@ -185,30 +188,28 @@
 
 /'bslscm'
 / - - - -
- {'bslscm'} is a special source control management package containing only two
- components, 'bslscm_version' and 'bslscm_versiontag'.  The first of these
- components is included by every other component in 'bsl', and provides
- versioning information for the package group.  Users may use the
- 'bslscm_version' facilities to query a particular 'bsl' library for its
- version information.  The second component defines macros that can be used for
- conditional-compilation based on 'bsl' version information.
+ The {'bslscm'} package contains only two components, 'bslscm_version' and
+ 'bslscm_versiontag'.  The first of these components is included by every other
+ component in 'bsl', and provides versioning information for the package group.
+ Users may use the 'bslscm_version' facilities to query a particular 'bsl'
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on 'bsl' version information.
 
 /'bslstl'
 / - - - -
- {'bslstl'} provides an implementation of certain containers of the C++
- standard library using the 'bslma' memory allocation model, algorithms and
+ The {'bslstl'} package provides implementations of certain containers of the
+ C++ standard library using the 'bslma' memory allocation model, algorithms and
  traits in 'bslalg' and meta-functions in 'bslmf'.
 
 /'bsltf'
 /- - - -
- {'bsltf'} provides a set test types and utilities that operates on those
- types, which can help simplify, particularly for template, the implementation
- of test drivers.
+ The {'bsltf'} package provides a set test types and utilities that operates on
+ those types, which can help simplify, particularly for template, the
+ implementation of test drivers.
 
 /'bslx'
 / - - -
- {'bslx'} defines (via documentation) the BDEX protocol for externalization
- (i.e., for an "out stream") and "unexternalization" (i.e., for an
- "in stream"), and provides concrete byte-array-based stream implementations of
- each kind of stream, including streams for testing.
-
+ The {'bslx'} package defines (via documentation) the BDEX protocol for
+ externalization (i.e., for an "out stream") and "unexternalization" (i.e., for
+ an "in stream"), and provides concrete byte-array-based stream implementations
+ of each kind of stream, including streams for testing.

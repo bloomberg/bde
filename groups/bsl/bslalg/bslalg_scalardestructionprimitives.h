@@ -133,9 +133,9 @@ struct ScalarDestructionPrimitives {
 
   private:
     // PRIVATE CLASS METHODS
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *address, bsl::true_type);
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *address, bsl::false_type);
         // Destroy the object of the parameterized 'TARGET_TYPE' at the
         // specified 'address' if the second argument is of type
@@ -147,7 +147,7 @@ struct ScalarDestructionPrimitives {
 
   public:
     // CLASS METHODS
-    template <typename TARGET_TYPE>
+    template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *object);
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
         // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
@@ -157,16 +157,16 @@ struct ScalarDestructionPrimitives {
         // trait.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                   // ----------------------------------
                   // struct ScalarDestructionPrimitives
                   // ----------------------------------
 
 // PRIVATE CLASS METHODS
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 inline
 void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
                                           bsl::true_type)
@@ -189,7 +189,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 
 namespace bslalg {
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 inline
 void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
                                           bsl::false_type)
@@ -214,7 +214,7 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 namespace bslalg {
 
 // CLASS METHODS
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 inline
 void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 {

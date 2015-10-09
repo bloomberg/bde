@@ -286,9 +286,9 @@ struct BidirectionalLinkListUtil {
         // 'isWellFormed(node->previousLink(), node->nextLink())' are true.
 };
 
-}  // close namespace BloombergLP::bslalg
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -231,7 +231,7 @@ void ConfigParser<INTEGER_TYPE>::parse(vector<INTEGER_TYPE> *result,
     }
 }
 
-}  // end unnamed namespace
+}  // close unnamed namespace
 
 // ============================================================================
 //                          MAIN PROGRAM

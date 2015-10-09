@@ -38,7 +38,7 @@ namespace bsl
     using native_std::round_toward_infinity;
     using native_std::round_toward_neg_infinity;
     using native_std::round_toward_zero;
-}
+}  // close package namespace
 
 #endif
 

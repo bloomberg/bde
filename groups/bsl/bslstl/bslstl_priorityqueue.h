@@ -344,9 +344,9 @@ struct PriorityQueue_HasAllocatorType {
     struct NoType { char a[2]; };
 
   public:
-    template <typename TYPE>
+    template <class TYPE>
     static YesType match(const typename TYPE::allocator_type *);
-    template <typename TYPE>
+    template <class TYPE>
     static NoType match(...);
 
     enum { VALUE = (sizeof(YesType) == sizeof(match<CONTAINER>(0))) };

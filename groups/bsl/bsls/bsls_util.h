@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+///Example 1: Obtain the Address of a 'class' That Defines 'operator&'.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class

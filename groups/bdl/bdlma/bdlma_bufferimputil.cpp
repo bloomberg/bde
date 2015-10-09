@@ -10,9 +10,9 @@ BSLS_IDENT_RCSID(bdlma_bufferimputil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlma {
 
-                        // --------------------
-                        // struct BufferImpUtil
-                        // --------------------
+                           // --------------------
+                           // struct BufferImpUtil
+                           // --------------------
 
 // CLASS METHODS
 void *BufferImpUtil::allocateFromBuffer(int                       *cursor,
@@ -230,7 +230,7 @@ void *BufferImpUtil::allocateOneByteAlignedFromBufferRaw(int  *cursor,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

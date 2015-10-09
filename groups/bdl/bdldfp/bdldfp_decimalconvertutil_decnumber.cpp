@@ -137,7 +137,7 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
     }
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 
                           // ----------------------------------

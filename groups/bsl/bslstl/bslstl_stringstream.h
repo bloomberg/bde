@@ -227,20 +227,20 @@ typedef basic_stringstream<char, char_traits<char>, allocator<char> >
 typedef basic_stringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
                                                                  wstringstream;
 
-}
+}  // close namespace bsl
 
 // TYPE TRAITS
 namespace BloombergLP {
 namespace bslma {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 struct UsesBslmaAllocator<
         bsl::basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
     : bsl::true_type
 {};
 
-}
-}
+}  // close namespace bslma
+}  // close enterprise namespace
 
 namespace bsl {
 

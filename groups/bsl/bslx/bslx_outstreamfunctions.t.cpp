@@ -131,7 +131,7 @@ STREAM& bdexStreamOut(STREAM&                      stream,
     return bdexStreamOut(stream, static_cast<char>(value), 1);
 }
 
-}  // close ThirdParty namespace
+}  // close namespace ThirdParty
 
 class MyTestClass {
     // This test class is used for testing the streaming functionality.
@@ -150,7 +150,7 @@ class MyTestClass {
 };
 
 int MyTestClass::maxSupportedBdexVersion(int versionSelector) {
-    if (versionSelector >= VERSION_SELECTOR) return 2;
+    if (versionSelector >= VERSION_SELECTOR) return 2;                // RETURN
     return 1;
 }
 
@@ -319,7 +319,7 @@ class MyTestOutStream {
     int lastVersion() const { return d_lastVersion; }
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct TestWithVersion {
     // This class is a utility for verifying the results of
     // 'bdexStreamOut(stream, value, version)' applied to a (template
@@ -417,7 +417,7 @@ struct TestWithVersion {
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct TestWithoutVersion {
     // This class is a utility for verifying the results of
     // 'bdexStreamOut(stream, value)' applied to a (template parameter) type
@@ -655,7 +655,7 @@ struct TestWithoutVersion {
     int MyPoint::maxSupportedBdexVersion(int versionSelector)
     {
         if (versionSelector >= 20131201) {
-            return 2;
+            return 2;                                                 // RETURN
         }
         return 1;
     }

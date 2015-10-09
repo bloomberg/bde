@@ -72,19 +72,18 @@ BSLS_IDENT("$Id: $")
 // then the resulting date will be May 31, 2013.
 //
 // More formal definitions of the two conventions are provided below:
-//..
-//: o The End-of-Month Convention
+//
+//: The End-of-Month Convention:
+//:     If the original date to be adjusted is the last day of a month, or if
+//:     the day of the month of the original date does not exist in the
+//:     resulting date, then adjust the resulting date to be the last day of
+//:     the month.
 //:
-//:   If the original date to be adjusted is the last day of a month, or if the
-//:   day of the month of the original date does not exist in the resulting
-//:   date, then adjust the resulting date to be the last day of the month.
-//:
-//: o The Non-End-of-Month Convention
-//:
-//:   If the day of the month of the original date does not exist in the
-//:   resulting date, then adjust the resulting date to be the last day of the
-//:   month.
-//..
+//: The Non-End-of-Month Convention:
+//:     If the day of the month of the original date does not exist in the
+//:     resulting date, then adjust the resulting date to be the last day of
+//:     the month.
+//
 //
 ///Usage
 ///-----

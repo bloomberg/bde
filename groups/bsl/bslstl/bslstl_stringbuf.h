@@ -1050,13 +1050,13 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
 namespace BloombergLP {
 namespace bslma {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 struct UsesBslmaAllocator<
         bsl::basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

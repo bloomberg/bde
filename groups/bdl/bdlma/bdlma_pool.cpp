@@ -10,7 +10,6 @@ BSLS_IDENT_RCSID(bdlma_pool_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlma {
-
 namespace {
 
 // TYPES
@@ -47,9 +46,9 @@ int roundUp(int x, int y)
 
 }  // close unnamed namespace
 
-                        // ----------
-                        // class Pool
-                        // ----------
+                                // ----------
+                                // class Pool
+                                // ----------
 
 // PRIVATE MANIPULATORS
 void Pool::replenish()
@@ -155,7 +154,7 @@ void Pool::reserveCapacity(int numBlocks)
         return;                                                       // RETURN
     }
 
-    numBlocks -= (d_end_p - d_begin_p) / d_internalBlockSize;
+    numBlocks -= static_cast<int>((d_end_p - d_begin_p) / d_internalBlockSize);
 
     if (numBlocks > 0) {
 

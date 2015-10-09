@@ -60,8 +60,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialPool' for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, 'my_BufferedIntDoubleArray', that holds
 // both 'int' and 'double' values.  The class can be implemented using two
 // parallel arrays: one storing the type information, and the other storing
@@ -97,9 +99,12 @@ BSLS_IDENT("$Id: $")
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
 //
+//      // Not implemented:
+//      my_BufferedIntDoubleArray(const my_BufferedIntDoubleArray&);
+//
 //    public:
 //      // TYPES
-//      enum Type { MY_INT, MY_DOUBLE };
+//      enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //      // CREATORS
 //      my_BufferedIntDoubleArray(char             *buffer,
@@ -150,9 +155,8 @@ BSLS_IDENT("$Id: $")
 // efficiency:
 //..
 //  // my_bufferedintdoublearray.cpp
-//  #include <my_bufferedintdoublearray.h>
 //
-//  enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_SIZE = 1 };
 //
 //  // PRIVATE MANIPULATORS
 //  void my_BufferedIntDoubleArray::increaseCapacity()
@@ -167,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //                                            int               size,
 //                                            bslma::Allocator *basicAllocator)
 //  : d_length(0)
-//  , d_capacity(INITIAL_SIZE)
+//  , d_capacity(k_INITIAL_SIZE)
 //  , d_pool(buffer, size, basicAllocator)
 //  {
 //      d_typeArray_p  = static_cast<char *>(
@@ -196,7 +200,7 @@ BSLS_IDENT("$Id: $")
 //      int *item = static_cast<int *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_INT);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -211,14 +215,15 @@ BSLS_IDENT("$Id: $")
 //      double *item = static_cast<double *>(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast<char>(MY_DOUBLE);
+//      d_typeArray_p[d_length]  = static_cast<char>(k_MY_DOUBLE);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
 //  }
 //..
+//
 ///Example 2: Implementing an Allocator Using 'bdlma::BufferedSequentialPool'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to
@@ -323,15 +328,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstddef.h>
 #endif
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ============================
-                        // class BufferedSequentialPool
-                        // ============================
+                       // ============================
+                       // class BufferedSequentialPool
+                       // ============================
 
 class BufferedSequentialPool {
     // This class implements a fast memory pool that efficiently dispenses
@@ -379,17 +384,17 @@ class BufferedSequentialPool {
 
   public:
     // CREATORS
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char             *buffer,
+                           int               size,
+                           bslma::Allocator *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           bsls::Alignment::Strategy    alignmentStrategy,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char                      *buffer,
+                           int                        size,
+                           bsls::Alignment::Strategy  alignmentStrategy,
+                           bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            bsls::BlockGrowth::Strategy  growthStrategy,
@@ -414,20 +419,20 @@ class BufferedSequentialPool {
         // used, the size of the internal buffers will always be the same as
         // 'size'.
 
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char             *buffer,
+                           int               size,
+                           int               maxBufferSize,
+                           bslma::Allocator *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            int                          maxBufferSize,
                            bsls::BlockGrowth::Strategy  growthStrategy,
                            bslma::Allocator            *basicAllocator = 0);
-    BufferedSequentialPool(char                        *buffer,
-                           int                          size,
-                           int                          maxBufferSize,
-                           bsls::Alignment::Strategy    alignmentStrategy,
-                           bslma::Allocator            *basicAllocator = 0);
+    BufferedSequentialPool(char                      *buffer,
+                           int                        size,
+                           int                        maxBufferSize,
+                           bsls::Alignment::Strategy  alignmentStrategy,
+                           bslma::Allocator          *basicAllocator = 0);
     BufferedSequentialPool(char                        *buffer,
                            int                          size,
                            int                          maxBufferSize,
@@ -511,11 +516,11 @@ class BufferedSequentialPool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded 'operator delete'; on the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly
-// because the pointer is different from the one returned by the 'allocate'
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that the
-// 'operator delete' can destroy the right number of objects).
+// 'operator new' cannot be passed to the 'deallocate' method directly because
+// the pointer is different from the one returned by the 'allocate' method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that the 'operator delete'
+// can destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t                                 size,
@@ -551,15 +556,15 @@ void operator delete(void                                        *address,
     // case of an exception.
 
 // ============================================================================
-//                        INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ----------------------------
-                        // class BufferedSequentialPool
-                        // ----------------------------
+                       // ----------------------------
+                       // class BufferedSequentialPool
+                       // ----------------------------
 
 // CREATORS
 inline
@@ -616,7 +621,7 @@ void operator delete(void *, BloombergLP::bdlma::BufferedSequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

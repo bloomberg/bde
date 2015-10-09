@@ -30,8 +30,8 @@ namespace bsl
     using native_std::adjacent_difference;
     using native_std::inner_product;
     using native_std::partial_sum;
-    
-}
+
+}  // close package namespace
 
 #endif
 

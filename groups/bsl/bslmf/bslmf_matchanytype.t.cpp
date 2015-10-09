@@ -89,7 +89,7 @@ struct MetaInt { char d_array[i + 1]; };
 MetaInt<1> isX(const X&);
 MetaInt<0> isX(const bslmf::MatchAnyType&);
 
-}  // namespace USAGE_TYPEREP_NAMESPACE
+}  // close namespace USAGE_TYPEREP_NAMESPACE
 
 namespace USAGE_MATCHANYTYPE_NAMESPACE {
 
@@ -100,7 +100,7 @@ struct Z : public Y { };
 inline bool isY(const bslmf::MatchAnyType&) { return false; }
 inline bool isY(const Y&)                   { return true;  }
 
-}  // namespace USAGE_MATCHANYTYPE_NAMESPACE
+}  // close namespace USAGE_MATCHANYTYPE_NAMESPACE
 
 //=============================================================================
 //                         CLASSES FOR BREATHING TEST

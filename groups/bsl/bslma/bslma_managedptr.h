@@ -120,7 +120,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Implementing a protocol
+///Example 1: Implementing a Protocol
 /// - - - - - - - - - - - - - - - - -
 // We demonstrate using 'ManagedPtr' to configure and return a managed object
 // implementing an abstract protocol.
@@ -1742,7 +1742,7 @@ struct HasPointerSemantics<bslma::ManagedPtr<TARGET_TYPE> >
 template <class TARGET_TYPE>
 struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type {};
 
-}  // close traits namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 #endif

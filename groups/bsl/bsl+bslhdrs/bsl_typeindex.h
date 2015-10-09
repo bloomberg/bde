@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
     using native_std::type_index;
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

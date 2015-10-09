@@ -1,4 +1,5 @@
 bslma_allocator
+bslma_allocatoradaptor
 bslma_autodeallocator
 bslma_autodestructor
 bslma_autorawdeleter

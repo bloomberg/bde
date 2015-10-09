@@ -74,6 +74,7 @@ BSLS_IDENT("$Id: $")
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
+//
 ///Aliasing
 ///--------
 // There are some aliasing concerns in this component, due to the presence of
@@ -170,7 +171,7 @@ namespace {
         NON_NIL_TRAITS          = 3
     };
 
-}
+}  // close unnamed namespace
 
 namespace bslalg {
 
@@ -736,9 +737,9 @@ class DequePrimitives_DequeMoveGuard {
         // Set the size of the range guarded by this object to be zero.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------
                         // class DequePrimitives

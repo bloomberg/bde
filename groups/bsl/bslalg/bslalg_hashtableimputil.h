@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // the means of adjustment may change in the future.
 //
 ///Well-Formed 'HashTableAnchor' Objects
-///--------------------------------------
+///-------------------------------------
 // Many of the algorithms defined in this component operate on
 // 'HashTableAnchor' objects, which describe the attributes of a hash table.
 // The 'HashTableAnchor' objects supplied to 'HashTableImpUtil' are required
@@ -118,6 +118,7 @@ BSLS_IDENT("$Id: $")
 //      // Return the 'KeyType' information associated with the specified
 //      // 'object'.
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
@@ -776,9 +777,9 @@ struct HashTableImpUtil {
         // the first node and the next address of the last node are 0.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-----------------------
                         // class HashTableImpUtil
@@ -966,7 +967,7 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
     BidirectionalLink  *root  = anchor.listRootAddress();
 
     if (!array || !size) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     if (!root) {
@@ -1062,8 +1063,8 @@ bool HashTableImpUtil::isWellFormed(const HashTableAnchor&  anchor,
     return true;
 }
 
-}  // close namespace BloombergLP::bslalg
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

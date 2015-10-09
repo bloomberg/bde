@@ -87,7 +87,7 @@ enum  MyEnum { MY_VALUE = 0 };
 static int globalVerbose = 0;
 
 // ============================================================================
-//                  GLOBAL HELPER CLASSES
+//                          GLOBAL HELPER CLASSES
 // ----------------------------------------------------------------------------
 
 void acceptObj(bslmf::MatchArithmeticType)
@@ -671,7 +671,7 @@ namespace usageExample1 {
         return 0;
     }
 
-}  // end example namespace
+}  // close namespace usageExample1
 
 // ============================================================================
 //                              MAIN PROGRAM

@@ -22,25 +22,25 @@ BSLS_IDENT("$Id: $")
 ///------------------
 // This component supports three alignment strategies: 1) MAXIMUM ALIGNMENT,
 // 2) NATURAL ALIGNMENT, and 3) 1-BYTE ALIGNMENT.
-//..
-//  MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
-//  'BSLS_MAXIMUM', specifies that a memory block be aligned as per the *most*
-//  restrictive alignment requirement on the host platform.
 //
-//  NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
-//  'BSLS_NATURAL', specifies that a memory block be aligned based on the
-//  size (in bytes) of that block.  An object of a fundamental type ('int',
-//  etc.) is *naturally* *aligned* when it's size evenly divides its
-//  address.  An object of an aggregate type has natural alignment if the
-//  alignment of the most-restrictively aligned sub-object evenly divides
-//  the address of the aggregate.  Natural alignment is always at least as
-//  restrictive as the compiler's required alignment.
+//: 1 MAXIMUM ALIGNMENT: This strategy, as indicated by the enumerator
+//:   'BSLS_MAXIMUM', specifies that a memory block be aligned as per the
+//:   *most* restrictive alignment requirement on the host platform.
+//:
+//: 2 NATURAL ALIGNMENT: This strategy, as indicated by the enumerator
+//:   'BSLS_NATURAL', specifies that a memory block be aligned based on the
+//:   size (in bytes) of that block.  An object of a fundamental type ('int',
+//:   etc.) is *naturally* *aligned* when it's size evenly divides its address.
+//:   An object of an aggregate type has natural alignment if the alignment of
+//:   the most-restrictively aligned sub-object evenly divides the address of
+//:   the aggregate.  Natural alignment is always at least as restrictive as
+//:   the compiler's required alignment.
+//:
+//: 3 1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
+//:   'BSLS_BYTEALIGNED', specifies that a memory block may be aligned
+//:   arbitrarily on any 1-byte boundary.  This is the *least* restrictive
+//:   alignment requirement.
 //
-//  1-BYTE ALIGNMENT: This strategy, as indicated by the enumerator
-//  'BSLS_BYTEALIGNED', specifies that a memory block may be aligned
-//  arbitrarily on any 1-byte boundary.  This is the *least* restrictive
-//  alignment requirement.
-//..
 ///Usage
 ///-----
 // Suppose that we want to create a static function, 'allocateFromBuffer', that

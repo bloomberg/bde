@@ -40,7 +40,7 @@ namespace bsl
     using native_std::wifstream;
     using native_std::wofstream;
 
-}
+}  // close package namespace
 
 #endif
 

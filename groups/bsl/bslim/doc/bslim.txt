@@ -13,6 +13,8 @@
                       int           level          = 0,
                       int           spacesPerLevel = 4) const;
 ..
+ The 'bslim_testutil' component provides a set of macros that are widely used
+ in the test drivers of other BDE components.
 
 /Hierarchical Synopsis
 /---------------------

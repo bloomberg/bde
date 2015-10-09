@@ -123,6 +123,7 @@ BSLS_IDENT("$Id: $")
 //                   values,        const float *                NN=32
 //                   numValues)
 //..
+//
 ///IEEE 754 Double-Precision Format
 ///--------------------------------
 // A 'double' is assumed to be *at* *least* 64 bits in size.  The externalized
@@ -139,6 +140,7 @@ BSLS_IDENT("$Id: $")
 //  +-+-----------+----------------------------------------------------+
 //  LSB                                                              MSB
 //..
+//
 ///IEEE 754 Single-Precision Format
 ///--------------------------------
 // A 'float' is assumed to be *at* *least* 32 bits in size.  The externalized

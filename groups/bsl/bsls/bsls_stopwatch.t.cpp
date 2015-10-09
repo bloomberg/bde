@@ -47,7 +47,7 @@ using namespace BloombergLP;
 // [ 1] Breathing Test
 // [ 2] State Transitions
 // [ 7] USAGE Example
-// [ 6] Reproduce bug from test case 
+// [ 6] Reproduce bug from test case
 //-----------------------------------------------------------------------------
 
 // ============================================================================

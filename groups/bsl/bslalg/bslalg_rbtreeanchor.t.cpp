@@ -161,7 +161,7 @@ inline void debugprint(const RbTreeNode *val) {
     fflush(stdout);
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 

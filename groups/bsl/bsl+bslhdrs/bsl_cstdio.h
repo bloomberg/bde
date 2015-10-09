@@ -72,7 +72,7 @@ namespace bsl
     using native_std::vfprintf;
     using native_std::vprintf;
     using native_std::vsprintf;
-}
+}  // close package namespace
 
 #endif
 

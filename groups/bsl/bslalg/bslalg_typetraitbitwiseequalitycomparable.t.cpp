@@ -69,7 +69,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bslalg::TypeTraitBitwiseEqualityComparable  Obj;
 
 //=============================================================================
-//                  USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
