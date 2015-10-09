@@ -34,8 +34,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Demonstrating The Type Can't Be Equal Compared
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Demonstrating the Type Cannot be Equality Compared
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to show 'NonEqualComparableTestType' can't be equal
 // compared.
 //
@@ -103,9 +103,9 @@ class NonEqualComparableTestType {
         // Return the value of the 'data' attribute of this object.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------------------
                         // class NonEqualComparableTestType

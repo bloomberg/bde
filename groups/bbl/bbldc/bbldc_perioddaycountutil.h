@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::PeriodDayCountUtil' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
@@ -77,14 +77,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt { class Date; }
-
 namespace bbldc {
 
-                      // =========================
-                      // struct PeriodDayCountUtil
-                      // =========================
+                        // =========================
+                        // struct PeriodDayCountUtil
+                        // =========================
 
 struct PeriodDayCountUtil {
     // This 'struct' provides a namespace for a suite of pure functions that
@@ -96,9 +94,9 @@ struct PeriodDayCountUtil {
                         const bdlt::Date&        endDate,
                         DayCountConvention::Enum convention);
         // Return the (signed) number of days between the specified 'beginDate'
-        // and 'endDate' according to the specified day-count 'convention'.
-        // The behavior is undefined unless 'isSupported(convention)'.  If
-        // 'beginDate <= endDate' then the result is non-negative.  Note that
+        // and 'endDate' according to the specified day-count 'convention'.  If
+        // 'beginDate <= endDate' then the result is non-negative.  The
+        // behavior is undefined unless 'isSupported(convention)'.  Note that
         // reversing the order of 'beginDate' and 'endDate' negates the result.
 
     static bool isSupported(DayCountConvention::Enum convention);
@@ -122,9 +120,9 @@ struct PeriodDayCountUtil {
         // 'max(beginDate, endDate) <= periodDate.back()', and
         // 'isSupported(convention)'.  Note that reversing the order of
         // 'beginDate' and 'endDate' negates the result; specifically,
-        // '|yearsDiff(b,e,pd,pyd,c) + yearsDiff(e,b,pd,pyd,c)| <= 1.0e-15'
-        // for all dates 'b' and 'e', periods 'pd', and year fraction per
-        // period 'pyd'.
+        // '|yearsDiff(b,e,pd,pyd,c) + yearsDiff(e,b,pd,pyd,c)| <= 1.0e-15' for
+        // all dates 'b' and 'e', periods 'pd', and year fraction per period
+        // 'pyd'.
 };
 
 }  // close package namespace

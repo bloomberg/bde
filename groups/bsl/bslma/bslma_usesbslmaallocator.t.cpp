@@ -152,7 +152,7 @@ class DoesNotUseAnAllocatorType {
             // ...
     };
 //
-    }  // close package namespace
+    }  // close namespace xyz
 
     namespace BloombergLP {
     namespace bslma {

@@ -14,7 +14,7 @@
 //
 //@AUTHOR: Steven Breitstein (sbreitstein)
 //
-//@DESCRIPTION: This component is for internal use only. 
+//@DESCRIPTION: This component is for internal use only.
 //
 // Note that the functions in this component are based on STLPort's
 // implementation, with copyright notice as follows:
@@ -530,7 +530,7 @@ struct HasStlIterators<bsl::hash_set<_Value, _HashFcn, _EqualKey, _Alloc> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -542,7 +542,7 @@ struct UsesBslmaAllocator<bsl::hash_set<_Value, _HashFcn, _EqualKey, _Alloc> >
     : bsl::is_convertible<Allocator*, _Alloc>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 namespace bslalg {
 
@@ -554,7 +554,7 @@ struct HasStlIterators<bsl::hash_multiset<_Value, _HashFcn, _EqualKey, _Alloc> >
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslalg
 
 namespace bslma {
 
@@ -566,7 +566,7 @@ struct UsesBslmaAllocator<bsl::hash_multiset<_Value, _HashFcn, _EqualKey, _Alloc
     : bsl::is_convertible<Allocator*, _Alloc>
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 
 }  // close enterprise namespace
 

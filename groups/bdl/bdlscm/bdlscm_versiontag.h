@@ -12,9 +12,13 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlscm_version
 //
 //@DESCRIPTION: This component provides versioning information for the 'bdl'
-// package group.  The 'BDL_VERSION' and 'BDL_MAKE_VERSION' macros that are
-// supplied can be used for conditional-compilation based on 'bdl' version
-// information.  The following usage example illustrates this basic capability.
+// package group.  The 'BDL_VERSION' macro that is supplied can be used for
+// conditional-compilation based on 'bdl' version information.  The following
+// usage example illustrates this basic capability.
+//
+// Note that since 'bdl' is always released in lock-step with 'bsl', they
+// share common versioning, and the 'BDL_VERSION' will always equal the
+// 'BSL_VERSION'.
 //
 ///Usage
 ///-----
@@ -26,9 +30,9 @@ BSLS_IDENT("$Id: $")
 // old or new name using conditional compilation.  In the following, the '#if'
 // preprocessor directive compares 'BDL_VERSION' (i.e., the latest BDL version,
 // excluding the patch version) to a specified major and minor version composed
-// using the 'BDL_MAKE_VERSION' macro:
+// using the 'BSL_MAKE_VERSION' macro:
 //..
-//  #if BDL_VERSION > BDL_MAKE_VERSION(1, 3)
+//  #if BDL_VERSION > BSL_MAKE_VERSION(1, 3)
 //      // Call 'newFunction' for BDL versions later than 1.3.
 //      int result = newFunction();
 //  #else

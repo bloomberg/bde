@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: ...
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: TBD
+/// - - - - - - -
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -62,7 +62,7 @@ typedef native_std::bad_weak_ptr bad_weak_ptr;
 typedef ::BloombergLP::bslstl::BadWeakPtr bad_weak_ptr;
 #endif
 
-}  // close 'bsl' namespace
+}  // close namespace bsl
 
 
 namespace BloombergLP {

@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 60 components having 14 levels of physical
+ The 'bsls' package currently has 62 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -47,6 +47,7 @@
    9. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_spinlock
 
    8. bsls_assert
       bsls_atomic
@@ -94,6 +95,7 @@
    2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
+      bsls_macrorepeat
       bsls_platform
       bsls_protocoltest
 
@@ -237,6 +239,9 @@
 : 'bsls_macroincrement':
 :      Provide a macro to increment preprocessor numbers.
 :
+: 'bsls_macrorepeat':
+:      repreat a macro invocation with different numeric arguments
+:
 : 'bsls_nativestd':
 :      Define the namespace 'native_std' as an alias for '::std'.
 :
@@ -257,6 +262,9 @@
 :
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.
+:
+: 'bsls_spinlock':
+:      Provide a spin lock.
 :
 : 'bsls_stopwatch':
 :      Provide access to user, system, and wall times of current process.
@@ -284,7 +292,8 @@
 
 /Component Overview
 /------------------
- This section summarizes the components that are available in 'bsls'.
+ This section provides a brief introduction to some of the components in the
+ 'bsls' package.  See the documentation in each component for full details.
 
 /'bsls_alignedbuffer'
 / - - - - - - - - - -
@@ -493,4 +502,4 @@
 /- - - - - -
  The {'bsls_util'} component provides pure functions that supply essential
  low-level support for implementing portable generic facilities such as might
- be found the the C++ standard library.
+ be found in the C++ standard library.

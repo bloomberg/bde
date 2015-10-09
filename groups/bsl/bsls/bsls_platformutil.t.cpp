@@ -4,9 +4,6 @@
 
 #include <bsls_platformutil.h>
 
-#include <bsls_alignmentutil.h> // for testing only
-#include <bsls_platform.h>      // for testing only
-
 #include <cstddef>     // offsetof(), std::ptrdiff_t
 #include <cstdlib>     // atoi()
 #include <cstring>     // memset(), memcmp(), strlen()
@@ -86,9 +83,9 @@ static void aSsErT(int c, const char *s, int i)
 #define TAB cout << '\t';                     // output the tab character.
 #define L_ __LINE__                           // current Line number
 
-//==========================================================================
+//=============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define INT64_FMT_STR  "0x%I64X"
@@ -133,9 +130,9 @@ struct Test8BytesAlignedType {
 };
 #endif
 
-//==========================================================================
+//=============================================================================
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static bool isBigEndian()
     // Return 'true' if this machine is observed to be big endian, and 'false'
@@ -150,10 +147,10 @@ static bool isBigEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!
@@ -161,7 +158,7 @@ static bool isBigEndian()
     return false;
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static bool isLittleEndian()
     // Return 'true' if this machine is observed to be little endian, and
@@ -176,10 +173,10 @@ static bool isLittleEndian()
     u.d_int = 0x1;
 
     if (u.d_char[0] == 0x1) {
-        return true;
+        return true;                                                  // RETURN
     }
     else if (u.d_char[sizeof(int) - 1] == 0x1) {
-        return false;
+        return false;                                                 // RETURN
     }
     else {
         ASSERT(0);      // Neither big endian nor little endian!
@@ -527,8 +524,10 @@ if (verbose)
 #if !defined(BSLS_PLATFORM_NO_64_BIT_LITERALS)
             { L_,   0x100000000,        "4294967296"           },
             { L_,   0x7FFFFFFFFFFFFFFF, "9223372036854775807"  },
-            { L_,   0x8000000000000000, "-9223372036854775808" },
-            { L_,   0xFFFFFFFFFFFFFFFF, "-1"                   },  // signed
+            { L_,   static_cast<T>(0x8000000000000000),
+                                        "-9223372036854775808" },
+            { L_,   static_cast<T>(0xFFFFFFFFFFFFFFFF),
+                                        "-1"                   },  // signed
 #endif
             { L_,   -1,                 "-1"                   },  // signed
         };

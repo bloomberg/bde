@@ -38,7 +38,7 @@ int Default::setDefaultAllocator(Allocator *basicAllocator)
 
     if (!bsls::AtomicOperations::getIntRelaxed(&s_locked)) {
         bsls::AtomicOperations::setPtrRelease(&s_allocator, basicAllocator);
-        return 0;  // success
+        return 0;  // success                                         // RETURN
     }
 
     return -1;     // locked -- 'set' fails

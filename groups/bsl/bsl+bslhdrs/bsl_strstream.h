@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif 
+#endif
 
 #include <strstream>
 
@@ -77,7 +77,7 @@ namespace bsl
     using native_std::use_facet;
     using native_std::ws;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}
+}  // close package namespace
 
 #endif
 

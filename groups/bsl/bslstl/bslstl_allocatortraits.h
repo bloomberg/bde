@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended usage of this component.
 //
 ///Example 1: A Container Class
-///- - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // This example demonstrates the intended use of 'allocator_traits' to
 // implement a standard-conforming container class.  First, we create a
 // container class that holds a single object and which meets the requirements
@@ -246,8 +246,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Example 2: bslma Allocator Propagation
-///- - - - - - - - - - - - - - - - - - -
+//
+///Example 2: 'bslma' Allocator Propagation
+/// - - - - - - - - - - - - - - - - - - - -
 // To exercise the propagation of the allocator of 'MyContainer' to its
 // elements, we first create a representative element class, 'MyType', that
 // allocates memory using the bslma allocator protocol:
@@ -304,6 +305,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Example 3: C++03 Allocators
 ///- - - - - - - - - - - - - -
 // This example shows that when 'MyContainer' is instantiated with a C++03
@@ -574,7 +576,7 @@ struct allocator_traits {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=14 bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl bslstl_allocatortraits.h
     template <class ELEMENT_TYPE, class CTOR_ARGS_0>
     static void construct(ALLOCATOR_TYPE&  basicAllocator,
                           ELEMENT_TYPE    *elementAddr,
@@ -1008,15 +1010,15 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                                             CTOR_ARGS&&...   ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                     elementAddr,
-                     BloombergLP::bsls::Util::forward<CTOR_ARGS_0>(ctorArgs_0),
-                     BloombergLP::bsls::Util::forward<CTOR_ARGS>(ctorArgs)...,
-                     mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS,ctorArgs)...,
+                         mechanism(basicAllocator, IsBslma()));
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=14 bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl bslstl_allocatortraits.h
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class CTOR_ARGS_0>
 inline
@@ -1026,10 +1028,9 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1042,12 +1043,10 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1062,14 +1061,11 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1086,16 +1082,12 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1114,18 +1106,13 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1146,20 +1133,14 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1182,22 +1163,15 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1222,24 +1196,16 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1266,26 +1232,17 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1314,28 +1271,18 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1366,30 +1313,19 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
-                                  ctorArgs_10),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,ctorArgs_10),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1422,32 +1358,20 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
-                                  ctorArgs_10),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
-                                  ctorArgs_11),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,ctorArgs_10),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,ctorArgs_11),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1482,34 +1406,21 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
-                                  ctorArgs_10),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
-                                  ctorArgs_11),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
-                                  ctorArgs_12),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,ctorArgs_10),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,ctorArgs_11),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,ctorArgs_12),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1546,36 +1457,22 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_13) ctorArgs_13)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
-                                  ctorArgs_10),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
-                                  ctorArgs_11),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
-                                  ctorArgs_12),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,
-                                  ctorArgs_13),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,ctorArgs_10),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,ctorArgs_11),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,ctorArgs_12),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,ctorArgs_13),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
@@ -1614,38 +1511,23 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_14) ctorArgs_14)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
-                                  ctorArgs_01),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
-                                  ctorArgs_02),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
-                                  ctorArgs_03),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
-                                  ctorArgs_04),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
-                                  ctorArgs_05),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
-                                  ctorArgs_06),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
-                                  ctorArgs_07),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
-                                  ctorArgs_08),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
-                                  ctorArgs_09),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
-                                  ctorArgs_10),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
-                                  ctorArgs_11),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
-                                  ctorArgs_12),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,
-                                  ctorArgs_13),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_14,
-                                  ctorArgs_14),
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,ctorArgs_01),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,ctorArgs_02),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,ctorArgs_03),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,ctorArgs_04),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,ctorArgs_05),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,ctorArgs_06),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,ctorArgs_07),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,ctorArgs_08),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,ctorArgs_09),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,ctorArgs_10),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,ctorArgs_11),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,ctorArgs_12),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,ctorArgs_13),
+                       BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_14,ctorArgs_14),
+                         mechanism(basicAllocator, IsBslma()));
 }
 
 #else
@@ -1661,12 +1543,10 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basicAllocator,
                       BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS)... ctorArgs)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
-                                  elementAddr,
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
-                                  ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS,
-                                  ctorArgs)...,
-                                  mechanism(basicAllocator, IsBslma()));
+                         elementAddr,
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,ctorArgs_0),
+                         BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS,ctorArgs)...,
+                         mechanism(basicAllocator, IsBslma()));
 }
 // }}} END GENERATED CODE
 #endif

@@ -79,7 +79,7 @@ using namespace bsl;
 //     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
 //-----------------------------------------------------------------------------
 // class bslstl_Deque<T,A> (deque)
-// =================================
+// ============================================================================
 // [11] TRAITS
 //
 // CREATORS:
@@ -153,9 +153,9 @@ using namespace bsl;
 // [ 3] deque<T,A>& gg(deque<T,A> *object, const char *spec);
 // [ 8] deque<T,A> g(const char *spec);
 
-//==========================================================================
+//=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -370,7 +370,7 @@ void dbg_print(const char* s)
 }
 
 // Deque-specific print function.
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 void dbg_print(const bsl::deque<TYPE,ALLOC>& v)
 {
     if (v.empty()) {
@@ -385,7 +385,7 @@ void dbg_print(const bsl::deque<TYPE,ALLOC>& v)
 }
 
 // Generic debug print function (3-arguments).
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
@@ -546,7 +546,7 @@ bool LaundryQueue::find(const bsl::string& customerName)
 // First, we define a function 'checkInvariants' which will check properties
 // that should always be true for any deque in a valid state.:
 //..
-template <typename TYPE>
+template <class TYPE>
 void checkInvariants(const deque<TYPE>& d)
 {
     const size_t SZ = d.size();
@@ -1257,14 +1257,14 @@ class LimitAllocator : public ALLOC {
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename ALLOCATOR>
+template <class ALLOCATOR>
 struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}
+}  // close namespace bslmf
 
-}  // namespace BloombergLP
+}  // close enterprise namespace
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE

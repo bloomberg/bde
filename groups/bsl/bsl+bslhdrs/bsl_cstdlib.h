@@ -63,7 +63,7 @@ namespace bsl
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::size_t;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}
+}  // close package namespace
 
 #endif
 

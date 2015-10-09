@@ -648,9 +648,9 @@ bsls::Types::Int64 TestAllocatorMonitor::numBlocksTotalChange() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::TestAllocatorMonitor bslma_TestAllocatorMonitor;
     // This alias is defined for backward compatibility.

@@ -297,7 +297,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bslma::ManagedPtr_Members> : bsl::true_type {};
 
-}  // close package namespace
+}  // close namespace bslmf
 }  // close enterprise namespace
 
 #endif

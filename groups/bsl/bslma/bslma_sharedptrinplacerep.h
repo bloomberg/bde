@@ -459,7 +459,7 @@ template <class... ARGS>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                ARGS&&...  args)
 : d_allocator_p(basicAllocator)
-, d_instance(bsls::Util::forward<ARGS>(args)...)
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...)
 {
 }
 # else

@@ -39,7 +39,8 @@ BSLS_IDENT("$Id: $")
 //                      deallocate
 //                      dtor
 //..
-///ALIGNMENT STRATEGY
+//
+///Alignment Strategy
 ///------------------
 // The 'bslma::BufferAllocator' allocates memory using one of the two alignment
 // strategies: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
@@ -374,9 +375,9 @@ void BufferAllocator::deallocate(void *)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::BufferAllocator bslma_BufferAllocator;
     // This alias is defined for backward compatibility.

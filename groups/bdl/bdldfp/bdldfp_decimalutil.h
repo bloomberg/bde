@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalUtil: decimal floating point utility functions.
 //
-//@MACROS
+//@MACROS:
 //  FP_SUBNORMAL: subnormal floating-point classification identifier constant
 //  FP_NORMAL:    normal floating-point classification identifier constant
 //  FP_ZERO:      zero floating-point classification identifier constant
@@ -23,7 +23,7 @@ BSLS_IDENT("$Id$")
 // standard macros and this component defines them only for those platforms
 // that have failed to implement C99 (such as Microsoft).
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: The 'bdldfp::DecimalUtil' component provides utility functions
 // for the decimal floating-point types defined in 'bdldfp_decimal':

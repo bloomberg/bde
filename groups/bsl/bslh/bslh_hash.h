@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Keying a hash table with a user defined type
+///Example 1: Keying a Hash Table with a User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a value-semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
@@ -775,7 +775,7 @@ namespace bslmf {
 template <class TYPE>
 struct IsBitwiseMoveable<bslh::Hash<TYPE> >
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 
 
 }  // close enterprise namespace
@@ -790,7 +790,7 @@ template <class TYPE>
 struct is_trivially_copyable< ::BloombergLP::bslh::Hash<TYPE> >
 : bsl::true_type
 {};
-}  // close traits namespace
+}  // close namespace bsl
 
 
 

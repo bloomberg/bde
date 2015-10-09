@@ -633,9 +633,9 @@ int AutoDeallocator<ALLOCATOR>::length() const
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslma_AutoDeallocator
 #undef bslma_AutoDeallocator

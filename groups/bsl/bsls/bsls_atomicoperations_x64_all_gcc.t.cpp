@@ -21,7 +21,7 @@ typedef pthread_t thread_t;
 // For timer support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     #include <sys/timeb.h> // ftime(struct timeb *)
-#else 
+#else
     #include <sys/time.h>
 #endif
 
@@ -30,26 +30,26 @@ using namespace std;
 
 typedef void *(*thread_func)(void *arg);
 
-typedef bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_ALL_GCC>::Int 
-                                                                   atomic_int;
+typedef bsls::Atomic_TypeTraits<bsls::AtomicOperations_X64_ALL_GCC>::Int
+                                                                     AtomicInt;
 
 struct thread_args
 {
-    atomic_int         *d_obj_p;
+    AtomicInt          *d_obj_p;
     bsls::Types::Int64  d_iterations;
     bsls::Types::Int64  d_runtimeMs;
 };
 
 bsls::Types::Int64 getTimerMs() {
     // It'd be nice to use TimeUtil here, but that would be a dependency
-    // cycle.  Duplicating all the portable support for high-resolution 
-    // timing is more complication than is needed here.  We'll run enough 
+    // cycle.  Duplicating all the portable support for high-resolution
+    // timing is more complication than is needed here.  We'll run enough
     // iterations that the basic portable lower-resolution timers will give
-    // good results. 
+    // good results.
 #if defined(BSLS_PLATFORM_OS_UNIX)
     timeval native;
     gettimeofday(&native, 0);
-    return ((bsls::Types::Int64) native.tv_sec * 1000 + 
+    return ((bsls::Types::Int64) native.tv_sec * 1000 +
             native.tv_usec / 1000);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     timeb t;
@@ -83,7 +83,7 @@ void joinThread(thread_t thr)
 
 struct atomic_get_mfence
 {
-    int operator()(atomic_int * obj)
+    int operator()(AtomicInt *obj)
     {
         int ret;
 
@@ -101,7 +101,7 @@ struct atomic_get_mfence
 
 struct atomic_get_free
 {
-    int operator()(const atomic_int * obj)
+    int operator()(const AtomicInt *obj)
     {
         int ret;
 
@@ -118,7 +118,7 @@ struct atomic_get_free
 
 struct atomic_set_mfence
 {
-    void operator()(atomic_int * obj, int value)
+    void operator()(AtomicInt *obj, int value)
     {
         asm volatile (
             "       movl %[val], %[obj]     \n\t"
@@ -132,7 +132,7 @@ struct atomic_set_mfence
 
 struct atomic_set_lock
 {
-    void operator()(atomic_int * obj, int value)
+    void operator()(AtomicInt *obj, int value)
     {
         asm volatile (
             "       movl %[val], %[obj]     \n\t"
@@ -146,7 +146,7 @@ struct atomic_set_lock
 
 struct atomic_set_xchg
 {
-    void operator()(atomic_int * obj, int value)
+    void operator()(AtomicInt *obj, int value)
     {
         asm volatile (
             "       xchgl %[obj], %[val]     \n\t"
@@ -157,11 +157,11 @@ struct atomic_set_xchg
     }
 };
 
-template <typename AtomicGet>
+template <class AtomicGet>
 void * test_atomics_get_thread(void * args)
 {
     thread_args * thr_args = reinterpret_cast<thread_args *>(args);
-    atomic_int *obj = thr_args->d_obj_p;
+    AtomicInt *obj = thr_args->d_obj_p;
     AtomicGet get_fun;
 
     bsls::Types::Int64 i;
@@ -176,11 +176,11 @@ void * test_atomics_get_thread(void * args)
     return 0;
 }
 
-template <typename AtomicGet>
+template <class AtomicGet>
 void * test_atomics_set_thread(void * args)
 {
     thread_args * thr_args = reinterpret_cast<thread_args *>(args);
-    atomic_int *obj = thr_args->d_obj_p;
+    AtomicInt *obj = thr_args->d_obj_p;
     AtomicGet set_fun;
 
     bsls::Types::Int64 start = getTimerMs();
@@ -195,22 +195,22 @@ void * test_atomics_set_thread(void * args)
     return 0;
 }
 
-template <typename AtomicGet, typename AtomicSet>
+template <class AtomicGet, class AtomicSet>
 void test_atomics(bsls::Types::Int64 iterations) {
 
-    enum { 
+    enum {
         NUM_READERS = 3
     };
     thread_t    readers[NUM_READERS];
     thread_args readerArgs[NUM_READERS];
 
     thread_args args;
-    args.d_obj_p = new atomic_int;
+    args.d_obj_p = new AtomicInt;
     args.d_iterations = iterations;
 
     for (int i = 0 ; i < NUM_READERS; ++i) {
         readerArgs[i] = args;
-        readers[i] = createThread(&test_atomics_get_thread<AtomicGet>, 
+        readers[i] = createThread(&test_atomics_get_thread<AtomicGet>,
                                   &readerArgs[i]);
     }
     thread_t writer;
@@ -231,7 +231,7 @@ void test_atomics(bsls::Types::Int64 iterations) {
     double writePerSec = (double)iterations / args.d_runtimeMs * MS_PER_SEC;
 
     cout << " " << readPerSec << " / " << writePerSec << endl;
-    
+
     delete args.d_obj_p;
 }
 
@@ -240,14 +240,14 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? atoi(argv[1]) : 0;
 
     switch (test) { case 0:
-        return 0;
+        return 0;                                                     // RETURN
 
       case -1: {
           ////////////////////////////////////////////
           // Benchmark test
           //
           // Time get/set operations for several possible implementations
-          // of get and set.  To simulate the typical reader/writer 
+          // of get and set.  To simulate the typical reader/writer
           // configuration, run 1 "setter" thread and 3 "getter" threads.
           // The "setter" thread will run a fixed number of iterations and
           // the "getter" threads will run until they see a value indicating
@@ -261,22 +261,22 @@ int main(int argc, char *argv[])
 
           cout << "get free / set mfence: ";
           test_atomics<atomic_get_free, atomic_set_mfence>(NUM_ITER);
-          
+
           cout << "get free / set lock: ";
           test_atomics<atomic_get_free, atomic_set_lock>(NUM_ITER);
 
           cout << "get free / set xchg: ";
           test_atomics<atomic_get_free, atomic_set_xchg>(NUM_ITER);
-          
+
 
       } break;
-    
+
       default:
-        return -1;
+        return -1;                                                    // RETURN
     }
 }
 
-#else // BSLS_PLATFORM_CPU_X86_64 && 
+#else // BSLS_PLATFORM_CPU_X86_64 &&
       // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
 
 
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
     }
 }
 
-#endif // BSLS_PLATFORM_CPU_X86_64 && 
+#endif // BSLS_PLATFORM_CPU_X86_64 &&
        // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
 
 // ----------------------------------------------------------------------------

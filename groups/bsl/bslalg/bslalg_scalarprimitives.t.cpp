@@ -26,12 +26,12 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // This component provides primitive operations to construct and destroy
-// objects, abstracting the fact that the class constructors may or not take an
-// optional allocator argument of type 'bslma::Allocator'.  These primitives
-// allow to write parameterized code (e.g., container) in a manner which makes
-// independent to whether the template parameters take optional allocators or
-// not.  In addition, the primitives use the most efficient implementation
-// (bit-wise copy) whenever possible.
+// objects, abstracting the fact that the class constructors may or may not
+// take an optional allocator argument of type 'bslma::Allocator *'.  These
+// primitives allow one to write parameterized code (e.g., containers) in a
+// manner that is independent of whether or not the template parameters take
+// optional allocators.  In addition, the primitives use the most efficient
+// implementation (e.g., bit-wise copy) whenever possible.
 //
 // The general concerns of this component are the proper detection of traits
 // (using 'bslma::Allocator', using bit-wise copy) and the correct selection of
@@ -45,9 +45,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 3] defaultConstruct(T *dst, *a);
 // [ 4] copyConstruct(T *dst, const T& src, *a);
-// [ 5] construct(T *dst, A[1--N]..., *a);
-// [ 6] destructiveMove(T *dst, T *src, *a);
-// [ 7] destruct(T *address);
+// [ 5] moveConstruct(T *dst, T& src, *a);
+// [ 6] construct(T *dst, A[1--N]..., *a);
+// [ 7] destructiveMove(T *dst, T *src, *a);
+// [ ?] destruct(T *address);
 // [ 8] swap(T& lhs, T& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING
@@ -108,6 +109,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef BloombergLP::bslalg::ScalarPrimitives            Obj;
 typedef BloombergLP::bslalg::ScalarDestructionPrimitives DestructionPrimitives;
+
+const int MOVED_FROM_VAL = 0x01d;
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -124,6 +128,25 @@ struct my_ClassDef {
     int                        *d_data_p;
     bslma::Allocator           *d_allocator_p;
 };
+
+// In optimized builds, some compilers will elide some of the operations in the
+// destructors of the test classes defined below.  In order to force the
+// compiler to retain all of the code in the destructors, we provide the
+// following function that can be used to (conditionally) print out the state
+// of a 'my_ClassDef' data member.  If the destructor calls this function as
+// its last operation, then all values set in the destructor have visible
+// side-effects, but non-verbose test runs do not have to be burdened with
+// additional output.
+
+static bool forceDestructorCall = false;
+
+void dumpClassDefState(const my_ClassDef& def)
+{
+    if (forceDestructorCall) {
+        printf("%p: %d %p %p\n",
+               &def, def.d_value, def.d_data_p, def.d_allocator_p);
+    }
+}
 
                              // ===============
                              // class my_Class1
@@ -146,9 +169,23 @@ class my_Class1 {
         d_def.d_value = rhs.d_def.d_value;
         d_def.d_allocator_p = 0;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class1(my_Class1&& rhs) {
+        d_def.d_value = rhs.d_def.d_value;
+        rhs.d_def.d_value = MOVED_FROM_VAL;
+        d_def.d_allocator_p = 0;
+    }
+#endif
     ~my_Class1() {
+        ASSERT(d_def.d_value != 91);
         d_def.d_value = 91;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
+    }
+
+    my_Class1& operator=(const my_Class1& rhs) {
+        d_def.d_value = rhs.d_def.d_value;
+        return *this;
     }
 
     // ACCESSORS
@@ -181,9 +218,23 @@ class my_Class2 {
         d_def.d_value = rhs.d_def.d_value;
         d_def.d_allocator_p = a;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class2(my_Class2&& rhs, bslma::Allocator *a = 0) {
+        d_def.d_value = rhs.d_def.d_value;
+        rhs.d_def.d_value = MOVED_FROM_VAL;
+        if (a) {
+            d_def.d_allocator_p = a;
+        }
+        else {
+            d_def.d_allocator_p = rhs.d_def.d_allocator_p;
+        }
+    }
+#endif
     ~my_Class2() {
+        ASSERT(d_def.d_value != 92);
         d_def.d_value = 92;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     // MANIPULATORS
@@ -204,7 +255,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<my_Class2> : bsl::true_type { };
 
-}  // close namesace bslma
+}  // close namespace bslma
 }  // close enterprise namespace
 
                              // ===================
@@ -221,6 +272,7 @@ class my_ClassFussy {
     // CLASS DATA
     static int defaultConstructorInvocations;
     static int copyConstructorInvocations;
+    static int moveConstructorInvocations;
     static int conversionConstructorInvocations;
     static int assignmentInvocations;
     static int destructorInvocations;
@@ -251,7 +303,7 @@ class my_ClassFussy {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++defaultConstructorInvocations;
     }
-    // explicit  // purposefully
+    // deliberately not explicit
     my_ClassFussy(int v) {
         ++conversionConstructorInvocations;
         d_def.d_value = v;
@@ -261,9 +313,19 @@ class my_ClassFussy {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++copyConstructorInvocations;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_ClassFussy(my_ClassFussy&& /* rhs */) {
+        // Should never be invoked by bslalg_ScalarPrimitives.
+        ++moveConstructorInvocations;
+    }
+#endif
     ~my_ClassFussy() {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++destructorInvocations;
+
+        // 'dumpClassDefState' is not called here, because a
+        // default-constructed 'my_ClassFussy' object may leave 'd_def'
+        // uninitialized.
     }
 
     // MANIPULATORS
@@ -277,6 +339,7 @@ class my_ClassFussy {
 // CLASS DATA
 int my_ClassFussy::defaultConstructorInvocations    = 0;
 int my_ClassFussy::copyConstructorInvocations       = 0;
+int my_ClassFussy::moveConstructorInvocations       = 0;
 int my_ClassFussy::conversionConstructorInvocations = 0;
 int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
@@ -290,7 +353,7 @@ struct is_trivially_copyable<my_ClassFussy> : true_type {};
 template <>
 struct is_trivially_default_constructible<my_ClassFussy> : true_type {};
 
-}
+}  // close namespace bsl
 
                                  // =========
                                  // my_Class4
@@ -323,13 +386,30 @@ class my_Class4 {
         d_def.d_value = rhs.d_def.d_value;
         *d_def.d_data_p = d_def.d_value;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class4(my_Class4&& rhs, bslma::Allocator *a = 0) {
+        if (a) {
+            d_def.d_allocator_p = a;
+        }
+        else {
+            d_def.d_allocator_p = rhs.d_def.d_allocator_p;
+        }
+        d_def.d_data_p  = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
+        d_def.d_value   = rhs.d_def.d_value;
+        *d_def.d_data_p = d_def.d_value;
+        rhs.d_def.d_value   = MOVED_FROM_VAL;
+        *rhs.d_def.d_data_p = rhs.d_def.d_value;
+    }
+#endif
     ~my_Class4() {
+        ASSERT(d_def.d_value != 94);
         ASSERT(*d_def.d_data_p == d_def.d_value);
         *d_def.d_data_p = 94;
         d_def.d_value = 94;
         (d_def.d_allocator_p)->deallocate(d_def.d_data_p);
         d_def.d_data_p = 0;
         d_def.d_allocator_p = 0;
+        dumpClassDefState(d_def);
     }
 
     // MANIPULATORS
@@ -374,6 +454,16 @@ class my_Class5 : public my_Class4 {
         : my_Class4(rhs, a) {}
     my_Class5(const my_Class5& rhs, bslma::Allocator *a = 0)
         : my_Class4(rhs, a) {}
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class5(my_Class4&& rhs, bslma::Allocator *a = 0)
+        : my_Class4(std::move(rhs), a) {}
+    my_Class5(my_Class5&& rhs, bslma::Allocator *a = 0)
+        : my_Class4(std::move(rhs), a) {}
+#endif
+    my_Class5& operator=(const my_Class5& rhs) {
+        my_Class4::operator=(rhs);
+        return *this;
+    }
 };
 
 // TRAITS
@@ -381,18 +471,18 @@ namespace BloombergLP {
 
 namespace bslma {
 template <> struct UsesBslmaAllocator<my_Class5> : bsl::true_type { };
-}  // close namesace bslma
+}  // close namespace bslma
 
 namespace bslmf {
 template <> struct IsBitwiseMoveable<my_Class5> : bsl::true_type { };
-}  // close namesace bslmf
+}  // close namespace bslmf
 
 }  // close enterprise namespace
 
                              // =============
                              // class my_Pair
                              // =============
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_Pair {
     // Test pair type without allocators.
 
@@ -411,16 +501,33 @@ struct my_Pair {
 
     my_Pair(const my_Pair& other) : first(other.first), second(other.second) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_Pair(const my_Pair<U1, U2>& other)
         : first(other.first), second(other.second) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Pair(my_Pair&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) {}
+
+    template <typename U1, typename U2>
+    my_Pair(my_Pair<U1, U2>&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) { }
+#endif
+
+    my_Pair& operator=(const my_Pair& rhs) {
+        first = rhs.first;
+        second = rhs.second;
+        return *this;
+    }
 };
 
                                // ==============
                                // class my_PairA
                                // ==============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairA {
     // Test pair type with mixed allocator and non-allocator.
     // Only T2 must use allocators.  We assume that the treatment of T1 and T2
@@ -445,15 +552,32 @@ struct my_PairA {
     my_PairA(const my_PairA& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairA(const my_PairA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairA(my_PairA&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first))
+        , second(std::move(other.second), a) {}
+
+    template <typename U1, typename U2>
+    my_PairA(my_PairA<U1, U2>&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first))
+        , second(std::move(other.second), a) { }
+#endif
+
+    my_PairA& operator=(const my_PairA& rhs) {
+        first = rhs.first;
+        second = rhs.second;
+        return *this;
+    }
 };
 
 namespace BloombergLP {
 namespace bslma {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
 
 }  // close namespace bslma
@@ -463,7 +587,7 @@ struct UsesBslmaAllocator<my_PairA<T1, T2> > : bsl::true_type { };
                               // class my_PairAA
                               // ===============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairAA {
     // Test pair type with allocators.
     // Both T1 and T2 must use allocators.
@@ -486,15 +610,32 @@ struct my_PairAA {
     my_PairAA(const my_PairAA& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairAA(const my_PairAA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairAA(my_PairAA&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first), a)
+        , second(std::move(other.second), a) {}
+
+    template <typename U1, typename U2>
+    my_PairAA(my_PairAA<U1, U2>&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first), a)
+        , second(std::move(other.second), a) { }
+#endif
+
+    my_PairAA& operator=(const my_PairAA& rhs) {
+        first = rhs.first;
+        second = rhs.second;
+        return *this;
+    }
 };
 
 namespace BloombergLP {
 namespace bslma {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
 
 }  // close namespace bslma
@@ -504,7 +645,7 @@ struct  UsesBslmaAllocator<my_PairAA<T1, T2> > : bsl::true_type  { };
                               // class my_PairBB
                               // ===============
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct my_PairBB {
     // Test pair type without the allocator trait.  Note that although this
     // pair type will not allow to construct its two members with an allocator,
@@ -528,18 +669,35 @@ struct my_PairBB {
     my_PairBB(const my_PairBB& other)
         : first(other.first), second(other.second) {}
 
-    template <typename U1, typename U2>
+    template <class U1, class U2>
     my_PairBB(const my_PairBB<U1, U2>& other)
         : first(other.first), second(other.second) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairBB(my_PairBB&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) {}
+
+    template <typename U1, typename U2>
+    my_PairBB(my_PairBB<U1, U2>&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) { }
+#endif
+
+    my_PairBB& operator=(const my_PairBB& rhs) {
+        first = rhs.first;
+        second = rhs.second;
+        return *this;
+    }
 };
 
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename T1, typename T2>
+template <class T1, class T2>
 struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
 
-}  // close namespace bslalg
+}  // close namespace bslmf
 }  // close enterprise namespace
 
                               // ===============
@@ -559,7 +717,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     ASSERT(EXP_VAL == rawBuf.d_value);                                        \
     ASSERT(EXP_ALLOC == rawBuf.d_allocator_p);                                \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_ClassN' (where 'N' stands for the specified 'typeNum'), and verifies
     // that the 'd_value' and 'd_allocator_p' members store the specified
@@ -581,7 +739,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     ASSERT(EXP_VAL1 == rawBuf[1].d_value);                                    \
     ASSERT(EXP_ALLOC1 == rawBuf[1].d_allocator_p);                            \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of the locally
     // defined 'Type', and verifies that the 'd_value' and 'd_allocator_p'
     // members store the specified 'expVal0' and 'expAlloc0' values for the
@@ -592,7 +750,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     typedef my_Pair_ ## typeNum0 ## _ ## typeNum1 Type;                       \
     TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
@@ -602,7 +760,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     typedef my_PairA_ ## typeNum0 ## _ ## typeNum1 Type;                      \
     TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
@@ -612,7 +770,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     typedef my_PairAA_ ## typeNum0 ## _ ## typeNum1 Type;                     \
     TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_PairAA_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
@@ -622,10 +780,53 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     typedef my_PairBB_ ## typeNum0 ## _ ## typeNum1 Type;                     \
     TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_PairBB_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
     // and 'typeNum1').  See the 'TEST_PAIR' macro above for details.
+
+                              // ===============
+                              // macros TEST_MV*
+                              // ===============
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#   define ASSERT_IS_MOVED_FROM(x) {                                          \
+        ASSERT(MOVED_FROM_VAL == x.value());                                  \
+    }
+    // This macro checks reads the value of the specified 'x' and asserts that
+    // it is 'MOVED_FROM_VAL' if the compiler supports move semantics;
+    // otherwise the macro is a no-op.
+#else
+#   define ASSERT_IS_MOVED_FROM(x) { }
+#endif
+
+#define TEST_MV(typeNum, op, expVal, expAlloc) {                              \
+    bslma::TestAllocator fromA;                                               \
+    my_Class ## typeNum fromObj(expVal);                                      \
+    TEST_OP(typeNum, op, expVal, expAlloc);                                   \
+    ASSERT_IS_MOVED_FROM(fromObj);                                            \
+  }
+    // This macro evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_ClassN' (where 'N' stands for the specified 'typeNum') and the
+    // modifiable object 'fromObj' of type 'my_ClassN' initialized to
+    // 'expVal', and verifies that the 'd_value' and 'd_allocator_p' members
+    // store the specified 'expVal' and 'expAlloc' values and 'fromObj' is in
+    // a moved-from state after 'op' has been evaluated.
+
+#define TEST_PAIRMV(typeNum0, typeNum1, op, expVal0, expA0, expVal1, expA1) { \
+    typedef my_PairA_ ## typeNum0 ## _ ## typeNum1 Type;                      \
+    Type fromObj(expVal0, expVal1);                                           \
+    TEST_PAIR(op, expVal0, expA0, expVal1, expA1);                            \
+    ASSERT_IS_MOVED_FROM(fromObj.first);                                      \
+  }
+    // This macro evaluates the specified 'op' expression in the namespace
+    // under test, involving the address 'objPtr' of an object of type
+    // 'my_Pair_N0_N1' (where 'N0' and 'N1' stand for the specified 'typeNum0
+    // and 'typeNum1') and a modifiable object 'fromObj' of type
+    // 'my_Pair_N0_N1' initialized to '{ expVal0, expVal1 }, and verifies that
+    // 'fromObj.first' and 'fromObj.second' are in a moved-from state after
+    // 'op' has been evaluated.  See the 'TEST_PAIR' macro above for details.
 
                          // ==========================
                          // debug breakpoints pre/post
@@ -1097,7 +1298,7 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
-    (void)veryVeryVerbose;      // suppress warning
+    forceDestructorCall = veryVeryVerbose;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
@@ -1106,7 +1307,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING swap
         //
@@ -1260,7 +1461,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING destructiveMove
         //
@@ -1320,7 +1521,10 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_Class2 *srcPtr = (my_Class2 *)&rawBuf;
             Obj::copyConstruct(srcPtr, V2, TA);
-            TEST_OP(2, destructiveMove(objPtr, srcPtr, XA),  2, 0);
+            // Must use 'TA' so that behavior is the same in C++98 mode (copy,
+            // uses default allocator) and C++11 mode (move, copies '*srcPtr'
+            // allocator).
+            TEST_OP(2, destructiveMove(objPtr, srcPtr, TA),  2, TA);
             ASSERT(92 == rawBuf.d_value);
             ASSERT(0  == rawBuf.d_allocator_p);
         }
@@ -1370,7 +1574,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING construct
         //
@@ -1748,6 +1952,117 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING moveConstruct
+        //
+        // Concerns:
+        //   o That the move constructor properly forwards the allocator
+        //     when appropriate.
+        //   o That the move constructor uses memcpy when appropriate.
+        //   o That the move constructor leaves the moved-from object in an
+        //     appropriate state.
+        //
+        // Plan: Construct a copy of pre-initialized objects into an
+        //   uninitialized buffer using move construction, passing allocators
+        //   of both types 'bslma::Allocator *' and 'void *' types, and verify
+        //   that the values and allocator of the copy are as expected.  Using
+        //   a fussy type that has the BitwiseCopyable trait, ensure that the
+        //   copy constructor and move constructor is not invoked.
+        //
+        // Testing:
+        //   moveConstruct(T *dst, T& src, *a);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING moveConstruct"
+                            "\n=====================\n");
+
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
+        bslma::Allocator     *const FA = bslma::Default::allocator();
+        int                  dummyAllocator;  // Dummy, non-bslma allocator
+        int                  *const XA = &dummyAllocator;
+
+        // my_Class                                   Expected
+        //      #  Operation                          Val Alloc
+        //      =  ================================== === =====
+        TEST_MV(1, moveConstruct(objPtr, fromObj, TA),  1, 0);
+        TEST_MV(2, moveConstruct(objPtr, fromObj, TA),  2, TA  );
+        TEST_MV(1, moveConstruct(objPtr, fromObj, XA),  1, 0);
+        TEST_MV(2, moveConstruct(objPtr, fromObj, XA),  2, 0);
+
+        if (verbose) printf("Exception testing.\n");
+
+        if (verbose) printf("\t...pair with allocators\n");
+
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            my_ClassDef rawBuf[2];
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
+            my_PairAA_4_4 fromObj(PAAV4V4);
+            Obj::moveConstruct(objPtr, fromObj, TA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT_IS_MOVED_FROM(fromObj.first);
+            ASSERT_IS_MOVED_FROM(fromObj.second);
+            objPtr->~my_PairAA_4_4();
+
+            std::memset(rawBuf, 91, sizeof(rawBuf));
+            fromObj = PAAV4V4;
+            Obj::moveConstruct(objPtr, fromObj, XA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(FA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(FA == rawBuf[1].d_allocator_p);
+            ASSERT_IS_MOVED_FROM(fromObj.first);
+            ASSERT_IS_MOVED_FROM(fromObj.second);
+            objPtr->~my_PairAA_4_4();
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+        if (verbose) printf("\t...constructing pair with IsPair\n");
+
+        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            my_ClassDef rawBuf[2];
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            my_PairBB_4_4 fromObj(PBBV4V4);
+            Obj::moveConstruct(objPtr, fromObj, TA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(TA == rawBuf[1].d_allocator_p);
+            ASSERT_IS_MOVED_FROM(fromObj.first);
+            ASSERT_IS_MOVED_FROM(fromObj.second);
+            objPtr->~my_PairBB_4_4();
+
+            fromObj = PBBV4V4;
+            Obj::moveConstruct(objPtr, fromObj, XA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(FA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(FA == rawBuf[1].d_allocator_p);
+            ASSERT_IS_MOVED_FROM(fromObj.first);
+            ASSERT_IS_MOVED_FROM(fromObj.second);
+            objPtr->~my_PairBB_4_4();
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+
+        if (verbose) printf("Trait selection testing.\n");
+        {
+            my_ClassDef rawBuf;
+            my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
+            my_ClassFussy fromObj(3);
+            std::memset(&rawBuf, 92, sizeof rawBuf);
+            const int CCI = my_ClassFussy::moveConstructorInvocations;
+            Obj::moveConstruct(objPtr, fromObj, XA);
+            ASSERT(CCI == my_ClassFussy::moveConstructorInvocations);
+            ASSERT(3 == rawBuf.d_value);
+            ASSERT(0 == rawBuf.d_allocator_p);
+            if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
+        }
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING copyConstruct
@@ -1829,7 +2144,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 3:
-    {
+      {
         // --------------------------------------------------------------------
         // TESTING defaultConstruct
         //
@@ -1999,11 +2314,17 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         bslma::Allocator *const theAlloc = &testAllocator;
 
+        // 'defaultConstruct' invokes default constructor, with defaulted
+        // arguments, even if type does not take an allocator.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::defaultConstruct((my_Class1*) &rawBuf,
                                                    theAlloc);
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(0 == rawBuf.d_value);
+
+        // 'copyConstruct' invokes copy constructor, even if type does not take
+        // an allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class1*) &rawBuf,
@@ -2011,11 +2332,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(1 == rawBuf.d_value);
 
+        // 'copyConstruct' invokes copy constructor, passing the allocator if
+        // type takes an allocator.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class2*) &rawBuf,
                                                 v2, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
         ASSERT(2 == rawBuf.d_value);
+
+        // 'construct' invokes constructor, even if type does not take an
+        // allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class1*) &rawBuf,
@@ -2023,16 +2350,23 @@ int main(int argc, char *argv[])
         ASSERT(0 == rawBuf.d_allocator_p);
         ASSERT(3 == rawBuf.d_value);
 
+        // 'destroy' invokes destructor ... with no particular constraints.
+
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         DestructionPrimitives::destroy((my_Class1*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(91 == rawBuf.d_value);
+
+        // 'construct' invokes constructor, passing the allocator if type takes
+        // an allocator.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class2*) &rawBuf,
                                             4, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
         ASSERT(4 == rawBuf.d_value);
+
+        // 'destroy' invokes destructor ... with no particular constraints.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
         DestructionPrimitives::destroy((my_Class2*) &rawBuf);

@@ -299,9 +299,9 @@ static typename Properties<Size>::StorageType getDeclets(
     unsigned int shift(0u);
     StorageType bits = StorageType();
     for (; value; value /= 1000ull, shift += 10u) {
-        bits |= 
+        bits |=
             StorageType(DenselyPackedDecimalImpUtil::encodeDeclet(
-                                                   unsigned(value % 1000ull))) 
+                                                   unsigned(value % 1000ull)))
             << shift;
     }
     return bits;

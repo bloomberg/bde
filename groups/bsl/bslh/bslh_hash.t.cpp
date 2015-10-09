@@ -791,7 +791,7 @@ namespace X {
         (void) hashAlg;
         (void) &a;
     }
-}  // close test namespace
+}  // close namespace X
 
 namespace Y {
     template<class HASH_ALGORITHM>
@@ -803,7 +803,7 @@ namespace Y {
         (void) hashAlg;
         (void) &a;
     }
-}  // close test namespace
+}  // close namespace Y
 
 namespace Z {
     void testHashAppendADL()
@@ -814,7 +814,7 @@ namespace Z {
         MockHashingAlgorithm alg = MockHashingAlgorithm();
         hashAppend(alg, a);  // Should compile and not assert
     }
-}  // close test namespace
+}  // close namespace Z
 
 
 // ============================================================================

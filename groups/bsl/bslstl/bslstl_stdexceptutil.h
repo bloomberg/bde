@@ -160,9 +160,9 @@ struct StdExceptUtil {
 #undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
     // This alias is defined for backward compatibility.

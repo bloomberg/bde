@@ -51,8 +51,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Usage Example 1
-///- - - - - - - -
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Static "Database" of Types
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following shows how 'bsls::AlignmentFromType<T>::VALUE' can be used to
 // create a static "database" of types storing their size and required
 // alignment.
@@ -75,8 +77,9 @@ BSLS_IDENT("$Id: $")
 //     { MY_POINTER,  sizeof(void *), bsls::AlignmentFromType<void *>::VALUE }
 //  };
 //..
-///Usage Example 2
-///- - - - - - - -
+//
+///Example 2: Creating an Aligned Buffer
+///- - - - - - - - - - - - - - - - - - -
 // Consider a parameterized type, 'my_AlignedBuffer', that provides aligned
 // memory to store a user-defined type.  A 'my_AlignedBuffer' object is useful
 // in situations where efficient (e.g., stack-based) storage is required.
@@ -348,9 +351,9 @@ struct AlignmentFromType {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bsls_AlignmentFromType
 #undef bsls_AlignmentFromType

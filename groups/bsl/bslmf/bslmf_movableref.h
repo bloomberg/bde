@@ -77,6 +77,7 @@ BSLS_IDENT("$Id: $")
 //:   won't be deduced.  When using a C++03 the type /can/ be deduced.
 //:   However, a program depending on the 'TYPE' being deduced from a
 //:   'bslmf::MovableRef<TYPE>' will not compile with a C++11 implementation.
+//:
 //: 2 Returning 'MovableRef<TYPE>' (or 'TYPE&&') from a function is almost
 //:   always wrong.  In particular note that the same life-time issues apply to
 //:   'MovableRef<TYPE>' as they do to references of objects: when returning a
@@ -84,6 +85,7 @@ BSLS_IDENT("$Id: $")
 //:   a 'MovableRef<TYPE>' refering to a local variable or a by-value function
 //:   parameter is certainly wrong.  Returning a 'MovableRef<TYPE>' to a
 //:   function parameter received as a reference type can be correct.
+//:
 //: 3 Using the argument of type 'MovableRef<TYPE>' directly in a function
 //:   typically results in incorrect behavior either when using C++03 or when
 //:   using C++11.  Instead, use these arguments together with

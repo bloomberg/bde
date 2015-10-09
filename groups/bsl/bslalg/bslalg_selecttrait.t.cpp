@@ -109,7 +109,7 @@ const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-template <typename TYPE>
+template <class TYPE>
 unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
@@ -144,7 +144,7 @@ unsigned traitBits()
     return result;
 }
 
-template <typename TYPE>
+template <class TYPE>
 struct Identity
 {
     // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
@@ -192,6 +192,17 @@ struct my_BothTraitsClass {
     BSLMF_NESTED_TRAIT_DECLARATION(my_BothTraitsClass,
                                    bslma::UsesBslmaAllocator);
 };
+
+namespace BloombergLP {
+namespace bslmf {
+
+// Being empty, 'my_NilTraitClass' would normally be implicitly bitwise
+// moveable.  Override, making it explicitly NOT bitwise moveable.
+template <>
+struct IsBitwiseMoveable<my_NilTraitClass> : bsl::false_type { };
+
+}  // close bslmf namespace
+}  // close enterprise namespace
 
 //=============================================================================
 //                              MAIN PROGRAM

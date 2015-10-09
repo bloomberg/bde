@@ -193,9 +193,9 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bsls_UnspecifiedBool
 #undef bsls_UnspecifiedBool

@@ -306,19 +306,19 @@ size_t numCharInstances(const char *SPEC, const char c)
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& my_max(const TYPE& x, const TYPE& y)
 {
     return x > y ? x : y;
 }
 
-template <typename TYPE>
+template <class TYPE>
 TYPE my_abs(const TYPE& x)
 {
     return x < 0 ? -x : x;
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
     TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001f;
@@ -1449,7 +1449,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    
+
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const size_t LINE   = DATA[ti].d_line;
         const char  *SPEC   = DATA[ti].d_spec;

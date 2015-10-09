@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls::ByteOrderUtil: namespace for byte-order swapping functions
 //
-//@SEE ALSO: bsls_byteorder
+//@SEE_ALSO: bsls_byteorder
 //
 //@DESCRIPTION: This component provides a utility 'class',
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for
@@ -174,7 +174,7 @@ ByteOrderUtil::swapBytes(short          x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(short, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(short, x);                 // RETURN
 #endif
 }
 
@@ -189,7 +189,7 @@ ByteOrderUtil::swapBytes(unsigned short x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 #endif
 }
 
@@ -287,7 +287,7 @@ ByteOrderUtil::swapBytes16(unsigned short x)
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(unsigned short, &x);
 #else
-    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);
+    BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_16(unsigned short, x);        // RETURN
 #endif
 }
 

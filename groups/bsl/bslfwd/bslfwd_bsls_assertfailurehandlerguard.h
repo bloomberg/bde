@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bsls {
         class AssertFailureHandlerGuard;
-    }
+    }  // close namespace bsls
 
     typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
-}
+}  // close enterprise namespace
 
 #else
 

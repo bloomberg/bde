@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslalg {
         class ArrayPrimitives;
-    }
+    }  // close namespace bslalg
 
     typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
-}
+}  // close enterprise namespace
 
 #else
 

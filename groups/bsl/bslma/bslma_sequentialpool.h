@@ -677,9 +677,9 @@ void SequentialPool::deleteObject(const TYPE *object)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::SequentialPool bslma_SequentialPool;
     // This alias is defined for backward compatibility.

@@ -193,7 +193,7 @@ Guid GuidUtil::guidFromString(bslstl::StringRef guidString)
 
 void GuidUtil::guidToString(bsl::string *result, const Guid& guid)
 {
-    std::ostringstream oss;
+    bsl::ostringstream oss;
     guid.print(oss, 0, -1);
     *result = oss.str();
 }

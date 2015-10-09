@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
         //      should result in a successful compilation.
         //
         //   2) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
-        //      should make the test driver not compile if the use of the 
+        //      should make the test driver not compile if the use of the
         //      resulting constexpr function is used illegally.
         //
         // Plan:

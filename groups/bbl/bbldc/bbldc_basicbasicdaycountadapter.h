@@ -41,7 +41,8 @@ BSLS_IDENT("$Id: $")
 // use of the day-count methods.  First, we define an instance of the adapted
 // day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
 //..
-//  const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc;
+//  const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc =
+//                   bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360>();
 //  const bbldc::BasicDayCount&                                   dcc = myDcc;
 //..
 // Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
@@ -73,9 +74,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {  class Date;  }
-
 namespace bbldc {
 
                      // ===============================

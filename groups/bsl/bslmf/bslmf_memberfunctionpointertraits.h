@@ -785,9 +785,9 @@ struct MemberFunctionPointerTraitsImp<
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_MemberFunctionPointerTraits
 #undef bslmf_MemberFunctionPointerTraits

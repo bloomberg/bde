@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
     // ctgmath name sapce is emtpy
-}  // close namespace bsl
+}  // close package namespace
 
 #endif
 

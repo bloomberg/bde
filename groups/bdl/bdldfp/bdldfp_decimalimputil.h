@@ -13,7 +13,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalImpUtil: Unified low-level decimal floating point functions.
 //
-//@SEE ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
+//@SEE_ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
 //
 //@DESCRIPTION: This component provides a namespace, 'bdldfp::DecimalImpUtil',
 // containing primitive utilities used in the implementation of a decimal

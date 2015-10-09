@@ -220,9 +220,9 @@ class InfrequentDeleteBlockList {
         // Deallocate all memory blocks managed by this object.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                   // -------------------------------
                   // class InfrequentDeleteBlockList
@@ -246,9 +246,9 @@ void InfrequentDeleteBlockList::deallocate(void *)
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::InfrequentDeleteBlockList bslma_InfrequentDeleteBlockList;
     // This alias is defined for backward compatibility.

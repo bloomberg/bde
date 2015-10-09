@@ -128,7 +128,7 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 
 //=============================================================================
-//                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
+//                  HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
 
 

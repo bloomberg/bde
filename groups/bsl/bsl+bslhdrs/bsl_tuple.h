@@ -52,7 +52,7 @@ namespace bsl {
     using native_std::ignore;
 #endif
 
-}  // close namespace bsl
+}  // close package namespace
 
 
 // Include Bloomberg's implementation, unless compilation is configured to

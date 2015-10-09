@@ -119,15 +119,15 @@ class TestClass {
   public:
     static int maxSupportedBdexVersion(int versionSelector) {
         if (versionSelector >= 20131201) {
-            return 4;
+            return 4;                                                 // RETURN
         }
         else {
-            return 3;
+            return 3;                                                 // RETURN
         }
     }
 };
 
-template <typename TYPE>
+template <class TYPE>
 struct TestType {
     // This class is a utility for verifying the results of
     // 'bslx::VersionFunctions::maxSupportedBdexVersion' applied to a (template

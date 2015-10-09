@@ -254,26 +254,26 @@ size_t numCharInstances(const char *SPEC, const char c)
     return ret;
 }
 
-template <typename TYPE>
+template <class TYPE>
 const TYPE& my_max(const TYPE& x, const TYPE& y)
 {
     return x > y ? x : y;
 }
 
-template <typename TYPE>
+template <class TYPE>
 TYPE my_abs(const TYPE& x)
 {
     return x < 0 ? -x : x;
 }
 
-template <typename TYPE>
+template <class TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
     TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
     return my_abs(x - y) <= tolerance;
 }
 
-template <typename TYPE>
+template <class TYPE>
 const char *testTypeName()
 {
     return "unrecognized type";
@@ -377,7 +377,7 @@ struct CharToPairConverter {
 
         bslma::Allocator *privateAllocator =
                                       &bslma::MallocFreeAllocator::singleton();
-        
+
         bsls::ObjectBuffer<KEY> tempKey;
         bsltf::TemplateTestFacility::emplace(
                                        bsls::Util::addressOf(tempKey.object()),
@@ -401,7 +401,7 @@ struct CharToPairConverter {
                                 // verifySpec
                                 //-----------
 
-template <typename CONTAINER>
+template <class CONTAINER>
 bool verifySpec(const CONTAINER& obj, const char *SPEC, bool keysOnly = false)
     // Verify that the specified 'SPEC' accurately and completely describes the
     // contents of container 'obj'.  It is assumed that 'cbegin', 'cend', and
@@ -1425,7 +1425,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
                   } break;
                   default: {
                     ASSERTV(0 && "unrecognized CONFIG");
-                    return;
+                    return;                                           // RETURN
                   }
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -5497,7 +5497,7 @@ void testErase(CONTAINER& mX)
     testEmptyContainer(mX);
 }
 
-}  // close namespace BREATING_TEST
+}  // close namespace BREATHING_TEST
 
 //=============================================================================
 //                              MAIN PROGRAM

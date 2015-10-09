@@ -27,10 +27,10 @@
 namespace BloombergLP {
     namespace bslstl {
         class Util;
-    }
+    }  // close namespace bslstl
 
     typedef bslstl::Util bslstl_Util;
-}
+}  // close enterprise namespace
 
 #else
 

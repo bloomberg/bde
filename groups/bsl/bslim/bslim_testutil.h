@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //  BSLIM_TESTUTIL_L_: current line number
 //  BSLIM_TESTUTIL_T_: print tab without '\n'
 //
-//@SEE ALSO: bsls_bsltestutil
+//@SEE_ALSO: bsls_bsltestutil
 //
 //@DESCRIPTION: This component provides the standard print macros used in
 // BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //  value = 42
 //..
 //
-///Example 2: Print The Value of A Test Type
+///Example 2: Print the Value of a Test Type
 ///- - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to print the value of an object of a test type defined in
 // the 'bsltf' package using 'bsl::cout'.  This component supplies the

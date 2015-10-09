@@ -99,6 +99,7 @@ BSLS_IDENT("$Id: $")
 //      assert(42 == TR.value());
 //  }
 //..
+//
 ///Example 2: Expected Results
 ///- - - - - - - - - - - - - -
 // For this example, the associated comments below indicate the expected type
@@ -157,9 +158,9 @@ struct AddReference {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifdef bslmf_AddReference
 #undef bslmf_AddReference

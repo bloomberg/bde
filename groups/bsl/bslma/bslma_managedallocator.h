@@ -34,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //                       allocate
 //                       deallocate
 //..
+//
 ///Usage
 ///-----
 // The 'bslma::ManagedAllocator' protocol class serves as a useful internal
@@ -76,9 +77,9 @@ class ManagedAllocator : public Allocator {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::ManagedAllocator bslma_ManagedAllocator;
     // This alias is defined for backward compatibility.

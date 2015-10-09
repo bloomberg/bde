@@ -50,6 +50,7 @@ BSLS_IDENT("$Id: $")
 //                       allocate
 //                       deallocate
 //..
+//
 ///Alignment Strategy
 ///------------------
 // The 'bslma::SequentialPool' allocates memory using one of the two alignment
@@ -645,9 +646,9 @@ int SequentialAllocator::truncate(void *address,
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslma::SequentialAllocator bslma_SequentialAllocator;
     // This alias is defined for backward compatibility.

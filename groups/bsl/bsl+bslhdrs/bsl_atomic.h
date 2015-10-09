@@ -63,7 +63,7 @@ namespace bsl {
     using native_std::kill_dependency;
     using native_std::memory_order;
 
-}  // close namespace bsl
+}  // close package namespace
 
 
 // Include Bloomberg's implementation, unless compilation is configured to

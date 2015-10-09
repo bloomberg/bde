@@ -44,26 +44,25 @@ using namespace BloombergLP::bsltf;
 // used in the usage example.  Therefore, this test driver avoids the standard
 // test macros (and support functions), and uses the following instead:
 //
-// STANDARD              BDLS_TESTUTIL.T.CPP
-// --------              -------------------
-// 'LOOP_ASSERT'         'REALLOOP1_ASSERT'
-// 'LOOP2_ASSERT'        'REALLOOP2_ASSERT'
-// 'LOOP3_ASSERT'        'REALLOOP3_ASSERT'
-// 'LOOP4_ASSERT'        'REALLOOP4_ASSERT'
-// 'LOOP5_ASSERT'        not used
-// 'LOOP6_ASSERT'        not used
-// 'Q'                   not used
-// 'P'                   'REALP'
-// 'P_'                  'REALT_'
-// 'T_'                  'REALT_'
-// 'L_'                  not used
-// 'void aSsErT()'       'void realaSsErT()'
-// 'int testStatus'      'int realTestStatus'
+//  STANDARD              BDLS_TESTUTIL.T.CPP
+//  --------              -------------------
+//  'LOOP_ASSERT'         'REALLOOP1_ASSERT'
+//  'LOOP2_ASSERT'        'REALLOOP2_ASSERT'
+//  'LOOP3_ASSERT'        'REALLOOP3_ASSERT'
+//  'LOOP4_ASSERT'        'REALLOOP4_ASSERT'
+//  'LOOP5_ASSERT'        not used
+//  'LOOP6_ASSERT'        not used
+//  'Q'                   not used
+//  'P'                   'REALP'
+//  'P_'                  'REALT_'
+//  'T_'                  'REALT_'
+//  'L_'                  not used
+//  'void aSsErT()'       'void realaSsErT()'
+//  'int testStatus'      'int realTestStatus'
 //
-// All of the methods write output to
-// stdout and do nothing more.  Therefore, there are no Primary Manipulators or
-// Basic Accessors to test.  All of the tests fall under the category of Print
-// Operations.
+// All of the methods write output to stdout and do nothing more.  Therefore,
+// there are no Primary Manipulators or Basic Accessors to test.  All of the
+// tests fall under the category of Print Operations.
 //
 // The main difficulty with writing the test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
@@ -115,8 +114,8 @@ using namespace BloombergLP::bsltf;
 // 'realTestStatus' and 'realaSsErT' instead.
 //
 // Additionally, in order to allow capturing the output of the
-// 'BDLS_TESTUTIL_*' macros, the standard macros output to 'stderr' instead
-// of 'stdout'.
+// 'BDLS_TESTUTIL_*' macros, the standard macros output to 'stderr' instead of
+// 'stdout'.
 
 static int realTestStatus = 0;
 
@@ -130,6 +129,7 @@ static void realaSsErT(bool b, const char *s, int i)
 }
 // The standard 'ASSERT' macro definition is deferred until after the usage
 // example code
+
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
 
@@ -204,7 +204,7 @@ namespace {
         return 42;
     }
 
-    }  // close package namespace
+    }  // close namespace bdlabc
 //..
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
@@ -239,7 +239,7 @@ namespace {
     #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
     #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
     #define ASSERTV      BDLS_TESTUTIL_ASSERTV
-    
+
     #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
     #define P   BDLS_TESTUTIL_P   // Print identifier and value.
     #define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
@@ -322,8 +322,8 @@ bool tempFileName(char *result)
     // Create a temporary file and store its name in the user-supplied buffer
     // at the address pointed to by the specified 'result'.  Return 'true' if
     // the temporary file was successfully created, and 'false' otherwise.  The
-    // behavior is undefined unless the buffer pointed to by the specified
-    // 'result' is at least 'PATH_BUFFER_SIZE' bytes long.
+    // behavior is undefined unless the buffer pointed to by 'result' is at
+    // least 'PATH_BUFFER_SIZE' bytes long.
 {
     ASSERT(result);
 
@@ -344,7 +344,7 @@ bool tempFileName(char *result)
         result[PATH_BUFFER_SIZE - 1] = '\0';
         free(fn);
     } else {
-        return false;
+        return false;                                                 // RETURN
     }
 #endif
 
@@ -413,8 +413,8 @@ class OutputRedirector {
   public:
     // CREATORS
     explicit OutputRedirector();
-        // Create an 'OutputRedirector' in an un-redirected state, and
-        // an empty scratch buffer.
+        // Create an 'OutputRedirector' in an un-redirected state, and an empty
+        // scratch buffer.
 
     ~OutputRedirector();
         // Destroy this 'OutputRedirector' object.  If the object is in a
@@ -467,8 +467,8 @@ class OutputRedirector {
         // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
         // the same length and contents as the scratch buffer, and non-zero
         // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.  The behavior is undefined unless
-        // 'redirect' has been previously been called successfully.
+        // embedded nulls.  The behavior is undefined unless 'redirect' has
+        // been previously been called successfully.
 
     int compare(const char *expected);
         // Compare the character buffer pointed to by the specified pointer
@@ -506,9 +506,9 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     ASSERT(to);
 
     // The canonical way to redirect 'stderr' to 'stdout' is
-    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
-    // instead of 'freopen', because 'freopen' fails on AIX with errno
-    // 13 'Permission denied' when redirecting stderr.
+    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2 instead
+    // of 'freopen', because 'freopen' fails on AIX with errno 13
+    // 'Permission denied' when redirecting stderr.
 
 #if defined(BSLS_PLATFORM_OS_AIX)
     int redirected = dup2(fileno(from), fileno(to));
@@ -935,9 +935,11 @@ int main(int argc, char *argv[])
         oss << o8;
         ASSERT(oss.str() == "8");
 
-        // oss.str("");
-        // oss << o9;
-        // ASSERT(oss.str() == "9");
+#if 0
+        oss.str("");
+        oss << o9;
+        ASSERT(oss.str() == "9");
+#endif
 
         oss.str("");
         oss << o10;
@@ -1654,8 +1656,8 @@ int main(int argc, char *argv[])
 
         // BDLS_TESTUTIL_L_
         {
-            // Line spacing is significant, as it assures BDLS_TESTUTIL_L_
-            // is not a simple sequence.
+            // Line spacing is significant, as it assures BDLS_TESTUTIL_L_ is
+            // not a simple sequence.
             ASSERT(__LINE__ == BDLS_TESTUTIL_L_);
 
 
@@ -2032,6 +2034,8 @@ int main(int argc, char *argv[])
             ASSERT(testStatus == 7);
         }
       } break;
+// BDE_VERIFY pragma: -TP23     // using realTestStatus instead of testStatus
+// BDE_VERIFY pragma: -TP24
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         realTestStatus = -1;

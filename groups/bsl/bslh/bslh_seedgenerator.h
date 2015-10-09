@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Seeding hashing algorithms requiring different seed sizes
+///Example: Seeding Hashing Algorithms Requiring Different Seed Sizes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a number of hashing algorithms that all require different
 // length seeds.  Some require 32 bits, some require 64 bits, some even require

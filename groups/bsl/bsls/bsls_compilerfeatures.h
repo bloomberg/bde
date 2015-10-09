@@ -19,8 +19,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
-//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params.
+//  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has <type_traits> header
+//  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
+//  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
 //
 //@SEE_ALSO: bsls_platform
 //
@@ -40,83 +44,95 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
 //
-//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
-//:    This macro is defined if alias templates are supported by the current
-//:    compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
+//:     This macro is defined if alias templates are supported by the current
+//:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
-//:    This macro is defined if the '[[noreturn]]' attribute is supported by
-//:    the current compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN':
+//:     This macro is defined if the '[[noreturn]]' attribute is supported by
+//:     the current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
+//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR':
 //:     This macro is defined if 'constexpr' is supported by the current
 //:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
-//:    This macro is defined if 'decltype' is supported by the current compiler
-//:    settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE':
+//:     This macro is defined if 'decltype' is supported by the current
+//:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
-//:    This macro is defined if defaulted functions are supported by the
-//:    current compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS':
+//:     This macro is defined if defaulted functions are supported by the
+//:     current compiler settings for this platform.
 //
-//: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
-//:    This macro is defined if deleted functions are supported by the current
-//:    compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS':
+//:     This macro is defined if deleted functions are supported by the
+//:     current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+//: 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE':
 //:     This macro is defined if 'extern template' is supported by the current
 //:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
+//: 'BSLS_COMPILERFEATURES_SUPPORT_FINAL':
 //:     This macro is defined if 'final' is supported for classes and member
 //:     functions by the current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
-//:    This macro is defined if generalized initializers are supported by the
-//:    current compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS':
+//:     This macro is defined if generalized initializers are supported by the
+//:     current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
-//:    This macro is defined if 'include_next' is supported by the current
-//:    compiler settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT':
+//:     This macro is defined if 'include_next' is supported by the current
+//:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
-//:    This macro is defined if 'noexcept' is supported by the current compiler
-//:    settings for this platform.
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT':
+//:     This macro is defined if 'noexcept' is supported by the current
+//:     compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR':
 //:    This macro is defined if 'nullptr' is supported by the current compiler
 //:    settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
-//:    This macro is defined if the 'explicit' keyword applied to conversion
-//:    operators is supported by the current compiler settings for this
-//:    platform.
+//:     This macro is defined if the 'explicit' keyword applied to conversion
+//:     operators is supported by the current compiler settings for this
+//:     platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
-//:    This macro is defined if the 'override' keyword is supported by the
-//:    current compiler settings for this platform.
+//:     This macro is defined if the 'override' keyword is supported by the
+//:     current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
-//:    This macro is defined if rvalue references are supported by the current
-//:    compiler settings for this platform.
+//:     This macro is defined if rvalue references are supported by the current
+//:     compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
-//:    This macro is defined if 'static_assert' is supported by the current
-//:    compiler settings for this platform.
+//:     This macro is defined if 'static_assert' is supported by the current
+//:     compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
-//:    This macro is defined if variadic template parameters are supported by
-//:    the current compiler settings for this platform.
+//:     This macro is defined if variadic template parameters are supported by
+//:     the current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
-//:    This macro is defined if 'alignas' alignment specifier is supported by
-//:    the current compiler settings for this platform.
+//:     This macro is defined if 'alignas' alignment specifier is supported by
+//:     the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+//:     This macro is defined if the 'noexcept' keyword is supported by the
+//:     current compiler settings for this platform, both for designating a
+//:     function as not throwing and for testing if an expression may throw.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
+//:     This macro is defined if the <type_traits> header is provided by the
+//:     current compiler settings for this platform and supports traits like
+//:     'is_trivially_copyable' and 'is_nothrow_destructible'
 //
 ///Usage
 ///-----
 // The following code snippets illustrate use of this component.
 //
+///Example 1: Using 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we wish to "preinstantiate" 'bsl::basic_string' for a given
 // character type, say, 'char', on platforms that support 'extern template'.
 // To accomplish this, we would do the following in the '.h' and '.cpp' files
@@ -137,232 +153,237 @@ BSLS_IDENT("$Id: $")
 //  template class bsl::basic_string<char>;
 //  #endif
 //  // ...
+//..
 //
 ///Feature Support in Compilers
 ///----------------------------
 //
-///BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-///- - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports syntax to introduce a
-// typedef-name using alias-declaration syntax, declaring a name for a family
+// 'typedef'-name using alias-declaration syntax, declaring a name for a family
 // of types.
 //
-//: Compiler support:
-//:   gcc 4.7
-//:   clang 3.0
-//:   MSVC 2013
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.7
+//:   o clang 3.0
+//:   o MSVC 2013
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports '[[noreturn]]' C++11
 // attribute syntax.  MSVC supports the attribute with alternative syntax
 // __declspec(noreturn), and earlier versions of gcc and clang support the
 // alternative syntax '__attribute__((noreturn))'.
 //
-//: Compiler support:
-//:   gcc 4.8
-//:   clang 3.3
-//:   xlC 12.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.8
+//:   o clang 3.3
+//:   o xlC 12.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-///- - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
+///- - - - - - - - - - - - - - - - - - - - -
 // This macro is defined in the compilier supports the 'constexpr' reserved
 // keyword.
 //
-//: Compiler support:
-//:   gcc 4.7
-//:   clang 3.1
-//:   xlC 13
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.7
+//:   o clang 3.1
+//:   o xlC 13
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-/// - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
+/// - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'decltype' reserved word.
 //
-//: Compiler support:
-//:   gcc 4.3
-//:   clang 3.3
-//:   MSVC 2010
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.3
+//:   o clang 3.3
+//:   o MSVC 2010
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports syntax to introduce defaulted
 // functions.
 //
-//: Compiler support:
-//:   gcc 4.4
-//:   clang 2.9
-//:   MSVC 2013
-//:   xlC 13.1
-//:   Oracle CC 12.4
-//:
-///BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-///- - - - - - - - - - - - - - - - - - - - - - - -
+//: o Compiler support:
+//:   o gcc 4.4
+//:   o clang 2.9
+//:   o MSVC 2013
+//:   o xlC 13.1
+//:   o Oracle CC 12.4
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports syntax to introduce deleted
 // functions.
 //
-//: Compiler support:
-//:   gcc 4.4
-//:   clang 2.9
-//:   MSVC 2013
-//:   xlC 13.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.4
+//:   o clang 2.9
+//:   o MSVC 2013
+//:   o xlC 13.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-///- - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports allowing supression of
 // implicit instantiation of templates by prefixing an explicit instantiation
 // directive with the 'extern' keyword.
 //
-//: Compiler support:
-//:   gcc 3.3
-//:   clang (any)
-//:   MSVC 2010
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 3.3
+//:   o clang (any)
+//:   o MSVC 2010
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_FINAL
-///- - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
+///- - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports both finalizing a class using
 // the 'final' keyword after the class name as well as preventing further
 // derived classes from overriding a 'virtual' function by using 'final' after
 // its signature.
 //
-//: Compiler support:
-//:   gcc 4.7
-//:   clang 3.0
-//:   MSVC 2012
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.7
+//:   o clang 3.0
+//:   o MSVC 2012
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports generalized initializers.
 //
-//: Compiler support:
-//:   gcc 4.4
-//:   clang 3.1
-//:   MSVC 2013
-//:   xlC not supported
-//:   Oracle CC 13
+//: o Compiler support:
+//:   o gcc 4.4
+//:   o clang 3.1
+//:   o MSVC 2013
+//:   o xlC not supported
+//:   o Oracle CC 13
 //
-///BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-/// - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
+/// - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports #include_next semantics
 // expected by the deprecated and internal include code wrapped by
 // BSL_OVERRIDES_STD macro.
 //
-//: Compiler support:
-//:   gcc (any)
-//:   clang (any)
-//:   xlC 8
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc (any)
+//:   o clang (any)
+//:   o xlC 8
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-/// - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
+/// - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'noexcept' reserved
 // keyword.
 //
-//: Compiler support:
-//:   gcc 4.6
-//:   clang 3.0
+//: o Compiler support:
+//:   o gcc 4.6
+//:   o clang 3.0
 //
-///BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-///- - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
+///- - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'nullptr' reserved word.
 //
-//: Compiler support:
-//:   gcc 4.6
-//:   clang 3.0
-//:   MSVC 2010
-//:   xlC 13.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.6
+//:   o clang 3.0
+//:   o MSVC 2010
+//:   o xlC 13.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports use of the 'explicit' keyword
 // to indicate that a conversion operator only available for explicit
 // conversions.
 //
-//: Compiler support:
-//:   gcc 4.5
-//:   clang 3.0
-//:   MSVC 2013
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.5
+//:   o clang 3.0
+//:   o MSVC 2013
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-/// - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
+/// - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports use of the 'override' keyword
 // to indicate that a member function is meant to override a 'virtual'
 // function (and cause a failure if that is not the case).
 //
-//: Compiler support:
-//:   gcc 4.7
-//:   clang 3.0
-//:   MSVC 2012
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.7
+//:   o clang 3.0
+//:   o MSVC 2012
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports rvalue references and move
 // semantics compatible with the final C++11 specification.  (Semantics have
 // changed since early draft proposals.)
 //
-//: Compiler support:
-//:   gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3
-//:            is not correct with respect to final spec (v3.0))
-//:   clang 2.9
-//:   MSVC 2010
-//:   xlC 12.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
+//:     not correct with respect to final spec (v3.0))
+//:   o clang 2.9
+//:   o MSVC 2010
+//:   o xlC 12.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-///- - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
+///- - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'static_assert' reserved
 // word.
 //
-//: Compiler support:
-//:   gcc 4.3
-//:   clang 2.9
-//:   MSVC 2010
-//:   xlC 11.1
-//:   Oracle CC 12.4
+//: o Compiler support:
+//:   o gcc 4.3
+//:   o clang 2.9
+//:   o MSVC 2010
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
 //
-///BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the ability to express a
 // template that accepts an arbitrary number of parameters in a type-safe
 // manner.
 //
-//: Compiler support:
-//:   gcc 4.3
-//:   clang 2.9
-//:   MSVC 2015 
-//:   xlC 11.1
-//:   Oracle CC 12.4
-//..
+//: o Compiler support:
+//:   o gcc 4.3
+//:   o clang 2.9
+//:   o MSVC 2015
+//:   o xlC 11.1
+//:   o Oracle CC 12.4
+//
 // Note that bugs in MSVC 2013 support for variadic templates preclude
 // enabling the feature for BSL.
-// 
-///BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-///- - - - - - - - - - - - - - - - - - -
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+///- - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'alignas' alignment
 // specifier.
 //
-//: Compiler support:
-//:   gcc 4.8
-//:   clang 3.0
+//: o Compiler support:
+//:   o gcc 4.8
+//:   o clang 3.0
 //
 // This feature is not yet supported in Visual Studio, xlc, CC.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_MACROREPEAT
+#include <bsls_macrorepeat.h>
 #endif
 
 // gcc
@@ -405,8 +426,10 @@ BSLS_IDENT("$Id: $")
 // gcc supports __attribute__((noreturn)) in earlier versions
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
+#if BSLS_PLATFORM_CMP_VERSION >= 50000
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
-
+#endif
 
 // clang
 // http://clang.llvm.org/cxx_status.html
@@ -588,8 +611,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-
-
+// Feature interactions
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&  \
+   !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // BDE move-emulation for C++03 requires support for alias templates in
+    // order to provide a transparent upgrade to the C++11 syntax that also
+    // supports implicit-move from rvalues.
+#endif
     //  *** Simulate various C++11 features ***
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -598,7 +627,29 @@ BSLS_IDENT("$Id: $")
 #   ifndef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 #       define BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES 1
 #   endif
-#endif
+
+#   if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+namespace BloombergLP {
+namespace bsls {
+
+    enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
+
+#   define BSLS_COMPILERFEATURES_NILT BloombergLP::bsls::CompilerFeaturesNilT
+#   define BSLS_COMPILERFEATURES_NILV BloombergLP::bsls::CompilerFeaturesNilV
+
+#   define BSLS_COMPILERFEATURES_NILTR(n) BSLS_COMPILERFEATURES_NILT,
+#   define BSLS_COMPILERFEATURES_FILLT(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILTR) BSLS_COMPILERFEATURES_NILT
+
+#   define BSLS_COMPILERFEATURES_NILVR(n) BSLS_COMPILERFEATURES_NILV,
+#   define BSLS_COMPILERFEATURES_FILLV(n)  \
+     BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV
+
+} // close package namespace
+} // close enterprise namespace
+
+#   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #   define BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND 1
@@ -634,7 +685,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2013-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

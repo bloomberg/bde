@@ -208,7 +208,8 @@ BSLS_IDENT("$Id: $")
 //      ::operator delete(address);
 //  }
 //..
-///Usage 1 -- Basic Default Allocator Use
+//
+///Example 1: Basic Default Allocator Use
 /// - - - - - - - - - - - - - - - - - - -
 // This usage example illustrates the basics of class design that relate to
 // proper use of the default allocator, and introduces the standard pattern to
@@ -349,7 +350,8 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == defaultCountingAllocator.numBlocksInUse());
 //  assert(1 == defaultCountingAllocator.numBlocksTotal());
 //..
-///Usage 2 -- Detecting Allocator Propagation Bugs
+//
+///Example 2: Detecting Allocator Propagation Bugs
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how the default allocator is used to detect a very
 // common programming error pertaining to allocator usage.  First we define the
@@ -499,7 +501,7 @@ BSLS_IDENT("$Id: $")
 // 'defaultCountingAllocator.numBlocksTotal()' *can* differ across function
 // invocations (i.e., even in correct code).
 //
-///Usage 3 -- Basic Global Allocator Use
+///Example 3: Basic Global Allocator Use
 ///- - - - - - - - - - - - - - - - - - -
 // Next we define a simple singleton class, 'my_Singleton', that defaults to
 // using the global allocator if one is not explicitly specified when the
@@ -752,9 +754,9 @@ struct Default {
         // allocator, and should *not* be used for any other purpose.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------
                         // struct Default
@@ -809,9 +811,9 @@ Allocator *Default::globalAllocator(Allocator *basicAllocator)
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
                         // ====================

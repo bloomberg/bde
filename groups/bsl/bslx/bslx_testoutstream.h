@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Externalization
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - -
 // A 'bslx::TestOutStream' can be used to externalize values in a
 // platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
 // requires no additional work on the part of the client; the client can simply
@@ -900,7 +900,7 @@ namespace bslma {
 template <>
 struct UsesBslmaAllocator<bslx::TestOutStream> : bsl::true_type {};
 
-}  // close 'bslma' namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

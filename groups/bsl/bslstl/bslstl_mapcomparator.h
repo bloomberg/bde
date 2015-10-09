@@ -26,6 +26,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Create a Simple Tree of 'TreeNode' Objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to create a tree of 'TreeNode' objects arranged
@@ -251,9 +253,9 @@ void swap(MapComparator<KEY, VALUE, COMPARATOR>& a,
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                     // -------------------
                     // class MapComparator
@@ -353,8 +355,8 @@ void swap(MapComparator<KEY, VALUE, COMPARATOR>& a,
     a.swap(b);
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

@@ -9,10 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise moveable.
 //
+//@DEPRECATED: See 'bslmf_isbitwisemoveable'.
+//
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseMoveable: bit-wise moveable trait
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bslmf_isbitwisemoveable
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
@@ -27,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // major benefit of this trait is not for a single object but for an array of
 // such types, as a loop can be replaced by a single call to 'memcpy'.
 //
-///What constitutes bit-wise movability?
+///What Constitutes Bit-Wise Movability?
 ///-------------------------------------
 // TBD: A short guide on when to attach this trait to a class should follow.
 //
@@ -77,9 +79,9 @@ struct TypeTraitBitwiseMoveable {
 }  // close package namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 //                           BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 typedef bslalg::TypeTraitBitwiseMoveable bslalg_TypeTraitBitwiseMoveable;
     // This alias is defined for backward compatibility.
