@@ -205,8 +205,8 @@ BSLS_IDENT("$Id: $")
 // Note that the "raw" mode is not supported (and nonsensical) for
 // buffered-write operations.
 //
-///augStatus
-///- - - - -
+///'augStatus'
+///- - - - - -
 // Since any enqueued I/O request can be dequeued (canceled) by the channel or
 // the user, and the user can authorize various modes supporting "partial
 // transmission", the caller may wish to know the cause of an incomplete
@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 // "asynchronous event", and a negative value if the request was dequeued by
 // the channel or the user.
 //
-///Scatter/Gather (readv/writev)
-///-----------------------------
+///Scatter/Gather ('readv'/'writev')
+///---------------------------------
 // This interface supports "vector I/O" -- the simultaneous reading from or
 // writing to multiple buffers -- via Unix-style 'readv' and 'writev' variants
 // of the normal single-buffer methods.  These vector methods rely on two

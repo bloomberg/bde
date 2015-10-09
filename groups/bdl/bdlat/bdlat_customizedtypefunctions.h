@@ -202,8 +202,8 @@ BSLS_IDENT("$Id: $")
 // method, we show how to bypass this by simply declaring the class
 // 'mine::Cusip' to have the 'bdlat_TypeTraitBasicCustomizedType' trait.
 //
-/// Longer usage
-///- - - - - - -
+///Longer Usage
+/// - - - - - -
 // First, we should forward declare all the functions that we will implement
 // inside the 'mine' namespace:
 //..

@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating and populating an options object
+///Example 1: Creating and Populating an Options Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component is designed to be used at a higher level to set the options
 // for encoding objects in the JSON format.  This example shows how to create

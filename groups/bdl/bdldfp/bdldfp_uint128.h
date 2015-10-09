@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that Uint128 values can be created from high/low pairs.
 //
-///Example 2: Checking a 128-bit IPv6 network mask
+///Example 2: Checking a 128-bit IPv6 Network Mask
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // In networks, checking a network mask is a fundamental operation.  A 128-bit
 // mask can be used to indicate if an address is in a network, and where in the

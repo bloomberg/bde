@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 // 'bdlma::ConcurrentMultipoolAllocator' is more general purposed than a
 // 'bdlma::ConcurrentMultipool'.
 //
-///Configuration At Construction
+///Configuration at Construction
 ///-----------------------------
 // When creating a 'bdlma::ConcurrentMultipoolAllocator', clients can
 // optionally configure:

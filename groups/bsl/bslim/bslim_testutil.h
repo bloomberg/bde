@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //  value = 42
 //..
 //
-///Example 2: Print The Value of A Test Type
+///Example 2: Print the Value of a Test Type
 ///- - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to print the value of an object of a test type defined in
 // the 'bsltf' package using 'bsl::cout'.  This component supplies the

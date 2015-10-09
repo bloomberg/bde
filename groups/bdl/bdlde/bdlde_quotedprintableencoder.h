@@ -42,15 +42,15 @@ BSLS_IDENT("$Id: $")
 // The data stream is processed one byte at a time from left to right as
 // follows:
 //
-///1. General 8-Bit Representation
-///- - - - - - - - - - - - - - - -
+///General 8-Bit Representation
+/// - - - - - - - - - - - - - -
 // Any 8-bit input character, except a CR or LF, *may* be represented by an "="
 // followed by a 2-digit hexadecimal representation of its ASCII value.  Only
 // uppercase hexadecimal digits are allowed.  For example, the letter 'n' can
 // be encoded into '=6E'.
 //
-///2. Literal Representation
-///- - - - - - - - - - - - -
+///Literal Representation
+/// - - - - - - - - - - -
 // Characters with decimal values in the range [33..126], with the exception of
 // 61 ('='), *may* be represented literally as they appear before encoding.
 // Hence, in addition to [0-9][a-z][A-Z], the following characters may
@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 // [!"#$%&'()*+,-./:;<>?@[\]^_`{|}~]
 //..
 //
-///3. Whitespace
-///- - - - - - -
+///Whitespace
+/// - - - - -
 // Space and tab *may* be represented literally, unless they appear at the end
 // of an encoded line, in which case they must be followed by a '=' character
 // serving as a soft line break (see rule #5), or they must be encoded
@@ -68,13 +68,13 @@ BSLS_IDENT("$Id: $")
 // in a Quoted-Printable body must necessarily be added by intermediate
 // transport agents and must be deleted during decoding.
 //
-///4. Line Breaks
-/// - - - - - - -
+///Line Breaks
+///- - - - - -
 // A line break must be represented in the Quoted-Printable encoding as in rule
 // number 1, i.e., LF -> =0A; CR -> =0D.
 //
-///5. Soft Line Breaks
-///- - - - - - - - - -
+///Soft Line Breaks
+/// - - - - - - - -
 // Encoded lines are required to be no longer than 76 characters in this
 // encoding scheme.  Soft line breaks in the form of an '=' sign placed at the
 // end of an encoded line are used to break up longer lines, either necessarily

@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Keying a hash table with a user defined type
+///Example 1: Keying a Hash Table with a User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a value-semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to

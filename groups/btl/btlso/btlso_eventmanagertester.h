@@ -391,7 +391,7 @@ BSLS_IDENT("$Id: $")
 //  btlso::EventManagerTester::testRegisterSocketEvent(&mX, ctrlFlag);
 //..
 //
-///Example 2: Testing using test specification
+///Example 2: Testing Using Test Specification
 ///- - - - - - - - - - - - - - - - - - - - - -
 // Because different event managers may be implemented differently, it's
 // important to make sure the test covers all possible situations based on the

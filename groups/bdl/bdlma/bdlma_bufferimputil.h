@@ -74,8 +74,8 @@ BSLS_IDENT("$Id: $")
 // strategy (otherwise, more bytes would have been skipped if maximum alignment
 // was used).  See 'bsls_alignment' for more details about memory alignment.
 //
-///Raw vs. Non-Raw
-///---------------
+///Raw versus Non-Raw
+///------------------
 // The raw and non-raw versions differ in behavior only when the requested
 // memory size is larger than the memory available within the provided buffer
 // (after taking memory alignment into consideration).  The raw versions result

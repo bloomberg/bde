@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing an event manager
+///Example 1: Implementing an Event Manager
 /// - - - - - - - - - - - - - - - - - - - -
 // First, we define a class, 'my_EventManager', that allows clients to register
 // an asynchronous callback that is invoked when a certain event on a socket

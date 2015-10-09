@@ -84,8 +84,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Exercise1: Basic Syntax
-///- - - - - - - - - - - -
+///Exercise 1: Basic Syntax
+/// - - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
 // 'balber::BerUniversalTagNumber' operation.
 //

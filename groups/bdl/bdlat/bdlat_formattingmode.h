@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // a bit-field for the original type (i.e., schema type), and a number of
 // flags.
 //
-///Original Type (schema type)
+///Original Type (Schema Type)
 ///---------------------------
 // This bit-field defines the formatting modes that are derived based on the
 // type of an element, as defined in the schema.  The available modes are:

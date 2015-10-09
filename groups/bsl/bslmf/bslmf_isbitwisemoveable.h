@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // objects are deduced as bitwise moveable unless explicitly annotated
 // otherwise (see-below).
 //
-///What Classes Are Not Bitwise Moveable?
+///What Classes are Not Bitwise Moveable?
 ///--------------------------------------
 // A class that has any of the following attributes is !not! bitwise
 // moveable:
@@ -402,7 +402,7 @@ BSLS_IDENT("$Id: $")
 //  } // Close enterprise namespace
 //..
 //
-///Example 2: Associating a trait with a class template
+///Example 2: Associating a Trait with a Class Template
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we associate a trait not with a class, but with a class
 // *template*.  We create three class templates, each of which uses a

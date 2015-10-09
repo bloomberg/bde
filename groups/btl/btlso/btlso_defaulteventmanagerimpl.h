@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a default event manager
+///Example 1: Creating a Default Event Manager
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In the following usage example we show how to create an default instance of
 // a default event manager.  First, we need to include this file (shown here

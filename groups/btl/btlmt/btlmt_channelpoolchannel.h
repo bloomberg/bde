@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing a secure channel type
+///Example 1: Implementing a Secure Channel Type
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This 'class', 'btlmt::ChannelPoolChannel', provides a concrete
 // implementation of the 'btlmt::AsyncChannel' protocol for a network

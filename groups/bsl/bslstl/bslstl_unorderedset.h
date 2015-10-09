@@ -250,8 +250,8 @@ BSLS_IDENT("$Id: $")
 //  +----------------------------------------------------+--------------------+
 //..
 //
-///Iterator, pointer and reference invalidation
-///--------------------------------------------
+///Iterator, Pointer, and Reference Invalidation
+///---------------------------------------------
 // No method of 'unordered_set' invalidates a pointer or reference to an
 // element in the set, unless it also erases that element, such as any 'erase'
 // overload, 'clear', or the destructor (that erases all elements).  Pointers

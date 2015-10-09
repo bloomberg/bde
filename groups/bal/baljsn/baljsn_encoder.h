@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a 'bas_codegen.pl'-generated object into JSON
+///Example 1: Encoding a 'bas_codegen.pl'-Generated Object into JSON
 ///-----------------------------------------------------------------
 // Consider that we want to exchange an employee's information between two
 // processes.  To allow this information exchange we will define the XML schema

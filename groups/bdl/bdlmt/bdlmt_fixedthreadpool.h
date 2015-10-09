@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
-///Synchronous signals on unix
+///Synchronous Signals on Unix
 ///---------------------------
 // A thread pool ensures that, on unix platforms, all the threads in the pool
 // block all asynchronous signals.  Specifically all the signals, except the

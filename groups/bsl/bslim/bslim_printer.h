@@ -217,7 +217,7 @@ BSLS_IDENT("$Id: $")
 //  ]
 //..
 //
-///Example 3: Foreign (3rd - Party) Classes, and Printing STL Containers
+///Example 3: Foreign (Third-Party) Classes, and Printing STL Containers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we use a 'Printer' object to help format the properties of
 // a class supplied by a third-party that does not implement the standard

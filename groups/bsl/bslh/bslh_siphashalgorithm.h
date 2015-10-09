@@ -338,8 +338,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: 10 Changed variables to use 'size_t' rather than 'unsigned int'
 //
-///Third Party Doc
-///---------------
+///Third-Party Documentation
+///-------------------------
 //------------------------------- siphash.h -----------------------------------
 //
 // This software is in the public domain.  The only restriction on its use is

@@ -52,8 +52,8 @@ BSLS_IDENT("$Id: $")
 // implementation must be reusable such that, after parsing one document, the
 // reader can be closed and re-opened to parse another document.
 //
-///Node Type:
-///----------
+///Node Type
+///---------
 // An enumeration value that identifies a node as a specific XML construct,
 // e.g., ELEMENT, END_ELEMENT, TEXT, CDATA, etc.  (See the
 // 'balxml::Reader::NodeType' enumeration for a complete list.)

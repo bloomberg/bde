@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'Volatile' Types
+///Example 1: Verify 'volatile' Types
 /// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
 // 'volatile'-qualified.

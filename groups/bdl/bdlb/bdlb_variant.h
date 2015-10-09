@@ -551,7 +551,7 @@ BSLS_IDENT("$Id: $")
 // Note that if no 'typedef' is provided (as in the 'my_PrintVisitor' class),
 // then the default return value is 'void'.
 //
-///Return Value Specified With Function Call
+///Return Value Specified with Function Call
 /// -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // There may be some cases when a visitor interface is not owned by a client
 // (hence the client cannot add a 'typedef' to the visitor), or the visitor

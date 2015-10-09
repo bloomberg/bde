@@ -197,7 +197,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section, we illustrate how this component can be used.
 //
-///Example 1: Reading Zoneinfo binary data
+///Example 1: Reading Zoneinfo Binary Data
 ///- - - - - - - - - - - - - - - - - - - -
 // The following demonstrates how to read a byte stream in the Zoneinfo binary
 // data format into a 'baltzo::Zoneinfo' object.  We start by creating Zoneinfo

@@ -96,7 +96,7 @@ BSLS_IDENT("$: $")
 //   }
 //..
 //
-///Example 2: Fine-grained locking
+///Example 2: Fine-Grained Locking
 ///- - - - - - - - - - - - - - - -
 // Suppose that we have a large array of objects to be manipulated concurrently
 // by multiple threads, but the size of the array itself does not change.

@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //: 'e_KEEP':
 //:    Keep the file's contents.
 //
-///Starting points for 'seek'
+///Starting Points for 'seek'
 ///--------------------------
 // The behavior of the 'seek' method is governed by an enumeration that
 // determines the point from which the seek operation starts:

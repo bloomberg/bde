@@ -398,7 +398,7 @@ BSLS_IDENT("$Id$")
 // operators and aspects.  According to BDE design principles all such
 // functions are placed into a utility component.
 //
-///All Converting Constructors From Integer Types Are Explicit
+///All Converting Constructors from Integer Types are Explicit
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This change is necessary to disable the use of comparison operators without
 // explicit casting.  See No Heterogeneous Comparisons Without Casting.
@@ -489,8 +489,8 @@ BSLS_IDENT("$Id$")
 // Because of potential for future improvements in format handling, the
 // operations should not be used for serialization.
 //
-///Preliminary Release - Known Bugs
-///--------------------------------
+///Preliminary Release: Known Bugs
+///-------------------------------
 // Stream output operators do not obey formatting flags or the precision
 // algorithm as required by the TR; they instead print all significant digits
 // all the time.

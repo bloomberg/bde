@@ -39,8 +39,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic usage of the 'bdlsb::FixedMemInStreamBuf'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Basic Use of the 'bdlsb::FixedMemInStreamBuf'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdlsb::FixedMemInStreamBuf' can be used in situations when you already
 // have an array of bytes in memory and you'd like to wrap it in an input
 // stream to extract data in a formatted manner.  A
@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: Scanning input data
+///Example 2: Scanning Input Data
 /// - - - - - - - - - - - - - - -
 // This example illustrates scanning of the input stream buffer for particular
 // pattern ( digits, in our case ) and then using stream to read out found

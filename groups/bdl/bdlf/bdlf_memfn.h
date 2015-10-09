@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //  objectPtr->doSomething(100, "Hello");
 //..
 //
-///Example 2: Usage With Standard Algorithms
+///Example 2: Usage with Standard Algorithms
 ///- - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of 'bdlf::MemFn' with the
 // standard algorithms 'find_if' and 'for_each'.  First we declare the
