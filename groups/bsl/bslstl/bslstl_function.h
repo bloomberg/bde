@@ -619,6 +619,10 @@ class Function_Rep {
     template <class FUNC>
     static Manager getFunctionManager();
 
+    static void nothing(...);
+        // A function that does nothing but can be called to avoid an inlining
+        // error in gcc 4.3.5 64-bit mode.
+
   private:
     // DATA
     mutable InplaceBuffer d_objbuf;  // in-place representation (if fits, as
@@ -712,10 +716,19 @@ class function<RET(ARGS...)> :
         // CC bug.
     {
         if (f) {
-            return &functionPtrInvoker<FUNC>;
+            return &functionPtrInvoker<FUNC>;                         // RETURN
         }
         else {
-            return NULL;
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            // G++ 4.3.5 64-bit with optimization has an error which causes
+            // this function to seemingly always return null unless this
+            // useless use of 'f' is present.
+            Function_Rep::nothing(f);
+#endif
+            return NULL;                                              // RETURN
         }
     }
 
@@ -730,6 +743,15 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;                          // RETURN
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            // G++ 4.3.5 64-bit with optimization has an error which causes
+            // this function to seemingly always return null unless this
+            // useless use of 'f' is present.
+            Function_Rep::nothing(f);
+#endif
             return NULL;                                              // RETURN
         }
     }
@@ -935,6 +957,12 @@ class function<RET()> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -948,6 +976,12 @@ class function<RET()> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1089,6 +1123,12 @@ class function<RET(ARGS_01)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1102,6 +1142,12 @@ class function<RET(ARGS_01)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1251,6 +1297,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1264,6 +1316,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1422,6 +1480,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1435,6 +1499,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1602,6 +1672,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1615,6 +1691,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1791,6 +1873,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1804,6 +1892,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -1989,6 +2083,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2002,6 +2102,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2196,6 +2302,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2209,6 +2321,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2412,6 +2530,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2425,6 +2549,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2637,6 +2767,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2650,6 +2786,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2871,6 +3013,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -2884,6 +3032,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3114,6 +3268,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3127,6 +3287,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3366,6 +3532,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3379,6 +3551,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3627,6 +3805,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3640,6 +3824,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3897,6 +4087,12 @@ class function<RET(ARGS_01,
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -3910,6 +4106,12 @@ class function<RET(ARGS_01,
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -5356,6 +5558,12 @@ class function<RET(ARGS...)> :
             return &functionPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }
@@ -5369,6 +5577,12 @@ class function<RET(ARGS...)> :
             return &memFuncPtrInvoker<FUNC>;
         }
         else {
+#if 1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ <= 40305 &&   \
+    1000 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__ >  0     &&   \
+            __LP64__                                                     &&   \
+            __GNUC_GNU_INLINE__
+            Function_Rep::nothing(f);
+#endif
             return NULL;
         }
     }

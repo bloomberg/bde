@@ -271,6 +271,10 @@ bool bsl::Function_Rep::isInplace() const BSLS_NOTHROW_SPEC
     }
 }
 
+void bsl::Function_Rep::nothing(...)
+{
+}
+
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
