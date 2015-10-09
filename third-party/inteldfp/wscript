@@ -265,7 +265,7 @@ def build(bld):
         cflags += ['-Defi2']
 
     if platform == 'sunos' :
-        cflags += ['-DSUNOS', '-D__linux', '-DHPUX_OS', '-D__float80=double',
+        cflags += ['-DSUNOS', '-D__linux', '-D__float80=double',
                    '-DBID_THREAD=']
     elif platform == 'win32':
         cflags += ['-DWINNT', '-DWINDOWS', '-DWNT', '-Dia32']
@@ -274,8 +274,7 @@ def build(bld):
     elif platform == "linux" or platform == "darwin":
         cflags += ['-DLINUX']
     elif platform == 'aix':
-        cflags += ['-D__linux', '-DLINUX', '-DHPUX_OS', '-D__QNX__',
-                   '-D__thread=']
+        cflags += ['-D__linux', '-DLINUX', '-D__QNX__', '-D__thread=']
 
     if sys.byteorder == 'big':
         cflags += ['-DBID_BIG_ENDIAN=1']
