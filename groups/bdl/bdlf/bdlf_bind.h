@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // hold a non-trivial amount of storage (i.e., the bound arguments) and will be
 // copied, possibly several times, such as jobs enqueued in a threadpool.
 //
-///Supported functionality
+///Supported Functionality
 ///-----------------------
 // An invocable object is any object that can be invoked in syntactically the
 // same manner as a function.  Invocable objects include function pointers, and
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 // arguments through that allocator.  See the section "Binding with allocators"
 // below for a more detailed discussion.
 //
-///Elementary construction and usage of 'bdlf::Bind' objects
+///Elementary Construction and Usage of 'bdlf::Bind' Objects
 ///---------------------------------------------------------
 // Bound functors are generally constructed by invoking the 'bdlf::BindUtil'
 // with an "invocation template".  An invocation template is a series of one or
@@ -142,7 +142,6 @@ BSLS_IDENT("$Id: $")
 //      bdlf::BindUtil::bindS(allocator,                    // allocator,
 //                            &invocable,                   // bound object and
 //                            10, 14, (const char*)"p3")(); // bound arguments
-//..
 //  }
 //..
 // In the function call above, the 'invocable' will be bound with the arguments
@@ -252,7 +251,7 @@ BSLS_IDENT("$Id: $")
 // place-holder several times) are simply copied several times.  The following
 // examples should make things perfectly clear.
 //
-///Ignoring parameters
+///Ignoring Parameters
 ///- - - - - - - - - -
 // It is possible to pass more invocation arguments to a binder than were
 // specified in the signature by the number of bound arguments.  Invocation
@@ -301,11 +300,11 @@ BSLS_IDENT("$Id: $")
 //                                                     &singleArgumentFunction,
 //                                                     _2));
 //      assert(10 == marker);
-//..
 //  }
 //..
-///Duplicating parameters
-///- - - - - - - - - - -
+//
+///Duplicating Parameters
+/// - - - - - - - - - - -
 // A place-holder can be specified multiple times, effectively passing the same
 // value to different arguments of the function.  The value will be evaluated
 // only once.  To illustrate this, consider another example that reuses the
@@ -346,12 +345,13 @@ BSLS_IDENT("$Id: $")
 //      assert(marker, 10 == marker);
 //  }
 //..
-///Bound functors
+//
+///Bound Functors
 ///--------------
 // There are a few issues to be aware of concerning the kind of bound functors
 // that can successfully be used with this component.
 //
-///Binding to member functions
+///Binding to Member Functions
 ///- - - - - - - - - - - - - -
 // Although member function pointers are not invoked in syntactically the same
 // manner as free functions, they can still be used directly in conjunction
@@ -365,7 +365,7 @@ BSLS_IDENT("$Id: $")
 // 'this' is passed as the first argument to bind, then all other arguments
 // must be passed by value or by const reference.
 //
-///Binding to functions with an ellipsis
+///Binding to Functions with an Ellipsis
 ///- - - - - - - - - - - - - - - - - - -
 // It is possible to create a binder with a *free* function (pointer or
 // reference) that takes an ellipsis (e.g., 'int printf(const char*, ...').
@@ -373,7 +373,7 @@ BSLS_IDENT("$Id: $")
 // however.  See the 'bindTest7' example function at the end of the usage
 // example below.
 //
-///Binding to function objects by value or by address
+///Binding to Function Objects by Value or by Address
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Although function objects are invoked in syntactically the same manner as
 // free functions, they can be used by value or by address in conjunction with
@@ -401,7 +401,7 @@ BSLS_IDENT("$Id: $")
 // an invocation modifies the state of the function object, then this function
 // object must be passed to the binder *by* *address*.
 //
-///Inferring the signature of the bound functor
+///Inferring the Signature of the Bound Functor
 /// - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlf::Bind' object will strive to properly and automatically resolve the
 // signature of its bound functor between different overloads of that
@@ -445,7 +445,7 @@ BSLS_IDENT("$Id: $")
 // See the usage example "Binding to a Function Object with Explicit Return
 // Type" below.
 //
-///Binding with constants and temporaries
+///Binding with Constants and Temporaries
 /// - - - - - - - - - - - - - - - - - - -
 // Due to a technical restriction of the C++ language known as the "forwarding
 // problem", it is not possible to match the signature of a function object
@@ -461,7 +461,7 @@ BSLS_IDENT("$Id: $")
 // argument.  This is not a severe limitation, and the workaround is to pass
 // instead a local modifiable variable initialized to the literal value.
 //
-///Binding with allocators
+///Binding with Allocators
 ///-----------------------
 // The bound functor and bound arguments are created as members of the
 // 'bdlf::Bind' object, so no memory is allocated for storing them.  However,
@@ -556,8 +556,12 @@ BSLS_IDENT("$Id: $")
 //   }
 //..
 //
-///Usage example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Callback
+/// - - - - - - - - - - - - - - - - -
 // What follows is a series of code snippets illustrating detailed aspects of
 // typical usage of 'bdlf::Bind' and 'bdlf::BindUtil'.  For these examples, we
 // will use a typical pair of event and event dispatcher classes, where the
@@ -811,6 +815,7 @@ BSLS_IDENT("$Id: $")
 //      schedB.run(10);
 //  }
 //..
+//
 ///Binding to a Function Object with Explicit Return Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When the return type cannot be inferred from the bound functor (using

@@ -104,7 +104,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Storing User Defined Input in a Hash Table
+///Example 1: Storing User Defined Input in a Hash Table
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of user-specified nicknames, and we want a really
 // fast way to find out if values are contained in the array.  We can create a

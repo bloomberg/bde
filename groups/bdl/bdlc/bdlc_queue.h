@@ -57,6 +57,7 @@ BSLS_IDENT("$Id: $")
 //                    q[0]   q[1]                       q[n-1]
 //                  <------------ n = q.length() --//--------->
 //..
+//
 ///Performance
 ///-----------
 // The following characterizes the performance of representative operations
@@ -86,6 +87,7 @@ BSLS_IDENT("$Id: $")
 //     N.OP[]()            O[1]
 //     N.length()          O[1]
 //..
+//
 ///Usage
 ///-----
 // The following snippets of code illustrate how to create and use a queue.

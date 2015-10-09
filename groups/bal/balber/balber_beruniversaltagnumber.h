@@ -92,8 +92,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Exercise1: Basic Syntax
-///- - - - - - - - - - - -
+///Exercise 1: Basic Syntax
+/// - - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
 // 'balber::BerUniversalTagNumber' operation.
 //
@@ -243,7 +243,7 @@ struct BerUniversalTagNumber {
         // 'alternateTag' any alternative tag numbers corresponding to
         // 'object'.  The behavior is undefined if the type category of
         // 'object' and the 'formattingMode' does not permit a universal tag
-        // number (see {DESCRRIPTON} for allowed type categories and formatting
+        // number (see {DESCRIPTION} for allowed type categories and formatting
         // modes).  Note that if an alternate tag number does not exist for
         // 'object' then 'alternateTag' is not modified.
 
@@ -255,7 +255,7 @@ struct BerUniversalTagNumber {
         // specified 'formattingMode' using the specified 'options'.  The
         // behavior is undefined if the type category of 'object' and the
         // 'formattingMode' do not permit a universal tag number (see
-        // {DESCRIPTON} for allowed type categories and formatting modes).
+        // {DESCRIPTION} for allowed type categories and formatting modes).
 };
 
 // FREE OPERATORS

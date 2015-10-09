@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: 'lowerBound'
-/// - - - - - - - - - - -
+///- - - - - - - - - - - -
 // Suppose that given a sorted 'bdlc::PackedIntArray', we want to find the
 // first value greater than or equal to the value 17.  First, create and
 // populate with sorted data the 'bdlc::PackedIntArray' to be searched:

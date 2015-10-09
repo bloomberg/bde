@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // with another allocator or pool object (of the same (template parameter) type
 // 'ALLOCATOR').
 //
-///REQUIREMENTS
+///Requirements
 ///------------
 // The object of the (template parameter) type 'ALLOCATOR' must provide a
 // method having the following signature:

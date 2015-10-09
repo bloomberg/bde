@@ -34,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //                       allocate
 //                       deallocate
 //..
+//
 ///Usage
 ///-----
 // The 'bslma::ManagedAllocator' protocol class serves as a useful internal

@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Binding a Stream Socket to a 'bslma::ManagedPtr'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is occasionally necessary to create smart pointers to manage a
 // 'btlso::StreamSocket' object.  The example below shows the syntax for
 // constructing managed pointer object for a stream socket using

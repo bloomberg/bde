@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
@@ -635,7 +635,7 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < NUM_UPDATES; ++j) {
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < NUM_UPDATES; ++j) {
@@ -792,7 +792,7 @@ int main(int argc, char *argv[])
                          repository.getDefaultIntegerCollector(IDS[i], IDS[i]);
                 balm::IntegerCollector  expValue(col->metricId());
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < 10; ++j) {
@@ -818,7 +818,7 @@ int main(int argc, char *argv[])
                 balm::IntegerCollector  expValue(col->metricId());
                 const Category *CATEGORY = col->metricId().category();
 
-                balm::IntegerMetric  mX(col); 
+                balm::IntegerMetric  mX(col);
                 const balm::IntegerMetric& MX = mX;
 
                 for (int j = 0; j < 10; ++j) {

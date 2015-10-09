@@ -58,7 +58,8 @@ BSLS_IDENT("$Id: $")
 //                 *_poll  *_pollset *_select *_devpoll  *_epoll
 //
 //..
-///Thread-safety
+//
+///Thread Safety
 ///-------------
 // This component depends on a 'bslma::Allocator' instance to supply memory.
 // The underlying interface also does some memory allocation through some other
@@ -104,6 +105,7 @@ BSLS_IDENT("$Id: $")
 // regardless of the number of sockets.  See tables at the beginning of
 // 'btlso_eventmanagertester.t.cpp' for actual test results.
 //..
+//
 ///Metrics
 ///-------
 // The event manager provided by this component can use external (i.e.,
@@ -115,7 +117,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using an event manager
+///Example 1: Using an Event Manager
 ///- - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'btlso::TimeMetrics' object and a

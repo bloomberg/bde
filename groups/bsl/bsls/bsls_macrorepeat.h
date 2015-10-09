@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate potential uses of the macros in this
 // component.
 //
-///Usage Example 1: Repeated template instantiation
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Repeated Template Instantiation
+/// - - - - - - - - - - - - - - - - - - - - -
 // In this example, we wish to explictly instantiate a template with a
 // sequence of integer values.  First, assume a function template 'foo<V>'
 // that adds the (compile-time) value 'V' to a global 'total' each time it is
@@ -71,9 +71,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 // }
 //..
-// 
-///Usage Example 2: Repeated function arguments
-///- - - - - - - - - - - - - - - - - - - - - - 
+//
+///Example 2: Repeated Function Arguments
+/// - - - - - - - - - - - - - - - - - - -
 // In this example, we supply as series of identical arguments to a function
 // invocation, using 'BSLS_MACROREPEAT_COMMA'.  First, assume a function,
 // 'fmtQuartet' that takes four integer arguments and formats them into a
@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Usage Example 3: Bitmask computation
-///- - - - - - - - - - - - - - - - - - 
+///Example 3: Bitmask Computation
+/// - - - - - - - - - - - - - - -
 // In this example, we Compute (at compile time) a 7-bit mask.  First, we
 // defined a macro 'BITVAL' that computes the value of a single bit 'B' in the
 // mask:
@@ -124,6 +124,7 @@ BSLS_IDENT("$Id: $")
 //      assert(127 == mask);
 //      return 0;
 //  }
+//..
 
 #define BSLS_MACROREPEAT(N, MACRO) BSLS_MACROREPEAT_##N(MACRO)
     // Expand to 'N' invocations of 'MACRO(x)', where 'x' in each invocation

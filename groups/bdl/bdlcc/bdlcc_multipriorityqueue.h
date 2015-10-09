@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 // queue.
 //
 ///Thread-Enabled Idioms in the 'bdlcc::MultipriorityQueue' Interface
-///----------------------------------------------------------------
+///------------------------------------------------------------------
 // The thread-enabled 'bdlcc::MultipriorityQueue' is, in many regards, similar
 // to a value-semantic type in that there is an obvious abstract notion of
 // "value" that can be described in terms of salient attributes, which for this
@@ -67,6 +67,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
 // This example demonstrates how we might use a 'bdlcc::MultipriorityQueue' to
@@ -227,8 +229,9 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+//
 ///Example 2: Multi-Threaded Observer
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // The previous example shows a simple mechanism for distributing work requests
 // over multiple threads.  This approach works well for large tasks that can be
 // decomposed into discrete, independent tasks that can benefit from parallel

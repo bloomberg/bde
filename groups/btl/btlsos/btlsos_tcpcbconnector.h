@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // invalidating the allocator) and the associated callbacks will be invoked
 // when the peer address is changed.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The connector is *thread* *safe*, meaning that any operation can be called
 // on *distinct* *instances* from different threads without any side-effects
@@ -60,9 +60,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: An example echo client
-///- - - - - - - - - -  - - - - - -
+///Example 1: An Example Echo Client
+///- - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of an echo
 // client.  An echo client sends connection requests to an echo server, and for
 // every connection, sends and receives data.  Various configuration parameters
@@ -309,7 +310,8 @@ BSLS_IDENT("$Id: $")
 //      return d_allocator.allocateTimed(d_allocateFunctor);
 //  }
 //..
-///Example 2: Dual control and data channels
+//
+///Example 2: Dual Control and Data Channels
 ///- - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a client-side
 // communication layer where two communication channels are established for a

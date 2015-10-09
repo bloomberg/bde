@@ -8146,6 +8146,8 @@ void TestDriver::testCase35()
                                                   (void *) socket));
         }
 
+        bslmt::ThreadUtil::microSleep(0, 1);
+
         const int SIZE      = 1024 * 1024;
         const int NUM_BYTES = SIZE * 10;
         btlb::PooledBlobBufferFactory f(SIZE);
@@ -14728,24 +14730,17 @@ void TestDriver::testCase1()
             btlmt::ChannelPool mX(channelCb, dataCb, poolCb, config, &ta);
 
             enum {
-                PORT_BASE  = 1235,
-                PORT_RANGE = 1000,
-                BACKLOG    = 10
+                BACKLOG = 10
             };
-            const int PORT = PORT_BASE
-                           + bdlb::HashUtil::hash0(ARGV[0], PORT_RANGE);
-            if (verbose) { P(PORT); }
 
             for (int i = 0; i < 10; ++i) {
-                btlso::IPv4Address address;
-                address.setPortNumber(PORT + i);
+                btlso::IPv4Address address(getLocalAddress());
                 int s = mX.listen(address, BACKLOG, i);
                 if (veryVerbose) {
                     P(s);
                 }
                 LOOP_ASSERT(i, 0 == s);
                 btlso::IPv4Address result = getServerLocalAddress(&mX, i);
-                LOOP_ASSERT(i, result.portNumber() == PORT + i);
             }
 
             for (int i = 0; i < 10; ++i) {

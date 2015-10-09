@@ -157,7 +157,7 @@ enum {
     k_DEFAULT_PORT_NUMBER     = 0,
     k_DEFAULT_NUM_CONNECTIONS = 10,
     k_DEFAULT_EQUEUE_SIZE     = 5,
-    k_SLEEP_TIME              = 1000,
+    k_SLEEP_TIME              = 10000,
     e_VALID                   = 0,
     e_INVALID                 = -1,
     e_NO_OP                   = -2

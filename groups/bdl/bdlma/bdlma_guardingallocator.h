@@ -87,6 +87,7 @@ BSLS_IDENT("$Id: $")
 //      ^                              ^
 //      A == G                         U == A + PS
 //..
+//
 ///Thread Safety
 ///-------------
 // The 'bdlma::GuardingAllocator' class is fully thread-safe (see

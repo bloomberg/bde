@@ -903,7 +903,7 @@ int main(int argc, char *argv[])
         //   bool operator!=(balm::MetricSample&, balm::MetricSample&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << 
+        if (verbose) cout <<
                             "\nTesting equality: 'balm::MetricSample'" << endl;
 
         if (veryVerbose) cout << "\tTest basic equality." << endl;

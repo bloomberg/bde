@@ -36,11 +36,11 @@ BSLS_IDENT("$Id: $")
 // ID, to an 'ostream' that is provided to the observer at construction.  This
 // (trivial) functionality suffices to demonstrate the requisite steps for
 // having a working observer:
-//..
-//     1. Define a concrete class derived from 'ball::Observer'.
-//     2. Implement the pure virtual 'publish' method.
-//     3. Instantiate and use an object of the concrete type.
-//..
+//
+//: 1 Define a concrete class derived from 'ball::Observer'.
+//: 2 Implement the pure virtual 'publish' method.
+//: 3 Instantiate and use an object of the concrete type.
+//
 // Note that the "publish attributes" object provided to the 'publish' method
 // indicates, among other properties, whether the log record to be published is
 // a "solo" message or whether it is one of a sequence.  In general, a useful

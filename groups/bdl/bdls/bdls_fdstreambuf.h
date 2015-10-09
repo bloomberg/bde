@@ -93,8 +93,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: stream
-///- - - - - - - - -
+///Example 1: Stream Initializaton
+///- - - - - - - - - - - - - - - -
 // The most common usage of this component is to initialize a stream.  In this
 // case, the 'bdls::FdStreamBuf' will be used for either input or output, but
 // not both.
@@ -211,7 +211,7 @@ BSLS_IDENT("$Id: $")
 //  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 //
-///Example 2: streambuf
+///Example 2: Streambuf
 /// - - - - - - - - - -
 // For our second example we will create a 'bdls::FdStreamBuf' associated with
 // a temporary file, and then use the public methods of the base class

@@ -116,6 +116,7 @@ BSLS_IDENT("$Id: $")
 //
 //  assert(sizeof(MyStruct) > MY_STRUCT_ALIGNMENT);
 //..
+//
 ///Example 2: Types Supporting 'AlignmentToType'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we to be able to determine a fundamental or pointer type that has

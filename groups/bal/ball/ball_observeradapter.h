@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Concrete Observer Derived From 'ball::ObserverAdapter'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of defining and using
 // a concrete observer inherited from 'ball::ObserverAdapter'.
 //

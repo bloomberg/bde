@@ -30,8 +30,12 @@ BSLS_IDENT("$Id: $")
 // addition, this component supports functions that convert the 'Cause'
 // enumerators to a well-defined ASCII representation.
 //
-///USAGE EXAMPLE 1 - SYNTAX
-///------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Syntax
+///- - - - - - - - -
 // The following snippets of code provide a simple illustration of
 // 'ball::Transmission' usage.
 //
@@ -54,21 +58,24 @@ BSLS_IDENT("$Id: $")
 //..
 //  TRIGGER_ALL
 //..
-///USAGE EXAMPLE 2 - LOGGING
-///-------------------------
+//
+///Example 2: Logging
+/// - - - - - - - - -
 // The 'Cause' enumeration defined in this component allows a logging system
 // to describe the condition causing the publication of a log message.  One
 // possible interpretation of three of these conditions is as follows:
-//..
-//  (1) e_PASSTHROUGH - indicate that a message is being output as a
-//                      stand-alone message.
 //
-//  (2) e_TRIGGER     - indicate that a message is being output as part of a
-//                      dump of all messages archived for the current thread.
+//: 'e_PASSTHROUGH':
+//:   indicate that a message is being output as a stand-alone message.
+//:
+//: 'e_TRIGGER':
+//:   indicate that a message is being output as part of a dump of all
+//:   messages archived for the current thread.
+//:
+//: 'e_TRIGGER_ALL':
+//:    indicate that a message is being output as part of a dump of all
+//:    messages archived for *all* threads.
 //
-//  (3) e_TRIGGER_ALL - indicate that a message is being output as part of
-//                      a dump of all messages archived for *all* threads.
-//..
 // This example illustrates the use of 'ball::Transmission::Cause' by a
 // hypothetical logging system.
 //

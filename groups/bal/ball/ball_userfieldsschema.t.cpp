@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 // This section illustrates intended use of this component.
 //
 ///Example 1: Basic Use of 'ball::UserFieldsSchema'
-/// - - - - - - - - - - - - - - - - - - - - - - - - 
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to populate and access a
 // 'ball::UserFieldsSchema' object.  See the 'ball_userfields' for an example
 // of using a schema in the implementation of a logging callback (it

@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 // (without invalidating the allocator) and the associated callbacks will be
 // invoked when the listening port is closed.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The acceptor is *thread* *safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,

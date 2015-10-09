@@ -277,7 +277,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
     }
 //..
 
-}  // close namespace BALL_USAGE_EXAMPLE_1 
+}  // close namespace BALL_USAGE_EXAMPLE_1
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------

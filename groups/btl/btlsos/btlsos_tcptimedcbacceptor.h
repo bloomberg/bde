@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 // (without invalidating the allocator) and the associated callbacks will be
 // invoked when the listening port is closed.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The acceptor is *thread* *safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,
@@ -68,8 +68,12 @@ BSLS_IDENT("$Id: $")
 // manager, both acceptors are thread-safe if and only if that socket event
 // manager is *THREAD* *ENABLED*.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Multi-User Echo Server
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following usage example shows a possible implementation of a multi-user
 // echo server.  An echo server accepts connections and, for every connection,
 // sends any received data back to the client (until the connection is

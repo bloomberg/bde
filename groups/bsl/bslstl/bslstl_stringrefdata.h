@@ -70,8 +70,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Breaking cyclic dependency between string and StringRef classes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Breaking Cyclic Dependency Between 'String' and 'StringRef'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how 'bslstl::StringRefData' allows us to
 // break the cyclic dependency between hypothetical 'String' and 'StringRef'
 // classes.

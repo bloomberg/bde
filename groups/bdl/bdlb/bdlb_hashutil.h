@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 // object.
 //
 ///Definitions and Formal Statement of No-Funneling Property
-///-------------------------------------------------------
+///---------------------------------------------------------
 // Let us say a given bit in the input affects a given bit in the output (which
 // has 'v' bits) if two keys differing only at that input bit will differ at
 // the given output bit about half the time.  We define a hash to be a

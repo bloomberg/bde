@@ -157,8 +157,8 @@ BSLS_IDENT("$Id: $")
 // bytes) of the initial input data sequence before encoding was evenly
 // divisible by 3.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
 // The following example shows how to use a 'bdlde::Base64Decoder' object to
 // implement a function, 'streamconverter', that reads text from a
 // 'bsl::istream', decodes that text from base 64 representation, and writes

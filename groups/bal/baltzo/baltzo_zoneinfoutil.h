@@ -159,8 +159,8 @@ BSLS_IDENT("$Id: $")
 // common operations on time values using a Zoneinfo description of a time
 // zone.
 //
-///Prologue: Initializing a 'baltzo::Zoneinfo' object.
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Prologue: Initializing a 'baltzo::Zoneinfo' Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // We start by creating a Zoneinfo time zone description for New York, which we
 // will use in subsequent examples.  Note that, in practice, clients should
 // obtain time zone information from a data source (see
@@ -223,7 +223,7 @@ BSLS_IDENT("$Id: $")
 //  assert(true == baltzo::ZoneinfoUtil::isWellFormed(newYork));
 //..
 //
-///Example 1: Converting from a UTC time to a local time.
+///Example 1: Converting from a UTC Time to a Local Time
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to convert a UTC time to the
 // corresponding local time using the 'convertUtcToLocalTime' class method.

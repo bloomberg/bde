@@ -1417,7 +1417,7 @@ int main(int argc, char *argv[])
                                 thresholds[j].triggerAllLevel());
                 manager.addRule(rule);
                 for (int k = 0; k < NUM_VALUES; ++k) {
-                    ball::Record *record = 
+                    ball::Record *record =
                                          manager.getLogger().getRecord("X",1);
 
                     // Each level is the minimum severity (maximum value)

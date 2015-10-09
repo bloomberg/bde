@@ -78,7 +78,7 @@ BSLS_IDENT("$Id: $")
 // user's responsibility to ensure that it correctly passes its allocator
 // argument through to the constructor of 'TYPE' if 'TYPE' uses allocator.
 //
-///Exception-Safety
+///Exception Safety
 ///----------------
 // There are two potential sources of exceptions in this component: memory
 // allocation and object construction.  The object pool is exception-neutral

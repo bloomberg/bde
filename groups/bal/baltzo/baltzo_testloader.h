@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 // 'baltzo::Loader' protocol.
 //
 ///Example 1: Populating a 'baltzo::TestLoader' with Time-Zone Information
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // We start by creating a 'baltzo::Zoneinfo' object, which we will eventually
 // populate with a subset of data for "America/New_York":
 //..
@@ -103,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Accessing Time-Zone Information From a 'baltzo::TestLoader'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the next example, we will use the 'baltzo::TestLoader' we initialized in
 // the preceding example, to load time-zone information for New York via the
 // 'baltzo::Loader' protocol.

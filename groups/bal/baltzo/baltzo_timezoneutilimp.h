@@ -33,7 +33,7 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to use a 'baltzo::TimeZoneUtilImp' to
 // perform common operations on time values:
 //
-///Prologue: Initializing an Example 'baltzo::ZoneinfoCache' Object.
+///Prologue: Initializing an Example 'baltzo::ZoneinfoCache' Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Before using the methods provided by 'baltzo::TimeZoneUtilImp' we must first
 // define a 'baltzo::ZoneinfoCache' object containing information about various
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 //  baltzo::ZoneinfoCache cache(&loader);
 //..
 //
-///Example 1: Converting from a UTC Time to a Local Time.
+///Example 1: Converting from a UTC Time to a Local Time
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to convert a UTC time to the
 // corresponding local time using the 'convertUtcToLocalTime' class method.

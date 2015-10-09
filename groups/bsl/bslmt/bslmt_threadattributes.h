@@ -43,6 +43,7 @@ BSLS_IDENT("$Id: $")
 //  stackSize     'e_UNSET_STACK_SIZE == stackSize || 0 <= stackSize'
 //  guardSize     'e_UNSET_GUARD_SIZE == guardSize || 0 <= guardSize'
 //..
+//
 ///'detachedState' Attribute
 ///- - - - - - - - - - - - -
 // The 'detachedState' attribute indicates whether an associated thread should
@@ -123,7 +124,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating and modifying thread attributes objects
+///Example 1: Creating and Modifying Thread Attributes Objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will demonstrate creating and configuring a
 // 'bslmt::ThreadAttributes' object, then using it with a hypothetical

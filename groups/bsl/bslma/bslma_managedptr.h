@@ -132,7 +132,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Implementing a protocol
+///Example 1: Implementing a Protocol
 /// - - - - - - - - - - - - - - - - -
 // We demonstrate using 'ManagedPtr' to configure and return a managed object
 // implementing an abstract protocol.

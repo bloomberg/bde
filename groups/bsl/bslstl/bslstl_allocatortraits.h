@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended usage of this component.
 //
 ///Example 1: A Container Class
-///- - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // This example demonstrates the intended use of 'allocator_traits' to
 // implement a standard-conforming container class.  First, we create a
 // container class that holds a single object and which meets the requirements
@@ -246,8 +246,9 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Example 2: bslma Allocator Propagation
-///- - - - - - - - - - - - - - - - - - -
+//
+///Example 2: 'bslma' Allocator Propagation
+/// - - - - - - - - - - - - - - - - - - - -
 // To exercise the propagation of the allocator of 'MyContainer' to its
 // elements, we first create a representative element class, 'MyType', that
 // allocates memory using the bslma allocator protocol:
@@ -304,6 +305,7 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
+//
 ///Example 3: C++03 Allocators
 ///- - - - - - - - - - - - - -
 // This example shows that when 'MyContainer' is instantiated with a C++03

@@ -53,8 +53,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Basic Usage
-///- - - - - -
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
 // To illustrate basic usage more concretely, let us introduce a generic type:
 //..
 //  class MyObject {
@@ -94,8 +96,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  objectPtr->doSomething(100, "Hello");
 //..
-///Usage With Standard Algorithms
-/// - - - - - - - - - - - - - - -
+//
+///Example 2: Usage with Standard Algorithms
+///- - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of 'bdlf::MemFn' with the
 // standard algorithms 'find_if' and 'for_each'.  First we declare the
 // 'MyConnection' and 'MyConnectionManager' classes used in the example,

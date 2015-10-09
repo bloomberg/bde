@@ -66,8 +66,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::SequentialPool' for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, 'my_IntDoubleArray', that holds both
 // 'int' and 'double' values.  The class can be implemented using two parallel
 // arrays: one storing the type information, and the other storing pointers to
@@ -210,8 +212,9 @@ BSLS_IDENT("$Id: $")
 //      ++d_length;
 //  }
 //..
+//
 ///Example 2: Implementing an Allocator Using 'bdlma::SequentialPool'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to

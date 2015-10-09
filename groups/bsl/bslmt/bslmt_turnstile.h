@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // performed at each interval), the turnstile is said to be "lagging behind."
 // The amount of lag time is obtained from the 'lagTime' method.
 //
-///Comparison With Sleep
+///Comparison with Sleep
 ///---------------------
 // A straightforward implementation of metering is to call some form of sleep
 // (e.g., 'bslmt::ThreadUtil::microSleep') with a computed rate after each

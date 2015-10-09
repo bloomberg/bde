@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to record the elapsed time of a block
 // of code using a 'balm::StopwatchScopedGuard'.
 //
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Create and Configure the Default 'balm::MetricsManager' Instance
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create the default 'balm::MetricManager'
 // instance and perform a trivial configuration.
 //
@@ -89,8 +89,8 @@ BSLS_IDENT("$Id: $")
 // the 'balm::DefaultMetricsManager::create' method must also explicitly call
 // the 'balm::DefaultMetricsManager::release' method.
 //
-///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Metric Collection with 'balm::StopwatchScopedGuard'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
 // values.  In the following example we implement a hypothetical request
 // processor similar to the one in example 3.  We use a 'balm::Metric'

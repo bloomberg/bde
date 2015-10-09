@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Chen He (che2)
 //
-//@SEE ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
+//@SEE_ALSO:  btlmt_asyncchannel btlmt_channelpool btlmt_channelpoolchannel
 //
 //@DESCRIPTION: This component provides namespace, 'btlmt::ChannelStatus', for
 // the 'enum' type listing the possible return codes for methods that operate

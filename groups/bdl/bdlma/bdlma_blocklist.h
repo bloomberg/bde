@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using a 'bdlma::BlockList' in a Memory Pool
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bdlma::BlockList' object is commonly used to supply memory to more
 // elaborate memory managers that distribute parts of each (larger) allocated
 // memory block supplied by the 'bdlma::BlockList' object.  The 'my_StrPool'

@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Extracting JSON data into an object
+///Example 1: Extracting JSON Data into an Object
 ///----------------------------------------------
 // For this example, we will use 'baljsn::Tokenizer' to read each node in a
 // JSON document and populate a simple 'Employee' object.

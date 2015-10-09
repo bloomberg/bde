@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
-//@SEE ALSO: bdema_pool
+//@SEE_ALSO: bdema_pool
 //
 //@DESCRIPTION: This component implements a memory pool,
 // 'bdlma::ConcurrentPool', that allocates and manages memory blocks of some

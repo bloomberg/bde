@@ -81,6 +81,7 @@ BSLS_IDENT("$Id: $")
 //      void operator() (int , bsl::string);
 //  };
 //..
+//
 ///Invoking a Functor
 /// - - - - - - - - -
 // Once initialized, the functor objects can be invoked in the same way as

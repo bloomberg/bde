@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 // packed calendars.
 //
 ///Example 1: Populating Packed Calendars
-///- - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - -
 // Packed calendars will typically be populated from a database or flat file.
 // The user should employ an appropriate population mechanism that provides
 // the desired holiday dates and associated holiday codes within some desired

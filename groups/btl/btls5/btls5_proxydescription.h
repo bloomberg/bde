@@ -60,7 +60,6 @@ BSLS_IDENT("$Id: $")
 //  assert(proxy.credentials().password() == "password123");
 //..
 // Finally, we have a fully defined proxy description.
-//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

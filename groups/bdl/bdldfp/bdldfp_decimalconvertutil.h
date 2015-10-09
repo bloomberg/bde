@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalConvertUtil: Namespace for decimal FP conversion functions
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides namespace,
 // 'bdldfp::DecimalConvertUtil', containing functions that are able to convert

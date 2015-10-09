@@ -41,8 +41,12 @@ BSLS_IDENT("$Id: $")
 // be treated as a special flag to turn on the prefix name matching, thus
 // causing trouble for categories whose name ends with '*'.
 //
-///USAGE
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
 // The following code fragments illustrate basic usage of this component's
 // 'setThresholdLevelsHierarchically' and 'addCategoryHierarchically' methods.
 //

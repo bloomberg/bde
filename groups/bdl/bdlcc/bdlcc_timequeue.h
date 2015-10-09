@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // queue.
 //
 ///'bdlcc::TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdlcc::TimeQueue::Handle' is an alias for a 32-bit 'int' type.  A handle
 // consists of two parts, the "index section" and the "iteration section".  The
 // index section, which is the low-order 'numIndexBits' (which defaults to
@@ -103,8 +103,8 @@ BSLS_IDENT("$Id: $")
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
 //
-///Forward declarations:
-///- - - - - - - - - - -
+///Forward Declarations
+/// - - - - - - - - - -
 // Class 'my_Server' will spawn two service threads to monitor connections for
 // available data and to manage time-outs, respectively.  Two forward-declared
 // "C" functions are invoked as the threads are spawned.  The signature of each
@@ -121,8 +121,9 @@ BSLS_IDENT("$Id: $")
 //
 //  }
 //..
-///struct 'my_Connection'
-///- - - - - - - - - - -
+//
+///'struct my_Connection'
+/// - - - - - - - - - - -
 // The 'my_Connection' structure is used by 'my_Server' to manage a single
 // physical connection on behalf of a 'my_Session'.
 //..
@@ -132,8 +133,9 @@ BSLS_IDENT("$Id: $")
 //      my_Session *d_session_p;
 //  };
 //..
-///Protocol classes
-///- - - - - - - -
+//
+///Protocol Classes
+/// - - - - - - - -
 // Protocol class 'my_Session' provides a pure abstract protocol to manage a
 // single "session" to be associated with a specific connection on a server.
 //..

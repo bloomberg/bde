@@ -70,8 +70,8 @@ BSLS_IDENT("$Id: $")
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Initialize a 'balm::MetricsManager'
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Initialize a 'balm::MetricsManager'
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create and configure a
 // 'balm::MetricsManager' that we will use to record and publish metric values.
 // We first create a 'balm::MetricsManager' object and a
@@ -96,8 +96,9 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //..
-///Example 2 - Recording Metric Values with 'balm::Collector'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Recording Metric Values with 'balm::Collector'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This second example demonstrates using 'balm::Collector' objects (obtained
 // from a metrics manager's collector repository) to collect metrics related to
 // a hypothetical 'EventHandler' class.  On construction, the event handler
@@ -165,8 +166,9 @@ BSLS_IDENT("$Id: $")
 //
 //  };
 //..
-///Example 3 - Recording Metric Values with a Callback
-///- - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+///Example 3: Recording Metric Values with a Callback
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The metrics manager provides a facility to register a callback that will
 // report metric values.  A callback should be used if clients want to
 // customize how a metric, or group of metrics, are recorded.  In the following
@@ -337,8 +339,9 @@ BSLS_IDENT("$Id: $")
 //
 //  // ...
 //..
-///Example 4 - Publishing a Metric
-///- - - - - - - - - - - - - - - -
+//
+///Example 4: Publishing a Metric
+/// - - - - - - - - - - - - - - -
 // The metrics manager provides a 'publish' operation to publish metrics for a
 // category or set of categories.  In this example we will use the metrics
 // manager's 'publishAll' operation to publish all the metrics managed by the

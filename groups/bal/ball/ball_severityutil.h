@@ -44,6 +44,7 @@ BSLS_IDENT("$Id: $")
 //
 //    static bool ball::SeverityUtil::isValidNameCaseless(const char *name);
 //..
+//
 ///Usage
 ///-----
 // In this example, we show how to validate that a set of C-style strings

@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 // 'ball_loggermanagerdefaults' component for details on the defaults and
 // their constraints.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // This constrained-attribute component is *thread-safe* but not
 // *thread-enabled*, and requires explicit synchronization in the user space.

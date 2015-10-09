@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a default event manager
+///Example 1: Creating a Default Event Manager
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In the following usage example we show how to create an instance of a
 // default event manager.  First, we need to include this file (shown here for
@@ -80,7 +80,6 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that '/dev/poll' is available only on Solaris and this instantiation
 // fails (at compile time) on other platforms.
-//..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>

@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a clock that measures time and
 // accumulates it into one of two categories: 'e_IO_BOUND' or 'e_CPU_BOUND'.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // Thread-enabled -- different threads can access an instance of
 // 'btlso::TimeMetrics' safely.

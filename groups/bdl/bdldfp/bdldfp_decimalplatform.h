@@ -23,7 +23,7 @@ BSLS_IDENT("$Id$")
 //  BDLDFP_DECIMALPLATFORM_C99_QNAN*: internal use only, will be removed
 //  BDLDFP_DECIMALPLATFORM_C99_SNAN*: internal use only, will be removed
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalutil, bdldfp_decimalconvertutil
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalutil, bdldfp_decimalconvertutil
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // identify and define platform-specific compile-time attributes that are

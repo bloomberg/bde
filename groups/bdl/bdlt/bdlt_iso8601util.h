@@ -107,6 +107,7 @@ BSLS_IDENT("$Id: $")
 //  |             0)                       |  2002-03-17T15:46:09.330+00:00  |
 //  +--------------------------------------+---------------------------------+
 //..
+//
 ///Configuration
 ///- - - - - - -
 // The 'generate' and 'generateRaw' functions provide an optional configuration
@@ -324,6 +325,7 @@ BSLS_IDENT("$Id: $")
 //
 // <ZONE>                  ::=  (+|-)hh{:}mm|Z     # zone designator
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

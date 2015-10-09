@@ -2973,7 +2973,7 @@ void ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
     if (!continueFlag && 0 == cs.d_numAttempts) {
         // Unless we are blocking in connect, there is no reason to wait until
         // timeoutCb removes the connector.  Do it now instead of scheduling.
- 
+
         connectTimeoutCb(idx);
         return;                                                       // RETURN
     }

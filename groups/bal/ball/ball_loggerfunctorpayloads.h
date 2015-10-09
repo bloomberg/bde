@@ -71,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //      // to publish all record buffers of all active loggers (i.e., loggers
 //      // allocated by the logger manager that have not yet been deallocated).
 //..
+//
 ///Synopsis
 ///--------
 // The following is a list of functions available in this component, each
@@ -78,6 +79,7 @@ BSLS_IDENT("$Id: $")
 //..
 //    loadParentCategoryThresholdValues     DefaultThresholdsCallback
 //..
+//
 ///Support for Hierarchical Category Names
 ///---------------------------------------
 // The 'ball' logging toolkit does not explicitly support any structure in the
@@ -134,7 +136,6 @@ BSLS_IDENT("$Id: $")
 //   int main()
 //   {
 //       ball::TestObserver testObserver(bsl::cout);
-
 //..
 // Now, we load the logger manager 'configuration' with the desired "payload"
 // function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
@@ -143,7 +144,7 @@ BSLS_IDENT("$Id: $")
 // each invocation.
 //..
 //       using namespace bdlf::PlaceHolders;
-
+//
 //       ball::LoggerManagerConfiguration configuration;
 //       char delimiter = '.';
 //       configuration.setDefaultThresholdLevelsCallback(

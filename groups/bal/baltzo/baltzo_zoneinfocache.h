@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // and using it to access time zone information.
 //
 ///Example 1: Creating a Concrete 'baltzo::Loader'
-/// - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // A 'baltzo::ZoneinfoCache' object is provided a 'baltzo::Loader' on
 // construction.  The 'loader' is used to populate the cache per user requests
 // via the 'getZoneinfo' method.  In this example, we use a 'TestLoader'
@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 ///Example 2: Creating and Using a 'baltzo::ZoneinfoCache'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we create a 'baltzo::ZoneinfoCache', and use it to access
 // time zone information for several time zones.
 //

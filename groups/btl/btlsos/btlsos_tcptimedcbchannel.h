@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // of the framework (see 'btlsos_tcptimedcbacceptor' and
 // 'btlsos_tcptimedcbconnector' components).
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // Generally speaking, this channel is *not* *thread-safe*, meaning that any
 // operation can not be called on *distinct instances* from different threads
@@ -64,10 +64,10 @@ BSLS_IDENT("$Id: $")
 // operations are not required, 'btlsos_tcpcbchannel' is preferred from
 // performance perspective.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 //..
-// See 'btlsos_tcptimedcbacceptor' component.
+// See the {'btlsos_tcptimedcbacceptor'} component.
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION

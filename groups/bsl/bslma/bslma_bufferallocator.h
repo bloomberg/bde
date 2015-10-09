@@ -39,7 +39,8 @@ BSLS_IDENT("$Id: $")
 //                      deallocate
 //                      dtor
 //..
-///ALIGNMENT STRATEGY
+//
+///Alignment Strategy
 ///------------------
 // The 'bslma::BufferAllocator' allocates memory using one of the two alignment
 // strategies: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.

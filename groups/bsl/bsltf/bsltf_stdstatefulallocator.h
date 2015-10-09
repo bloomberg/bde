@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 // this allows a common test strategy to support testing allocation with BDE
 // allocators, and testing the general notion of stateful STL allocators.  The
 // key differences between this test allocator and a regular BDE allocator are:
-//..
+//
 //: o This allocator does not support the 'scoped' allocation model, so that
 //:   elements in a container will often have a different allocator to the
 //:   container object itself.
@@ -41,7 +41,6 @@ BSLS_IDENT("$Id: $")
 //:
 //: o This allocator is not DefaultConstructible, and has no notion of the
 //:   default allocator.
-//..
 //
 ///Usage
 ///-----

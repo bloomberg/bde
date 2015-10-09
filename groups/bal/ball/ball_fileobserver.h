@@ -184,7 +184,7 @@ BSLS_IDENT("$Id: $")
 // Note that timestamp pattern elements in a log file name are typically
 // selected so they produce unique names for each rotation.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // All methods of 'ball::FileObserver' are thread-safe, and can be called
 // concurrently by multiple threads.

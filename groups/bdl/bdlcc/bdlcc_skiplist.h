@@ -65,29 +65,33 @@ BSLS_IDENT("$Id: $")
 ///--------
 // Some terms used frequently in this documentation:
 //
-//   * Back: The last element in the list.  The key value at the back is
-//           greater than or equal to every other key value in the list.
-//
-//   * Front: The beginning of the list.  The key value at the front is less
-//            than or equal to every other key value in the list.
-//
-//   * Pair: An element of the list; a pairing (association) of a data object
-//           with a key value.  Also a type name used for *references* to such
-//           objects ('bdlcc:SkipListPair' objects cannot be constructed
-//           directly).
-//
-//   * PairHandle: An object (of type 'bdlcc::SkipListPairHandle') with scope
-//                 and copy semantics which make it easier to manage and use
-//                 than a raw 'bdlcc::SkipListPair*'.
-//
-//   * R: Stands for "Reverse search" (see '"R" Methods' documentation below).
-//
-//   * Reference: An object referring to a pair; either a
-//                'bdlcc::SkipListPair*' which has not yet been released, or a
-//                'bdlcc::SkipListPairHandle' object.
+//: Back:
+//:     The last element in the list.  The key value at the back is greater
+//:     than or equal to every other key value in the list.
+//:
+//: Front:
+//:     The beginning of the list.  The key value at the front is less than or
+//:     equal to every other key value in the list.
+//:
+//: Pair:
+//:     An element of the list; a pairing (association) of a data object with a
+//:     key value.  Also a type name used fororeferences* to such objects
+//:     ('bdlcc:SkipListPair' objects cannot be constructed directly).
+//:
+//: PairHandle:
+//:     An object (of type 'bdlcc::SkipListPairHandle') with scope and copy
+//:     semantics which make it easier to manage and use than a raw
+//:     'bdlcc::SkipListPair*'.
+//:
+//: R:
+//:     Stands for "Reverse search" (see '"R" Methods' documentation below).
+//:
+//: Reference:
+//:     An object referring to a pair; either a 'bdlcc::SkipListPair*' which
+//:     has not yet been released, or a 'bdlcc::SkipListPairHandle' object.
 //
 ///"R" Methods: Optimized Search From The Back Of The List
-///------------------------------------------------------
+///-------------------------------------------------------
 // All methods of 'bdlcc::SkipList' that result in a search through the list
 // have corresponding "R" versions: for example, there are 'add' and 'addR'
 // methods, 'find' and 'findR' methods, etc.  The "R" versions of these methods
@@ -142,8 +146,12 @@ BSLS_IDENT("$Id: $")
 // 'bdlcc::SkipListPair' is only a name used for opaque pointers; the concept
 // of exception safety does not apply to it.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Scheduler
+///- - - - - - - - - - - - - - - -
 // The "R" methods of 'bdlcc::SkipList' make it ideal for use in a scheduler,
 // in which events are likely to be scheduled after existing events.  In such
 // an implementation, events are stored in the list with their scheduled

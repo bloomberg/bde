@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Andrei Basov (abasov)
 //
-//@SEE_ALSO: btlsos_tcptimedacceptor  btlsos_tcptimedconnector
-//@SEE_ALSO: btlsos_tcpchannel        btlsos_tcptimedcbchannel
-//@SEE_ALSO: btlso_socketoptutil
+//@SEE_ALSO: btlsos_tcptimedacceptor,  btlsos_tcptimedconnector
+//           btlsos_tcpchannel,        btlsos_tcptimedcbchannel
+//           btlso_socketoptutil
 //
 //@DESCRIPTION: This component provides concrete implementation of the blocking
 // communication channel with timeouts ('btlsc_timedchannel') over TCP/IPv4
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // the protocol).  Additionally, operations to set various socket options and
 // to get local and remote addresses are provided.
 //
-///Thread-safety
+///Thread Safety
 ///-------------
 // The channel is *thread safe*, meaning that any operation can be called on
 // *distinct instances* from different threads without any side-effects (which,
@@ -53,8 +53,13 @@ BSLS_IDENT("$Id: $")
 // channel only needs one of the socket as its I/O request endpoint, while the
 // other end of connection will be used to write some data for the channel to
 // read:
-///USAGE EXAMPLE
-///=============
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a Socket Pair
+/// - - - - - - - - - - - - - - -
 //..
 //    btlso::SocketHandle::Handle handles[2];
 //    int ret = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(

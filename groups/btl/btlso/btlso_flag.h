@@ -61,6 +61,7 @@ BSLS_IDENT("$Id: $")
 //               e_IO_RW             Wait for data to arrive or buffer space
 //                                   to write on a socket
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

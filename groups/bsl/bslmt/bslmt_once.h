@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // Objects of the 'bslmt::Once' class are intended to be shared among threads
 // and may be accessed and modified simultaneously in multiple threads by using

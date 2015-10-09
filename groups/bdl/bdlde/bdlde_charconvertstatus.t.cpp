@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
-    
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
         // --------------------------------------------------------------------
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         bsls::Types::Int64 numBlocksTotal = defaultAllocator.numBlocksTotal();
-    
+
         if (verbose) cout << "\nVerify enumerator values are sequential."
                           << endl;
 

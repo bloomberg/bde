@@ -118,8 +118,8 @@ BSLS_IDENT("$Id: $")
 // transmissions are authorized by methods whose names end in the suffix 'Raw'.
 // Note that the "raw" mode is not supported for buffered-write operations.
 //
-///augStatus
-///- - - - -
+///'augStatus'
+///- - - - - -
 // Since there are several possible reasons for a "partial result", the caller
 // may wish to know the specific cause.  A second status value, 'augStatus'
 // ("augmented status") may be requested as an optional *initial* ('int *')
@@ -132,8 +132,8 @@ BSLS_IDENT("$Id: $")
 // zero is not possible for this protocol; the zero value is reserved for
 // protocols supporting timeouts.
 //
-///Scatter/Gather (readv/writev)
-///-----------------------------
+///Scatter/Gather ('readv'/'writev')
+///---------------------------------
 // This interface supports "vector I/O" -- the simultaneous reading from or
 // writing to multiple buffers -- via Unix-style 'readv' and 'writev' variants
 // of the normal single-buffer methods.  Scatter/Gather operations use either
@@ -171,6 +171,7 @@ BSLS_IDENT("$Id: $")
 //         // authorize any partial write operations whatsoever.
 //     }
 //..
+//
 ///Synopsis
 ///--------
 // The following chart summarizes the set of 20 transmission methods that are

@@ -42,50 +42,53 @@ BSLS_IDENT("$Id: $")
 // standard an information about external XSD schemas can be defined in three
 // places:
 //
-// 1. In an instance document, the attribute 'xsi:schemaLocation' provides
-//    hints from the author to a processor regarding the location of schema
-//    documents.  The 'schemaLocation'  attribute value consists of one or more
-//    pairs of URI references, separated by white space.  The first member of
-//    each pair is a namespace name, and the second member of the pair is a
-//    hint describing where to find an appropriate schema document for that
-//    namespace.  The presence of these hints does not require the processor
-//    to obtain or use the cited schema documents, and the processor is free
-//    to use other schemas obtained by any suitable means.  For example,
-//    XercesC has a property XercesSchemaExternalSchemaLocation, that informs
-//    parser about available schemas exactly in the same format as the
-//    attribute 'schemaLocation' in the document instance.
-//    Example:
+//: o In an instance document, the attribute 'xsi:schemaLocation' provides
+//:   hints from the author to a processor regarding the location of schema
+//:   documents.  The 'schemaLocation' attribute value consists of one or more
+//:   pairs of URI references, separated by white space.  The first member of
+//:   each pair is a namespace name, and the second member of the pair is a
+//:   hint describing where to find an appropriate schema document for that
+//:   namespace.  The presence of these hints does not require the processor to
+//:   obtain or use the cited schema documents, and the processor is free to
+//:   use other schemas obtained by any suitable means.  For example, XercesC
+//:   has a property XercesSchemaExternalSchemaLocation, that informs parser
+//:   about available schemas exactly in the same format as the attribute
+//:   'schemaLocation' in the document instance.
+//
+// Example:
+//..
 //      <purchaseReport
 //          xmlns="http://www.example.com/Report"
 //          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 //          xsi:schemaLocation="http://www.example.com/Report
 //                              http://www.example.com/Report.xsd"
 //           period="P3M" periodEnding="1999-12-31">
+//..
 //
-//
-// 2. In a schema, the 'include' element has a required 'schemaLocation'
-//    attribute, and it contains a URI reference which must identify a schema
-//    document.
-//
-// 3. Also in a schema, the import element has optional namespace and
-//    'schemaLocation'  attributes.  If present, the 'schemaLocation'
-//    attribute is understood in a way which parallels the interpretation of
-//    'xsi:schemaLocation' in (1).  Specifically, it provides a hint from the
-//     author to a processor regarding the location of a schema document that
-//    the author warrants supplies the required components for the namespace
-//    identified by the namespace attribute.
+//: o In a schema, the 'include' element has a required 'schemaLocation'
+//:   attribute, and it contains a URI reference which must identify a schema
+//:   document.
+//:
+//: o Also in a schema, the import element has optional namespace and
+//:   'schemaLocation' attributes.  If present, the 'schemaLocation' attribute
+//:   is understood in a way which parallels the interpretation of
+//:   'xsi:schemaLocation' in (1).  Specifically, it provides a hint from the
+//:   author to a processor regarding the location of a schema document that
+//:   the author warrants supplies the required components for the namespace
+//:   identified by the namespace attribute.
 //
 // For all mentioned cases, having the URI reference which identifies a schema
 // and an optional namespace, the processor(parser) should obtain
 // 'bsl::streambuf' object for the schema.  For this purpose
 // 'balxml::ValidatingReader' interface defines the two level schemas
 // resolution process:
-//..
-// 1. The reader(parser) must lookup schema in internal cache.
-//    If the schema is found, it must be used.
-// 2. Otherwise reader must use the associated resolver to obtain schema
-//    (see 'balxml::Reader::XmlResolverFunctor').
-//..
+//
+//: 1 The reader(parser) must lookup schema in internal cache.  If the schema
+//:   is found, it must be used.
+//:
+//: 2 Otherwise reader must use the associated resolver to obtain schema (see
+//:   'balxml::Reader::XmlResolverFunctor').
+//
 // Both the schema cache and resolver should be setup before the method 'open'
 // is called.
 //
@@ -93,10 +96,10 @@ BSLS_IDENT("$Id: $")
 ///------------
 // 'balxml::ValidatingReader' provides two abstract methods to maintain the
 // schema cache:
-//..
-//  o 'addSchema'     - add a schema to the cache
-//  o 'removeSchemas' - clear the cache and remove all schemas
-//..
+//
+//: o 'addSchema', add a schema to the cache
+//: o 'removeSchemas', clear the cache and remove all schemas
+//
 ///Thread Safety
 ///-------------
 // This component does not provide any functions that present a thread safety
