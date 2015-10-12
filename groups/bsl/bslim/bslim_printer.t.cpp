@@ -21,8 +21,9 @@
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
 
-#include <bsl_memory.h>
 #include <bsl_cstddef.h>
+#include <bsl_initializer_list.h>
+#include <bsl_memory.h>
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
@@ -3192,9 +3193,9 @@ int main(int argc, char *argv[])
         // BSL namespace import tests
         //
         // Concerns:
-        //: 1 (Ab)use this test driver to validate changes in bsl_memory.h and
-        //:   bsl_cstddef.h to include C++11 symbols in bsl for g++ versions
-        //:   4.8 and above.
+        //: 1 (Ab)use this test driver to validate changes in
+        //:   bsl_initializer_list.h, bsl_memory.h and bsl_cstddef.h to include
+        //:   C++11 symbols in bsl for g++ versions 4.8 and above.
         //
         // Plan: Declare a variable of each of the imported types, using the
         // bsl:: namespace.  This suffices to validate that they are correctly
@@ -3204,11 +3205,13 @@ int main(int argc, char *argv[])
  #if defined(BDE_BUILD_TARGET_CPP11) \
  && defined(BSLS_PLATFORM_CMP_GNU)  \
  && BSLS_PLATFORM_CMP_VERSION >= 40800
-        bsl::unique_ptr<int>  p;
-        bsl::nullptr_t        q;
+        bsl::unique_ptr<int>       p;
+        bsl::nullptr_t             q;
+        bsl::initializer_list<int> r;
 
         (void)p;
         (void)q;
+        (void)r;
 #endif
       } break;
       default: {
