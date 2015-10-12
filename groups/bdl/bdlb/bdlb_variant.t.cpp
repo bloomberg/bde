@@ -6288,9 +6288,7 @@ struct TestUtil {
     };
 //..
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-// TBD
-// The following list of explicit instantiations was provided by IBM as a
+// TBD: The following list of explicit instantiations was provided by IBM as a
 // work-around for an xlC compiler crash (unless case 18 is commented out).
 
 #if BSLS_PLATFORM_CMP_IBM
@@ -6750,7 +6748,6 @@ template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeLis
 template struct BloombergLP::bdlb::Variant_TypeIndex<BloombergLP::bslmf::TypeList13<TestString,TestArg<2>,TestArg<3>,TestArg<4>,TestArg<5>,TestArg<6>,TestArg<7>,TestArg<8>,TestArg<9>,TestArg<10>,TestArg<11>,TestArg<12>,TestArg<13> >,TestArg<6> >;
 
 #endif  // BSLS_PLATFORM_CMP_IBM
-#endif  // BDE_OPENSOURCE_PUBLICATION
 
 //=============================================================================
 //                                 MAIN PROGRAM
