@@ -11,17 +11,11 @@ This repository contains the BDE libraries, currently BSL (BDE Standard Library)
 What's New
 ==========
 
-June 2015
-Important new features include:
-  * [`bdlt`](https://github.com/bloomberg/bde/tree/master/groups/bdl/bdlt/doc/bdlt.txt) - A collection of date and time types, and utilities for manipulating them.  Of particular note:
-      * [`bdlt::Date`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_date.h)
-      * [`bdlt::Datetime`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_datetime.h)
-      * [`bdlt::CurrentTime`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlt/bdlt_currenttime.h)
-  * [`bslx`](https://github.com/bloomberg/bde/blob/master/groups/bsl/bslx/doc/bslx.txt) -  A package that provides a framework for externalizing and unexternalizing value types.
-  * [`bdlma_localsequentialallocator`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlma/bdlma_localsequentialallocator.h) - An aide to creating stack-based buffered-sequential allocators.
-  * [`bdlb_guid`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guid.h) and [`bdlb_guidutil`](https://github.com/bloomberg/bde/blob/master/groups/bdl/bdlb/bdlb_guidutil.h) - Provide classes for creating and Globally Unique IDentifiers (GUIDs, version 4 per [RFC 4122](https://www.ietf.org/rfc/rfc4122.txt))
+**October 2015** 
 
-See [BDE 2.23 Release Notes](https://github.com/bloomberg/bde/wiki/BDE-2.23-Release-Notes).
+BDE 3.0 is now available.  This  major release introduces important subsystems including calendar types, time-zone utilities, logging facilities, event schedulers, thread-pools, and more. 
+
+See: [BDE 3.0 Open-Source Release](https://github.com/bloomberg/bde/wiki/BDE-3.0:-Open-Source-Release)
 
 Basic Build Instructions
 ========================
