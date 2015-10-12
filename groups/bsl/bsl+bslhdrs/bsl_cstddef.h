@@ -30,6 +30,12 @@ namespace bsl
     // Import selected symbols into bsl namespace
     using native_std::ptrdiff_t;
     using native_std::size_t;
+
+#if defined(BDE_BUILD_TARGET_CPP11) \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    using native_std::nullptr_t;
+#endif
 }
 
 #endif

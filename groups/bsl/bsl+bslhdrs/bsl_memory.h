@@ -42,6 +42,12 @@ namespace bsl
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
+#if defined(BDE_BUILD_TARGET_CPP11) \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    using native_std::unique_ptr;
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     // Import additional names expected by existing code, but not mandated by
