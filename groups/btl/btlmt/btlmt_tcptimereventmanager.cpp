@@ -47,6 +47,7 @@ BSLS_IDENT_RCSID(btlmt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bsl_functional.h>
 #include <bsl_memory.h>
 #include <bsl_ostream.h>
+#include <bsl_algorithm.h>
 
 #include <bsl_c_errno.h>
 
@@ -1009,7 +1010,9 @@ void TcpTimerEventManager::dispatchThreadEntryPoint()
             bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_executeQueueLock);
 
             BSLS_ASSERT(0 == requestsPtr->size());
-            bsl::swap(d_executeQueue_p, requestsPtr);
+
+            using bsl::swap;
+            swap(d_executeQueue_p, requestsPtr);
         }
 
         int numCallbacks = requestsPtr->size();
