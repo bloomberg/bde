@@ -1,0 +1,4 @@
+*                       _       OPTS_FILE       = bslstl.opts
+
+# /bigobj is required to build the bdlf_bind test driver.
+++ windows-*-*-*-cl-15.00  _  TESTDRIVER_BDEBUILD_CXXFLAGS  =  /bigobj

@@ -4,3 +4,6 @@
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
 
 !! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
+
+#-lsocket needed for bdls::FileSystemUtil::isRegularFile test
+unix-SunOS              _       MT_LDFLAGS     = -Bdynamic -lpthread -lsocket -Bstatic
