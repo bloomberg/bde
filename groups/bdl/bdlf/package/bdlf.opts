@@ -2,3 +2,5 @@
 
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
+# /bigobj is required to build the bdlf_bind test driver.
+++ windows-*-*-*-cl-15.00  _  TESTDRIVER_BDEBUILD_CXXFLAGS  =  /bigobj
