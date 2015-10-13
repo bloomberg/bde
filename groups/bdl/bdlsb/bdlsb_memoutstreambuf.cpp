@@ -12,12 +12,14 @@ BSLS_IDENT_RCSID(bdlsb_memoutstreambuf_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
 
+#include <bsls_performancehint.h>
+
 namespace BloombergLP {
 namespace bdlsb {
 
-                           // ---------------------
-                           // class MemOutStreamBuf
-                           // ---------------------
+                         // ---------------------
+                         // class MemOutStreamBuf
+                         // ---------------------
 
 // PRIVATE MANIPULATORS
 void MemOutStreamBuf::grow(size_t newLength)
@@ -59,27 +61,27 @@ int MemOutStreamBuf::overflow(int_type insertionChar)
 
 MemOutStreamBuf::pos_type
 MemOutStreamBuf::seekoff(MemOutStreamBuf::off_type offset,
-                               bsl::ios_base::seekdir          fixedPosition,
-                               bsl::ios_base::openmode         which)
+                         bsl::ios_base::seekdir    way,
+                         bsl::ios_base::openmode   which)
 {
     // This is an output-only buffer, so cannot "seek" in "get" area.
-
     if (!(which & bsl::ios_base::out)) {
         return pos_type(-1);                                          // RETURN
     }
 
-    // Compute offset from current position.  In this stream, 'pptr()' defines
-    // both the current position and the end of the logical byte stream.  Thus,
-    // 'bsl::ios_base::curr' and 'bsl::ios_base::end' are handled identically.
+    // Compute offset from the current position.  In this stream, 'pptr()'
+    // defines both the current position and the end of the logical byte
+    // stream.  Thus, 'bsl::ios_base::curr' and 'bsl::ios_base::end' are
+    // handled identically.
 
-    off_type currOffset = bsl::ios_base::beg == fixedPosition
+    off_type currOffset = bsl::ios_base::beg == way
                           ? offset - length()
                           : offset;
 
     // 'currOffset' is invalid if it is positive or has an absolute-value
     // greater than 'length()'.
 
-    if (currOffset > 0 || -currOffset > length()) {
+    if (currOffset > 0 || static_cast<unsigned>(-currOffset) > length()) {
         return pos_type(-1);                                          // RETURN
     }
 
@@ -90,7 +92,7 @@ MemOutStreamBuf::seekoff(MemOutStreamBuf::off_type offset,
 
 MemOutStreamBuf::pos_type
 MemOutStreamBuf::seekpos(MemOutStreamBuf::pos_type position,
-                               bsl::ios_base::openmode         which)
+                         bsl::ios_base::openmode   which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
@@ -99,10 +101,14 @@ bsl::streamsize MemOutStreamBuf::xsputn(const char_type *source,
                                         bsl::streamsize  numChars)
 {
     BSLMF_ASSERT(bsl::numeric_limits<bsl::streamsize>::is_signed);
-    BSLS_ASSERT(0 <= numChars);
+    BSLS_ASSERT((source && 0 < numChars) || 0 == numChars);
 
-    const bsl::size_t newLength = static_cast<bsl::size_t>(
-                                                          length() + numChars);
+    if (0 == numChars) {
+        return numChars;                                              // RETURN
+    }
+
+    const bsl::size_t newLength =
+                                 static_cast<bsl::size_t>(length() + numChars);
     BSLS_ASSERT_SAFE(newLength >= length());
 
     if (newLength > capacity()) {
@@ -111,12 +117,12 @@ bsl::streamsize MemOutStreamBuf::xsputn(const char_type *source,
     bsl::copy(source, source + numChars, pptr());
 
     // 'pbump' accepts an 'int' so (in the unlikely case) that
-    // 'remainingLength' is greater than INT_MAX, we must call 'pbump' multiple
-    // times.
+    // 'remainingLength' is greater than INT_MAX, we must call 'pbump'
+    // multiple times.
 
     const bsl::streamsize intMax = static_cast<bsl::streamsize>(
                                               bsl::numeric_limits<int>::max());
-    bsl::streamsize remainingLength = numChars;
+    bsl::streamsize       remainingLength = numChars;
     do {
         int bumpLength = static_cast<int>(bsl::min(intMax, remainingLength));
         pbump(bumpLength);
@@ -147,8 +153,8 @@ void MemOutStreamBuf::reserveCapacity(bsl::size_t numCharacters)
     setp(newBuffer, newBuffer + numCharacters);
 
     // 'pbump' accepts an 'int' so (in the unlikely case) that
-    // 'remainingLength' is greater than INT_MAX, we must call 'pbump' multiple
-    // times.
+    // 'remainingLength' is greater than INT_MAX, we must call 'pbump'
+    // multiple times.
 
     const bsl::size_t intMax = static_cast<bsl::size_t>(
                                               bsl::numeric_limits<int>::max());
@@ -160,8 +166,8 @@ void MemOutStreamBuf::reserveCapacity(bsl::size_t numCharacters)
         remainingLength -= bumpLength;
     } while (remainingLength > 0);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 // bdlb_bigendian.t.cpp                                               -*-C++-*-
 #include <bdlb_bigendian.h>
 
-#include <bslim_testutil.h>
 #include <bsls_asserttest.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -15,6 +14,8 @@
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
@@ -24,24 +25,23 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_cctype.h>      // isdigit() isupper() islower()
-#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstdlib.h>     // 'atoi'
 
 using namespace BloombergLP;
 using namespace bsl;
 
-// ============================================================================
+//=============================================================================
 //                             TEST PLAN
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // All classes in this component are a value-semantic types that represent
 // big-endian integer types.  They have the same value if they have the same
 // in-core big endian representation.
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
 // CLASS METHODS
-// [10] static int maxSupportedBdexVersion(int);
+// [ 9] static int maxSupportedBdexVersion(int);
 // [ 2] static bdlb::BigEndianInt16::make(short);
 // [ 2] static bdlb::BigEndianUint16::make(unsigned short);
 // [ 2] static bdlb::BigEndianInt32::make(int);
@@ -52,8 +52,8 @@ using namespace bsl;
 // CREATORS
 //
 // MANIPULATORS
-// [10] STREAM& bdexStreamIn(STREAM&, Obj&);
-// [10] STREAM& bdexStreamOut(STREAM&, const Obj&) const;
+// [ 9] STREAM& bdexStreamIn(STREAM&, Obj&);
+// [ 9] STREAM& bdexStreamOut(STREAM&, const Obj&) const;
 //
 // ACCESSORS
 // [ 4] bdlb::BigEndianInt16::operator  short() const;
@@ -76,8 +76,9 @@ using namespace bsl;
 // [ 6] bool operator!=(const bdlb::BigEndianInt64& lhs, rhs);
 // [ 6] bool operator==(const bdlb::BigEndianUint64& lhs, rhs);
 // [ 6] bool operator!=(const bdlb::BigEndianUint64& lhs, rhs);
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -141,10 +142,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
-
-// ============================================================================
+//=============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -226,13 +226,9 @@ bool isInCoreValueCorrect(bsls::Types::Uint64          value,
 
 }  // close unnamed namespace
 
-
-// Global Data for testing
-//
-
-// ============================================================================
+//=============================================================================
 //                                 TYPE TRAITS
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianInt16>::value);
 BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt16>::value);
@@ -252,9 +248,9 @@ BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianInt64>::value);
 BSLMF_ASSERT(true == bsl::is_trivially_copyable<bdlb::BigEndianUint64>::value);
 BSLMF_ASSERT(true == bdlb::HasPrintMethod<bdlb::BigEndianUint64>::value);
 
-// ============================================================================
+//=============================================================================
 //                             GLOBAL TEST DATA
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 const short VALUES_SHORT[] = {0,
                               1,
                               -1,
@@ -287,7 +283,6 @@ const unsigned int VALUES_UINT[] = {0,
                                     0xC33C0000,
                                     USHRT_MAX,
                                     UINT_MAX};
-
 
 const bsls::Types::Int64 VALUES_INT64[] = {0,
                                            1,
@@ -330,7 +325,98 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 10: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+/// Example 1: Basic Use of 'bdlb::BigEndian'
+/// - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using 'bdlb::BigEndian' types to represent a
+// structure meant to be exchanged over the network ( which historically uses
+// big-endian byte order ) or stored in-core as big-endian integers.  First, we
+// define the structure:
+//..
+    struct ProtocolHeader {
+        // This structure represents the header of the protocol.  All integer
+        // values are stored in the network byte-order (i.e., big-endian).
+
+        bdlb::BigEndianUint16 d_protocolVersion;
+        bdlb::BigEndianUint16 d_messageType;
+        bdlb::BigEndianUint32 d_messageLength;
+    };
+//..
+// Next, we prepare in-memory representation of the protocol header with
+// protocol version set to '0x1', message type set to '0x02' and message length
+// set to '0x1234' in the big-endian byte order ( most significant bytes first
+// ):
+//..
+    const char buffer[8] = { 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x12, 0x34 };
+//..
+// Now, we create an instance of the 'ProtocolHeader' structure and emulate
+// packet reception over the network:
+//..
+    struct ProtocolHeader header;
+    ASSERT(8 == sizeof(header));
+    memcpy(static_cast<void*>(&header), buffer, 8);
+//..
+// Next, we verify that actual in-core values depend on the endianess of the
+// underlying platform:
+//..
+    #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    ASSERT(0x0100 ==
+           static_cast<short>(*(reinterpret_cast<unsigned short*>(
+                                                 &header.d_protocolVersion))));
+
+    ASSERT(0x0200 ==
+           static_cast<short>(*(reinterpret_cast<unsigned short*>(
+                                                 &header.d_messageType))));
+
+    ASSERT(0x34120000 == *(reinterpret_cast<unsigned int*>(
+                                                 &header.d_messageLength)));
+    #endif // BSLS_PLATFORM_IS_LITTLE_ENDIAN
+
+    #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    ASSERT(0x01 ==
+           static_cast<short>(*(reinterpret_cast<unsigned short*>(
+                                                 &header.d_protocolVersion))));
+
+    ASSERT(0x02 ==
+           static_cast<short>(*(reinterpret_cast<unsigned short*>(
+                                                 &header.d_messageType))));
+
+    ASSERT(0x1234 == *(reinterpret_cast<unsigned int*>(
+                                                 &header.d_messageLength)));
+    #endif // BSLS_PLATFORM_IS_BIG_ENDIAN
+//..
+// Finally, we verify that the received protocol header can be validated on
+// platforms of any endianess:
+//..
+    ASSERT(0x01   == header.d_protocolVersion);
+    ASSERT(0x02   == header.d_messageType);
+    ASSERT(0x1234 == header.d_messageLength);
+//..
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
@@ -401,9 +487,9 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING STREAMING FUNCTIONALITY:
+        // TESTING STREAMING FUNCTIONALITY
         //
         // Concerns:
         //   1. The (free) streaming operators '<<' and '>>' are implemented
@@ -463,7 +549,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing Streaming Functionality" << endl
+                          << "TESTING STREAMING FUNCTIONALITY" << endl
                           << "===============================" << endl;
 
         using bslx::OutStreamFunctions::bdexStreamOut;
@@ -514,8 +600,8 @@ int main(int argc, char *argv[])
                 // big endian representation of the value being tested
                 const char TD[]  = {0,123};
 
-                // bslx::TestOutStream fills one byte more with type info
-                // plus four bytes for the size.
+                // bslx::TestOutStream fills one byte more with type info plus
+                // four bytes for the size.
                 if (veryVeryVerbose) cout << "\n\tsizeof(TD) " << sizeof(TD)
                                           << " sizeof(OD) "    << LOD
                                           << endl;
@@ -528,14 +614,14 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                    for (bsl::size_t i = 5; i < LOD; ++i) {
                         cout << "\t  [" << static_cast<int>(OD[i])   << "]"
                              << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(bsl::size_t i = 5; i < LOD; ++i) {
+                for (bsl::size_t i = 5; i < LOD; ++i) {
                     ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
@@ -563,7 +649,8 @@ int main(int argc, char *argv[])
             }
 
             const short *VALUES = VALUES_SHORT;
-            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -661,8 +748,8 @@ int main(int argc, char *argv[])
             }
 
             const unsigned short *VALUES = VALUES_USHORT;
-            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
-                                sizeof(*VALUES_USHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_USHORT) / sizeof(*VALUES_USHORT));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -751,7 +838,7 @@ int main(int argc, char *argv[])
                 // big endian representation of the value being tested
                 const char TD[]  = {0,0,0,123};
 
-                // bslx::TestOutStream fills one byte more with type info
+                // bdlxxxx::TestOutStream fills one byte more with type info
                 // plus four bytes for the size.
                 if (veryVeryVerbose) cout << "\n\tsizeof(TD) " << sizeof(TD)
                                           << " sizeof(OD) "    << LOD
@@ -765,14 +852,14 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                    for (bsl::size_t i = 5; i < LOD; ++i) {
                         cout << "\t  [" << static_cast<int>(OD[i])   << "]"
                              << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(bsl::size_t i = 5; i < LOD; ++i) {
+                for (bsl::size_t i = 5; i < LOD; ++i) {
                     ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
@@ -800,7 +887,8 @@ int main(int argc, char *argv[])
            }
 
             const int *VALUES = VALUES_INT;
-            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
+            const int NUM_VALUES = static_cast<int>(
+                                     sizeof(VALUES_INT) / sizeof(*VALUES_INT));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -897,7 +985,8 @@ int main(int argc, char *argv[])
             }
 
             const unsigned int *VALUES = VALUES_UINT;
-            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
+            const int NUM_VALUES = static_cast<int>(
+                                   sizeof(VALUES_UINT) / sizeof(*VALUES_UINT));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -996,14 +1085,14 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     cout << "\n\t  OD:\t  TD:" << endl;
-                    for(bsl::size_t i = 5; i < LOD; ++i) {
+                    for (bsl::size_t i = 5; i < LOD; ++i) {
                         cout << "\t  [" << static_cast<int>(OD[i])   << "]"
                              << "\t  [" << static_cast<int>(TD[i-5]) << "]"
                              << endl;
                     }
                 }
 
-                for(bsl::size_t i = 5; i < LOD; ++i) {
+                for (bsl::size_t i = 5; i < LOD; ++i) {
                     ASSERTV(i, OD[i] == TD[i-5]);
                 }
 
@@ -1030,7 +1119,8 @@ int main(int argc, char *argv[])
             }
 
             const bsls::Types::Int64 *VALUES = VALUES_INT64;
-            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_INT64) / sizeof(*VALUES_INT64));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -1125,8 +1215,8 @@ int main(int argc, char *argv[])
             }
 
             const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
-            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
-                                sizeof(*VALUES_UINT64) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_UINT64) / sizeof(*VALUES_UINT64));
 
             if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
             {
@@ -1169,24 +1259,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-      } break;
-
-      case 9: {
-        // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
-        //
-        // TBD
-        // --------------------------------------------------------------------
-
-      } break;
-
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION, g:
-        //
-        // This component test driver does not have a generator function.
-        // --------------------------------------------------------------------
-
       } break;
 
       case 7: {
@@ -1237,7 +1309,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt16 Obj;
 
             const short *VALUES = VALUES_SHORT;
-            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1259,8 +1332,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint16 Obj;
 
             const unsigned short *VALUES = VALUES_USHORT;
-            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
-                                sizeof(*VALUES_USHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_USHORT) / sizeof(*VALUES_USHORT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1282,7 +1355,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt32 Obj;
 
             const int *VALUES = VALUES_INT;
-            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
+            const int NUM_VALUES = static_cast<int>(
+                                     sizeof(VALUES_INT) / sizeof(*VALUES_INT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1304,7 +1378,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint32 Obj;
 
             const unsigned int *VALUES = VALUES_UINT;
-            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
+            const int NUM_VALUES = static_cast<int>(
+                                   sizeof(VALUES_UINT) / sizeof(*VALUES_UINT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1326,7 +1401,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt64 Obj;
 
             const bsls::Types::Int64 *VALUES = VALUES_INT64;
-            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_INT64) / sizeof(*VALUES_INT64));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1348,8 +1424,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint64 Obj;
 
             const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
-            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
-                                sizeof(*VALUES_UINT64) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_UINT64) / sizeof(*VALUES_UINT64));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
 
@@ -1410,7 +1486,7 @@ int main(int argc, char *argv[])
             {1,     2,             },
             {1,    -2,             },
         };
-        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
+        const int NUM_DATA = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
 
         if (verbose) cout << endl
                           << "Testing 'print' and 'operator<<'." << endl
@@ -1421,7 +1497,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt16 Obj;
 
             const short *VALUES = VALUES_SHORT;
-            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1461,8 +1538,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint16 Obj;
 
             const unsigned short *VALUES = VALUES_USHORT;
-            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
-                                sizeof(*VALUES_USHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_USHORT) / sizeof(*VALUES_USHORT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1502,7 +1579,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt32 Obj;
 
             const int *VALUES = VALUES_INT;
-            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
+            const int NUM_VALUES = static_cast<int>(
+                                     sizeof(VALUES_INT) / sizeof(*VALUES_INT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1542,7 +1620,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint32 Obj;
 
             const unsigned int *VALUES = VALUES_UINT;
-            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
+            const int NUM_VALUES = static_cast<int>(
+                                   sizeof(VALUES_UINT) / sizeof(*VALUES_UINT));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1582,7 +1661,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt64 Obj;
 
             const bsls::Types::Int64 *VALUES = VALUES_INT64;
-            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_INT64) / sizeof(*VALUES_INT64));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1622,8 +1702,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint64 Obj;
 
             const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
-            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
-                                sizeof(*VALUES_UINT64) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_UINT64) / sizeof(*VALUES_UINT64));
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const Obj X = Obj::make(VALUES[i]);
@@ -1828,7 +1908,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt16 Obj;
 
             const short *VALUES = VALUES_SHORT;
-            enum { NUM_VALUES = sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_SHORT) / sizeof(*VALUES_SHORT));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1853,8 +1934,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint16 Obj;
 
             const unsigned short *VALUES = VALUES_USHORT;
-            enum { NUM_VALUES = sizeof(VALUES_USHORT) /
-                                sizeof(*VALUES_USHORT) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_USHORT) / sizeof(*VALUES_USHORT));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1879,7 +1960,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt32 Obj;
 
             const int *VALUES = VALUES_INT;
-            enum { NUM_VALUES = sizeof(VALUES_INT) / sizeof(*VALUES_INT) };
+            const int NUM_VALUES = static_cast<int>(
+                                     sizeof(VALUES_INT) / sizeof(*VALUES_INT));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1904,7 +1986,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint32 Obj;
 
             const unsigned int *VALUES = VALUES_UINT;
-            enum { NUM_VALUES = sizeof(VALUES_UINT) / sizeof(*VALUES_UINT) };
+            const int NUM_VALUES = static_cast<int>(
+                                   sizeof(VALUES_UINT) / sizeof(*VALUES_UINT));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1929,7 +2012,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianInt64 Obj;
 
             const bsls::Types::Int64 *VALUES = VALUES_INT64;
-            enum { NUM_VALUES = sizeof(VALUES_INT64) / sizeof(*VALUES_INT64) };
+            const int NUM_VALUES = static_cast<int>(
+                                 sizeof(VALUES_INT64) / sizeof(*VALUES_INT64));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1954,8 +2038,8 @@ int main(int argc, char *argv[])
             typedef bdlb::BigEndianUint64 Obj;
 
             const bsls::Types::Uint64 *VALUES = VALUES_UINT64;
-            enum { NUM_VALUES = sizeof(VALUES_UINT64) /
-                                sizeof(*VALUES_UINT64) };
+            const int NUM_VALUES = static_cast<int>(
+                               sizeof(VALUES_UINT64) / sizeof(*VALUES_UINT64));
 
             const bslma::DefaultAllocatorGuard DAG(&testAllocator);
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1978,7 +2062,7 @@ int main(int argc, char *argv[])
 
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   Developers' Sandbox.
         //
         // Concerns:
