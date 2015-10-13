@@ -161,7 +161,9 @@ class UnknownFactoryException : public bsl::exception {
 
 void unknownFactoryHandler(const char *, const char *, int) {
     ++numUnknownFactoryHandlerInvocations;
+#ifdef BDE_BUILD_TARGET_EXC
     throw UnknownFactoryException("Oops!");
+#endif
 }
 
 void checkNoAliasedBlobBuffers(const btlb::Blob& blob)
