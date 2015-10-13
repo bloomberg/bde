@@ -21,9 +21,10 @@ BSLMF_ASSERT(4 == sizeof(int));
 BSLMF_ASSERT(2 == sizeof(short));
 
 namespace bdlb {
-                         // --------------------------
+
+                         // --------------------
                          // class BigEndianInt16
-                         // --------------------------
+                         // --------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianInt16::print(bsl::ostream& stream,
@@ -49,9 +50,9 @@ bsl::ostream& BigEndianInt16::print(bsl::ostream& stream,
     return stream;
 }
 
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint16
-                         // ---------------------------
+                         // ---------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianUint16::print(bsl::ostream& stream,
@@ -74,9 +75,9 @@ bsl::ostream& BigEndianUint16::print(bsl::ostream& stream,
     return stream;
 }
 
-                         // --------------------------
+                         // --------------------
                          // class BigEndianInt32
-                         // --------------------------
+                         // --------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianInt32::print(bsl::ostream& stream,
@@ -102,9 +103,9 @@ bsl::ostream& BigEndianInt32::print(bsl::ostream& stream,
     return stream;
 }
 
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint32
-                         // ---------------------------
+                         // ---------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianUint32::print(bsl::ostream& stream,
@@ -127,9 +128,9 @@ bsl::ostream& BigEndianUint32::print(bsl::ostream& stream,
     return stream;
 }
 
-                         // --------------------------
+                         // --------------------
                          // class BigEndianInt64
-                         // --------------------------
+                         // --------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianInt64::print(bsl::ostream& stream,
@@ -156,9 +157,9 @@ bsl::ostream& BigEndianInt64::print(bsl::ostream& stream,
     return stream;
 }
 
-                         // ---------------------------
+                         // ---------------------
                          // class BigEndianUint64
-                         // ---------------------------
+                         // ---------------------
 
 // ACCESSORS
 bsl::ostream& BigEndianUint64::print(bsl::ostream& stream,
