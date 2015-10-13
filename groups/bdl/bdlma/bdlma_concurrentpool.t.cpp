@@ -1749,7 +1749,7 @@ int main(int argc, char *argv[]) {
                           << "MEMORY EXHAUSTION TEST" << endl
                           << "======================" << endl;
 
-#if !defined(BDE_BUILD_TARGET_EXC)
+#ifndef BDE_BUILD_TARGET_EXC
 	    if (verbose) {
             cout << "Test not run without exception support.\n";
         }
