@@ -1617,7 +1617,6 @@ int main(int argc, char *argv[])
 #else
 # error unrecognized platform
 #endif
-
             const int minPri = Obj::getMinSchedulingPriority(policy);
             const int maxPri = Obj::getMaxSchedulingPriority(policy);
             ASSERT(willFail || minPri <= maxPri);
@@ -1647,11 +1646,11 @@ int main(int argc, char *argv[])
                 Obj::Handle handle;
                 int rc = Obj::create(&handle, attr, touch);
                 if (willFail) {
-                    LOOP2_ASSERT(policyToString(policy), priority,
+                    ASSERTV(policyToString(policy), priority,
                                               0 != rc && "unexpected success");
                 }
                 else {
-                    LOOP4_ASSERT(policyToString(policy), priority, errno,
+                    ASSERTV(policyToString(policy), priority, errno,
                                                                   rc, 0 == rc);
                 }
                 if (0 == rc) {
@@ -1847,12 +1846,12 @@ int main(int argc, char *argv[])
             int rc = bslmt::ThreadUtil::create(&handles[i],
                                                attributes,
                                                functions[i], 0);
-            ASSERT(0 == rc);
+            ASSERTV(rc, 0 == rc);
         }
 
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::join(handles[i]);
-            ASSERT(0 == rc);
+            ASSERTV(rc, 0 == rc);
         }
 #endif
       }  break;
