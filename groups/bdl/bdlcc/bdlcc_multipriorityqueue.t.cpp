@@ -551,6 +551,8 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 
 namespace MULTIPRIORITYQUEUE_TEST_CASE_11 {
 
+#ifdef BDE_BUILD_TARGET_EXC
+
 // The goal of this test is to make sure that pushes and pops are exception
 // safe.  Push copies the object into the queue, pops assign the object from
 // the queue.  So what we need is a type that we can program to throw
@@ -595,6 +597,8 @@ Thrower& Thrower::operator=(const Thrower& original) {
 
     return *this;
 }
+
+#endif
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_CASE_11
 
@@ -1218,6 +1222,11 @@ int main(int argc, char *argv[])
                     "===================================\n";
         }
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            cout << "Test not run without exception support.\n";
+        }
+#else
         enum {
             k_A_VAL = 38,
             k_B_VAL = 39,
@@ -1285,6 +1294,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == Element::s_allocCount);     // verify no leaks
+#endif
       }  break;
       case 10: {
         // --------------------------------------------------------------------

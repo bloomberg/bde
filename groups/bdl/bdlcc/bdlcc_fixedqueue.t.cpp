@@ -267,6 +267,8 @@ void pushpopThread(bdlcc::FixedQueue<int> *queue, bsls::AtomicInt *stop)
     }
 }
 
+#ifdef BDE_BUILD_TARGET_EXC
+
 class ExceptionTester
 {
 public:
@@ -309,6 +311,8 @@ void exceptionProducer(bdlcc::FixedQueue<ExceptionTester> *tester,
         semaphore->post();
     }
 }
+
+#endif
 
 class TestType
 {
