@@ -448,10 +448,8 @@ int main(int argc, char *argv[])
 
         for (bsl::size_t i = 0; i < NUM_VALUES; ++i) {
             Obj guid(VALUES[i]);
-            bslh::DefaultHashAlgorithm defaultHashAlgorithm;
-            defaultHashAlgorithm(guid.data(), 16);
-            ASSERT(bslHashFunction(guid) ==
-                                           defaultHashAlgorithm.computeHash());
+            bslh::Hash<> defaultHashAlgorithm;
+            ASSERT(bslHashFunction(guid) == defaultHashAlgorithm(guid));
             hashResults.insert(bslHashFunction(guid));
         }
         ASSERT(hashResults.size() == NUM_VALUES);
