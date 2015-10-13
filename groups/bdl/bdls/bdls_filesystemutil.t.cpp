@@ -559,16 +559,17 @@ int main(int argc, char *argv[])
                 fflush(stdout);
             }
 #endif
+
+            int removedDir = Obj::remove(dirName);
+            ASSERT(removedDir == 0);
+
             bsl::string dirName2;
-            int madeDir2 = Obj::createTemporaryFile(prefix, &dirName2);
+            int madeDir2 = Obj::createTemporaryDirectory(prefix, &dirName2);
             ASSERT(madeDir2 == 0);
             if (madeDir2 == 0) {
                 ASSERT(dirName2 != dirName);
                 Obj::remove(dirName2);
             }
-
-            int removedDir = Obj::remove(dirName);
-            ASSERT(removedDir == 0);
         }
       } break;
       case 21: {
