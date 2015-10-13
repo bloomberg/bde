@@ -26,10 +26,12 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 #include <bslh_hash.h>
+#include <bsls_timeutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
 #include <bsl_cstring.h>
+#include <bsl_string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -164,7 +166,7 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
 }
 
 static inline
-int makeDirectory(const char *path)
+int makeDirectory(const char *path, bool)
     // Create a directory.  Return 0 on success and a non-zero value otherwise.
 {
     BSLS_ASSERT_SAFE(path);
@@ -293,17 +295,22 @@ bool isDotOrDots(const char *path)
 }
 
 static inline
-int makeDirectory(const char *path)
+int makeDirectory(const char *path, bool isPrivate)
     // Create a directory
 {
     BSLS_ASSERT_SAFE(path);
 
     // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
 
-    enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
-                   S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
-                   S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
-    return mkdir(path, PERMS);
+    if (isPrivate) {
+        enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR };    // user   rwx
+        return mkdir(path, PERMS);
+    } else {
+        enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
+                       S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
+                       S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
+        return mkdir(path, PERMS);
+    }
 }
 
 static inline
@@ -1506,8 +1513,9 @@ namespace bdls {
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
 
-int FilesystemUtil::createDirectories(const char *path,
-                                      bool        isLeafDirectoryFlag)
+int FilesystemUtil::createDirectories(const char              *path,
+                                      DirectoryLeafPolicy      leafPolicy,
+                                      DirectoryPrivacyPolicy   privacyPolicy)
 {
     // Implementation note: some Unix platforms may have mkdirp, which does
     // what this function does.  But not all do, and hyper-fast performance is
@@ -1515,7 +1523,7 @@ int FilesystemUtil::createDirectories(const char *path,
     // ensure maximum portability.
     //
     // Not to mention that we have to do at least a little parsing anyway,
-    // since even mkdirp does not provide anything like 'isLeafDirectoryFlag'.
+    // since even mkdirp does not provide anything like 'leafPolicy'.
 
     // Let's first give at least a nod to efficiency and see if we don't need
     // to do anything at all.
@@ -1528,7 +1536,7 @@ int FilesystemUtil::createDirectories(const char *path,
 
     bsl::string workingPath(path);
     bsl::vector<bsl::string> directoryStack;
-    if (!isLeafDirectoryFlag && PathUtil::hasLeaf(workingPath)) {
+    if (leafPolicy == e_PATH_LEAF_IS_FILE && PathUtil::hasLeaf(workingPath)) {
         PathUtil::popLeaf(&workingPath);
     }
 
@@ -1544,7 +1552,8 @@ int FilesystemUtil::createDirectories(const char *path,
                             directoryStack.back().c_str(),
                             static_cast<int>(directoryStack.back().length()));
         if (!exists(workingPath.c_str())) {
-            if (0 != makeDirectory(workingPath.c_str())) {
+            bool isPrivate = privacyPolicy == e_DIRECTORY_PRIVATE;
+            if (0 != makeDirectory(workingPath.c_str(), isPrivate)) {
                 return -1;                                            // RETURN
             }
         }
@@ -1680,17 +1689,17 @@ int FilesystemUtil::rollFileChain(const char *path, int maxSuffix)
     return maxSuffix;
 }
 
-static FileDescriptor
-createTemporaryFile(const bslstl::StringRef& prefix,
-                    bsl::string             *outPath)
+FilesystemUtil::FileDescriptor
+FilesystemUtil::createTemporaryFile(const bslstl::StringRef& prefix,
+                                    bsl::string             *outPath)
 {
     BSLS_ASSERT(outPath);
     FileDescriptor result;
     bsl::string localOutPath = *outPath;
-    for (i = 0; i < 10; ++i) {
-        makeUnsafeTemporaryFilename(prefix, localOutPath);
-        result = bdls::FileSystemUtil::open(
-                     localOutPath, bdls::e_READ_WRITE, bdls::e_CREATE_PRIVATE);
+    for (int i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(prefix, &localOutPath);
+        result = bdls::FilesystemUtil::open(
+           (const char*) localOutPath.c_str(), e_CREATE_PRIVATE, e_READ_WRITE);
         if (result != k_INVALID_FD) {
             *outPath = localOutPath;
             break;
@@ -1699,16 +1708,17 @@ createTemporaryFile(const bslstl::StringRef& prefix,
     return result;
 }
 
-static int
-createTemporaryDirectory(const bslstl::StringRef& prefix,
-                         bsl::string             *outPath)
+int
+FilesystemUtil::createTemporaryDirectory(const bslstl::StringRef& prefix,
+                                         bsl::string             *outPath)
 {
     BSLS_ASSERT(outPath);
     int result;
     bsl::string localOutPath = *outPath;
-    for (i = 0; i < 10; ++i) {
-        makeUnsafeTemporaryFilename(prefix, localOutPath);
-        result = bdls::FileSystemUtil::createDirectories(localOutPath, true);
+    for (int i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(prefix, &localOutPath);
+        result = bdls::FilesystemUtil::createDirectories(
+                        localOutPath, e_PATH_LEAF_IS_DIR, e_DIRECTORY_PRIVATE);
         if (result == 0) {
             *outPath = localOutPath;
             break;
@@ -1717,22 +1727,22 @@ createTemporaryDirectory(const bslstl::StringRef& prefix,
     return result;
 }
 
-static void
-makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
-                            bsl::string             *outPath)
+void
+FilesystemUtil::makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
+                                            bsl::string             *outPath)
 {
     BSLS_ASSERT(outPath);
     char suffix[6];
     bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
     bslh::DefaultHashAlgorithm hashee;
     bslh::hashAppend(hashee, now);
-    bslh::hashAppend(hashee, prefix);
-    bslh::hashAppend(hashee, *outPath);
-    bslh::DefaultHashAlgorithm::result_type hash = hashee::computeHash();
-    for (int i = 0; i < sizeof(suffix); ++i) {
-        char r = char(hash % 52);
-        suffix[i] = r < 26 ? 'A' + r : 'a' + r - 26;
+    bslstl::hashAppend(hashee, prefix);
+    bslstl::hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
+    for (int i = 0; i < int(sizeof(suffix)); ++i) {
+        const char r = char(hash % 52);
         hash /= 52;
+        suffix[i] = ((r < 26) ? char('A' + r) : char('a' + r - 26));
     }
     *outPath = prefix;
     outPath->append(suffix, sizeof(suffix));

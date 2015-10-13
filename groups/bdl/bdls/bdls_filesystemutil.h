@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'e_CREATE_PRIVATE':
 //:   Create a new file, with limited permissions where that is supported (not
-//:   MS, Cygwin, or Darwin).
+//:   MS).
 //:
 //: 'e_OPEN_OR_CREATE':
 //:   Open a file if it exists, and create a new file otherwise.
@@ -196,9 +196,11 @@ BSLS_IDENT("$Id: $")
 //  bsl::string oldPath(logPath), newPath(logPath);
 //  bdls::PathUtil::appendRaw(&oldPath, "old");
 //  bdls::PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+//  int rc = bdls::FilesystemUtil::createDirectories(
+//                          oldPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
 //  assert(0 == rc);
-//  rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
+//  rc = bdls::FilesystemUtil::createDirectories(
+//                          newPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -233,7 +235,7 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdls::FilesystemUtil::visitPaths' enables clients to define a function
-// objectto operate on file paths that match a specified pattern.  In this
+// object to operate on file paths that match a specified pattern.  In this
 // example, we create a function that can be used to filter out files that have
 // a last modified time within a particular time frame.
 //
@@ -444,6 +446,24 @@ struct FilesystemUtil {
         e_KEEP       // Keep the file's contents.
     };
 
+    enum DirectoryLeafPolicy {
+        // Enumeration that controls whether the 'path' argument to
+        // 'createDirectories' identifies an actual directory to be create, or
+        // a potential file in the directory.
+
+        e_PATH_LEAF_IS_FILE,  // Final path component names a file that may
+                              //  be placed in the created directory.
+        e_PATH_LEAF_IS_DIR    // Final component is the actual directory name.
+    };
+
+    enum DirectoryPrivacyPolicy {
+        // Enumeration that controls whether directories are created with
+        // normal platform permissions. These have no effect on MS Windows.
+
+        e_DIRECTORY_PUBLIC,  // Create with regular platform permissions
+        e_DIRECTORY_PRIVATE  // Create with restricted permissions
+    };
+
     // CLASS DATA
     static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value
                                                // representing no file, used
@@ -473,31 +493,31 @@ struct FilesystemUtil {
         // new file will be created, and 'open' will fail otherwise.  If
         // 'openPolicy' is 'e_CREATE_PRIVATE', the file will be created with
         // access restricted to the same userid as the caller in environments
-        // where that is supported (which does not necessarily include MS
-        // Windows, Cygwin, and Darwin); otherwise the system default access
-        // policy is used (e.g. '0777 & ~umask').  If 'openPolicy' is
-        // 'e_OPEN_OR_CREATE', the file will be opened if it exists, and a new
-        // file will be created otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the
-        // returned 'FileDescriptor' will allow only read operations on the
-        // file.  If 'ioPolicy' is 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the
-        // returned 'FileDescriptor' will allow only write operations on the
-        // file.  If 'ioPolicy' is 'e_READ_WRITE' or 'e_READ_APPEND', the
-        // returned 'FileDescriptor' will allow both read and write operations
-        // on the file.  Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or
-        // 'e_READ_APPEND' all writes will be made to the end of the file
-        // ("append mode").  If 'truncatePolicy' is 'e_TRUNCATE', the file will
-        // have zero length when 'open' returns.  If 'truncatePolicy' is
-        // 'e_KEEP', the file will be opened with its existing contents, if
-        // any.  Note that when a file is opened in 'append' mode, all writes
-        // will go to the end of the file, even if there has been seeking on
-        // the file descriptor or another process has changed the length of the
-        // file.  Append-mode writes are not atomic except in limited cases;
-        // another thread, or even another process, operating on the file may
-        // cause output not to be written, unbroken, to the end of the file.
-        // (Unix environments writing to local file systems may promise more.)
-        // Note that 'open' will fail to open a file with a 'truncatePolicy' of
-        // 'e_TRUNCATE' unless at least one of the following policies is
-        // specified for 'openPolicy' or 'ioPolicy':
+        // where that is supported (which does not necessarily include MS;
+        // otherwise the system default access policy is used (e.g. '0777 &
+        // ~umask').  If 'openPolicy' is 'e_OPEN_OR_CREATE', the file will be
+        // opened if it exists, and a new file will be created otherwise.  If
+        // 'ioPolicy' is 'e_READ_ONLY', the returned 'FileDescriptor' will
+        // allow only read operations on the file.  If 'ioPolicy' is
+        // 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the returned 'FileDescriptor'
+        // will allow only write operations on the file.  If 'ioPolicy' is
+        // 'e_READ_WRITE' or 'e_READ_APPEND', the returned 'FileDescriptor'
+        // will allow both read and write operations on the file.
+        // Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or 'e_READ_APPEND'
+        // all writes will be made to the end of the file ("append mode").  If
+        // 'truncatePolicy' is 'e_TRUNCATE', the file will have zero length
+        // when 'open' returns.  If 'truncatePolicy' is 'e_KEEP', the file will
+        // be opened with its existing contents, if any.  Note that when a file
+        // is opened in 'append' mode, all writes will go to the end of the
+        // file, even if there has been seeking on the file descriptor or
+        // another process has changed the length of the file.  Append-mode
+        // writes are not atomic except in limited cases; another thread, or
+        // even another process, operating on the file may cause output not to
+        // be written, unbroken, to the end of the file. (Unix environments
+        // writing to local file systems may promise more.) Note that 'open'
+        // will fail to open a file with a 'truncatePolicy' of 'e_TRUNCATE'
+        // unless at least one of the following policies is specified for
+        // 'openPolicy' or 'ioPolicy':
         //: o 'e_CREATE'
         //: o 'e_CREATE_PRIVATE'
         //: o 'e_OPEN_OR_CREATE'
@@ -562,19 +582,30 @@ struct FilesystemUtil {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(
-                              const bsl::string&  path,
-                              bool                isLeafDirectoryFlag = false);
+                  const char              *path,
+                  DirectoryLeafPolicy      leafPolicy = e_PATH_LEAF_IS_FILE,
+                  DirectoryPrivacyPolicy   privacyPolicy = e_DIRECTORY_PUBLIC);
     static int createDirectories(
-                              const char         *path,
-                              bool                isLeafDirectoryFlag = false);
-        // Create any directories in the specified 'path' that do not exist.
-        // If the optionally specified 'isLeafDirectoryFlag' is 'true', then
-        // treat the last filename in 'path' as a directory and attempt to
-        // create it.  Otherwise, treat the last filename as a regular file and
-        // ignore it.  Return 0 on success, and a non-zero value if any needed
-        // directories in 'path' could not be created.  Note that this
-        // function may return an error status if another task attempts to
+                  const bsl::string&       path,
+                  DirectoryLeafPolicy      leafPolicy = e_PATH_LEAF_IS_FILE,
+                  DirectoryPrivacyPolicy   privacyPolicy = e_DIRECTORY_PUBLIC);
+        // Create any directories in the specified 'path' that do not exist. If
+        // the optionally specified 'leafPolicy' is 'e_PATH_LEAF_IS_DIR' then
+        // treat the final name component in 'path' as a directory name and
+        // attempt create it.  Otherwise, ignore the last name component and
+        // create only directories leading up to the final name component.
+        // If the optionally specified 'privacyPolicy' is 'e_DIRECTORY_PRIVATE'
+        // then create directories with permissions restricting access to only
+        // the caller's userid; otherwise, create directories with the default
+        // platform permissions.  Return 0 on success, and a non-zero value if
+        // any needed directories in 'path' could not be created.  Note that
+        // this function may return an error status if another task attempts to
         // create a directory in 'path' concurrently to this function call.
+        // Note also that the 'privacyPolicy' argument is ignored on MS.  Note
+        // also that if the director(ies) already exist, and have different
+        // permissions than requested, this function does not change the
+        // permissions.
+    
 
     static FileDescriptor createTemporaryFile(
                                              const bslstl::StringRef& prefix,
@@ -614,7 +645,7 @@ struct FilesystemUtil {
         // before the caller has opportunity to use the name, which creates a
         // security vulnerability; this method is intended for use only in
         // testing.  Note that if called with a non-empty '*outPath', the value
-        // will affect the result, so that if the resulting name is unsuitable
+        // will affect the result, so that if a resulting name is unsuitable
         // (e.g. the file exists) this function may simply be called again,
         // pointing to its previous result, to get a new name.
 
@@ -821,6 +852,15 @@ struct FilesystemUtil {
         // the file is greater than or equal to 'size', this function has no
         // effect.  Also note that the contents of the newly grown portion of
         // the file is undefined.
+
+    static int createDirectories(const bsl::string&  path,
+                                 bool                isLeafDirectoryFlag);
+    static int createDirectories(const char         *path,
+                                 bool                isLeafDirectoryFlag);
+        // Returns 'createDirectories(path, DirectoryLeafPolicy(
+        // isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);'
+        //
+        // !DEPRECATED!: Use other overloads of createDirectories instead.
 };
 
 // ============================================================================
@@ -831,14 +871,15 @@ struct FilesystemUtil {
                            // struct FilesystemUtil
                            // ---------------------
 
-// CLASS METHODS
 inline
-int FilesystemUtil::createDirectories(const bsl::string& path,
-                                      bool               isLeafDirectoryFlag)
+int FilesystemUtil::createDirectories(const bsl::string&      path,
+                                      DirectoryLeafPolicy     leafPolicy,
+                                      DirectoryPrivacyPolicy  privacyPolicy)
 {
-    return createDirectories(path.c_str(), isLeafDirectoryFlag);
+    return createDirectories(path.c_str(), leafPolicy, privacyPolicy);
 }
 
+// CLASS METHODS
 inline
 void FilesystemUtil::visitPaths(
                           const bsl::string&                           pattern,
@@ -923,6 +964,22 @@ FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
 {
     return getAvailableSpace(path.c_str());
 }
+
+inline
+int FilesystemUtil::createDirectories(const char *path,           // DEPRECATED
+                                      bool        isLeafDirectoryFlag)
+{
+    return createDirectories(
+           path, DirectoryLeafPolicy(isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);
+};
+
+inline
+int FilesystemUtil::createDirectories(const bsl::string& path,    // DEPRECATED
+                                      bool               isLeafDirectoryFlag)
+{
+    return createDirectories(
+           path, DirectoryLeafPolicy(isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);
+};
 
 }  // close package namespace
 }  // close enterprise namespace
