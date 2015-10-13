@@ -334,6 +334,26 @@ void incCallback(BloombergLP::ball::UserFields *list) {
     return;
 }
 
+class CerrBufferGuard {
+    // Capture the 'streambuf' used by 'cerr' at this objects creation, and
+    // restor that to be the 'cerr' read buffer on this objects destruction.
+ 
+    bsl::streambuf *d_cerrBuf;
+
+    // NOT IMPLEMENTED
+    CerrBufferGuard(const CerrBufferGuard&);
+    CerrBufferGuard& operator=(const CerrBufferGuard&);
+  public:
+    CerrBufferGuard() : d_cerrBuf(bsl::cerr.rdbuf()) {}
+        // Capture the current 'streambuf' being used by 'cerr', and upon this
+        // objects destruction, set it to be the 'streambuf' used by 'cerr'.
+
+    ~CerrBufferGuard() { bsl::cerr.rdbuf(d_cerrBuf); }
+        // Restore the 'streambuf' being used by 'cerr' to that which was
+        // being used on this objects construction.
+     
+};
+
 //=============================================================================
 //                             USAGE EXAMPLE 6
 //-----------------------------------------------------------------------------
@@ -1616,6 +1636,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOG_TEST_CASE_24;
 
+        CerrBufferGuard cerrBufferGuard; 
+
         numIterations = 10;
         arg1          = -99.244;
         arg2          = "Hello World";
@@ -1625,7 +1647,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "NoLoggerManager";
@@ -1659,7 +1680,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "AfterLoggerManager";
@@ -1687,6 +1707,8 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOG_TEST_CASE_23;
 
+        CerrBufferGuard cerrBufferGuard;
+
         numIterations = 10;
         arg1          = -99.234;
         arg2          = "Hello World";
@@ -1696,7 +1718,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "NoLoggerManager";
@@ -1730,7 +1751,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "AfterLoggerManager";
@@ -1760,12 +1780,12 @@ int main(int argc, char *argv[])
         using namespace BALL_LOG_TEST_CASE_22;
 
         numIterations = 10;
+        CerrBufferGuard cerrBufferGuard;
         if (verbose)
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "NoLoggerManager";
@@ -1799,7 +1819,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "AfterLoggerManager";
@@ -1828,12 +1847,12 @@ int main(int argc, char *argv[])
         using namespace BALL_LOG_TEST_CASE_21;
 
         numIterations = 10;
+        CerrBufferGuard cerrBufferGuard;
         if (verbose)
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "NoLoggerManager";
@@ -1867,7 +1886,6 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             bsl::stringstream os;
-            bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
             bsl::cerr.rdbuf(os.rdbuf());
 
             categoryName  = "AfterLoggerManager";

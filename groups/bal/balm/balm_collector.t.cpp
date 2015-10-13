@@ -514,9 +514,9 @@ int main(int argc, char *argv[])
                 MX.load(&r);
                 ASSERT(0     == r.metricId());
                 ASSERT(count == r.count());
-                ASSERT(total == r.total());
-                ASSERT(min   == r.min());
-                ASSERT(max   == r.max());
+                ASSERTV(total, r.total(), total == r.total());
+                ASSERTV(min, r.min(),     min   == r.min());
+                ASSERTV(max, r.max(),     max   == r.max());
             }
         }
       } break;
@@ -627,8 +627,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting basic mainpulator and accessors."
                           << endl;
 
-        double UPDATES[] = { 0.0, 12.0, -1321123, 2131241, 1321.5,
-                            43145.1, .0001, -1.00001, -.002342};
+        double UPDATES[] = { 
+            0.0, 
+            12.0,
+            -1321123, 
+            2131241, 
+            1321.5,
+            43145.1, 
+            .0001, 
+            -1.00001, 
+            -.002342
+        };
         const int NUM_UPDATES = sizeof(UPDATES)/sizeof(*UPDATES);
 
         for (int i = 0; i < NUM_UPDATES; ++i) {
@@ -656,11 +665,11 @@ int main(int argc, char *argv[])
                 max   = bsl::max(max, UPDATES[INDEX]);
 
                 MX.load(&r1);
-                ASSERT(METRIC == r1.metricId().description());
-                ASSERT(j + 1  == r1.count());
-                ASSERT(total  == r1.total());
-                ASSERT(min    == r1.min());
-                LOOP2_ASSERT(max, r1.max(), max    == r1.max());
+                ASSERTV(METRIC == r1.metricId().description());
+                ASSERTV(i, j, r1.count(),        j + 1  == r1.count());
+                ASSERTV(i, j, total, r1.total(), total  == r1.total());
+                ASSERTV(i, j, min, r1.min(),     min     == r1.min());
+                ASSERTV(max, r1.max(),           max    == r1.max());
 
                 MX.load(&r2);
                 ASSERT(r1 == r2);
