@@ -292,7 +292,7 @@ namespace {
         bsl::transform(tmp.begin(),
                        tmp.end(),
                        tmp.begin(),
-                       static_cast<int(*)(int)>(bsl::toupper));
+                       bsl::toupper);
         stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
         return stream;
     }
