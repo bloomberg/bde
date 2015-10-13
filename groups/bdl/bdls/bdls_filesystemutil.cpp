@@ -25,7 +25,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
-
+#include <bslh_hash.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
@@ -388,8 +388,8 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
             creationInfo = OPEN_EXISTING;
         }
       } break;
-      case e_CREATE: {
-        // Fails if file exists.
+      case e_CREATE:
+      case e_CREATE_PRIVATE: {  // Fails if file exists.
 
         creationInfo = CREATE_NEW;
       } break;
@@ -1056,6 +1056,11 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
         extendedFlags =
                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
       } break;
+      case e_CREATE_PRIVATE: {
+        oflag |= O_CREAT | O_EXCL;
+        useExtendedOpen = true;
+        extendedFlags = S_IRUSR | S_IWUSR;
+      } break;
       case e_OPEN_OR_CREATE: {
         oflag |= O_CREAT;
         if (isTruncateMode) {
@@ -1674,6 +1679,65 @@ int FilesystemUtil::rollFileChain(const char *path, int maxSuffix)
     allocator_p->deallocate(buffer);
     return maxSuffix;
 }
+
+static FileDescriptor
+createTemporaryFile(const bslstl::StringRef& prefix,
+                    bsl::string             *outPath)
+{
+    BSLS_ASSERT(outPath);
+    FileDescriptor result;
+    bsl::string localOutPath = *outPath;
+    for (i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(prefix, localOutPath);
+        result = bdls::FileSystemUtil::open(
+                     localOutPath, bdls::e_READ_WRITE, bdls::e_CREATE_PRIVATE);
+        if (result != k_INVALID_FD) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+static int
+createTemporaryDirectory(const bslstl::StringRef& prefix,
+                         bsl::string             *outPath)
+{
+    BSLS_ASSERT(outPath);
+    int result;
+    bsl::string localOutPath = *outPath;
+    for (i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(prefix, localOutPath);
+        result = bdls::FileSystemUtil::createDirectories(localOutPath, true);
+        if (result == 0) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+static void
+makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
+                            bsl::string             *outPath)
+{
+    BSLS_ASSERT(outPath);
+    char suffix[6];
+    bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
+    bslh::DefaultHashAlgorithm hashee;
+    bslh::hashAppend(hashee, now);
+    bslh::hashAppend(hashee, prefix);
+    bslh::hashAppend(hashee, *outPath);
+    bslh::DefaultHashAlgorithm::result_type hash = hashee::computeHash();
+    for (int i = 0; i < sizeof(suffix); ++i) {
+        char r = char(hash % 52);
+        suffix[i] = r < 26 ? 'A' + r : 'a' + r - 26;
+        hash /= 52;
+    }
+    *outPath = prefix;
+    outPath->append(suffix, sizeof(suffix));
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

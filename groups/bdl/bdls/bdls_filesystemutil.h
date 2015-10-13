@@ -58,6 +58,10 @@ BSLS_IDENT("$Id: $")
 //: 'e_CREATE':
 //:   Create a new file.
 //:
+//: 'e_CREATE_PRIVATE':
+//:   Create a new file, with limited permissions where that is supported (not
+//:   MS, Cygwin, or Darwin).
+//:
 //: 'e_OPEN_OR_CREATE':
 //:   Open a file if it exists, and create a new file otherwise.
 //
@@ -412,6 +416,10 @@ struct FilesystemUtil {
         e_CREATE,         // Create a new file, and fail if the file already
                           // exists.
 
+        e_CREATE_PRIVATE, // Create a new file with access restricted to the
+                          // creating userid, where supported, and fail if the
+                          // file already exists.
+
         e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
                           // otherwise.
     };
@@ -461,8 +469,13 @@ struct FilesystemUtil {
         // 'FileDescriptor' for the file on success, or 'k_INVALID_FD'
         // otherwise.  If 'openPolicy' is 'e_OPEN', the file will be opened if
         // it exists, and 'open' will fail otherwise.  If 'openPolicy' is
-        // 'e_CREATE', and no file exists at 'path', a new file will be
-        // created, and 'open' will fail otherwise.  If 'openPolicy' is
+        // 'e_CREATE' or 'e_CREATE_PRIVATE', and no file exists at 'path', a
+        // new file will be created, and 'open' will fail otherwise.  If
+        // 'openPolicy' is 'e_CREATE_PRIVATE', the file will be created with
+        // access restricted to the same userid as the caller in environments
+        // where that is supported (which does not necessarily include MS
+        // Windows, Cygwin, and Darwin); otherwise the system default access
+        // policy is used (e.g. '0777 & ~umask').  If 'openPolicy' is
         // 'e_OPEN_OR_CREATE', the file will be opened if it exists, and a new
         // file will be created otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the
         // returned 'FileDescriptor' will allow only read operations on the
@@ -478,11 +491,15 @@ struct FilesystemUtil {
         // any.  Note that when a file is opened in 'append' mode, all writes
         // will go to the end of the file, even if there has been seeking on
         // the file descriptor or another process has changed the length of the
-        // file, though append-mode writes are not guaranteed to be atomic.
+        // file.  Append-mode writes are not atomic except in limited cases;
+        // another thread, or even another process, operating on the file may
+        // cause output not to be written, unbroken, to the end of the file.
+        // (Unix environments writing to local file systems may promise more.)
         // Note that 'open' will fail to open a file with a 'truncatePolicy' of
         // 'e_TRUNCATE' unless at least one of the following policies is
         // specified for 'openPolicy' or 'ioPolicy':
         //: o 'e_CREATE'
+        //: o 'e_CREATE_PRIVATE'
         //: o 'e_OPEN_OR_CREATE'
         //: o 'e_WRITE_ONLY
         //: o 'e_READ_WRITE'
@@ -559,8 +576,9 @@ struct FilesystemUtil {
         // function may return an error status if another task attempts to
         // create a directory in 'path' concurrently to this function call.
 
-    static FileDescriptor createTemporaryFile(const bslstl::StringRef& prefix,
-                                              bsl::string             *outPath)
+    static FileDescriptor createTemporaryFile(
+                                             const bslstl::StringRef& prefix,
+                                             bsl::string             *outPath);
         // Create and open a new file with a name constructed by appending an
         // automatically-generated suffix to the specified 'prefix', and return
         // its file descriptor open for reading and writing.  A return value of
@@ -575,7 +593,7 @@ struct FilesystemUtil {
         // closed.
 
     static int createTemporaryDirectory(const bslstl::StringRef& prefix,
-                                        bsl::string             *outPath)
+                                        bsl::string             *outPath);
         // Create a new directory with a name constructed by appending an
         // automatically-generated suffix to the specified 'prefix'. A non-zero
         // return value indicates that no such directory could be created;
@@ -588,14 +606,17 @@ struct FilesystemUtil {
         // caller.
 
     static void makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
-                                            bsl::string             *outPath)
+                                            bsl::string             *outPath);
         // Construct a file name by appending an automatically-generated suffix
         // to the specified 'prefix'.  The file name constructed is assigned to
         // the specified 'outPath'.  Note that this function is called "unsafe"
         // because a file with the constructed name may be externally created
         // before the caller has opportunity to use the name, which creates a
         // security vulnerability; this method is intended for use only in
-        // testing.
+        // testing.  Note that if called with a non-empty '*outPath', the value
+        // will affect the result, so that if the resulting name is unsuitable
+        // (e.g. the file exists) this function may simply be called again,
+        // pointing to its previous result, to get a new name.
 
     static void visitPaths(
                          const bsl::string&                           pattern,

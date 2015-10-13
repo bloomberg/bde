@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
         ASSERT(madeDir == 0);
         if (madeDir == 0) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            verbose && (cout << "DIR PERMISSIONS TEST SKIPPED ON WINDOS\n");
+            verbose && (cout << "DIR PERMISSIONS CHECK SKIPPED ON WINDOS\n");
 #else
             struct stat info = {0,};
             ASSERT(0 == ::stat(dirName.c_str(), &info));
@@ -593,7 +593,7 @@ int main(int argc, char *argv[])
             bsls::close(fd);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            verbose && (cout << "FILE PERMISSIONS TEST SKIPPED ON WINDOS\n");
+            verbose && (cout << "FILE PERMISSIONS CHECK SKIPPED ON WINDOS\n");
 #else
             struct stat info = {0,};
             ASSERT(0 == ::stat(fileName.c_str(), &info));
