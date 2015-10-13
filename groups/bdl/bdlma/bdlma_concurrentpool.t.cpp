@@ -1750,7 +1750,9 @@ int main(int argc, char *argv[]) {
                           << "======================" << endl;
 
 #if !defined(BDE_BUILD_TARGET_EXC)
-	cout << "Test not run without exception support.\n";
+	    if (verbose) {
+            cout << "Test not run without exception support.\n";
+        }
 #else
         Obj mX(sizeof(int));
 
