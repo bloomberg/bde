@@ -15,7 +15,7 @@ What's New
 
 BDE 3.0 is now available.  This  major release introduces important subsystems including calendar types, time-zone utilities, logging facilities, event schedulers, thread-pools, and more. 
 
-See: [BDE 3.0 Open-Source Release](https://github.com/bloomberg/bde/wiki/BDE-3.0---Open-Source-Release)
+See: [BDE 3.0 Open-Source Release](https://github.com/bloomberg/bde/wiki/BDE-3.0-Release)
 
 Basic Build Instructions
 ========================
