@@ -83,10 +83,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
-// [15] CONCERN: Open in append-mode behavior (particularly on windows)
-// [16] CONCERN: Unix File Permissions for 'open'
-// [17] CONCERN: Unix File Permissions for 'createDirectories'
-// [18] CONCERN: UTF-8 Filename handling
+// [14] CONCERN: Open in append-mode behavior (particularly on windows)
+// [15] CONCERN: Unix File Permissions for 'open'
+// [16] CONCERN: Unix File Permissions for 'createDirectories' et al
+// [17] CONCERN: UTF-8 Filename handling
 // [20] CONCERN: entropy in temp file name generation
 // [21] CONCERN: file permissions
 // [22] CONCERN: directory permissions
@@ -774,11 +774,9 @@ int main(int argc, char *argv[])
     bsl::string oldPath(logPath), newPath(logPath);
     bdls::PathUtil::appendRaw(&oldPath, "old");
     bdls::PathUtil::appendRaw(&newPath, "new");
-    int rc = bdls::FilesystemUtil::createDirectories(
-                            oldPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
+    int rc = bdls::FilesystemUtil::createDirectories(oldPath, true);
     ASSERT(0 == rc);
-    rc = bdls::FilesystemUtil::createDirectories(
-                            newPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
+    rc = bdls::FilesystemUtil::createDirectories(newPath, true);
     ASSERT(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -1170,7 +1168,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING: Unix File Permissions for 'createDirectories'
+        // TESTING: Unix File Permissions for 'createDirectories' et al
         //
         // Concerns:
         //: 1 The permissions of a file created with 'createDirectories' on
@@ -1185,8 +1183,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                     "TESTING: Unix File Permissions for 'createDirectories\n"
-                     "=====================================================\n";
+            "TESTING: Unix File Permissions for 'createDirectories et al\n"
+            "===========================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
@@ -1253,7 +1251,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
 
-        if (verbose) cout << "Testing private 'createDirectories'\n";
+        if (verbose) cout << "Testing 'createPrivateDirectories'\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
                                          "tmp.bdls_filesystemutil_16.mkdir1");
@@ -1264,8 +1262,7 @@ int main(int argc, char *argv[])
 
             (void) Obj::remove(testBaseDir, true);
 
-            int rc = Obj::createDirectories(
-                  fullPath, Obj::e_PATH_LEAF_IS_DIR, Obj::e_DIRECTORY_PRIVATE);
+            int rc = Obj::createPrivateDirectories(fullPath);
             ASSERT(0 == rc);
 
             ASSERT(Obj::exists(testBaseDir));
@@ -2140,10 +2137,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        // Unix "glob()", which is called by Obj::visitPaths,
-        // is failing on ibm 64 bit, unfortunately the test driver has not
-        // detected or reproduced this error.  This test case is an attempt to
-        // get this test driver reproducing the problem.
+        // Unix "glob()", which is called by Obj::visitPaths, is failing on IBM
+        // 64 bit, unfortunately the test driver has not detected or reproduced
+        // this error.  This test case is an attempt to get this test driver
+        // reproducing the problem.
         //
         // Plan:
         //   Run the usage example 1
@@ -4831,8 +4828,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                ObjMapping fm =
-                                    Obj::map(fd, i * pageSize, pageSize, true);
+                ObjMapping fm = Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);
             }

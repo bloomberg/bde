@@ -300,17 +300,15 @@ int makeDirectory(const char *path, bool isPrivate)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
+    // Permissions of created dir will be ANDed with process '~umask()'.
+    static const int PERMS[2] = {
+        (S_IRUSR | S_IWUSR | S_IXUSR |  // user   rwx
+         S_IRGRP | S_IWGRP | S_IXGRP |  // group  rwx
+         S_IROTH | S_IWOTH | S_IXOTH),  // others rwx
 
-    if (isPrivate) {
-        enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR };    // user   rwx
-        return mkdir(path, PERMS);
-    } else {
-        enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
-                       S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
-                       S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
-        return mkdir(path, PERMS);
-    }
+        (S_IRUSR | S_IWUSR | S_IXUSR)  // only user rwx
+    };
+    return mkdir(path, PERMS[isPrivate]);
 }
 
 static inline
@@ -1513,31 +1511,30 @@ namespace bdls {
 // NON-PLATFORM-SPECIFIC FUNCTIONS //
 /////////////////////////////////////
 
-int FilesystemUtil::createDirectories(const char              *path,
-                                      DirectoryLeafPolicy      leafPolicy,
-                                      DirectoryPrivacyPolicy   privacyPolicy)
+int FilesystemUtil::createDirectories(const char *path,
+                                      bool        isLeafDirectoryFlag)
 {
+    BSLS_ASSERT(path);
+
     // Implementation note: some Unix platforms may have mkdirp, which does
-    // what this function does.  But not all do, and hyper-fast performance is
-    // not a concern for a method like this, so let's just roll our own to
-    // ensure maximum portability.
-    //
-    // Not to mention that we have to do at least a little parsing anyway,
-    // since even mkdirp does not provide anything like 'leafPolicy'.
+    // some of what this function does, but not all do.  We have to parse
+    // 'path' anyway, since mkdirp does nothing like 'isLeafDirectoryFlag'.
 
     // Let's first give at least a nod to efficiency and see if we don't need
     // to do anything at all.
 
-    BSLS_ASSERT(path);
-
-    if (exists(path)) {
+    if (!isLeafDirectoryFlag && exists(path)) {
         return 0;                                                     // RETURN
     }
 
     bsl::string workingPath(path);
     bsl::vector<bsl::string> directoryStack;
-    if (leafPolicy == e_PATH_LEAF_IS_FILE && PathUtil::hasLeaf(workingPath)) {
+    if (!isLeafDirectoryFlag && PathUtil::hasLeaf(workingPath)) {
         PathUtil::popLeaf(&workingPath);
+    }
+
+    if (isDirectory(workingPath)) {
+        return 0;                                                     // RETURN
     }
 
     while (PathUtil::hasLeaf(workingPath)) {
@@ -1552,8 +1549,36 @@ int FilesystemUtil::createDirectories(const char              *path,
                             directoryStack.back().c_str(),
                             static_cast<int>(directoryStack.back().length()));
         if (!exists(workingPath.c_str())) {
-            bool isPrivate = privacyPolicy == e_DIRECTORY_PRIVATE;
-            if (0 != makeDirectory(workingPath.c_str(), isPrivate)) {
+            if (0 != makeDirectory(workingPath.c_str(), false)) {
+                return -1;                                            // RETURN
+            }
+        }
+        directoryStack.pop_back();
+    }
+    return 0;
+}
+
+int FilesystemUtil::createPrivateDirectories(const bslstl::StringRef& path)
+{
+    bsl::string workingPath = path;
+    if (isDirectory(workingPath)) {
+        return 0;                                                     // RETURN
+    }
+
+    bsl::vector<bsl::string> directoryStack;
+    while (PathUtil::hasLeaf(workingPath)) {
+        directoryStack.push_back(bsl::string());
+        int rc = PathUtil::getLeaf(&directoryStack.back(), workingPath);
+        BSLS_ASSERT(0 == rc);
+        PathUtil::popLeaf(&workingPath);
+    }
+
+    while (!directoryStack.empty()) {
+        PathUtil::appendRaw(&workingPath,
+                            directoryStack.back().c_str(),
+                            static_cast<int>(directoryStack.back().length()));
+        if (!exists(workingPath.c_str())) {
+            if (0 != makeDirectory(workingPath.c_str(), true)) {
                 return -1;                                            // RETURN
             }
         }
@@ -1717,8 +1742,7 @@ FilesystemUtil::createTemporaryDirectory(const bslstl::StringRef& prefix,
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
         makeUnsafeTemporaryFilename(prefix, &localOutPath);
-        result = bdls::FilesystemUtil::createDirectories(
-                        localOutPath, e_PATH_LEAF_IS_DIR, e_DIRECTORY_PRIVATE);
+        result = bdls::FilesystemUtil::createPrivateDirectories(localOutPath);
         if (result == 0) {
             *outPath = localOutPath;
             break;

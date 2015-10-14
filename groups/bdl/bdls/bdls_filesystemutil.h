@@ -196,11 +196,9 @@ BSLS_IDENT("$Id: $")
 //  bsl::string oldPath(logPath), newPath(logPath);
 //  bdls::PathUtil::appendRaw(&oldPath, "old");
 //  bdls::PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdls::FilesystemUtil::createDirectories(
-//                          oldPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
+//  int rc = bdls::FilesystemUtil::createDirectories(oldPath, true);
 //  assert(0 == rc);
-//  rc = bdls::FilesystemUtil::createDirectories(
-//                          newPath, bdls::FilesystemUtil::e_PATH_LEAF_IS_DIR);
+//  rc = bdls::FilesystemUtil::createDirectories(newPath, true);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -446,24 +444,6 @@ struct FilesystemUtil {
         e_KEEP       // Keep the file's contents.
     };
 
-    enum DirectoryLeafPolicy {
-        // Enumeration that controls whether the 'path' argument to
-        // 'createDirectories' identifies an actual directory to be create, or
-        // a potential file in the directory.
-
-        e_PATH_LEAF_IS_FILE,  // Final path component names a file that may
-                              //  be placed in the created directory.
-        e_PATH_LEAF_IS_DIR    // Final component is the actual directory name.
-    };
-
-    enum DirectoryPrivacyPolicy {
-        // Enumeration that controls whether directories are created with
-        // normal platform permissions. These have no effect on MS Windows.
-
-        e_DIRECTORY_PUBLIC,  // Create with regular platform permissions
-        e_DIRECTORY_PRIVATE  // Create with restricted permissions
-    };
-
     // CLASS DATA
     static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value
                                                // representing no file, used
@@ -582,30 +562,30 @@ struct FilesystemUtil {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(
-                  const char              *path,
-                  DirectoryLeafPolicy      leafPolicy = e_PATH_LEAF_IS_FILE,
-                  DirectoryPrivacyPolicy   privacyPolicy = e_DIRECTORY_PUBLIC);
+                               const bsl::string& path,
+                               bool               isLeafDirectoryFlag = false);
     static int createDirectories(
-                  const bsl::string&       path,
-                  DirectoryLeafPolicy      leafPolicy = e_PATH_LEAF_IS_FILE,
-                  DirectoryPrivacyPolicy   privacyPolicy = e_DIRECTORY_PUBLIC);
+                               const char        *path,
+                               bool               isLeafDirectoryFlag = false);
         // Create any directories in the specified 'path' that do not exist. If
-        // the optionally specified 'leafPolicy' is 'e_PATH_LEAF_IS_DIR' then
-        // treat the final name component in 'path' as a directory name and
-        // attempt create it.  Otherwise, ignore the last name component and
-        // create only directories leading up to the final name component.
-        // If the optionally specified 'privacyPolicy' is 'e_DIRECTORY_PRIVATE'
-        // then create directories with permissions restricting access to only
-        // the caller's userid; otherwise, create directories with the default
-        // platform permissions.  Return 0 on success, and a non-zero value if
+        // the optionally specified 'isLeafDirectoryFlag' is 'true', treat the
+        // final name component in 'path' as a directory name, and create it.
+        // Otherwise, ignore the last name component, and create only the
+        // directories leading up to the final name component. Return 0 on
+        // success, and a non-zero value if any needed directories in 'path'
+        // could not be created.  Note that this function may return an error
+        // status if another task attempts to create a directory in 'path'
+        // concurrently to this function call.
+
+    static int createPrivateDirectories(const bslstl::StringRef& path);
+        // Create any directories in the specified 'path' that do not exist.
+        // Directories are created with permissions restricting access to only
+        // the caller's userid.  Return 0 on success, and a non-zero value if
         // any needed directories in 'path' could not be created.  Note that
         // this function may return an error status if another task attempts to
         // create a directory in 'path' concurrently to this function call.
-        // Note also that the 'privacyPolicy' argument is ignored on MS.  Note
-        // also that if the director(ies) already exist, and have different
-        // permissions than requested, this function does not change the
+        // Note that directories created on Microsoft Windows receive default
         // permissions.
-    
 
     static FileDescriptor createTemporaryFile(
                                              const bslstl::StringRef& prefix,
@@ -852,15 +832,6 @@ struct FilesystemUtil {
         // the file is greater than or equal to 'size', this function has no
         // effect.  Also note that the contents of the newly grown portion of
         // the file is undefined.
-
-    static int createDirectories(const bsl::string&  path,
-                                 bool                isLeafDirectoryFlag);
-    static int createDirectories(const char         *path,
-                                 bool                isLeafDirectoryFlag);
-        // Returns 'createDirectories(path, DirectoryLeafPolicy(
-        // isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);'
-        //
-        // !DEPRECATED!: Use other overloads of createDirectories instead.
 };
 
 // ============================================================================
@@ -871,15 +842,15 @@ struct FilesystemUtil {
                            // struct FilesystemUtil
                            // ---------------------
 
+// CLASS METHODS
+
 inline
-int FilesystemUtil::createDirectories(const bsl::string&      path,
-                                      DirectoryLeafPolicy     leafPolicy,
-                                      DirectoryPrivacyPolicy  privacyPolicy)
+int FilesystemUtil::createDirectories(const bsl::string& path,
+                                      bool               isLeafDirectory)
 {
-    return createDirectories(path.c_str(), leafPolicy, privacyPolicy);
+    return createDirectories(path.c_str(), isLeafDirectory);
 }
 
-// CLASS METHODS
 inline
 void FilesystemUtil::visitPaths(
                           const bsl::string&                           pattern,
@@ -964,22 +935,6 @@ FilesystemUtil::Offset FilesystemUtil::getAvailableSpace(
 {
     return getAvailableSpace(path.c_str());
 }
-
-inline
-int FilesystemUtil::createDirectories(const char *path,           // DEPRECATED
-                                      bool        isLeafDirectoryFlag)
-{
-    return createDirectories(
-           path, DirectoryLeafPolicy(isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);
-};
-
-inline
-int FilesystemUtil::createDirectories(const bsl::string& path,    // DEPRECATED
-                                      bool               isLeafDirectoryFlag)
-{
-    return createDirectories(
-           path, DirectoryLeafPolicy(isLeafDirectoryFlag), e_DIRECTORY_PUBLIC);
-};
 
 }  // close package namespace
 }  // close enterprise namespace
