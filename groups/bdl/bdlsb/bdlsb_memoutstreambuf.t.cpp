@@ -526,9 +526,24 @@ namespace {
     {
     }
 //..
-// As is typical, the streaming operators are made friends of the class.  We
-// use the 'transform' algorithm to convert lower-case characters to
-// upper-case.
+// As is typical, the streaming operators are made friends of the class.
+//
+// Note that we cannot directly use 'bsl::toupper' to capitalize each
+// individual character, because 'bsl::toupper' operates on 'int' instead of
+// 'char'.  Instead, we call a function 'ucharToUpper' that works in terms of
+// 'unsigned char'.  some care must be made to avoid undefined and
+// implementation-specific behavior during the conversions to and from 'int'.
+// Therefore we wrap 'bsl::toupper' in an interface that works in terms of
+// 'unsigned char':
+//..
+    static unsigned char ucharToUpper(unsigned char input)
+        // Return the upper-case equivalent to the specified 'input' character.
+    {
+        return bsl::toupper(input);
+    }
+//..
+// Finally, we use the 'transform' algorithm to convert lower-case characters
+// to upper-case.
 //..
     // FREE OPERATORS
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
@@ -538,8 +553,7 @@ namespace {
         bsl::transform(tmp.begin(),
                        tmp.end(),
                        tmp.begin(),
-                       bsl::toupper);
-                       //static_cast<int(*)(int)>(bsl::toupper));
+                       ucharToUpper);
         stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
         return stream;
     }
@@ -600,7 +614,9 @@ int main(int argc, char *argv[])
 // into dynamically allocated buffer:
 //..
     ASSERT(12 == streamBuffer.length());
-    ASSERT(0  == bsl::strcmp("HELLO WORLD.", streamBuffer.data()));
+    ASSERT(0  == bsl::strncmp("HELLO WORLD.",
+                              streamBuffer.data(),
+                              streamBuffer.length()));
 //..
         }
       } break;
