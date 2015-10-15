@@ -1749,6 +1749,11 @@ int main(int argc, char *argv[]) {
                           << "MEMORY EXHAUSTION TEST" << endl
                           << "======================" << endl;
 
+#ifndef BDE_BUILD_TARGET_EXC
+	    if (verbose) {
+            cout << "Test not run without exception support.\n";
+        }
+#else
         Obj mX(sizeof(int));
 
         bool caught = false;
@@ -1761,6 +1766,7 @@ int main(int argc, char *argv[]) {
             caught = true;
         }
         ASSERT(caught);
+#endif
       } break;
       case -2: {
         // --------------------------------------------------------------------
