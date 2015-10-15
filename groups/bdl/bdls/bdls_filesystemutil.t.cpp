@@ -611,10 +611,10 @@ int main(int argc, char *argv[])
         //                            const bslstl::StringRef& prefix);
         // --------------------------------------------------------------------
 
-          if (verbose) {
-              cout << "\nTesting 'createTemporaryFile' METHOD"
-                      "\n====================================\n";
-          }
+        if (verbose) {
+            cout << "\nTesting 'createTemporaryFile' METHOD"
+                    "\n====================================\n";
+        }
 
         bsl::string prefix = "name_prefix";
         bsl::string fileName;
