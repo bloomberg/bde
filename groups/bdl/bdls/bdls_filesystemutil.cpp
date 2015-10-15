@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -22,6 +23,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
+#include <bslmt_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
@@ -1545,11 +1547,10 @@ int FilesystemUtil::createDirectories(const char *path,
     }
 
     while (!directoryStack.empty()) {
-        PathUtil::appendRaw(&workingPath,
-                            directoryStack.back().c_str(),
-                            static_cast<int>(directoryStack.back().length()));
-        if (!exists(workingPath.c_str())) {
-            if (0 != makeDirectory(workingPath.c_str(), false)) {
+        PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
+                             static_cast<int>(directoryStack.back().length()));
+        if (0 != makeDirectory(workingPath.c_str(), false)) {
+            if (!isDirectory(workingPath)) {
                 return -1;                                            // RETURN
             }
         }
@@ -1558,32 +1559,13 @@ int FilesystemUtil::createDirectories(const char *path,
     return 0;
 }
 
-int FilesystemUtil::createPrivateDirectories(const bslstl::StringRef& path)
+int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
 {
-    bsl::string workingPath = path;
-    if (isDirectory(workingPath)) {
-        return 0;                                                     // RETURN
+    bsl::string workingPath = path;  // need NUL termination
+    if (0 != makeDirectory(workingPath.c_str(), true)) {
+        return -1;                                                    // RETURN
     }
 
-    bsl::vector<bsl::string> directoryStack;
-    while (PathUtil::hasLeaf(workingPath)) {
-        directoryStack.push_back(bsl::string());
-        int rc = PathUtil::getLeaf(&directoryStack.back(), workingPath);
-        BSLS_ASSERT(0 == rc);
-        PathUtil::popLeaf(&workingPath);
-    }
-
-    while (!directoryStack.empty()) {
-        PathUtil::appendRaw(&workingPath,
-                            directoryStack.back().c_str(),
-                            static_cast<int>(directoryStack.back().length()));
-        if (!exists(workingPath.c_str())) {
-            if (0 != makeDirectory(workingPath.c_str(), true)) {
-                return -1;                                            // RETURN
-            }
-        }
-        directoryStack.pop_back();
-    }
     return 0;
 }
 
@@ -1742,7 +1724,7 @@ FilesystemUtil::createTemporaryDirectory(const bslstl::StringRef& prefix,
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
         makeUnsafeTemporaryFilename(prefix, &localOutPath);
-        result = bdls::FilesystemUtil::createPrivateDirectories(localOutPath);
+        result = bdls::FilesystemUtil::createPrivateDirectory(localOutPath);
         if (result == 0) {
             *outPath = localOutPath;
             break;
@@ -1756,17 +1738,23 @@ FilesystemUtil::makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
                                             bsl::string             *outPath)
 {
     BSLS_ASSERT(outPath);
-    char suffix[6];
+    char suffix[8];
     bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
+    bsls::Types::Uint64 tid =
+                      bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::self());
+    using bslh::hashAppend;
     bslh::DefaultHashAlgorithm hashee;
-    bslh::hashAppend(hashee, now);
-    bslstl::hashAppend(hashee, prefix);
-    bslstl::hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    hashAppend(hashee, now);
+    hashAppend(hashee, prefix);
+    hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    hashAppend(hashee, tid);
+    hashAppend(hashee, bdls::ProcessUtil::getProcessId());
     bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
     for (int i = 0; i < int(sizeof(suffix)); ++i) {
-        const char r = char(hash % 52);
-        hash /= 52;
-        suffix[i] = ((r < 26) ? char('A' + r) : char('a' + r - 26));
+        const char s[63] =
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        suffix[i] = s[hash % 62];
+        hash /= 62;
     }
     *outPath = prefix;
     outPath->append(suffix, sizeof(suffix));

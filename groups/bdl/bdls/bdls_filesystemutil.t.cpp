@@ -535,8 +535,14 @@ int main(int argc, char *argv[])
         // TESTING: createTemporaryDirectory
         //
         // Concerns:
+        //  1 It actually creates a new directory.
+        //  2 A directory created has a different name than a previous one.
+        //  3 Files can be created in the directory.
+        //  4 The created directory has the correct permissions.
         //
         // Plan:
+        //  Create directories and a subdirectory, and check names, types, and
+        //  permissions.
         //
         // --------------------------------------------------------------------
 
@@ -545,6 +551,8 @@ int main(int argc, char *argv[])
         int madeDir = Obj::createTemporaryDirectory(prefix, &dirName);
         ASSERT(madeDir == 0);
         if (madeDir == 0) {
+            ASSERT(Obj::isDirectory(dirName));
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             verbose && (cout << "DIR PERMISSIONS CHECK SKIPPED ON WINDOS\n");
 #else
@@ -559,16 +567,18 @@ int main(int argc, char *argv[])
                 fflush(stdout);
             }
 #endif
+            ASSERT(0 == Obj::remove(dirName));
 
-            int removedDir = Obj::remove(dirName);
-            ASSERT(removedDir == 0);
-
-            bsl::string dirName2;
+            bsl::string dirName2, dirName3;
             int madeDir2 = Obj::createTemporaryDirectory(prefix, &dirName2);
             ASSERT(madeDir2 == 0);
+            int madeDir3 = Obj::createTemporaryDirectory(dirName2, &dirName3);
+            ASSERT(madeDir3 == 0);
             if (madeDir2 == 0) {
+                ASSERT(Obj::isDirectory(dirName2));
+                ASSERT(Obj::isDirectory(dirName3));
                 ASSERT(dirName2 != dirName);
-                Obj::remove(dirName2);
+                ASSERT(0 == Obj::remove(dirName2));
             }
         }
       } break;
@@ -577,6 +587,13 @@ int main(int argc, char *argv[])
         // TESTING: createTemporaryFile
         //
         // Concerns:
+        //  1 It actually creates a new file.
+        //  2 A file created has a different name than a previous one.
+        //  3 The created file has the correct permissions.
+        //  4 The created file is open for writing
+        //
+        // Plan:
+        //  Create files, and check names, types, and permissions.
         //
         //
         // Plan:
@@ -594,6 +611,7 @@ int main(int argc, char *argv[])
             int wrote = Obj::write(fd, hello, sizeof(hello) - 1);
             ASSERT(wrote == sizeof(hello) - 1);
             Obj::close(fd);
+            ASSERT(Obj::isRegularFile(fileName));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             verbose && (cout << "FILE PERMISSIONS CHECK SKIPPED ON WINDOS\n");
@@ -611,11 +629,12 @@ int main(int argc, char *argv[])
 #endif
             bsl::string fileName2;
             Obj::FileDescriptor fd2 =
-                 Obj::createTemporaryFile(prefix, &fileName2);
+                                  Obj::createTemporaryFile(prefix, &fileName2);
             ASSERT(fd2 != Obj::k_INVALID_FD);
             if (fd2 != Obj::k_INVALID_FD) {
                 ASSERT(fileName2 != fileName);
                 Obj::close(fd2);
+                ASSERT(Obj::isRegularFile(fileName2));
                 Obj::remove(fileName2);
             }
 
@@ -644,8 +663,8 @@ int main(int argc, char *argv[])
         bsl::string name2 = name1;
         Obj::makeUnsafeTemporaryFilename(prefix, &name2);
         const size_t p1 = prefix.size();
-        ASSERT(name1.size() >= p1 + 6);
-        ASSERT(name2.size() >= p1 + 6);
+        ASSERT(name1.size() >= p1 + 8);
+        ASSERT(name2.size() >= p1 + 8);
         ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
         ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
         ASSERT(name1.substr(p1) != name2.substr(p1));
@@ -1251,21 +1270,17 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
 
-        if (verbose) cout << "Testing 'createPrivateDirectories'\n";
+        if (verbose) cout << "Testing 'createPrivateDirectory'\n";
         {
-            const bsl::string& testBaseDir = ::tempFileName(test,
+            const bsl::string& fullPath = ::tempFileName(test,
                                          "tmp.bdls_filesystemutil_16.mkdir1");
-            bsl::string fullPath = testBaseDir;
-            bdls::PathUtil::appendRaw(&fullPath, "dir2");
 
             if (veryVerbose) { P(fullPath); }
 
-            (void) Obj::remove(testBaseDir, true);
+            (void) Obj::remove(fullPath, true);  // just a file
 
-            int rc = Obj::createPrivateDirectories(fullPath);
+            int rc = Obj::createPrivateDirectory(fullPath);
             ASSERT(0 == rc);
-
-            ASSERT(Obj::exists(testBaseDir));
             ASSERT(Obj::exists(fullPath));
 
 # ifdef BSLS_PLATFORM_OS_CYGWIN
@@ -1278,7 +1293,6 @@ int main(int argc, char *argv[])
             info.st_mode &= 0777;
 
             enum { EXPECTED_PERMS = S_IRUSR|S_IWUSR|S_IXUSR };
-
             const bool eqLeafDir = EXPECTED_PERMS == info.st_mode;
 
             if (veryVeryVerbose || !eqLeafDir) {
@@ -1288,25 +1302,7 @@ int main(int argc, char *argv[])
                 cout.flags(flags);
             }
             ASSERT(eqLeafDir);
-
-# ifdef BSLS_PLATFORM_OS_CYGWIN
-            ASSERT(0 == ::stat(  testBaseDir.c_str(), &info));
-# else
-            ASSERT(0 == ::stat64(testBaseDir.c_str(), &info));
-# endif
-            info.st_mode &= 0777;
-
-            const bool eqBaseDir = EXPECTED_PERMS == info.st_mode;
-
-            if (veryVeryVerbose || !eqBaseDir) {
-                bsl::ios_base::fmtflags flags = cout.flags();
-                cout << bsl::oct << "Base dir: ";
-                P_(EXPECTED_PERMS);    P(info.st_mode);
-                cout.flags(flags);
-            }
-            ASSERT(eqBaseDir);
-
-            ASSERT(0 == Obj::remove(testBaseDir, true));
+            ASSERT(0 == Obj::remove(fullPath, true));
         }
 #endif
       } break;

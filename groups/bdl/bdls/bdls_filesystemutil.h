@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 //:   Create a new file.
 //:
 //: 'e_CREATE_PRIVATE':
-//:   Create a new file, with limited permissions where that is supported (not
-//:   MS).
+//:   Create a new file, with limited permissions where that is supported (e.g.
+//:   not necessarily Microsoft Windows).
 //:
 //: 'e_OPEN_OR_CREATE':
 //:   Open a file if it exists, and create a new file otherwise.
@@ -170,7 +170,7 @@ BSLS_IDENT("$Id: $")
 ///File Truncation Caveats
 ///-----------------------
 // In order to provide consistent behavior across both Posix and Windows
-// platforms, when the 'open' method is called file truncation is allowed only
+// platforms, when the 'open' method is called, file truncation is allowed only
 // if the client requests an 'openPolicy' containing the word 'CREATE' and/or
 // an 'ioPolicy' containing the word 'WRITE'.
 //
@@ -370,10 +370,10 @@ struct FilesystemUtil {
 #endif
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFL);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFL-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #else
     static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
@@ -396,7 +396,7 @@ struct FilesystemUtil {
 
     enum {
         k_DEFAULT_FILE_GROWTH_INCREMENT = 0x10000  // default block size to
-                                                   // files by
+                                                   // grow files by
     };
 
     enum {
@@ -473,7 +473,7 @@ struct FilesystemUtil {
         // new file will be created, and 'open' will fail otherwise.  If
         // 'openPolicy' is 'e_CREATE_PRIVATE', the file will be created with
         // access restricted to the same userid as the caller in environments
-        // where that is supported (which does not necessarily include MS;
+        // where that is supported (which does not necessarily include Windows)
         // otherwise the system default access policy is used (e.g. '0777 &
         // ~umask').  If 'openPolicy' is 'e_OPEN_OR_CREATE', the file will be
         // opened if it exists, and a new file will be created otherwise.  If
@@ -570,22 +570,18 @@ struct FilesystemUtil {
         // Create any directories in the specified 'path' that do not exist. If
         // the optionally specified 'isLeafDirectoryFlag' is 'true', treat the
         // final name component in 'path' as a directory name, and create it.
-        // Otherwise, ignore the last name component, and create only the
-        // directories leading up to the final name component. Return 0 on
-        // success, and a non-zero value if any needed directories in 'path'
-        // could not be created.  Note that this function may return an error
-        // status if another task attempts to create a directory in 'path'
-        // concurrently to this function call.
+        // Otherwise, ignore the final name component, and create only the
+        // directories leading up to it. Return 0 on success, and a non-zero
+        // value if any needed directories in 'path' could not be created.
 
-    static int createPrivateDirectories(const bslstl::StringRef& path);
-        // Create any directories in the specified 'path' that do not exist.
-        // Directories are created with permissions restricting access to only
-        // the caller's userid.  Return 0 on success, and a non-zero value if
-        // any needed directories in 'path' could not be created.  Note that
-        // this function may return an error status if another task attempts to
-        // create a directory in 'path' concurrently to this function call.
-        // Note that directories created on Microsoft Windows receive default
-        // permissions.
+    static int createPrivateDirectory(const bslstl::StringRef& path);
+        // Create a private directory with the specified 'path'.  Return 0 on
+        // success, and a non-zero value if the directory could not be created.
+        // The directory is created with permissions restricting access, as
+        // closely as possible, to the caller's userid only.  If the directory
+        // already exists, the function reports success but the directory's
+        // permissions are not changed.  Note that directories created on
+        // Microsoft Windows may receive default, not restricted permissions.
 
     static FileDescriptor createTemporaryFile(
                                              const bslstl::StringRef& prefix,
@@ -596,12 +592,13 @@ struct FilesystemUtil {
         // 'k_INVALID_FD' indicates that no such file could be created;
         // otherwise, the name of the file created is assigned to the specified
         // 'outPath'.  The file is created with permissions restricted, as
-        // closely as possible, to the caller only.  If the prefix is a
-        // relative path, the file is created relative to the process current
+        // closely as possible, to the caller's userid only.  If the prefix is
+        // a relative path, the file is created relative to the process current
         // directory.  Responsibility for deleting the file is left to the
         // caller.  Note that on Posix systems, if 'outPath' is unlinked
         // immediately, the file will remain usable until its descriptor is
-        // closed.
+        // closed.  Note that files created on Microsoft Windows may receive
+        // default, not restricted permissions.
 
     static int createTemporaryDirectory(const bslstl::StringRef& prefix,
                                         bsl::string             *outPath);
@@ -621,13 +618,13 @@ struct FilesystemUtil {
         // Construct a file name by appending an automatically-generated suffix
         // to the specified 'prefix'.  The file name constructed is assigned to
         // the specified 'outPath'.  Note that this function is called "unsafe"
-        // because a file with the constructed name may be externally created
-        // before the caller has opportunity to use the name, which creates a
-        // security vulnerability; this method is intended for use only in
-        // testing.  Note that if called with a non-empty '*outPath', the value
-        // will affect the result, so that if a resulting name is unsuitable
-        // (e.g. the file exists) this function may simply be called again,
-        // pointing to its previous result, to get a new name.
+        // because a file with the resulting name may be created by another
+        // program before the caller has opportunity to use the name, which
+        // could be a security vulnerability.  Note that the suffix is hashed
+        // from environmental details including any pre-existing value of
+        // 'outPath', so that if a resulting name is unsuitable (e.g. the file
+        // exists) this function may simply be called again, pointing to its
+        // previous result, to get a new, different name.
 
     static void visitPaths(
                          const bsl::string&                           pattern,
@@ -846,9 +843,9 @@ struct FilesystemUtil {
 
 inline
 int FilesystemUtil::createDirectories(const bsl::string& path,
-                                      bool               isLeafDirectory)
+                                      bool               isLeafDirectoryFlag)
 {
-    return createDirectories(path.c_str(), isLeafDirectory);
+    return createDirectories(path.c_str(), isLeafDirectoryFlag);
 }
 
 inline
