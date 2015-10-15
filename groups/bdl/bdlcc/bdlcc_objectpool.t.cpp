@@ -529,9 +529,10 @@ static void createString(void               *address,
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace OBJECTPOOL_TEST_CASE_11
+namespace OBJECTPOOL_TEST_CASE_11 {
 
-{
+#ifdef BDE_BUILD_TARGET_EXC
+
 struct Exception {};
 
 class A
@@ -612,6 +613,8 @@ class B
 
 int B::constructorCount = 0;
 int B::destructorCount = 0;
+
+#endif
 
 }  // close namespace OBJECTPOOL_TEST_CASE_11
 
@@ -1775,6 +1778,11 @@ int main(int argc, char *argv[])
                           << "TESTING CONCERN: Exception safety" << endl
                           << "=================================" << endl;
 
+#ifndef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            cout << "Test not run without exception support.\n";
+        }
+#else
         using namespace OBJECTPOOL_TEST_CASE_11;
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -1918,7 +1926,7 @@ int main(int argc, char *argv[])
             P_(L_); P_(B::constructorCount); P(B::destructorCount);
             cout << endl;
         }
-
+#endif
       } break;
       case 10:
          // Removed, but very inconvenient to shift the other cases down
