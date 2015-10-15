@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_sharedptrinplacerep.h                                        -*-C++-*-
@@ -26,7 +26,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // object.  When all references to the in-place object are released (using
 // &#39;releaseRef&#39;), the destructor of &#39;TYPE&#39; is invoked.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // &#39;bslma::SharedPtrInplaceRep&#39; is thread-safe provided that &#39;disposeObject&#39;
 // and &#39;disposeRep&#39; are not called explicitly, meaning that all non-creator
@@ -459,7 +459,7 @@ template &lt;class... ARGS&gt;
 SharedPtrInplaceRep&lt;TYPE&gt;::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                ARGS&amp;&amp;...  args)
 : d_allocator_p(basicAllocator)
-, d_instance(bsls::Util::forward&lt;ARGS&gt;(args)...)
+, d_instance(BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...)
 {
 }
 # else

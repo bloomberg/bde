@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_serialdateimputil Component</title>
+<title>BDE 3.0: bdlt_serialdateimputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -87,7 +87,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.3.1">Example 1: Use as a General Purpose Utility</a> </li>
 <li>
-<a href="#3.3.2">Example 2: Use to Implement a Value-Semantic Date Type</a> </li>
+<a href="#3.3.2">Example 2: Implement a Value-Semantic Date Type</a> </li>
 </ul>
 </li>
 </ul>
@@ -186,8 +186,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_use_to_implement_a_value-semantic_date_type"></a> <a class="anchor" id="usage.example_2~3A_use_to_implement_a_value-semantic_date_type"></a> <a class="anchor" id="description.usage.example_2~3A_use_to_implement_a_value-semantic_date_type"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Use to Implement a Value-Semantic Date Type: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_implement_a_value-semantic_date_type"></a> <a class="anchor" id="usage.example_2~3A_implement_a_value-semantic_date_type"></a> <a class="anchor" id="description.usage.example_2~3A_implement_a_value-semantic_date_type"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Implement a Value-Semantic Date Type: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Using the functions supplied in this component, we can easily implement a C++ class that represents abstract (<em>mathematical</em>) date values and performs common operations on them. The internal representation could be any of the three supported by this component. In this example, we choose to represent the date value internally as a "serial date". </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define a partial interface of our date class, <code>MyDate</code>, omitting many methods, free operators, and <code>friend</code> declarations that do not contribute substantively to illustrating use of this component: <br/>
 <br/>
@@ -199,7 +200,7 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">int</span> d_serialDate;  <span class="comment">// 1 = 0001/01/01, 2 = 0001/01/02, etc.</span>
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyDate&amp;, <span class="keyword">const</span> MyDate&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyDate&amp;, <span class="keyword">const</span> MyDate&amp;);
       <span class="comment">// ...</span>
 
     <span class="keyword">private</span>:
@@ -258,7 +259,7 @@ Namespaces</h2></td></tr>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyDate&amp; lhs, <span class="keyword">const</span> MyDate&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyDate&amp; lhs, <span class="keyword">const</span> MyDate&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; &#39;MyDate&#39; objects have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two dates have the same</span>
       <span class="comment">// value if each of the corresponding &#39;year&#39;, &#39;month&#39;, and &#39;day&#39;</span>
@@ -343,7 +344,7 @@ Namespaces</h2></td></tr>
 
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyDate&amp; lhs, <span class="keyword">const</span> MyDate&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyDate&amp; lhs, <span class="keyword">const</span> MyDate&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.d_serialDate == rhs.d_serialDate;
   }
@@ -374,7 +375,7 @@ Namespaces</h2></td></tr>
 <br/>
  Note that equality comparison of <code>MyDate</code> objects is very efficient, being comprised of a comparison of two <code>int</code> values. Similarly, the <code>MyDate</code> methods and free operators (not shown) that add a (signed) number of days to a date are also very efficient. However, one of the trade-offs of storing a date internally as a serial value is that operations involving conversion among the serial value and one or more of the <code>year</code>, <code>month</code>, and <code>day</code> attributes (e.g., <code>setYearMonthDay</code>, <code>getYearMonthDay</code>) entail considerably more computation. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

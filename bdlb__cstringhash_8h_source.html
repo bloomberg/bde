@@ -1,0 +1,292 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_cstringhash.h                                                 -*-C++-*-
+#ifndef INCLUDED_BDLB_CSTRINGHASH
+#define INCLUDED_BDLB_CSTRINGHASH
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a functor enabling C-strings as unordered-container keys.
+//
+//@CLASSES:
+//  bdlb::CStringHash: functor enabling C-strings as unordered-container keys
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bdlb::CStringHash&#39;, that
+// defines a functor to generate a hash code for a null-terminated string,
+// rather than simply generating a hash code for the address of the string, as
+// the &#39;std::hash&#39; functor would do.  This hash functor is suitable for
+// supporting C-strings as keys in unordered associative containers.  Note that
+// the container behavior would be undefined if the strings referenced by such
+// pointers were to change value.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdlb::CStringHash&#39;
+///- - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need an associative container to store some objects, uniquely
+// identified by C-strings.   The following code illustrates how to use
+// &#39;bdlb::CStringHash&#39; as a hash function for the standard container
+// &#39;unordered_map&#39; taking C-string as a key.
+//
+// First, let us define our mapped type class:
+//..
+//  class Security
+//  {
+//      // This class implements a value semantic type that represents
+//      // ownership of a security.
+//
+//      // DATA
+//      char         *d_name_p;      // Security name
+//      unsigned int  d_sharesOwned; // The number of owned shares
+//
+//    public:
+//      // CREATORS
+//      Security(const char *name, unsigned int sharesOwned);
+//          // Create a &#39;Security&#39; object having the specified &#39;name&#39; and
+//          // &#39;sharesOwned&#39;.
+//
+//      Security(const Security&amp; original);
+//          // Create a &#39;Security&#39; object having the value of the specified
+//          // &#39;original&#39; security.
+//
+//      ~Security();
+//          // Destroy this security object.
+//
+//
+//      // ACCESSORS
+//      unsigned int sharesOwned() const;
+//          // Return the value of the &#39;sharesOwned&#39; attribute of this security
+//          // object.
+//
+//      // MANIPULATORS
+//      Security&amp; operator=(Security other);
+//          // Assign to this security object the value of the specified
+//          // &#39;other&#39; object, and return a reference providing modifiable
+//          // access to this object.
+//
+//      void swap(Security&amp; other);
+//          // Efficiently exchange the value of this security with the value
+//          // of the specified &#39;other&#39; security.
+//  };
+//
+//  // CREATORS
+//  inline
+//  Security::Security(const char *name, unsigned int sharesOwned)
+//  : d_sharesOwned(sharesOwned)
+//  {
+//      d_name_p = new char [strlen(name) + 1];
+//      strncpy(d_name_p, name, strlen(name) + 1);
+//  }
+//
+//  inline
+//  Security::Security(const Security&amp; original)
+//  : d_sharesOwned(original.d_sharesOwned)
+//  {
+//      if (this != &amp;original)
+//      {
+//          d_name_p = new char [strlen(original.d_name_p) + 1];
+//          strncpy(d_name_p,
+//                  original.d_name_p,
+//                  strlen(original.d_name_p) + 1);
+//      }
+//  }
+//
+//  inline
+//  Security::~Security()
+//  {
+//      delete [] d_name_p;
+//  }
+//
+//  // ACCESSORS
+//
+//  inline    unsigned int Security::sharesOwned() const
+//  {
+//      return d_sharesOwned;
+//  }
+//
+//  // MANIPULATORS
+//  inline
+//  Security&amp; Security::operator=(Security other)
+//  {
+//      this-&gt;swap(other);
+//      return *this;
+//  }
+//
+//  inline
+//  void Security::swap(Security&amp; other)
+//  {
+//      char * tempPtr = d_name_p;
+//      d_name_p = other.d_name_p;
+//      other.d_name_p = tempPtr;
+//      unsigned int tempInt = d_sharesOwned;
+//      d_sharesOwned = other.d_sharesOwned;
+//      other.d_sharesOwned = tempInt;
+//  }
+//..
+// Next, we define container type using &#39;bdlb::CStringHash&#39; as a hash function
+// and &#39;bdlb::CstringEqualTo&#39; as a comparator:
+//..
+//  typedef unordered_map&lt;const char *,
+//                        Security,
+//                        bdlb::CStringHash,
+//                        bdlb::CStringEqualTo&gt; SecuritiesUM;
+//..
+// This container stores objects of &#39;Security&#39; class and allow access to them
+// by their names.
+//
+// Then, we create several C-strings with security names:
+//..
+//  const char *ibm  = &quot;IBM&quot;;
+//  const char *msft = &quot;Microsoft&quot;;
+//  const char *goog = &quot;Google&quot;;
+//..
+// Now, we create a container for securities and fill it:
+//..
+//  SecuritiesUM securities;
+//
+//  securities.insert(
+//            std::make_pair&lt;const char *, Security&gt;(ibm, Security(ibm, 616)));
+//  securities.insert(
+//      std::make_pair&lt;const char *, Security&gt;(msft, Security(msft, 6150000)));
+//..
+// Finally, we make sure, that we able to access securities by their names:
+//..
+//  SecuritiesUM::iterator it = securities.find(ibm);
+//  assert(616 == it-&gt;second.sharesOwned());
+//  it = securities.find(msft);
+//  assert(6150000 == it-&gt;second.sharesOwned());
+//  it = securities.find(goog);
+//  assert(securities.end() == it);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
+#include &lt;bslh_spookyhashalgorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include &lt;bslmf_istriviallydefaultconstructible.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+                           // ==================
+                           // struct CStringHash
+                           // ==================
+
+struct CStringHash {
+    // This &#39;struct&#39; defines a hash operation for null-terminated character
+    // strings enabling them to be used as keys in the standard unordered
+    // associative containers such as &#39;bsl::unordered_map&#39; and
+    // &#39;bsl::unordered_set&#39;.  Note that this class is an empty POD type.
+
+    // STANDARD TYPEDEFS
+    typedef const char  *argument_type;
+    typedef bsl::size_t  result_type;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringHash, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(CStringHash,
+                                   bsl::is_trivially_default_constructible);
+
+    //! CStringHash() = default;
+        // Create a &#39;CStringHash&#39; object.
+
+    //! CStringHash(const CStringHash&amp; original) = default;
+        // Create a &#39;CStringHash&#39; object.  Note that as &#39;CStringHash&#39; is an
+        // empty (stateless) type, this operation will have no observable
+        // effect.
+
+    //! ~CStringHash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! CStringHash&amp; operator=(const CStringHash&amp; rhs) = default;
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // a return a reference providing modifiable access to this object.
+        // Note that as &#39;CStringHash&#39; is an empty (stateless) type, this
+        // operation will have no observable effect.
+
+    // ACCESSORS
+    bsl::size_t operator()(const char *argument) const;
+        // Return a hash code generated from the contents of the specified
+        // null-terminated &#39;argument&#39; string.  The behavior is undefined
+        // unless &#39;argument&#39; points to a null-terminated string.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ------------------
+                           // struct CStringHash
+                           // ------------------
+
+// ACCESSORS
+inline
+bsl::size_t bdlb::CStringHash::operator()(const char *argument) const
+{
+    BSLS_ASSERT_SAFE(argument);
+
+    bslh::SpookyHashAlgorithm hash;
+    hash(argument, strlen(argument));
+    return static_cast&lt;bsl::size_t&gt;(hash.computeHash());
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

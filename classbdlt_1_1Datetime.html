@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdlt::Datetime</title>
+<title>BDE 3.0: Class bdlt::Datetime</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -133,7 +133,7 @@ Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdlt_1_1DatetimeInterval.html">DatetimeInterval</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Datetime.html#a6b592e7c81022cef5fe742244c447538">operator-</a> (const <a class="el" href="classbdlt_1_1Datetime.html">Datetime</a> &amp;, const <a class="el" href="classbdlt_1_1Datetime.html">Datetime</a> &amp;)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This class implements a complex-constrained value-semantic type representing the composition of values of a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object and a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object. Valid date values for the "date" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object are the same as those described for <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> objects; similarly, valid time values for the "time" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object are the same as those described for a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object with the exception that the default <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> value, "24:00:00.000", is allowed only if the <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> part has the default date value, "0001/01/01". Relational operators are disallowed on <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> objects having the default constructed value (as they are for <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> objects having the default constructed value). </p>
+<p>This class implements a simply-constrained value-semantic type representing the composition of values of a <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> object and a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object. Valid date values for the "date" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object are the same as those defined for <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> objects; similarly, valid time values for the "time" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object are the same as those defined for <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> objects. Relational operators are disallowed on <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> objects whose "time" part has the same value as that of a default constructed <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a1646999ab667705e03bb5b362724bb51"></a><!-- doxytag: member="bdlt::Datetime::Datetime" ref="a1646999ab667705e03bb5b362724bb51" args="()" -->
 <div class="memitem">
@@ -196,7 +196,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object whose "date" and "time" parts have the values of the specified <code>date</code> and <code>time</code>, respectively. If <code>time == Time()</code> (i.e., 24:00) but <code>date != Date()</code> (i.e., 1/1/1), the "time" part has the value "00:00:00.000". </p>
+<p>Create a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object whose "date" and "time" parts have the values of the specified <code>date</code> and <code>time</code>, respectively. </p>
 
 </div>
 </div>
@@ -254,7 +254,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object whose "date" part has the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and whose "time" part has the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes. Unspecified trailing optional parameters default to 0. If <code>Time(hour, minute, second, millisecond) == Time()</code> (i.e., 24:00) but <code>Date(year, month, day) != Date()</code> (i.e., 1/1/1), the "time" part has the value "00:00:00.000". The behavior is undefined unless the seven attributes (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). </p>
+<p>Create a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object whose "date" part has the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and whose "time" part has the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes. Unspecified trailing optional parameters default to 0. The behavior is undefined unless the seven attributes (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). </p>
 
 </div>
 </div>
@@ -484,7 +484,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and set the "time" part to have the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes. Unspecified trailing optional parameters default to 0. If <code>Time(hour, minute, second, millisecond) == Time()</code> (i.e., 24:00) but <code>Date(year, month, day) != Date()</code> (i.e., 1/1/1), set the "time" part to the value "00:00:00.000". The behavior is undefined unless the seven attributes (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). </p>
+<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and set the "time" part to have the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes. Unspecified trailing optional parameters default to 0. The behavior is undefined unless the seven attributes (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). </p>
 
 </div>
 </div>
@@ -542,7 +542,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and set the "time" part to have the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes, <em>if</em> the seven attribute values (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). Unspecified trailing optional parameters default to 0. Return 0 on success, and a non-zero value (with no effect) otherwise. If <code>Time(hour, minute, second, millisecond) == Time()</code> (i.e., 24:00) but <code>Date(year, month, day) != Date()</code> (i.e., 1/1/1), set the "time" part to the value "00:00:00.000". </p>
+<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attributes, and set the "time" part to have the value represented by the optionally specified <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes, <em>if</em> the seven attribute values (collectively) represent a valid <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value (see <code>isValid</code>). Unspecified trailing optional parameters default to 0. Return 0 on success, and a non-zero value (with no effect) otherwise. </p>
 
 </div>
 </div>
@@ -561,7 +561,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "date" part of this object to have the value of the specified <code>date</code>. If <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry but <code>date != Date()</code> (i.e., 1/1/1), set the <code>hour</code> attribute to 0. Note that this method has no effect on the "time" part of this object unless <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry. </p>
+<p>Set the "date" part of this object to have the value of the specified <code>date</code>. Note that this method has no effect on the "time" part of this object. </p>
 
 </div>
 </div>
@@ -589,7 +589,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "date" part of this object to have the value represented by the specified <code>year</code> and <code>dayOfYear</code> attribute values. If <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry but <code>Date(year, dayOfYear) != Date()</code> (i.e., 1/1/1), set the <code>hour</code> attribute to 0. The behavior is undefined unless <code>year</code> and <code>dayOfYear</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value (i.e., <code>true == Date::isValidYearDay(year, dayOfYear)</code>). Note that this method has no effect on the "time" part of this object unless <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry. </p>
+<p>Set the "date" part of this object to have the value represented by the specified <code>year</code> and <code>dayOfYear</code> attribute values. The behavior is undefined unless <code>year</code> and <code>dayOfYear</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value (i.e., <code>true == Date::isValidYearDay(year, dayOfYear)</code>). Note that this method has no effect on the "time" part of this object. </p>
 
 </div>
 </div>
@@ -623,7 +623,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attribute values. If <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry but <code>Date(year, month, day) != Date()</code> (i.e., 1/1/1), set the <code>hour</code> attribute to 0. The behavior is undefined unless <code>year</code>, <code>month</code>, and <code>day</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value (i.e., <code>true == Date::isValidYearMonthDay(year, month, day)</code>). Note that this method has no effect on the "time" part of this object unless <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry. </p>
+<p>Set the "date" part of this object to have the value represented by the specified <code>year</code>, <code>month</code>, and <code>day</code> attribute values. The behavior is undefined unless <code>year</code>, <code>month</code>, and <code>day</code> represent a valid <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> value (i.e., <code>true == Date::isValidYearMonthDay(year, month, day)</code>). Note that this method has no effect on the "time" part of this object. </p>
 
 </div>
 </div>
@@ -642,7 +642,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "time" part of this object to have the value of the specified <code>time</code>. If <code>time == Time()</code> (i.e., 24:00) but <code><a class="el" href="classbdlt_1_1Datetime.html#afd34eff3c8a40f16feff29a142a57c78">date()</a> != Date()</code> (i.e., 1/1/1), set the "time" part to the value "00:00:00.000". Note that this method has no effect on the "date" part of this object. </p>
+<p>Set the "time" part of this object to have the value of the specified <code>time</code>. Note that this method has no effect on the "date" part of this object. </p>
 
 </div>
 </div>
@@ -682,7 +682,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the "time" part of this object to have the value represented by the specified <code>hour</code> attribute value and the optionally specified <code>minute</code>, <code>second</code>, and <code>millisecond</code> attribute values. Unspecified trailing optional parameters default to 0. If <code>Time(hour, minute, second, millisecond) == Time()</code> (i.e., 24:00) but <code><a class="el" href="classbdlt_1_1Datetime.html#afd34eff3c8a40f16feff29a142a57c78">date()</a> != Date()</code> (i.e., 1/1/1), set the "time" part to the value "00:00:00.000". The behavior is undefined unless <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> represent a valid <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> value (i.e., <code>true == Time::isValid(hour, minute, second, millisecond)</code>). Note that this method has no effect on the "date" part of this object. </p>
+<p>Set the "time" part of this object to have the value represented by the specified <code>hour</code> attribute value and the optionally specified <code>minute</code>, <code>second</code>, and <code>millisecond</code> attribute values. Unspecified trailing optional parameters default to 0. The behavior is undefined unless <code>hour</code>, <code>minute</code>, <code>second</code>, and <code>millisecond</code> represent a valid <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> value (i.e., <code>true == Time::isValid(hour, minute, second, millisecond)</code>). Note that this method has no effect on the "date" part of this object. </p>
 
 </div>
 </div>
@@ -701,7 +701,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the <code>hour</code> attribute of this object to the specified <code>hour</code> value. If <code>24 == hour</code>, set the <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes to 0, and if <code><a class="el" href="classbdlt_1_1Datetime.html#afd34eff3c8a40f16feff29a142a57c78">date()</a> != Date()</code> (i.e., 1/1/1), set the <code>hour</code> attribute to 0. The behavior is undefined unless <code>0 &lt;= hour &lt;= 24</code>. Note that this method has no effect on the "date" part of this object. </p>
+<p>Set the <code>hour</code> attribute of this object to the specified <code>hour</code> value. If <code>24 == hour</code>, set the <code>minute</code>, <code>second</code>, and <code>millisecond</code> attributes to 0. The behavior is undefined unless <code>0 &lt;= hour &lt;= 24</code>. Note that this method has no effect on the "date" part of this object. </p>
 
 </div>
 </div>
@@ -777,7 +777,7 @@ Friends</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Add the specified number of <code>days</code> to the value of this object. If <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry, set the <code>hour</code> attribute to 0. The behavior is undefined unless the resulting value is in the valid range for a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object. Note that this method has no effect on the "time" part of this object unless <code>24 == <a class="el" href="classbdlt_1_1Datetime.html#afb8a18590cdfbcdba912d0500ff9a9c1">hour()</a></code> on entry. Also note that <code>days</code> may be positive, 0, or negative. </p>
+<p>Add the specified number of <code>days</code> to the value of this object. The behavior is undefined unless the resulting value is in the valid range for a <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> object. Note that this method has no effect on the "time" part of this object. Also note that <code>days</code> may be positive, 0, or negative. </p>
 
 </div>
 </div>
@@ -1250,7 +1250,7 @@ template&lt;class STREAM &gt; </div>
 <li><a class="el" href="bdlt__datetime_8h_source.html">bdlt_datetime.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

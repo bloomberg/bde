@@ -1,0 +1,147 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlmt_channeltype.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLMT_CHANNELTYPE
+#define INCLUDED_BTLMT_CHANNELTYPE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of channel types.
+//
+//@CLASSES:
+//   btlmt::ChannelType: namespace for enumerating channel types
+//
+//@DESCRIPTION: This component provides a namespace, &#39;btlmt::ChannelType&#39;, for
+// enumerating channel types, and provides a function that converts each of
+// these enumerators to their corresponding string representation.
+// Functionality is also provided to write the string form directly to a
+// standard &#39;ostream&#39;.
+//
+///Enumerators
+///-----------
+//..
+//  Name                    Description
+//  ----------------------  ------------------
+//  e_LISTENING_CHANNEL     Listening channel
+//  e_ACCEPTED_CHANNEL      Accepted channel
+//  e_CONNECTING_CHANNEL    Connecting channel
+//  e_CONNECTED_CHANNEL     Connected channel
+//  e_IMPORTED_CHANNEL      Imported channel
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// First, create a variable &#39;channelType&#39; of type &#39;btlmt::ChannelType::Value&#39;
+// and initialize it to the value
+// &#39;btlmt::ChannelType::e_CONNECTED_CHANNEL&#39;:
+//..
+//  btlmt::ChannelType::Value channelType =
+//                                     btlmt::ChannelType::e_CONNECTED_CHANNEL;
+//..
+// Next, store its representation in a variable &#39;rep&#39; of type &#39;const char*&#39;.
+//..
+//  const char *rep = btlmt::ChannelType::toAscii(channelType);
+//  assert(0 == strcmp(rep, &quot;CONNECTED_CHANNEL&quot;));
+//..
+// Finally, print the value of &#39;channelType&#39; to &#39;stdout&#39;.
+//..
+//  bsl::cout &lt;&lt; channelType &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  CONNECTED_CHANNEL
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlmt {
+                        // ==================
+                        // struct ChannelType
+                        // ==================
+
+struct ChannelType {
+    // This class provides a namespace for enumerating channel type values.
+
+  public:
+    // TYPES
+    enum Value {
+        e_LISTENING_CHANNEL = 1,
+        e_ACCEPTED_CHANNEL,
+        e_CONNECTING_CHANNEL,
+        e_CONNECTED_CHANNEL,
+        e_IMPORTED_CHANNEL
+
+
+    };
+
+    enum {
+        // Define &#39;LENGTH&#39; to be the number of consecutively valued enumerators
+        // in the range &#39;[ LISTENING_CHANNEL .. IMPORTED_CHANNEL ]&#39;.
+
+        e_LENGTH = e_IMPORTED_CHANNEL
+
+    };
+
+    // CLASS METHODS
+    static const char *toAscii(Value channelType);
+        // Return the string representation of the enumerator corresponding to
+        // the specified &#39;channelType&#39;.  This representation corresponds
+        // exactly to the enumerator&#39;s name (e.g., &quot;LISTENING_CHANNEL&quot;).
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, ChannelType::Value rhs);
+    // Format to the specified output &#39;stream&#39; the specified &#39;rhs&#39; channel type
+    // in a string representation matching the enumerator name (e.g.,
+    // &quot;LISTENING_CHANNEL&quot;), and return a reference to the modifiable &#39;stream&#39;.
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

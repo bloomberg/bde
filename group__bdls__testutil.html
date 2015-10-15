@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdls_testutil Component</title>
+<title>BDE 3.0: bdls_testutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -83,9 +83,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.1">Usage</a> <ul>
 <li>
-<a href="#4.1.1">Example 1: Writing a test driver</a> </li>
+<a href="#4.1.1">Example 1: Writing a Test Driver</a> </li>
 <li>
-<a href="#4.1.2">Example 2: Print The Value of A Test Type</a> </li>
+<a href="#4.1.2">Example 2: Print the Value of a Test Type</a> </li>
 </ul>
 </li>
 </ul>
@@ -96,6 +96,8 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="purpose"></a> <a class="anchor" id="1"></a> </dd></dl>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide test utilities for components in <code>bdl</code> and above. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Use <code>bslim_testutil</code> instead. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -131,20 +133,20 @@ Namespaces</h2></td></tr>
 </table>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bsls__bsltestutil.html" title="Provide test utilities for bsl that do not use &lt;iostream&gt;.">Component bsls_bsltestutil</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="group__bslim__testutil.html" title="Provide test utilities for components above bsl.">Component bslim_testutil</a> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="4"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides the standard print macros used in BDE-style test drivers (<code>ASSERT</code>, <code>LOOP_ASSERT</code>, <code>ASSERTV</code>, <code>P</code>, <code>Q</code>, <code>L</code>, and <code>T</code>) for components in the <code>bdl</code> package group and above. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component also define a set of overloads for the insertion operator (<code>&lt;&lt;</code>) to support the streaming of test types defined in the <code>bsltf</code> package. This is required for test drivers in the <code>bdl</code> package group and above to print the objects of these types to <code>bsl::cout</code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that the <code>bsltf</code> package resides below <code>bsl+bslhdrs</code>, in which <code>bsl::cout</code> is defined; therefore, the components in <code>bsltf</code> can not directly define the overloads of the insertion operator to support printing the test types. Instead, an alternate method supplied in <code>bsls_bsltestutil</code> is used for test drivers in the <code>bsl</code> package group. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that the <code>bsltf</code> package resides below <code>bsl+bslhdrs</code>, in which <code>bsl::cout</code> is defined; therefore, the components in <code>bsltf</code> cannot directly define the overloads of the insertion operator to support printing the test types. Instead, an alternate method supplied in <code>bsls_bsltestutil</code> is used for test drivers in the <code>bsl</code> package group. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="usage.example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="description.usage.example_1~3A_writing_a_test_driver"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Writing a test driver: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 1: Writing a Test Driver: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we write a component to test, which provides a utility class: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>bdlabc {
@@ -211,7 +213,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> testFortyTwo(<span class="keywordtype">bool</span> verbose)
   {
       <span class="keyword">const</span> <span class="keywordtype">int</span> value = bdlabc::BdlExampleUtil::fortyTwo();
-      <span class="keywordflow">if</span> (verbose) P(value);
+      <span class="keywordflow">if</span> (verbose) <a class="code" href="bdlf__bind__test_8h.html#a6dce1d51457f0415ec5302d3c05cded5">P</a>(value);
       LOOP_ASSERT(value, 42 == value);
   }
 </pre></div><br/>
@@ -224,7 +226,7 @@ Namespaces</h2></td></tr>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_print_the_value_of_a_test_type"></a> <a class="anchor" id="usage.example_2~3A_print_the_value_of_a_test_type"></a> <a class="anchor" id="description.usage.example_2~3A_print_the_value_of_a_test_type"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Print The Value of A Test Type: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: Print the Value of a Test Type: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to print the value of an object of a test type defined the <code>bsltf</code> package using <code>bsl::cout</code>. This component supplies the necessary overloads of the insertion operator for this to be done directly. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, include the header of this component: <br/>
 <br/>
@@ -244,7 +246,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

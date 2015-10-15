@@ -1,24 +1,67 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bdls.txt
 
-@PURPOSE: Provide system-level utilities for BDL
+@PURPOSE: Provide platform-independent system-level utilities.
 
 @MNEMONIC: Basic Development Library System-level utilities (bdls)
 
+@DESCRIPTION: The &#39;bdls&#39; package provides a suite of components for
+ platform-independent interactions with operating system for the management of
+ memory, files, and pipes.
+
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdls&#39; package currently has 1 component.
+ The &#39;bdls&#39; package currently has 9 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  1. bdls_testutil
+  5. bdls_osutil
+
+  4. bdls_pipeutil
+     bdls_processutil
+
+  3. bdls_fdstreambuf
+     bdls_filedescriptorguard
+
+  2. bdls_filesystemutil
+
+  1. bdls_memoryutil
+     bdls_pathutil
+     bdls_testutil                                       !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
-: &#39;bdls_testutil&#39;:
+: &#39;bdls_fdstreambuf&#39;:
+:      Provide a stream buffer initialized with a file descriptor.
+:
+: &#39;bdls_filedescriptorguard&#39;:
+:      Provide a RAII guard class used to close files.
+:
+: &#39;bdls_filesystemutil&#39;:
+:      Provide methods for filesystem access with multi-language names.
+:
+: &#39;bdls_memoryutil&#39;:
+:      Provide a set of portable utilities for memory manipulation.
+:
+: &#39;bdls_osutil&#39;:
+:      Provide utilities related to the operating system.
+:
+: &#39;bdls_pathutil&#39;:
+:      Provide portable file path manipulation.
+:
+: &#39;bdls_pipeutil&#39;:
+:      Provide basic portable named-pipe utilities.
+:
+: &#39;bdls_processutil&#39;:
+:      Provide basic platform-independent utilities related to processes.
+:
+: &#39;bdls_testutil&#39;:                                       !DEPRECATED!
 :      Provide test utilities for components in &#39;bdl&#39; and above.
 </pre>
 </body>

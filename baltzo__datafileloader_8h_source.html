@@ -1,0 +1,349 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_datafileloader.h                                            -*-C++-*-
+#ifndef INCLUDED_BALTZO_DATAFILELOADER
+#define INCLUDED_BALTZO_DATAFILELOADER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: provide a concrete &#39;baltzo::Loader&#39; for Zoneinfo binary files.
+//
+//@CLASSES:
+//  baltzo::DataFileLoader: concrete &#39;baltzo::Loader&#39; for Zoneinfo binary data
+//
+//@SEE_ALSO: &#39;baltzo_zoneinfobinaryreader&#39;, &#39;baltzo_zoneinfoutil&#39;
+//
+//@DESCRIPTION: This component provides a mechanism, &#39;baltzo::DataFileLoader&#39;,
+// that is a concrete implementation of the &#39;baltzo::Loader&#39; protocol for
+// loading, into a &#39;baltzo::Zoneinfo&#39; object, the properties of a time zone
+// described in a Zoneinfo binary database file.  The following inheritance
+// hierarchy diagram shows the classes involved and their methods:
+//..
+//   ,----------------------.
+//  ( baltzo::DataFileLoader )
+//   `----------------------&#39;
+//              |      ctor
+//              |      configureRootPath
+//              |      configureRootPathIfPlausible
+//              |      loadTimeZoneFilePath
+//              |      rootPath
+//              |      isRootPathPlausible
+//              V
+//       ,--------------.
+//      ( baltzo::Loader )
+//       `--------------&#39;
+//                 dtor
+//                 loadTimeZone
+//..
+// A &#39;baltzo::DataFileLoader&#39; is supplied a file-system location using the
+// &#39;configureRootPath&#39; method.  This location should correspond to the root
+// directory of a hierarchy containing Zoneinfo binary data files, where each
+// Zoneinfo time-zone identifier indicates a relative path from the root
+// directory to the binary data file containing the information for that time
+// zone.  Accordingly, &#39;baltzo::DataFileLoader&#39; provides a method that, given a
+// time-zone identifier, will open the corresponding data file (relative to the
+// root directory tree supplied at construction), and load, into a
+// &#39;baltzo::Zoneinfo&#39; object, the data from that file.
+//
+///Zoneinfo (TZ Database) Files
+///----------------------------
+// The Zoneinfo database, also referred to as either the TZ database or the
+// Olson database (after its creator, Arthur Olson), is a standard
+// public-domain time-zone information distribution used by many software
+// systems (including a number of Unix variants and the Java Runtime
+// Environment).  Information about the Zoneinfo database can be found online
+// at &#39;http://www.twinsun.com/tz/tz-link.htm&#39;, including the time-zone rules
+// for the supported time zones, and source code for the &#39;zic&#39; compiler (for
+// compiling those rules into the binary representation used by this
+// component).  See &#39;baltzo_zoneinfobinaryreader&#39; for more information about
+// the binary file format.
+//
+///Directory Hierarchy
+///- - - - - - - - - -
+// Zoneinfo database files are typically held in a standard file-system
+// directory hierarchy.  Zoneinfo time-zone identifiers (e.g.,
+// &quot;America/New_York&quot;) serve not only as an identifier, but as a relative path
+// (using the UNIX file separator, &#39;/&#39;) to the file containing data for the
+// time zone.  So, given a hypothetical root directory &quot;/etc/time_zones&quot;, the
+// time-zone data file for &quot;America/New_York&quot; will be located in
+// &quot;/etc/time_zones/America/New_York&quot;.
+//
+///Thread Safety
+///-------------
+// &#39;baltzo::DataFileLoader&#39; is *const* *thread-safe*, meaning that accessors
+// may be invoked concurrently from different threads, but it is not safe to
+// access or modify a &#39;baltzo::DataFileLoader&#39; in one thread while another
+// thread modifies the same object.
+//
+///Usage
+///-----
+// The following examples illustrate how to use a &#39;baltzo::DataFileLoader&#39; to
+// load the Zoneinfo time-zone data for a time zone.
+//
+///Example 1: Prologue: Creating a Example Data File
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// First we need to create one time-zone data file on which to operate.  In
+// practice, clients should *not* generate data files in this manner.  Data
+// files are typically created using the &#39;zic&#39; compiler -- a publicly available
+// tool provided as part of the standard Zoneinfo distribution (see
+// &#39;http://www.twinsun.com/tz/tz-link.htm&#39;) -- and deployed in a standard
+// directory location (see &#39;baltzo_defaultzoneinfocache&#39;).
+//
+// We start by defining static binary data for &quot;Asia/Bangkok&quot;, (chosen because
+// it is relatively small):
+//..
+//  const char ASIA_BANGKOK_DATA[] = {
+//    0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+//    0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+//    0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x08, 0xa2, 0x6a, 0x67, 0xc4,
+//    0x01, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x62, 0x70, 0x00,
+//    0x04, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
+//    0x00, 0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//    0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//    0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x0c, 0xff, 0xff, 0xff,
+//    0xff, 0x56, 0xb6, 0x85, 0xc4, 0xff, 0xff, 0xff, 0xff, 0xa2, 0x6a, 0x67,
+//    0xc4, 0x01, 0x02, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x5e,
+//    0x3c, 0x00, 0x04, 0x00, 0x00, 0x62, 0x70, 0x00, 0x08, 0x4c, 0x4d, 0x54,
+//    0x00, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
+//    0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
+//  };
+//..
+// Then we create a testing sub-directory &quot;test/Asia&quot; that will hold the data
+// file for Bangkok.  Note that &quot;Asia/Bangkok&quot; is the time-zone identifier for
+// Bangkok and &quot;Asia/Bangkok&quot; also serves as a relative path (from our &quot;./test&quot;
+// sub-directory) to that data file.
+//..
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//  const char *TEST_DIRECTORY = &quot;test\\Asia&quot;;
+//  const char *TEST_FILE      = &quot;test\\Asia\\Bangkok&quot;;
+//  #else
+//  const char *TEST_DIRECTORY = &quot;test/Asia&quot;;
+//  const char *TEST_FILE      = &quot;test/Asia/Bangkok&quot;;
+//  #endif
+//  int rc = bdls::FileUtil::createDirectories(TEST_DIRECTORY, true);
+//  assert(0 == rc);
+//..
+// Now we create a file for Bangkok and write the binary time-zone data to that
+// file.
+//..
+//  bsl::ofstream outputFile(TEST_FILE, bsl::ofstream::binary);
+//  assert(outputFile.is_open());
+//  outputFile.write(ASIA_BANGKOK_DATA, sizeof(ASIA_BANGKOK_DATA));
+//  assert(outputFile);
+//  outputFile.close();
+//..
+// The file &#39;Bangkok&#39; should now appear in the &#39;Asia&#39; sub-directory, under out
+// &#39;test&#39; directory.
+//
+///Example 2: Using a &#39;baltzo::DataFileLoader&#39; to Load a Zoneinfo File
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to use a &#39;baltzo::DataFileLoader&#39; to load
+// a time-zone data file into a &#39;baltzo::Zoneinfo&#39; object.  We start by
+// creating a &#39;baltzo::DataFileLoader&#39; object, &#39;loader&#39;, and configure it with
+// the relative path &quot;test&quot; which we created in Example 1 (Prologue).
+//..
+//  baltzo::DataFileLoader loader;
+//  loader.configureRootPath(&quot;test&quot;);
+//..
+// Then we use the &#39;loadTimeZoneFilePath&#39; method to verify that &#39;loader&#39; will
+// correctly locate the test data file we&#39;ve created:
+//..
+//  const char *BANGKOK_ID = &quot;Asia/Bangkok&quot;;
+//  bsl::string bangkokDataPath;
+//  rc = loader.loadTimeZoneFilePath(&amp;bangkokDataPath, BANGKOK_ID);
+//  assert(0         == rc);
+//  assert(TEST_FILE == bangkokDataPath);  // Note &#39;TEST_FILE&#39; from Example 1.
+//..
+// Now we create a &#39;baltzo::Zoneinfo&#39; object, &#39;timeZone&#39;, and load it using
+// &#39;loader&#39;:
+//..
+//  baltzo::Zoneinfo timeZone;
+//  rc = loader.loadTimeZone(&amp;timeZone, BANGKOK_ID);
+//  assert(0 == rc);
+//..
+// Finally we confirm that certain properties of the &#39;timezone&#39; object are in
+// agreement with the properties defined in the binary data (see
+// &#39;baltzo_zoneinfobinaryreader&#39;): (1) That the object&#39;s identifier is
+// &quot;Asia/Bangkok&quot;, and (2) the object contains three local time descriptors,
+// &quot;LMT&quot; (Local Mean Time), &quot;BMT&quot; (Bangkok Mean Time) and &quot;ICT&quot; (Indochina
+// Time), in that order:
+//..
+//  assert(BANGKOK_ID == timeZone.identifier());
+//  baltzo::Zoneinfo::LocalTimeDescriptorConstIterator iterator =
+//                                                  timeZone.descriptorBegin();
+//  assert(&quot;LMT&quot; == iterator-&gt;description());
+//  ++iterator;
+//  assert(&quot;BMT&quot; == iterator-&gt;description());
+//  ++iterator;
+//  assert(&quot;ICT&quot; == iterator-&gt;description());
+//..
+// The &#39;timeZone&#39; object can now be use for time-zone calculations.  See
+// &#39;baltzo_zoneinfoutil&#39;.
+//
+///Epilogue: Removing the Created Files
+///  -  -  -  -  -  -  -  -  -  -  -  -
+// The file hierarchy we created Example 1 solely for Example 2, is no longer
+// needed, and is removed by:
+//..
+//  int rc = bdls::FileUtil::remove(TEST_DIRECTORY, true);
+//  assert(0 == rc);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_LOADER
+#include &lt;baltzo_loader.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+
+class Zoneinfo;
+
+                            // ====================
+                            // class DataFileLoader
+                            // ====================
+
+class DataFileLoader : public Loader {
+    // This component provides a concrete implementation of the &#39;DataLoader&#39;
+    // protocol for loading, into a &#39;Zoneinfo&#39;, the properties of a time zone
+    // defined by an Zoneinfo (TZ Database) binary file located on the file
+    // system.
+
+    // DATA
+    bsl::string d_rootPath;  // root path for time-zone data file
+
+  private:
+    // NOT IMPLEMENTED
+    DataFileLoader(const DataFileLoader&amp;);
+    DataFileLoader&amp; operator=(const DataFileLoader&amp;);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(DataFileLoader,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CLASS METHODS
+    static bool isPlausibleZoneinfoRootPath(const char *path);
+        // Return &#39;true&#39; if there currently exists a directory at the specified
+        // file-system &#39;path&#39; that appears to contain Zoneinfo time-zone
+        // information files.  This method verifies (at a minimum) that &#39;path&#39;
+        // is a valid directory, and contains files for a subset of common
+        // time-zone identifiers, but does not *guarantee* &#39;path&#39; is currently
+        // (or will remain) a correctly configured Zoneinfo database containing
+        // a complete set of time-zone data.
+
+    // CREATORS
+    explicit DataFileLoader(bslma::Allocator *basicAllocator = 0);
+        // Create an unconfigured data-file loader.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    virtual ~DataFileLoader();
+        // Destroy this data-file loader.
+
+    // MANIPULATORS
+    void configureRootPath(const char *path);
+        // Unconditionally set, to the specified &#39;path&#39;, the root of the
+        // file-system directory hierarchy from which this loader will read
+        // Zoneinfo binary time-zone information files.
+
+    int configureRootPathIfPlausible(const char *path);
+        // Set, to the specified &#39;path&#39;, the root of the file-system directory
+        // hierarchy from which this loader will read Zoneinfo binary time-zone
+        // information files.  Return 0 on success, and a non-zero value
+        // (without no effect) if &#39;path&#39; is not a directory that appears to
+        // contain valid Zoneinfo data, as determined by calling
+        // &#39;isPlausibleZoneinfoRootPath&#39; on &#39;path&#39;.
+
+    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
+        // Load into the specified &#39;result&#39; the time-zone information for the
+        // time zone identified by the specified &#39;timeZoneId&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  A return status of
+        // &#39;ErrorCode::k_UNSUPPORTED_ID&#39; indicates that &#39;timeZoneId&#39; is not
+        // recognized.  If an error occurs during this operation, &#39;result&#39; will
+        // be left in a valid, but unspecified state.
+
+    // ACCESSORS
+    int loadTimeZoneFilePath(bsl::string *result,
+                             const char  *timeZoneId) const;
+        // Load into the specified &#39;result&#39; the file-system path to the
+        // Zoneinfo binary data file corresponding to the specified
+        // &#39;timeZoneId&#39; relative to the configured &#39;rootPath&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  On error, &#39;result&#39; is left
+        // in a valid, but unspecified state.  The behavior is undefined unless
+        // either &#39;configureRootPath&#39; or &#39;configureRootPathIfValid&#39; has been
+        // called successfully.  Note that this operation does not verify
+        // &#39;result&#39; refers to a valid file on the file system, or whether the
+        // file (if it exists) contains valid Zoneinfo data.
+
+    const bsl::string&amp; rootPath() const;
+        // Return the root of the directory hierarchy from which this loader
+        // will attempt to load Zoneinfo binary data files.  The behavior is
+        // undefined unless either &#39;configureRootPath&#39; has been called or
+        // &#39;configureRootPathIfValid&#39; has been called successfully.
+
+    bool isRootPathPlausible() const;
+        // Return &#39;true&#39; if the directory returned by the &#39;rootPath&#39; method
+        // exists and appears to contain valid Zoneinfo time-zone information
+        // files, as determined by calling &#39;isPlausibleZoneinfoRootPath&#39; on the
+        // value returned by the &#39;rootPath&#39; method.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// ACCESSORS
+inline
+bool baltzo::DataFileLoader::isRootPathPlausible() const
+{
+    return isPlausibleZoneinfoRootPath(rootPath().c_str());
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

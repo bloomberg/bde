@@ -1,0 +1,61 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bdlsb.txt
+
+@PURPOSE: Provide concrete &#39;streambuf&#39; implementations.
+
+@MNEMONIC: Basic Development Environment Stream Buffers (bdlsb)
+
+@SEE_ALSO: bdlx
+
+@DESCRIPTION: The &#39;bdlsb&#39; package provides concrete implementations of the
+ &#39;std::streambuf&#39; interface.  In particular, these implementations use either a
+ fixed-size user-supplied buffer or else manage a buffer obtained from a
+ user-supplied or default allocator.  Also, concrete implementations are
+ specialized to implement either the input ot the output portion of the
+ interface.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bdlsb&#39; package currently has 7 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdlsb_fixedmeminput
+     bdlsb_fixedmeminstreambuf
+     bdlsb_fixedmemoutput
+     bdlsb_fixedmemoutstreambuf
+     bdlsb_memoutstreambuf
+     bdlsb_overflowmemoutput
+     bdlsb_overflowmemoutstreambuf
+..
+
+/Component Synopsis
+/------------------
+: &#39;bdlsb_fixedmeminput&#39;:
+:      Provide a basic input stream buffer using a client buffer.
+:
+: &#39;bdlsb_fixedmeminstreambuf&#39;:
+:      Provide an input &#39;basic_streambuf&#39; using a client buffer.
+:
+: &#39;bdlsb_fixedmemoutput&#39;:
+:      Provide a basic output stream buffer using a client buffer.
+:
+: &#39;bdlsb_fixedmemoutstreambuf&#39;:
+:      Provide an output &#39;basic_streambuf&#39; using a client buffer.
+:
+: &#39;bdlsb_memoutstreambuf&#39;:
+:      Provide an output &#39;basic_streambuf&#39; using managed memory.
+:
+: &#39;bdlsb_overflowmemoutput&#39;:
+:      Provide an overflowable output &#39;streambuf&#39; using a client buffer.
+:
+: &#39;bdlsb_overflowmemoutstreambuf&#39;:
+:      Provide an overflowable output &#39;streambuf&#39; using a client buffer.
+</pre>
+</body>
+</html>

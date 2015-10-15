@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma Package</title>
+<title>BDE 3.0: bdlma Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -68,6 +68,11 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="groups"></a>
 Components</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__alignedallocator.html">Component bdlma_alignedallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol for memory allocators that support alignment. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__autoreleaser.html">Component bdlma_autoreleaser</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Release memory to a managed allocator or pool at destruction. </p>
@@ -98,14 +103,64 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a memory manager that manages an external buffer. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentallocatoradapter.html">Component bdlma_concurrentallocatoradapter</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a thread-enabled adapter for the allocator protocol. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentfixedpool.html">Component bdlma_concurrentfixedpool</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide thread-safe pool of limited # of blocks of uniform size. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentmultipool.html">Component bdlma_concurrentmultipool</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a memory manager to manage pools of varying block sizes. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentmultipoolallocator.html">Component bdlma_concurrentmultipoolallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an allocator to manage pools of varying object sizes. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentpool.html">Component bdlma_concurrentpool</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide thread-safe allocation of memory blocks of uniform size. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__concurrentpoolallocator.html">Component bdlma_concurrentpoolallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide thread-safe memory-pooling allocator of fixed-size blocks. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__countingallocator.html">Component bdlma_countingallocator</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a memory allocator that counts allocated bytes. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__defaultdeleter.html">Component bdlma_defaultdeleter</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a concrete default deleter w/optionally-supplied allocator. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__deleter.html">Component bdlma_deleter</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol for deleting objects of parameterized type. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__factory.html">Component bdlma_factory</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol for creator/deleter of parameterized objects. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__guardingallocator.html">Component bdlma_guardingallocator</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a memory allocator that guards against buffer overruns. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__heapbypassallocator.html">Component bdlma_heapbypassallocator</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Support memory allocation directly from virtual memory. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__infrequentdeleteblocklist.html">Component bdlma_infrequentdeleteblocklist</a></td></tr>
@@ -121,6 +176,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__managedallocator.html">Component bdlma_managedallocator</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a protocol for memory allocators that support <code>release</code>. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__memoryblockdescriptor.html">Component bdlma_memoryblockdescriptor</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a class describing a block of memory. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma__multipool.html">Component bdlma_multipool</a></td></tr>
@@ -181,7 +241,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdlma</code> package currently has 16 components having 6 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdlma</code> package currently has 28 components having 6 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  6. bdlma_multipoolallocator
 
@@ -189,21 +249,33 @@ Components</h2></td></tr>
      bdlma_multipool
 
   4. bdlma_bufferedsequentialallocator
+     bdlma_concurrentmultipoolallocator
      bdlma_sequentialallocator
 
   3. bdlma_bufferedsequentialpool
+     bdlma_concurrentfixedpool
+     bdlma_concurrentmultipool
+     bdlma_concurrentpoolallocator
      bdlma_sequentialpool
 
   2. bdlma_buffermanager
+     bdlma_concurrentpool
+     bdlma_defaultdeleter
+     bdlma_factory
      bdlma_pool
 
-  1. bdlma_autoreleaser
+  1. bdlma_alignedallocator
+     bdlma_autoreleaser
      bdlma_blocklist
      bdlma_bufferimputil
+     bdlma_concurrentallocatoradapter
      bdlma_countingallocator
+     bdlma_deleter
      bdlma_guardingallocator
+     bdlma_heapbypassallocator
      bdlma_infrequentdeleteblocklist
      bdlma_managedallocator
+     bdlma_memoryblockdescriptor
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -211,6 +283,8 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_synopsis"></a> <a class="anchor" id="description.component_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Component Synopsis: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_alignedallocator</code>: <br/>
+ Provide a protocol for memory allocators that support alignment.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_autoreleaser</code>: <br/>
  Release memory to a managed allocator or pool at destruction.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_blocklist</code>: <br/>
@@ -223,16 +297,38 @@ Components</h2></td></tr>
  Provide pure procedures for allocating memory from a buffer.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_buffermanager</code>: <br/>
  Provide a memory manager that manages an external buffer.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentallocatoradapter</code>: <br/>
+ Provide a thread-enabled adapter for the allocator protocol.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentfixedpool</code>: <br/>
+ Provide thread-safe pool of limited # of blocks of uniform size.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentmultipool</code>: <br/>
+ Provide a memory manager to manage pools of varying block sizes.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentmultipoolallocator</code>: <br/>
+ Provide an allocator to manage pools of varying object sizes.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentpool</code>: <br/>
+ Provide thread-safe allocation of memory blocks of uniform size.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_concurrentpoolallocator</code>: <br/>
+ Provide thread-safe memory-pooling allocator of fixed-size blocks.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_countingallocator</code>: <br/>
  Provide a memory allocator that counts allocated bytes.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_defaultdeleter</code>: <br/>
+ Provide a concrete default deleter w/optionally-supplied allocator.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_deleter</code>: <br/>
+ Provide a protocol for deleting objects of parameterized type.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_factory</code>: <br/>
+ Provide a protocol for creator/deleter of parameterized objects.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_guardingallocator</code>: <br/>
  Provide a memory allocator that guards against buffer overruns.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_heapbypassallocator</code>: <br/>
+ Support memory allocation directly from virtual memory.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_infrequentdeleteblocklist</code>: <br/>
  Provide allocation and management of infrequently deleted blocks.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_localsequentialallocator</code>: <br/>
  Provide an efficient managed allocator using a local buffer.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_managedallocator</code>: <br/>
  Provide a protocol for memory allocators that support <code>release</code>.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_memoryblockdescriptor</code>: <br/>
+ Provide a class describing a block of memory.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_multipool</code>: <br/>
  Provide a memory manager to manage pools of varying block sizes.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma_multipoolallocator</code>: <br/>
@@ -245,7 +341,7 @@ Components</h2></td></tr>
  Provide sequential memory using dynamically-allocated buffers.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

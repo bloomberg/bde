@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslim_printer Component</title>
+<title>BDE 3.0: bslim_printer Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -85,7 +85,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1.2">Example 2: <code>print</code> Method for a Mechanism Class</a> </li>
 <li>
-<a href="#3.1.3">Example 3: Foreign (3rd - Party) Classes, and Printing STL Containers</a> </li>
+<a href="#3.1.3">Example 3: Foreign (Third-Party) Classes, and Printing STL Containers</a> </li>
 <li>
 <a href="#3.1.4">Example 4: Printing Ranges, and Typed Pointers</a> </li>
 <li>
@@ -111,9 +111,9 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a mechanism class, <code>Printer</code>, that, in many cases, simplifies the implementation of types providing a <code>print</code> method with the signature: <br/>
+<dl class="user"><dt><b></b></dt><dd>This component provides a mechanism class, <code><a class="el" href="classbslim_1_1Printer.html">bslim::Printer</a></code>, that, in many cases, simplifies the implementation of types providing a <code>print</code> method with the signature: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  bsl::ostream&amp; print(bsl::ostream&amp; stream,
+<div class="fragment"><pre class="fragment">  bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp; stream,
                       <span class="keywordtype">int</span>           level          = 0,
                       <span class="keywordtype">int</span>           spacesPerLevel = 4) <span class="keyword">const</span>;
       <span class="comment">// Format this object to the specified output &#39;stream&#39; at the (absolute</span>
@@ -176,7 +176,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
       ...
 
       <span class="comment">// ACCESSORS</span>
-      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+      bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp; stream,
                           <span class="keywordtype">int</span>           level = 0,
                           <span class="keywordtype">int</span>           spacesPerLevel = 4)<span class="keyword"> const</span>
 <span class="keyword">      </span>{
@@ -249,7 +249,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
       <span class="comment">// ...</span>
       <span class="comment">// ACCESSORS</span>
       <span class="comment">// ...</span>
-      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+      bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp; stream,
                           <span class="keywordtype">int</span>           level          = 0,
                           <span class="keywordtype">int</span>           spacesPerLevel = 4) <span class="keyword">const</span>;
   };
@@ -257,7 +257,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 <br/>
  For the purposes of debugging, it may be useful to print the starting address of every memory block in a <code>BlockList</code>, which can be done using the <code>printHexAddr</code> method of the <code>Printer</code> class: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  bsl::ostream&amp; BlockList::print(bsl::ostream&amp; stream,
+<div class="fragment"><pre class="fragment">  bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">BlockList::print</a>(bsl::ostream&amp; stream,
                                  <span class="keywordtype">int</span>           level,
                                  <span class="keywordtype">int</span>           spacesPerLevel)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
@@ -291,8 +291,8 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_foreign_(3rd_-_party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="usage.example_3~3A_foreign_(3rd_-_party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="description.usage.example_3~3A_foreign_(3rd_-_party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.1.3"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3: Foreign (3rd - Party) Classes, and Printing STL Containers: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_foreign_(third-party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="usage.example_3~3A_foreign_(third-party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="description.usage.example_3~3A_foreign_(third-party)_classes,_and_printing_stl_containers"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.1.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Foreign (Third-Party) Classes, and Printing STL Containers: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we use a <code>Printer</code> object to help format the properties of a class supplied by a third-party that does not implement the standard <code>print</code> method. Consider a struct, <code>ThirdPartyStruct</code>, defined in <code>/usr/include/thirdparty.h</code> that has no standard <code>print</code> method. We will be using this struct within another class <code>Customer</code>, storing some <code>Customer</code> objects in a map, and printing the map. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>ThirdPartyStruct {
@@ -313,7 +313,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">struct </span>MyThirdPartyStructPrintUtil {
       <span class="keyword">static</span>
-      bsl::ostream&amp; print(bsl::ostream&amp;           stream,
+      bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp;           stream,
                           <span class="keyword">const</span> ThirdPartyStruct&amp; data,
                           <span class="keywordtype">int</span>                     level = 0,
                           <span class="keywordtype">int</span>                      spacesPerLevel = 4);
@@ -321,7 +321,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
           <span class="comment">// &#39;ThirdPartyStruct&#39;.</span>
   };
 
-  bsl::ostream&amp; MyThirdPartyStructPrintUtil::print(
+  bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">MyThirdPartyStructPrintUtil::print</a>(
                                       bsl::ostream&amp;           stream,
                                       <span class="keyword">const</span> ThirdPartyStruct&amp; data,
                                       <span class="keywordtype">int</span>                     level,
@@ -364,7 +364,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
       }
 
       <span class="comment">// ACCESSORS</span>
-      <span class="keywordtype">void</span> print(bsl::ostream&amp; stream,
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp; stream,
                  <span class="keywordtype">int</span>           level = 0,
                  <span class="keywordtype">int</span>           spacesPerLevel = 4)<span class="keyword"> const</span>
 <span class="keyword">      </span>{
@@ -372,7 +372,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
           printer.start();
           printer.printAttribute(<span class="stringliteral">&quot;CompanyName&quot;</span>, d_companyName);
           printer.printForeign(d_thirdPartyStruct,
-                               &amp;MyThirdPartyStructPrintUtil::print,
+                               &amp;<a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">MyThirdPartyStructPrintUtil::print</a>,
                                <span class="stringliteral">&quot;ThirdPartyStruct&quot;</span>);
           printer.printAttribute(<span class="stringliteral">&quot;LoyalCustomer&quot;</span>, d_loyalCustomer);
           printer.end();
@@ -456,6 +456,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_4~3A_printing_ranges,_and_typed_pointers"></a> <a class="anchor" id="usage.example_4~3A_printing_ranges,_and_typed_pointers"></a> <a class="anchor" id="description.usage.example_4~3A_printing_ranges,_and_typed_pointers"></a> <a class="anchor" id="example_4"></a> <a class="anchor" id="usage.example_4"></a> <a class="anchor" id="description.usage.example_4"></a> <a class="anchor" id="3.1.4"></a> </dd></dl>
 <dl class="user"><dt><b>Example 4: Printing Ranges, and Typed Pointers: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this examples we demonstrate two capabilities of a <code><a class="el" href="classbslim_1_1Printer.html">bslim::Printer</a></code> object: printing a range of elements using iterators and printing a pointer type. </dd></dl>
@@ -496,13 +497,14 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_5~3A_print_method_for_a_low-level_value-semantic_class"></a> <a class="anchor" id="usage.example_5~3A_print_method_for_a_low-level_value-semantic_class"></a> <a class="anchor" id="description.usage.example_5~3A_print_method_for_a_low-level_value-semantic_class"></a> <a class="anchor" id="example_5"></a> <a class="anchor" id="usage.example_5"></a> <a class="anchor" id="description.usage.example_5"></a> <a class="anchor" id="3.1.5"></a> </dd></dl>
 <dl class="user"><dt><b>Example 5: print Method for a Low-Level Value-Semantic Class: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>For very simple classes, it may be desirable always to format the attributes on a single line. In this example, we discuss the <code>print</code> method formatting for such a low-level value semantic class. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For very simple classes, it may be desirable always to format the attributes on a single line. In this example, we discuss the <code>print</code> method formatting for such a low-level value-semantic class. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Usually, single-line or multi-line formatting options are specified by the value of the <code>spacesPerLevel</code> argument, but for a simple class that always prints on a single line, the only difference between the single- and multi-line cases is that a newline character is printed at the end of the output for the multi-line case. For such classes, the "name" of the attribute and the enclosing brackets may be omitted as well. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For example, consider a class, <code>DateTz</code>, having as attributes a local date and a time offset: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>DateTz {
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span><a class="code" href="namespacebdet.html#abb4aa66e785bb17f99dcf1f762ad4b99">DateTz</a> {
       <span class="comment">// This &#39;class&#39; represents a date value explicitly in a local time</span>
       <span class="comment">// zone.  The offset of that time (in minutes) from UTC is also part of</span>
       <span class="comment">// the value of this class.</span>
@@ -517,7 +519,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
     <span class="keyword">public</span>:
       <span class="comment">// ...</span>
       <span class="comment">// ACCESSORS</span>
-      bsl::ostream&amp; print(bsl::ostream&amp; stream,
+      bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(bsl::ostream&amp; stream,
                           <span class="keywordtype">int</span>           level          = 0,
                           <span class="keywordtype">int</span>           spacesPerLevel = 4) <span class="keyword">const</span>;
       <span class="comment">// ...</span>
@@ -526,7 +528,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 <br/>
  The <code>Printer</code> class may be used in this case to print the start and end indentation by passing a <code>suppressBracket</code> flag to the <code>start</code> and <code>end</code> methods. The value itself can be written to the stream directly without using <code>Printer</code>. Note that to ensure correct formatting of the value in the presence of a call to <code>setw</code> on the stream, the output must be written to a <code>bsl::ostringstream</code> first; the string containing the output can then be written to the specified <code>stream</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  bsl::ostream&amp; DateTz::print(bsl::ostream&amp; stream,
+<div class="fragment"><pre class="fragment">  bsl::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">DateTz::print</a>(bsl::ostream&amp; stream,
                               <span class="keywordtype">int</span>           level,
                               <span class="keywordtype">int</span>           spacesPerLevel)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
@@ -576,7 +578,7 @@ For small, common types, such as <code>bdet_Date</code>, the names of attributes
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

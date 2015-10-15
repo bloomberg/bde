@@ -1,0 +1,236 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_loggercategoryutil.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_LOGGERCATEGORYUTIL
+#define INCLUDED_BALL_LOGGERCATEGORYUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a suite of utility functions for category management.
+//
+//@CLASSES:
+//  ball::LoggerCategoryUtil: namespace for category management utilities
+//
+//@SEE_ALSO: ball_loggermanager, ball_categorymanager
+//
+//@DESCRIPTION: This component defines a &#39;struct&#39;, &#39;ball::LoggerCategoryUtil&#39;,
+// that provides a set of utility functions for managing the categories
+// contained in a &#39;ball::LoggerManager&#39; based on the notion of hierarchy.  In
+// particular, the &#39;setThresholdLevelsHierarchically&#39; function modifies the
+// threshold levels of each category in &#39;ball::LoggerManager&#39; whose name has
+// the specified string as a prefix.  The &#39;addCategoryHierarchically&#39; function
+// creates a new category that inherits threshold levels from the exiting
+// category whose name is the longest prefix match, if such a category exists.
+//
+///Deprecation Notice
+///------------------
+// The &#39;setThresholdLevels&#39; function is deprecated in favor of
+// &#39;setThresholdLevelsHierarchically&#39;.  The former is data-sensitive in the
+// sense that the &#39;*&#39; located at the end of the specified category name will
+// be treated as a special flag to turn on the prefix name matching, thus
+// causing trouble for categories whose name ends with &#39;*&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
+// The following code fragments illustrate basic usage of this component&#39;s
+// &#39;setThresholdLevelsHierarchically&#39; and &#39;addCategoryHierarchically&#39; methods.
+//
+// For convenience, we first create an auxiliary function that prints out the
+// names and threshold level values of all the categories currently in the
+// logger manager, except the default one:
+//..
+//     void printAllCategories()
+//     {
+//         ball::LoggerManager&amp; lm = ball::LoggerManager::singleton();
+//         ball::LoggerCategoryManip manip(&amp;lm);
+//         for (manip.advance(); manip; manip.advance()) { // skip the default
+//                                                         // category
+//             const ball::Category *category
+//                 = lm.lookupCategory(manip().categoryName());
+//             bsl::cout &lt;&lt; &quot;[ &quot; &lt;&lt; category-&gt;categoryName()
+//                       &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;recordLevel()
+//                       &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;passLevel()
+//                       &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;triggerLevel()
+//                       &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;triggerAllLevel()
+//                       &lt;&lt; &quot; ]&quot; &lt;&lt; bsl::endl;
+//         }
+//     }
+//..
+// Now we initialize the logging environment by creating a test observer
+// object and a logger manager object, and set the default threshold levels of
+// the logger manager object to [191, 95, 63, 31]:
+//..
+//     BloombergLP::ball::TestObserver  testObserver(bsl::cout);
+//     BloombergLP::ball::TestObserver *TO = &amp;testObserver;
+//     ball::LoggerManager::initSingleton(TO);
+//     ball::LoggerManager&amp; lm = ball::LoggerManager::singleton();
+//     lm.setDefaultThresholdLevels(191, 95, 63, 31);
+//..
+// We then create two new categories, &quot;EQ&quot; and &quot;EQ.MARKET&quot;, by calling the
+// &#39;addCategory&#39; method of the logger manager class, with their threshold
+// levels explicitly set to different values (which are also different from
+// the default threshold levels):
+//..
+//     lm.addCategory(&quot;EQ&quot;, 192, 96, 64, 32);
+//     lm.addCategory(&quot;EQ.MARKET&quot;, 193, 97, 65, 33);
+//     printAllCategories();
+//..
+// The following is printed out by &#39;printallCategories&#39;:
+//..
+//     [ EQ, 192, 96, 64, 32 ]
+//     [ EQ.MARKET, 193, 97, 65, 33 ]
+//..
+// We add a new category using &#39;addCategoryHierarchically&#39;:
+//..
+//     ball::LoggerCategoryUtil::addCategoryHierarchically(&amp;lm,
+//                                                        &quot;EQ.MARKET.NYSE&quot;);
+//     printAllCategories();
+//..
+// The new category with name &quot;EQ.MARKET.NYSE&quot; inherits its threshold levels
+// from the category &quot;EQ.MARKET&quot; rather than having the default threshold
+// levels or inheriting them from &quot;EQ&quot; because of the longest prefix matching
+// rule:
+//..
+//     [ EQ, 192, 96, 64, 32 ]
+//     [ EQ.MARKET, 193, 97, 65, 33 ]
+//     [ EQ.MARKET.NYSE, 193, 97, 65, 33 ]
+//..
+// We now want to adjust the threshold levels for all categories whose name
+// starts with &quot;EQ.MARKET&quot; using &#39;setThresholdLevelsHierarchically&#39;:
+//..
+//     ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&amp;lm,
+//                                                               &quot;EQ.MARKET&quot;,
+//                                                               194,
+//                                                               98,
+//                                                               66,
+//                                                               34);
+//     printAllCategories();
+//..
+// We will notice that the threshold levels of &quot;EQ.MARKET&quot; and
+// &quot;EQ.MARKET.NYSE&quot; have been changed to the new values, while those of &quot;EQ&quot;
+// remain unchanged:
+//..
+//     [ EQ, 192, 96, 64, 32 ]
+//     [ EQ.MARKET, 194, 98, 66, 34 ]
+//     [ EQ.MARKET.NYSE, 194, 98, 66, 34 ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                    // ===============================
+                    // struct ball::LoggerCategoryUtil
+                    // ===============================
+
+
+namespace ball {
+
+class LoggerManager;
+class Category;
+
+struct LoggerCategoryUtil {
+    // This struct provides a suite of utility functions that facilitate the
+    // management of the categories in &#39;LoggerManager&#39;.
+
+    // CLASS METHODS
+
+    static Category *addCategoryHierarchically(LoggerManager *loggerManager,
+                                               const char    *categoryName);
+        // Add, to the specified &#39;loggerManager&#39;, a new category having the
+        // specified &#39;categoryName&#39;; return the address of the modifiable new
+        // category on success, and 0, with no effect, if a category by that
+        // name already exists or if the number of existing categories in
+        // &#39;loggerManager&#39; has reached the maximum capacity.  The newly created
+        // category will have the same threshold levels as the category in
+        // &#39;loggerManager&#39; whose name is the longest prefix of &#39;categoryName&#39;,
+        // and the default levels, if no such category exists.  The behavior is
+        // undefined unless &#39;loggerManager&#39; is not null and &#39;categoryName&#39; is
+        // null-terminated.
+
+    static int setThresholdLevelsHierarchically(
+                                            LoggerManager *loggerManager,
+                                            const char    *categoryNamePrefix,
+                                            int            recordLevel,
+                                            int            passLevel,
+                                            int            triggerLevel,
+                                            int            triggerAllLevel);
+        // Set, in the specified &#39;loggerManager&#39;, the threshold levels of every
+        // category whose name has, as a prefix, the specified
+        // &#39;categoryNamePrefix&#39; to the specified threshold values,
+        // &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39;.
+        // Return the number of categories whose threshold levels were set, and
+        // a negative value, with no effect, if any of the specified threshold
+        // values is outside the range [0 .. 255].  The behavior is undefined
+        // unless &#39;loggerManager&#39; is not null and &#39;categoryNamePrefix&#39; is
+        // null-terminated.
+
+    static int setThresholdLevels(LoggerManager *loggerManager,
+                                  const char    *regularExpression,
+                                  int            recordLevel,
+                                  int            passLevel,
+                                  int            triggerLevel,
+                                  int            triggerAllLevel);
+        // DEPRECATED:: Use &#39;setThresholdLevelsHierarchically&#39; instead.
+        //
+        // Set the threshold levels of each category in the specified
+        // &#39;loggerManager&#39; whose name matches the specified &#39;regularExpression&#39;
+        // to the specified &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and
+        // &#39;triggerAllLevel&#39; values, respectively, if each of the threshold
+        // values is in the range [0 .. 255].  Return the number of categories
+        // whose threshold levels were set, or a negative value if the
+        // threshold values were invalid.  The behavior is undefined unless
+        // &#39;loggerManager&#39; is non-null and &#39;regularExpression&#39; is
+        // null-terminated.  Note that the only regular expressions supported
+        // in this release are of the form (1) &quot;X*&quot;, matching every category
+        // name in the registry of the form &quot;XY&quot;, where X and Y are arbitrary
+        // strings (including the empty string), and (2) &quot;X&quot;, matching at most
+        // one category in the registry, where X is an arbitrary string not
+        // ending in &#39;*&#39;; that is, only a &#39;*&#39; located at the end of
+        // &#39;regularExpression&#39; is recognized as a special character.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

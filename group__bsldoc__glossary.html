@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsldoc_glossary Component</title>
+<title>BDE 3.0: bsldoc_glossary Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -75,7 +75,7 @@
 <li>
 <a href="#3.1">Terminology (in Alphabetic Order)</a> <ul>
 <li>
-<a href="#3.1.1">Alias Safe [UC.1]</a> </li>
+<a href="#3.1.1">Alias-Safe [UC.1]</a> </li>
 <li>
 <a href="#3.1.2">Attribute Type [TC.3]</a> </li>
 <li>
@@ -99,9 +99,9 @@
 <li>
 <a href="#3.1.12">No-Throw Guarantee [ES.4]</a> </li>
 <li>
-<a href="#3.1.13">Protocol:[TC.7]</a> </li>
+<a href="#3.1.13">Protocol [TC.7]</a> </li>
 <li>
-<a href="#3.1.14">Simply Constrained Attribute Type [TC.5]</a> </li>
+<a href="#3.1.14">Simply-Constrained Attribute Type [TC.5]</a> </li>
 <li>
 <a href="#3.1.15">Strong Guarantee [ES.3]</a> </li>
 <li>
@@ -140,33 +140,33 @@
 <div class="fragment"><pre class="fragment"> ,-------------------------------------------------------------------------.
  | Topic               |  Term                                   |   Key   |
  |-------------------------------------------------------------------------|
- | Exception-Safety    |                                         |         |
+ | Exception Safety    |                                         |         |
  |                     | Exception-Neutral                       | [ES.1 ] |
  |                     | Basic Guarantee                         | [ES.2 ] |
  |                     | Strong Guarantee                        | [ES.3 ] |
  |                     | No-Throw Guarantee                      | [ES.4 ] |
  |                     | Injected Exception                      | [ES.5 ] |
  |---------------------+-----------------------------------------+---------|
- | Thread-Safety       |                                         |         |
+ | Thread Safety       |                                         |         |
  |                     | Minimally Thread-Safe                   | [TS.1 ] |
  |                     | <span class="stringliteral">&#39;const&#39;</span> Thread-Safe                     | [TS.2 ] |
  |                     | Fully Thread-Safe                       | [TS.3 ] |
  |                     | Thread-Aware                            | [TS.4 ] |
  |                     | Thread-Enabled                          | [TS.5 ] |
  |---------------------+-----------------------------------------+---------|
- | Type Classification |                                         |         |
- |                     | Value-Semantic Type                     | [TC.1 ] |
- |                     | In-Core Value-Semantic Type             | [TC.2 ] |
- |                     | Attribute Type                          | [TC.3 ] |
- |                     | Unconstrained Attribute Type            | [TC.4 ] |
- |                     | Simply Constrained Attribute Type       | [TC.5 ] |
- |                     | Complex-Constrained Attribute Type      | [TC.6 ] |
+ | <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> Classification |                                         |         |
+ |                     | Value-Semantic <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                     | [TC.1 ] |
+ |                     | In-Core Value-Semantic <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>             | [TC.2 ] |
+ |                     | Attribute <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                          | [TC.3 ] |
+ |                     | Unconstrained Attribute <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>            | [TC.4 ] |
+ |                     | Simply-Constrained Attribute <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>       | [TC.5 ] |
+ |                     | Complex-Constrained Attribute <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>      | [TC.6 ] |
  |                     | Protocol                                | [TC.7 ] |
  |                     | Mechanism                               | [TC.8 ] |
- |                     | Utility Type                            | [TC.9 ] |
- |                     | Vocabulary Type                         | [TC.10] |
+ |                     | Utility <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                            | [TC.9 ] |
+ |                     | Vocabulary <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                         | [TC.10] |
  |---------------------+-----------------------------------------+---------|
- | Value-Semantics     |                                         |         |
+ | Value Semantics     |                                         |         |
  |                     | Value-Semantic Operations               | [VS.1 ] |
  |---------------------+-----------------------------------------+---------|
  | Uncategorized       |                                         |         |
@@ -180,11 +180,11 @@
 <dl class="user"><dt><b>Terminology (in Alphabetic Order): </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="alias_safe"></a> <a class="anchor" id="terminology_(in_alphabetic_order).alias_safe"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).alias_safe"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Alias Safe [UC.1]: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="alias-safe"></a> <a class="anchor" id="terminology_(in_alphabetic_order).alias-safe"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).alias-safe"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
+<dl class="user"><dt><b>Alias-Safe [UC.1]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-A <em>function</em> is <em>alias</em> <em>safe</em> if it behaves as advertized in its contract, even when multiple arguments are aliases for the same object or overlapping regions of memory.  </li>
+A <em>function</em> is <em>alias-safe</em> if it behaves as advertized in its contract, even when multiple arguments are aliases for the same object or overlapping regions of memory.  </li>
 <li>
 A <em>class</em> is alias-safe if all of its methods are alias-safe.  </li>
 </ul>
@@ -194,7 +194,7 @@ A <em>class</em> is alias-safe if all of its methods are alias-safe.  </li>
 <dl class="user"><dt><b>Attribute Type [TC.3]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">A value-semantic type (see "Value-Semantic Type") is an <em>attribute</em> <em>type</em> if the type provides no primitive functionality other than standard value-semantic operations (e.g., equality-comparison) along with manipulators and accessors to get and set the contained attribute fields.</p>
+<p class="startli">A value-semantic type (see "Value-Semantic Type") is an <em>attribute</em> <em>type</em> if the type provides no primitive functionality other than standard value-semantic operations (e.g., equality comparison) along with manipulators and accessors to get and set the contained attribute fields.</p>
 <ul>
 <li>
 Attribute types are a subset of value-semantic types. Therefore, an attribute type must provide a notion of value (i.e., provide <code>operator==</code>).  </li>
@@ -232,7 +232,7 @@ Complex-constrained attribute types are a subset of attribute types, which, in t
 <dl class="user"><dt><b>const Thread-Safe [TS.2]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">A <em>class</em> is <em><code>const</code> thread-safe</em> if its accessors may be invoked concurrently from different threads, but it is not safe to access or modify an object of that class in one thread while another thread modifies the same object.</p>
+<p class="startli">A <em>class</em> is <em><code>const</code></em> <em>thread-safe</em> if its accessors may be invoked concurrently from different threads, but it is not safe to access or modify an object of that class in one thread while another thread modifies the same object.</p>
 <ul>
 <li>
 This is the default, and is generally true of classes without either static or mutable data members.  </li>
@@ -257,7 +257,7 @@ A <em>function</em> is <em>exception-neutral</em> if it safely propagates to its
 <li>
 A class is exception-neutral if it provides at least the <em>basic</em> <em>guarantee</em>, and propagates injected exceptions.  </li>
 <li>
-BDE components use RAII to provide exception-neutrality, not <code>try</code>/<code>catch</code>.  </li>
+BDE components use RAII to provide exception neutrality, not <code>try</code>/<code>catch</code>.  </li>
 </ul>
 <p class="endli"></p>
 </li>
@@ -268,7 +268,7 @@ BDE components use RAII to provide exception-neutrality, not <code>try</code>/<c
 <dl class="user"><dt><b>Fully Thread-Safe [TS.3]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">A <em>class</em> is <em>fully thread-safe</em> if all non-creators (and any <code>friend</code> functions) can safely execute concurrently.</p>
+<p class="startli">A <em>class</em> is <em>fully</em> <em>thread-safe</em> if all non-creators (and any <code>friend</code> functions) can safely execute concurrently.</p>
 <ul>
 <li>
 A class that is fully thread-safe and has at least one manipulator is also thread-aware.  </li>
@@ -300,7 +300,7 @@ Because an in-core value-semantic type's notion of value is tied to the current 
 <dl class="user"><dt><b>Injected Exception [ES.5]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-An injected exception is any exception generated within a method of an object without the explicit use of <code>throw</code>. For example, an exception may be injected by calling a method on a contained object (which, in turn, throws), or via a template parameter, virtual function call, or callback.  </li>
+An <em>injected</em> <em>exception</em> is any exception generated within a method of an object without the explicit use of <code>throw</code>. For example, an exception may be injected by calling a method on a contained object (which, in turn, throws), or via a template parameter, virtual function call, or callback.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -308,7 +308,7 @@ An injected exception is any exception generated within a method of an object wi
 <dl class="user"><dt><b>Mechanism [TC.8]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">A <em>class</em> is a <em>mechanism</em> if objects of the class maintain state, but have no sensible notion of value. Therefore, mechanisms do not provide standard value-semantic operations such as equality-comparison, copy-construction, or copy-assignment.</p>
+<p class="startli">A <em>class</em> is a <em>mechanism</em> if objects of the class maintain state, but have no sensible notion of value. Therefore, mechanisms do not provide standard value-semantic operations such as equality comparison, copy construction, or copy assignment.</p>
 <ul>
 <li>
 For example, memory allocators and thread pools are mechanisms.  </li>
@@ -322,7 +322,7 @@ For example, memory allocators and thread pools are mechanisms.  </li>
 <dl class="user"><dt><b>Minimally Thread-Safe [TS.1]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-A <em>class</em> is <em>minimally thread-safe</em> if two threads can safely operate on two distinct objects of the class.  </li>
+A <em>class</em> is <em>minimally</em> <em>thread-safe</em> if two threads can safely operate on two distinct objects of the class.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -330,7 +330,7 @@ A <em>class</em> is <em>minimally thread-safe</em> if two threads can safely ope
 <dl class="user"><dt><b>No-Throw Guarantee [ES.4]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">A <em>function</em> provides the no-throw guarantee if it will not throw, or in any way propagate, an exception to the caller under any circumstances.</p>
+<p class="startli">A <em>function</em> provides the <em>no-throw</em> <em>guarantee</em> if it will not throw, or in any way propagate, an exception to the caller under any circumstances.</p>
 <ul>
 <li>
 The no-throw guarantee is exceedingly rare in BDE libraries. Any memory allocation performed using a type derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> may throw a memory-allocation exception. Additionally, a function may test its input to verify that it has been called in-contract (e.g., using <code>bsls_assert</code>) and may throw an exception in cases where it is called out-of-contract (functions with any undefined behavior, by definition, cannot provide the no-throw guarantee).  </li>
@@ -340,8 +340,8 @@ The no-throw guarantee is exceedingly rare in BDE libraries. Any memory allocati
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="protocol~3A~5Btc.7~5D"></a> <a class="anchor" id="terminology_(in_alphabetic_order).protocol~3A~5Btc.7~5D"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).protocol~3A~5Btc.7~5D"></a> <a class="anchor" id="protocol"></a> <a class="anchor" id="terminology_(in_alphabetic_order).protocol"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).protocol"></a> <a class="anchor" id="3.1.13"></a> </dd></dl>
-<dl class="user"><dt><b>Protocol:[TC.7]: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="protocol"></a> <a class="anchor" id="terminology_(in_alphabetic_order).protocol"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).protocol"></a> <a class="anchor" id="3.1.13"></a> </dd></dl>
+<dl class="user"><dt><b>Protocol [TC.7]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
 <p class="startli">A <em>protocol</em> is an abstract base class defining only pure virtual functions, aside from the (non-pure virtual) destructor.</p>
@@ -354,14 +354,14 @@ Protocol is a more precisely defined term for what is frequently referred to as 
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="simply_constrained_attribute_type"></a> <a class="anchor" id="terminology_(in_alphabetic_order).simply_constrained_attribute_type"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).simply_constrained_attribute_type"></a> <a class="anchor" id="3.1.14"></a> </dd></dl>
-<dl class="user"><dt><b>Simply Constrained Attribute Type [TC.5]: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="simply-constrained_attribute_type"></a> <a class="anchor" id="terminology_(in_alphabetic_order).simply-constrained_attribute_type"></a> <a class="anchor" id="description.terminology_(in_alphabetic_order).simply-constrained_attribute_type"></a> <a class="anchor" id="3.1.14"></a> </dd></dl>
+<dl class="user"><dt><b>Simply-Constrained Attribute Type [TC.5]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-<p class="startli">An attribute type (see "Attribute Type") is a <em>simply</em> <em>constrained</em> <em>attribute</em> <em>type</em> if there are constraints on the values of one or more individual attributes, but the constraints are independent.</p>
+<p class="startli">An attribute type (see "Attribute Type") is a <em>simply-constrained</em> <em>attribute</em> <em>type</em> if there are constraints on the values of one or more individual attributes, but the constraints are independent.</p>
 <ul>
 <li>
-Simply constrained attribute types are a subset of attribute types, which, in turn, are a subset of value-semantic types. Therefore, a simply constrained attribute type must have a notion of value (i.e., define <code>operator==</code>), and provide no primitive functionality aside from the standard value-semantic operations with manipulators and accessors to get and set the contained attribute fields.  </li>
+Simply-constrained attribute types are a subset of attribute types, which, in turn, are a subset of value-semantic types. Therefore, a simply-constrained attribute type must have a notion of value (i.e., define <code>operator==</code>), and provide no primitive functionality aside from the standard value-semantic operations with manipulators and accessors to get and set the contained attribute fields.  </li>
 </ul>
 <p class="endli"></p>
 </li>
@@ -380,7 +380,7 @@ A <em>class</em> provides the <em>strong</em> <em>guarantee</em> if objects of t
 <dl class="user"><dt><b>Thread-Aware [TS.4]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-A <em>class</em> that is <em>thread-aware</em> is designed with multi-threading in mind and provides at least one manipulator (or <code>friend</code> function) that can safely execute concurrently on a single object by multiple threads.  </li>
+A <em>class</em> that is <em>thread-aware</em> is designed with multithreading in mind and provides at least one manipulator (or <code>friend</code> function) that can safely execute concurrently on a single object by multiple threads.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -388,7 +388,7 @@ A <em>class</em> that is <em>thread-aware</em> is designed with multi-threading 
 <dl class="user"><dt><b>Thread-Enabled [TS.5]: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-A <em>class</em> that is <em>thread-enabled</em> is designed to directly interact with threads, and cannot function correctly in a non-multi-threading environment (e.g., a thread pool is thread-enabled, so <em>must</em> be used in a multi-threading environment). Typically a <em>thread-enabled</em> class creates or joins threads.  </li>
+A <em>class</em> that is <em>thread-enabled</em> is designed to directly interact with threads, and cannot function correctly in a non-multithreading environment (e.g., a thread pool is thread-enabled, so <em>must</em> be used in a multithreading environment). Typically a <em>thread-enabled</em> class creates or joins threads.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -423,9 +423,9 @@ A <em>utility</em> <em>type</em> is a <code>struct</code> (or <code>class</code>
 <li>
 Equality and Non-Equality Comparisons  </li>
 <li>
-Copy-Construction  </li>
+Copy Construction  </li>
 <li>
-Copy-Assignment  </li>
+Copy Assignment  </li>
 <li>
 Default Construction  </li>
 <li>
@@ -478,7 +478,7 @@ A value-semantic class is exception-neutral (see "Exception-Neutral") and provid
 </ul>
 </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,612 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_streamsocket.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKET
+#define INCLUDED_BTLSO_STREAMSOCKET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Define a protocol for stream-based socket communications.
+//
+//@CLASSES:
+//  btlso::StreamSocket: stream-socket protocol class
+//  btlso::StreamSocketAutoClose: proctor for managing socket shutdown
+//
+//@SEE_ALSO: btlso_streamsocketfactory btlso_ipv4address
+//
+//@DESCRIPTION: This component defines an abstract interface (protocol) for
+// stream-based socket communications.  &#39;btlso::StreamSocket&lt;ADDRESS&gt;&#39; defines
+// an interface for accepting and initiating connections, and for setting
+// various modes (e.g., non-blocking) and options on the underlying socket.
+// Efficient vector I/O operations are also supported, such as UNIX-style
+// &#39;readv&#39;, &#39;writev&#39;, and &#39;select&#39;.  The protocol class is templatized to
+// provide type-safe address class specialization (e.g., &quot;IPv4&quot;, &quot;IPv6&quot;).
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Simple Client
+///- - - - - - - - - - - - - - - - - - - -
+// This example demonstrates a simple dictionary client.  The client program
+// connects to a dictionary server at a know address and port, transmits a word
+// to be defined, and reads and prints the definition.
+//
+// Note that the signature of &#39;dictionary_client&#39; is unconventional because it
+// takes a pointer to an allocated, but unbound socket.  A better parameter
+// choice might be a pointer to a socket factory.  However, the implementation
+// here is chosen in order to remove cyclic dependencies between
+// &#39;btlso_streamsocket&#39; and &#39;btlso_streamsocketfactory&#39; in the test driver.
+//..
+// void dictionary_client(btlso::StreamSocket&lt;btlso::IPv4Address&gt; *client)
+// {
+//     enum {
+//         k_MAX_DEF_LENGTH = 512,   // maximum length of definition
+//         k_SERVER_PORT    = 2698   // arbitrary port number
+//     };
+//
+//     const char         *SERVER_ADDRESS = &quot;127.0.0.1&quot;;
+//     btlso::IPv4Address  address(SERVER_ADDRESS, k_SERVER_PORT);
+//     int                 rc;
+//..
+// Now, make a connection to the server.
+//..
+//     rc = client-&gt;connect(address);
+//     if (rc) {
+//         bsl::cout &lt;&lt; &quot;Failed to connect to server: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//         return;                                                    // RETURN
+//     }
+//..
+// Next, transmit the length of the word to be defined, followed by the actual
+// word to be defined.
+//..
+//     const char word[] = &quot;socket&quot;;
+//     char       definition[k_MAX_DEF_LENGTH];
+//     int        length;
+//
+//     length = htonl(sizeof word); // includes the trailing null character
+//     rc = client-&gt;write((char *)&amp;length, sizeof length);
+//
+//     if (sizeof length != rc) {
+//         bsl::cout &lt;&lt; &quot;Error writing request header to server: &quot; &lt;&lt; rc
+//                   &lt;&lt; bsl::endl;
+//         client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         return;                                                    // RETURN
+//     }
+//     rc = client-&gt;write(word, sizeof word);
+//     if (rc != length) {
+//         bsl::cout &lt;&lt; &quot;Error writing request body to server: &quot; &lt;&lt; rc
+//                   &lt;&lt; bsl::endl;
+//         client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         return;                                                    // RETURN
+//     }
+//..
+// Next, read the length of the reply and the definition of the word.
+//..
+//     rc = client-&gt;read((char *)&amp;length, sizeof length);
+//     if (rc != sizeof length) {
+//         bsl::cout &lt;&lt; &quot;Error reading from server: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//         client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         return;                                                    // RETURN
+//     }
+//
+//     length = ntohl(length);
+//     assert(0 &lt; length);
+//     assert(sizeof definition &gt;= length);
+//     rc = client-&gt;read(definition, length);
+//     if (rc != length) {
+//         bsl::cout &lt;&lt; &quot;Error reading from server: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//         client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//         return;                                                    // RETURN
+//     }
+//     bsl::cout &lt;&lt; definition &lt;&lt; bsl::endl;
+//     client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+// }
+//..
+//
+///Example 2: Implementing a Simple Server
+///- - - - - - - - - - - - - - - - - - - -
+// This example demonstrates a simple dictionary server.  The server accepts
+// connections on a well known address/port, receives a word, looks up the
+// definition of the word, and transmits this definition to the client.  Since
+// this server can handle only one connection at a time, it disconnects the
+// client after processing the request.  We assume the existence of the
+// &#39;lookupWord&#39; function, which accepts a null-terminated string and returns a
+// pointer to a definition, or a null pointer if no definition is found.
+//
+// Note that the signature of &#39;dictionary_server&#39; is unconventional because it
+// takes a pointer to an allocated, but unbound socket.  A better parameter
+// choice might be a pointer to a socket factory.  However, the implementation
+// here is chosen in order to remove cyclic dependencies between
+// &#39;btlso_streamsocket&#39; and &#39;btlso_streamsocketfactory&#39; in the test driver.
+//..
+// void dictionary_server(btlso::StreamSocket&lt;btlso::IPv4Address&gt; *server)
+// {
+//     enum {
+//         k_MAX_WORD_LENGTH        = 512,  // max length of word to look up
+//         k_MAX_LISTEN_QUEUE_DEPTH = 20,   // max number of pending requests
+//         k_SERVER_PORT            = 2698  // arbitrary port number
+//     };
+//
+//     btlso::IPv4Address addr(btlso::IPv4Address::k_ANY_ADDRESS,
+//                             k_SERVER_PORT);
+//     int rc;
+//..
+// Name the server socket (&#39;bind&#39;), and set it to listening mode (&#39;listen&#39;).
+//..
+//     rc = server-&gt;bind(addr);
+//     if (rc != 0) {
+//         bsl::cout &lt;&lt; &quot;Failed to bind socket: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//         return;                                                    // RETURN
+//     }
+//
+//     rc = server-&gt;listen(k_MAX_LISTEN_QUEUE_DEPTH);
+//     if (rc != 0) {
+//         bsl::cout &lt;&lt; &quot;Failed to listen on socket: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//         return;                                                    // RETURN
+//     }
+//..
+// Now, go into the processing loop.
+//..
+//     do {
+//         btlso::StreamSocket&lt;btlso::IPv4Address&gt; *client = 0;
+//         rc = server-&gt;accept(&amp;client);
+//         assert(0 == rc);
+//         assert(client);
+//..
+// Next, process the request.  For each request, begin by reading the integer
+// containing the size of the word(including the null-terminating character) to
+// be defined, followed by the actual word to be defined.
+//..
+//         char word[k_MAX_WORD_LENGTH];
+//         int  length;
+//
+//         rc = client-&gt;read((char*)&amp;length, sizeof length);
+//         if (rc != sizeof length) {
+//             bsl::cout &lt;&lt; &quot;Error reading from client: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//             client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             continue;
+//         }
+//
+//         length = ntohl(length);
+//         if (length &lt; 0 || length &gt; sizeof word) {
+//             bsl::cout &lt;&lt; &quot;Invalid request length: &quot; &lt;&lt; length &lt;&lt; bsl::endl;
+//             client-&gt;shutdown(
+//                     btlso::StreamSocket&lt;btlso::IPv4Address&gt;::SHUTDOWN_BOTH);
+//             continue;
+//         }
+//
+//         rc = client-&gt;read(word, length);
+//         if (length != rc) {
+//             bsl::cout &lt;&lt; &quot;Error reading from client: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//             client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             continue;
+//         }
+//..
+// Now, lookup the definition of the word.
+//..
+//         const char *definition = lookupWord(word);
+//         if (0 == definition) {
+//             definition = &quot;UNKNOWN!&quot;;
+//         }
+//..
+// Next, transmit the definition to the client.
+//..
+//         length = strlen(definition) + 1;
+//         int tmp = htonl(length);
+//         rc = client-&gt;write((char*)&amp;tmp, sizeof tmp);
+//         if (sizeof tmp != rc) {
+//             bsl::cout &lt;&lt; &quot;Error writing to client: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//             client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             continue;
+//         }
+//         rc = client-&gt;write(definition, length);
+//         if (rc != length) {
+//             bsl::cerr &lt;&lt; &quot;Error writing to client: &quot; &lt;&lt; rc &lt;&lt; bsl::endl;
+//             client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//             continue;
+//         }
+//..
+// Now, terminate the client connection.
+//..
+//         client-&gt;shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+//..
+// Finally, loop for the next connection.
+//..
+//     } while(1);
+// }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETOPTUTIL
+#include &lt;btlso_socketoptutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_FLAG
+#include &lt;btlso_flag.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+#ifdef readv
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
+namespace btlso {
+
+                          // ==================
+                          // class StreamSocket
+                          // ==================
+
+template &lt;class ADDRESS&gt;
+class StreamSocket {
+    // This class defines a protocol for stream-based socket communications.
+    // The class is templatized to provide a family of type-safe address
+    // specializations (e.g., &quot;IPv4&quot;, &quot;IPv6&quot;).  Various socket-related
+    // operations including accepting and initiating connections and
+    // blocking/non-blocking I/O operations are provided.  Vector I/O
+    // operations are also supported.
+
+  public:
+    // CREATORS
+    virtual ~StreamSocket();
+        // Destroy this stream socket object.
+
+    // MANIPULATORS
+    virtual int accept(StreamSocket&lt;ADDRESS&gt; **result) = 0;
+        // Accept an incoming connection request and load into the specified
+        // &#39;result&#39; the address of the new socket.  Return 0 on success, and a
+        // non-zero value otherwise.  If this socket is in blocking mode, this
+        // function waits until a connection request is received or an error
+        // occurs.  In non-blocking mode, if there is no pending connection
+        // request, this call returns immediately with an error status of
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;.  The behavior is undefined
+        // unless this socket is listening for connections (i.e., unless
+        // &#39;listen&#39; has been called).
+
+    virtual int accept(StreamSocket&lt;ADDRESS&gt; **socket,
+                       ADDRESS                *peerAddress) = 0;
+        // Accept an incoming connection request; load into the specified
+        // &#39;socket&#39;, the address of the new socket and into specified
+        // &#39;peerAddress&#39; the address of the peer.  Return 0 on success, and a
+        // non-zero value otherwise.  If this socket is in blocking mode, this
+        // function waits until a connection request is received or an error
+        // occurs.  In non-blocking mode and there is no pending connection
+        // request, this call returns immediately with an error status of
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;.  The behavior is undefined
+        // unless this socket is listening for connections (i.e., unless
+        // &#39;listen&#39; has been called).
+
+    virtual int bind(const ADDRESS&amp; address) = 0;
+        // Associate the specified &#39;address&#39; with this socket.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that, in order to
+        // receive connections on a socket, it must have an address associated
+        // with it, and when a socket is created, it has no associated address.
+
+    virtual int connect(const ADDRESS&amp; address) = 0;
+        // Initiate a connection to a peer process at the specified &#39;address&#39;.
+        // Return 0 on success, and a non-zero value otherwise.  If this socket
+        // is in blocking mode, the call waits until a connection is
+        // established or an error occurs.  In non-blocking mode and the
+        // connection cannot be established immediately
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; is returned.  The
+        // &#39;waitForConnect&#39; method may then be used to determine when the
+        // connection request has completed.
+
+    virtual int listen(int backlog) = 0;
+        // Register this socket for accepting up to the specified &#39;backlog&#39;
+        // simultaneous connection requests.  Return 0 on success, and a
+        // non-zero value otherwise.  Note that the behavior is undefined
+        // unless &#39;0 &lt; backlog&#39;.
+
+    virtual int read(char *buffer, int length) = 0;
+        // Read up to the specified &#39;length&#39; bytes from this socket into the
+        // specified &#39;buffer&#39;.  If this socket is in non-blocking mode, or is
+        // in blocking mode and there is data available, the function reads as
+        // many bytes as possible without blocking.  In blocking mode, if no
+        // data is available, the call waits until data is available, then
+        // reads as many bytes as possible without blocking.  Return the
+        // positive total number of bytes read, or a negative value on error.
+        // If this socket is in non-blocking mode and zero bytes were
+        // immediately available, &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; is
+        // returned.  If this socket is in blocking mode and the call is
+        // interrupted before data is available,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  If the connection
+        // has been closed prior to this call and there is no data available,
+        // &#39;SocketHandle::EOF&#39; is returned.  The behavior is undefined unless
+        // &#39;0 &lt; length&#39; and buffer provides capacity for at least &#39;length&#39;
+        // bytes.
+
+    virtual int readv(const btls::Iovec *buffers, int numBuffers) = 0;
+        // Read from this socket into the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39; the respective numbers of
+        // bytes as defined by the sum of the &#39;buffers[i].length()&#39; values.  If
+        // this socket is in non-blocking mode, or is in blocking mode and
+        // there is data available, the function reads as many bytes as
+        // possible without blocking.  In blocking mode, if no data is
+        // available, the call waits until data is available, then reads as
+        // many bytes as possible without blocking.  Return the positive total
+        // number of bytes read, or a negative value on error.  If this socket
+        // is in non-blocking mode and zero bytes were immediately available,
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; is returned.  If this socket is
+        // in blocking mode and the call is interrupted before data is
+        // available, &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  If the
+        // connection has been closed prior to this call and there is no data
+        // available, &#39;SocketHandle::EOF&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; numBuffers&#39; and at least one of the
+        // &#39;buffers[i].length()&#39; values is positive.
+
+    virtual int write(const char *buffer, int length) = 0;
+        // Write up to &#39;length&#39; bytes to this socket from the specified
+        // &#39;buffer&#39;; return the non-negative number of bytes written or, a
+        // negative value on error.  In blocking mode, if there is no room to
+        // write the full message, the call blocks until the message is fully
+        // written.  In non-blocking mode, the function writes as many bytes as
+        // possible without blocking, and returns the number of bytes written,
+        // or &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; if no bytes were written.  If
+        // the connection has been closed &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is
+        // returned.  If the call is interrupted before any data is written,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; length&#39;.  Note that a successful call to this
+        // function does not guarantee that the data has been transmitted
+        // successfully, but simply that the data was written successfully to
+        // the underlying socket&#39;s transmit buffers.
+
+    virtual int writev(const btls::Iovec *buffers, int numBuffers) = 0;
+    virtual int writev(const btls::Ovec  *buffers, int numBuffers) = 0;
+        // Write to this socket from the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39; the respective number of
+        // bytes as defined by the sum of the &#39;buffers[i].length()&#39; values.
+        // Return the non-negative total number of bytes written, or a negative
+        // value on error.  In blocking mode, if there is no room to write the
+        // full message, the call blocks until the message is fully written.
+        // In non-blocking mode, the function writes as many bytes as possible
+        // without blocking, and returns the number of bytes written, or
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;, if no bytes were written.  If
+        // the connection has been closed &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is
+        // returned.  If the call is interrupted before any data is written,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; numBuffers&#39; and at least one of the
+        // &#39;buffers[i].length()&#39; values is positive.  Note that a successful
+        // call to this function does not guarantee that the data has been
+        // transmitted successfully, but simply that the data was successfully
+        // written to the underlying socket&#39;s transmit buffers.
+
+    virtual int setBlockingMode(btlso::Flag::BlockingMode mode) = 0;
+        // Set the current blocking mode of this socket to the specified
+        // &#39;mode&#39;.  Return 0 on success, an a non-zero value otherwise.
+
+    virtual int shutdown(btlso::Flag::ShutdownType streamOption) = 0;
+        // Shut down the input and/or output stream(s) specified by
+        // &#39;streamOption&#39; of the full-duplexed connection associated with this
+        // socket.  Return 0 on success, and a non-zero value otherwise.
+        // Specifying &#39;SHUTDOWN_RECEIVE&#39; or &#39;SHUTDOWN_SEND&#39; closes the input or
+        // output streams, respectively, leaving the other stream unaffected.
+        // Specifying &#39;SHUTDOWN_BOTH&#39; closes both streams.  Once the input
+        // (output) stream has been closed, any attempted read (write)
+        // operations will fail.  Any data received after successfully shutting
+        // down the input stream will be acknowledged but silently discarded.
+        // Note that this function is typically used to transmit an EOF
+        // indication to the peer.
+
+    virtual int waitForConnect(const bsls::TimeInterval&amp; timeout) = 0;
+        // Wait until a pending outgoing connection request completes or until
+        // the specified absolute &#39;timeout&#39; is reached, whichever occurs first.
+        // Return 0 if the connection request has completed, and a non-zero
+        // value otherwise.  Note that the completion of a connection request
+        // does not imply that a connection has been successfully established;
+        // a call to &#39;connectionStatus&#39; should be made to determine if the
+        // connection request completed successfully.
+
+    virtual int waitForAccept(const bsls::TimeInterval&amp; timeout) = 0;
+        // Wait for an incoming connection request on this socket or until the
+        // specified absolute &#39;timeout&#39; is reached, whichever occurs first.
+        // Return 0 if a connection request has been received, and a non-zero
+        // value otherwise.  Note that once a connection request has been
+        // received, a call to &#39;accept&#39; can be made to establish the
+        // connection.
+
+    virtual int waitForIO(btlso::Flag::IOWaitType   type,
+                          const bsls::TimeInterval&amp; timeout) = 0;
+        // Wait for the occurrence of an I/O event matching the specified
+        // &#39;type&#39;, or until the specified absolute &#39;timeout&#39; is reached,
+        // whichever occurs first.  Return a value indicating the type(s) of
+        // the event(s) occurred before &#39;timeout&#39;, if any, and a negative value
+        // otherwise.  If &#39;timeout&#39; is reached without an I/O event matching
+        // &#39;type&#39;, a value of &#39;SocketHandle::e_ERROR_TIMEDOUT&#39; is returned.  If
+        // this call is interrupted, &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is
+        // returned.  Note that the return value is &#39;type&#39; if &#39;type&#39; is
+        // different from &#39;IO_RW&#39;, and one of &#39;IO_READ&#39;, &#39;IO_WRITE&#39;, or &#39;IO_RW&#39;
+        // if &#39;type&#39; is &#39;IO_RW.  Also note that if &#39;timeout&#39; is in the past,
+        // this function will return a value indicating the type(s) of the
+        // event(s) currently available if polling the socket returns a
+        // matching event, and &#39;SocketHandle::e_ERROR_TIMEDOUT&#39; otherwise.
+
+    virtual int waitForIO(btlso::Flag::IOWaitType type) = 0;
+        // Wait for the occurrence of an I/O event matching the specified
+        // &#39;type&#39;.  Return a value indicating the type(s) of the event(s)
+        // occurred, and a negative value on error.  If this call is
+        // interrupted, &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  Note
+        // that the return value is &#39;type&#39; if &#39;type&#39; is different from &#39;IO_RW&#39;,
+        // and one of &#39;IO_READ&#39;, &#39;IO_WRITE&#39;, or &#39;IO_RW&#39; if &#39;type&#39; is &#39;IO_RW.
+
+    virtual int setLingerOption(const SocketOptUtil::LingerData&amp; options) = 0;
+        // Set the current linger options of this socket to the specified
+        // &#39;options&#39;.  Return 0 on success, and a non-zero value otherwise.
+
+    virtual int setOption(int level, int option, int value) = 0;
+        // Set the specified &#39;option&#39; (of the specified &#39;level&#39;) socket option
+        // on this socket to the specified &#39;value&#39;.  Return 0 on success and a
+        // non-zero value otherwise.  See &#39;btlso_socketoptutil&#39; for the list of
+        // commonly supported options.
+
+    // ACCESSORS
+    virtual int blockingMode(btlso::Flag::BlockingMode *result) const = 0;
+        // Load into the specified &#39;result&#39; the current blocking mode of this
+        // socket.  Return 0 on success, and a non-zero value without affecting
+        // &#39;result&#39; otherwise.
+
+    virtual int connectionStatus() const = 0;
+        // Test the connection status of this socket.  Return 0 if this socket
+        // has an established connection, and a non-zero value otherwise.  A
+        // value of &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is returned if a
+        // connection request has failed.  Note that this method is typically
+        // used to determine the result of a non-blocking connection request.
+        // The behavior is undefined unless a connection request with &#39;connect&#39;
+        // has completed (independent of success or failure).
+
+    virtual SocketHandle::Handle handle() const = 0;
+        // Return the OS handle associated with this socket.  Note that direct
+        // manipulation of the underlying stream may result in undefined
+        // behavior.
+
+    virtual int localAddress(ADDRESS *result) const = 0;
+        // Load into the specified &#39;result&#39; the local address of this socket.
+        // Return 0 on success, and a non-zero value with no effect on &#39;result&#39;
+        // otherwise.
+
+    virtual int peerAddress(ADDRESS *result) const = 0;
+        // Load into the specified &#39;result&#39; the address of the peer connected
+        // to this socket.  Return 0 on success, and a non-zero value with no
+        // effect on &#39;result&#39; otherwise.
+
+    virtual int lingerOption(SocketOptUtil::LingerData *result) const = 0;
+        // Load into the specified &#39;result&#39; the value of this socket&#39;s current
+        // linger option.  Return 0 on success, and a non-zero value with no
+        // effect on &#39;result&#39; otherwise.
+
+    virtual int socketOption(int *result, int level, int option) const = 0;
+        // Load int the specified &#39;result&#39; the value of the specified &#39;option&#39;
+        // of the specified &#39;level&#39; socket option on this socket.  Return 0 on
+        // success and a non-zero value with no effect on &#39;result&#39; otherwise.
+};
+
+                    // ===========================
+                    // class StreamSocketAutoClose
+                    // ===========================
+
+template &lt;class ADDRESS&gt;
+class StreamSocketAutoClose{
+    // This class implements a proctor for a socket, using the specified
+    // factory to deallocate it upon destruction unless this socket has been
+    // released from management by this proctor prior to destruction.
+
+    // DATA
+    StreamSocket&lt;ADDRESS&gt;     *d_socket_p;
+    btlso::Flag::ShutdownType  d_option;
+
+  public:
+    // CREATORS
+    StreamSocketAutoClose(StreamSocket&lt;ADDRESS&gt;     *socket,
+                          btlso::Flag::ShutdownType  streamOption);
+        // Create a proctor for the specified &#39;socket&#39;, recording the specified
+        // &#39;streamOption&#39; for shutting down the &#39;socket&#39; upon destruction of
+        // this proctor.
+
+    ~StreamSocketAutoClose();
+        // Shutdown the proctored socket with the stream option specified at
+        // construction, unless released from management by this proctor.
+
+    // MANIPULATORS
+    void release();
+        // Release the proctored socket from management by this proctor.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // ------------------
+                          // class StreamSocket
+                          // ------------------
+
+// CREATORS
+template &lt;class ADDRESS&gt;
+inline
+StreamSocket&lt;ADDRESS&gt;::~StreamSocket()
+{
+}
+
+                     // ---------------------------
+                     // class StreamSocketAutoClose
+                     // ---------------------------
+
+// CREATORS
+template &lt;class ADDRESS&gt;
+inline
+StreamSocketAutoClose&lt;ADDRESS&gt;::StreamSocketAutoClose(
+                                       StreamSocket&lt;ADDRESS&gt;     *socket,
+                                       btlso::Flag::ShutdownType  streamOption)
+: d_socket_p(socket)
+, d_option(streamOption)
+{
+}
+
+template &lt;class ADDRESS&gt;
+inline
+StreamSocketAutoClose&lt;ADDRESS&gt;::~StreamSocketAutoClose()
+{
+    if (d_socket_p) {
+        d_socket_p-&gt;shutdown(d_option);
+    }
+}
+
+// MANIPULATORS
+template &lt;class ADDRESS&gt;
+inline
+void StreamSocketAutoClose&lt;ADDRESS&gt;::release()
+{
+    d_socket_p = 0;
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

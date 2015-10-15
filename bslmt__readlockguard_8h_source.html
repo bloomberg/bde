@@ -1,0 +1,618 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_readlockguard.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#define INCLUDED_BSLMT_READLOCKGUARD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a generic proctor for read synchronization objects.
+//
+//@CLASSES:
+//  bslmt::ReadLockGuard: automatic locking-unlocking for read access
+//  bslmt::ReadLockGuardUnlock: automatic unlocking-locking for read access
+//  bslmt::ReadLockGuardTryLock: automatic non-blocking locking-unlocking
+//  bslmt::LockReadGuard: DEPRECATED
+//
+//@SEE_ALSO: bslmt_lockguard, bslmt_writelockguard, bslmt_rwmutex
+//
+//@DESCRIPTION: This component provides generic proctors,
+// &#39;bslmt::ReadLockGuard&#39;, &#39;bslmt::ReadLockGuardUnlock&#39;,
+// &#39;bslmt::ReadLockGuardTryLock&#39;, and &#39;bslmt::LockReadGuard&#39;, to automatically
+// lock and unlock an external synchronization object for reading.  The
+// synchronization object can be any type (e.g., &#39;bslmt::ReaderWriterLock&#39;)
+// that provides the following methods:
+//..
+//  void lockRead();
+//  void unlock();
+//..
+// Both &#39;bslmt::ReadLockGuard&#39; and &#39;bslmt::ReadLockGuardUnlock&#39; implement the
+// &quot;construction is acquisition, destruction is release&quot; idiom.  During
+// construction, &#39;bslmt::ReadLockGuard&#39; automatically calls &#39;lockRead&#39; on the
+// user-supplied object, and &#39;unlock&#39; when it is destroyed (unless released).
+// &#39;bslmt::ReadLockGuardUnlock&#39; does the opposite -- it invokes the &#39;unlock&#39;
+// method when constructed and the &#39;lockRead&#39; method when destroyed.
+//
+// A third type of guard, &#39;bslmt::ReadLockGuardTryLock&#39;, attempts to acquire a
+// lock, and if acquisition succeeds, releases it upon destruction.  Since the
+// acquisition is done at construction time, it is not possible to return a
+// value to indicate success.  Rather, the &#39;bslmt::ReadLockGuardTryLock&#39;
+// contains a pointer to the synchronization object if &#39;tryLock&#39; succeeds, and
+// is null otherwise.  The synchronization object can be any type (e.g.,
+// &#39;bslmt::Mutex&#39; or &#39;bslmt::RecursiveMutex&#39;) that provides the following
+// methods:
+//..
+//  int tryLockRead();
+//  void unlock();
+//..
+// Note that objects of none of these guard types assumes ownership of the
+// synchronization object provided at construction.  Also note that objects of
+// all of the guard types may be constructed with a null &#39;lock&#39; whereby the
+// constructed guard objects proctor no lock.  The destructor of each of the
+// guard types has no effect if no lock is under management.
+//
+///Behavior of the &#39;release&#39; Method
+///--------------------------------
+// Like all BDE proctor classes, each of the three &#39;bslmt::ReadLockGuard*&#39;
+// classes provides a &#39;release&#39; method that terminates the proctor&#39;s management
+// of any lock object that the proctor holds.  The &#39;release&#39; method has *no*
+// *effect* on the state of the lock object.
+//
+// In particular, &#39;bslmt::ReadLockGuard::release&#39; does not unlock the lock
+// object under management.  If a user wants to release the lock object *and*
+// unlock the lock object (because the lock is no longer required before the
+// guard goes out of scope), the following idiom can be used:
+//..
+//  // &#39;guard&#39; is an existing guard of type &#39;bslmt::ReadLockGuard&lt;my_RLock&gt;&#39;,
+//  // created in a scope that we do not control.
+//
+//  {
+//      // ... Do work that requires the lock.
+//
+//      // We know that the lock is no longer needed.
+//
+//      my_RLock *rlock = guard.release();
+//
+//      // &#39;rlock&#39; is no longer managed, but is *still* *locked*.
+//
+//      rlock-&gt;unlock();
+//
+//      // ... Do work that does not require the lock.
+//  }
+//..
+//
+///Usage
+///-----
+// Use this component to ensure that in the event of an exception or exit from
+// any point in a given scope, the synchronization object will be properly
+// unlocked.  The following function, &#39;errorProneFunc&#39;, is overly complex, not
+// exception safe, and contains a bug.
+//..
+//  static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
+//  {
+//      rwlock-&gt;lockRead();
+//      if (someCondition) {
+//          obj-&gt;someMethod();
+//          rwlock-&gt;unlock();
+//          return;                                                   // RETURN
+//      } else if (someOtherCondition) {
+//          obj-&gt;someOtherMethod();
+//          // MISTAKE! forgot to unlock rwlock
+//          return;                                                   // RETURN
+//      }
+//      obj-&gt;defaultMethod();
+//      rwlock-&gt;unlock();
+//      return;
+//  }
+//..
+// The function can be rewritten with a cleaner and safer implementation using
+// a guard object.  The &#39;safeFunc&#39; function is simpler than &#39;errorProneFunc&#39;,
+// is exception safe, and avoids the multiple calls to unlock that can be a
+// source of errors.
+//..
+//  static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
+//  {
+//      bslmt::ReadLockGuard&lt;my_RWLock&gt; guard(rwlock);
+//      if (someCondition) {
+//          obj-&gt;someMethod();
+//          return;                                                   // RETURN
+//      } else if (someOtherCondition) {
+//          obj-&gt;someOtherMethod();
+//          // OK, rwlock is automatically unlocked
+//          return;                                                   // RETURN
+//      }
+//      obj-&gt;defaultMethod();
+//      return;
+//  }
+//..
+// When blocking while acquiring the lock is not desirable, one may instead use
+// a &#39;bslmt::ReadLockGuardTryLock&#39; in the typical following fashion:
+//..
+//  static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
+//      // Perform task and return positive value if locking succeeds.  Return
+//      // 0 if locking fails.
+//  {
+//      const int RETRIES = 1; // use higher values for higher success rate
+//      bslmt::ReadLockGuardTryLock&lt;my_RWLock&gt; guard(rwlock, RETRIES);
+//      if (guard.ptr()) { // rwlock is locked
+//          if (someCondition) {
+//              obj-&gt;someMethod();
+//              return 2;                                             // RETURN
+//          } else if (someOtherCondition) {
+//              obj-&gt;someOtherMethod();
+//              return 3;                                             // RETURN
+//          }
+//          obj-&gt;defaultMethod();
+//          return 1;                                                 // RETURN
+//      }
+//      return 0;
+//  }
+//..
+// If the underlying lock object provides an upgrade to a lock for write (as
+// does &#39;bslmt::ReaderWriterLock&#39; with the &#39;upgradeToWriteLock&#39; function, for
+// example), this can be safely used in conjunction with
+// &#39;bslmt::ReadLockGuard&#39;, as long as the same &#39;unlock&#39; method is used to
+// release both kinds of locks.  The following method illustrates this usage:
+//..
+//  static void safeUpdateFunc(my_Object *obj, my_RWLock *rwlock)
+//  {
+//      const my_Object *constObj = obj;
+//      bslmt::ReadLockGuard&lt;my_RWLock&gt; guard(rwlock);
+//      if (someUpgradeCondition) {
+//          rwlock-&gt;upgradeToWriteLock();
+//          obj-&gt;someUpgradeMethod();
+//          return;                                                   // RETURN
+//      } else if (someOtherCondition) {
+//          constObj-&gt;someOtherMethod();
+//          // OK, rwlock is automatically unlocked
+//          return;                                                   // RETURN
+//      }
+//      constObj-&gt;defaultMethod();
+//      return;
+//  }
+//..
+// In the above code, the call to &#39;upgradeToWriteLock&#39; is not necessarily
+// atomic, as the upgrade may release the lock for read and be interrupted
+// before getting a lock for write.  It is possible to guarantee atomicity (as
+// does &#39;bslmt::ReaderWriterLock&#39; if the &#39;lockReadReserveWrite&#39; function is
+// used instead of &#39;lockRead&#39;, for example), but the standard constructor
+// should not be used.  Instead, the &#39;lockReadReserveWrite&#39; lock function
+// should be used explicitly, and the guard constructed with an object which is
+// already locked.  The following method illustrates this usage:
+//..
+//  static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
+//  {
+//      const my_Object *constObj = obj;
+//      rwlock-&gt;lockReadReserveWrite();
+//      const int PRELOCKED = 1;
+//      bslmt::ReadLockGuard&lt;my_RWLock&gt; guard(rwlock, PRELOCKED);
+//      if (someUpgradeCondition) {
+//          rwlock-&gt;upgradeToWriteLock();
+//          obj-&gt;someUpgradeMethod();
+//          return;                                                   // RETURN
+//      } else if (someOtherCondition) {
+//          constObj-&gt;someOtherMethod();
+//          return;                                                   // RETURN
+//      }
+//      constObj-&gt;defaultMethod();
+//      return;
+//  }
+//..
+// Note that in the code above, the function &#39;rwlock-&gt;lockRead()&#39; is never
+// called, but is nevertheless required for the code to compile.
+//
+// Instantiations of &#39;bslmt::ReadLockGuardUnlock&#39; can be interleaved with
+// instantiations of &#39;bslmt::ReadLockGuard&#39; to create both critical sections
+// and regions where the lock is released.
+//..
+//  void f(my_RWLock *rwlock)
+//  {
+//      bslmt::ReadLockGuard&lt;my_RWLock&gt; guard(rwlock);
+//
+//      // critical section here
+//
+//      {
+//          bslmt::ReadLockGuardUnlock&lt;my_RWLock&gt; guard(rwlock);
+//
+//          // rwlock is unlocked here
+//
+//      } // rwlock is locked again here
+//
+//      // critical section here
+//
+//  } // rwlock is unlocked here
+//..
+// Care must be taken so as not to interleave guard objects in such a way as to
+// cause an illegal sequence of calls on a lock (two sequential lock calls or
+// two sequential unlock calls on a non-recursive read/write lock).
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                           // ===================
+                           // class ReadLockGuard
+                           // ===================
+
+template &lt;class T&gt;
+class ReadLockGuard {
+    // This class template implements a proctor for acquisition and release of
+    // read synchronization resources (i.e., reader locks).
+
+    // DATA
+    T *d_lock_p;  // lock proctored by this object (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    ReadLockGuard(const ReadLockGuard&lt;T&gt;&amp;);
+    ReadLockGuard&lt;T&gt;&amp; operator=(const ReadLockGuard&lt;T&gt;&amp;);
+
+  public:
+    // CREATORS
+    explicit ReadLockGuard(T *lock);
+        // Create a proctor object that conditionally manages the specified
+        // &#39;lock&#39; (if non-zero), and invokes the &#39;lockRead&#39; method on &#39;lock&#39;.
+        // Note that &#39;lock&#39; must remain valid throughout the lifetime of this
+        // proctor, or until &#39;release&#39; is called.
+
+    ReadLockGuard(T *lock, int preLockedFlag);
+        // Create a proctor object that conditionally manages the specified
+        // &#39;lock&#39; (if non-zero) and, unless the specified &#39;preLockedFlag&#39; is
+        // non-zero, invokes the &#39;lockRead&#39; method on &#39;lock&#39;.  Note that &#39;lock&#39;
+        // must remain valid throughout the lifetime of this proctor, or until
+        // &#39;release&#39; is called.
+
+    ~ReadLockGuard();
+        // Destroy this proctor object and invoke the &#39;unlock&#39; method on the
+        // lock object under management by this proctor, if any.  If no lock is
+        // currently being managed, this method has no effect.
+
+    // MANIPULATORS
+    T *release();
+        // Return the address of the modifiable lock object under management by
+        // this proctor, and release the lock from further management by this
+        // proctor.  If no lock is currently being managed, return 0 with no
+        // other effect.  Note that this operation does *not* unlock the lock
+        // object (if any) that was under management.
+
+    // ACCESSORS
+    T *ptr() const;
+        // Return the address of the modifiable lock object under management by
+        // this proctor, or 0 if no lock is currently being managed.
+};
+
+                           // ===================
+                           // class LockReadGuard
+                           // ===================
+
+template &lt;class T&gt;
+class LockReadGuard : public ReadLockGuard&lt;T&gt; {
+    // This class is DEPRECATED.  Use &#39;ReadLockGuard&#39; instead.
+
+  private:
+    // NOT IMPLEMENTED
+    LockReadGuard(const LockReadGuard&lt;T&gt;&amp;);
+    LockReadGuard&lt;T&gt;&amp; operator=(const LockReadGuard&lt;T&gt;&amp;);
+
+  public:
+    // CREATORS
+    explicit LockReadGuard(T *lock);
+        // DEPRECATED: Use &#39;ReadLockGuard&#39; instead.
+
+    LockReadGuard(T *lock, int preLockedFlag);
+        // DEPRECATED: Use &#39;ReadLockGuard&#39; instead.
+};
+
+                        // =========================
+                        // class ReadLockGuardUnlock
+                        // =========================
+
+template &lt;class T&gt;
+class ReadLockGuardUnlock {
+    // This class template implements a proctor for release and reacquisition
+    // of read synchronization resources (i.e., reader locks).
+
+    // DATA
+    T *d_lock_p;  // lock proctored by this object (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    ReadLockGuardUnlock(const ReadLockGuardUnlock&lt;T&gt;&amp;);
+    ReadLockGuardUnlock&lt;T&gt;&amp; operator=(const ReadLockGuardUnlock&lt;T&gt;&amp;);
+
+  public:
+    // CREATORS
+    explicit ReadLockGuardUnlock(T *lock);
+        // Create a proctor object that conditionally manages the specified
+        // &#39;lock&#39; (if non-zero), and invokes the &#39;unlock&#39; method on &#39;lock&#39;.
+        // Note that &#39;lock&#39; must remain valid throughout the lifetime of this
+        // proctor, or until &#39;release&#39; is called.
+
+    ReadLockGuardUnlock(T *lock, int preUnlockedFlag);
+        // Create a proctor object that conditionally manages the specified
+        // &#39;lock&#39; (if non-zero) and, unless the specified &#39;preUnlockedFlag&#39; is
+        // non-zero, invokes the &#39;unlock&#39; method on &#39;lock&#39;.  Note that &#39;lock&#39;
+        // must remain valid throughout the lifetime of this proctor, or until
+        // &#39;release&#39; is called.
+
+    ~ReadLockGuardUnlock();
+        // Destroy this proctor object and invoke the &#39;lockRead&#39; method on the
+        // lock object under management by this proctor, if any.  If no lock is
+        // currently being managed, this method has no effect.
+
+    // MANIPULATORS
+    T *release();
+        // Return the address of the modifiable lock object under management by
+        // this proctor, and release the lock from further management by this
+        // proctor.  If no lock is currently being managed, return 0 with no
+        // other effect.  Note that this operation does *not* lock the lock
+        // object (if any) that was under management.
+
+    // ACCESSORS
+    T *ptr() const;
+        // Return the address of the modifiable lock object under management by
+        // this proctor, or 0 if no lock is currently being managed.
+};
+
+                        // ==========================
+                        // class ReadLockGuardTryLock
+                        // ==========================
+
+template &lt;class T&gt;
+class ReadLockGuardTryLock {
+    // This class template implements a proctor for tentative acquisition and
+    // release of read synchronization resources (i.e., reader locks).
+
+    // DATA
+    T *d_lock_p;  // lock proctored by this object (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    ReadLockGuardTryLock(const ReadLockGuardTryLock&lt;T&gt;&amp;);
+    ReadLockGuardTryLock&lt;T&gt;&amp; operator=(const ReadLockGuardTryLock&lt;T&gt;&amp;);
+
+  public:
+    // CREATORS
+    explicit ReadLockGuardTryLock(T *lock, int attempts = 1);
+        // Create a proctor object that conditionally manages the specified
+        // &#39;lock&#39; (if non-zero), and invokes the &#39;tryLockRead&#39; method on &#39;lock&#39;
+        // until the lock is acquired, or until up to the optionally specified
+        // &#39;attempts&#39; have been made to acquire the lock.  The behavior is
+        // undefined unless &#39;0 &lt; attempts&#39;.  Note that &#39;lock&#39; must remain valid
+        // throughout the lifetime of this proctor, or until &#39;release&#39; is
+        // called.
+
+    ~ReadLockGuardTryLock();
+        // Destroy this proctor object and invoke the &#39;unlock&#39; method on the
+        // lock object under management by this proctor, if any.  If no lock is
+        // currently being managed, this method has no effect.
+
+    // MANIPULATORS
+    T *release();
+        // Return the address of the modifiable lock object under management by
+        // this proctor, and release the lock from further management by this
+        // proctor.  If no lock is currently being managed, return 0 with no
+        // other effect.  Note that this operation does *not* unlock the lock
+        // object (if any) that was under management.
+
+    // ACCESSORS
+    T *ptr() const;
+        // Return the address of the modifiable lock object under management by
+        // this proctor, or 0 if no lock is currently being managed.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                           // -------------------
+                           // class ReadLockGuard
+                           // -------------------
+
+// CREATORS
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuard&lt;T&gt;::ReadLockGuard(T *lock)
+: d_lock_p(lock)
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;lockRead();
+    }
+}
+
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuard&lt;T&gt;::ReadLockGuard(T *lock, int preLockedFlag)
+: d_lock_p(lock)
+{
+    if (d_lock_p &amp;&amp; !preLockedFlag) {
+        d_lock_p-&gt;lockRead();
+    }
+}
+
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuard&lt;T&gt;::~ReadLockGuard()
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;unlock();
+    }
+}
+
+// MANIPULATORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuard&lt;T&gt;::release()
+{
+    T *lock  = d_lock_p;
+    d_lock_p = 0;
+    return lock;
+}
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuard&lt;T&gt;::ptr() const
+{
+    return d_lock_p;
+}
+
+                           // -------------------
+                           // class LockReadGuard
+                           // -------------------
+
+// CREATORS
+template &lt;class T&gt;
+inline
+bslmt::LockReadGuard&lt;T&gt;::LockReadGuard(T *lock)
+: ReadLockGuard&lt;T&gt;(lock)
+{
+}
+
+template &lt;class T&gt;
+inline
+bslmt::LockReadGuard&lt;T&gt;::LockReadGuard(T *lock, int preLockedFlag)
+: ReadLockGuard&lt;T&gt;(lock, preLockedFlag)
+{
+}
+
+                        // -------------------------
+                        // class ReadLockGuardUnlock
+                        // -------------------------
+
+// CREATORS
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuardUnlock&lt;T&gt;::ReadLockGuardUnlock(T *lock)
+: d_lock_p(lock)
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;unlock();
+    }
+}
+
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuardUnlock&lt;T&gt;::ReadLockGuardUnlock(T   *lock,
+                                                   int  preUnlockedFlag)
+: d_lock_p(lock)
+{
+    if (d_lock_p &amp;&amp; !preUnlockedFlag) {
+        d_lock_p-&gt;unlock();
+    }
+}
+
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuardUnlock&lt;T&gt;::~ReadLockGuardUnlock()
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;lockRead();
+    }
+}
+
+// MANIPULATORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuardUnlock&lt;T&gt;::release()
+{
+    T *lock  = d_lock_p;
+    d_lock_p = 0;
+    return lock;
+}
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuardUnlock&lt;T&gt;::ptr() const
+{
+    return d_lock_p;
+}
+
+                        // --------------------------
+                        // class ReadLockGuardTryLock
+                        // --------------------------
+
+// CREATORS
+template &lt;class T&gt;
+bslmt::ReadLockGuardTryLock&lt;T&gt;::ReadLockGuardTryLock(T *lock, int attempts)
+: d_lock_p(0)
+{
+    if (lock) {
+        while (attempts--) {
+            if (!lock-&gt;tryLockRead()) {
+                d_lock_p = lock;
+                break;
+            }
+        }
+    }
+}
+
+template &lt;class T&gt;
+inline
+bslmt::ReadLockGuardTryLock&lt;T&gt;::~ReadLockGuardTryLock()
+{
+    if (d_lock_p) {
+        d_lock_p-&gt;unlock();
+    }
+}
+
+// MANIPULATORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuardTryLock&lt;T&gt;::release()
+{
+    T *lock  = d_lock_p;
+    d_lock_p = 0;
+    return lock;
+}
+
+// ACCESSORS
+template &lt;class T&gt;
+inline
+T *bslmt::ReadLockGuardTryLock&lt;T&gt;::ptr() const
+{
+    return d_lock_p;
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg_rbtreeutil Component</title>
+<title>BDE 3.0: bslalg_rbtreeutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -174,7 +174,7 @@ Namespaces</h2></td></tr>
 
   <span class="keyword">remove</span>              Remove the supplied node from the tree.
 
-  <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>                Swap the contents of two trees.
+  <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>                Swap the contents of two trees.
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -391,7 +391,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  Here, we implement the prefix-increment operator using the <code>next</code> function of 'RbTreeUtil: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      IntSetConstIterator&amp; <a class="code" href="namespacebdlc.html#a046295dee9bb6aa815b626402d2910cd">operator++</a>()
+<div class="fragment"><pre class="fragment">      IntSetConstIterator&amp; <a class="code" href="namespacebdlb.html#a699612d059aa6db974f220f6823e4c0d">operator++</a>()
          <span class="comment">// Advance this iterator to the subsequent value it the &#39;IntSet&#39;,</span>
          <span class="comment">// and return a reference providing modifiable access to this</span>
          <span class="comment">// iterator.   The behavior is undefined unless this iterator</span>
@@ -425,7 +425,7 @@ A factory for creating and destroying nodes.  </li>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
                   <span class="keyword">const</span> IntSetConstIterator &amp;rhs)
       <span class="comment">// Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,</span>
       <span class="comment">// and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39; objects have the</span>
@@ -434,7 +434,7 @@ A factory for creating and destroying nodes.  </li>
       <span class="keywordflow">return</span> lhs.nodePtr() == rhs.nodePtr();
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
                   <span class="keyword">const</span> IntSetConstIterator &amp;rhs)
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39;</span>
@@ -521,7 +521,7 @@ A factory for creating and destroying nodes.  </li>
                                              <span class="comment">// destroying nodes</span>
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
 
     <span class="keyword">public</span>:
       <span class="comment">// PUBLIC TYPES</span>
@@ -564,7 +564,7 @@ A factory for creating and destroying nodes.  </li>
       <span class="keywordtype">void</span> clear();
           <span class="comment">// Remove all the elements from this set.</span>
 
-      <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(IntSet&amp; other);
+      <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(IntSet&amp; other);
           <span class="comment">// Efficiently exchange the value of this object with the value of</span>
           <span class="comment">// the specified &#39;other&#39; object.</span>
 
@@ -581,19 +581,19 @@ A factory for creating and destroying nodes.  </li>
           <span class="comment">// Return a iterator referring to the specified &#39;value&#39; in this</span>
           <span class="comment">// set, or &#39;end()&#39; if &#39;value&#39; is not a member of this set.</span>
 
-      <span class="keywordtype">int</span> size() <span class="keyword">const</span>;
+      <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements in this set.</span>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,</span>
       <span class="comment">// and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects have the same value if</span>
       <span class="comment">// they contain the same number of elements, and if for each element</span>
       <span class="comment">// in &#39;lhs&#39; there is a corresponding element in &#39;rhs&#39; with the same</span>
       <span class="comment">// value.</span>
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects do not</span>
       <span class="comment">// have the same value if they differ in the number of elements they</span>
@@ -630,7 +630,7 @@ A factory for creating and destroying nodes.  </li>
   IntSet&amp; IntSet::operator=(<span class="keyword">const</span> IntSet&amp; rhs)
   {
       IntSet temp(rhs, d_nodeFactory.allocator());
-      <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(temp);
+      <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(temp);
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
 </pre></div><br/>
@@ -689,10 +689,10 @@ A factory for creating and destroying nodes.  </li>
       }
   }
 
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">IntSet::swap</a>(IntSet&amp; other) {
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">IntSet::swap</a>(IntSet&amp; other) {
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(d_nodeFactory.allocator() ==
                   other.d_nodeFactory.allocator());
-      <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
+      <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">RbTreeUtil::swap</a>(&amp;d_tree, &amp;other.d_tree);
   }
 
   <span class="comment">// ACCESSORS</span>
@@ -711,7 +711,7 @@ A factory for creating and destroying nodes.  </li>
       <span class="keywordflow">return</span> const_iterator(RbTreeUtil::find(d_tree, d_comparator, value));
   }
 
-  <span class="keywordtype">int</span> IntSet::size()<span class="keyword"> const</span>
+  <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">IntSet::size</a>()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_tree.numNodes();
   }
@@ -720,7 +720,7 @@ A factory for creating and destroying nodes.  </li>
  Finally, we implement the free operators on <code>IntSet</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
   {
       <span class="keywordflow">return</span> <a class="code" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a>(lhs.begin(),
                                         lhs.end(),
@@ -730,7 +730,7 @@ A factory for creating and destroying nodes.  </li>
                                         rhs.size());
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
   {
       <span class="keywordflow">return</span> !(lhs == rhs);
   }
@@ -738,7 +738,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

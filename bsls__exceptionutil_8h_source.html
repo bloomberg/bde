@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_exceptionutil.h                                               -*-C++-*-
@@ -47,7 +47,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // will compile in both exception enabled and non-exception enabled builds.
 // Note that apart from memory allocation, and where required by the C++
 // standard, types defined in the BDE libraries do not throw exceptions, and
-// are typically &quot;exception neutral&quot; (see {&#39;bsldoc_glossary&#39;}), meaning they
+// are typically &quot;exception-neutral&quot; (see {&#39;bsldoc_glossary&#39;}), meaning they
 // behave reasonably in the presence of injected exceptions, but do not
 // themselves throw any exceptions.
 //
@@ -307,7 +307,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 namespace BloombergLP
 {
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 

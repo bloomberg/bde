@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlma_sequentialpool.h                                             -*-C++-*-
@@ -21,10 +21,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@DESCRIPTION: This component provides a fast sequential memory pool,
 // &#39;bdlma::SequentialPool&#39;, that dispenses heterogeneous memory blocks (of
-// varying, user-specified sizes) from a dynamically-allocated internal
-// buffer.  If an allocation request exceeds the remaining free memory space in
-// the internal buffer, the pool either replenishes its buffer with new memory
-// to satisfy the request, or returns a separate memory block, depending on
+// varying, user-specified sizes) from a dynamically-allocated internal buffer.
+// If an allocation request exceeds the remaining free memory space in the
+// internal buffer, the pool either replenishes its buffer with new memory to
+// satisfy the request, or returns a separate memory block, depending on
 // whether the request size exceeds an optionally-specified maximum buffer
 // size.  The &#39;release&#39; method releases all memory allocated through the pool,
 // as does the destructor.  Note that individually allocated memory blocks
@@ -71,8 +71,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using &#39;bdlma::SequentialPool&#39; for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, &#39;my_IntDoubleArray&#39;, that holds both
 // &#39;int&#39; and &#39;double&#39; values.  The class can be implemented using two parallel
 // arrays: one storing the type information, and the other storing pointers to
@@ -105,9 +107,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // Increase the capacity of the internal arrays used to store
 //          // elements added to this array by at least one element.
 //
+//      // Not implemented:
+//      my_IntDoubleArray(const my_IntDoubleArray&amp;);
+//
 //    public:
 //      // TYPES
-//      enum Type { MY_INT, MY_DOUBLE };
+//      enum Type { k_MY_INT, k_MY_DOUBLE };
 //
 //      // CREATORS
 //      explicit my_IntDoubleArray(bslma::Allocator *basicAllocator = 0);
@@ -149,9 +154,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // amount of dynamic allocation needed:
 //..
 //  // my_intdoublearray.cpp
-//  #include &lt;my_intdoublearray.h&gt;
 //
-//  enum { INITIAL_SIZE = 1, GROWTH_FACTOR = 2 };
+//  enum { k_INITIAL_SIZE = 1 };
 //
 //  // PRIVATE MANIPULATORS
 //  void my_IntDoubleArray::increaseSize()
@@ -163,7 +167,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  // CREATORS
 //  my_IntDoubleArray::my_IntDoubleArray(bslma::Allocator *basicAllocator)
 //  : d_length(0)
-//  , d_capacity(INITIAL_SIZE)
+//  , d_capacity(k_INITIAL_SIZE)
 //  , d_pool(basicAllocator)
 //  {
 //      d_typeArray_p  = static_cast&lt;char *&gt;(
@@ -192,7 +196,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      int *item = static_cast&lt;int *&gt;(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast&lt;char&gt;(MY_INT);
+//      d_typeArray_p[d_length]  = static_cast&lt;char&gt;(k_MY_INT);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
@@ -207,14 +211,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      double *item = static_cast&lt;double *&gt;(d_pool.allocate(sizeof *item));
 //      *item = value;
 //
-//      d_typeArray_p[d_length]  = static_cast&lt;char&gt;(MY_DOUBLE);
+//      d_typeArray_p[d_length]  = static_cast&lt;char&gt;(k_MY_DOUBLE);
 //      d_valueArray_p[d_length] = item;
 //
 //      ++d_length;
 //  }
 //..
+//
 ///Example 2: Implementing an Allocator Using &#39;bdlma::SequentialPool&#39;
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // &#39;bslma::Allocator&#39; is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, &#39;my_FastAllocator&#39;, that
 // allocates memory from a buffer in a similar fashion to
@@ -322,25 +327,25 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 #ifndef INCLUDED_BSL_CSTDDEF
-#include &lt;bsl_cstddef.h&gt;  // &#39;bsl::size_t&#39;
+#include &lt;bsl_cstddef.h&gt;
 #endif
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ====================
-                        // class SequentialPool
-                        // ====================
+                           // ====================
+                           // class SequentialPool
+                           // ====================
 
 class SequentialPool {
     // This class implements a fast memory pool that efficiently dispenses
-    // heterogeneous blocks of memory (of varying, user-specified sizes) from
-    // a sequence of dynamically-allocated internal buffers.  Memory for the
-    // internal buffers is supplied by an (optional) allocator supplied
-    // at construction; if no allocator is supplied, the currently installed
-    // default allocator is used.  If an allocation exceeds the remaining
-    // free memory space in the current buffer, the pool replenishes its
-    // internal buffer with new memory to satisfy the request.  This class is
+    // heterogeneous blocks of memory (of varying, user-specified sizes) from a
+    // sequence of dynamically-allocated internal buffers.  Memory for the
+    // internal buffers is supplied by an (optional) allocator supplied at
+    // construction; if no allocator is supplied, the currently installed
+    // default allocator is used.  If an allocation exceeds the remaining free
+    // memory space in the current buffer, the pool replenishes its internal
+    // buffer with new memory to satisfy the request.  This class is
     // *exception* *neutral*: If memory cannot be allocated, the behavior is
     // defined by the (optional) allocator specified at construction.
 
@@ -374,16 +379,16 @@ class SequentialPool {
   public:
     // CREATORS
     explicit
-    SequentialPool(bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bslma::Allocator *basicAllocator = 0);
     explicit
-    SequentialPool(bsls::BlockGrowth::Strategy      growthStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
     explicit
-    SequentialPool(bsls::Alignment::Strategy        alignmentStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
-    SequentialPool(bsls::BlockGrowth::Strategy      growthStrategy,
-                   bsls::Alignment::Strategy        alignmentStrategy,
-                   bslma::Allocator                *basicAllocator = 0);
+    SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
+    SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                   bsls::Alignment::Strategy    alignmentStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from a
         // sequence of dynamically-allocated buffers.  Optionally specify a
         // &#39;basicAllocator&#39; used to supply memory for the dynamically-allocated
@@ -400,14 +405,13 @@ class SequentialPool {
         // always be the same as the implementation-defined value.
 
     explicit
-    SequentialPool(int                          initialSize,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int initialSize, bslma::Allocator *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
-    SequentialPool(int                          initialSize,
-                   bsls::Alignment::Strategy    alignmentStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int                        initialSize,
+                   bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bsls::Alignment::Strategy    alignmentStrategy,
@@ -430,17 +434,17 @@ class SequentialPool {
         // size of the internal buffers will always be the same as
         // &#39;initialSize&#39;.
 
-    SequentialPool(int                          initialSize,
-                   int                          maxBufferSize,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int               initialSize,
+                   int               maxBufferSize,
+                   bslma::Allocator *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    int                          maxBufferSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
                    bslma::Allocator            *basicAllocator = 0);
-    SequentialPool(int                          initialSize,
-                   int                          maxBufferSize,
-                   bsls::Alignment::Strategy    alignmentStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
+    SequentialPool(int                        initialSize,
+                   int                        maxBufferSize,
+                   bsls::Alignment::Strategy  alignmentStrategy,
+                   bslma::Allocator          *basicAllocator = 0);
     SequentialPool(int                          initialSize,
                    int                          maxBufferSize,
                    bsls::BlockGrowth::Strategy  growthStrategy,
@@ -470,8 +474,8 @@ class SequentialPool {
     void *allocate(bsls::Types::size_type size);
         // Return the address of a contiguous block of memory of the specified
         // &#39;size&#39; (in bytes) according to the alignment strategy specified at
-        // construction.  If the allocation request exceeds the remaining
-        // free memory space in the current internal buffer, use the allocator
+        // construction.  If the allocation request exceeds the remaining free
+        // memory space in the current internal buffer, use the allocator
         // supplied at construction to allocate a new internal buffer, then
         // allocate memory from the new buffer.  The behavior is undefined
         // unless &#39;0 &lt; size&#39;.
@@ -499,29 +503,29 @@ class SequentialPool {
 
     void release();
         // Release all memory allocated through this pool.  The pool is reset
-        // to its default-constructed state, retaining the alignment and
-        // growth strategies, and the initial and maximum buffer sizes in
-        // effect following construction.
+        // to its default-constructed state, retaining the alignment and growth
+        // strategies, and the initial and maximum buffer sizes in effect
+        // following construction.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified &#39;numBytes&#39; without replenishment (i.e., without
-        // dynamic allocation).  This method ignores &#39;maxBufferSize&#39; even if
-        // it is supplied at construction.  The behavior is undefined unless
+        // dynamic allocation).  This method ignores &#39;maxBufferSize&#39; even if it
+        // is supplied at construction.  The behavior is undefined unless
         // &#39;0 &lt; numBytes&#39;.  Note that, due to alignment effects, it is possible
         // that not all &#39;numBytes&#39; of memory will be used for allocation before
         // triggering dynamic allocation.
 
     int truncate(void *address, int originalSize, int newSize);
-        // Reduce the amount of memory allocated at the specified &#39;address&#39;
-        // of the specified &#39;originalSize&#39; (in bytes) to the specified
-        // &#39;newSize&#39;.  Return &#39;newSize&#39; after truncating, or &#39;originalSize&#39; if
-        // the memory block at &#39;address&#39; cannot be truncated.  This method can
-        // only &#39;truncate&#39; the memory block returned by the most recent
-        // &#39;allocate&#39; request from this memory pool, and otherwise has no
-        // effect.  The behavior is undefined unless the memory at &#39;address&#39;
-        // was originally allocated by this memory pool, the size of the memory
-        // block at &#39;address&#39; is &#39;originalSize&#39;, &#39;newSize &lt;= originalSize&#39;,
+        // Reduce the amount of memory allocated at the specified &#39;address&#39; of
+        // the specified &#39;originalSize&#39; (in bytes) to the specified &#39;newSize&#39;.
+        // Return &#39;newSize&#39; after truncating, or &#39;originalSize&#39; if the memory
+        // block at &#39;address&#39; cannot be truncated.  This method can only
+        // &#39;truncate&#39; the memory block returned by the most recent &#39;allocate&#39;
+        // request from this memory pool, and otherwise has no effect.  The
+        // behavior is undefined unless the memory at &#39;address&#39; was originally
+        // allocated by this memory pool, the size of the memory block at
+        // &#39;address&#39; is &#39;originalSize&#39;, &#39;newSize &lt;= originalSize&#39;,
         // &#39;0 &lt;= newSize&#39;, and &#39;release&#39; was not called after allocating the
         // memory block at &#39;address&#39;.
 };
@@ -551,11 +555,11 @@ class SequentialPool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded &#39;operator delete&#39;; on the other hand, the pointer returned by
-// operator &#39;new&#39; cannot be passed to the &#39;deallocate&#39; method directly
-// because the pointer is different from the one returned by the &#39;allocate&#39;
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that the
-// &#39;operator delete&#39; can destroy the right number of objects).
+// operator &#39;new&#39; cannot be passed to the &#39;deallocate&#39; method directly because
+// the pointer is different from the one returned by the &#39;allocate&#39; method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that the &#39;operator delete&#39;
+// can destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t size, BloombergLP::bdlma::SequentialPool&amp; pool);
@@ -589,15 +593,15 @@ void operator delete(void *address, BloombergLP::bdlma::SequentialPool&amp; pool
     // case of an exception.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
 namespace BloombergLP {
 namespace bdlma {
 
-                        // --------------------
-                        // class SequentialPool
-                        // --------------------
+                           // --------------------
+                           // class SequentialPool
+                           // --------------------
 
 // CREATORS
 inline
@@ -667,7 +671,7 @@ void operator delete(void *, BloombergLP::bdlma::SequentialPool&amp;)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

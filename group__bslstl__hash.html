@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_hash Component</title>
+<title>BDE 3.0: bslstl_hash Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -214,11 +214,11 @@ Functions</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>According to the C++ standard the requirements of a standard hash function <code>h</code> are: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ol>
 <li>
-Return a <code>size_t</code> value between 0 and <code>numeric_limits&lt;std::size_t&gt;max()</code>  </li>
+Return a <code>size_t</code> value between 0 and <code>numeric_limits&lt;std::size_t&gt;max()</code>.  </li>
 <li>
 The value returned must depend only on the argument <code>k</code>. For multiple evaluations with the same argument <code>k</code>, the value returned must be always the same.  </li>
 <li>
-The function should not modify it's argument.  </li>
+The function should not modify its argument.  </li>
 </ol>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -383,12 +383,12 @@ The function should not modify it's argument.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_using_hashappend_from_bslh_with_hashcrossreference"></a> <a class="anchor" id="usage.example_2~3A_using_hashappend_from_bslh_with_hashcrossreference"></a> <a class="anchor" id="description.usage.example_2~3A_using_hashappend_from_bslh_with_hashcrossreference"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Using hashAppend from bslh with HashCrossReference: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>We want to specialize <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> for a custom class. We can use the the modular hashing system implemented in <code>bslh</code> rather than explicitly specializing <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. We will re-use the <code>HashCrossReference</code> template class defined in Example 1. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>First, we declare <code>Point</code>, a class that allows us to identify a loction on a two dimensional cartesian plane. <br/>
+<dl class="user"><dt><b></b></dt><dd>We want to specialize <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> for a custom class. We can use the modular hashing system implemented in <code>bslh</code> rather than explicitly specializing <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code>. We will re-use the <code>HashCrossReference</code> template class defined in Example 1. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>First, we declare <code>Point</code>, a class that allows us to identify a location on a two dimensional Cartesian plane. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Point {
-      <span class="comment">// This class is a value semantic type that represents as two</span>
-      <span class="comment">// dimensional location on a cartesian plane.</span>
+      <span class="comment">// This class is a value-semantic type that represents a two-</span>
+      <span class="comment">// dimensional location on a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
       <span class="keywordtype">int</span>    d_x;
@@ -428,7 +428,8 @@ The function should not modify it's argument.  </li>
   }
 </pre></div><br/>
 <br/>
- Then, we define <code>operator==</code>. Notice how it only checks salient attributes - attributes that contribute to the value of the class. We ignore <code>d_distToOrigin</code> which is not required to determine equality. <br/>
+ Then, we define <code>operator==</code>. Notice how it only checks salient attributes<ul>
+<li>attributes that contribute to the value of the class. We ignore <code>d_distToOrigin</code> which is not required to determine equality. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="group__bslstl__allocator.html#gad6d3f796409781b394c2140195a5b7d2">operator==</a>(<span class="keyword">const</span> Point &amp;left, <span class="keyword">const</span> Point &amp;right)
   {
@@ -447,16 +448,16 @@ The function should not modify it's argument.  </li>
   }
 </pre></div><br/>
 <br/>
- Then, we declare another value semantic type, <code>Box</code> that will have point as one of its salient attributes. <br/>
+ Then, we declare another value-semantic type, <code>Box</code>, that has a <code>Point</code> as one of its salient attributes. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Box {
-      <span class="comment">// This class is a value semantic type that represents a box drawn on</span>
-      <span class="comment">// to a cartesian plane.</span>
+      <span class="comment">// This class is a value-semantic type that represents a box drawn on</span>
+      <span class="comment">// to a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
       Point d_position;
-      <span class="keywordtype">int</span> d_length;
-      <span class="keywordtype">int</span> d_width;
+      <span class="keywordtype">int</span>   d_length;
+      <span class="keywordtype">int</span>   d_width;
 
     <span class="keyword">public</span>:
       Box(Point position, <span class="keywordtype">int</span> length, <span class="keywordtype">int</span> width);
@@ -489,7 +490,7 @@ The function should not modify it's argument.  </li>
   }
 </pre></div><br/>
 <br/>
- Next, we define <code>hashAppend</code> for <code>Box</code>. Notice how as well as calling <code>hashAppend</code> on fundamental types, we can also call it on our user defined type <code>Point</code>. Calling <code>hashAppend</code> on <code>Point</code> will propogate the hashing algorithm functor <code>hashAlg</code> down to the fundamental types that make up <code>Point</code>, and those types will then be passed into the algorithm functor. <br/>
+ Next, we define <code>hashAppend</code> for <code>Box</code>. Notice how as well as calling <code>hashAppend</code> on fundamental types, we can also call it on our user-defined type <code>Point</code>. Calling <code>hashAppend</code> on <code>Point</code> will propagate the hashing algorithm functor <code>hashAlg</code> down to the fundamental types that make up <code>Point</code>, and those types will then be passed into the algorithm functor. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
   <span class="keywordtype">void</span> <a class="code" href="group__bslstl__pair.html#ga7f8ed8637bd0597772928067e041cc26">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
@@ -534,7 +535,9 @@ The function should not modify it's argument.  </li>
       ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
 </pre></div><br/>
 <br/>
- </dd></dl>
+ </li>
+</ul>
+</dd></dl>
 <hr/><h2>Typedef Documentation</h2>
 <a class="anchor" id="ga0fce4aba03c8d11f4b06fa6088a0b08f"></a><!-- doxytag: member="bsl::hash&lt; bool &gt;::result_type" ref="ga0fce4aba03c8d11f4b06fa6088a0b08f" args="" -->
 <div class="memitem">
@@ -739,7 +742,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -776,7 +779,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -832,7 +835,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -869,7 +872,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -925,7 +928,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -962,7 +965,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1018,7 +1021,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1055,7 +1058,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1111,7 +1114,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1148,7 +1151,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1204,7 +1207,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1241,7 +1244,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1297,7 +1300,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1334,7 +1337,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1390,7 +1393,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1427,7 +1430,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1483,7 +1486,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1520,7 +1523,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1576,7 +1579,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1613,7 +1616,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1669,7 +1672,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1706,7 +1709,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1762,7 +1765,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1799,7 +1802,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1855,7 +1858,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Create a <code>hash</code> object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1892,7 +1895,7 @@ The function should not modify it's argument.  </li>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation will have no observable effect. </p>
+<p>Assign to this object the value of the specified <code>rhs</code> object, and return a reference providing modifiable access to this object. Note that as <code>hash</code> is an empty (stateless) type, this operation has no observable effect. </p>
 
 </div>
 </div>
@@ -1916,7 +1919,7 @@ The function should not modify it's argument.  </li>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

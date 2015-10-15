@@ -1,0 +1,614 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlsos_tcpchannel.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSOS_TCPCHANNEL
+#define INCLUDED_BTLSOS_TCPCHANNEL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide synchronous TCP-based communication channel.
+//
+//@SEE_ALSO: btlsos_tcpacceptor       btlsos_tcpconnector
+//@SEE_ALSO: btlsos_tcptimedchannel   btlsos_tcpcbchannel
+//@SEE_ALSO: btlso_socketoptutil
+//
+//@DESCRIPTION: This component provides concrete implementation of the blocking
+// communication channel (&#39;btlsc_channel&#39;) over TCP/IPv4 sockets.  Both
+// non-timed operations are supported (as mandated by the protocol).
+// Additionally, operations to set various socket options and to get local and
+// remote addresses are provided.
+//
+///Thread Safety
+///-------------
+// The channel is *thread safe*, meaning that any operation can be called on
+// *distinct instances* from different threads without any side-effects (which,
+// generally speaking, means that there is no &#39;static&#39;), but not *thread
+// enabled* (i.e., two threads cannot safely call methods on the *same
+// instance* without external synchronization).  The channel is not
+// *async-safe*, meaning that one or more functions cannot be invoked safely
+// from a signal handler.
+//
+///Performance
+///-----------
+// This channel is optimized for operations with the timeout.  Non-timed
+// operations will have worse performance than their respective counterparts in
+// the non-timed version of the channel (i.e., &#39;btlsos_tcpchannel&#39;).  If only
+// non-timed operations are required, &#39;btlsos::TcpChannel&#39; should be used
+// instead.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a Pair of Sockets
+/// - - - - - - - - - - - - - - - - -
+// The following usage example shows a possible use of this component.  First,
+// a pair of sockets connecting each other on the local host are created for
+// our example, which could be any connected sockets on different hosts.  The
+// channel only needs one of the socket as its I/O request endpoint, while the
+// other end of connection will be used to write some data for the channel to
+// read:
+//..
+//    btlso::SocketHandle::Handle handles[2];
+//    int ret = btlso::SocketImpUtil::socketPair&lt;btlso::IPv4Address&gt;(
+//                                  handles,
+//                                  btlso::SocketImpUtil::k_SOCKET_STREAM);
+//    assert(0 == ret);
+//    // The following socket options are set only if necessary.
+//
+//    ret = btlso::SocketOptUtil::setOption(handles[0],
+//                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                      btlso::SocketOptUtil::k_SENDBUFFER, 8192);
+//    assert(0 == ret);
+//
+//    ret = btlso::SocketOptUtil::setOption(handles[1],
+//                      btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                      btlso::SocketOptUtil::k_RECEIVEBUFFER, 8192);
+//    assert(0 == ret);
+//
+//    ret = btlso::SocketOptUtil::setOption(handles[1],
+//                          btlso::SocketOptUtil::k_TCPLEVEL,
+//                          btlso::SocketOptUtil::k_TCPNODELAY, 1);
+//    assert(0 == ret);
+//..
+// Next, create a &#39;btlso::StreamSocket&#39; object, which is a part of the channel.
+// The &#39;btlso::StreamSocket&#39; object has a field of type
+// &#39;btlso::SocketHandle::Handle&#39;, whose value is set to a socket created above.
+// Then I/O operations can be invoked on the channel:
+//..
+//    btlso::InetStreamSocketFactory&lt;btlso::IPv4Address&gt;
+//                                                     factory(&amp;testAllocator);
+//    btlso::StreamSocket&lt;btlso::IPv4Address&gt; *sSocket =
+//                                            factory.allocate(handles[0]);
+//    assert(sSocket);
+//
+//    {
+//        // We should guarantee that the &#39;channel&#39;s destructor is
+//        // invoked before the corresponding &#39;streamSocket&#39;
+//        // destructor, the behavior is undefined otherwise.
+//        // We insure the required order by creating the &#39;channel&#39;
+//        // inside a block while the corresponding &#39;streamSocket&#39;
+//        // object outside the block as above.
+//
+//        Obj channel(sSocket);
+//        assert(0 == channel.isInvalid());
+//
+//        // Write data at the other side of the channel and so &quot;read&quot;
+//        // operations can be done at the channel side.
+//        enum { k_LEN = 30 };
+//        char writeBuf[k_LEN] = &quot;abcdefghij1234567890&quot;,
+//             readBuf[k_LEN];
+//        int numBytes = 0, augStatus = -1, interruptFlag = 1;
+//        int len = btlso::SocketImpUtil::write(handles[1], writeBuf,
+//                                             strlen(writeBuf));
+//
+//        assert(len == strlen(writeBuf));
+//        // Read 5 bytes from the channel.
+//        numBytes = 5;
+//        augStatus = -1;
+//        len = channel.read(&amp;augStatus, readBuf, numBytes, interruptFlag);
+//        if (len != numBytes) {
+//            assert(0 &lt; augStatus);
+//        }
+//
+//        numBytes = 10;
+//        augStatus = -1;
+//        len = channel.readRaw(&amp;augStatus, readBuf,
+//                              numBytes, interruptFlag);
+//        if (len != numBytes) {
+//            assert(0 &lt; augStatus);
+//        }
+//
+//        // Write 1 byte to the channel.
+//        numBytes = 1;
+//        augStatus = -1;
+//        len = channel.write(&amp;augStatus, writeBuf,
+//                                    numBytes, interruptFlag);
+//        if (len != numBytes) {
+//            assert(0 &lt; augStatus);
+//        }
+//
+//        numBytes = 10;
+//        augStatus = -1;
+//        // Try writing 10 bytes to the channel with a timeout value.
+//        len = channel.writeRaw(&amp;augStatus, writeBuf,
+//                               numBytes, interruptFlag);
+//        if (len != numBytes) {
+//            assert(0 &lt; augStatus);
+//        }
+//        assert(0 == channel.isInvalid());
+//        channel.invalidate();
+//        assert(1 == channel.isInvalid());
+//
+//        numBytes = 5;
+//        enum { e_INVALID = -2 };
+//        // Try writing 5 bytes from the channel.
+//        len = channel.read(&amp;augStatus, readBuf,
+//                                   numBytes, interruptFlag);
+//        assert(e_INVALID == len);
+//
+//        numBytes = 10;
+//        augStatus = -1;
+//        // Try writing 10 bytes from the channel with a timeout value.
+//        len = channel.read(&amp;augStatus, readBuf,
+//                           numBytes, interruptFlag);
+//        assert(e_INVALID == len);
+//        // Try writing 1 byte to the channel.
+//        numBytes = 1;
+//        augStatus = -1;
+//        len = channel.write(&amp;augStatus, writeBuf,
+//                            numBytes, interruptFlag);
+//        assert(e_INVALID == len);
+//
+//        numBytes = 10;
+//        augStatus = -1;
+//        // Try writing 10 bytes to the channel with a timeout value.
+//        len = channel.writeRaw(&amp;augStatus, writeBuf,
+//                               numBytes, interruptFlag);
+//        assert(e_INVALID == len);
+//    }
+//    factory.deallocate(sSocket);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSC_CHANNEL
+#include &lt;btlsc_channel.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace btlso { template&lt;class ADDRESS&gt; class StreamSocket; }
+namespace btlsos {
+
+                             // ================
+                             // class TcpChannel
+                             // ================
+
+class TcpChannel : public btlsc::Channel {
+    // This class implements &#39;btlsc::Channel&#39; protocol over TCP/IP sockets.  It
+    // operates on top of the stream-socket interface, which is provided at
+    // construction.
+
+    btlso::StreamSocket&lt;btlso::IPv4Address&gt; *d_socket_p;     // not owned
+    int                                    d_isInvalidFlag;
+
+    bsl::vector&lt;char&gt;                      d_readBuffer;
+    int                                    d_readBufferOffset;
+    int                                    d_readBufferedStartPointer;
+        // the index of the first unconsumed data in &#39;d_readBuffer&#39;
+    bslma::Allocator                      *d_allocator_p;
+
+  private:  // not implemented
+    TcpChannel(const TcpChannel&amp;);
+    TcpChannel&amp; operator=(const TcpChannel&amp;);
+
+    // PRIVATE MANIPULATORS
+    void initializeReadBuffer(int size = -1);
+        // Initialize internal read buffer with the optionally specified
+        // &#39;size&#39;.  If &#39;size&#39; is not specified, the default that is obtained by
+        // querying the underlying socket is used.
+
+  public:
+    // CREATORS
+    TcpChannel(btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket,
+               bslma::Allocator                        *basicAllocator = 0);
+        // Create a channel attached to the specified stream-oriented &#39;socket&#39;.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;socket&#39; is not 0.
+
+    ~TcpChannel();
+        // Destroy this channel and release the underlying socket.
+
+    // MANIPULATORS
+    int read(char *buffer, int numBytes, int flags = 0);
+    int read(int *augStatus, char *buffer, int numBytes, int flags = 0);
+        // Read from this channel into the specified &#39;buffer&#39; the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffer&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffer&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffer&#39; has sufficient capacity to hold the requested data
+        // and &#39;0 &lt; numBytes&#39;.
+
+    int readv(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readv(int               *augStatus,
+              const btls::Iovec *buffers,
+              int                numBuffers,
+              int                flags = 0);
+        // Read from this channel into the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39;, the respective numbers of
+        // bytes as specified in each corresponding &#39;btls::Iovec&#39; buffer.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a partial result.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffers&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffers&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffers&#39; have sufficient capacity to hold the requested data
+        // and 0 &lt; &#39;numBuffers&#39;.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    int readRaw(char *buffer, int numBytes, int flags = 0);
+    int readRaw(int *augStatus, char *buffer, int numBytes, int flags = 0);
+        // *Atomically* read from this channel into the specified &#39;buffer&#39; *at*
+        // *most* the specified &#39;numBytes&#39;.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // &quot;partial result&quot;.  Return &#39;numBytes&#39; on success, a negative value on
+        // error, and the number of bytes newly read into &#39;buffer&#39; (indicating
+        // a partial result) otherwise.  On a partial result, load &#39;augStatus&#39;,
+        // if supplied, with a positive value if an asynchronous event
+        // interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffer&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffer&#39; has sufficient capacity to hold the requested data
+        // and &#39;0 &lt; numBytes&#39;.  Note that if the specified &#39;timeout&#39; value has
+        // already passed, the &quot;read&quot; operation will still be attempted, but
+        // the attempt will not block.
+
+    int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int readvRaw(int               *augStatus,
+                 const btls::Iovec *buffers,
+                 int                numBuffers,
+                 int                flags = 0);
+        // *Atomically* read from this channel into the specified sequence of
+        // &#39;buffers&#39; of specified sequence length &#39;numBuffers&#39; *at* *most* the
+        // respective numbers of bytes as specified in each corresponding
+        // &#39;btls::Iovec&#39; buffer.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
+        // &#39;augStatus&#39; to receive status specific to a &quot;partial result&quot;.
+        // Return &#39;numBytes&#39; on success, a negative value on error, and the
+        // number of bytes newly read into &#39;buffers&#39; (indicating a partial
+        // result) otherwise.  On a partial result, load &#39;augStatus&#39;, if
+        // supplied, with a positive value if an asynchronous event interrupted
+        // this operation and a negative value if the atomic OS-level operation
+        // transmitted at least one byte, but less than &#39;numBytes&#39;; otherwise,
+        // &#39;augStatus&#39; is unmodified.  A partial result typically does not
+        // invalidate this channel; hence, this (or another) operation may be
+        // retried (with arguments suitably adjusted) with some reasonable hope
+        // of success.  A negative &quot;status&quot;, however, indicates a permanent
+        // error (leaving the contents of &#39;buffers&#39; undefined); -1 implies that
+        // the connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;buffers&#39; have
+        // sufficient capacity to hold the requested data and 0 &lt; numBytes.
+        // Note that if the specified &#39;timeout&#39; value has already passed, the
+        // &quot;read&quot; operation will still be attempted, but the attempt will not
+        // block.
+
+    int bufferedRead(const char **buffer, int numBytes, int flags = 0 );
+    int bufferedRead(int         *augStatus,
+                     const char **buffer,
+                     int          numBytes,
+                     int          flags = 0 );
+        // Read from this channel into a channel-supplied buffer, identified
+        // via the specified &#39;buffer&#39;, the specified &#39;numBytes&#39;.  If the
+        // optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffer&#39; (indicating a partial result) otherwise.  Any
+        // positive return value guarantees that &#39;buffer&#39; will remain valid
+        // until this channel is modified.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, &#39;augStatus&#39;
+        // is unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried with some
+        // reasonable hope of success -- buffered data from a partial result
+        // remains available until consumed by subsequent read operations.  A
+        // negative &quot;status&quot;, however, indicates a permanent error (leaving
+        // &#39;buffer&#39; undefined); -1 implies that the connection was closed by
+        // the peer (but the converse is not guaranteed).  The behavior is
+        // undefined unless &#39;0 &lt; numBytes&#39;.
+
+    int bufferedReadRaw(const char **buffer, int numBytes, int flags = 0);
+    int bufferedReadRaw(int         *augStatus,
+                        const char **buffer,
+                        int          numBytes,
+                        int          flags = 0);
+        // *Atomically* read from this channel into a channel-supplied buffer,
+        // identified via the specified &#39;buffer&#39;, *at* *most* the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffer&#39; (indicating a partial result) otherwise.  Any
+        // positive return value guarantees that &#39;buffer&#39; will remain valid
+        // until this channel is modified.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value if an asynchronous
+        // event interrupted this operation, or a negative value if the atomic
+        // OS-level operation transmitted at least one but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried with some reasonable hope of success --
+        // buffered data from a partial result remains available until consumed
+        // by subsequent read operations.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving &#39;buffer&#39; unset); -1 implies
+        // that the connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+    int write(const char *buffer, int numBytes, int flags = 0);
+    int write(int *augStatus, const char *buffer, int numBytes, int flags = 0);
+        // Write to this channel from the specified &#39;buffer&#39; the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // written from &#39;buffer&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    int writeRaw(const char *buffer, int numBytes, int flags = 0);
+    int writeRaw(int        *augStatus,
+                 const char *buffer,
+                 int         numBytes,
+                 int         flags = 0);
+        // *Atomically* write to this channel from the specified &#39;buffer&#39; *at*
+        // *most* the specified &#39;numBytes&#39;.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // &quot;partial result&quot;.  Return &#39;numBytes&#39; on success, a negative value on
+        // error, and the number of bytes newly written from &#39;buffer&#39;
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value if an asynchronous
+        // event interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.  Note that if the
+        // specified &#39;timeout&#39; value has already passed, the &quot;write&quot; operation
+        // will still be attempted, but the attempt will not block.
+
+    int writev(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writev(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int writev(int              *augStatus,
+               const btls::Ovec *buffers,
+               int               numBuffers,
+               int               flags = 0);
+    int writev(int               *augStatus,
+               const btls::Iovec *buffers,
+               int                numBuffers,
+               int                flags = 0);
+        // Write to this channel from the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39; the respective numbers of
+        // bytes as specified in each corresponding &#39;btls::Ovec&#39; (or
+        // &#39;btls::Iovec&#39;) buffer.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
+        // &#39;augStatus&#39; to receive status specific to a partial result.  Return
+        // &#39;numBytes&#39; on success, a negative value on error, and the number of
+        // bytes newly written from &#39;buffers&#39; (indicating a partial result)
+        // otherwise.  On a partial result, load &#39;augStatus&#39;, if supplied, with
+        // a positive value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless 0 &lt; numBytes.
+
+    int writevRaw(const btls::Ovec *buffers, int numBuffers, int flags = 0);
+    int writevRaw(const btls::Iovec *buffers, int numBuffers, int flags = 0);
+    int writevRaw(int              *augStatus,
+                  const btls::Ovec *buffers,
+                  int               numBuffers,
+                  int               flags = 0);
+    int writevRaw(int               *augStatus,
+                  const btls::Iovec *buffers,
+                  int                numBuffers,
+                  int                flags = 0);
+        // *Atomically* write to this channel, from the specified sequence of
+        // &#39;buffers&#39; of specified sequence length &#39;numBuffers&#39;, *at* *most* the
+        // respective numbers of bytes as specified in each corresponding
+        // &#39;btls::Ovec&#39; (or &#39;btls::Iovec&#39;) buffer.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Channel::ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // &quot;partial result&quot;.  Return &#39;numBytes&#39; on success, a negative value on
+        // error, and the number of bytes newly written from &#39;buffer&#39;
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value if an asynchronous
+        // event interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless 0 &lt; numBytes.
+
+    void invalidate();
+        // Make this channel invalid; no subsequent operations can be completed
+        // successfully.
+
+    int getLocalAddress(btlso::IPv4Address *result);
+        // Load into the specified &#39;result&#39; the complete IP address associated
+        // with the local (i.e., this process) end-point of this channel.
+        // Return 0 on success and a non-zero value otherwise.
+
+    int getOption(int *result, int level, int option);
+        // Load into the specified &#39;result&#39; the current value of the specified
+        // &#39;option&#39; of the specified &#39;level&#39; set on the underlying socket.
+        // Return 0 on success and a non-zero value otherwise.  The list of
+        // commonly-supported options (and levels) is enumerated in
+        // &#39;btlso_socketoptutil&#39;.
+
+    int getPeerAddress(btlso::IPv4Address *result);
+        // Load into the specified &#39;result&#39; the complete IP address associated
+        // with the remote (i.e., peer process) end-point of this channel.
+        // Return 0 on success and a non-zero value otherwise.
+
+    int setOption(int level, int option, int value);
+        // Set the specified socket &#39;option&#39; of the specified &#39;level&#39; on the
+        // underlying socket to the specified &#39;value&#39;.  Return 0 on success and
+        // a non-zero value otherwise.  (The list of commonly-supported options
+        // is available in &#39;btlso_socketoptutil&#39;.)
+
+    // ACCESSORS
+    int isInvalid() const;
+        // Return 1 if *any* transmission error has occurred or if the channel
+        // has been explicitly invalidated (via &#39;invalidate&#39;) and 0 otherwise.
+        // Once a channel is invalid, no operations can be completed
+        // successfully.  Note also that 0 return value does NOT guarantee that
+        // a subsequent I/O operation would not fail.
+
+    btlso::StreamSocket&lt;btlso::IPv4Address&gt; *socket() const;
+        // Return the address of the stream-socket used by this channel.
+
+};
+
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
+
+inline
+void TcpChannel::invalidate()
+{
+    d_isInvalidFlag = 1;
+}
+
+inline
+btlso::StreamSocket&lt;btlso::IPv4Address&gt; *TcpChannel::socket() const
+{
+    return d_socket_p;
+}
+
+inline
+int TcpChannel::isInvalid() const
+{
+    return d_isInvalidFlag;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

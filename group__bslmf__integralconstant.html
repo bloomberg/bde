@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_integralconstant Component</title>
+<title>BDE 3.0: bslmf_integralconstant Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -84,7 +84,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1.1">Example 1: Compile-Time Function Dispatching</a> </li>
 <li>
-<a href="#3.1.2">Example 2: Base class for metafunctions</a> </li>
+<a href="#3.1.2">Example 2: Base Class For Metafunctions</a> </li>
 </ul>
 </li>
 </ul>
@@ -170,8 +170,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="usage.example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="description.usage.example_2~3A_base_class_for_metafunctions"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Base class for metafunctions: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: Base Class For Metafunctions: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Hard-coding the value of an <code>integral_constant</code> is not especially useful. Rather, <code>integral_constant</code> is typically used as the base class for "metafunction" classes, classes that yield the value of compile-time properties, including properties that are associated with types, rather than with values. For example, the following metafunction can be used at compile time to determine whether a type is a floating point type: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">    <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt; <span class="keyword">struct </span>IsFloatingPoint    : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a> { };
@@ -208,7 +209,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

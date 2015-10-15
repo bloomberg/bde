@@ -1,0 +1,546 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_rule.h                                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_RULE
+#define INCLUDED_BALL_RULE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an object having a pattern, thresholds, and predicates.
+//
+//@CLASSES:
+//    ball::Rule: a pattern, thresholds, and predicate sets
+//
+//@SEE_ALSO: ball_ruleset
+//
+//@DESCRIPTION: This component implements a type, &#39;ball::Rule&#39;, that consists
+// of a pattern, four threshold levels, and a set of predicates.  The pattern
+// indicates the names of the categories for which the rule will become
+// relevant.  The four threshold levels determine what actions will be
+// performed on log records when their severity level equals or exceeds any of
+// these threshold levels.  The predicate set is a collection of unique
+// attribute name/value pairs.
+//
+// Note that multiple predicates with the same name are permitted so long as
+// they correspond to different values.
+//
+///Usage
+///-----
+// The following code fragments illustrate how to create a rule and add
+// predicates.
+//
+// We create a rule whose pattern is &#39;WEEKEND*&#39; and whose threshold levels are
+// all &#39;ball::Severity::OFF&#39; except the &#39;pass-through&#39; level.  A &#39;pass-through&#39;
+// level of &#39;ball::Severity::INFO&#39; indicates that whenever the rule is active
+// and the severity is equal to or exceeds &#39;ball::Severity::INFO&#39;, log records
+// will be passed to the observer:
+//..
+//  ball::Rule rule(&quot;WEEKEND*&quot;,             // pattern
+//                 ball::Severity::OFF,     // record level
+//                 ball::Severity::INFO,    // pass-through level
+//                 ball::Severity::OFF,     // trigger level
+//                 ball::Severity::OFF);    // triggerAll level
+//..
+// Create some predicates and then add one to the rule:
+//..
+//  ball::Predicate p1(&quot;uuid&quot;, 4044457);
+//  ball::Predicate p2(&quot;name&quot;, &quot;Gang Chen&quot;);
+//  rule.addPredicate(p1);
+//..
+// Predicates can be looked up by the &#39;hasPredicate&#39; method:
+//..
+//  assert(true  == rule.hasPredicate(p1));
+//  assert(false == rule.hasPredicate(p2));
+//..
+// We then add the other predicate:
+//..
+//  rule.addPredicate(p2);
+//  assert(true  == rule.hasPredicate(p2));
+//..
+// Predicates can also be removed from the rule by the &#39;removePredicate&#39;
+// method:
+//..
+//  rule.removePredicate(p1);
+//  assert(false == rule.hasPredicate(p1));
+//  assert(true  == rule.hasPredicate(p2));
+//..
+// The pattern of a rule can be changed by the &#39;setPattern&#39; method:
+//..
+//  assert(0 == strcmp(rule.pattern(), &quot;WEEKEND*&quot;));
+//
+//  rule.setPattern(&quot;WEEKDAY*&quot;);
+//  assert(0 == strcmp(rule.pattern(), &quot;WEEKDAY*&quot;));
+//..
+// The threshold levels of a rule can also be modified by the &#39;setLevels&#39;
+// method:
+//..
+//  assert(ball::Severity::OFF  == rule.recordLevel());
+//  assert(ball::Severity::INFO == rule.passLevel());
+//  assert(ball::Severity::OFF  == rule.triggerLevel());
+//  assert(ball::Severity::OFF  == rule.triggerAllLevel());
+//
+//  rule.setLevels(ball::Severity::INFO,
+//                 ball::Severity::OFF,
+//                 ball::Severity::INFO,
+//                 ball::Severity::INFO);
+//
+//  assert(ball::Severity::INFO == rule.recordLevel());
+//  assert(ball::Severity::OFF  == rule.passLevel());
+//  assert(ball::Severity::INFO == rule.triggerLevel());
+//  assert(ball::Severity::INFO == rule.triggerAllLevel());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_PATTERNUTIL
+#include &lt;ball_patternutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_PREDICATESET
+#include &lt;ball_predicateset.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
+#include &lt;ball_thresholdaggregate.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class AttributeContainerList;
+
+                       // ==========
+                       // class Rule
+                       // ==========
+
+class Rule {
+    // This class defines a value-semantic object that holds a pattern, four
+    // threshold levels, and a predicate set.  For each of these fields there
+    // is an accessor for obtaining the field value and a manipulator for
+    // changing that value.  There are a few methods as well for directly
+    // adding/removing/searching predicates.
+    //
+    // Additionally, this class supports a complete set of *value* *semantic*
+    // operations, including copy construction, assignment and equality
+    // comparison, and &#39;ostream&#39; printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of &#39;operator==&#39; for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: If an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
+
+    // DATA
+    bsl::string        d_pattern;       // the pattern for the name of
+                                        // categories to which this rule will
+                                        // become relevant
+
+    ThresholdAggregate d_thresholds;    // an aggregate of four threshold
+                                        // levels
+
+    PredicateSet       d_predicateSet;  // set of predicates
+
+    mutable int        d_hashValue;     // the cached hash value; &lt; 0 means
+                                         // it&#39;s invalid
+
+    mutable int        d_hashSize;      // the number of slots from which
+                                        // &#39;d_hashValue&#39; was calculated
+
+    // FRIENDS
+    friend bool operator==(const Rule&amp;, const Rule&amp;);
+    friend bool operator!=(const Rule&amp;, const Rule&amp;);
+    friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;, const Rule&amp;);
+
+  public:
+    // CLASS METHODS
+    static int hash(const Rule&amp; rule, int size);
+        // Return a hash value calculated from the specified &#39;rule&#39; using the
+        // specified &#39;size&#39; as the number of slots.  The value returned is
+        // guaranteed to be in the range [0 .. size - 1].
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Rule, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit Rule(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Rule&#39; object whose pattern is an empty string and whose
+        // thresholds levels are all 0.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.  Note that a newly created
+        // &#39;Rule&#39; object does not have any predicates.
+
+    // CREATORS
+    Rule(const bslstl::StringRef&amp; pattern,
+         int                      recordLevel,
+         int                      passLevel,
+         int                      triggerLevel,
+         int                      triggerAllLevel,
+         bslma::Allocator        *basicAllocator = 0);
+        // Create a &#39;Rule&#39; object whose pattern is the specified &#39;pattern&#39; and
+        // whose thresholds levels are the specified &#39;recordLevel&#39;,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; respectively.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator
+        // will be used.  The behavior is undefined unless each of the four
+        // threshold level values is not in the range [0 .. 255].  Note that a
+        // newly created &#39;Rule&#39; object does not have any predicates.
+
+    Rule(const Rule&amp;       original,
+         bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;Rule&#39; object that has the same value as that of the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.
+
+    ~Rule();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Rule&amp; operator=(const Rule&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    int addPredicate(const Predicate&amp; value);
+        // Add a predicate having the specified &#39;value&#39; to this object.  Return
+        // 1 on success and 0 if a predicate having the same value already
+        // exists in this object.
+
+    int removePredicate(const Predicate&amp; value);
+        // Remove the predicate having the specified &#39;value&#39; from this object.
+        // Return the number of predicates being removed (i.e., 1 on success
+        // and 0 if no predicate having &#39;value&#39; exists in this object).
+
+    void removeAllPredicates();
+        // Remove every predicate maintained by this object.
+
+    int setLevels(int recordLevel,
+                  int passLevel,
+                  int triggerLevel,
+                  int triggerAllLevel);
+        // Set the threshold levels of this object to the specified
+        // &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39;
+        // values, respectively, if each of the specified values is in the
+        // range [0 .. 255].  Return 0 on success, and a non-zero value
+        // otherwise (with no effect on the threshold levels of this object).
+
+    void setPattern(const bslstl::StringRef&amp; value);
+        // Set the pattern of this object to the specified &#39;value&#39;.
+
+    // ACCESSORS
+    bool evaluate(const AttributeContainerList&amp; containerList) const;
+        // Return &#39;true&#39; if for every predicate maintained by this object, an
+        // attribute with the same name and value exists in the specified
+        // &#39;containerList&#39;; and &#39;false&#39; otherwise.
+
+    int numPredicates() const;
+        // Return the number of predicates in by this object.
+
+    bool hasPredicate(const Predicate&amp; value) const;
+        // Return &#39;true&#39; if the predicate having specified &#39;value&#39; exists in
+        // this object, and &#39;false&#39; otherwise.
+
+    PredicateSet::const_iterator begin() const;
+        // Return an iterator pointing at the first member of the predicate
+        // set maintained by this object.
+
+    PredicateSet::const_iterator end() const;
+        // Return an iterator pointing at one past the last member of the
+        // predicate set maintain
+
+    int recordLevel() const;
+        // Return the record level of this object.
+
+    int passLevel() const;
+        // Return the pass level of this object.
+
+    int triggerLevel() const;
+        // Return the trigger level of this object.
+
+    int triggerAllLevel() const;
+        // Return the trigger-all level of this object.
+
+    const char *pattern() const;
+        // Return the pattern of this object.
+
+    bool isMatch(const char *inputString) const;
+        // Return &#39;true&#39; if the specified &#39;inputString&#39; matches the pattern of
+        // this rule, and &#39;false&#39; otherwise.  (For the definition of a string
+        // matching the pattern of a rule, please refer to the function-level
+        // documentation associated with the &#39;PatternUtil::isMatch&#39; function).
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // (absolute value of) the optionally specified indentation &#39;level&#39;
+        // and return a reference to &#39;stream&#39;.  If &#39;level&#39; is specified,
+        // optionally specify &#39;spacesPerLevel&#39;, the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const Rule&amp; lhs, const Rule&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;Rule&#39; objects have the same value if
+    // they have the same predicate, the same four respective threshold levels,
+    // and the same pattern.
+
+bool operator!=(const Rule&amp; lhs, const Rule&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;Rule&#39; objects do not have the
+    // same value if they have different predicates, different values for any
+    // of the four respective threshold levels, or different patterns.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; output, const Rule&amp; rule);
+    // Write the value of the specified &#39;rule&#39; to the specified &#39;output&#39;
+    // stream.  Return the specified &#39;output&#39; stream.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                       // ----------
+                       // class Rule
+                       // ----------
+
+// CREATORS
+inline
+Rule::Rule(bslma::Allocator *basicAllocator)
+: d_pattern(&quot;&quot;, basicAllocator)
+, d_thresholds(0, 0, 0, 0)
+, d_predicateSet(basicAllocator)
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+}
+
+inline
+Rule::Rule(const bslstl::StringRef&amp;  pattern,
+           int                       recordLevel,
+           int                       passLevel,
+           int                       triggerLevel,
+           int                       triggerAllLevel,
+           bslma::Allocator         *basicAllocator)
+: d_pattern(pattern.data(), pattern.length(), basicAllocator)
+, d_thresholds(recordLevel, passLevel, triggerLevel, triggerAllLevel)
+, d_predicateSet(basicAllocator)
+, d_hashValue(-1)
+, d_hashSize(0)
+{
+}
+
+inline
+Rule::Rule(const Rule&amp;       original,
+           bslma::Allocator *basicAllocator)
+: d_pattern(original.d_pattern, basicAllocator)
+, d_thresholds(original.d_thresholds)
+, d_predicateSet(original.d_predicateSet)
+, d_hashValue(original.d_hashValue)
+, d_hashSize(0)
+{
+}
+
+inline
+Rule::~Rule()
+{
+}
+
+// MANIPULATORS
+inline
+int Rule::addPredicate(const Predicate&amp; value)
+{
+    d_hashValue = -1;
+    return d_predicateSet.addPredicate(value);
+}
+
+inline
+int Rule::removePredicate(const Predicate&amp; value)
+{
+    d_hashValue = -1;
+    return d_predicateSet.removePredicate(value);
+}
+
+inline
+void Rule::removeAllPredicates()
+{
+    d_hashValue = -1;
+    d_predicateSet.removeAllPredicates();
+}
+
+inline
+int Rule::setLevels(int recordLevel,
+                    int passLevel,
+                    int triggerLevel,
+                    int triggerAllLevel)
+{
+    d_hashValue = -1;
+    return d_thresholds.setLevels(recordLevel,
+                                  passLevel,
+                                  triggerLevel,
+                                  triggerAllLevel);
+}
+
+inline
+void Rule::setPattern(const bslstl::StringRef&amp; value)
+{
+    d_hashValue = -1;
+    d_pattern.assign(value.data(), value.length());
+}
+
+// ACCESSORS
+inline
+bool Rule::evaluate(const AttributeContainerList&amp; containerList) const
+{
+    return d_predicateSet.evaluate(containerList);
+}
+
+inline
+int Rule::numPredicates() const
+{
+    return d_predicateSet.numPredicates();
+}
+
+inline
+bool Rule::hasPredicate(const Predicate&amp; value) const
+{
+    return d_predicateSet.isMember(value);
+}
+inline
+PredicateSet::const_iterator Rule::begin() const
+{
+    return d_predicateSet.begin();
+}
+
+inline
+PredicateSet::const_iterator Rule::end() const
+{
+    return d_predicateSet.end();
+}
+
+inline
+int Rule::recordLevel() const
+{
+    return d_thresholds.recordLevel();
+}
+
+inline
+int Rule::passLevel() const
+{
+    return d_thresholds.passLevel();
+}
+
+inline
+int Rule::triggerLevel() const
+{
+    return d_thresholds.triggerLevel();
+}
+
+inline
+int Rule::triggerAllLevel() const
+{
+    return d_thresholds.triggerAllLevel();
+}
+
+inline
+const char *Rule::pattern() const
+{
+    return d_pattern.c_str();
+}
+
+inline
+bool Rule::isMatch(const char *inputString) const
+{
+    return PatternUtil::isMatch(inputString, d_pattern.c_str());
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const Rule&amp; lhs, const Rule&amp; rhs)
+{
+    if (lhs.d_hashValue &gt; 0
+     &amp;&amp; rhs.d_hashValue &gt; 0
+     &amp;&amp; lhs.d_hashSize  == rhs.d_hashSize
+     &amp;&amp; lhs.d_hashValue != rhs.d_hashValue) {
+        return false;                                                 // RETURN
+    }
+
+    return lhs.d_pattern      == rhs.d_pattern
+        &amp;&amp; lhs.d_thresholds   == rhs.d_thresholds
+        &amp;&amp; lhs.d_predicateSet == rhs.d_predicateSet;
+}
+
+inline
+bool ball::operator!=(const Rule&amp; lhs, const Rule&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp; output, const Rule&amp; rule)
+{
+    return rule.print(output, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_predicateset.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_PREDICATESET
+#define INCLUDED_BALL_PREDICATESET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for predicates.
+//
+//@CLASSES:
+//  ball::PredicateSet: a container for predicates
+//
+//@SEE_ALSO: ball_predicate, ball_rule
+//
+//@DESCRIPTION: This component implements a value-semantic container class,
+// &#39;ball::PredicateSet&#39;, that manages a set of &#39;ball::Predicate&#39; objects.
+//
+///Usage
+///-----
+// The following code fragments illustrate how to work with a predicate set.
+//
+// We first create an empty predicate set:
+//..
+//  ball::PredicateSet predicateSet;
+//..
+// We then add two predicates to the predicate set:
+//..
+//  ball::Predicate p1(&quot;uuid&quot;, 4044457);
+//  assert(1 == predicateSet.addPredicate(p1));
+//  assert(1 == predicateSet.addPredicate(ball::Predicate(&quot;uuid&quot;, 3133246)));
+//..
+// Predicates can be looked up (by value) via the &#39;isMember&#39; method:
+//..
+//  assert(true == predicateSet.isMember(p1));
+//  assert(true == predicateSet.isMember(ball::Predicate(&quot;uuid&quot;, 3133246)));
+//..
+// Predicate values in a predicate set are unique:
+//..
+//  assert(0 == predicateSet.addPredicate(ball::Predicate(&quot;uuid&quot;, 3133246)));
+//..
+// Predicates can also be removed from the predicate set by the
+// &#39;removePredicate&#39; method:
+//..
+//  assert(1 == predicateSet.removePredicate(p1));
+//  assert(false == predicateSet.isMember(p1));
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTE
+#include &lt;ball_attribute.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_PREDICATE
+#include &lt;ball_predicate.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_UNORDERED_SET
+#include &lt;bsl_unordered_set.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class AttributeContainerList;
+
+                       // ==================
+                       // class PredicateSet
+                       // ==================
+
+class PredicateSet {
+    // This class implements a value-semantic collection of unique predicates.
+    // (Note that a predicate is a compound entity that, as a whole, must be
+    // unique although individual parts need not be.)  Additionally, the
+    // &#39;evaluate&#39; accessor can be used to determine if every predicate in the
+    // set evaluates to &#39;true&#39; in the context of a given attribute map.
+
+    // PRIVATE TYPES
+    struct PredicateHash
+        // A hash functor for &#39;Predicate&#39;
+    {
+      private:
+        static int s_hashtableSize;  // default hashtable size for which the
+                                     // hash value is calculated
+      public:
+        int operator()(const Predicate&amp; predicate) const
+            // Return the hash value of the specified &#39;predicate&#39;.
+        {
+            return Predicate::hash(predicate, s_hashtableSize);
+        }
+    };
+
+    typedef bsl::unordered_set&lt;Predicate, PredicateHash&gt; SetType;
+
+    // PRIVATE MEMBERS
+    static int s_initialSize;     // the initial size of the set
+
+    // DATA
+    SetType    d_predicateSet;    // the set of predicates
+
+    // FRIENDS
+    friend bool operator==(const PredicateSet&amp;, const PredicateSet&amp;);
+    friend bool operator!=(const PredicateSet&amp;, const PredicateSet&amp;);
+    friend bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;, const PredicateSet&amp;);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(PredicateSet, bslma::UsesBslmaAllocator);
+
+    // CLASS METHODS
+    static int hash(const PredicateSet&amp; set, int size);
+        // Return a hash value calculated from the specified &#39;set&#39; using the
+        // specified &#39;size&#39; as the number of slots.  The hash value is
+        // guaranteed to be in the range [0, size).
+
+    // TYPES
+    typedef SetType::const_iterator const_iterator;
+
+    // CREATORS
+    explicit PredicateSet(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;PredicateSet&#39; object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator will be used.
+
+    PredicateSet(const PredicateSet&amp;  original,
+                 bslma::Allocator    *basicAllocator = 0);
+        // Create a &#39;PredicateSet&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator will be used.
+
+    ~PredicateSet();
+        // Destroy this predicate set.
+
+    // MANIPULATORS
+    PredicateSet&amp; operator=(const PredicateSet&amp; rhs);
+        // Assign the value of the specified &#39;rhs&#39; object to this object.
+
+    int addPredicate(const Predicate&amp; value);
+        // Add a predicate having the specified &#39;value&#39; to this object.
+        // Return 1 on success and 0 if a predicate having the same value
+        // already exists in this object.
+
+    int removePredicate(const Predicate&amp; value);
+        // Remove the predicate having the specified &#39;value&#39; from this object.
+        // Return the number of predicates being removed (i.e., 1 on success
+        // and 0 if the predicate having &#39;value&#39; does not exist in this
+        // object).
+
+    void removeAllPredicates();
+        // Remove every predicate in this predicate set.
+
+    // ACCESSORS
+    bool evaluate(const AttributeContainerList&amp; containerList) const;
+        // Return &#39;true&#39; if for every predicate maintained by this object, an
+        // attribute with the same name and value exists in the specified
+        // &#39;containerList&#39;, or if this object has no predicates; otherwise
+        // return &#39;false&#39;.
+
+    int numPredicates() const;
+        // Return the number of predicates managed by this object.
+
+    bool isMember(const Predicate&amp; value) const;
+        // Return &#39;true&#39; if the predicate having specified &#39;value&#39; exists in
+        // this object, and &#39;false&#39; otherwise.
+
+    const_iterator begin() const;
+        // Return an iterator pointing at the first member of the predicate
+        // set.
+
+    const_iterator end() const;
+        // Return an iterator pointing at one past the last member of the
+        // predicate set.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bool operator==(const PredicateSet&amp; lhs, const PredicateSet&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;PredicateSet&#39; objects have the same
+    // value if they have the same number of predicates and every predicate
+    // value that appears in one object also appears in the other.
+
+bool operator!=(const PredicateSet&amp; lhs, const PredicateSet&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;PredicateSet&#39; objects do not
+    // have the same value if they do not have the same number of predicates or
+    // there is at least one predicate value that appears in one object, but
+    // not in the other.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;       output,
+                         const PredicateSet&amp; predicateSet);
+    // Write the value of the specified &#39;predicateSet&#39; to the specified
+    // &#39;output&#39; stream.  Return the specified &#39;output&#39; stream.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                       // ------------------
+                       // class PredicateSet
+                       // ------------------
+
+// CREATORS
+inline
+PredicateSet::PredicateSet(bslma::Allocator *basicAllocator)
+: d_predicateSet(s_initialSize,                   // initial size
+                 PredicateHash(),                 // hash functor
+                 bsl::equal_to&lt;Predicate&gt;(),      // equal functor
+                 basicAllocator)
+{
+}
+
+inline
+PredicateSet::PredicateSet(const PredicateSet&amp;  original,
+                           bslma::Allocator    *basicAllocator)
+: d_predicateSet(original.d_predicateSet, basicAllocator)
+{
+}
+
+inline
+PredicateSet::~PredicateSet()
+{
+}
+
+// MANIPULATORS
+inline
+int PredicateSet::addPredicate(const Predicate&amp; value)
+{
+    return d_predicateSet.insert(value).second;
+}
+
+inline
+int PredicateSet::removePredicate(const Predicate&amp; value)
+{
+    return static_cast&lt;int&gt;(d_predicateSet.erase(value));
+}
+
+inline
+void PredicateSet::removeAllPredicates()
+{
+    d_predicateSet.clear();
+}
+
+
+// ACCESSORS
+inline
+int PredicateSet::numPredicates() const
+{
+    return static_cast&lt;int&gt;(d_predicateSet.size());
+}
+
+inline
+bool PredicateSet::isMember(const Predicate&amp; value)
+const
+{
+    return d_predicateSet.find(value) != d_predicateSet.end();
+}
+
+inline
+PredicateSet::const_iterator PredicateSet::begin() const
+{
+    return d_predicateSet.begin();
+}
+
+inline
+PredicateSet::const_iterator PredicateSet::end() const
+{
+    return d_predicateSet.end();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;       output,
+                               const PredicateSet&amp; predicateSet)
+{
+    predicateSet.print(output, 0, -1);
+    return output;
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

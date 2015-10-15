@@ -1,0 +1,180 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_scopedattributes.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_SCOPEDATTRIBUTES
+#define INCLUDED_BALL_SCOPEDATTRIBUTES
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a class to add and remove attributes automatically.
+//
+//@CLASSES:
+//  ball::ScopedAttributes: helper for safely managing attributes
+//
+//@SEE_ALSO: ball_attributecontext, ball_attribute
+//
+//@DESCRIPTION: This component provides a type, &#39;ball::ScopedAttributes&#39;,
+// that serves as a &quot;scoped helper&quot; to safely manage &#39;ball::AttributeContainer&#39;
+// objects for the current attribute context.  A &#39;ball::ScopedAttributes&#39;
+// object, upon construction, will install a &#39;ball::AttributeContainer&#39; object
+// in the current attribute context and, more importantly, automatically
+// remove that &#39;ball::AttributeContainer&#39; object from the current attribute
+// context upon destruction.
+//
+// Note that the &#39;ball::AttributeContainer&#39; supplied at construction must
+// remain valid and *unmodified* for the lifetime of this object.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Installing an &#39;ball::AttributeContanier&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the following code fragment, we will use a &#39;ball::ScopedAttributes&#39; to
+// install a &#39;ball::AttributeContainer&#39; in the current context.
+//
+// We first create the current attribute context and two attributes:
+//..
+//  ball::AttributeContext *context = ball::AttributeContext::getContext();
+//
+//  ball::Attribute a1(&quot;uuid&quot;, 4044457);
+//  ball::Attribute a2(&quot;name&quot;, &quot;Gang Chen&quot;);
+//  assert(false == context-&gt;hasAttribute(a1));
+//  assert(false == context-&gt;hasAttribute(a2));
+//..
+// Now we create an &#39;AttributeSet&#39; and add the two attributes to this set,
+// then we use a &#39;ball::ScopedAttributes to install these attributes in the
+// current thread&#39;s attribute context.
+//
+// Note that we use the &#39;AttributeSet&#39; implementation of the
+// &#39;ball::AttributeContainer&#39; protocol defined in the component documentation
+// for &#39;ball_attributecontainer&#39; (the &#39;ball&#39; package provides a similar class
+// in the &#39;ball_defaultattributecontainer&#39; component).
+//..
+//  {
+//      AttributeSet attributes;
+//      attributes.insert(a1);
+//      attributes.insert(a2);
+//      ball::ScopedAttributes attributeGuard(&amp;attributes);
+//      assert(true == context-&gt;hasAttribute(a1));
+//      assert(true == context-&gt;hasAttribute(a2));
+//..
+// When &#39;attributeGuard&#39; goes out of scope and is destroyed, &#39;attributes&#39; are
+// removed from the current thread&#39;s attribute context, which prevents the
+// attribute context from referring to an invalid memory address (on the
+// stack).
+//..
+//  }
+//
+//  assert(!context-&gt;hasAttribute(a1));
+//  assert(!context-&gt;hasAttribute(a2));
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
+#include &lt;ball_attributecontainer.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
+#include &lt;ball_attributecontainerlist.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
+#include &lt;ball_attributecontext.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class AttributeContainer;
+
+                        // ======================
+                        // class ScopedAttributes
+                        // ======================
+
+class ScopedAttributes {
+    // This class installs a &#39;AttributeContainer&#39; object in the current
+    // attribute context on construction, and removes it on destruction.  Note
+    // that the &#39;AttributeContainer&#39; supplied at construction must remain valid
+    // and *unmodified* for the lifetime of this object.
+
+    const AttributeContext::iterator  d_it ;   // refers to attributes
+
+    // NOT IMPLEMENTED
+    ScopedAttributes(const ScopedAttributes&amp;);
+    ScopedAttributes&amp; operator=(const ScopedAttributes&amp;);
+
+  public:
+    // CREATORS
+    ScopedAttributes(const AttributeContainer* attributes);
+        // Create a &#39;ScopedAttributes&#39; object having the specified
+        // &#39;attributes&#39;.  Note that &#39;attributes&#39; must remain valid and
+        // *unmodified* for the lifetime of this object.
+
+    ~ScopedAttributes();
+        // Remove the associated attributes from the current attribute context.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // ----------------------
+                        // class ScopedAttributes
+                        // ----------------------
+
+// CREATORS
+inline
+ScopedAttributes::ScopedAttributes(const AttributeContainer* attributes)
+: d_it(AttributeContext::getContext()-&gt;addAttributes(attributes))
+{
+}
+
+inline
+ScopedAttributes::~ScopedAttributes()
+{
+    AttributeContext::getContext()-&gt;removeAttributes(d_it);
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

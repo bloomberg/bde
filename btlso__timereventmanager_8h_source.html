@@ -1,0 +1,565 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_timereventmanager.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_TIMEREVENTMANAGER
+#define INCLUDED_BTLSO_TIMEREVENTMANAGER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for multiplexing sockets events and timers.
+//
+//@CLASSES:
+//  btlso::TimerEventManager: socket event/timer multiplexer protocol
+//
+//@DESCRIPTION: The &#39;btlso::TimerEventManager&#39; class provides the interface
+// for an event manager that supports the registration of both timers and
+// socket events, each along with an associated &#39;bsl::function&#39; callback
+// functor, which is invoked when the corresponding timer expires or the socket
+// event occurs.
+//
+// Timers are single shot and are registered by specifying the (earliest) time
+// (as a &#39;bsls::TimeInterval&#39;) at which the timer callback should be invoked.
+// A unique ID for the timer is returned when the registration succeeds.
+// Timers can be deregistered at any time before the timer expires by using
+// this ID.  When a timer expires, the associated callback is invoked and this
+// timer is automatically deregistered.
+//
+// Socket event registrations specify a socket handle and the type of event to
+// monitor on the specified socket.  Socket event registrations stay in effect
+// until they are subsequently deregistered; the callback is invoked each time
+// the specified socket event occurs.  Note that &#39;btlso::EventType::e_READ&#39; and
+// &#39;btlso::EventType::e_WRITE&#39; are the only events that can be registered
+// simultaneously for a socket.  Otherwise only a single socket event can be
+// registered for a particular socket.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Timed Socket Multiplexer
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example illustrates the implementation of periodic timed
+// socket events using the (separate) timer and socket event registration
+// mechanisms provided by &#39;btlso::TimerEventManager&#39;, such that a
+// user-specified callback is invoked with different codes depending on whether
+// the socket event occurs before the specified timeout or not.
+//
+// The interface for such functionality is provided by the class
+// &#39;my_TimedSocketMultiplexer&#39;, which registers each specified socket event and
+// an associated timer with an instance of &#39;btlso::TimerEventManager&#39;.
+//
+// If the socket event occurs before the corresponding timer expires,
+// &#39;btlso::TimerEventManager&#39; invokes the socket event callback.  Within this
+// callback &#39;my_TimedSocketMultiplexer&#39; cancels the current timer and registers
+// a new timer to expire after the specified period in order to wait for the
+// next occurrence of the same socket event.
+//
+// If the timer expires before the socket event occurs
+// &#39;btlso::TimerEventManager&#39; invokes the timer callback.  Within this callback
+// &#39;my_TimedSocketMultiplexer&#39; registers a new timer to expire after the
+// specified period, thus periodically rescheduling the timer until the socket
+// event is seen (this behavior is for illustration only and real application
+// code may handle such timeouts differently).
+//
+// &#39;my_TimedSocketMultiplexer&#39; uses the helper class &#39;my_TimerInfo&#39; to store
+// the timer information associated with a socket/event pair (represented as a
+// &#39;btlso::Event&#39;) and internally maintains a mapping of &#39;btlso::Event&#39;
+// instances to &#39;my_TimerInfo&#39; instances (in a &#39;bsl::unordered_map&#39;).
+//..
+// class my_TimerInfo {
+//     // This is a helper class that stores information about the timer
+//     // associated with a socket/event pair (an instance of &#39;btlso::Event&#39;).
+//
+//     friend bool operator==(const my_TimerInfo&amp; lhs,
+//                            const my_TimerInfo&amp; rhs);
+//         // This class supports only in-core value semantics.
+//
+//   private:
+//     bsls::TimeInterval  d_expiryTime; // current expiry time of the timer
+//     bsls::TimeInterval  d_period;     // period of the (recurrent) timer
+//     void               *d_id;         // unique timer identifier
+//
+//   public:
+//     // CREATORS
+//     my_TimerInfo();
+//         // Create a default &#39;my_TimerInfo&#39; instance.  Note that such a
+//         // default constructor might be required, e.g., for values stored in
+//         // &#39;bsl::unordered_map&#39;.
+//
+//     my_TimerInfo(const bsls::TimeInterval&amp;  expiryTime,
+//                  const bsls::TimeInterval&amp;  period,
+//                  void                      *id);
+//         // Create a &#39;my_TimerInfo&#39; containing the specified &#39;expiryTime&#39;,
+//         // &#39;period&#39;, and &#39;id&#39;.
+//
+//     ~my_TimerInfo();
+//         // Destroy this object.
+//
+//     // MANIPULATORS
+//     void setExpiryTime(const bsls::TimeInterval&amp; expiryTime);
+//         // Set the specified &#39;expiryTime&#39;.
+//
+//     void setPeriod(const bsls::TimeInterval&amp; period);
+//         // Set the specified &#39;period&#39;.
+//
+//     void setId(void *id);
+//         // Set the specified &#39;id&#39;.
+//
+//     // ACCESSORS
+//     const bsls::TimeInterval&amp; expiryTime() const;
+//         // Return a reference to the timer&#39;s expiry time.
+//
+//     const bsls::TimeInterval&amp; period() const;
+//         // Return a reference to the timer&#39;s period.
+//
+//     const void *id() const;
+//         // Return the timer&#39;s ID.
+// };
+//
+// bool operator==(const my_TimerInfo&amp; lhs, const my_TimerInfo&amp; rhs);
+//     // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; timer information
+//     // objects have the same value, and &#39;false&#39; otherwise.  Two timer
+//     // information objects have the same value if they have the same
+//     // respective values of expiry time, period, and ID.
+//
+// my_TimerInfo::my_TimerInfo()
+// {
+// }
+//
+// my_TimerInfo::my_TimerInfo(const bsls::TimeInterval&amp;  expiryTime,
+//                            const bsls::TimeInterval&amp;  period,
+//                            void                      *id)
+// : d_expiryTime(expiryTime)
+// , d_period(period)
+// , d_id(id)
+// {
+// }
+//
+// my_TimerInfo::~my_TimerInfo()
+// {
+// }
+//
+// void my_TimerInfo::setExpiryTime(const bsls::TimeInterval&amp; expiryTime)
+// {
+//     d_expiryTime = expiryTime;
+// }
+//
+// void my_TimerInfo::setPeriod(const bsls::TimeInterval&amp; period)
+// {
+//     d_period = period;
+// }
+//
+// void my_TimerInfo::setId(void *id)
+// {
+//     d_id = id;
+// }
+//
+// const bsls::TimeInterval&amp; my_TimerInfo::expiryTime() const
+// {
+//     return d_expiryTime;
+// }
+//
+// const bsls::TimeInterval&amp; my_TimerInfo::period() const
+// {
+//     return d_period;
+// }
+//
+// const void *my_TimerInfo::id() const
+// {
+//     return d_id;
+// }
+//
+// bool operator==(const my_TimerInfo&amp; lhs, const my_TimerInfo&amp; rhs)
+// {
+//     return lhs.expiryTime() == rhs.expiryTime()
+//            &amp;&amp; lhs.period()  == rhs.period()
+//            &amp;&amp; lhs.id()      == rhs.id();
+// }
+//
+// class my_TimedSocketMultiplexer {
+//     // This class implements a subset of a socket event multiplexer that
+//     // supports the registration of timed socket events and associated
+//     // callbacks.  Specifically, this class allows a user specified
+//     // &#39;bsl::function&lt;void(my_TimedSocketMultiplexer::CallbackCode)&gt;&#39;
+//     // functor to be registered via the &#39;registerTimedSocketEvent&#39; method.
+//     // This functor is invoked with an argument of
+//     // &#39;my_TimedSocketMultiplexer::e_SOCKET_EVENT&#39; if the socket event
+//     // occurs before the timeout interval or with an argument of
+//     // &#39;my_TimedSocketMultiplexer::e_TIMEOUT&#39; when the timeout occurs
+//     // before an occurrence of the specified socket event.  Each time the
+//     // callback is invoked, the timer is rescheduled to expire
+//     // after the specified time period.
+//
+//   public:
+//
+//     // TYPES
+//     enum CallbackCode {
+//         // Enumerations used to indicate the reason the user callback
+//         // functor is being invoked.
+//
+//         e_SOCKET_EVENT = 0,  // The specified socket event has occurred.
+//         e_TIMEOUT      = 1   // The timer has expired before the specified
+//                              // socket event occurred.
+//     };
+//
+//   private:
+//     typedef bsl::unordered_map&lt;btlso::Event, my_TimerInfo, btlso::EventHash&gt;
+//                                             EventTimeMap;
+//
+//     EventTimeMap                            d_eventTimeMap;
+//
+//     btlso::TimerEventManager               *d_manager_p;
+//
+//   private:
+//     // Private methods &#39;eventCb&#39; and &#39;timerCb&#39; are internal callback member
+//     // functions registered with &#39;btlso::TimerEventManager&#39;.
+//
+//     void eventCb(const btlso::Event&amp;                       socketEvent,
+//                  const bsl::function&lt;void(CallbackCode)&gt;&amp;  userCb,
+//                  const btlso::TimerEventManager::Callback&amp; internalCb);
+//         // Cancel the current timer and register a new timer to expire
+//         // after the specified period from the current time along with the
+//         // internal timer callback functor &#39;internalCb&#39; to be invoked when
+//         // the timer expires.  Invoke the user specified callback &#39;userCb&#39;
+//         // with the argument &#39;my_TimedSocketMultiplexer::e_SOCKET_EVENT&#39;.
+//         // Note that this method is registered as a callback with
+//         // &#39;btlso::TimerEventManager&#39; and is invoked to indicate the
+//         // occurrence of the specified socket event &#39;socketEvent&#39;.
+//
+//     void timerCb(const btlso::Event&amp;                       socketEvent,
+//                  const bsl::function&lt;void(CallbackCode)&gt;&amp;  userCb,
+//                  const btlso::TimerEventManager::Callback&amp; internalCb);
+//         // Register a new timer to expire after the specified time period
+//         // measured from the previous timer&#39;s expiry time along with
+//         // the internal timer callback functor &#39;internalCb&#39; to be
+//         // invoked when the new timer expires.  Invoke the user
+//         // specified callback &#39;userCb&#39; with the argument
+//         // &#39;my_TimedSocketMultiplexer::e_TIMEOUT&#39;.  Note that &#39;timerCb&#39; is
+//         // registered as a callback with &#39;btlso::TimerEventManager&#39; and is
+//         // invoked to indicate the expiry of the timer associated with the
+//         // specified socket event &#39;socketEvent&#39;.
+//
+//   public:
+//     // CREATORS
+//     my_TimedSocketMultiplexer(btlso::TimerEventManager *manager_p);
+//         // Create an empty multiplexer object.
+//
+//     // MANIPULATORS
+//     int registerTimedSocketEvent(
+//                       const btlso::SocketHandle::Handle&amp;       handle,
+//                       btlso::EventType::Type                   event,
+//                       const bsls::TimeInterval&amp;                period,
+//                       const bsl::function&lt;void(CallbackCode)&gt;&amp; userCb);
+//         // Register the specified &#39;userCb&#39; functor to be invoked whenever
+//         // the specified &#39;event&#39; occurs on the specified &#39;handle&#39; or when
+//         // &#39;event&#39; has not occurred within the specified &#39;period&#39; of time.
+//         // Return 0 on successful registration, and a nonzero value
+//         // otherwise.
+//
+//     int deregisterTimedSocketEvent(const SocketHandle::Handle&amp; handle,
+//                                    EventType::Type             event);
+//         // Deregister the callback associated with the specified &#39;handle&#39;
+//         // and &#39;event&#39;.  Return 0 on successful deregistration and a
+//         // nonzero value otherwise.
+// };
+//
+// void my_TimedSocketMultiplexer::eventCb(
+//                   const btlso::Event&amp;                       socketEvent,
+//                   const bsl::function&lt;void(CallbackCode)&gt;&amp;  userCb,
+//                   const btlso::TimerEventManager::Callback&amp; internalCb)
+// {
+//     // Retrieve the timer information associated with &#39;socketEvent&#39;.
+//
+//     EventTimeMap::iterator socketEventIt = d_eventTimeMap.find(socketEvent);
+//     ASSERT(d_eventTimeMap.end() != socketEventIt);
+//     my_TimerInfo *timerInfo = &amp;socketEventIt-&gt;second;
+//
+//     // Deregister the current timer callback.
+//
+//     d_manager_p-&gt;deregisterTimer(timerInfo-&gt;id());
+//
+//     // Set the new timeout value.
+//
+//     timerInfo-&gt;setExpiryTime(bdlt::CurrentTime::now()
+//                                                      + timerInfo-&gt;period());
+//
+//     // Register a new timer callback to fire at this time.
+//
+//     timerInfo-&gt;setId(
+//            d_manager_p-&gt;registerTimer(timerInfo-&gt;expiryTime(), internalCb));
+//
+//     // Invoke userCb with an argument of &#39;e_SOCKET_EVENT&#39; to indicate that
+//     // &#39;socketEvent&#39; has occurred.
+//
+//     userCb(e_SOCKET_EVENT);
+// }
+//
+// void my_TimedSocketMultiplexer::timerCb(
+//                   const btlso::Event&amp;                       socketEvent,
+//                   const bsl::function&lt;void(CallbackCode)&gt;&amp;  userCb,
+//                   const btlso::TimerEventManager::Callback&amp; internalCb)
+// {
+//     // Retrieve the timer information associated with &#39;socketEvent&#39; and set
+//     // the new expiry time.
+//
+//     EventTimeMap::iterator socketEventIt = d_eventTimeMap.find(socketEvent);
+//     ASSERT(d_eventTimeMap.end() != socketEventIt);
+//     my_TimerInfo *timerInfo = &amp;socketEventIt-&gt;second;
+//     timerInfo-&gt;setExpiryTime(timerInfo-&gt;expiryTime() + timerInfo-&gt;period());
+//
+//     // Register a new timer callback to fire at that time.
+//
+//     timerInfo-&gt;setId(d_manager_p-&gt;registerTimer(timerInfo-&gt;expiryTime(),
+//                                                 internalCb));
+//
+//     // Invoke user callback functor with an argument of &#39;e_TIMEOUT&#39; to
+//     // indicate that a timeout has occurred before &#39;socketEvent&#39;.
+//
+//     userCb(e_TIMEOUT);
+// }
+//
+// my_TimedSocketMultiplexer::my_TimedSocketMultiplexer(
+//                                         btlso::TimerEventManager *manager_p)
+// : d_eventTimeMap()
+// , d_manager_p(manager_p)
+// {
+// }
+//
+// int my_TimedSocketMultiplexer::registerTimedSocketEvent(
+//                        const btlso::SocketHandle::Handle&amp;       handle,
+//                        btlso::EventType::Type                   event,
+//                        const bsls::TimeInterval&amp;                period,
+//                        const bsl::function&lt;void(CallbackCode)&gt;&amp; userCb)
+// {
+//     btlso::Event socketEvent(handle, event);
+//     bsls::TimeInterval expiryTime = bdlt::CurrentTime::now() + period;
+//
+//     // Create a timer callback.
+//
+//  btlso::TimerEventManager::Callback myTimerCb;
+//  myTimerCb = bdlf::BindUtil::bind(
+//           bdlf::MemFnUtil::memFn(&amp;my_TimedSocketMultiplexer::timerCb, this),
+//           socketEvent,
+//           userCb,
+//           myTimerCb);
+//
+//     // Create an event callback.
+//
+//    btlso::TimerEventManager::Callback myEventCb(bdlf::BindUtil::bind(
+//           bdlf::MemFnUtil::memFn(&amp;my_TimedSocketMultiplexer::eventCb, this),
+//           socketEvent,
+//           userCb,
+//           myTimerCb));
+//
+//     // Register the event callback.
+//
+//     d_manager_p-&gt;registerSocketEvent(handle, event, myEventCb);
+//
+//     // Register the timer callback.
+//
+//     void *timerHandle = d_manager_p-&gt;registerTimer(expiryTime, myTimerCb);
+//
+//     // Save the timer information associated with this event in the map.
+//
+//     my_TimerInfo timerInfo(expiryTime, period, timerHandle);
+//     d_eventTimeMap.insert(bsl::make_pair(socketEvent, timerInfo));
+//
+//     return 0;
+// }
+//
+// int my_TimedSocketMultiplexer::deregisterTimedSocketEvent(
+//                                   const btlso::SocketHandle::Handle&amp; handle,
+//                                   btlso::EventType::Type             event)
+// {
+//
+//     // Retrieve timer information for this event.
+//
+//     btlso::Event socketEvent(handle, event);
+//     EventTimeMap::iterator socketEventIt = d_eventTimeMap.find(socketEvent);
+//     my_TimerInfo *timerInfo = &amp;socketEventIt-&gt;second;
+//     if (d_eventTimeMap.end() != socketEventIt) {
+//         return -1;                                                 // RETURN
+//     }
+//
+//     // Deregister this socket event.
+//
+//     d_manager_p-&gt;deregisterSocketEvent(handle, event);
+//
+//     // Deregister timer
+//
+//     d_manager_p-&gt;deregisterTimer(timerInfo-&gt;id());
+//
+//     // Remove timer information for this event from the map.
+//
+//     d_eventTimeMap.erase(socketEventIt);
+//
+//     return 0;
+// }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_EVENTTYPE
+#include &lt;btlso_eventtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
+namespace btlso {
+
+                   // =======================
+                   // class TimerEventManager
+                   // =======================
+
+class TimerEventManager {
+    // This class provides the interface for an event manager that supports the
+    // registration of both timers and socket events.
+
+  public:
+    // TYPES
+    typedef bsl::function&lt;void()&gt; Callback;
+
+    // CREATORS
+    virtual ~TimerEventManager();
+        // Destroy this &#39;TimerEventManager&#39; object.
+
+    // MANIPULATORS
+    virtual int registerSocketEvent(
+                              const SocketHandle::Handle&amp;        handle,
+                              EventType::Type                    event,
+                              const TimerEventManager::Callback&amp; callback) = 0;
+        // Register the occurrence of the specified &#39;event&#39; on the specified
+        // socket &#39;handle&#39; such that the specified &#39;callback&#39; functor is
+        // invoked when this event occurs.  Return 0 on success and a negative
+        // value otherwise.  Socket event registrations stay in effect until
+        // they are subsequently deregistered; the callback is invoked each
+        // time the specified &#39;event&#39; is seen.  Typically, &#39;EventType::e_READ&#39;
+        // and &#39;EventType::e_WRITE&#39; are the only events that can be registered
+        // simultaneously for a socket.  Simultaneously registering for
+        // incompatible events for the same socket &#39;handle&#39; will result in
+        // undefined behavior.  If a registration attempt is made for an event
+        // that is already registered, the callback associated with this event
+        // will be overwritten with the new one.
+
+    virtual void *registerTimer(
+                              const bsls::TimeInterval&amp;          expiryTime,
+                              const TimerEventManager::Callback&amp; callback) = 0;
+        // Register a timer such that the specified &#39;callback&#39; functor will be
+        // invoked after the specified &#39;expiryTime&#39; is reached.  Return a
+        // unique identifier for the registered timer.  Note that a timer can
+        // be deregistered at any time before it expires by passing this
+        // identifier to the &#39;deregisterTimer&#39; method.  Specifying an
+        // &#39;expiryTime&#39; earlier than the current time
+        // (&#39;bdlt::CurrentTime::now()&#39;) will result in the associated
+        // &#39;callback&#39; being invoked the first time that the callbacks are
+        // dispatched.
+
+    virtual int rescheduleTimer(const void                *timerId,
+                                const bsls::TimeInterval&amp;  expiryTime) = 0;
+        // Reschedule the timer indicated by the specified &#39;timerId&#39; such that
+        // the callback function supplied to &#39;registerTimer&#39; will be invoked
+        // after the specified &#39;expiryTime&#39; is reached.  Return 0 on success,
+        // and a negative value otherwise.  &#39;expiryTime&#39; is expressed as the
+        // absolute time from 00:00:00 UTC, January 1, 1970 (the epoch time
+        // defined by &#39;bdetu_epoch&#39;).  The behavior is undefined unless
+        // &#39;timerId&#39; is a timer id returned from &#39;registerTimer&#39;, and has not
+        // subsequently been deregistered.  Note that if &#39;expiryTime&#39; is
+        // earlier than the current time (&#39;bdlt::CurrentTime::now()&#39;) the
+        // associated callback will be invoked the first time that the
+        // callbacks are dispatched.
+
+    virtual void deregisterSocketEvent(const SocketHandle::Handle&amp; handle,
+                                       EventType::Type             event) = 0;
+        // Deregister the occurrence of the specified &#39;event&#39; on the specified
+        // socket &#39;handle&#39;.  The behavior is undefined unless there is a
+        // callback registered for the &#39;event&#39; on the socket &#39;handle&#39;.
+
+    virtual void deregisterSocket(const SocketHandle::Handle&amp; handle) = 0;
+        // Deregister all events associated with the specified socket &#39;handle&#39;.
+
+    virtual void deregisterAllSocketEvents() = 0;
+        // Deregister all events on every socket handle.
+
+    virtual void deregisterTimer(const void *timerId) = 0;
+        // Deregister the timer identified by &#39;timerId&#39; (returned when the
+        // timer was registered using the &#39;registerTimer&#39; method).
+
+    virtual void deregisterAllTimers() = 0;
+        // Deregister all timers that are currently registered.
+
+    virtual void deregisterAll() = 0;
+        // Deregister all timers and socket events that are currently
+        // registered.
+
+    // ACCESSORS
+    virtual bool hasLimitedSocketCapacity() const = 0;
+        // Return &#39;true&#39; if this event manager has a limited socket capacity,
+        // and &#39;false&#39; otherwise.
+
+    virtual int numTimers() const = 0;
+        // Return the number of timers that are currently registered.
+
+    virtual int numSocketEvents(const SocketHandle::Handle&amp; handle) const = 0;
+        // Return the number of socket events currently registered for the
+        // specified &#39;handle&#39;.
+
+    virtual int numEvents() const = 0;
+        // Return the total number of timers and socket events that are
+        // currently registered.
+
+    virtual int isRegistered(const SocketHandle::Handle&amp;  handle,
+                             EventType::Type              event) const = 0;
+        // Return 1 if the specified &#39;event&#39; is registered for the specified
+        // socket &#39;handle&#39; and 0 otherwise.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

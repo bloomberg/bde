@@ -1,44 +1,136 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bdlb.txt
 
-@PURPOSE: Provide utilities classes and functions.
+@PURPOSE: Provide utilities on basic types.
 
 @MNEMONIC: Basic Development Library Basics (bdlb)
 
-@DESCRIPTION: The &#39;bdlb&#39; package provides various utilities classes and
- functions.
+@DESCRIPTION: The &#39;bdlb&#39; package provides utility &#39;struct&#39;s in the broad areas
+ of bit manipulation, string handling, random number generations, hashing,
+ variant and nullable types.  Classes are provided for nullable and variant
+ values.
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdlb&#39; package currently has 4 components having 2 levels of physical
+ The &#39;bdlb&#39; package currently has 26 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bdlb_guidutil
+  4. bdlb_bitstringutil
 
-  1. bdlb_bitutil
+  3. bdlb_bigendian
+     bdlb_bitstringimputil
+     bdlb_nullableallocatedvalue
+     bdlb_nullablevalue
+     bdlb_variant
+
+  2. bdlb_bitmaskutil
+     bdlb_guidutil
+     bdlb_printmethods
+
+  1. bdlb_arrayutil
+     bdlb_bitutil
+     bdlb_chartype
+     bdlb_cstringequalto
+     bdlb_cstringhash
+     bdlb_cstringless
+     bdlb_float
+     bdlb_functionoutputiterator
      bdlb_guid
+     bdlb_hashutil
+     bdlb_nullinputiterator
+     bdlb_nulloutputiterator
+     bdlb_print
+     bdlb_random
      bdlb_randomdevice
+     bdlb_string
+     bdlb_tokenizer
 ..
 
 /Component Synopsis
 /------------------
+: &#39;bdlb_arrayutil&#39;:
+:      Provide utilities to determine properties of fixed-sized arrays.
+:
+: &#39;bdlb_bigendian&#39;:
+:      Provide big-endian integer types.
+:
+: &#39;bdlb_bitmaskutil&#39;:
+:      Provide simple mask values of &#39;uint32_t&#39; and &#39;uint64_t&#39; types.
+:
+: &#39;bdlb_bitstringimputil&#39;:
+:      Provide functional bit-manipulation of &#39;uint64_t&#39; values.
+:
+: &#39;bdlb_bitstringutil&#39;:
+:      Provide efficient operations on a multi-word sequence of bits.
+:
 : &#39;bdlb_bitutil&#39;:
 :      Provide efficient bit-manipulation of &#39;uint32_t&#39;/&#39;uint64_t&#39; values.
 :
+: &#39;bdlb_chartype&#39;:
+:      Supply local-independent version of &#39;&lt;ctype.h&gt;&#39; functionality.
+:
+: &#39;bdlb_cstringequalto&#39;:
+:      Provide a standard compatible equality predicate for C-strings.
+:
+: &#39;bdlb_cstringhash&#39;:
+:      Provide a functor enabling C-strings as unordered-container keys.
+:
+: &#39;bdlb_cstringless&#39;:
+:      Provide a standard compatible less-than predicate for C-strings.
+:
+: &#39;bdlb_float&#39;:
+:      Provide floating-point classification types and functions.
+:
+: &#39;bdlb_functionoutputiterator&#39;:
+:      Provides an output iterator for a client-supplied functor.
+:
 : &#39;bdlb_guid&#39;:
-:      Provide a value semantic type for Globally Unique Identifiers.
+:      Provide a value-semantic type for Globally Unique Identifiers.
 :
 : &#39;bdlb_guidutil&#39;:
 :      Provide functions that produce Universally Unique Identifiers.
 :
+: &#39;bdlb_hashutil&#39;:
+:      Provide a utility of hash functions.
+:
+: &#39;bdlb_nullableallocatedvalue&#39;:
+:      Provide a template for nullable allocated (out-of-place) objects.
+:
+: &#39;bdlb_nullablevalue&#39;:
+:      Provide a template for nullable (in-place) objects.
+:
+: &#39;bdlb_nullinputiterator&#39;:
+:      Provide a pure input iterator for an empty range.
+:
+: &#39;bdlb_nulloutputiterator&#39;:
+:      Provide an output iterator type that discards output.
+:
+: &#39;bdlb_print&#39;:
+:      Provide platform-independent stream utilities.
+:
+: &#39;bdlb_printmethods&#39;:
+:      Provide methods for uniform printing of value-semantic types.
+:
+: &#39;bdlb_random&#39;:
+:      Provide a suite of procedures for random-number generation.
+:
 : &#39;bdlb_randomdevice&#39;:
 :      Provide a common interface to a system&#39;s random number generator.
+:
+: &#39;bdlb_string&#39;:
+:      Provide utility functions on C-style and &#39;STL&#39; strings.
+:
+: &#39;bdlb_tokenizer&#39;:
+:      Provide access to user-described tokens via string references.
+:
+: &#39;bdlb_variant&#39;:
+:      Provide a variant (discriminated &#39;union&#39;-like) type.
 </pre>
 </body>
 </html>

@@ -1,0 +1,608 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_concurrentmultipoolallocator.h                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
+#define INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an allocator to manage pools of varying object sizes.
+//
+//@CLASSES:
+//   bdlma::ConcurrentMultipoolAllocator: allocator managing varying size pools
+//
+//@SEE_ALSO: bdlma_concurrentpool, bdlma_concurrentmultipool
+//
+//@DESCRIPTION: This component provides an allocator,
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39;, that implements the
+// &#39;bdlma::ManagedAllocator&#39; protocol and provides an allocator that maintains
+// a configurable number of &#39;bdlma::ConcurrentPool&#39; objects, each dispensing
+// memory blocks of a unique size.  The &#39;bdlma::ConcurrentPool&#39; objects are
+// placed in an array, starting at index 0, with each successive pool managing
+// memory blocks of a size twice that of the previous pool.  Each multipool
+// allocation (deallocation) request allocates memory from (returns memory to)
+// the internal pool managing memory blocks of the smallest size not less than
+// the requested size, or else from a separately managed list of memory blocks,
+// if no internal pool managing memory block of sufficient size exists.  Both
+// the &#39;release&#39; method and the destructor of a
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39; release all memory currently allocated
+// via the object.
+//..
+//   ,------------------------.
+//  ( bcema::MultiPoolAllocator )
+//   `------------------------&#39;
+//               |         ctor/dtor
+//               |         maxPooledBlockSize
+//               |         numPools
+//               |         reserveCapacity
+//               V
+//    ,----------------------.
+//   ( bdlma::ManagedAllocator )
+//    `----------------------&#39;
+//               |         release
+//               V
+//       ,-----------------.
+//      (  bslma::Allocator )
+//       `-----------------&#39;
+//                        allocate
+//                        deallocate
+//..
+// The main difference between a &#39;bdlma::ConcurrentMultipoolAllocator&#39; and a
+// &#39;bdlma::ConcurrentMultipool&#39; is that, very often, a
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39; is managed through a
+// &#39;bslma::Allocator&#39; pointer.  Hence, every call to the &#39;allocate&#39; method
+// invokes a virtual function call, which is slower than invoking the
+// non-virtual &#39;allocate&#39; method on a &#39;bdlma::ConcurrentMultipool&#39;.  However,
+// since &#39;bslma::Allocator *&#39; is widely used across BDE interfaces,
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39; is more general purposed than a
+// &#39;bdlma::ConcurrentMultipool&#39;.
+//
+///Configuration at Construction
+///-----------------------------
+// When creating a &#39;bdlma::ConcurrentMultipoolAllocator&#39;, clients can
+// optionally configure:
+//
+//: 1 NUMBER OF POOLS -- the number of internal pools (the block size managed
+//:   by the first pool is eight bytes, with each successive pool managing
+//:   block of a size twice that of the previous pool).
+//: 2 GROWTH STRATEGY -- geometrically growing chunk size starting from 1 (in
+//:   terms of the number of memory blocks per chunk), or fixed chunk size,
+//:   specified as either:
+//:   o the unique growth strategy for all pools, or
+//:   o (if the number of pools is specified) an array of growth strategies
+//:     corresponding to each individual pool
+//:   If the growth strategy is not specified, geometric growth is used for all
+//:   pools.
+//: 3 MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
+//:   chunk, specified as either:
+//:     o the unique maximum-blocks-per-chunk value for all of the pools, or
+//:     o an array of maximum-blocks-per-chunk values corresponding to each
+//:       individual pool.
+//:   If the maximum blocks per chunk is not specified, an
+//:   implementation-defined default value is used.  Note that the maximum
+//:   blocks per chunk can be configured only if the number of pools is also
+//:   configured.
+//: 4 BASIC ALLOCATOR -- the allocator used to supply memory (to replenish an
+//:   internal pool, or directly if the maximum block size is exceeded).  If
+//:   not specified, the currently installed default allocator (see
+//:   &#39;bslma_default&#39;) is used.
+//
+// A default-constructed multipool allocator has a relatively small,
+// implementation-defined number of pools &#39;N&#39; with respective block sizes
+// ranging from &#39;2^3 = 8&#39; to &#39;2^(N+2)&#39;.  By default, the initial chunk size,
+// (i.e., the number of blocks of a given size allocated at once to replenish a
+// pool&#39;s memory) is 1, and each pool&#39;s chunk size grows geometrically until it
+// reaches an implementation-defined maximum, at which it is capped.  Finally,
+// unless otherwise specified, all memory comes from the allocator that was the
+// currently installed default allocator at the time the
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39; was created.
+//
+// Using the various pooling options described above, we can configure the
+// number of pools maintained, whether replenishment should be adaptive (i.e.,
+// geometric starting with 1) or fixed at a maximum chunk size, what that
+// maximum chunk size should be (which need not be an integral power of 2), and
+// the underlying allocator used to supply memory.  Note that both GROWTH
+// STRATEGY and MAX BLOCKS PER CHUNK can be specified separately either as a
+// single value applying to all of the maintained pools, or as an array of
+// values, with the elements applying to each individually maintained pool.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a &#39;bdlma::ConcurrentMultipoolAllocator&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A &#39;bdlma::ConcurrentMultipoolAllocator&#39; can be used to supply memory to
+// node-based data structures such as &#39;bsl::set&#39;, &#39;bsl::list&#39; or &#39;bsl::map&#39;.
+// Suppose we are implementing a container of named graphs data structure,
+// where a graph is defined by a set of edges and nodes.  The various
+// fixed-sized nodes can be efficiently allocated by a
+// &#39;bdlma::ConcurrentMultipoolAllocator&#39;.
+//
+// First, the edge class, &#39;my_Edge&#39;, is defined as follows:
+//..
+//  class my_Node;
+//
+//  class my_Edge {
+//      // This class represents an edge within a graph.  Both ends of the
+//      // edge must be connected to nodes.
+//
+//      // DATA
+//      my_Node *d_first;   // first node
+//      my_Node *d_second;  // second node
+//
+//      // ...
+//
+//    public:
+//      // CREATORS
+//      my_Edge(my_Node *first, my_Node *second);
+//          // Create an edge that connects to the specified &#39;first&#39; and
+//          // &#39;second&#39; nodes.
+//
+//      // ...
+//  };
+//
+//  // CREATORS
+//  my_Edge::my_Edge(my_Node *first, my_Node *second)
+//  : d_first(first), d_second(second)
+//  {
+//  }
+//..
+// Then, the node class, &#39;my_Node&#39;, is defined as follows:
+//..
+//  class my_Node {
+//      // This class represents a node within a graph.  A node can be
+//      // connected to any number of edges.
+//
+//      // DATA
+//      bsl::set&lt;my_Edge *&gt; d_edges;  // set of edges this node connects to
+//
+//      // ...
+//
+//    private:
+//      // Not implemented:
+//      my_Node(const my_Node&amp;);
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit my_Node(bslma::Allocator *basicAllocator = 0);
+//          // Create a node not connected to any other nodes.  Optionally
+//          // specify a &#39;basicAllocator&#39; used to supply memory.  If
+//          // &#39;basicAllocator&#39; is 0, the currently installed default allocator
+//          // is used.
+//
+//      // ...
+//  };
+//
+//  // CREATORS
+//  my_Node::my_Node(bslma::Allocator *basicAllocator)
+//  : d_edges(basicAllocator)
+//  {
+//  }
+//..
+// Then we define the graph class, &#39;my_Graph&#39;, as follows:
+//..
+//  class my_Graph {
+//      // This class represents a graph having sets of nodes and edges.
+//
+//      // DATA
+//      bsl::set&lt;my_Edge&gt; d_edges;  // set of edges in this graph
+//      bsl::set&lt;my_Node&gt; d_nodes;  // set of nodes in this graph
+//
+//      // ...
+//
+//    private:
+//      // Not implemented:
+//      my_Graph(const my_Graph&amp;);
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit my_Graph(bslma::Allocator *basicAllocator = 0);
+//          // Create an empty graph.  Optionally specify a &#39;basicAllocator&#39;
+//          // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+//          // installed default allocator is used.
+//
+//      // ...
+//  };
+//
+//  my_Graph::my_Graph(bslma::Allocator *basicAllocator)
+//  : d_edges(basicAllocator)
+//  , d_nodes(basicAllocator)
+//  {
+//  }
+//..
+// Then finally, the container for the collection of named graphs,
+// &#39;my_NamedGraphContainer&#39;, is defined as follows:
+//..
+//  class my_NamedGraphContainer {
+//      // This class stores a map that index graph names to graph objects.
+//
+//      // DATA
+//      bsl::map&lt;bsl::string, my_Graph&gt; d_graphMap;  // map from graph names to
+//                                                   // graph
+//
+//    private:
+//      // Not implemented:
+//      my_NamedGraphContainer(const my_NamedGraphContainer&amp;);
+//
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_NamedGraphContainer,
+//                                     bslma::UsesBslmaAllocator);
+//
+//      // CREATORS
+//      explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);
+//          // Create an empty named graph container.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//
+//      // ...
+//  };
+//
+//  // CREATORS
+//  my_NamedGraphContainer::my_NamedGraphContainer(
+//                                            bslma::Allocator *basicAllocator)
+//  : d_graphMap(basicAllocator)
+//  {
+//  }
+//..
+// Finally, in &#39;main&#39;, we can create a &#39;bdlma::ConcurrentMultipoolAllocator&#39;
+// and pass it to our &#39;my_NamedGraphContainer&#39;.  Since we know that the maximum
+// block size needed is 32 (comes from &#39;sizeof(my_Graph)&#39;), we can calculate
+// the number of pools needed by using the formula specified in the
+// &quot;configuration at construction&quot; section:
+//..
+//  largestPoolSize &lt; 2 ^ (N + 2).
+//..
+// When solved for the above equation, the smallest &#39;N&#39; that satisfies this
+// relationship is 3:
+//..
+//  enum { k_NUM_POOLS = 3 };
+//
+//  bdlma::ConcurrentMultipoolAllocator basicAllocator(k_NUM_POOLS);
+//
+//  my_NamedGraphContainer container(&amp;basicAllocator);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOL
+#include &lt;bdlma_concurrentmultipool.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
+#include &lt;bdlma_managedallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                    // ==================================
+                    // class ConcurrentMultipoolAllocator
+                    // ==================================
+
+class ConcurrentMultipoolAllocator : public bdlma::ManagedAllocator {
+    // This class implements the &#39;bdlma::ManagedAllocator&#39; protocol to provide
+    // a thread-safe allocator that maintains a configurable number of &#39;Pool&#39;
+    // objects, each dispensing memory blocks of a unique size.  The &#39;Pool&#39;
+    // objects are placed in an array, with each successive pool managing
+    // memory blocks of size twice that of the previous pool.  Each multipool
+    // allocation (deallocation) request allocates memory from (returns memory
+    // to) the internal pool having the smallest block size not less than the
+    // requested size, or, if no pool manages memory blocks of sufficient
+    // sized, from a separately managed list of memory blocks.  Both the
+    // &#39;release&#39; method and the destructor of a &#39;ConcurrentMultipoolAllocator&#39;
+    // release all memory currently allocated via the object.
+
+    // DATA
+    ConcurrentMultipool d_multipool;  // owned allocator
+
+  private:
+    // NOT IMPLEMENTED
+    ConcurrentMultipoolAllocator(const ConcurrentMultipoolAllocator&amp;);
+    ConcurrentMultipoolAllocator&amp; operator=
+                                         (const ConcurrentMultipoolAllocator&amp;);
+
+  public:
+    // CREATORS
+    ConcurrentMultipoolAllocator(bslma::Allocator *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(int               numPools,
+                                 bslma::Allocator *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                              int                          numPools,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                              int                          numPools,
+                              bsls::BlockGrowth::Strategy  growthStrategy,
+                              int                          maxBlocksPerChunk,
+                              bslma::Allocator            *basicAllocator = 0);
+        // Create a multipool allocator.  Optionally specify &#39;numPools&#39;,
+        // indicating the number of internally created &#39;Pool&#39; objects; the
+        // block size of the first pool is 8 bytes, with the block size of each
+        // additional pool successively doubling.  If &#39;numPools&#39; is not
+        // specified, an implementation-defined number of pools &#39;N&#39; -- covering
+        // memory blocks ranging in size from &#39;2^3 = 8&#39; to &#39;2^(N+2)&#39; -- are
+        // created.  Optionally specify a &#39;growthStrategy&#39; indicating whether
+        // the number of blocks allocated at once for every internally created
+        // &#39;Pool&#39; should be either fixed or grow geometrically, starting with
+        // 1.  If &#39;growthStrategy&#39; is not specified, the allocation strategy
+        // for each internally created &#39;Pool&#39; object is geometric, starting
+        // from 1.  If &#39;numPools&#39; is specified, optionally specify a
+        // &#39;maxBlocksPerChunk&#39;, indicating the maximum number of blocks to be
+        // allocated at once when a pool must be replenished.  If
+        // &#39;maxBlocksPerChunk&#39; is not specified, an implementation-defined
+        // value is used.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  Memory allocation (and deallocation) requests
+        // will be satisfied using the internally maintained pool managing
+        // memory blocks of the smallest size not less than the requested size,
+        // or directly from the underlying allocator (supplied at
+        // construction), if no internally pool managing memory block of
+        // sufficient size exists.  The behavior is undefined unless
+        // &#39;1 &lt;= numPools&#39; and &#39;1 &lt;= maxBlocksPerChunk&#39;.  Note that, on
+        // platforms where &#39;8 &lt; bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT&#39;,
+        // excess memory may be allocated for pools managing smaller blocks.
+        // Also note that &#39;maxBlocksPerChunk&#39; need not be an integral power of
+        // 2; if geometric growth would exceed the maximum value, the chunk
+        // size is capped at that value).
+
+    ConcurrentMultipoolAllocator(
+                        int                                numPools,
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        bslma::Allocator                  *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                        int                                numPools,
+                        const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                        int                                maxBlocksPerChunk,
+                        bslma::Allocator                  *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                           int                          numPools,
+                           bsls::BlockGrowth::Strategy  growthStrategy,
+                           const int                   *maxBlocksPerChunkArray,
+                           bslma::Allocator            *basicAllocator = 0);
+    ConcurrentMultipoolAllocator(
+                     int                                numPools,
+                     const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                     const int                         *maxBlocksPerChunkArray,
+                     bslma::Allocator                  *basicAllocator = 0);
+        // Create a multipool allocator having the specified &#39;numPools&#39;,
+        // indicating the number of internally created &#39;Pool&#39; objects; the
+        // block size of the first pool is 8 bytes, with the block size of each
+        // additional pool successively doubling.  Optionally specify a
+        // &#39;growthStrategy&#39; indicating whether the number of blocks allocated
+        // at once for every internally created &#39;Pool&#39; should be either fixed
+        // or grow geometrically, starting with 1.  If &#39;growthStrategy&#39; is not
+        // specified, optionally specify &#39;growthStrategyArray&#39;, indicating the
+        // strategies for each individual &#39;Pool&#39; created by this object.  If
+        // neither &#39;growthStrategy&#39; nor &#39;growthStrategyArray&#39; are specified,
+        // the allocation strategy for each internally created &#39;Pool&#39; object
+        // will grow geometrically, starting from 1.  Optionally specify a
+        // &#39;maxBlocksPerChunk&#39;, indicating the maximum number of blocks to be
+        // allocated at once when a pool must be replenished.  If
+        // &#39;maxBlocksPerChunk&#39; is not specified, optionally specify
+        // &#39;maxBlocksPerChunkArray&#39;, indicating the maximum number of blocks to
+        // allocate at once for each individually created &#39;Pool&#39; object.  If
+        // neither &#39;maxBlocksPerChunk&#39; nor &#39;maxBlocksPerChunkArray&#39; are
+        // specified, an implementation-defined value is used.  Optionally
+        // specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  Memory allocation (and deallocation) requests will be
+        // satisfied using the internally maintained pool managing memory
+        // blocks of the smallest size not less than the requested size, or
+        // directly from the underlying allocator (supplied at construction),
+        // if no internally pool managing memory block of sufficient size
+        // exists.  The behavior is undefined unless &#39;1 &lt;= numPools&#39;,
+        // &#39;growthStrategyArray&#39; has at least &#39;numPools&#39; strategies,
+        // &#39;1 &lt;= maxBlocksPerChunk&#39; and &#39;maxBlocksPerChunkArray&#39; have at least
+        // &#39;numPools&#39; positive values.  Note that, on platforms where
+        // &#39;8 &lt; bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT&#39;, excess memory may be
+        // allocated for pools managing smaller blocks.  Also note that the
+        // maximum need not be an integral power of 2; if geometric growth
+        // would exceed a maximum value, the chunk size is capped at that
+        // value).
+
+    virtual ~ConcurrentMultipoolAllocator();
+        // Destroy this multipool allocator.  All memory allocated from this
+        // allocator is released.
+
+    // MANIPULATORS
+    void reserveCapacity(size_type size, size_type numObjects);
+        // Reserve memory from this multipool allocator to satisfy memory
+        // requests for at least the specified &#39;numObjects&#39; having the
+        // specified &#39;size&#39; (in bytes) before the pool replenishes.  If &#39;size&#39;
+        // is 0, this method has no effect.  The behavior is undefined unless
+        // &#39;0 &lt;= size&#39;, &#39;size &lt; maxPooledBlockSize()&#39;, and &#39;0 &lt;= numObjects&#39;.
+
+                                // Virtual Functions
+
+    virtual void *allocate(size_type size);
+        // Return the address of a contiguous block of maximally aligned memory
+        // of (at least) the specified &#39;size&#39; (in bytes).  If &#39;size&#39; is 0, no
+        // memory is allocated and 0 is returned.  If
+        // &#39;size &gt; maxPooledBlockSize()&#39;, the memory allocation is managed
+        // directly by the underlying allocator, but will not be pooled .  The
+        // behavior is undefined unless &#39;0 &lt;= size&#39;.
+
+    virtual void deallocate(void *address);
+        // Relinquish the memory block at the specified &#39;address&#39; back to this
+        // allocator for reuse.  If &#39;address&#39; is 0, this method has no effect.
+        // The behavior is undefined unless &#39;address&#39; was allocated by this
+        // allocator, and has not already been deallocated.
+
+    virtual void release();
+        // Relinquish all memory currently allocated through this multipool
+        // allocator.
+
+    // ACCESSORS
+    int numPools() const;
+        // Return the number of pools managed by this multipool allocator.
+
+    int maxPooledBlockSize() const;
+        // Return the maximum size of memory blocks that are pooled by this
+        // multipool object.  Note that the maximum value is defined as:
+        //..
+        //  2 ^ (numPools + 2)
+        //..
+        // where &#39;numPools&#39; is either specified at construction, or an
+        // implementation-defined value.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                    // ----------------------------------
+                    // class ConcurrentMultipoolAllocator
+                    // ----------------------------------
+
+// CREATORS
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  bslma::Allocator                 *basicAllocator)
+: d_multipool(basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                               numPools,
+                  bslma::Allocator                 *basicAllocator)
+: d_multipool(numPools, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  bsls::BlockGrowth::Strategy       growthStrategy,
+                  bslma::Allocator                 *basicAllocator)
+: d_multipool(growthStrategy, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                               numPools,
+                  bsls::BlockGrowth::Strategy       growthStrategy,
+                  bslma::Allocator                 *basicAllocator)
+: d_multipool(numPools, growthStrategy, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  bslma::Allocator                  *basicAllocator)
+: d_multipool(numPools, growthStrategyArray, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                               numPools,
+                  bsls::BlockGrowth::Strategy       growthStrategy,
+                  int                               maxBlocksPerChunk,
+                  bslma::Allocator                 *basicAllocator)
+: d_multipool(numPools, growthStrategy, maxBlocksPerChunk, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  int                                maxBlocksPerChunk,
+                  bslma::Allocator                  *basicAllocator)
+: d_multipool(numPools, growthStrategyArray, maxBlocksPerChunk, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                                numPools,
+                  bsls::BlockGrowth::Strategy        growthStrategy,
+                  const int                         *maxBlocksPerChunkArray,
+                  bslma::Allocator                  *basicAllocator)
+: d_multipool(numPools, growthStrategy, maxBlocksPerChunkArray, basicAllocator)
+{
+}
+
+inline
+ConcurrentMultipoolAllocator::ConcurrentMultipoolAllocator(
+                  int                                numPools,
+                  const bsls::BlockGrowth::Strategy *growthStrategyArray,
+                  const int                         *maxBlocksPerChunkArray,
+                  bslma::Allocator                  *basicAllocator)
+: d_multipool(numPools,
+              growthStrategyArray,
+              maxBlocksPerChunkArray,
+              basicAllocator)
+{
+}
+
+// ACCESSORS
+inline
+int ConcurrentMultipoolAllocator::numPools() const
+{
+    return d_multipool.numPools();
+}
+
+inline
+int ConcurrentMultipoolAllocator::maxPooledBlockSize() const
+{
+    return d_multipool.maxPooledBlockSize();
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

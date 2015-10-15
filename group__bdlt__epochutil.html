@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_epochutil Component</title>
+<title>BDE 3.0: bdlt_epochutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,7 +79,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">Thread-Safety</a> </li>
+<a href="#3.1">Thread Safety</a> </li>
 <li>
 <a href="#3.2">Usage</a> <ul>
 <li>
@@ -110,7 +110,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>This component defines a namespace, <code><a class="el" href="structbdlt_1_1EpochUtil.html">bdlt::EpochUtil</a></code>, providing non-primitive conversions between two different concepts of time. Clients can convert between absolute time (<code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>) and relative time (such as <code>bsl::time_t</code>, <code><a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a></code>, <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code>, and <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code>) with respect to the Unix standard "epoch" (1970/01/01_00:00:00.000 UTC), henceforth, simply referred to as "the epoch". Also provided is a fast, thread-safe method, <code>epoch</code>, for access to a pre-instantiated <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object whose (constant) value is that of the epoch. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Due to different resolutions, conversions between absolute/relative time are possibly lossy when converting from a type with higher resolution to one with lower resolution. The value of the type with higher resolution will be truncated (not rounded). The following table lists the resolution of the types involved in this component: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Type                      Reference          Resolution
+<div class="fragment"><pre class="fragment">  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                      Reference          Resolution
   ---------------------     --------------     ------------
   bsl::time_t               relative           seconds
   <a class="code" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a>  relative           seconds
@@ -122,8 +122,8 @@ Namespaces</h2></td></tr>
  Note that the interfaces using <code><a class="el" href="structbdlt_1_1EpochUtil.html#aba3efca2d258e16871da8623f5922e86">bdlt::EpochUtil::TimeT64</a></code> can be validly used for values before the epoch (corresponding to negative <code>TimeT64</code> values), whereas the interfaces using <code>bsl::time_t</code> have undefined behavior for such input. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Also note that these conversions do not take into account the leap seconds (25 as of this writing) added to UTC by the International Earth Rotation and Reference Systems Service, but simply regard each day as having a fixed number of seconds (24 hours * 60 minutes / hour * 60 seconds / minute). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-safety"></a> <a class="anchor" id="description.thread-safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>It is safe to invoke any function defined in this component in two or more separate threads simultaneously, provided no other thread is simultaneously modifying the argument passed by reference to a non-modifiable user-defined type (such as <code><a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a></code> or <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
@@ -137,7 +137,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">const</span> bsl::time_t            inputTime         (946684800);
   <span class="keyword">const</span> <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>     inputTimeInterval (946684800, 900000000);
-  <span class="keyword">const</span> <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> inputDatetimeInterval(
+  <span class="keyword">const</span> bdlt::DatetimeInterval inputDatetimeInterval(
                                                 0, 0, 0, 0, 946684800900LL);
   <span class="keyword">const</span> <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>         inputDatetime     (2000, 1, 1, 0, 0, 0, 900);
 </pre></div><br/>
@@ -146,7 +146,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  bsl::time_t            outputTime;
   <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>     outputTimeInterval;
-  <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> outputDatetimeInterval;
+  bdlt::DatetimeInterval outputDatetimeInterval;
   <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>         outputDatetime;
 </pre></div><br/>
 <br/>
@@ -187,7 +187,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

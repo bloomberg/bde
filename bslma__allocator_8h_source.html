@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_allocator.h                                                  -*-C++-*-
@@ -131,8 +131,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // following subsections illustrate (1) use, and (2) implementation of the
 // abstract &#39;bslma::Allocator&#39; base class:
 //
-///Usage 1: Container Objects
-///- - - - - - - - - - - - -
+///Example 1: Container Objects
+/// - - - - - - - - - - - - - -
 // Allocators are often supplied to objects requiring dynamically-allocated
 // memory at construction.  For example, consider the following
 // &#39;my_DoubleStack&#39; class, parameterized by a &#39;bslma::Allocator&#39;:
@@ -277,8 +277,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      d_size = proposedNewSize;                    // we&#39;re committed
 //  }
 //..
-///Usage 2: Derived Concrete Allocators
-///- - - - - - - - - - - - - - - - - -
+//
+///Example 2: Derived Concrete Allocators
+/// - - - - - - - - - - - - - - - - - - -
 // In order for the &#39;bslma::Allocator&#39; interface to be useful, we must supply a
 // concrete allocator that implements it.  In this example we demonstrate how
 // to adapt &#39;operator new&#39; and &#39;operator delete&#39; to this protocol base class.

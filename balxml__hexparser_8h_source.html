@@ -1,0 +1,317 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_hexparser.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_HEXPARSER
+#define INCLUDED_BALXML_HEXPARSER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide push parser for hex types.
+//
+//@DEPRECATED: This functionality will be moved to bdede w/ a new interface.
+//
+//@CLASSES:
+//   balxml::HexParser: push parser for hex types
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: The &#39;balxml::HexParser&#39; class template provided by this
+// component can be used to parse Hex characters into one of the supported Hex
+// types, which are &#39;bsl::vector&lt;char&gt;&#39; and &#39;bsl::string&#39;.  The &#39;TYPE&#39;
+// parameter can be one of these two types.
+//
+// This class template is a model of the &#39;PushParser&#39; concept, which contains
+// the following methods:
+//..
+//  int beginParse(TYPE *object);
+//      // Prepare the parser to start parsing a new value and associate the
+//      // specified &#39;object&#39; with the parser.  Return 0 if successful and
+//      // non-zero otherwise.
+//
+//  int endParse();
+//      // Ends the parse operation and store the value parsed from the pushed
+//      // characters into the associated object.  Return 0 if successful and
+//      // non-zero otherwise.  The behavior is undefined unless an object is
+//      // associated with this parser.  Upon successful completion, the parser
+//      // will be disassociated with the object.
+//
+//  template &lt;typename INPUT_ITERATOR&gt;
+//  int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+//      // Push the characters ranging from the specified &#39;begin&#39; up to (but
+//      // not including) the specified &#39;end&#39; into this parser.  Return 0 if
+//      // successful and non-zero otherwise.  The parameterized
+//      // &#39;INPUT_ITERATOR&#39; must be dereferenceable to a &#39;char&#39; value.  The
+//      // behavior is undefined unless an object is associated with this
+//      // parser.
+//..
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you had an input stream that contained Hex data.  The following
+// &#39;loadFromHexStream&#39; function loads this data into an &#39;bsl::vector&lt;char&gt;&#39;
+// blob:
+//..
+//  #include &lt;balxml_hexparser.h&gt;
+//
+//  #include &lt;istream&gt;
+//  #include &lt;iterator&gt;
+//  #include &lt;vector&gt;
+//
+//  using namespace BloombergLP;
+//
+//  int loadFromHexStream(bsl::vector&lt;char&gt; *result, bsl::istream&amp; stream)
+//  {
+//      enum { k_FAILURE = -1 };
+//
+//      balxml::HexParser&lt;bsl::vector&lt;char&gt; &gt; parser;
+//
+//      if (0 != parser.beginParse(result)) {
+//          return k_FAILURE;
+//      }
+//
+//      if (0 != parser.pushCharacters(bsl::istreambuf_iterator&lt;char&gt;(stream),
+//                                     bsl::istreambuf_iterator&lt;char&gt;())) {
+//          return k_FAILURE;
+//      }
+//
+//      return parser.endParse();
+//  }
+//..
+// The following function demonstrates the &#39;loadFromHexStream&#39; function:
+//..
+//  #include &lt;sstream&gt;
+//
+//  void usageExample()
+//  {
+//      const char INPUT[] = &quot;0F3B296A&quot;;
+//
+//      bsl::vector&lt;char&gt;  vec;
+//      bsl::istringstream iss(INPUT);
+//
+//      int result = loadFromHexStream(&amp;vec, iss);
+//
+//      assert(0    == result);
+//      assert(4    == vec.size());
+//      assert(0x0F == vec[0]);
+//      assert(0x3B == vec[1]);
+//      assert(0x29 == vec[2]);
+//      assert(0x6A == vec[3]);
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
+#include &lt;bdlat_valuetypefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_CHARTYPE
+#include &lt;bdlb_chartype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balxml {
+                           // =====================
+                           // class HexParser&lt;TYPE&gt;
+                           // =====================
+
+template &lt;class TYPE&gt;
+class HexParser {
+    // This is a push parser for supported Hex types (&#39;bsl::vector&lt;char&gt;&#39; or
+    // &#39;bsl::string&#39;).
+
+    // PRIVATE DATA MEMBERS
+    char  d_firstDigit;  // buffer for first digit
+    TYPE *d_object_p;    // associated object
+
+  private:
+    // NOT IMPLEMENTED
+    HexParser(const HexParser&amp;);
+    HexParser&amp; operator=(const HexParser&amp;);
+
+    // PRIVATE MANIPULATORS
+    void appendOctet(char firstDigit, char secondDigit);
+        // Append an octet generated from the specified &#39;firstDigit&#39; and the
+        // specified &#39;secondDigit&#39; to the associated object.
+
+  public:
+    // CREATORS
+    HexParser();
+        // Create a parser for parsing Hex types.
+
+    // Generated by compiler:
+    //  ~HexParser();
+
+    // MANIPULATORS
+    int beginParse(TYPE *object);
+        // Prepare the parser to start parsing a new value and associate the
+        // specified &#39;object&#39; with the parser.  Return 0 if successful and
+        // non-zero otherwise.
+
+    int endParse();
+        // Ends the parse operation and store the value parsed from the pushed
+        // characters into the associated object.  Return 0 if successful and
+        // non-zero otherwise.  The behavior is undefined unless an object is
+        // associated with this parser.  Upon successful completion, the parser
+        // will be disassociated with the object.
+
+    template &lt;class INPUT_ITERATOR&gt;
+    int pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end);
+        // Push the characters ranging from the specified &#39;begin&#39; up to (but
+        // not including) the specified &#39;end&#39; into this parser.  Return 0 if
+        // successful and non-zero otherwise.  The parameterized
+        // &#39;INPUT_ITERATOR&#39; must be dereferenceable to a &#39;char&#39; value.  The
+        // behavior is undefined unless an object is associated with this
+        // parser.
+};
+
+                          // =======================
+                          // struct HexParser_Helper
+                          // =======================
+
+class HexParser_Helper {
+    // Namespace for facilities that are used in the implementation of class
+    // &#39;HexParser&lt;TYPE&gt;&#39;.  Only instances of &#39;HexParser&lt;TYPE&gt;&#39; can access the
+    // facilities in this class.
+
+    template &lt;class TYPE&gt; friend class HexParser;
+
+    static const char s_hexValueTable[128];
+        // Table that maps from ASCII character value to hex value.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ---------------------
+                           // class HexParser&lt;TYPE&gt;
+                           // ---------------------
+
+// PRIVATE MANIPULATORS
+template &lt;class TYPE&gt;
+void HexParser&lt;TYPE&gt;::appendOctet(char firstDigit, char secondDigit)
+{
+    BSLS_ASSERT_SAFE(bdlb::CharType::isXdigit((unsigned char) firstDigit));
+    BSLS_ASSERT_SAFE(bdlb::CharType::isXdigit((unsigned char) secondDigit));
+
+    char value =
+        (char)((HexParser_Helper::s_hexValueTable[(int)firstDigit] &lt;&lt; 4)
+             | (HexParser_Helper::s_hexValueTable[(int)secondDigit]));
+
+    d_object_p-&gt;push_back(value);
+}
+
+// CREATORS
+template &lt;class TYPE&gt;
+HexParser&lt;TYPE&gt;::HexParser()
+: d_firstDigit(0)
+, d_object_p(0)
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+int HexParser&lt;TYPE&gt;::beginParse(TYPE *object)
+{
+    BSLS_ASSERT_SAFE(object);
+
+    enum { k_SUCCESS = 0 };
+
+    d_firstDigit = 0;
+    d_object_p   = object;
+
+    bdlat_ValueTypeFunctions::reset(d_object_p);
+
+    return k_SUCCESS;
+}
+
+template &lt;class TYPE&gt;
+int HexParser&lt;TYPE&gt;::endParse()
+{
+    BSLS_ASSERT_SAFE(d_object_p);
+
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    d_object_p = 0;
+
+    return 0 == d_firstDigit ? k_SUCCESS : k_FAILURE;
+}
+
+template &lt;class TYPE&gt;
+template &lt;class INPUT_ITERATOR&gt;
+int HexParser&lt;TYPE&gt;::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
+{
+    BSLS_ASSERT_SAFE(d_object_p);
+
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    while (begin != end) {
+        const char digit = *begin;
+
+        ++begin;
+
+        if (!bdlb::CharType::isSpace(digit)) {
+            if (!bdlb::CharType::isXdigit(digit)) {
+                return k_FAILURE;                                     // RETURN
+            }
+
+            if (0 == d_firstDigit) {
+                d_firstDigit = digit;
+            }
+            else {
+                appendOctet(d_firstDigit, digit);
+
+                d_firstDigit = 0;
+            }
+        }
+    }
+
+    return k_SUCCESS;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

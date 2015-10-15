@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_arraydestructionprimitives.h                                -*-C++-*-
@@ -35,6 +35,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                    behavior.
 //
 //..
+//
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this
@@ -166,9 +167,9 @@ struct ArrayDestructionPrimitives {
         // calls).
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                   // ---------------------------------
                   // struct ArrayDestructionPrimitives
@@ -212,7 +213,8 @@ void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin &lt;= end);
 
-    destroy(begin, end,
+    destroy(begin,
+            end,
             typename bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::type());
 }
 

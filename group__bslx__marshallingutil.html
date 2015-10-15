@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslx_marshallingutil Component</title>
+<title>BDE 3.0: bslx_marshallingutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -135,7 +135,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The names and interfaces of the functions of <code><a class="el" href="structbslx_1_1MarshallingUtil.html">bslx::MarshallingUtil</a></code> follow a systematic fashion explained below. This makes it easier to guess the name and signature of the intended function. In what follows, <code>buffer</code> is always of type <code>char *</code> or <code>const char *</code> depending on whether it is used as an input or an output, and <code>variable</code> and <code>value</code> are of a type that depends on the name of the function and intended width, with <code>variable</code> used as an output, while <code>value</code> is used as an input. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Here are the <code>get...</code> functions for integral and floating-point scalar types: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">   Name                           Type of <span class="stringliteral">&#39;variable&#39;</span>           Notes
+<div class="fragment"><pre class="fragment">   Name                           <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> of <span class="stringliteral">&#39;variable&#39;</span>           Notes
    ----                           ------------------           -----
    getIntNN(variable, buffer)     bsls::Types::Int64 *         NN=64,56,48,40
                                   <span class="keywordtype">int</span> *                        NN=32,24
@@ -154,7 +154,7 @@ Namespaces</h2></td></tr>
 <br/>
  Here are the <code>put...</code> functions for scalar types. Note that there is no <code>putUintNN</code> since <code>putIntNN</code> applies equally to unsigned <code>NN</code>-bit values (through a conversion to a signed value): <br/>
 <br/>
-<div class="fragment"><pre class="fragment">   Name                           Type of <span class="stringliteral">&#39;value&#39;</span>              Notes
+<div class="fragment"><pre class="fragment">   Name                           <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> of <span class="stringliteral">&#39;value&#39;</span>              Notes
    ----                           ---------------              -----
    putIntNN(buffer, value)        bsls::Types::Int64           NN=64,56,48,40
                                   <span class="keywordtype">int</span>                          NN=32,24,16,8
@@ -165,7 +165,7 @@ Namespaces</h2></td></tr>
 <br/>
  Here are the <code>getArray...</code> functions for integral and floating-point scalar array types: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">   Name                           Type of <span class="stringliteral">&#39;variables&#39;</span>          Notes
+<div class="fragment"><pre class="fragment">   Name                           <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> of <span class="stringliteral">&#39;variables&#39;</span>          Notes
    ----                           ----------------             -----
    getArrayIntNN(variables,       <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *         NN=64,56,48,40
                  buffer,          <span class="keywordtype">int</span> *                        NN=32,24
@@ -185,7 +185,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, the <code>putArray...</code> functions follow. Note that this time there is an overload for unsigned types, but that the function name is still <code>putArrayInt...</code> for arrays of both signed and unsigned integrals: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">   Name                           Type of <span class="stringliteral">&#39;values&#39;</span>             Notes
+<div class="fragment"><pre class="fragment">   Name                           <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a> of <span class="stringliteral">&#39;values&#39;</span>             Notes
    ----                           ---------------              -----
    putArrayIntNN(buffer,          <span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *   NN=64,56,48,40
                  values,          <span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *  NN=64,56,48,40
@@ -203,6 +203,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="ieee_754_double-precision_format"></a> <a class="anchor" id="description.ieee_754_double-precision_format"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>IEEE 754 Double-Precision Format: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code>double</code> is assumed to be <em>at</em> <em>least</em> 64 bits in size. The externalized byte representation of a 64-bit floating-point value is defined to conform to the IEEE double-precision format illustrated below. If the native representation of a 64-bit floating-point value does not match this format, a conversion process to and from this format is performed. This conversion may (of course) be lossy: <br/>
@@ -216,6 +217,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="ieee_754_single-precision_format"></a> <a class="anchor" id="description.ieee_754_single-precision_format"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>IEEE 754 Single-Precision Format: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A <code>float</code> is assumed to be <em>at</em> <em>least</em> 32 bits in size. The externalized byte representation of a 32-bit floating-point value is defined to conform to the IEEE single-precision format illustrated below. If the native representation of a 32-bit floating-point value does not match this format, a conversion process to and from this format is performed. This conversion may (of course) be lossy: <br/>
@@ -268,7 +270,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

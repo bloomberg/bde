@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_hashtableiterator.h                                         -*-C++-*-
@@ -172,7 +172,7 @@ class HashTableIterator
 template &lt;class VALUE_TYPE, class DIFFERENCE_TYPE&gt;
 class HashTableIterator {
 #endif
-    // This class template implements an in-core value semantic type that is an
+    // This class template implements an in-core value-semantic type that is an
     // standard-conforming forward iterator (see section 24.2.5
     // [forward.iterators] of the C++11 standard) over a list of
     // &#39;bslalg::BidirectionalLink&#39; objects.  A &#39;HashTableIterator&#39; object
@@ -318,9 +318,9 @@ operator++(HashTableIterator&lt;VALUE_TYPE, DIFFERENCE_TYPE&gt;&amp; iter, int);
     // unless &#39;iter&#39; refers to a valid (not yet erased) node a the list.
 
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                      // -----------------------
                      // class HashTableIterator

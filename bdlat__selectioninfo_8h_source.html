@@ -1,0 +1,320 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_selectioninfo.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_SELECTIONINFO
+#define INCLUDED_BDLAT_SELECTIONINFO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for selection information.
+//
+//@CLASSES:
+//  bdlat_SelectionInfo: container for selection information
+//
+//@SEE_ALSO: bdlat_choicefunctions
+//
+//@DESCRIPTION: This component provides the &#39;bdlat_SelectionInfo&#39; &#39;struct&#39;,
+// which is a container for holding information (properties) about a choice
+// selection.  The properties of a selection include its name and the length of
+// its name, its distinct id within its containing type, its formatting mode,
+// and a brief annotation.  Although each selection property is publicly
+// accessible, a manipulator and accessor is also supplied for each.
+//
+// When accessing or manipulating a selection of a &quot;choice&quot; type (using one of
+// the functions from the &#39;bdlat_ChoiceFunctions&#39; namespace), an instance of
+// this &#39;struct&#39; will be passed as the second argument to the accessor or
+// manipulator.
+//
+// Note that this &#39;struct&#39; needs to be a POD type.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you create an accessor for choice selections that prints the
+// selection to an output stream:
+//..
+//  #include &lt;bdlat_selectioninfo.h&gt;
+//  #include &lt;ostream&gt;
+//
+//  using namespace BloombergLP;
+//
+//  class PrintSelectionWithInfo {
+//      // Print the selection along with its name and annotation.
+//
+//      // PRIVATE DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//
+//    public:
+//      // CREATORS
+//      PrintSelectionWithInfo(bsl::ostream *stream)
+//      : d_stream_p(stream)
+//      {
+//      }
+//
+//      // OPERATIONS
+//      template &lt;typename TYPE&gt;
+//      int operator()(const TYPE&amp;                selection,
+//                     const bdlat_SelectionInfo&amp; info)
+//      {
+//          (*d_stream_p) &lt;&lt; selection &lt;&lt; &quot; (&quot;
+//                        &lt;&lt; bsl::string(info.name(),
+//                                       info.nameLength())
+//                        &lt;&lt; &quot;, &quot;
+//                        &lt;&lt; info.annotation() &lt;&lt; &quot;)\n&quot;;
+//      }
+//  };
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                         // ==========================
+                         // struct bdlat_SelectionInfo
+                         // ==========================
+
+struct bdlat_SelectionInfo {
+    // This &#39;struct&#39; holds information about an selection.  Its data members
+    // are &#39;public&#39; by design so that instances may be statically initialized.
+
+    // PUBLIC DATA -- DO *NOT* REORDER
+    int         d_id;              // distinct id of selection
+    const char *d_name_p;          // name of selection
+    int         d_nameLength;      // length of selection name (0-terminator
+                                   // not included)
+    const char *d_annotation_p;    // selection annotation
+    int         d_formattingMode;  // formatting mode
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_SelectionInfo,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_SelectionInfo,
+                                   bsl::is_trivially_default_constructible);
+
+    // CREATORS
+
+    // The following methods are not defined by design:
+    //..
+    //   bdlat_SelectionInfo();
+    //   bdlat_SelectionInfo(const bdlat_SelectionInfo&amp; original);
+    //   ~bdlat_SelectionInfo();
+    //..
+    // The corresponding methods supplied by the compiler are sufficient.
+
+    // MANIPULATORS
+
+    // The following method is not defined by design:
+    //..
+    //   bdlat_SelectionInfo&amp; operator=(const bdlat_SelectionInfo&amp; rhs);
+    //..
+    // The assignment operator supplied by the compiler is sufficient.
+
+    const char *&amp; annotation();
+        // Return a reference to the modifiable annotation of this selection
+        // info object.
+
+    int&amp; formattingMode();
+        // Return a reference to the modifiable formatting mode of this
+        // selection info object.
+
+    int&amp; id();
+        // Return a reference to the modifiable id of this selection info
+        // object.
+
+    const char *&amp; name();
+        // Return a reference to the modifiable name of this selection info
+        // object.
+
+    int&amp; nameLength();
+        // Return a reference to the modifiable length of the name of this
+        // selection info object.  Note that the 0-terminator is not included
+        // in the length.
+
+    // ACCESSORS
+    const char *annotation() const;
+        // Return the non-modifiable annotation of this selection info object.
+
+    int formattingMode() const;
+        // Return the formatting mode of this selection info object.
+
+    int id() const;
+        // Return the id of this selection info object.
+
+    const char *name() const;
+        // Return the non-modifiable name of this selection info object.
+
+    int nameLength() const;
+        // Return the length of the name of this selection info object.  Note
+        // that the 0-terminator is not included in the length.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bool operator==(const bdlat_SelectionInfo&amp; lhs,
+                const bdlat_SelectionInfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; selection info objects
+    // have the same value, and &#39;false&#39; otherwise.  Two selection info objects
+    // have the same value if each of their respective properties are
+    // identical.
+
+inline
+bool operator!=(const bdlat_SelectionInfo&amp; lhs,
+                const bdlat_SelectionInfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; selection info objects do
+    // not have the same value, and &#39;false&#39; otherwise.  Two selection info
+    // objects do not have the same value if at least one of their respective
+    // properties is not identical.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;              stream,
+                         const bdlat_SelectionInfo&amp; selectionInfo);
+    // Write the value of the specified &#39;selectionInfo&#39; to the specified
+    // &#39;stream&#39;.
+
+// MANIPULATORS
+
+inline
+const char *&amp; bdlat_SelectionInfo::annotation()
+{
+    return d_annotation_p;
+}
+
+inline
+int&amp; bdlat_SelectionInfo::formattingMode()
+{
+    return d_formattingMode;
+}
+
+inline
+int&amp; bdlat_SelectionInfo::id()
+{
+    return d_id;
+}
+
+inline
+const char *&amp; bdlat_SelectionInfo::name()
+{
+    return d_name_p;
+}
+
+inline
+int&amp; bdlat_SelectionInfo::nameLength()
+{
+    return d_nameLength;
+}
+
+// ACCESSORS
+
+inline
+const char *bdlat_SelectionInfo::annotation() const
+{
+    return d_annotation_p;
+}
+
+inline
+int bdlat_SelectionInfo::formattingMode() const
+{
+    return d_formattingMode;
+}
+
+inline
+int bdlat_SelectionInfo::id() const
+{
+    return d_id;
+}
+
+inline
+const char *bdlat_SelectionInfo::name() const
+{
+    return d_name_p;
+}
+
+inline
+int bdlat_SelectionInfo::nameLength() const
+{
+    return d_nameLength;
+}
+
+// FREE OPERATORS
+
+inline
+bool operator==(const bdlat_SelectionInfo&amp; lhs, const bdlat_SelectionInfo&amp; rhs)
+{
+    return lhs.formattingMode() == rhs.formattingMode()
+        &amp;&amp; lhs.id()             == rhs.id()
+        &amp;&amp; lhs.nameLength()     == rhs.nameLength()
+        &amp;&amp; 0 == bsl::strncmp(lhs.name(), rhs.name(), lhs.nameLength())
+        &amp;&amp; 0 == bsl::strcmp(lhs.annotation(), rhs.annotation());
+}
+
+inline
+bool operator!=(const bdlat_SelectionInfo&amp; lhs, const bdlat_SelectionInfo&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

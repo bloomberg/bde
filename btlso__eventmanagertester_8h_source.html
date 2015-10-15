@@ -1,0 +1,710 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_eventmanagertester.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_EVENTMANAGERTESTER
+#define INCLUDED_BTLSO_EVENTMANAGERTESTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide programmable and preset test apparatus for event managers.
+//
+//@CLASSES:
+//  btlso::EventManagerTester: namespace for a set of testing utilities
+//  btlso::EventManagerTestPair: a pair of locally-connected TCP/IPv4 sockets
+//
+//@SEE_ALSO:  btlso_eventmanager btlso_defaulteventmanager
+//
+//@DESCRIPTION: This component provides a test apparatus, suitable for use in
+// the *test* *drivers* of implementations derived from &#39;btlso::EventManager&#39;.
+// The apparatus performs both pre-defined and user-programmable tests (i.e.,
+// sequences of method calls on the object under test), and thus can perform
+// both black-box and white-box testing of event managers.  Methods in this
+// component are sufficient to test each virtual method in the
+// &#39;btlso::EventManager&#39; protocol.
+//
+// The test apparatus consists of the &#39;btlso::EventManagerTestPair&#39; class,
+// which defines a pair of connected sockets to facilitate the testing, a set
+// of utility methods to exercise the methods of the event manager under test,
+// and a custom language specification that is used as input for the
+// &quot;programmable&quot; &#39;gg&#39; test method.
+//
+///Synopsis
+///--------
+// The following test methods are available for testing concrete event managers
+// derived from &#39;btlso::EventManager&#39;.
+//..
+//        Pre-set Test Methods
+//        --------------------
+//        testAccessors
+//        testDeregisterAll
+//        testDeregisterSocket
+//        testDeregisterSocketEvent
+//        testDispatch
+//        testRegisterSocketEvent
+//
+//        Programmable Test Methods
+//        -------------------------
+//        gg
+//
+//        Performance Test Methods
+//        ------------------------
+//        testDispatchPerformance
+//        testRegisterPerformance
+//..
+// Each pre-set test method performs a set of operations designed to test
+// the black-box contract of the corresponding method(s) under test.  The &#39;gg&#39;
+// method takes user input date (in the form of a &#39;const&#39; &#39;char*&#39; test script
+// &quot;sentence&quot;) using a custom &quot;script&quot; language, and is designed to allow
+// flexible white-box testing of a particular event manager implementation.
+// The script language definition and documentation are given in the &quot;Language
+// Specification&quot; section below.  The performance tests have built-in timing
+// functions, and report elapsed-time information to an &#39;ostream&#39; passed in as
+// an argument.
+//
+///Test Apparatus Diagram
+///----------------------
+// The following diagram indicates the schematic structure of the event manager
+// test apparatus.
+//..
+//         ------
+//        | Data |
+//         ------
+//            |
+//            |
+//            |
+//            V
+//     ----------------------------------
+//    | TestGenerator | [B1] [B2]...[Bm] | (btlso::EventManagerTester)
+//     ----------------------------------
+//                | | | | |   Control sockets
+//                +-+-++-+
+//                    |
+//                    |     (Connected Socket Pairs)
+//                    =======================================
+//                                                          |
+//                                                          |
+//                                                      +-+-+-+-+
+//                                     Observed sockets | | | | |
+//                                                   ---------------
+//                                                  | Event Manager |
+//                                                   ---------------
+//
+// Data                  : operation information sent to the &#39;TestGenerator&#39;
+//
+// TestGenerator         : the execution part in the
+//                         &#39;btlso::EventManagerTester&#39; to perform programmable
+//                         (customized) test for the event manager based on
+//                         data passed in.
+//
+// [Bm]                  : a control button in the &#39;btlso::EventManagerTester&#39;
+//                         to  perform a pre-set (&quot;canned&quot;) test for a function
+//                         of the event manager, without the need of any data
+//                         to be passed from the outside
+//
+// Connected Socket Pairs: connections where the event manager works at one
+//                         end and the &#39;btlso::EventManagerTester&#39; verifies
+//                         results at the other end
+//
+// Event Manager         : the event manager under test
+//..
+//
+///Abbreviated Grammar
+///-------------------
+// The following characters are used to compose expressions within the rules of
+// the Language Specification defined in the next section.
+//..
+//  &lt; &gt;         Delimits a symbol used within an Expression in a rule.  A
+//              symbol is a sequence of one or more uppercase letters within
+//              this delimiter, e.g., &lt;FD&gt; is a symbol.
+//
+// ( )          Delimits an expression within a statement.
+//
+// |            Logical OR.  Indicates that at least one of its operands
+//              (expressions) must be present.  May be used to form a compound
+//              expression, e.g., ( &lt;A&gt; | &lt;B&gt; | &lt;C&gt; ) would mean that exactly
+//              one of the symbols &lt;A&gt;, &lt;B&gt;, and &lt;C&gt; must be present in the
+//              expression being defined.
+//
+// ?            Indicates an optional expression: the expression to the left of
+//              the ? must appear zero times or one time.
+//
+// ;            The semicolon appears as written, and is used to concatenate
+//              the execution of otherwise-independent commands.
+//
+// , { }        These characters are *not* special to this grammar, and must
+//              appear as written in the expression being defined.  The &#39;,&#39; is
+//              used to separate parts in a command, while the &#39;{&#39; and &#39;}&#39;
+//              to indicate a portion of the script that is to be executed in
+//              the callback function that is registered with the event manager
+//              under test.
+//
+// a r w c      These characters must appear as written, and represent the
+//              four events as enumerated in &#39;btlso::EventType&#39;, i.e.,
+//              &#39;ACCEPT&#39;, &#39;READ&#39;, &#39;WRITE&#39;, and &#39;CONNECT&#39;, respectively.
+//
+// T D E R W    These seven characters must appear as written, and represent
+// + -          commands as described in the rules defined in the &quot;Language
+//              Specification&quot; section, below.
+//..
+//
+///Language Specification
+///----------------------
+// The Test Language defines a set of possible input strings that translate
+// into a sequence of operations (a &quot;sentence&quot;) on an objects under test.  The
+// script and the test object, referred to as &#39;mX&#39;, are passed to the &#39;gg&#39;
+// method.  The supporting array of socket pairs, referred to as &#39;fds&#39;, must
+// also be passed to the &#39;gg&#39; method (and, thus, managed externally).
+//
+// The following ten rules define possible sentences.  Various symbols used in
+// each rule are defined as needed.
+//..
+//  1. T&lt;NUM&gt;
+//         Verify the number of events currently registered in the event
+//         manager &#39;mX&#39;.
+//
+//         &lt;NUM&gt; : the number of expected registered events
+//
+//  2. +&lt;FD&gt;&lt;RW_EVENT&gt;(&lt;N&gt;)?({&lt;SCRIPT&gt;})?  |
+//     +&lt;FD&gt;&lt;AC_EVENT&gt;({&lt;SCRIPT&gt;})?
+//         Register a socket event,
+//                &lt;FD&gt; : an index into the array &#39;fds&#39; of socket pairs
+//         &lt;RW_EVENT&gt; : ( r | w )
+//                       &#39;r&#39; =&gt; btlso::EventType::e_READ
+//                       &#39;w&#39; =&gt; btlso::EventType::e_WRITE
+//         &lt;AC_EVENT&gt; : ( a | c )
+//                       &#39;a&#39; =&gt; btlso::EventType::e_ACCEPT
+//                       &#39;c&#39; =&gt; btlso::EventType::e_CONNECT
+//                 &lt;N&gt; : the optional number of bytes for &#39;r&#39;ead or &#39;w&#39;rite
+//                       operation on the observed socket (&#39;fds[fd]&#39;).
+//            &lt;SCRIPT&gt; : the optional test script to be executed by the
+//                       registered callback; &lt;SCRIPT&gt; cannot contain &#39;D&#39;
+//                       (dispatch) commands
+//
+//  3. &#39;-&#39;&lt;FD&gt;&lt;EVENT&gt;
+//     Deregister an &lt;EVENT&gt; event associated with the observed socket in the
+//     socket pair fds[&lt;FD&gt;],
+//               &lt;FD&gt;:  the index into the array &#39;fds&#39; of socket pairs
+//           &lt;EVENT&gt; := &#39;a&#39;|&#39;c&#39;|&#39;r&#39;|&#39;w&#39; :
+//                      &#39;a&#39; =&gt; btlso::EventType::e_ACCEPT
+//                      &#39;c&#39; =&gt; btlso::EventType::e_CONNECT
+//                      &#39;r&#39; =&gt; btlso::EventType::e_READ
+//                      &#39;w&#39; =&gt; btlso::EventType::e_WRITE
+//
+//  4. &#39;-&#39;&lt;FD&gt;
+//     Deregister all events associated with the observed socket in the
+//     socket pairs fds[&lt;FD&gt;],
+//             &lt;FD&gt;: the index into the array of socket pairs
+//
+//  5. &#39;-&#39;&#39;a&#39;
+//     Deregister all events registered in the event manager,
+//
+//  6. &#39;D&#39;&lt;I&gt;,&lt;RC&gt;
+//     Dispatch events without specifying a timeout value,
+//           &lt;I&gt; = &#39;n&#39; | &#39;i&#39; : &#39;n&#39; =&gt; flags = 0
+//                             &#39;i&#39; =&gt; flags = bteso_Flag::k_ASYNC_INTERRUPT
+//           &lt;RC&gt; : the expected return value from the &#39;dispatch&#39; method.
+//
+//  7. &#39;D&#39;&lt;I&gt;&lt;MILLISECOND&gt;,&lt;RC&gt;
+//     Dispatch events with the specified &#39;millisecond&#39; timeout value,
+//     where &lt;I&gt; = &#39;n&#39; | &#39;i&#39; :
+//                             &#39;n&#39; =&gt; flags = 0
+//                             &#39;i&#39; =&gt; flags = bteso_Flag::k_ASYNC_INTERRUPT
+//           &lt;MILLISECOND&gt;   : a relative timeout in milliseconds
+//                             (negative and zero values are also allowed)
+//           &lt;RC&gt;            : the expected return value of the dispatch
+//
+//  8. &#39;E&#39;&lt;FD&gt;&lt;EVENT&gt;
+//     Verify the number of registered events associated with the observed
+//     socket in the socket pair fds[&lt;FD&gt;],
+//           &lt;FD&gt;    :  the index into the array &#39;fds&#39; of socket pairs
+//
+//           &lt;EVENT&gt; := &#39;a&#39;|&#39;c&#39;|&#39;r&#39;|&#39;w&#39;|&#39;rw&#39;|&#39;wr&#39; :
+//                &#39;a&#39; =&gt; btlso::EventType::e_ACCEPT
+//                &#39;c&#39; =&gt; btlso::EventType::e_CONNECT
+//                &#39;r&#39; =&gt; btlso::EventType::e_READ
+//                &#39;w&#39; =&gt; btlso::EventType::e_WRITE
+//                &#39;rw&#39; = &#39;r&#39; and &#39;w&#39;
+//                &#39;wr&#39; = &#39;r&#39; and &#39;w&#39;
+//  9. &#39;R&#39;&lt;FD&gt;,&lt;N&gt;
+//     Read &lt;N&gt; bytes from the observed socket of socket pair fds[&lt;FD&gt;],
+//           &lt;FD&gt;: the index into the array of socket pairs
+//           &lt;N&gt; : the number of bytes to be read from the socket
+//
+// 10. &#39;W&#39;&lt;FD&gt;,&lt;N&gt;
+//     Write &lt;N&gt; bytes into the control socket of socket pair fds[&lt;FD&gt;],
+//           &lt;FD&gt;: the index into the array of socket pairs
+//           &lt;N&gt; : the number of bytes to be written into the control socket
+//
+// 11. &#39;S&#39;&lt;T&gt;
+//     Sleep for &lt;T&gt; milliseconds
+//           &lt;T&gt; : the number of milliseconds to sleep for.  Bear in mind the
+//                 minimum resolution of sleeping on many platforms is 10
+//                 milliseconds.
+//..
+// The following examples interpret a given script in the order from left to
+// right to configure a list of I/O request commands for an event manager test
+// according to the custom language defined above.  By parsing a request script
+// that is based on this language, each I/O request command, which is separated
+// with a &#39;;&#39; from other commands, will be executed and the result can then be
+// verified.
+//
+// Note that any command or sequence of commands that is enclosed in a pair of
+// &#39;{&#39; and &#39;}&#39; are to be executed in the user-installed callback function.
+// This kind of command could be any one of the above except the dispatch
+// command &#39;D&#39;.
+//
+// Script examples based on the above language are as follows, &#39;fds&#39; is the
+// array of connected socket pairs, one of which is the control socket and
+// another one is the observed socket.  Only the observed socket in a socket
+// pair can register events.
+//..
+// &quot;T3; T1,2&quot;
+//    -- Check if the total number of socket events is 3; the observed socket
+//       of fds[1] registered 2 events.
+// &quot;+1w2; +3r4&quot;
+//    -- Register an event of &quot;write to the observed socket of fds[1] 2 bytes&quot;;
+//       then register an event of &quot;read from the observed socket of fds[3] 4
+//       bytes&quot;.
+// &quot;-1w; -0&quot;
+//    -- Deregister the write event for the observed socket of fds[1]; then
+//       deregister all events for the observed socket of fds[0].
+// &quot;Dn,1&quot;
+//    -- Call dispatch on the event manager under test with flags set to 0;
+//       there should be 1 event to be dispatched.
+// &quot;Di100,2&quot;
+//    -- Call dispatch on the event manager under test with flags set to
+//       bteso_Flag::k_ASYNC_INTERRUPT, the timeout value for the dispatch
+//       is 100 milliseconds, there are 2 events to be dispatched.
+// &quot;E1a&quot;
+//    -- Verify that an &quot;ACCEPT&quot; event has been registered for the observed
+//       socket of fds[1].
+// &quot;E2rw&quot;
+//    -- Verify that a read and a write event have been registered for the
+//       observed socket of fds[2].
+// &quot;R0,15&quot;
+//    -- Read from the observed socket of fds[0] 15 bytes.
+//
+// &quot;W1,32&quot;
+//    -- Write to the control socket of fds[1] 32 bytes.
+//
+// &quot;+1c{+1w20}&quot;
+//    -- Register a connect event on &#39;fds[1]&#39; and, when this event occurs,
+//       in the callback, register &#39;fds[1]&#39; for writing and write 20 bytes to
+//       it, when ready.
+//
+// &quot;+1w20{+0r18}&quot;
+//    -- Register &#39;fds[1]&#39; for a write event; when this event occurs, in
+//       the callback, write 20 bytes and register for read event on &#39;fds[0]&#39;.
+//       Read 18 bytes when read event occurs on &#39;fds[0]&#39;.
+//..
+//
+///Thread Safety
+///-------------
+// The thread-safety of &#39;btlso::EventManagerTester&#39; depends on the event
+// manager to be tested.  If the event manager is not thread safe (thread
+// enabled) then the &#39;btlso::EventManagerTester&#39; will consequently not be
+// thread safe (thread enabled).  When operations are invoked on a function of
+// the &#39;btlso::EventManagerTester&#39; with the same instance of an event manager
+// under test from different threads, the &#39;btlso::EventManagerTester&#39; is *not*
+// *thread* *safe*.  When operations are invoked on a function of the
+// &#39;btlso::EventManagerTester&#39; with *distinct* *instances* of a *thread* *safe*
+// (thread enabled) event manager under test from different threads, the
+// &#39;btlso::EventManagerTester&#39; *is* *thread* *safe* (thread enabled).  This
+// &#39;btlso::EventManagerTester&#39; is not *async-safe*, meaning that one or more
+// functions cannot be invoked safely from a signal handler.
+//
+///Performance Testing
+///-------------------
+// This component enables users to test the performance of the &#39;dispatch&#39; and
+// &#39;registerSocketEvent&#39; methods of an event manager.  The performance is
+// measured by the time taken to finish a call to the function under test.  The
+// overall performance of a function may be tested by varying input parameters
+// such as the number of connections, socket handles, etc.
+//
+// The &#39;registerSocketEvent&#39; method performance test proceeds as follows:
+//
+//: 1 In an outer loop over the requested number of socket pairs:
+//:   1 Create a socket pair.
+//:   2 In an inner loop over the requested number of measurements:
+//:     1 Record the current time (&#39;bdlt::CurrentTime::now()&#39;).
+//:     2 Call the &#39;registerSocketEvent&#39; method.
+//:     3 Calculate and record the elapsed time.
+//:   3 Write the average elapsed time to the passed-in &#39;ostream&#39;.
+//: 2 Clean up and free resources.
+//
+// The &#39;dispatch&#39; method performance test proceeds as follows:
+//
+//: 1 In an outer loop over the requested number of socket pairs:
+//:   1 Create a socket pair.
+//:   2 Register a &#39;READ&#39; event for the &quot;observed&quot; socket in the pair.
+//:   3 In an inner loop over the requested number of measurements:
+//:     1 Record the current time (&#39;bdlt::CurrentTime::now()&#39;).
+//:     2 Call the &#39;dispatch&#39; method.
+//:     3 Calculate and record the elapsed time.
+//:   4 Write the average elapsed time to the passed-in &#39;ostream&#39;.
+//: 2 Clean up and free resources.
+//
+// The implementation ensures that only one &#39;READ&#39; event is dispatched at a
+// time by writing only one byte to the &quot;control&quot; socket, whose counterpart,
+// the &quot;observed&quot; socket&#39;s &#39;READ&#39; event is to be dispatched.
+//
+///Control Flags for Test Methods
+///------------------------------
+// Each test method accepts a &#39;flags&#39; argument whose value is created by
+// bitwise-ORing the following set of enumerations.
+//..
+//      Enumerator
+//      ----------
+//      k_VERBOSE
+//      k_VERY_VERBOSE
+//      k_VERY_VERY_VERBOSE
+//      k_ABORT
+//      k_DRY_RUN
+//..
+// The three &#39;k_VERBOSE*&#39; flags indicate increasing amounts of diagnostic
+// printout during the test method operation.  The &#39;ABORT&#39; flag indicates that
+// the test method should terminate after the first occurrence of a test error.
+// The &#39;DRY_RUN&#39; flag indicates that no event manager tests should be
+// performed, but that any input test script will be echoed to &#39;stdout&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Testing &#39;registerSocketEvent&#39; method
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// In this usage example, block-box test for &#39;registerSocketEvent&#39; is performed
+// for an event manager class, &#39;my_FastEventManager&#39;.  First, create an object
+// under test:
+//..
+//  my_FastEventManager mX;
+//..
+// Second, set the bit flags as needed to control the execution and call the
+// appropriate utility function to perform the test:
+//..
+//  int ctrlFlag = 0;
+//  ctrlFlag |= btlso::EventManagerTester::k_VERY_VERBOSE;
+//  ctrlFlag |= btlso::EventManagerTester::k_ABORT;
+//  btlso::EventManagerTester::testRegisterSocketEvent(&amp;mX, ctrlFlag);
+//..
+//
+///Example 2: Testing Using Test Specification
+///- - - - - - - - - - - - - - - - - - - - - -
+// Because different event managers may be implemented differently, it&#39;s
+// important to make sure the test covers all possible situations based on the
+// specific implementation for the event manager.  The following snippets of
+// code illustrate how to use this utility component to perform a white-box
+// (customized) test specifically for the event manager being tested.  First,
+// create an array of four &#39;btlso::EventManagerTestPair&#39; objects to be used in
+// the test script.  Each of these objects is a pair of connected sockets as
+// shown in the &quot;Test Apparatus Diagram&quot; section.
+//..
+//  enum { NUM_PAIRS = 4 };  // arbitrary number for illustration
+//  btlso::EventManagerTestPair  socketPairs[NUM_PAIRS];
+//..
+// Second, define a white-box (customized) test script, designed based on
+// white-box knowledge of the implementation under test:
+//..
+//  const char *script = &quot;+0w8{-0w}; +0r1; +3r20; +2r14; +3w20; -a; T0&quot;;
+//  const int LINE = __LINE__;
+//..
+// Then create an instance, &#39;mX1&#39;, of the event manager under test, set the
+// bit flags to control execution, and invoke &#39;gg()&#39; to exercise the test
+// script:
+//..
+//  my_FastEventManager mX1;
+//  int ctrlFlag = 0;
+//  ctrlFlag |= btlso::EventManagerTester::k_VERBOSE;
+//  ctrlFlag |= btlso::EventManagerTester::k_ABORT;    // abort on failure
+//  int failures = btlso::EventManagerTester::gg(&amp;mX1,
+//                                               socketPairs,
+//                                               LINE,
+//                                               script, ctrlFlag);
+//  assert(0 == failures);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
+namespace btlso {
+
+class EventManager;
+
+                        // ==========================
+                        // class EventManagerTestPair
+                        // ==========================
+
+class EventManagerTestPair {
+    // This class provides a pair of connected sockets to facilitate testing.
+    // One socket can be used to generate control events, while another can be
+    // used to observe the results.  By default, the sockets are non-blocking
+    // with the Nagle algorithm turned off.
+
+    SocketHandle::Handle d_fds[2];      // sockets&#39; descriptors
+
+    int                  d_validFlag;   // flag indicating whether the socket
+                                        // pair is valid
+
+    int                  d_verboseFlag; // whether to log the states to
+                                        // &#39;stdout&#39;
+    // NOT IMPLEMENTED
+    EventManagerTestPair(const EventManagerTestPair&amp; original);
+    EventManagerTestPair operator=(const EventManagerTestPair&amp; rhs);
+
+  public:
+    // CREATORS
+    EventManagerTestPair(int verboseFlag = 0);
+        // Create a pair of locally-connected TCP/IPv4 sockets.  Set each
+        // socket to non-blocking mode and turn off the Nagle algorithm (i.e.,
+        // set the &#39;TCP_NODELAY&#39; flag to 1).  Optionally specify &#39;verboseFlag&#39;.
+        // If &#39;verboseFlag&#39; is not 0, the detailed information about underlying
+        // calls is printed to &#39;stdout&#39; along with additional debugging
+        // information.  By default, i.e., when &#39;verboseFlag&#39; is 0, no messages
+        // are displayed.
+
+    ~EventManagerTestPair();
+        // Close the managed sockets and destroy the object.
+
+    // MANIPULATORS
+    int setControlBufferOptions(int bufferSize, int watermark);
+        // Set the send and receive buffer sizes and watermarks on the control
+        // socket handle (as reported by the &#39;controlFd&#39; method) to the
+        // specified &#39;bufferSize&#39; and &#39;watermark&#39; values respectively.  Return
+        // 0 on success, and a non-zero value otherwise.
+
+    int setObservedBufferOptions(int bufferSize, int watermark);
+        // Set the send and receive buffer sizes and watermarks on the observed
+        // socket handle (as reported by the &#39;observedFd&#39; method) to the
+        // specified &#39;bufferSize&#39; and &#39;watermark&#39; values respectively.  Return
+        // 0 on success, and a non-zero value otherwise.
+
+    // ACCESSORS
+    SocketHandle::Handle controlFd() const;
+        // Return the handle for the control socket.  Note that this handle may
+        // be used to control the connection pipe.
+
+    int getControlBufferOptions(int *sndBufferSize,
+                                int *rcvBufferSize,
+                                int *sndLowat,
+                                int *rcvLowat) const;
+        // Load the control socket&#39;s send and receive buffer sizes and
+        // watermarks into the specified &#39;sndBufferSize&#39;, &#39;rcvBufferSize&#39;,
+        // &#39;sndLowat&#39; and &#39;rcvLowat&#39; respectively.  Return 0, on success, and a
+        // negative value otherwise.  The result is undefined if any of
+        // &#39;sndBufferSize&#39;, &#39;rcvBufferSize&#39;, &#39;sndLowat&#39; or &#39;rcvLowat&#39; is 0.
+
+    int getObservedBufferOptions(int *sndBufferSize,
+                                 int *rcvBufferSize,
+                                 int *sndLowat,
+                                 int *rcvLowat) const;
+        // Load the observed socket&#39;s send and receive buffer sizes and
+        // watermarks into the specified &#39;sndBufferSize&#39;, &#39;rcvBufferSize&#39;,
+        // &#39;sndLowat&#39; and &#39;rcvLowat&#39; respectively.  Return 0, on success, and a
+        // negative value otherwise.  The result is undefined if any of
+        // &#39;sndBufferSize&#39;, &#39;rcvBufferSize&#39;, &#39;sndLowat&#39; or &#39;rcvLowat&#39; is 0.
+
+    bool isValid() const;
+        // Return &#39;true&#39; if this socket pair is valid, and &#39;false&#39; otherwise.
+
+    SocketHandle::Handle observedFd() const;
+        // Return the handle for the observed socket.  Note that this handle
+        // may be used to observe test results.
+};
+
+                        // ========================
+                        // class EventManagerTester
+                        // ========================
+
+struct EventManagerTester {
+    // This class provides in one place the implementation to test different
+    // event managers conveniently.  By providing a generic test script
+    // interpreting function, gg(), every function in an event manager can be
+    // tested.
+
+    enum {
+        k_VERBOSE           = 1,  // If this flag is on, print the name of
+                                  // functions under test.
+
+        k_VERY_VERBOSE      = 2,  // If this flag is on, print the test script
+                                  // to be executed and execution results after
+                                  // executing each command of the test script.
+
+        k_VERY_VERY_VERBOSE = 4,  // If this flag is on, print all values after
+                                  // executing each command of a test script.
+
+        k_ABORT             = 8,  // If this flag is on, the test will be
+                                  // aborted upon an error.
+
+        k_DRY_RUN           = 16  // If this flag is on, the test will not
+                                  // execute the test script, but only parse
+                                  // the test script to the standard output.
+
+    };
+
+    static int gg(EventManager         *eventManager,
+                  EventManagerTestPair *fds,
+                  const char           *script,
+                  int                   flags);
+        // Execute the specified &#39;script&#39; to test the specified &#39;eventManager&#39;,
+        // using the specified &#39;fds&#39; array of connected socket pair and the
+        // specified &#39;flags&#39; to control execution.  Return the number of
+        // failures detected.  The behavior is undefined unless &#39;fds&#39; refers to
+        // the sufficient number of sockets pairs as required by &#39;script&#39;.
+        // Note that if the &#39;ABORT&#39; bit is set in &#39;flags&#39;, a detected failure
+        // will force the test to abort.
+
+    static int testAccessors(EventManager *eventManager, int flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the accessor methods
+        // &#39;numSocketEvents&#39;, &#39;numEvents&#39; and &#39;isRegistered&#39; of the specified
+        // &#39;eventManager&#39; using the specified &#39;flags&#39; to control execution.
+        // Return the number of failures detected.  Note that if the &#39;ABORT&#39;
+        // bit is set in &#39;flags&#39;, a detected failure will force the test to
+        // abort.
+
+    static int testDeregisterAll(EventManager *eventManager, int flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the &#39;deregisterAll&#39; method
+        // of the specified &#39;eventManager&#39; using the specified &#39;flags&#39; to
+        // control execution.  Return the number of failures detected.  Note
+        // that if the &#39;ABORT&#39; bit is set in &#39;flags&#39;, a detected failure will
+        // force the test to abort.
+
+    static int testDeregisterSocket(EventManager *eventManager,
+                                    int           flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the &#39;deregisterSocket&#39;
+        // method of the specified &#39;eventManager&#39; using the specified &#39;flags&#39;
+        // to control execution.  Return the number of failures detected.  Note
+        // that if the &#39;ABORT&#39; bit flag is specified in &#39;flags&#39;, a detected
+        // failure will force the test to abort.
+
+    static int testDeregisterSocketEvent(EventManager *eventManager,
+                                         int           flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the
+        // &#39;deregisterSocketEvent&#39; method of the specified &#39;eventManager&#39; using
+        // the specified &#39;flags&#39; to control execution.  Return the number of
+        // failures detected.  Note that if the &#39;ABORT&#39; bit flag is specified
+        // in &#39;flags&#39;, a detected failure will force the test to abort.
+
+    static int testDispatch(EventManager *eventManager, int flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the &#39;dispatch&#39; methods of
+        // the specified &#39;eventManager&#39; using the specified &#39;flags&#39; to control
+        // execution.  Return the number of failures detected.  Note that if
+        // the &#39;ABORT&#39; bit is set in &#39;flags&#39;, a detected failure will force the
+        // test to abort.
+
+    static int testRegisterSocketEvent(EventManager *eventManager,
+                                       int           flags);
+        // Exercise a pre-defined (&quot;canned&quot;) test of the &#39;registerSocketEvent&#39;
+        // method of the specified &#39;eventManager&#39; using the specified &#39;flags&#39;
+        // to control execution.  Return the number of failures detected.  Note
+        // that if the &#39;ABORT&#39; bit is set in &#39;flags&#39;, a detected failure will
+        // force the test to abort.
+
+    static int testDispatchPerformance(EventManager *mX,
+                                       const char   *pollingMechName,
+                                       int           flags);
+        // Test the performance of the &#39;mX-&gt;dispatch&#39; function.  Specify
+        // &#39;pollingMechName&#39; which reflects the name of the type of event
+        // manager used.  4 paramters are read interactively from &#39;cin&#39;:
+        // &#39;numPairs&#39;, the number of socket pairs listened to, a double
+        // specifying the fraction of those socket pairs that have data waiting
+        // (a value of 0.0 means that one socket has data waiting), a double
+        // which is the seconds to timeout (a value of 0.0 means that no
+        // timeout is specified), and whether reads on those sockets with data
+        // waiting are to be timed as part of the performance test.  Note that
+        // those sockets that have data waiting will have one byte of data
+        // apiece.  A file name will be created that reflects the values of
+        // &#39;pollingMechName&#39; and the parameters interactively specified, and
+        // that file will contain the results, which will be the test run with
+        // values of &#39;numPairs&#39; ranging from &#39;numPairs - 9&#39; to &#39;numPairs&#39;, and
+        // the microseconds taken per dispatch, one value per line.  Specify
+        // verbosity in &#39;flags&#39; with verbosity flags defined in this class.
+        // Return 0 on success and a non-zero value if any failures occurred.
+
+    static int testRegisterPerformance(EventManager *mX, int flags);
+        // Test the performance of the &#39;registerSocketEvent&#39; method of the
+        // specified eventManager &#39;*mX&#39;, prompting the user interactively for
+        // int &#39;numSockets&#39; and double &#39;fractionRegistered&#39;, registering
+        // &#39;fractionRegistered * numSockets&#39; prior to registering one socket
+        // and timing that registration.  Repeat the experiment 10 times,
+        // reporting the # of microseconds taken to &#39;cout&#39;.  Or verbosity bits
+        // together in &#39;flags.  Return 0 on success and a non-zero value
+        // otherwise.
+};
+
+//-----------------------------------------------------------------------------
+//                      INLINE FUNCTION DEFINITIONS
+//-----------------------------------------------------------------------------
+
+                        // ----------------------------
+                        // class EventManagerTesterPair
+                        // ----------------------------
+
+inline
+SocketHandle::Handle EventManagerTestPair::controlFd() const
+{
+    return d_fds[1];
+}
+
+inline
+bool EventManagerTestPair::isValid() const
+{
+    return d_validFlag &gt;= 0;
+}
+
+inline
+SocketHandle::Handle EventManagerTestPair::observedFd() const
+{
+    return d_fds[0];
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

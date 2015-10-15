@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_switch Component</title>
+<title>BDE 3.0: bslmf_switch Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -128,8 +128,8 @@ Namespaces</h2></td></tr>
       <span class="comment">// . . .                                             // . . .</span>
       <span class="keywordflow">case</span> N - 1: T{N - 1};                                T{N - 1}
       <span class="keywordflow">default</span>:    <a class="code" href="structbslmf_1_1Nil.html">bslmf::Nil</a>;                              &gt;
-    }                                                      ::
-                  Type;                                      Type;
+    }<a class="code" href="classBind__ImplSelector_1_1Type.html">                                                      ::</a>
+<a class="code" href="classBind__ImplSelector_1_1Type.html">                  Type</a>;                                      Type;
 </pre></div><br/>
 <br/>
  Note the use of the keyword <code>typename</code>, necessary <em>only</em> if one or more of the <code>SELECTOR</code> or <code>T0</code> up to <code>T{N - 1}</code> is dependent on a template parameter of the local context (i.e., that of the block using <code><a class="el" href="structbslmf_1_1Switch.html">bslmf::Switch</a></code>). In particular, it should be omitted if the <code><a class="el" href="structbslmf_1_1Switch.html">bslmf::Switch</a></code> is not used within a class or function template, as in the usage example below. </dd></dl>
@@ -182,14 +182,14 @@ Namespaces</h2></td></tr>
   };
 
   <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> LEN&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; rhs)
       <span class="comment">// Return true if a &#39;lhs&#39; is equal to &#39;rhs&#39;</span>
   {
       <span class="keywordflow">return</span> 0 == std::memcmp(&amp;lhs, &amp;rhs, LEN);
   }
 
   <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> LEN&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> <span class="keywordtype">char</span> *rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> <span class="keywordtype">char</span> *rhs)
       <span class="comment">// Return true if a &#39;ShortString&#39; &#39;lhs&#39; is equal to a NTCS &#39;rhs&#39;.</span>
   {
       <span class="keywordtype">int</span> i;
@@ -203,7 +203,7 @@ Namespaces</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- We would like to store our short strings in the data server, but the data server only handles <code>char</code>, <code>short</code> and <code>int</code> types. Since our strings fit into these simple types, we can transform <code>ShortString</code> into these integral types when calling <code>store</code> and <code>retrieve</code>, using <code><a class="el" href="structbslmf_1_1Switch5.html">bslmf::Switch5</a></code> to choose which integral type to use for each <code>ShortString</code> type: <br/>
+ We would like to store our short strings in the data server, but the data server only handles <code>char</code>, <code>short</code> and <code>int</code> types. Since our strings fit into these simple types, we can transform <code>ShortString</code> into these integral types when calling <code>store</code> and <code>retrieve</code>, using <code><a class="el" href="structbslmf_1_1Switch.html">bslmf::Switch</a></code> to choose which integral type to use for each <code>ShortString</code> type: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> LEN&gt;
   <span class="keywordtype">void</span> ShortString&lt;LEN&gt;::retrieve(data_Server *server)
@@ -213,7 +213,7 @@ Namespaces</h2></td></tr>
       <span class="comment">// &#39;LEN&#39; is 0 or 3.</span>
 
       <span class="keyword">typedef</span> <span class="keyword">typename</span>
-        <a class="code" href="structbslmf_1_1Nil.html">bslmf::Switch5&lt;LEN, void, char, short, void, int&gt;::Type</a> transferType;
+         <a class="code" href="structbslmf_1_1Nil.html">bslmf::Switch&lt;LEN, void, char, short, void, int&gt;::Type</a> transferType;
 
       transferType x = 0;
       server-&gt;retrieve(&amp;x);
@@ -227,7 +227,7 @@ Namespaces</h2></td></tr>
       <span class="comment">// and &#39;int&#39; if &#39;LEN&#39; 4.  Will choose &#39;void&#39; and thus not compile if</span>
       <span class="comment">// &#39;LEN&#39; is 0 or 3.</span>
       <span class="keyword">typedef</span> <span class="keyword">typename</span>
-        <a class="code" href="structbslmf_1_1Nil.html">bslmf::Switch5&lt;LEN, void, char, short, void, int&gt;::Type</a> transferType;
+         <a class="code" href="structbslmf_1_1Nil.html">bslmf::Switch&lt;LEN, void, char, short, void, int&gt;::Type</a> transferType;
 
       transferType x = 0;
       std::memcpy(&amp;x, d_buffer, LEN);
@@ -286,7 +286,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

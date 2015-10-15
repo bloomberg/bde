@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma_deallocatorguard Component</title>
+<title>BDE 3.0: bslma_deallocatorguard Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -173,7 +173,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that if any of the initial (numbered) subroutines returns a non-zero status value, the top-level <code>evaluatePassword</code> routine returns immediately with a predetermined score. Moreover, each of these routines may encounter a <code>bad_alloc</code> exception should the supplied allocator fail to return the requested memory. Even if all of these subroutines evaluates successfully, the score calculated using <code>finalEval</code> is returned directly by <code>evaluatePassword</code>, yet we still need to deallocate <code>buffer</code>. By guarding buffer with a <code><a class="el" href="classbslma_1_1DeallocatorGuard.html">bslma::DeallocatorGuard</a></code> as shown above, all of these issues are fully addressed, and the top-level routine is also <em>exception</em> <em>neutral</em> as desired. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

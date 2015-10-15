@@ -1,0 +1,116 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balxml.txt
+
+@PURPOSE: Provide utility components for using XML and XSD.
+
+@MNEMONIC: Basic Application Environment XML (balxml)
+
+@SEE_ALSO: a_xercesc, a_xml2
+
+@DESCRIPTION: The &#39;balxml&#39; package provides utilities for working with XML and
+ XSD.  Clients can use the components provided by &#39;balxml&#39; for parsing and
+ printing fundamental types, XML schema, and XML data documents.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balxml&#39; package currently has 20 components having 7 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  7. balxml_encoder
+
+  6. balxml_decoder
+
+  5. balxml_minireader
+     balxml_validatingreader
+
+  4. balxml_formatter
+     balxml_reader
+     balxml_typesparserutil
+
+  3. balxml_elementattribute
+     balxml_typesprintutil
+
+  2. balxml_encoderoptions
+     balxml_prefixstack
+
+  1. balxml_base64parser                                 !DEPRECATED!
+     balxml_configschema
+     balxml_decoderoptions
+     balxml_encodingstyle
+     balxml_errorinfo
+     balxml_hexparser                                    !DEPRECATED!
+     balxml_listparser
+     balxml_namespaceregistry
+     balxml_util
+..
+
+/Component Synopsis
+/------------------
+: &#39;balxml_base64parser&#39;:                                 !DEPRECATED!
+:      Provide push parser for Base64 types.
+:
+: &#39;balxml_configschema&#39;:
+:      Provide the &#39;baexml&#39; schema
+:
+: &#39;balxml_decoder&#39;:
+:      Provide a generic translation from XML into C++ objects.
+:
+: &#39;balxml_decoderoptions&#39;:
+:      Provide value-semantic attribute classes
+:
+: &#39;balxml_elementattribute&#39;:
+:      Provide the properties of an attribute in an XML element tag.
+:
+: &#39;balxml_encoder&#39;:
+:      Provide an XML encoder utility.
+:
+: &#39;balxml_encoderoptions&#39;:
+:      Provide value-semantic attribute classes
+:
+: &#39;balxml_encodingstyle&#39;:
+:      Provide value-semantic attribute classes
+:
+: &#39;balxml_errorinfo&#39;:
+:      Provide common error information for XML components.
+:
+: &#39;balxml_formatter&#39;:
+:      Provide a simple interface for writing formatted XML.
+:
+: &#39;balxml_hexparser&#39;:                                    !DEPRECATED!
+:      Provide push parser for hex types.
+:
+: &#39;balxml_listparser&#39;:
+:      Provide push parser for lists.
+:
+: &#39;balxml_minireader&#39;:
+:      Provide light-weight implementation of &#39;balxml::Reader&#39; protocol.
+:
+: &#39;balxml_namespaceregistry&#39;:
+:      Provide a unique integer ID for each XML namespace.
+:
+: &#39;balxml_prefixstack&#39;:
+:      Provide a unique integer ID for each XML namespace.
+:
+: &#39;balxml_reader&#39;:
+:      Provide common reader protocol for parsing XML documents.
+:
+: &#39;balxml_typesparserutil&#39;:
+:      Provide a utility for parsing types using XML formatting.
+:
+: &#39;balxml_typesprintutil&#39;:
+:      Provide a utility for printing types using XML formatting.
+:
+: &#39;balxml_util&#39;:
+:      Provide a suite of common XML utilities.
+:
+: &#39;balxml_validatingreader&#39;:
+:      Provide a common reader protocol for parsing and validating XML.
+</pre>
+</body>
+</html>

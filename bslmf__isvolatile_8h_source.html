@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_isvolatile.h                                                 -*-C++-*-
@@ -30,7 +30,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify &#39;Volatile&#39; Types
+///Example 1: Verify &#39;volatile&#39; Types
 /// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
 // &#39;volatile&#39;-qualified.
@@ -54,6 +54,15 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_STDDEF_H
+#include &lt;stddef.h&gt;
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace bsl {
@@ -83,6 +92,35 @@ struct is_volatile&lt;TYPE volatile&gt; : true_type {
      // parameter) &#39;TYPE&#39; is &#39;volatile&#39;-qualified, derives from
      // &#39;bsl::true_type&#39;
 };
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+// The Microsoft compiler does not recognize array-types as cv-qualified when
+// the element type is cv-qualified when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depeoning on how the trait might be used.  This also
+// corresponds to how Microsft itself implements the trait in VC2010 and later.
+// Last tested against VC 2015 (Release Candidate).
+
+template &lt;class TYPE&gt;
+struct is_volatile&lt;volatile TYPE[]&gt; : true_type {
+     // This partial specialization of &#39;is_volatile&#39;, for when the (template
+     // parameter) &#39;TYPE&#39; is &#39;volatile&#39;-qualified, derives from
+     // &#39;bsl::true_type&#39;.  Note that this single specialization is sufficient
+     // to work around the MSVC issue, even for multidimensional arrays.
+};
+
+template &lt;class TYPE, size_t LENGTH&gt;
+struct is_volatile&lt;volatile TYPE[LENGTH]&gt; : true_type {
+     // This partial specialization of &#39;is_volatile&#39;, for when the (template
+     // parameter) &#39;TYPE&#39; is &#39;volatile&#39;-qualified, derives from
+     // &#39;bsl::true_type&#39;.  Note that this single specialization is sufficient
+     // to work around the MSVC issue, even for multidimensional arrays.
+};
+
+#endif
 
 }  // close namespace bsl
 

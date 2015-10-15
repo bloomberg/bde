@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_allocatortraits Component</title>
+<title>BDE 3.0: bslstl_allocatortraits Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -115,7 +115,7 @@ Functions</h2></td></tr>
 <li>
 <a href="#3.1.1">Example 1: A Container Class</a> </li>
 <li>
-<a href="#3.1.2">Example 2: bslma Allocator Propagation</a> </li>
+<a href="#3.1.2">Example 2: <code>bslma</code> Allocator Propagation</a> </li>
 <li>
 <a href="#3.1.3">Example 3: C++03 Allocators</a> </li>
 </ul>
@@ -238,7 +238,7 @@ Functions</h2></td></tr>
   MyContainer&lt;TYPE, ALLOC&gt;::MyContainer(<span class="keyword">const</span> ALLOC&amp; a)
       : d_allocator(a)
   {
-      d_value_p = AllocTraits::allocate(d_allocator, 1);
+      d_value_p = <a class="code" href="classbtlsos_1_1TcpTimedConnector.html#a968725f59165a04e2e5f7f35336e9a36">AllocTraits::allocate</a>(d_allocator, 1);
       MyContainerProctor&lt;ALLOC&gt; proctor(a, d_value_p);
       <span class="comment">// Call &#39;construct&#39; with no constructor arguments</span>
       AllocTraits::construct(d_allocator, d_value_p);
@@ -249,7 +249,7 @@ Functions</h2></td></tr>
   MyContainer&lt;TYPE, ALLOC&gt;::MyContainer(<span class="keyword">const</span> TYPE&amp; v, <span class="keyword">const</span> ALLOC&amp; a)
       : d_allocator(a)
   {
-      d_value_p = AllocTraits::allocate(d_allocator, 1);
+      d_value_p = <a class="code" href="classbtlsos_1_1TcpTimedConnector.html#a968725f59165a04e2e5f7f35336e9a36">AllocTraits::allocate</a>(d_allocator, 1);
       MyContainerProctor&lt;ALLOC&gt; proctor(a, d_value_p);
       <span class="comment">// Call &#39;construct&#39; with one constructor argument of type &#39;TYPE&#39;</span>
       AllocTraits::construct(d_allocator, d_value_p, v);
@@ -264,7 +264,7 @@ Functions</h2></td></tr>
       : d_allocator(bsl::allocator_traits&lt;ALLOC&gt;::
                     select_on_container_copy_construction(other.d_allocator))
   {
-      d_value_p = AllocTraits::allocate(d_allocator, 1);
+      d_value_p = <a class="code" href="classbtlsos_1_1TcpTimedConnector.html#a968725f59165a04e2e5f7f35336e9a36">AllocTraits::allocate</a>(d_allocator, 1);
       MyContainerProctor&lt;ALLOC&gt; proctor(d_allocator, d_value_p);
       AllocTraits::construct(d_allocator, d_value_p, *other.d_value_p);
       proctor.release();
@@ -277,7 +277,7 @@ Functions</h2></td></tr>
   MyContainer&lt;TYPE, ALLOC&gt;::~MyContainer()
   {
       AllocTraits::destroy(d_allocator, d_value_p);
-      AllocTraits::deallocate(d_allocator, d_value_p, 1);
+      <a class="code" href="classbtlsos_1_1TcpTimedConnector.html#a47b5f775b2c53d2665dba752b0d30430">AllocTraits::deallocate</a>(d_allocator, d_value_p, 1);
   }
 </pre></div><br/>
 <br/>
@@ -286,19 +286,20 @@ Functions</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> usageExample1()
   {
       <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> testAlloc;
-      MyContainer&lt;int&gt; C1(123, &amp;testAlloc);
-      assert(C1.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;int&gt;</a>(&amp;testAlloc));
-      assert(C1.front() == 123);
+      MyContainer&lt;int&gt; <a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>(123, &amp;testAlloc);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;int&gt;</a>(&amp;testAlloc));
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.front() == 123);
 
-      MyContainer&lt;int&gt; C2(C1);
-      assert(C2.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;int&gt;</a>());
-      assert(C2.front() == 123);
+      MyContainer&lt;int&gt; <a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;int&gt;</a>());
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.front() == 123);
 
       <span class="keywordflow">return</span> 0;
   }
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_bslma_allocator_propagation"></a> <a class="anchor" id="usage.example_2~3A_bslma_allocator_propagation"></a> <a class="anchor" id="description.usage.example_2~3A_bslma_allocator_propagation"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.1.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: bslma Allocator Propagation: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>To exercise the propagation of the allocator of <code>MyContainer</code> to its elements, we first create a representative element class, <code>MyType</code>, that allocates memory using the bslma allocator protocol: <br/>
@@ -335,23 +336,24 @@ Functions</h2></td></tr>
   <span class="keywordtype">int</span> usageExample2()
   {
       <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> testAlloc;
-      MyContainer&lt;MyType&gt; C1(&amp;testAlloc);
+      MyContainer&lt;MyType&gt; <a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>(&amp;testAlloc);
       assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;MyContainer&lt;MyType&gt;::allocator_type,
               <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;MyType&gt;</a> &gt;::value));
-      assert(C1.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;MyType&gt;</a>(&amp;testAlloc));
-      assert(C1.front().allocator() == &amp;testAlloc);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;MyType&gt;</a>(&amp;testAlloc));
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.front().allocator() == &amp;testAlloc);
 
-      MyContainer&lt;MyType&gt; C2(C1);
-      assert(C2.get_allocator() != C1.get_allocator());
-      assert(C2.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;MyType&gt;</a>());
-      assert(C2.front().allocator() != &amp;testAlloc);
-      assert(C2.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
+      MyContainer&lt;MyType&gt; <a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.get_allocator() != <a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.get_allocator());
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.get_allocator() == <a class="code" href="classbsl_1_1allocator.html">bsl::allocator&lt;MyType&gt;</a>());
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.front().allocator() != &amp;testAlloc);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
 
       <span class="keywordflow">return</span> 0;
   }
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_c++03_allocators"></a> <a class="anchor" id="usage.example_3~3A_c++03_allocators"></a> <a class="anchor" id="description.usage.example_3~3A_c++03_allocators"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.1.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: C++03 Allocators: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example shows that when <code>MyContainer</code> is instantiated with a C++03 allocator, that the allocator is a) copied on copy construction and b) is not propagated from the container to its elements. First, we create a C++03-style allocator class template: <br/>
@@ -406,21 +408,21 @@ Functions</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- Finally we instantiate <code>MyContainer</code> using this allocator type and verify that elements are constructed using the default allocator (because the allocator is not propagated from the container). We also verify that the allocator is copied on copy-construction: <br/>
+ Finally we instantiate <code>MyContainer</code> using this allocator type and verify that elements are constructed using the default allocator (because the allocator is not propagated from the container). We also verify that the allocator is copied on copy construction: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> usageExample3()
   {
       <span class="keyword">typedef</span> MyCpp03Allocator&lt;MyType&gt; MyTypeAlloc;
-      MyContainer&lt;MyType, MyTypeAlloc&gt; C1(MyTypeAlloc(1));
+      MyContainer&lt;MyType, MyTypeAlloc&gt; <a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>(MyTypeAlloc(1));
       assert((<a class="code" href="structbsl_1_1is__same.html">bsl::is_same</a>&lt;MyContainer&lt;MyType, MyTypeAlloc&gt;::allocator_type,
                            MyTypeAlloc&gt;::value));
-      assert(C1.get_allocator() == MyTypeAlloc(1));
-      assert(C1.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.get_allocator() == MyTypeAlloc(1));
+      assert(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
 
-      MyContainer&lt;MyType, MyTypeAlloc&gt; C2(C1);
-      assert(C2.get_allocator() == C1.get_allocator());
-      assert(C2.get_allocator() != MyTypeAlloc())
-      assert(C2.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
+      MyContainer&lt;MyType, MyTypeAlloc&gt; <a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>(<a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>);
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.get_allocator() == <a class="code" href="bdlf__bind__test_8h.html#abea77389d9147e64d2573226dcb3f23a">C1</a>.get_allocator());
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.get_allocator() != MyTypeAlloc())
+      assert(<a class="code" href="bdlf__bind__test_8h.html#a3e178b7ec4b9a474ea12f19aa7f1712f">C2</a>.front().allocator() == <a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>());
 
       <span class="keywordflow">return</span> 0;
    }
@@ -847,7 +849,7 @@ template&lt;class ALLOCATOR_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:54 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

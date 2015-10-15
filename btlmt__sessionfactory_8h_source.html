@@ -1,0 +1,115 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlmt_sessionfactory.h                                             -*-C++-*-
+#ifndef INCLUDED_BTLMT_SESSIONFACTORY
+#define INCLUDED_BTLMT_SESSIONFACTORY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a *pure* protocol class for creating sessions
+//
+//@CLASSES:
+//  btlmt::SessionFactory: abstract factory for sessions
+//
+//@SEE_ALSO: btlmt_session, btlmt_sessionpool
+//
+//@DESCRIPTION: The class provided by this component are intended to be used
+// with &#39;btlmt::SessionPool&#39;, which allocates/manages TCP sessions given a
+// session factory.  See the &#39;btlmt_sessionpool&#39; component for a more detailed
+// documentation.
+//
+///Usage
+///-----
+// For a usage example, see {&#39;btlmt_sessionpool&#39;}.
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlmt {
+
+class AsyncChannel;
+class Session;
+
+                            // ====================
+                            // class SessionFactory
+                            // ====================
+
+class SessionFactory {
+    // This class defines a *pure* protocol for the allocation and deallocation
+    // of &#39;Session&#39; objects.
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::function&lt;void(int, Session*)&gt; Callback;
+       // The signature of a function to be called after a new session is
+       // allocated.  The first argument is taken to indicate the status of the
+       // allocation - 0 if successful, nonzero otherwise.  The second argument
+       // is a pointer to the newly allocated session.
+
+    // CREATORS
+    virtual ~SessionFactory();
+       // Destroy this factory
+
+    // MANIPULATORS
+    virtual void allocate(const bsl::shared_ptr&lt;AsyncChannel&gt;&amp; channel,
+                          const SessionFactory::Callback&amp;      callback);
+       // Asynchronously allocate a &#39;Session&#39; object for the specified
+       // &#39;channel&#39;, and invoke the specified &#39;callback&#39; with this session.
+       //
+       // Note that the default implementation of this (non-pure virtual)
+       // method is to call &#39;allocate&#39; with the raw channel pointer.
+
+    virtual void allocate(AsyncChannel                    *channel,
+                          const SessionFactory::Callback&amp;  callback) = 0;
+       // Asynchronously allocate a &#39;Session&#39; object for the specified
+       // &#39;channel&#39;, and invoke the specified &#39;callback&#39; with this session.
+
+    virtual void deallocate(Session *session) = 0;
+       // Deallocate the specified &#39;session&#39;.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

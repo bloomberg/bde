@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_bufferedsequentialallocator Component</title>
+<title>BDE 3.0: bdlma_bufferedsequentialallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -127,7 +127,7 @@ Namespaces</h2></td></tr>
 <span class="stringliteral">      ( bdlma::ManagedAllocator )</span>
 <span class="stringliteral">       `-----------------------&#39;</span>
                    |        release
-                   V
+                   <a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>
           ,----------------.
          ( <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> )
           `----------------<span class="stringliteral">&#39;</span>
@@ -150,6 +150,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bdlma~3A~3Abufferedsequentialallocator_with_exact_calculation"></a> <a class="anchor" id="usage.example_1~3A_using_bdlma~3A~3Abufferedsequentialallocator_with_exact_calculation"></a> <a class="anchor" id="description.usage.example_1~3A_using_bdlma~3A~3Abufferedsequentialallocator_with_exact_calculation"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Using bdlma::BufferedSequentialAllocator with Exact Calculation: </b></dt><dd></dd></dl>
@@ -161,21 +162,22 @@ Namespaces</h2></td></tr>
 <br/>
  Since the amount of memory needed is known in advance, we can optimize the memory allocation by using a <code><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a></code> to supply memory for the vectors. We can also prevent the vectors from resizing (which triggers more allocations) by reserving for the specific capacity we need: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      <span class="keyword">enum</span> { SIZE = 3 * 100 * <span class="keyword">sizeof</span>(double) };
+<div class="fragment"><pre class="fragment">      <span class="keyword">enum</span> { k_SIZE = 3 * 100 * <span class="keyword">sizeof</span>(double) };
 </pre></div><br/>
 <br/>
  In the above calculation, we assume that the only memory allocation requested by the vector is the allocation for the array that stores the <code>double</code> values. Furthermore, we assume that the <code>reserve</code> method allocates the exact amount of memory for the number of items specified (in this case, of type <code>double</code>). Note that both of these assumptions are true for BDE's implementation of <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>To avoid alignment issues described in the "Warning" section (above), we create a <code><a class="el" href="classbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer</a></code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      <a class="code" href="classbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer&lt;SIZE&gt;</a> bufferStorage;
+<div class="fragment"><pre class="fragment">      <a class="code" href="classbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer&lt;k_SIZE&gt;</a> bufferStorage;
 
-      <a class="code" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a> alloc(bufferStorage.<a class="code" href="classbsls_1_1AlignedBuffer.html#a46dbd83076424915a6cab625e2088ca4">buffer</a>(), SIZE);
+      <a class="code" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a> alloc(bufferStorage.<a class="code" href="classbsls_1_1AlignedBuffer.html#a46dbd83076424915a6cab625e2088ca4">buffer</a>(),
+                                               k_SIZE);
 
       <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;double&gt;</a> v1(&amp;alloc);     v1.reserve(100);
       <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;double&gt;</a> v2(&amp;alloc);     v2.reserve(100);
       <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;double&gt;</a> v3(&amp;alloc);     v3.reserve(100);
 
-      <span class="comment">// ...</span>
+      <span class="keywordflow">return</span> data.<a class="code" href="group__bslstl__vector.html#gad77dd3f93b278367659e8d1489df4a86">empty</a>() ? 0.0 : data.<a class="code" href="group__bslstl__vector.html#ga547e809dc68789a250cd367760601d78">front</a>();
   }
 </pre></div><br/>
 <br/>
@@ -193,23 +195,25 @@ Namespaces</h2></td></tr>
  Furthermore, suppose the number of securities we are interested in is limited. We can then use a <code><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a></code> to optimize memory allocation for the <code><a class="el" href="classbsl_1_1map.html">bsl::map</a></code>. We first create a buffer on the stack: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">enum</span> {
-      NUM_SECURITIES = 100,
+      k_NUM_SECURITIES = 100,
 
-      TREE_NODE_SIZE = <span class="keyword">sizeof</span>(<a class="code" href="classbsl_1_1pair.html">bsl::map&lt;bsl::string, double&gt;::value_type</a>)
+      k_TREE_NODE_SIZE = <span class="keyword">sizeof</span>(<a class="code" href="classbsl_1_1pair.html">bsl::map&lt;bsl::string, double&gt;::value_type</a>)
                        + <span class="keyword">sizeof</span>(<span class="keywordtype">void</span> *) * 4,
 
-      AVERAGE_SECURITY_LENGTH = 5,
+      k_AVERAGE_SECURITY_LENGTH = 5,
 
-      TOTAL_SIZE = NUM_SECURITIES *
-                   (TREE_NODE_SIZE + AVERAGE_SECURITY_LENGTH )
+      k_TOTAL_SIZE = k_NUM_SECURITIES *
+                               (k_TREE_NODE_SIZE + k_AVERAGE_SECURITY_LENGTH)
   };
 
-  <a class="code" href="classbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer&lt;TOTAL_SIZE&gt;</a> bufferStorage;
+  <a class="code" href="classbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer&lt;k_TOTAL_SIZE&gt;</a> bufferStorage;
 </pre></div><br/>
 <br/>
  The calculation of the amount of memory needed is just an estimate, as we used the average security size instead of the maximum security size. We also assume that a <code><a class="el" href="classbsl_1_1map.html">bsl::map</a></code>s node size is roughly the size of 4 pointers. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a> bsa(bufferStorage.buffer(), TOTAL_SIZE);
+<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a> bsa(bufferStorage.buffer(),
+                                         k_TOTAL_SIZE,
+                                         &amp;objectAllocator);
   <a class="code" href="classbsl_1_1map.html">bsl::map&lt;bsl::string, double&gt;</a> updateMap(&amp;bsa);
 
   receivePriceQuotes(&amp;updateMap);
@@ -217,7 +221,7 @@ Namespaces</h2></td></tr>
 <br/>
  With the use of a <code><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html">bdlma::BufferedSequentialAllocator</a></code>, we can be reasonably assured that the memory allocation performance is optimized (i.e., minimal use of dynamic allocation). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:44 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

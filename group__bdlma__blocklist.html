@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_blocklist Component</title>
+<title>BDE 3.0: bdlma_blocklist Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -145,8 +145,8 @@ Namespaces</h2></td></tr>
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
       my_StrPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
-          <span class="comment">// Create a memory manager using the specified &#39;basicAllocator&#39; to</span>
-          <span class="comment">// supply memory.  If &#39;basicAllocator&#39; is 0, the currently</span>
+          <span class="comment">// Create a memory manager.  Optionally specify a &#39;basicAllocator&#39;</span>
+          <span class="comment">// used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently</span>
           <span class="comment">// installed default allocator is used.</span>
 
       ~my_StrPool();
@@ -174,15 +174,14 @@ Namespaces</h2></td></tr>
  Finally, we provide the implementation of our <code>my_StrPool</code> class: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_strpool.cpp</span>
-<span class="preprocessor">  #include &lt;my_strpool.h&gt;</span>
 
   <span class="keyword">enum</span> {
-      INITIAL_SIZE  = 128,  <span class="comment">// initial block size</span>
+      k_INITIAL_SIZE  = 128,  <span class="comment">// initial block size</span>
 
-      GROWTH_FACTOR =   2,  <span class="comment">// multiplicative factor by which to grow block</span>
+      k_GROWTH_FACTOR =   2,  <span class="comment">// multiplicative factor by which to grow block</span>
 
-      THRESHOLD     = 128   <span class="comment">// size beyond which an individual block may be</span>
-                            <span class="comment">// allocated if it doesn&#39;t fit in current block</span>
+      k_THRESHOLD     = 128   <span class="comment">// size beyond which an individual block may be</span>
+                              <span class="comment">// allocated if it doesn&#39;t fit in current block</span>
   };
 
   <span class="comment">// PRIVATE MANIPULATORS</span>
@@ -190,22 +189,26 @@ Namespaces</h2></td></tr>
   {
       assert(0 &lt; numBytes);
 
-      <span class="keywordflow">if</span> (THRESHOLD &lt; numBytes) { <span class="comment">// Alloc separate block if above threshold.</span>
-          <span class="keywordflow">return</span> (<span class="keywordtype">char</span> *)d_blockList.allocate(numBytes);
+      <span class="keywordflow">if</span> (k_THRESHOLD &lt; numBytes) {
+          <span class="comment">// Alloc separate block if above threshold.</span>
+
+          <span class="keywordflow">return</span> (<span class="keywordtype">char</span> *)d_blockList.allocate(numBytes);            <span class="comment">// RETURN</span>
       }
       <span class="keywordflow">else</span> {
-          <span class="keywordflow">if</span> (d_block_p) { <span class="comment">// Don&#39;t increase block size if no current block.</span>
-              d_blockSize *= GROWTH_FACTOR;
+          <span class="keywordflow">if</span> (d_block_p) {
+              <span class="comment">// Do not increase block size if no current block.</span>
+
+              d_blockSize *= k_GROWTH_FACTOR;
           }
           d_block_p = (<span class="keywordtype">char</span> *)d_blockList.allocate(d_blockSize);
           d_cursor = numBytes;
-          <span class="keywordflow">return</span> d_block_p;
+          <span class="keywordflow">return</span> d_block_p;                                         <span class="comment">// RETURN</span>
       }
   }
 
   <span class="comment">// CREATORS</span>
   my_StrPool::my_StrPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
-  : d_blockSize(INITIAL_SIZE)
+  : d_blockSize(k_INITIAL_SIZE)
   , d_block_p(0)
   , d_blockList(basicAllocator)  <span class="comment">// the blocklist knows about &#39;bslma_default&#39;</span>
   {
@@ -213,7 +216,7 @@ Namespaces</h2></td></tr>
 
   my_StrPool::~my_StrPool()
   {
-      assert(INITIAL_SIZE &lt;= d_blockSize);
+      assert(k_INITIAL_SIZE &lt;= d_blockSize);
       assert(d_block_p || (0 &lt;= d_cursor &amp;&amp; d_cursor &lt;= d_blockSize));
   }
 
@@ -223,23 +226,23 @@ Namespaces</h2></td></tr>
       assert(0 &lt;= numBytes);
 
       <span class="keywordflow">if</span> (0 == numBytes) {
-          <span class="keywordflow">return</span> 0;
+          <span class="keywordflow">return</span> 0;                                                 <span class="comment">// RETURN</span>
       }
 
       <span class="keywordflow">if</span> (d_block_p &amp;&amp; numBytes + d_cursor &lt;= d_blockSize) {
           <span class="keywordtype">char</span> *p = d_block_p + d_cursor;
           d_cursor += numBytes;
-          <span class="keywordflow">return</span> p;
+          <span class="keywordflow">return</span> p;                                                 <span class="comment">// RETURN</span>
       }
       <span class="keywordflow">else</span> {
-          <span class="keywordflow">return</span> allocateBlock(numBytes);
+          <span class="keywordflow">return</span> allocateBlock(numBytes);                           <span class="comment">// RETURN</span>
       }
   }
 </pre></div><br/>
 <br/>
- In the code shown above, the <code>my_StrPool</code> memory manager allocates from its <code><a class="el" href="classbdlma_1_1BlockList.html">bdlma::BlockList</a></code> member object an initial memory block of size <code>INITIAL_SIZE</code>. This size is multiplied by <code>GROWTH_FACTOR</code> each time a depleted memory block is replaced by a newly-allocated block. The <code>allocate</code> method distributes memory from the current memory block piecemeal, except when the requested size either (1) is not available in the current block, or (2) exceeds the <code>THRESHOLD_SIZE</code>, in which case a separate memory block is allocated and returned. When the <code>my_StrPool</code> memory manager is destroyed, its <code><a class="el" href="classbdlma_1_1BlockList.html">bdlma::BlockList</a></code> member object is also destroyed, which, in turn, automatically deallocates all of its managed memory blocks. </dd></dl>
+ In the code shown above, the <code>my_StrPool</code> memory manager allocates from its <code><a class="el" href="classbdlma_1_1BlockList.html">bdlma::BlockList</a></code> member object an initial memory block of size <code>k_INITIAL_SIZE</code>. This size is multiplied by <code>k_GROWTH_FACTOR</code> each time a depleted memory block is replaced by a newly-allocated block. The <code>allocate</code> method distributes memory from the current memory block piecemeal, except when the requested size either (1) is not available in the current block, or (2) exceeds the <code>k_THRESHOLD_SIZE</code>, in which case a separate memory block is allocated and returned. When the <code>my_StrPool</code> memory manager is destroyed, its <code><a class="el" href="classbdlma_1_1BlockList.html">bdlma::BlockList</a></code> member object is also destroyed, which, in turn, automatically deallocates all of its managed memory blocks. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

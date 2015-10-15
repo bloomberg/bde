@@ -1,0 +1,55 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bbl.txt
+
+@PURPOSE: Provide a foundation for component-based business logic development.
+
+@MNEMONIC: Basic Business Library (bbl)
+
+@DESCRIPTION: The &#39;bbl&#39; (&quot;Basic Business Library&quot;) package group contains a
+ package that provides a solution for computing day count and year fraction for
+ various day-count conventions.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bbl&#39; package group currently has 2 packages having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+..
+  2. bbldc
+
+  1. bblscm
+..
+
+/Package Synopsis
+/----------------
+: &#39;bbldc&#39;:
+:      Provide day-count convention implementations.
+:
+: &#39;bblscm&#39;:
+:      Provide versioning information for BDE library components.
+
+/Package Overview
+/----------------
+ This section a brief introduction to the packages of the &#39;bbl&#39; package group.
+ See the respective Package Level documents for more details.
+
+/&#39;bbldc&#39;
+/- - - -
+ The {&#39;bbldc&#39;} package provides day-count convention implementations, an
+ enumeration-based set of dispatch components, and two abstract interfaces with
+ parameterized adapters for the day-count convention implementations.
+
+/&#39;bblscm&#39;
+/ - - - -
+ The {&#39;bblscm&#39;} package contains only two components, &#39;bblscm_version&#39; and
+ &#39;bblscm_versiontag&#39;.  The first of these components is included by every other
+ component in &#39;bbl&#39;, and provides versioning information for the package group.
+ Users may use the &#39;bblscm_version&#39; facilities to query a particular &#39;bbl&#39;
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on &#39;bbl&#39; version information.
+</pre>
+</body>
+</html>

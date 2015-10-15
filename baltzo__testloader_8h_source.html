@@ -1,0 +1,311 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_testloader.h                                                -*-C++-*-
+#ifndef INCLUDED_BALTZO_TESTLOADER
+#define INCLUDED_BALTZO_TESTLOADER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a test implementation of the &#39;baltzo::Loader&#39; protocol.
+//
+//@CLASSES:
+//  baltzo::TestLoader: concrete implementation of &#39;baltzo::Loader&#39; protocol
+//
+//@SEE_ALSO: baltzo_loader, baltzo_zoneinfo
+//
+//@DESCRIPTION: This component provides &#39;baltzo::TestLoader&#39;, a concrete test
+// implementation of the &#39;baltzo::Loader&#39; protocol for loading a
+// &#39;baltzo::Zoneinfo&#39; object.  The following inheritance hierarchy diagram
+// shows the classes involved and their methods:
+//..
+//   ,------------------.
+//  ( baltzo::TestLoader )
+//   `------------------&#39;
+//            |      ctor
+//            |      setTimeZone
+//            V
+//    ,--------------.
+//   ( baltzo::Loader )
+//    `--------------&#39;
+//                 dtor
+//                 loadTimeZone
+//..
+// This test implementation maintains a mapping of time-zone identifiers to
+// &#39;baltzo::Zoneinfo&#39; objects.  Clients can associate a time-zone object with a
+// time-zone identifier using the &#39;setTimeZone&#39; method.  A subsequent call to
+// the protocol method &#39;loadTimeZone&#39; for that time-zone identifier will return
+// the supplied &#39;baltzo::Zoneinfo&#39; object.
+//
+///Usage
+///-----
+// The following examples demonstrate how to populate a &#39;baltzo::TestLoader&#39;
+// with time.zone information, and then access that information through the
+// &#39;baltzo::Loader&#39; protocol.
+//
+///Example 1: Populating a &#39;baltzo::TestLoader&#39; with Time-Zone Information
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We start by creating a &#39;baltzo::Zoneinfo&#39; object, which we will eventually
+// populate with a subset of data for &quot;America/New_York&quot;:
+//..
+//  baltzo::Zoneinfo newYorkTimeZone;
+//..
+// Next, we populate &#39;newYorkTimeZone&#39; with the correct time-zone identifier
+// and two types of local time (standard time, and daylight-saving time):
+//..
+//  const char *NEW_YORK_ID = &quot;America/New_York&quot;;
+//  newYorkTimeZone.setIdentifier(NEW_YORK_ID);
+//
+//  baltzo::LocalTimeDescriptor est(-5 * 60 * 60, false, &quot;EST&quot;);
+//  baltzo::LocalTimeDescriptor edt(-4 * 60 * 60, true,  &quot;EDT&quot;);
+//..
+// Then, we create a series of transitions between these local time
+// descriptors for the years 2007-2011.  Note that the United States
+// transitions to daylight saving time on the second Sunday in March, at 2am
+// local time (7am UTC), and transitions back to standard time on the first
+// Sunday in November at 2am local time (6am UTC).  Also note, that these rules
+// for generating transitions was different prior to 2007, and may be changed
+// at some point in the future.
+//..
+//  bdlt::Time edtTime(7, 0, 0);  // UTC transition time
+//  bdlt::Time estTime(6, 0, 0);  // UTC transition time
+//  static const int edtDays[5] = { 11,  9,  8, 14, 13 };
+//  static const int estDays[5] = {  4,  2,  1,  7,  6 };
+//  for (int year = 2007; year &lt; 2012; ++year) {
+//      int edtDay = edtDays[year - 2007];
+//      int estDay = estDays[year - 2007];
+//
+//      bdlt::Datetime edtTransition(bdlt::Date(year, 3,  edtDay), edtTime);
+//      bdlt::Datetime estTransition(bdlt::Date(year, 11, estDay), estTime);
+//
+//      bsls::Types::Int64 edtTransitionT =
+//                            bdlt::EpochUtil::convertToTimeT64(edtTransition);
+//
+//      bsls::Types::Int64 estTransitionT =
+//                            bdlt::EpochUtil::convertToTimeT64(estTransition);
+//..
+// Now, having created values representing the daylight saving time
+// transitions (in UTC), we insert the transitions into the &#39;baltzo::Zoneinfo&#39;
+// object &#39;newYorkTimeZone&#39;:
+//..
+//      newYorkTimeZone.addTransition(edtTransitionT, edt);
+//      newYorkTimeZone.addTransition(estTransitionT, est);
+//  }
+//..
+// Now, we create a &#39;baltzo::TestLoader&#39; object and configure it with
+// &#39;newYorkTimeZone&#39;, which the test loader will associate with the identifier
+// &#39;newYorkTimeZone.identifier()&#39; (whose value is &quot;America/New_York&quot;):
+//..
+//  baltzo::TestLoader testLoader;
+//  testLoader.setTimeZone(newYorkTimeZone);
+//..
+//
+///Example 2: Accessing Time-Zone Information From a &#39;baltzo::TestLoader&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In the next example, we will use the &#39;baltzo::TestLoader&#39; we initialized in
+// the preceding example, to load time-zone information for New York via the
+// &#39;baltzo::Loader&#39; protocol.
+//
+// We start by creating a &#39;baltzo::Loader&#39; reference to &#39;testLoader&#39;:
+//..
+//  baltzo::Loader&amp; loader = testLoader;
+//..
+// Now we used the protocol method &#39;loadTimeZone&#39; to load time-zone
+// information for New York:
+//..
+//  baltzo::Zoneinfo resultNewYork;
+//  int status = loader.loadTimeZone(&amp;resultNewYork, &quot;America/New_York&quot;);
+//  assert(0 == status);
+//..
+// Finally, we verify that the returned time-zone information,
+// &#39;resultNewYork&#39;, is equivalent to &#39;newYorkTimeZone&#39;, which we we used to
+// configure &#39;testLoader&#39;:
+//..
+//  assert(newYorkTimeZone == resultNewYork);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_LOADER
+#include &lt;baltzo_loader.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_ZONEINFO
+#include &lt;baltzo_zoneinfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                              // ================
+                              // class TestLoader
+                              // ================
+
+class TestLoader : public Loader {
+    // This class provides a concrete test implementation of the &#39;Loader&#39;
+    // protocol (an abstract interface) for obtaining a time zone.  This test
+    // implementation maintains a mapping of time-zone identifiers to
+    // &#39;Zoneinfo&#39; objects.  Time zone information objects are associated with a
+    // time-zone identifier using the &#39;setTimeZone&#39; method, and can be
+    // subsequently accessed by calling the protocol method &#39;loadTimeZone&#39; with
+    // the same identifier.
+
+  private:
+    typedef bsl::map&lt;bsl::string, Zoneinfo&gt; TimeZoneMap;
+        // A &#39;TimeZoneMap&#39; is a type that maps a string time-zone identifier to
+        // information about that time zone.
+
+    // DATA
+    TimeZoneMap d_timeZones;  // set of time zones maintained by this test
+                              // loader
+
+  private:
+    // NOT IMPLEMENTED
+    TestLoader(const TestLoader&amp;);
+    TestLoader&amp; operator=(const TestLoader&amp;);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TestLoader,
+                                          bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit TestLoader(bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;TestLoader&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.  By default the test loader
+        // will return &#39;ErrorCode::k_UNSUPPORTED_ID&#39; for all time-zone
+        // identifiers.
+
+    virtual ~TestLoader();
+        // Destroy this &#39;TestLoader&#39; object;
+
+    // MANIPULATORS
+    void setTimeZone(const Zoneinfo&amp; timeZone);
+        // Set, to the specified &#39;timeZone&#39;, the time-zone information that
+        // will be returned by &#39;loadTimeZone&#39; for the identifier
+        // &#39;timeZone.identifier()&#39;.
+
+    int setTimeZone(const char *timeZoneId,
+                    const char *timeZoneData,
+                    int         timeZoneDataNumBytes);
+        // Set the time-zone data this test loader will return for the
+        // specified &#39;timeZoneId&#39; to the Zoneinfo value defined by reading the
+        // specified &#39;timeZoneData&#39; buffer, holding data in the Zoneinfo
+        // standard binary file format, of at least the specified
+        // &#39;timeZoneDataNumBytes&#39;.  Return 0 on success, or a negative value
+        // if an error occurs.  The behavior is undefined unless
+        // &#39;timeZoneData&#39; contains at least &#39;timeZoneDataNumBytes&#39; bytes.
+
+    virtual int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
+        // Load into the specified &#39;result&#39; the time-zone information for the
+        // time-zone identified by the specified &#39;timeZoneId&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  A return status of
+        // &#39;ErrorCode::k_UNSUPPORTED_ID&#39; indicates that &#39;timeZoneId&#39; is not
+        // recognized.  If an error occurs during the operation, &#39;result&#39; will
+        // be left in a valid but unspecified state.
+
+    // ACCESSORS
+
+                        // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the set of time zones maintained by this object to the
+        // specified output &#39;stream&#39; in a human-readable format, and return a
+        // reference to &#39;stream&#39;.  Optionally specify an initial indentation
+        // &#39;level&#39;, whose absolute value is incremented recursively for nested
+        // objects.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, whose absolute value indicates the number of
+        // spaces per indentation level for this and all of its nested objects.
+        // If &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // &#39;level&#39;).  If &#39;stream&#39; is not valid on entry, this operation has no
+        // effect.  Note that the format is not fully specified, and can change
+        // without notice.
+
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const TestLoader&amp; loader);
+    // Write the set of time zones maintained by the specified &#39;loader&#39; to the
+    // specified output &#39;stream&#39; in a single-line format, and return a
+    // reference to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified, can change without notice, and is logically equivalent
+    // to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                              // ----------------
+                              // class TestLoader
+                              // ----------------
+
+// CREATORS
+inline
+baltzo::TestLoader::TestLoader(bslma::Allocator *basicAllocator)
+: d_timeZones(basicAllocator)
+{
+}
+
+// FREE FUNCTIONS
+inline
+bsl::ostream&amp; baltzo::operator&lt;&lt;(bsl::ostream&amp;     stream,
+                                 const TestLoader&amp; loader)
+{
+    return loader.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

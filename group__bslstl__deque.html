@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_deque Component</title>
+<title>BDE 3.0: bslstl_deque Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -356,7 +356,7 @@ Allow installation of exception handlers at a higher level to throw BSL STL exce
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef VALUE_TYPE&amp; <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::reference<code> [inherited]</code></td>
@@ -373,7 +373,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const VALUE_TYPE&amp; <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::const_reference<code> [inherited]</code></td>
@@ -390,7 +390,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef Iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::iterator<code> [inherited]</code></td>
@@ -407,7 +407,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef ConstIterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::const_iterator<code> [inherited]</code></td>
@@ -424,7 +424,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::size_t <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::size_type<code> [inherited]</code></td>
@@ -441,7 +441,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::ptrdiff_t <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::difference_type<code> [inherited]</code></td>
@@ -458,7 +458,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef VALUE_TYPE <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::value_type<code> [inherited]</code></td>
@@ -475,7 +475,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef bsl::reverse_iterator&lt;Iterator&gt; <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::reverse_iterator<code> [inherited]</code></td>
@@ -492,7 +492,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef bsl::reverse_iterator&lt;ConstIterator&gt; <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::const_reverse_iterator<code> [inherited]</code></td>
@@ -736,7 +736,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::begin </td>
@@ -756,7 +756,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::end </td>
@@ -776,7 +776,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::rbegin </td>
@@ -796,7 +796,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::rend </td>
@@ -816,7 +816,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::operator[] </td>
@@ -829,7 +829,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable element at the specified <code>position</code> in this deque. The behavior is undefined unless <code>0 &lt;= position &lt; size()</code>. </p>
+<p>Return a reference to the modifiable element at the specified <code>position</code> in this deque. The behavior is undefined unless <code>0 &lt;= position &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -837,7 +837,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::at </td>
@@ -850,7 +850,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable element at the specified <code>position</code>. Call <code>StdExceptUtil::throwOutOfRange</code> if <code>position &gt;= size()</code>. </p>
+<p>Return a reference to the modifiable element at the specified <code>position</code>. Call <code>StdExceptUtil::throwOutOfRange</code> if <code>position &gt;= <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -858,7 +858,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::front </td>
@@ -878,7 +878,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::back </td>
@@ -890,7 +890,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the modifiable character at the last position in this deque. The behavior is undefined if this deque is empty. Note that the last position is <code>size() - 1</code>. </p>
+<p>Return a reference to the modifiable character at the last position in this deque. The behavior is undefined if this deque is empty. Note that the last position is <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. </p>
 
 </div>
 </div>
@@ -898,7 +898,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::begin </td>
@@ -917,7 +917,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::cbegin </td>
@@ -937,7 +937,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::end </td>
@@ -956,7 +956,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::cend </td>
@@ -976,7 +976,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::rbegin </td>
@@ -995,7 +995,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::crbegin </td>
@@ -1015,7 +1015,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::rend </td>
@@ -1034,7 +1034,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::crend </td>
@@ -1054,7 +1054,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::size </td>
@@ -1074,7 +1074,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::capacity </td>
@@ -1094,7 +1094,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::empty </td>
@@ -1114,7 +1114,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::operator[] </td>
@@ -1127,7 +1127,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable element at the specified <code>position</code> in this deque. The behavior is undefined unless <code>0 &lt;= position &lt; size()</code>. </p>
+<p>Return a reference to the non-modifiable element at the specified <code>position</code> in this deque. The behavior is undefined unless <code>0 &lt;= position &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -1135,7 +1135,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::at </td>
@@ -1148,7 +1148,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable element at the specified <code>position</code>. Call <code><a class="el" href="structbslstl_1_1StdExceptUtil.html#a50593e11b2169163835e3d91c2b90251">bslstl::StdExceptUtil::throwOutOfRange</a></code> if <code>position &gt;= size()</code>. </p>
+<p>Return a reference to the non-modifiable element at the specified <code>position</code>. Call <code><a class="el" href="structbslstl_1_1StdExceptUtil.html#a50593e11b2169163835e3d91c2b90251">bslstl::StdExceptUtil::throwOutOfRange</a></code> if <code>position &gt;= <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code>. </p>
 
 </div>
 </div>
@@ -1156,7 +1156,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::front </td>
@@ -1176,7 +1176,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::back </td>
@@ -1188,7 +1188,7 @@ template&lt;class VALUE_TYPE &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to the non-modifiable character at the last position in this deque. The behavior is undefined if this deque is empty. Note that the last position is <code>size() - 1</code>. </p>
+<p>Return a reference to the non-modifiable character at the last position in this deque. The behavior is undefined if this deque is empty. Note that the last position is <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. </p>
 
 </div>
 </div>
@@ -1222,7 +1222,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::deque </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -1252,7 +1252,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::deque </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -1313,7 +1313,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a deque initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>bsl::length_error</code> if the number of elements in <code>[ first, last )</code> exceeds the size returned by <code>max_size</code>. </p>
+<p>Create a deque initially containing copies of the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. Throw <code>bsl::length_error</code> if the number of elements in <code>[first .. last)</code> exceeds the size returned by <code>max_size</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -1436,7 +1436,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this deque the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Assign to this deque the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -1449,7 +1449,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::assign </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -1466,7 +1466,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this deque the value of the string of the specified <code>numElements</code> length whose every elements equal the specified <code>value</code>. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Assign to this deque the value of the string of the specified <code>numElements</code> length whose every elements equal the specified <code>value</code>. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
 
 </div>
 </div>
@@ -1479,7 +1479,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::reserve </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -1500,7 +1500,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::resize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>newLength</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -1520,7 +1520,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::resize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>newLength</em>, </td>
         </tr>
         <tr>
@@ -1537,7 +1537,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Change the length of this deque to the specified <code>newLength</code>, erasing characters at the end if <code>newLength &lt; size()</code> or appending the appropriate number of copies of the optionally specified <code>value</code> at the end if <code>length() &lt; newLength</code>. If <code>value</code> is not specified, a default-constructed <code>VALUE_TYPE</code> value is used. Throw <code>bsl::length_error</code> if <code>newLength &gt; max_size()</code>. </p>
+<p>Change the length of this deque to the specified <code>newLength</code>, erasing characters at the end if <code>newLength &lt; <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a></code> or appending the appropriate number of copies of the optionally specified <code>value</code> at the end if <code>length() &lt; newLength</code>. If <code>value</code> is not specified, a default-constructed <code>VALUE_TYPE</code> value is used. Throw <code>bsl::length_error</code> if <code>newLength &gt; max_size()</code>. </p>
 
 </div>
 </div>
@@ -1558,7 +1558,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Append a copy of the specified <code>value</code> at the end of this deque. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Append a copy of the specified <code>value</code> at the end of this deque. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
 
 </div>
 </div>
@@ -1579,7 +1579,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Prepend a copy of the specified <code>value</code> before the beginning of this deque. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Prepend a copy of the specified <code>value</code> before the beginning of this deque. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
 
 </div>
 </div>
@@ -1632,7 +1632,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
@@ -1649,7 +1649,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this deque a copy of the specified <code>value</code>, and return an iterator pointing to the newly inserted element. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code>. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Insert at the specified <code>position</code> in this deque a copy of the specified <code>value</code>, and return an iterator pointing to the newly inserted element. If <code>value</code> has move semantics, then its value is valid but unspecified upon returning from this function. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code>. </p>
 
 </div>
 </div>
@@ -1662,13 +1662,13 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gaef5936f7e31c8079dac4234b36958791">size_type</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#gabb9a750d060153b5c500eb00328e1184">size_type</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em>, </td>
         </tr>
         <tr>
@@ -1685,7 +1685,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this deque the specified <code>numElements</code> copies of the specified <code>value</code>. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code>. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Insert at the specified <code>position</code> in this deque the specified <code>numElements</code> copies of the specified <code>value</code>. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code>. </p>
 
 </div>
 </div>
@@ -1700,7 +1700,7 @@ template&lt;class INPUT_ITER &gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::insert </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em>, </td>
         </tr>
         <tr>
@@ -1723,7 +1723,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this deque the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() ]</code>. Note that this method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. </p>
+<p>Insert at the specified <code>position</code> in this deque the values in the range starting at the specified <code>first</code> and ending immediately before the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. This method offers full guarantee of rollback in case an exception is thrown other than by the <code>VALUE_TYPE</code> copy constructor or assignment operator. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end()]</code>, and <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -1736,7 +1736,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::erase </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>position</em></td>
           <td>&nbsp;)&nbsp;</td>
           <td><code> [inherited]</code></td>
@@ -1744,7 +1744,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this deque the element at the specified <code>position</code>, and return an iterator pointing to the element immediately following the removed element, or the position returned by the method <code>end</code> if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() )</code>. </p>
+<p>Remove from this deque the element at the specified <code>position</code>, and return an iterator pointing to the element immediately following the removed element, or the position returned by the method <code>end</code> if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[begin() .. end())</code>. </p>
 
 </div>
 </div>
@@ -1757,13 +1757,13 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1deque.html">bsl::deque</a>&lt; VALUE_TYPE, ALLOCATOR &gt;::erase </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>first</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga08dedf343d7a033d0bafe503f5e2b178">const_iterator</a>&nbsp;</td>
+          <td class="paramtype"><a class="el" href="group__bslstl__deque.html#ga8e0d2c4d1f01840fbd6ae0a516f8405c">const_iterator</a>&nbsp;</td>
           <td class="paramname"> <em>last</em></td><td>&nbsp;</td>
         </tr>
         <tr>
@@ -1774,7 +1774,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this deque the sequence of elements starting at the specified <code>first</code> position and ending before the specified <code>last</code> position, and return an iterator pointing to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[ begin(), end() ]</code> and <code>last</code> is an iterator in the range <code>[ first, end() ]</code>. </p>
+<p>Remove from this deque the sequence of elements starting at the specified <code>first</code> position and ending before the specified <code>last</code> position, and return an iterator pointing to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[begin() .. end()]</code> and <code>last</code> is an iterator in the range <code>[first .. end()]</code>. </p>
 
 </div>
 </div>
@@ -1885,7 +1885,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> deque has the same value as the specified <code>rhs</code> deque. Two deques have the same value if they have the same number of elements and the same element value at each index position in the range 0 to <code>size() - 1</code>. This operator may only be used when the class <code>VALUE_TYPE</code> defines the operator: <br/>
+<p>Return <code>true</code> if the specified <code>lhs</code> deque has the same value as the specified <code>rhs</code> deque. Two deques have the same value if they have the same number of elements and the same element value at each index position in the range 0 to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. This operator may only be used when the class <code>VALUE_TYPE</code> defines the operator: <br/>
 <br/>
 </p>
 <div class="fragment"><pre class="fragment">      <span class="keywordtype">bool</span> <a class="code" href="group__bslstl__allocator.html#gad6d3f796409781b394c2140195a5b7d2">operator==</a>(<span class="keyword">const</span> VALUE_TYPE&amp; lhs, <span class="keyword">const</span> VALUE_TYPE&amp; rhs);
@@ -1921,7 +1921,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> deque does not have the same value as the specified <code>rhs</code> deque. Two deques do not have the same value if they have different numbers of elements or different element values in at least one index position in the range 0 to <code>size() - 1</code>. This operator may only be used when the class <code>VALUE_TYPE</code> defines the operator: <br/>
+<p>Return <code>true</code> if the specified <code>lhs</code> deque does not have the same value as the specified <code>rhs</code> deque. Two deques do not have the same value if they have different numbers of elements or different element values in at least one index position in the range 0 to <code><a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a> - 1</code>. This operator may only be used when the class <code>VALUE_TYPE</code> defines the operator: <br/>
 <br/>
 </p>
 <div class="fragment"><pre class="fragment">      <span class="keywordtype">bool</span> <a class="code" href="group__bslstl__allocator.html#gad6d3f796409781b394c2140195a5b7d2">operator==</a>(<span class="keyword">const</span> VALUE_TYPE&amp; lhs, <span class="keyword">const</span> VALUE_TYPE&amp; rhs);
@@ -2163,7 +2163,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate the specified <code>n</code> blocks at the front of the block array. Note that this method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
+<p>Allocate the specified <code>n</code> blocks at the front of the block array. This method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
 
 </div>
 </div>
@@ -2184,7 +2184,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Allocate the specified <code>n</code> blocks at the back of the block array. Note that this method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
+<p>Allocate the specified <code>n</code> blocks at the back of the block array. This method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
 
 </div>
 </div>
@@ -2214,7 +2214,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Make room for the specified <code>numNewBlocks</code> pointers in the blocks array. If the specified <code>atFront</code> is true, then make room at the front of the array, else make room at the end of the array. Return a pointer to the insertion point, i.e., the point where new blocks can be stored into the array, working backwards if <code>atFront</code> is true, or working forwards if <code>atFront</code> is false. Note that this method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
+<p>Make room for the specified <code>numNewBlocks</code> pointers in the blocks array. If the specified <code>atFront</code> is <code>true</code>, then make room at the front of the array, else make room at the end of the array. Return a pointer to the insertion point, i.e., the point where new blocks can be stored into the array, working backwards if <code>atFront</code> is <code>true</code>, or working forwards if <code>atFront</code> is <code>false</code>. This method invalidates all iterators except <code>d_deque_p-&gt;d_start</code> and <code>d_deque_p-&gt;d_finish</code>. </p>
 
 </div>
 </div>
@@ -2345,7 +2345,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Call the parameterized <code>VALUE_TYPE</code> destructor on objects in the range <code>[d.end(), d.end() + count())</code> if <code>isTail</code> was specified as <code>true</code> during construction, or <code>[d.start() - count(), d.start()]</code> if <code>isTail</code> was specified as <code>false</code> during construction, where <code>d</code> is the deque used to construct this guard. </p>
+<p>Call the parameterized <code>VALUE_TYPE</code> destructor on objects in the range <code>[d.end() .. d.end() + count())</code> if <code>isTail</code> was specified as <code>true</code> during construction, or <code>[d.start() - count() .. d.start()]</code> if <code>isTail</code> was specified as <code>false</code> during construction, where <code>d</code> is the deque used to construct this guard. </p>
 
 </div>
 </div>
@@ -2474,7 +2474,7 @@ template&lt;class VALUE_TYPE , class ALLOCATOR &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">BlockPtr* <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::d_blocks<code> [protected, inherited]</code></td>
@@ -2490,7 +2490,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::size_t <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::d_blocksLength<code> [protected, inherited]</code></td>
@@ -2506,7 +2506,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">IteratorImp <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::d_start<code> [protected, inherited]</code></td>
@@ -2522,7 +2522,7 @@ template&lt;class VALUE_TYPE &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VALUE_TYPE &gt; </div>
+template&lt;class VALUE_TYPE&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">IteratorImp <a class="el" href="classbsl_1_1Deque__Base.html">bsl::Deque_Base</a>&lt; VALUE_TYPE &gt;::d_finish<code> [protected, inherited]</code></td>
@@ -2566,7 +2566,7 @@ template&lt;class VALUE_TYPE, class ALLOCATOR = allocator&lt;VALUE_TYPE&gt;&gt; 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

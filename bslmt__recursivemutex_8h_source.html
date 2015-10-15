@@ -1,0 +1,209 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_recursivemutex.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEX
+#define INCLUDED_BSLMT_RECURSIVEMUTEX
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a platform-independent recursive mutex.
+//
+//@CLASSES:
+//  bslmt::RecursiveMutex: platform-independent recursive mutex
+//
+//@SEE_ALSO: bslmt_mutex
+//
+//@DESCRIPTION: This component provides a mutually exclusive lock primitive
+// (&quot;mutex&quot;) that is &quot;recursive&quot; - a given thread can lock a recursive mutex
+// multiple times, and then release it by unlocking it the same number of
+// times.  The &#39;bslmt::RecursiveMutex&#39; class provides the following operations:
+// &#39;lock&#39;, &#39;tryLock&#39;, and &#39;unlock&#39;.
+//
+// The non-recursive mutex &#39;bslmt::Mutex&#39; has substantially lower overhead than
+// &#39;bslmt::RecursiveMutex&#39;, and should be used instead if at all possible.  In
+// particular, it is rare to need a recursive mutex.
+//
+// The behavior is undefined if &#39;unlock&#39; is invoked on a
+// &#39;bslmt::RecursiveMutex&#39; object from a thread that does not currently own the
+// lock.
+//
+///Usage
+///-----
+// As the name implies, &#39;bslmt::RecursiveMutex&#39; supports multiple calls to
+// &#39;lock&#39;, which *must* be balanced by a corresponding number of calls to
+// &#39;unlock&#39;.  Suppose that we are using a &#39;bslmt::RecursiveMutex&#39; object to
+// guarantee exclusive access to some object.  The following sketches the
+// &quot;recursive&quot; nature of &#39;bslmt::RecursiveMutex&#39;:
+//..
+//  bslmt::RecursiveMutex recMutex;
+//..
+// Assume that we do not have exclusive access to the object.
+//..
+//  recMutex.lock();    // first level of locking
+//..
+// We have exclusive access here.
+//..
+//  recMutex.lock();    // second level of locking
+//..
+// We still have exclusive access.
+//..
+//  recMutex.unlock();  // release second level lock -- mutex stays locked
+//..
+// We *still* have exclusive access.
+//..
+//  recMutex.unlock();  // release first level lock -- mutex is unlocked
+//..
+// The two calls to &#39;unlock&#39; have balanced the two earlier calls to &#39;lock&#39;.
+// Consequently, we no longer have exclusive access.
+//
+// Note that &#39;bslmt::RecursiveMutex&#39; has substantially more overhead than does
+// &#39;bslmt::Mutex&#39;.  Consequently, the latter should be used unless recursive
+// locking is truly warranted.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
+#include &lt;bslmt_recursivemuteximpl_pthread.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_WIN32
+#include &lt;bslmt_recursivemuteximpl_win32.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class THREAD_POLICY&gt;
+class RecursivemutexImpl;
+
+                           // ====================
+                           // class RecursiveMutex
+                           // ====================
+
+class RecursiveMutex {
+    // This &#39;class&#39; implements a recursive mutex (i.e., a mutex that can be
+    // locked any number of times by a thread, and then released by unlocking
+    // the mutex the same number of times).  If there is an efficient native
+    // recursive mutex, this class wraps it.  Otherwise, a reasonably efficient
+    // proprietary implementation is used.  Note that &#39;Mutex&#39; should be
+    // preferred if at all possible.
+
+    // DATA
+    RecursiveMutexImpl&lt;Platform::ThreadPolicy&gt; d_imp;  // platform-specific
+                                                       // implementation
+
+    // NOT IMPLEMENTED
+    RecursiveMutex(const RecursiveMutex&amp;);
+    RecursiveMutex&amp; operator=(const RecursiveMutex&amp;);
+
+  public:
+    // CREATORS
+    RecursiveMutex();
+        // Create a recursive mutex object in the unlocked state.
+
+    ~RecursiveMutex();
+        // Destroy this recursive mutex object.
+
+    // MANIPULATORS
+    void lock();
+        // Acquire a lock on this object.  If this object is currently locked,
+        // then suspend execution of the current thread until a lock can be
+        // acquired.  Succeed immediately if this thread already holds the
+        // lock.
+
+    int tryLock();
+        // Attempt to acquire a lock on this object.  Return 0 on success, and
+        // a non-zero value if this object is already locked by another thread,
+        // or if an error occurs.  Succeed immediately if this thread already
+        // holds the lock.
+
+    void unlock();
+        // Release a lock on this object that was previously acquired through a
+        // call to &#39;lock&#39;, or a successful call to &#39;tryLock&#39;.  To fully release
+        // the lock, a thread must invoke &#39;unlock&#39; the same number of times it
+        // invoked &#39;lock&#39; and &#39;tryLock&#39;.  The behavior is undefined unless the
+        // calling thread currently owns the lock on this recursive mutex.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                           // --------------------
+                           // class RecursiveMutex
+                           // --------------------
+
+// CREATORS
+inline
+bslmt::RecursiveMutex::RecursiveMutex()
+{
+}
+
+inline
+bslmt::RecursiveMutex::~RecursiveMutex()
+{
+}
+
+// MANIPULATORS
+inline
+void bslmt::RecursiveMutex::lock()
+{
+    d_imp.lock();
+}
+
+inline
+int bslmt::RecursiveMutex::tryLock()
+{
+    return d_imp.tryLock();
+}
+
+inline
+void bslmt::RecursiveMutex::unlock()
+{
+    d_imp.unlock();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

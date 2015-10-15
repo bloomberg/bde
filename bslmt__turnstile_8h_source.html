@@ -1,0 +1,228 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_turnstile.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_TURNSTILE
+#define INCLUDED_BSLMT_TURNSTILE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism to meter time.
+//
+//@CLASSES:
+//  bslmt::Turnstile: mechanism to meter time
+//
+//@DESCRIPTION: This component provides a mechanism, &#39;bslmt::Turnstile&#39;, to
+// meter time.  A turnstile is configured with a rate that specified how many
+// &quot;events&quot; per second the turnstile should allow.  After the rate is set (via
+// the constructor or the &#39;reset&#39; method), callers may execute the &#39;waitTurn&#39;
+// method, which blocks until the next interval arrives.  If the turnstile is
+// not called at or above the configured rate (e.g., due to processing
+// performed at each interval), the turnstile is said to be &quot;lagging behind.&quot;
+// The amount of lag time is obtained from the &#39;lagTime&#39; method.
+//
+///Comparison with Sleep
+///---------------------
+// A straightforward implementation of metering is to call some form of sleep
+// (e.g., &#39;bslmt::ThreadUtil::microSleep&#39;) with a computed rate after each
+// processing step.  However, simply calling &quot;sleep&quot; accumulates errors since
+// this implementation does not account for the time taken during the
+// processing step.  For example, given two functions that take &#39;rate&#39; (turns
+// per second) and &#39;duration&#39; (expected execution time in seconds), and execute
+// &#39;rate * duration&#39; calls to &#39;bsl::sqrt&#39;, calling &#39;waitTurn&#39; on a turnstile or
+// &#39;bslmt::ThreadUtil::microSleep&#39; with duration &#39;1000000 / rate&#39;,
+// respectively; the elapsed time for each call results in the following table,
+// showing that the &#39;bslmt::Turnstile&#39; implementation maintains the correct
+// rate while the &#39;microSleep&#39; implementation accumulates errors.
+//..
+//                     Elapsed Time
+//  Rate  Duration  Turnstile     Sleep
+//  ----  --------  ---------     -----
+//    10         1   0.900310  0.940390
+//   100         1   0.980853  1.609041
+//   500         1   1.000711  4.989093
+//  1000         1   1.000103  9.988734
+//..
+//
+///Thread Safety
+///-------------
+// Except for the &#39;reset&#39; method, this component is thread-safe and
+// thread-aware, meaning that multiple threads may safely use their own
+// instances or a shared instance of a &#39;bslmt::Turnstile&#39; object, provided that
+// &#39;reset&#39; is not called on a turnstile object while another thread is
+// accessing or modifying the same object.
+//
+///Timer Resolution
+///----------------
+// The &#39;waitTurn&#39; method has a resolution of 10 milliseconds.  Therefore,
+// &#39;bslmt::Turnstile&#39; cannot guarantee that all turns can be taken in each one
+// second interval if a rate higher than 100 turns per second is specified.
+//
+///Usage
+///-----
+// The following example illustrates the use of &#39;bslmt::Turnstile&#39; to control
+// the rate of output being written to a specified output stream.  The example
+// function, &#39;heartbeat&#39;, prints a specified message at a specified rate for a
+// specified duration.  An instance of &#39;bsls::Stopwatch&#39; is used to measure
+// time against the specified duration.
+//..
+//  static void heartbeat(bsl::ostream&amp;       stream,
+//                        const bsl::string&amp;  message,
+//                        double              rate,
+//                        double              duration)
+//  {
+//      // Write the specified &#39;message&#39; to the specified &#39;stream&#39; at the
+//      // specified &#39;rate&#39; (given in messages per second) for the specified
+//      // &#39;duration&#39;.
+//
+//      bsls::Stopwatch  timer;
+//      timer.start();
+//      bslmt::Turnstile turnstile(rate);
+//
+//      while (true) {
+//          turnstile.waitTurn();
+//          if (timer.elapsedTime() &gt;= duration) {
+//              break;
+//          }
+//          stream &lt;&lt; message;
+//      }
+//  }
+//..
+// The benefits of using &#39;bslmt::Turnstile&#39; in the above example, as opposed to
+// simply calling &#39;sleep&#39; in a loop, are twofold.  Firstly, &#39;bslmt::Turnstile&#39;
+// automatically accounts for drift caused by additional processing, so the
+// loop is allowed to execute immediately if the program fails to execute the
+// loop at the specified &#39;rate&#39;.  Secondly, computing the sleep time and
+// executing the sleep call, are encapsulated in the turnstile component, which
+// improves the overall readability of the program.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                             // ===============
+                             // class Turnstile
+                             // ===============
+
+class Turnstile {
+    // This class provides a mechanism to meter time.  Using either the
+    // constructor or the &#39;reset&#39; method, the client specifies &#39;rate&#39;,
+    // indicating the number of events per second that the turnstile will
+    // allow.  The client then calls &#39;waitTurn&#39;, which will either sleep until
+    // the next event is to occur, or return immediately if &#39;waitTurn&#39; was
+    // called after the next event is due.  If &#39;waitTurn&#39; is not called until
+    // after the next event is due, the turnstile is said to be &#39;lagging&#39;
+    // behind, and calls to &#39;waitTurn&#39; will not sleep until the events have
+    // caught up with the schedule.  Note that calling &#39;waitTurn&#39; a single time
+    // does not bring a turnstile back on schedule.  For example, if a
+    // turnstile&#39;s configured frequency is one event per second, and the client
+    // is 10 seconds behind schedule, if &#39;waitTurn&#39; were subsequently called
+    // once per second, the turnstile will remain at 10 seconds behind
+    // schedule.  The amount by which events are lagging behind the schedule
+    // can be determined via the &#39;lagTime&#39; method, which returns the positive
+    // number of microseconds by which the turnstile is lagging, or 0 if the
+    // turnstile is not behind schedule.
+
+    // DATA
+    bsls::AtomicInt64         d_nextTurn;   // absolute time of next turn in
+                                           // microseconds
+
+    bsls::AtomicInt64         d_interval;   // interval time in microseconds
+
+    mutable bsls::AtomicInt64 d_timestamp;  // time of last call to &#39;now&#39; in
+                                           // microseconds
+
+    // PRIVATE TYPES
+    typedef bsls::Types::Int64 Int64;
+
+  private:
+    // NOT IMPLEMENTED
+    Turnstile(const Turnstile&amp;);
+    Turnstile&amp; operator=(const Turnstile&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    Turnstile(double                    rate,
+              const bsls::TimeInterval&amp; startTime = bsls::TimeInterval(0));
+        // Create a turnstile object that admits clients at the specified
+        // &#39;rate&#39;, expressed as the number of turns per second.  Optionally
+        // specify the (relative) &#39;startTime&#39; of the first turn.  If
+        // &#39;startTime&#39; is not specified, the first turn may be taken
+        // immediately.  The behavior is undefined unless &#39;0 &lt; rate&#39;.
+
+    // ~Turnstile();
+        // Destroy this object.  Note that this trivial destructor is generated
+        // by the compiler.
+
+    // MANIPULATORS
+    void reset(double                    rate,
+               const bsls::TimeInterval&amp; startTime = bsls::TimeInterval(0));
+        // Reset the rate of this turnstile to the specified &#39;rate&#39;, expressed
+        // as the number of turns per second.  Optionally specify the
+        // (relative) &#39;startTime&#39; of the first turn.  If &#39;startTime&#39; is not
+        // specified, the first turn may be taken immediately.  Note that
+        // threads blocked on &#39;waitTurn&#39; are not interrupted.
+
+    bsls::Types::Int64 waitTurn();
+        // Sleep until the next turn may be taken or return immediately if the
+        // turnstile is lagging behind schedule.  Return the non-negative
+        // number of microseconds spent waiting.
+
+    // ACCESSORS
+    bsls::Types::Int64 lagTime() const;
+        // Return the positive number of microseconds difference between the
+        // the current time and the next turn, indicating that the turnstile is
+        // lagging behind the configured rate.  Otherwise, return 0.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

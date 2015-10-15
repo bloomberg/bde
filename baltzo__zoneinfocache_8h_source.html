@@ -1,0 +1,343 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_zoneinfocache.h                                             -*-C++-*-
+#ifndef INCLUDED_BALTZO_ZONEINFOCACHE
+#define INCLUDED_BALTZO_ZONEINFOCACHE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a cache for time-zone information.
+//
+//@CLASSES:
+//  baltzo::ZoneinfoCache: a cache for time-zone information
+//
+//@SEE_ALSO: baltzo_zoneinfo, baltzo_defaultzoneinfocache
+//
+//@DESCRIPTION: This component defines a class, &#39;baltzo::ZoneinfoCache&#39;, that
+// serves as a cache of &#39;baltzo::Zoneinfo&#39; objects.  A time-zone cache is
+// supplied, on construction, with a &#39;baltzo::Loader&#39; object to obtain
+// time-zone information objects from some data source.  Invocation of the
+// &#39;getZoneinfo&#39; method for a specified time zone returns the address of either
+// previously cached data, or if that data is not cache-resident, a new loaded
+// &#39;baltzo::Zoneinfo&#39; object, which is cached for use in subsequent calls to
+// &#39;getZoneinfo&#39; and &#39;lookupZoneinfo&#39;.  Addresses returned by either of these
+// methods are valid for the lifetime of the cache.
+//
+///Thread Safety
+///-------------
+// &#39;baltzo::ZoneinfoCache&#39; is fully *thread-safe*, meaning that all non-creator
+// operations on an object can be safely invoked simultaneously from multiple
+// threads.
+//
+///Usage
+///-----
+// In this section, we demonstrate creating a &#39;baltzo::ZoneinfoCache&#39; object
+// and using it to access time zone information.
+//
+///Example 1: Creating a Concrete &#39;baltzo::Loader&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// A &#39;baltzo::ZoneinfoCache&#39; object is provided a &#39;baltzo::Loader&#39; on
+// construction.  The &#39;loader&#39; is used to populate the cache per user requests
+// via the &#39;getZoneinfo&#39; method.  In this example, we use a &#39;TestLoader&#39;
+// implementation of the &#39;baltzo::Loader&#39; protocol, based on the
+// &#39;baltzo_testloader&#39; component.  In this example, our test loader is
+// explicitly primed with responses for requests for certain time-zone
+// identifiers.  Note that, in practice, a &#39;loader&#39; typically obtains time-zone
+// information from some external data store (e.g., see
+// &#39;baltzo_datafileloader&#39;).
+//
+// We start by creating and initializing a couple of example time zone
+// information objects.  Note that the &#39;baltzo::Zoneinfo&#39; objects below are
+// illustrative, and contain no actual time zone information:
+//..
+//  baltzo::Zoneinfo newYorkZoneinfo;
+//  newYorkZoneinfo.setIdentifier(&quot;America/New_York&quot;);
+//
+//  baltzo::Zoneinfo londonZoneinfo;
+//  londonZoneinfo.setIdentifier(&quot;Europe/London&quot;);
+//..
+// Next we create a description of Eastern Standard Time (EST) and Greenwich
+// Mean Time (GMT):
+//..
+//  baltzo::LocalTimeDescriptor est(-5 * 60 * 60, false, &quot;EST&quot;);
+//  baltzo::LocalTimeDescriptor gmt(           0, false, &quot;GMT&quot;);
+//..
+// Then we set the initial transition for &#39;newYorkZoneinfo&#39; to Eastern Standard
+// Time, and the initial transition for &#39;londonZoneinfo&#39; to Greenwich Mean
+// Time.  Note that such an initial transition is required for a
+// &#39;baltzo::Zoneinfo&#39; object to be considered Well-Formed (see &#39;isWellFormed&#39;):
+//..
+//  bsls::Types::Int64 firstTime = bdlt::EpochUtil::convertToTimeT64(
+//                                                    bdlt::Datetime(1, 1, 1));
+//  newYorkZoneinfo.addTransition(firstTime, est);
+//  londonZoneinfo.addTransition(firstTime, gmt);
+//..
+// Next we create a &#39;TestLoader&#39;, and then populate it with our example time
+// zone information objects:
+//..
+//  TestLoader testLoader;
+//  testLoader.setTimeZone(newYorkZoneinfo);
+//  testLoader.setTimeZone(londonZoneinfo);
+//..
+// Finally, we verify that &#39;testLoader&#39; contains the configured
+// &#39;baltzo::Zoneinfo&#39; objects for New York and London:
+//..
+//  baltzo::Zoneinfo newYorkResult;
+//  int rc = testLoader.loadTimeZone(&amp;newYorkResult, &quot;America/New_York&quot;);
+//  assert(0 == rc);
+//  assert(newYorkZoneinfo == newYorkResult);
+//
+//  baltzo::Zoneinfo londonResult;
+//  rc = testLoader.loadTimeZone(&amp;londonResult, &quot;Europe/London&quot;);
+//  assert(0 == rc);
+//  assert(londonZoneinfo == londonResult);
+//..
+//
+///Example 2: Creating and Using a &#39;baltzo::ZoneinfoCache&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we create a &#39;baltzo::ZoneinfoCache&#39;, and use it to access
+// time zone information for several time zones.
+//
+// We start by creating a &#39;baltzo::ZoneinfoCache&#39; object supplied with the
+// address of the &#39;TestLoader&#39; we populated in the preceding example:
+//..
+//  baltzo::ZoneinfoCache cache(&amp;testLoader);
+//..
+// Next, we verify the newly constructed cache does not contain either New York
+// or London:
+//..
+//  assert(0 == cache.lookupZoneinfo(&quot;America/New_York&quot;));
+//  assert(0 == cache.lookupZoneinfo(&quot;Europe/London&quot;));
+//..
+// Then, we call &#39;getZoneinfo&#39; to obtain the data for the New York time zone.
+// Note that, because this is the first &#39;getZoneinfo&#39; operation on the class,
+// the time-zone data has not previously been retrieved, and the data must be
+// loaded using the loader supplied at construction:
+//..
+//  const baltzo::Zoneinfo *newYork = cache.getZoneinfo(&amp;rc,
+//                                                      &quot;America/New_York&quot;);
+//
+//  assert(0 == rc);
+//  assert(0 != newYork);
+//  assert(&quot;America/New_York&quot; == newYork-&gt;identifier());
+//..
+// Next, we verify that a subsequent call &#39;lookupZoneinfo&#39; for New York,
+// returns the previously cached value.  However, a call to &#39;lookupZoneinfo&#39;
+// for London will return 0 because the value has not been cached:
+//..
+//  assert(newYork == cache.lookupZoneinfo(&quot;America/New_York&quot;));
+//  assert(0       == cache.lookupZoneinfo(&quot;Europe/London&quot;));
+//..
+// Next, we call &#39;getZoneinfo&#39; for London and verify that it returns the
+// expected value:
+//..
+//  const baltzo::Zoneinfo *london = cache.getZoneinfo(&amp;rc, &quot;Europe/London&quot;);
+//  assert(0 == rc);
+//  assert(0 != london);
+//  assert(&quot;Europe/London&quot; == london-&gt;identifier());
+//..
+// Finally, we call &#39;getZoneinfo&#39; with time zone identifier unknown to our
+// &#39;TestLoader&#39;.  The call to &#39;getZoneinfo&#39; returns 0 because the time zone
+// information cannot be loaded.  Examination of &#39;rc&#39; shows indicates that the
+// identifier is not supported:
+//..
+//  assert(0 == cache.getZoneinfo(&amp;rc, &quot;badId&quot;));
+//  assert(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_LOADER
+#include &lt;baltzo_loader.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_ZONEINFO
+#include &lt;baltzo_zoneinfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include &lt;bslmt_rwmutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_CSTRINGLESS
+#include &lt;bdlb_cstringless.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace baltzo {
+                            // ===================
+                            // class ZoneinfoCache
+                            // ===================
+
+class ZoneinfoCache {
+    // This class provides an efficient mechanism for retrieving information
+    // about a given time zone.  The first time a client requests information
+    // for some time-zone identifier, that information is loaded (using the
+    // &#39;Loader&#39; supplied at construction), returned to the client (via a
+    // &#39;const&#39; pointer value), and cached for future use.  Subsequent requests
+    // for the same time-zone return the cached information.  The returned
+    // values are valid for the lifetime of this object.
+    //
+    // This class:
+    //: o is *exception-neutral*
+    //: o is *fully* *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // PRIVATE TYPES
+    typedef bsl::map&lt;const char *, Zoneinfo *, bdlb::CStringLess&gt; ZoneinfoMap;
+
+    // DATA
+    ZoneinfoMap              d_cache;        // cached time-zone info, indexed
+                                             // by time-zone id
+
+    Loader                  *d_loader_p;     // loader used to obtain time-zone
+                                             // information (held, not owned)
+
+    mutable bslmt::RWMutex  d_lock;         // cache access synchronization
+
+    bslma::Allocator        *d_allocator_p;  // allocator (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    ZoneinfoCache(const ZoneinfoCache&amp;);
+    ZoneinfoCache&amp; operator=(const ZoneinfoCache&amp;);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(ZoneinfoCache,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit ZoneinfoCache(Loader           *loader,
+                           bslma::Allocator *basicAllocator = 0);
+        // Create an empty cache of time-zone information that will use the
+        // specified &#39;loader&#39; to populate the cache, as-needed, with time zone
+        // information.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  In order the populate the cache for a time zone
+        // identifier, &#39;loader&#39; must return a &#39;Zoneinfo&#39; object that is
+        // well-formed (see &#39;ZoneinfoUtil::isWellFormed&#39;) and whose
+        // &#39;identifier&#39; matches the supplied time zone identifier.
+
+    ~ZoneinfoCache();
+        // Destroy this object.
+
+    // MANIPULATORS
+    const Zoneinfo *getZoneinfo(const char *timeZoneId);
+    const Zoneinfo *getZoneinfo(int *rc, const char *timeZoneId);
+        // Return the address of the non-modifiable &#39;Zoneinfo&#39; object
+        // describing the time zone identified by the specified &#39;timeZoneId&#39;,
+        // or 0 if the operation does not succeed.  If the information for
+        // &#39;timeZoneId&#39; has not been previously cached, then attempt to
+        // populate this object using the &#39;loader&#39; supplied at construction.
+        // Optionally specify the address of an integer, &#39;rc&#39;, in which to load
+        // the return code for this operation.  If &#39;rc&#39; is specified, load 0
+        // into &#39;rc&#39; if the operation succeeds, &#39;ErrorCode::k_UNSUPPORTED_ID&#39;
+        // if the time-zone identifier is not supported, and a negative value
+        // if the operation does not succeed for any other reason.  If the
+        // returned address is non-zero, the Zoneinfo object returned is
+        // guaranteed to be well-formed (i.e., &#39;ZoneinfoUtil::isWellFormed&#39;
+        // will return &#39;true&#39; if called with the returned value), and remain
+        // valid for the lifetime of this object.  The behavior is undefined if
+        // &#39;rc&#39; is 0.
+
+    // ACCESSORS
+    const Zoneinfo *lookupZoneinfo(const char *timeZoneId) const;
+        // Return the address of the non-modifiable cached description of the
+        // time zone identified by the specified &#39;timeZoneId&#39;, and 0 if
+        // information for &#39;timeZoneId&#39; has not previously been cached (by a
+        // call to &#39;getZoneinfo&#39;).  If the returned address is non-zero, the
+        // Zoneinfo object returned is guaranteed to be well-formed (i.e.,
+        // &#39;ZoneinfoUtil::isWellFormed will return &#39;true&#39; if called with the
+        // returned value), and remain valid for the lifetime of this object.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------
+                            // class ZoneinfoCache
+                            // -------------------
+
+// CREATORS
+inline
+baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
+                                     bslma::Allocator *basicAllocator)
+: d_cache(basicAllocator)
+, d_loader_p(loader)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    BSLS_ASSERT_SAFE(0 != loader);
+}
+
+// MANIPULATORS
+inline
+const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
+                                                        const char *timeZoneId)
+{
+    BSLS_ASSERT_SAFE(0 != timeZoneId);
+
+    int rc;
+    return getZoneinfo(&amp;rc, timeZoneId);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

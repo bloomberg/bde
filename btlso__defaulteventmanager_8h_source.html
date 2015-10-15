@@ -1,0 +1,276 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_defaulteventmanager.h                                        -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER
+#define INCLUDED_BTLSO_DEFAULTEVENTMANAGER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an interface for default event manager.
+//
+//@CLASSES:
+//  btlso::DefaultEventManager: event manager interface
+//
+//@SEE_ALSO: btlso_eventmanager, btlso_timereventmanager
+//
+//@DESCRIPTION: This component provides a default socket event multiplexer that
+// adheres to &#39;btlso::EventManager&#39; protocol.  In a case where more than one
+// multiplexing mechanism is available for a certain platform, all mechanisms
+// (to the best of our knowledge) are implemented and a particular one can be
+// chosen explicitly by the user (see usage example).  The following socket
+// event manager specializations (presented along with the polling mechanisms
+// and applicable platforms) are available through this component (note that,
+// for shortness, we will omit &#39;btlso::DefaultEventManager&#39; in the
+// specialization column):
+//..
+//  +========================================================================+
+//  |      SPECIALIZATION        |   SYSTEM MECHANISM    |     PLATFORM      |
+//  +------------------------------------------------------------------------+
+//  | &lt;btlso::Platform::SELECT&gt;  |        select         | Windows, Solaris, |
+//  |                            |                       | AIX, Linux        |
+//  +------------------------------------------------------------------------+
+//  | &lt;btlso::Platform::DEVPOLL&gt; |        /dev/poll      |      Solaris*     |
+//  +------------------------------------------------------------------------+
+//  | &lt;btlso::Platform::EPOLL&gt;   |         epoll         |       Linux*      |
+//  +------------------------------------------------------------------------+
+//  | &lt;btlso::Platform::POLL&gt;    |          poll         | Solaris, AIX*,    |
+//  |                            |                       | Linux             |
+//  +========================================================================+
+//  * indicates the default specialization for a platform.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Default Event Manager
+///- - - - - - - - - - - - - - - - - - - - - -
+// In the following usage example we show how to create an instance of a
+// default event manager.  First, we need to include this file (shown here for
+// completeness):
+//..
+//  #include &lt;btlso_defaulteventmanager.h&gt;
+//..
+// Second, create a &#39;btlso::TimeMetrics&#39; to give to the event manager:
+//..
+//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+//                             btlso::TimeMetrics::e_CPU_BOUND);
+//..
+// Now, create a default event manager that uses this &#39;metrics&#39;:
+//..
+//  typedef btlso::Platform::DEFAULT_POLLING_MECHANISM PollMechanism;
+//  btlso::DefaultEventManager&lt;PollMechanism&gt; eventManager(&amp;metrics);
+//..
+// Note that the time metrics is optional.  Using the same component, we can
+// create an event manager that uses a particular mechanism (for example,
+// &#39;/dev/poll&#39;) as follows:
+//..
+//  btlso::DefaultEventManager&lt;btlso::Platform::DEVPOLL&gt; fastEventManager;
+//..
+// Note that &#39;/dev/poll&#39; is available only on Solaris and this instantiation
+// fails (at compile time) on other platforms.
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_DEVPOLL
+#include &lt;btlso_defaulteventmanager_devpoll.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_EPOLL
+#include &lt;btlso_defaulteventmanager_epoll.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_POLL
+#include &lt;btlso_defaulteventmanager_poll.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_POLLSET
+#include &lt;btlso_defaulteventmanager_pollset.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGER_SELECT
+#include &lt;btlso_defaulteventmanager_select.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_EVENTMANAGER
+#include &lt;btlso_eventmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_EVENTTYPE
+#include &lt;btlso_eventtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace bsls { class TimeInterval; }
+
+namespace btlso {
+
+class TimeMetrics;
+
+                     // =========================
+                     // class DefaultEventManager
+                     // =========================
+
+template &lt;class POLLING_MECHANISM&gt;
+class DefaultEventManager : public EventManager {
+    // This class standardizes the interface for the default event manager for
+    // a given platform.  The generic class (this one) is NOT implemented.  All
+    // specialized event managers must adhere to this interface.
+    //
+    // Note that &#39;POLLING_MECHANISM&#39; is specified in the forward declaration in
+    // &#39;btlso_defaulteventmanagerimpl.h&#39; to default to
+    // &#39;Platform::DEFAULT_POLLING_MECHANISM&#39;.
+
+  public:
+    // CREATORS
+    explicit
+    DefaultEventManager(TimeMetrics      *timeMetric     = 0,
+                        bslma::Allocator *basicAllocator = 0);
+        // Create a &#39;poll&#39;-based event manager.  Optionally specify a
+        // &#39;timeMetric&#39; to report time spent in CPU-bound and IO-bound
+        // operations.  If &#39;timeMetric&#39; is not specified or is 0, these metrics
+        // are not reported.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~DefaultEventManager();
+        // Destroy this object.  Note that the registered callbacks are NOT
+        // invoked.
+
+    // MANIPULATORS
+    int dispatch(int flags);
+        // For each socket event pending on this event manager, invoke the
+        // corresponding callback registered with this event manager.  If no
+        // event is pending, wait until either (1) at least one event occurs
+        // (in which case the corresponding callback(s) is invoked) or (2)
+        // provided that the specified &#39;flags&#39; contains
+        // &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39;, an underlying system call is
+        // interrupted by a signal.  Return the number of dispatched callbacks
+        // on success, and a negative value otherwise; -1 is reserved to
+        // indicate that an underlying system call was interrupted.  When such
+        // an interruption occurs this method will return -1 if &#39;flags&#39;
+        // contains &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39; and otherwise will
+        // automatically restart (i.e., reissue the identical system call).
+        // Note that the order of invocation, relative to the order of
+        // registration, is unspecified and that -1 is never returned if
+        // &#39;flags&#39; does not contain &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39;.  Also note
+        // that the behavior of this method may be undefined if the number of
+        // registered sockets is 0.
+
+    int dispatch(const bsls::TimeInterval&amp; timeout, int flags);
+        // For each socket event pending on this event manager, invoke the
+        // corresponding callback registered with this event manager.  If no
+        // event is pending, wait until either (1) at least one event occurs
+        // (in which case the corresponding callback(s) are invoked), (2) the
+        // specified absolute &#39;timeout&#39; interval is reached, or (3) provided
+        // that the specified &#39;flags&#39; contains &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39;,
+        // an underlying system call is interrupted by a signal.  Return the
+        // number of dispatched callbacks on success, 0 if &#39;timeout&#39; is
+        // reached, and a negative value otherwise; -1 is reserved to indicate
+        // that an underlying system call was interrupted.  When such an
+        // interruption occurs this method will return -1 if &#39;flags&#39; contains
+        // &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39; and otherwise will automatically
+        // restart (i.e., reissue the identical system call).  Note that the
+        // order of invocation, relative to the order of registration, is
+        // unspecified and that -1 is never returned if &#39;flags&#39; does not
+        // contain &#39;bteso_Flag::k_ASYNC_INTERRUPT&#39;.  Also note that the
+        // behavior of this method may be undefined if the number of registered
+        // sockets is 0.
+
+    int registerSocketEvent(const SocketHandle::Handle&amp;   handle,
+                            const EventType::Type         event,
+                            const EventManager::Callback&amp; callback);
+        // Register with this event manager the occurrence of the specified
+        // &#39;event&#39; on the specified socket &#39;handle&#39; such that the specified
+        // &#39;callback&#39; functor is invoked when &#39;event&#39; occurs.  Return 0 on
+        // success and a non-zero value otherwise.  Socket event registrations
+        // stay in effect until they are subsequently deregistered; the
+        // callback is invoked each time &#39;event&#39; is seen.  Typically,
+        // &#39;EventType::e_READ&#39; and &#39;EventType::e_WRITE&#39; are the only events
+        // that can be registered simultaneously for a socket.  Simultaneously
+        // registering for incompatible events for the same socket &#39;handle&#39; may
+        // result in undefined behavior.  If a registration attempt is made for
+        // an event that is already registered, the callback associated with
+        // this event will be overwritten with the new one.
+
+    void deregisterSocketEvent(const SocketHandle::Handle&amp; handle,
+                               EventType::Type             event);
+        // Deregister from this event manager the callback associated with the
+        // specified &#39;event&#39; on the specified &#39;handle&#39; so that said callback
+        // will not be invoked should &#39;event&#39; occur.
+
+    int deregisterSocket(const SocketHandle::Handle&amp; handle);
+        // Deregister from this event manager all events associated with the
+        // specified socket &#39;handle&#39;.  Return the number of deregistered
+        // callbacks.
+
+    void deregisterAll();
+        // Deregister from this event manager all events on every socket
+        // handle.
+
+    // ACCESSORS
+    bool hasLimitedSocketCapacity() const;
+        // Return &#39;true&#39; if this event manager has a limited socket capacity,
+        // and &#39;false&#39; otherwise.
+
+    int isRegistered(const SocketHandle::Handle&amp; handle,
+                     const EventType::Type       event) const;
+        // Return 1 if the specified &#39;event&#39; is registered with this event
+        // manager for the specified socket &#39;handle&#39; and 0 otherwise.
+
+    int numEvents() const;
+        // Return the total number of all socket events currently registered
+        // with this event manager.
+
+    int numSocketEvents(const SocketHandle::Handle&amp; handle) const;
+        // Return the number of socket events currently registered with this
+        // event manager for the specified &#39;handle&#39;.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_enumeratorinfo.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_ENUMERATORINFO
+#define INCLUDED_BDLAT_ENUMERATORINFO
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for enumerator information.
+//
+//@CLASSES:
+//   bdlat_EnumeratorInfo: container for enumerator information
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION:
+// This component provides the &#39;bdlat_EnumeratorInfo&#39; &#39;class&#39; which is a
+// container for holding information (properties) about an enumerator.  The
+// properties of an enumerator include its name and the length of its name, its
+// value, and a brief annotation.  Although each enumerator property is
+// publicly accessible, a manipulator and accessor is also supplied for each.
+//
+///Usage
+///-----
+// TBD doc
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+                        // ===========================
+                        // struct bdlat_EnumeratorInfo
+                        // ===========================
+
+struct bdlat_EnumeratorInfo {
+    // This &#39;struct&#39; holds information about an enumerator.  Its data members
+    // are &#39;public&#39; by design so that instances may be statically initialized.
+
+    // PUBLIC DATA -- DO *NOT* REORDER
+    int         d_value;         // value of enumerator
+    const char *d_name_p;        // name of enumerator
+    int         d_nameLength;    // length of enumerator name (0-terminator not
+                                 // included)
+    const char *d_annotation_p;  // enumerator annotation
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_EnumeratorInfo,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(bdlat_EnumeratorInfo,
+                                   bsl::is_trivially_default_constructible);
+
+    // CREATORS
+
+    // The following methods are not defined by design:
+    //..
+    //   bdlat_EnumeratorInfo();
+    //   bdlat_EnumeratorInfo(const bdlat_EnumeratorInfo&amp; original);
+    //   ~bdlat_EnumeratorInfo();
+    //..
+    // The corresponding methods supplied by the compiler are sufficient.
+
+    // MANIPULATORS
+
+    // The following method is not defined by design:
+    //..
+    //   bdlat_EnumeratorInfo&amp; operator=(const bdlat_EnumeratorInfo&amp; rhs);
+    //..
+    // The assignment operator supplied by the compiler is sufficient.
+
+    const char *&amp; annotation();
+        // Return a reference to the modifiable annotation of this enumerator
+        // info object.
+
+    const char *&amp; name();
+        // Return a reference to the modifiable name of this enumerator info
+        // object.
+
+    int&amp; nameLength();
+        // Return a reference to the modifiable length of the name of this
+        // enumerator info object.  Note that the 0-terminator is not included
+        // in the length.
+
+    int&amp; value();
+        // Return a reference to the modifiable id of this enumerator info
+        // object.
+
+    // ACCESSORS
+    const char *annotation() const;
+        // Return the non-modifiable annotation of this enumerator info object.
+
+    const char *name() const;
+        // Return the non-modifiable name of this enumerator info object.
+
+    int nameLength() const;
+        // Return the length of the name of this enumerator info object.  Note
+        // that the 0-terminator is not included in the length.
+
+    int value() const;
+        // Return the index of this enumerator info object.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bool operator==(const bdlat_EnumeratorInfo&amp; lhs,
+                const bdlat_EnumeratorInfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; enumerator info objects
+    // have the same value, and &#39;false&#39; otherwise.  Two enumerator info objects
+    // have the same value if each of their respective properties are
+    // identical.
+
+inline
+bool operator!=(const bdlat_EnumeratorInfo&amp; lhs,
+                const bdlat_EnumeratorInfo&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; enumerator info objects
+    // do not have the same value, and &#39;false&#39; otherwise.  Two enumerator info
+    // objects do not have the same value if at least one of their respective
+    // properties is not identical.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;               stream,
+                         const bdlat_EnumeratorInfo&amp; enumeratorInfo);
+    // Write the value of the specified &#39;enumeratorInfo&#39; to the specified
+    // &#39;stream&#39;.
+
+// MANIPULATORS
+
+inline
+const char *&amp; bdlat_EnumeratorInfo::annotation()
+{
+    return d_annotation_p;
+}
+
+inline
+const char *&amp; bdlat_EnumeratorInfo::name()
+{
+    return d_name_p;
+}
+
+inline
+int&amp; bdlat_EnumeratorInfo::nameLength()
+{
+    return d_nameLength;
+}
+
+inline
+int&amp; bdlat_EnumeratorInfo::value()
+{
+    return d_value;
+}
+
+// ACCESSORS
+
+inline
+const char *bdlat_EnumeratorInfo::annotation() const
+{
+    return d_annotation_p;
+}
+
+inline
+const char *bdlat_EnumeratorInfo::name() const
+{
+    return d_name_p;
+}
+
+inline
+int bdlat_EnumeratorInfo::nameLength() const
+{
+    return d_nameLength;
+}
+
+inline
+int bdlat_EnumeratorInfo::value() const
+{
+    return d_value;
+}
+
+// FREE OPERATORS
+
+inline
+bool operator==(const bdlat_EnumeratorInfo&amp; lhs,
+                const bdlat_EnumeratorInfo&amp; rhs)
+{
+    return lhs.value()      == rhs.value()
+        &amp;&amp; lhs.nameLength() == rhs.nameLength()
+        &amp;&amp; 0 == bsl::memcmp(lhs.name(), rhs.name(), lhs.nameLength())
+        &amp;&amp; 0 == bsl::strcmp(lhs.annotation(), rhs.annotation());
+}
+
+inline
+bool operator!=(const bdlat_EnumeratorInfo&amp; lhs,
+                const bdlat_EnumeratorInfo&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

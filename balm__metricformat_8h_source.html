@@ -1,0 +1,571 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_metricformat.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_METRICFORMAT
+#define INCLUDED_BALM_METRICFORMAT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $&quot;)
+
+//@PURPOSE: Provide a formatting specification for a metric.
+//
+//@CLASSES:
+// balm::MetricFormat: description for how to format a metric
+// balm::MetricFormatSpec: specification for formatting an individual aggregate
+//
+//@SEE_ALSO: balm_metricdescription
+//
+//@DESCRIPTION: This component provides classes for describing the formatting
+// for a metric.  For each published aggregate type (e.g., count, total, min,
+// max, etc.), a &#39;balm::MetricFormat&#39; object holds a &#39;balm::MetricFormatSpec&#39;
+// object describing how values of that aggregate may be formatted.
+// &#39;balm::MetricFormat&#39; provides the &#39;setFormatSpec&#39; method to set the format
+// specification for a particular publication type, and the &#39;formatSpec&#39; method
+// to retrieve the format specification for a publication type (or null if no
+// format specification has been provided for the indicated publication type).
+//
+// &#39;balm::MetricFormatSpec&#39; is an unconstrained pure-attribute class that
+// represents the specification for formatting a particular publication type of
+// a metric (e.g., total, count, min, max, etc.).  The attributes held by
+// &#39;balm::MetricFormatSpec&#39; are given in the following table:
+//..
+//  Attribute       Type                  Description               Default
+//  ---------   ------------   ----------------------------------   -------
+//  scale       float          multiplier for scaling value         1.0
+//  format      const char *   &#39;printf&#39;-style format for &#39;double&#39;   &quot;%f&quot;
+//..
+// The string provided must be a &#39;printf&#39;-style format valid for formatting a
+// single &#39;double&#39; value.
+//
+// Note that &#39;balm::Publisher&#39; implementations determine how to use the format
+// information associated with a metric (i.e., there is no guarantee that every
+// publisher will format a metric using its &#39;balm::MetricFormat&#39;).
+//
+///Thread Safety
+///-------------
+// &#39;balm::MetricFormat&#39; is *const* *thread-safe*, meaning that accessors may be
+// invoked concurrently from different threads, but it is not safe to access or
+// modify a &#39;balm::MetricFormat&#39; in one thread while another thread modifies
+// the same object.
+//
+// &#39;balm::MetricFormatSpec&#39; is *const* *thread-safe*, meaning that accessors
+// may be invoked concurrently from different threads, but it is not safe to
+// access or modify a &#39;balm::MetricFormatSpec&#39; in one thread while another
+// thread modifies the same object.
+//
+///Usage
+///-----
+// The following example demonstrates how to create and configure a
+// &#39;balm::MetricFormat&#39;.  Note that clients of the &#39;balm&#39; package can set the
+// format for a metric through &#39;balm_configurationutil&#39; or
+// &#39;balm_metricregistry&#39;.
+//
+// We start by creating a &#39;balm::MetricFormat&#39; object:
+//..
+//  bslma::Allocator  *allocator = bslma::Default::allocator(0);
+//  balm::MetricFormat  format(allocator);
+//..
+// Next we specify that average values should only be printed to two decimal
+// places:
+//..
+//  format.setFormatSpec(balm::PublicationType::e_AVG,
+//                       balm::MetricFormatSpec(1.0, &quot;%.2f&quot;));
+//..
+// Next we specify that rate values should be formatted as a percentage --
+// i.e., multiplied by 100, and then displayed with a &quot;%&quot; character:
+//..
+//  format.setFormatSpec(balm::PublicationType::e_RATE,
+//                       balm::MetricFormatSpec(100.0, &quot;%.2f%%&quot;));
+//..
+// We can verify that the correct format specifications have been set:
+//..
+//  assert(balm::MetricFormatSpec(1.0, &quot;%.2f&quot;) ==
+//         *format.formatSpec(balm::PublicationType::e_AVG));
+//  assert(balm::MetricFormatSpec(100.0, &quot;%.2f%%&quot;) ==
+//         *format.formatSpec(balm::PublicationType::e_RATE));
+//  assert(0 == format.formatSpec(balm::PublicationType::e_TOTAL));
+//..
+// We can use the &#39;balm::MetricFormatSpec::formatValue&#39; utility function to
+// format the value 0.055 to the console.  Note however, that there is no
+// guarantee that every implementation of &#39;balm::Publisher&#39; will format metrics
+// in this way.
+//..
+//  balm::MetricFormatSpec::formatValue(
+//     bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_AVG));
+//  bsl::cout &lt;&lt; bsl::endl;
+//  balm::MetricFormatSpec::formatValue(
+//    bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_RATE));
+//  bsl::cout &lt;&lt; bsl::endl;
+//..
+// The resulting console output will be:
+//..
+//  0.06
+//  5.50%
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_PUBLICATIONTYPE
+#include &lt;balm_publicationtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_NULLABLEVALUE
+#include &lt;bdlb_nullablevalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include &lt;bsl_cstring.h&gt;       // for &#39;bsl::strcmp&#39;
+#endif
+
+namespace BloombergLP {
+
+namespace balm {
+                           // ======================
+                           // class MetricFormatSpec
+                           // ======================
+
+class MetricFormatSpec {
+    // This class provides a value-semantic representation of the formatting
+    // specification for a metric aggregate value.  The &#39;scale()&#39; is a
+    // multiplier used to scale the numeric value.  The &#39;format()&#39; is a
+    // &#39;printf&#39;-style format string suitable for formatting a single
+    // floating-point value.
+
+    // DATA
+    float       d_scale;   // multiplier for scaling published values
+
+    const char *d_format;  // &#39;printf&#39;-style format string for formatting a
+                           // single floating-point numeric value
+
+    // PRIVATE CONSTANTS
+    static const char *k_DEFAULT_FORMAT;  // default format (&quot;%f&quot;)
+
+  public:
+    // CLASS METHODS
+    static bsl::ostream&amp; formatValue(bsl::ostream&amp;           stream,
+                                     double                  value,
+                                     const MetricFormatSpec&amp; format);
+        // Write the specified &#39;value&#39; to the specified &#39;stream&#39; using the
+        // specified &#39;format&#39;, and return a reference to the modifiable
+        // &#39;stream&#39;.
+
+    // CREATORS
+    MetricFormatSpec();
+        // Create a metric format spec having default values for &#39;scale&#39; and
+        // &#39;format&#39;.  The default value for &#39;scale&#39; is 1.0 and the default
+        // value for &#39;format&#39; is &quot;%f&quot;.
+
+    MetricFormatSpec(float scale, const char *format);
+        // Create a metric format spec having the specified &#39;scale&#39; and
+        // &#39;format&#39;.  The &#39;scale&#39; indicates the multiplier that may be used
+        // when formatting values, and &#39;format&#39; must be a &#39;printf&#39;-style format
+        // string for formatting a single floating-point value.  The behavior
+        // is undefined unless &#39;format&#39; is null-terminated, contains a
+        // &#39;printf&#39;-style format string valid for a single floating-point
+        // value, and remains valid and unmodified for the lifetime of this
+        // object.
+
+    MetricFormatSpec(const MetricFormatSpec&amp; original);
+        // Create a metric format spec having the same value as the specified
+        // &#39;original&#39; format spec.  The behavior is undefined unless
+        // &#39;original.format()&#39; remains valid and unmodified for the lifetime of
+        // this object.
+
+    // ~MetricFormatSpec();
+        // Destroy this format spec.  Note that this trivial destructor is
+        // generated by the compiler.
+
+    // MANIPULATORS
+    MetricFormatSpec&amp; operator=(const MetricFormatSpec&amp; rhs);
+        // Assign to this format spec the value of the specified &#39;rhs&#39; format
+        // spec, and return a reference to this modifiable format spec.
+
+    void setScale(float scale);
+        // Set, to the specified &#39;scale&#39;, the scale multiplier that may be
+        // applied when formatting values.
+
+    void setFormat(const char *format);
+        // Set, to the specified &#39;format&#39;, the &#39;printf&#39;-style formatting string
+        // that may be applied when formatting values.  The behavior is
+        // undefined unless &#39;format&#39; is null-terminated, contains a
+        // &#39;printf&#39;-style format string valid for a single floating-point
+        // value, and remains valid and unmodified for the lifetime of this
+        // object.
+
+    // ACCESSORS
+    float scale() const;
+        // Return the floating-point multiplier value that may be applied to
+        // scale formatted values.
+
+    const char *format() const;
+        // Return the address of the null-terminated string containing the
+        // &#39;printf&#39;-style format that may be used to format values.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream) const;
+        // Write a description of this format spec to the specified &#39;stream&#39;,
+        // and return a reference to the modifiable &#39;stream&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bool operator==(const MetricFormatSpec&amp; lhs,
+                const MetricFormatSpec&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric format specs have
+    // the same value, and &#39;false&#39; otherwise.  Two format specs have the same
+    // value if they have the same values for their &#39;scale&#39; and &#39;format&#39;
+    // attributes, respectively.
+
+inline
+bool operator!=(const MetricFormatSpec&amp; lhs,
+                const MetricFormatSpec&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric format specs do
+    // not have the same value, and &#39;false&#39; otherwise.  Two format specs do
+    // not have same value if they differ in their respective values for
+    // &#39;scale&#39; or &#39;format&#39; attributes.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;           stream,
+                         const MetricFormatSpec&amp; rhs);
+    // Write a formatted description of the specified &#39;rhs&#39; format spec to the
+    // specified &#39;stream&#39;, and return a reference to the modifiable &#39;stream&#39;.
+
+                             // ==================
+                             // class MetricFormat
+                             // ==================
+
+class MetricFormat {
+    // This class provides a value-semantic description for the formatting of a
+    // metric.  For each published aggregate type of a metric (e.g., count,
+    // total, min, max, etc.), a &#39;MetricFormat&#39; contains a &#39;MetricFormatSpec&#39;
+    // object describing how to format values of that aggregate, or null if no
+    // formatting information is supplied.  &#39;Metricformat&#39; provides the
+    // &#39;setFormatSpec&#39; method to set the format spec for a publication type,
+    // and the &#39;formatSpec&#39; method to retrieve the format spec for a
+    // publication type (or 0 if no format spec has been provided for the
+    // indicated publication type).  Note that the types of published
+    // aggregates explicitly provided by the &#39;balm&#39; package are defined in the
+    // &#39;PublicationType&#39; enumeration.
+
+    // TYPES
+    typedef bdlb::NullableValue&lt;MetricFormatSpec&gt; AggregateFormatSpec;
+
+    // DATA
+    bsl::vector&lt;AggregateFormatSpec&gt; d_formatSpecs;
+                              // array of length 0, or of length
+                              // &#39;PublicationType::k_LENGTH&#39;, holding a
+                              // mapping of the publication type to the
+                              // (possibly null) formatting options for that
+                              // type
+
+    // FRIENDS
+    friend bool operator==(const MetricFormat&amp; lhs,
+                           const MetricFormat&amp; rhs);
+
+  public:
+    // PUBLIC TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricFormat, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    MetricFormat(bslma::Allocator *basicAllocator = 0);
+        // Create an empty metric format object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.  Note that
+        // &#39;formatSpec&#39; will return 0 for all supplied publication types.
+
+    MetricFormat(const MetricFormat&amp;  original,
+                 bslma::Allocator    *basicAllocator = 0);
+        // Create a metric format object having the same value as the specified
+        // &#39;original&#39; format.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    // ~MetricFormat();
+        // Destroy this metric format object.  Note that this trivial
+        // destructor is generated by the compiler.
+
+    // MANIPULATORS
+    MetricFormat&amp; operator=(const MetricFormat&amp; rhs);
+        // Assign to this metric format object the value of the specified &#39;rhs&#39;
+        // metric format, and return a reference to this modifiable metric
+        // format.
+
+    void setFormatSpec(PublicationType::Value  publicationType,
+                       const MetricFormatSpec&amp; formatSpec);
+        // Set the format spec for the metric aggregate indicated by the
+        // specified &#39;publicationType&#39; to the specified &#39;formatSpec&#39;.
+
+    void clearFormatSpecs();
+        // Remove all format specs from this metric format object and put this
+        // object into its default-constructed state.  After this method
+        // returns, &#39;formatSpec&#39; will return 0 for all supplied publication
+        // types.
+
+    void clearFormatSpec(PublicationType::Value publicationType);
+        // Remove the format spec for the specified &#39;publicationType&#39; from this
+        // metric format object.  After this methods returns,
+        // &#39;formatSpec(publicationType)&#39; will return 0.
+
+    // ACCESSORS
+    const MetricFormatSpec *formatSpec(
+                            PublicationType::Value publicationType) const;
+        // Return the address of the non-modifiable format spec for the
+        // specified &#39;publicationType&#39;, or 0 if no format spec has been
+        // provided for &#39;publicationType&#39;.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const MetricFormat&amp; lhs, const MetricFormat&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric formats have the
+    // same value, and &#39;false&#39; otherwise.  Two metric formats have the same
+    // value if they have the same value for &#39;formatSpec&#39; for each of the
+    // enumerated publication types.
+
+inline
+bool operator!=(const MetricFormat&amp; lhs, const MetricFormat&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; metric formats do not
+    // have the same value, and &#39;false&#39; otherwise.  Two metric formats do not
+    // have same value if they differ in their &#39;formatSpec&#39; for any of the
+    // enumerated publication types.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const MetricFormat&amp; rhs);
+    // Write a formatted description of the specified &#39;rhs&#39; metric format to
+    // the specified &#39;stream&#39;, and return a reference to the modifiable
+    // &#39;stream&#39;.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                           // ----------------------
+                           // class MetricFormatSpec
+                           // ----------------------
+
+// CREATORS
+inline
+MetricFormatSpec::MetricFormatSpec()
+: d_scale(1.0f)
+, d_format(k_DEFAULT_FORMAT)
+{
+}
+
+inline
+MetricFormatSpec::MetricFormatSpec(float scale, const char *format)
+: d_scale(scale)
+, d_format(format)
+{
+}
+
+inline
+MetricFormatSpec::MetricFormatSpec(
+                                         const MetricFormatSpec&amp; original)
+: d_scale(original.d_scale)
+, d_format(original.d_format)
+{
+}
+
+// MANIPULATORS
+inline
+MetricFormatSpec&amp; MetricFormatSpec::operator=(
+                                              const MetricFormatSpec&amp; rhs)
+{
+    d_scale  = rhs.d_scale;
+    d_format = rhs.d_format;
+    return *this;
+}
+
+inline
+void MetricFormatSpec::setScale(float scale)
+{
+    d_scale = scale;
+}
+
+inline
+void MetricFormatSpec::setFormat(const char *format)
+{
+    d_format = format;
+}
+
+// ACCESSORS
+inline
+float MetricFormatSpec::scale() const
+{
+    return d_scale;
+}
+
+inline
+const char *MetricFormatSpec::format() const
+{
+    return d_format;
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const MetricFormatSpec&amp; lhs,
+                      const MetricFormatSpec&amp; rhs)
+{
+    return lhs.scale() == rhs.scale()
+        &amp;&amp; 0 == bsl::strcmp(lhs.format(), rhs.format());
+}
+
+inline
+bool balm::operator!=(const MetricFormatSpec&amp; lhs,
+                      const MetricFormatSpec&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp;           stream,
+                               const MetricFormatSpec&amp; rhs)
+{
+    return rhs.print(stream);
+}
+
+namespace balm {
+                             // ------------------
+                             // class MetricFormat
+                             // ------------------
+
+// CREATORS
+inline
+MetricFormat::MetricFormat(bslma::Allocator *basicAllocator)
+: d_formatSpecs(basicAllocator)
+{
+}
+
+inline
+MetricFormat::MetricFormat(const MetricFormat&amp;  original,
+                           bslma::Allocator    *basicAllocator)
+: d_formatSpecs(original.d_formatSpecs, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+MetricFormat&amp;
+MetricFormat::operator=(const MetricFormat&amp; rhs)
+{
+    d_formatSpecs = rhs.d_formatSpecs;
+    return *this;
+}
+
+inline
+void MetricFormat::setFormatSpec(PublicationType::Value  publicationType,
+                                 const MetricFormatSpec&amp; formatSpec)
+{
+    if (d_formatSpecs.empty()) {
+        d_formatSpecs.resize(PublicationType::k_LENGTH);
+    }
+    d_formatSpecs[(int)publicationType].makeValue(formatSpec);
+}
+
+inline
+void MetricFormat::clearFormatSpecs()
+{
+    d_formatSpecs.clear();
+}
+
+// ACCESSORS
+inline
+const MetricFormatSpec *MetricFormat::formatSpec(
+                                  PublicationType::Value publicationType) const
+{
+    if (d_formatSpecs.empty()) {
+        return 0;                                                     // RETURN
+    }
+    const AggregateFormatSpec&amp; spec = d_formatSpecs[publicationType];
+    return spec.isNull() ? 0 : &amp;spec.value();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const MetricFormat&amp; lhs,
+                      const MetricFormat&amp; rhs)
+{
+    return lhs.d_formatSpecs == rhs.d_formatSpecs;
+}
+
+inline
+bool balm::operator!=(const MetricFormat&amp; lhs,
+                      const MetricFormat&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp; stream, const MetricFormat&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

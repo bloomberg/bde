@@ -1,0 +1,839 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_choicefunctions.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
+#define INCLUDED_BDLAT_CHOICEFUNCTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace defining choice functions.
+//
+//@CLASSES:
+//  bdlat_ChoiceFunctions: namespace for calling choice functions
+//
+//@SEE_ALSO: bdlat_selectioninfo
+//
+// TBD: update this documentation to reflect the new overloaded functions
+//
+//@DESCRIPTION: The &#39;bdlat_ChoiceFunctions&#39; &#39;namespace&#39; provided in this
+// component defines parameterized functions that expose &quot;choice&quot; behavior for
+// &quot;choice&quot; types.  See the package-level documentation for a full description
+// of &quot;choice&quot; types.  The functions in this namespace allow users to:
+//..
+//  o make a selection using either a selection id or a selection name
+//    (&#39;makeSelection&#39;).
+//  o manipulate the current selection using a parameterized manipulator
+//    (&#39;manipulateSelection&#39;).
+//  o access the current selection using a parameterized accessor
+//    (&#39;accessSelection&#39;).
+//  o obtain the id for the current selection (&#39;selectionId&#39;).
+//..
+// Also, the meta-function &#39;IsChoice&#39; contains a compile-time constant &#39;VALUE&#39;
+// that is non-zero if the parameterized &#39;TYPE&#39; exposes &quot;choice&quot; behavior
+// through the &#39;bdlat_ChoiceFunctions&#39; &#39;namespace&#39;.
+//
+// This component specializes all of these functions for types that have the
+// &#39;bdlat_TypeTraitBasicChoice&#39; trait.
+//
+// Types that do not have the &#39;bdlat_TypeTraitBasicChoice&#39; trait can be plugged
+// into the &#39;bdlat&#39; framework.  This is done by overloading the &#39;bdlat_choice*&#39;
+// functions inside the namespace of the plugged in type.  For example, suppose
+// there is a type called &#39;mine::MyChoice&#39;.  In order to plug this type into
+// the &#39;bdlat&#39; framework as a &quot;Choice&quot;, the following functions must be
+// declared and implemented in the &#39;mine&#39; namespace:
+//..
+//  // MANIPULATORS
+//  int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
+//      // Set the value of the specified &#39;object&#39; to be the default for
+//      // the selection indicated by the specified &#39;selectionId&#39;.  Return
+//      // 0 on success, and non-zero value otherwise (i.e., the selection
+//      // is not found).
+//
+//  int bdlat_choiceMakeSelection(MyChoice  *object,
+//                                const char *selectionName,
+//                                int         selectionNameLength);
+//      // Set the value of the specified &#39;object&#39; to be the default for
+//      // the selection indicated by the specified &#39;selectionName&#39; of the
+//      // specified &#39;selectionNameLength&#39;.  Return 0 on success, and
+//      // non-zero value otherwise (i.e., the selection is not found).
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_choiceManipulateSelection(MyChoice *object,
+//                                      MANIPULATOR&amp; manipulator);
+//      // Invoke the specified &#39;manipulator&#39; on the address of the
+//      // (modifiable) selection of the specified &#39;object&#39;, supplying
+//      // &#39;manipulator&#39; with the corresponding selection information
+//      // structure.  Return -1 if the selection is undefined, and the
+//      // value returned from the invocation of &#39;manipulator&#39; otherwise.
+//
+//  // ACCESSORS
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_choiceAccessSelection(const MyChoice&amp; object,
+//                                  ACCESSOR&amp; accessor);
+//      // Invoke the specified &#39;accessor&#39; on the (non-modifiable)
+//      // selection of the specified &#39;object&#39;, supplying &#39;accessor&#39; with
+//      // the corresponding selection information structure.  Return -1 if
+//      // the selection is undefined, and the value returned from the
+//      // invocation of &#39;accessor&#39; otherwise.
+//
+//  int bdlat_choiceSelectionId(const MyChoice&amp; object);
+//      // Return the id of the current selection if the selection is
+//      // defined, and 0 otherwise.
+//..
+// Also, the &#39;IsChoice&#39; meta-function must be specialized for the
+// &#39;mine::MyChoice&#39; type in the &#39;bdlat_ChoiceFunctions&#39; namespace.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you had a &#39;union&#39; embedded inside a &#39;struct&#39;.  The &#39;struct&#39; also
+// contains a &#39;d_selectionId&#39; member that specifies which member of the &#39;union&#39;
+// is selected.  The default constructor of the &#39;struct&#39; makes the selection
+// undefined:
+//..
+//  #include &lt;bdlat_choicefunctions.h&gt;
+//  #include &lt;bdlat_selectioninfo.h&gt;
+//  #include &lt;bdlat_formattingmode.h&gt;
+//  #include &lt;bdlb_string.h&gt;
+//  #include &lt;bsls_assert.h&gt;
+//
+//  namespace BloombergLP {
+//
+//  namespace mine {
+//
+//  struct MyChoice {
+//      // This struct represents a choice between a &#39;char&#39; value, an &#39;int&#39;
+//      // value, and a &#39;float&#39; value.
+//
+//      // CONSTANTS
+//      enum {
+//          UNDEFINED_SELECTION_ID = -1,
+//          CHAR_SELECTION_ID      = 0,
+//          INT_SELECTION_ID       = 1,
+//          FLOAT_SELECTION_ID     = 2
+//      };
+//
+//      // DATA MEMBERS
+//      union {
+//          char  d_charValue;
+//          int   d_intValue;
+//          float d_floatValue;
+//      };
+//      int d_selectionId;
+//
+//      // CREATORS
+//      MyChoice()
+//      : d_selectionId(UNDEFINED_SELECTION_ID)
+//      {
+//      }
+//  };
+//..
+// We can now make &#39;MyChoice&#39; expose &quot;choice&quot; behavior by implementing
+// &#39;bdlat_ChoiceFunctions&#39; for &#39;MyChoice&#39;.  First, we should forward declare
+// all the functions that we will implement inside the &#39;mine&#39; namespace:
+//..
+//      // MANIPULATORS
+//      int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
+//          // Set the value of the specified &#39;object&#39; to be the default for
+//          // the selection indicated by the specified &#39;selectionId&#39;.  Return
+//          // 0 on success, and non-zero value otherwise (i.e., the selection
+//          // is not found).
+//
+//      int bdlat_choiceMakeSelection(MyChoice   *object,
+//                                    const char *selectionName,
+//                                    int         selectionNameLength);
+//          // Set the value of the specified &#39;object&#39; to be the default for
+//          // the selection indicated by the specified &#39;selectionName&#39; of the
+//          // specified &#39;selectionNameLength&#39;.  Return 0 on success, and
+//          // non-zero value otherwise (i.e., the selection is not found).
+//
+//      template &lt;typename MANIPULATOR&gt;
+//      int bdlat_choiceManipulateSelection(MyChoice     *object,
+//                                          MANIPULATOR&amp;  manipulator);
+//          // Invoke the specified &#39;manipulator&#39; on the address of the
+//          // (modifiable) selection of the specified &#39;object&#39;, supplying
+//          // &#39;manipulator&#39; with the corresponding selection information
+//          // structure.  Return -1 if the selection is undefined, and the
+//          // value returned from the invocation of &#39;manipulator&#39; otherwise.
+//
+//      // ACCESSORS
+//      template &lt;typename ACCESSOR&gt;
+//      int bdlat_choiceAccessSelection(const MyChoice&amp; object,
+//                                      ACCESSOR&amp;       accessor);
+//          // Invoke the specified &#39;accessor&#39; on the (non-modifiable)
+//          // selection of the specified &#39;object&#39;, supplying &#39;accessor&#39; with
+//          // the corresponding selection information structure.  Return -1 if
+//          // the selection is undefined, and the value returned from the
+//          // invocation of &#39;accessor&#39; otherwise.
+//
+//      int bdlat_choiceSelectionId(const MyChoice&amp; object);
+//          // Return the id of the current selection if the selection is
+//          // defined, and 0 otherwise.
+//
+//  }  // close namespace mine
+//..
+// Next, we provide the definitions for each of these functions:
+//..
+//  // MANIPULATORS
+//
+//  inline
+//  int mine::bdlat_choiceMakeSelection(MyChoice *object,
+//                                      int        selectionId)
+//  {
+//      enum { SUCCESS = 0, NOT_FOUND = -1 };
+//
+//      switch (selectionId) {
+//        case MyChoice::CHAR_SELECTION_ID: {
+//          object-&gt;d_selectionId = selectionId;
+//          object-&gt;d_charValue   = 0;
+//
+//          return SUCCESS;
+//        }
+//        case MyChoice::INT_SELECTION_ID: {
+//          object-&gt;d_selectionId = selectionId;
+//          object-&gt;d_intValue    = 0;
+//
+//          return SUCCESS;
+//        }
+//        case MyChoice::FLOAT_SELECTION_ID: {
+//          object-&gt;d_selectionId = selectionId;
+//          object-&gt;d_floatValue  = 0;
+//
+//          return SUCCESS;
+//        }
+//        case MyChoice::UNDEFINED_SELECTION_ID: {
+//          object-&gt;d_selectionId = selectionId;
+//
+//          return SUCCESS;
+//        }
+//        default: {
+//          return NOT_FOUND;
+//        }
+//      }
+//  }
+//
+//  inline
+//  int mine::bdlat_choiceMakeSelection(MyChoice   *object,
+//                                      const char *selectionName,
+//                                      int         selectionNameLength)
+//  {
+//    enum { NOT_FOUND = -1 };
+//
+//    if (bdlb::String::areEqualCaseless(&quot;charValue&quot;,
+//                                      selectionName,
+//                                      selectionNameLength)) {
+//      return bdlat_choiceMakeSelection(object, MyChoice::CHAR_SELECTION_ID);
+//    }
+//
+//    if (bdlb::String::areEqualCaseless(&quot;intValue&quot;,
+//                                      selectionName,
+//                                      selectionNameLength)) {
+//      return bdlat_choiceMakeSelection(object, MyChoice::INT_SELECTION_ID);
+//    }
+//
+//    if (bdlb::String::areEqualCaseless(&quot;floatValue&quot;,
+//                                      selectionName,
+//                                      selectionNameLength)) {
+//      return bdlat_choiceMakeSelection(object, MyChoice::FLOAT_SELECTION_ID);
+//    }
+//
+//    return NOT_FOUND;
+//  }
+//..
+// For the &#39;manipulateSelection&#39; and &#39;accessSelection&#39; functions, we need to
+// create a temporary &#39;bdlat_SelectionInfo&#39; object and pass it along when
+// invoking the manipulator or accessor.  See the &#39;bdlat_selectioninfo&#39;
+// component-level documentation for more information.  The implementation of
+// the remaining functions are as follows:
+//..
+//  template &lt;typename MANIPULATOR&gt;
+//  int mine::bdlat_choiceManipulateSelection(MyChoice    *object,
+//                                            MANIPULATOR&amp;  manipulator)
+//  {
+//    switch (object-&gt;d_selectionId) {
+//      case MyChoice::CHAR_SELECTION_ID: {
+//        bdlat_SelectionInfo info;
+//
+//        info.annotation()     = &quot;Char Selection&quot;;
+//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//        info.id()             = MyChoice::CHAR_SELECTION_ID;
+//        info.name()           = &quot;charValue&quot;;
+//        info.nameLength()     = 9;
+//
+//        return manipulator(&amp;object-&gt;d_charValue, info);
+//      }
+//      case MyChoice::INT_SELECTION_ID: {
+//        bdlat_SelectionInfo info;
+//
+//        info.annotation()     = &quot;Int Selection&quot;;
+//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//        info.id()             = MyChoice::INT_SELECTION_ID;
+//        info.name()           = &quot;intValue&quot;;
+//        info.nameLength()     = 8;
+//
+//        return manipulator(&amp;object-&gt;d_intValue, info);
+//      }
+//      case MyChoice::FLOAT_SELECTION_ID: {
+//        bdlat_SelectionInfo info;
+//
+//        info.annotation()     = &quot;Float Selection&quot;;
+//        info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//        info.id()             = MyChoice::FLOAT_SELECTION_ID;
+//        info.name()           = &quot;floatValue&quot;;
+//        info.nameLength()     = 10;
+//
+//        return manipulator(&amp;object-&gt;d_floatValue, info);
+//      }
+//      default:
+//        BSLS_ASSERT_SAFE(!&quot;Invalid selection!&quot;);
+//    }
+//    return 0;
+//  }
+//
+//  // ACCESSORS
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int mine::bdlat_choiceAccessSelection(const MyChoice&amp; object,
+//                                        ACCESSOR&amp;        accessor)
+//  {
+//      switch (object.d_selectionId) {
+//        case MyChoice::CHAR_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
+//
+//          info.annotation()     = &quot;Char Selection&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MyChoice::CHAR_SELECTION_ID;
+//          info.name()           = &quot;charValue&quot;;
+//          info.nameLength()     = 9;
+//
+//          return accessor(object.d_charValue, info);
+//        }
+//        case MyChoice::INT_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
+//
+//          info.annotation()     = &quot;Int Selection&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MyChoice::INT_SELECTION_ID;
+//          info.name()           = &quot;intValue&quot;;
+//          info.nameLength()     = 8;
+//
+//          return accessor(object.d_intValue, info);
+//        }
+//        case MyChoice::FLOAT_SELECTION_ID: {
+//          bdlat_SelectionInfo info;
+//
+//          info.annotation()     = &quot;Float Selection&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MyChoice::FLOAT_SELECTION_ID;
+//          info.name()           = &quot;floatValue&quot;;
+//          info.nameLength()     = 10;
+//
+//          return accessor(object.d_floatValue, info);
+//        }
+//        default:
+//          BSLS_ASSERT_SAFE(!&quot;Invalid selection!&quot;);
+//      }
+//    return 0;
+//  }
+//
+//  inline
+//  int mine::bdlat_choiceSelectionId(const MyChoice&amp; object)
+//  {
+//      return object.d_selectionId;
+//  }
+//..
+// Finally, we need to specialize the &#39;IsChoice&#39; meta-function in the
+// &#39;bdlat_ChoiceFunctions&#39; namespace for the &#39;mine::MyChoice&#39; type.  This
+// makes the &#39;bdlat&#39; infrastructure recognize &#39;mine::MyChoice&#39; as a choice
+// abstraction:
+//..
+//  namespace bdlat_ChoiceFunctions {
+//
+//      template &lt;&gt;
+//      struct IsChoice&lt;mine::MyChoice&gt; {
+//          enum { VALUE = 1 };
+//      };
+//
+//  } // close namespace &#39;bdlat_ChoiceFunctions&#39;
+//  } // close namespace &#39;BloombergLP&#39;
+//..
+// The &#39;bdlat&#39; infrastructure (and any component that uses this infrastructure)
+// will now recognize &#39;mine::MyChoice&#39; as a &quot;choice&quot; type.  For example,
+// suppose we have the following XML data:
+//..
+//  &lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39; ?&gt;
+//  &lt;MyChoice&gt;
+//      &lt;intValue&gt;321&lt;/intValue&gt;
+//  &lt;/MyChoice&gt;
+//..
+// Using the &#39;balxml_decoder&#39; component, we can load this XML data into a
+// &#39;mine::MyChoice&#39; object:
+//..
+//  #include &lt;balxml_decoder.h&gt;
+//
+//  void decodeMySequenceFromXML(bsl::istream&amp; inputData)
+//  {
+//      using namespace BloombergLP;
+//
+//      MyChoice object;
+//
+//      assert(MyChoice::UNDEFINED_SELECTION_ID == object.d_selectionId);
+//
+//      balxml::DecoderOptions options;
+//      balxml::MiniReader     reader;
+//      balxml::ErrorInfo      errInfo;
+//
+//      balxml::Decoder decoder(&amp;options, &amp;reader, &amp;errInfo);
+//      int result = decoder.decode(inputData, &amp;object);
+//
+//      assert(0                          == result);
+//      assert(MyChoice::INT_SELECTION_ID == object.d_selectionId);
+//      assert(321                        == object.d_intValue);
+//  }
+//..
+// Note that the &#39;bdlat&#39; framework can be used for functionality other than
+// encoding/decoding into XML.  When &#39;mine::MyChoice&#39; is plugged into the
+// framework, then it will be automatically usable within the framework.  For
+// example, the following snippets of code will print out the selection value
+// of a choice object:
+//..
+//  struct PrintSelection {
+//      // Print each visited object to the bound &#39;d_stream_p&#39; object.
+//
+//      // DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//
+//      template &lt;typename TYPE, typename INFO&gt;
+//      int operator()(const TYPE&amp; object, const INFO&amp; info)
+//      {
+//        (*d_stream_p) &lt;&lt; info.name() &lt;&lt; &quot;: &quot; &lt;&lt; object &lt;&lt; bsl::endl;
+//        return 0;
+//      }
+//  };
+//
+//  template &lt;typename TYPE&gt;
+//  void printChoiceSelection(bsl::ostream&amp; stream, const TYPE&amp; object)
+//  {
+//      using namespace BloombergLP;
+//
+//      PrintSelection accessor;
+//      accessor.d_stream_p = &amp;stream;
+//
+//      bdlat_choiceAccessSelection(object, accessor);
+//  }
+//..
+// Now we have a generic function that takes an output stream and a choice
+// object, and prints out the choice selection with its name and value.  We can
+// use this generic function as follows:
+//..
+//  void printMyChoice(bsl::ostream&amp; stream)
+//  {
+//      using namespace BloombergLP;
+//
+//      mine::MyChoice object;
+//
+//      object.d_selectionId = mine::MyChoice::INT_SELECTION_ID;
+//      object.d_intValue    = 321;
+//
+//      printChoiceSelection(stream, object);
+//  }
+//..
+// The function above will print the following to provided stream:
+//..
+//  intValue: 321
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_SELECTIONINFO
+#include &lt;bdlat_selectioninfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#include &lt;bdlat_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                      // ===============================
+                      // namespace bdlat_ChoiceFunctions
+                      // ===============================
+
+namespace bdlat_ChoiceFunctions {
+    // This &#39;namespace&#39; provides functions that expose &quot;choice&quot; behavior for
+    // &quot;choice&quot; types.  See the component-level documentation for more
+    // information.
+
+    // CONSTANTS
+    enum {
+        k_UNDEFINED_SELECTION_ID = -1  // indicates selection not made
+
+    };
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct IsChoice {
+        // This &#39;struct&#39; should be specialized for third-party types that need
+        // to expose &quot;choice&quot; behavior.  See the component-level documentation
+        // for further information.
+
+        enum {
+            VALUE = bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE
+        };
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    int makeSelection(TYPE *object, int selectionId);
+        // Set the value of the specified &#39;object&#39; to be the default for the
+        // selection indicated by the specified &#39;selectionId&#39;.  Return 0 on
+        // success, and non-zero value otherwise (i.e., the selection is not
+        // found).
+
+    template &lt;class TYPE&gt;
+    int makeSelection(TYPE       *object,
+                      const char *selectionName,
+                      int         selectionNameLength);
+        // Set the value of the specified &#39;object&#39; to be the default for the
+        // selection indicated by the specified &#39;selectionName&#39; of the
+        // specified &#39;selectionNameLength&#39;.  Return 0 on success, and non-zero
+        // value otherwise (i.e., the selection is not found).
+
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateSelection(TYPE *object, MANIPULATOR&amp; manipulator);
+        // Invoke the specified &#39;manipulator&#39; on the address of the
+        // (modifiable) selection of the specified &#39;object&#39;, supplying
+        // &#39;manipulator&#39; with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // &#39;manipulator&#39;.  The behavior is undefined unless
+        // &#39;k_UNDEFINED_SELECTION_ID != selectionId(*object)&#39;.
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessSelection(const TYPE&amp; object, ACCESSOR&amp; accessor);
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) selection of
+        // the specified &#39;object&#39;, supplying &#39;accessor&#39; with the corresponding
+        // selection information structure.  Return the value returned from the
+        // invocation of &#39;accessor&#39;.  The behavior is undefined unless
+        // &#39;k_UNDEFINED_SELECTION_ID != selectionId(object)&#39;.
+
+    template &lt;class TYPE&gt;
+    bool hasSelection(const TYPE&amp;  object,
+                      const char  *selectionName,
+                      int          selectionNameLength);
+        // Return true if the specified &#39;object&#39; has a selection with the
+        // specified &#39;selectionName&#39; of the specified &#39;selectionNameLength&#39;,
+        // and false otherwise.
+
+    template &lt;class TYPE&gt;
+    bool hasSelection(const TYPE&amp; object,
+                      int         selectionId);
+        // Return true if the specified &#39;object&#39; has a selection with the
+        // specified &#39;selectionId&#39;, and false otherwise.
+
+    template &lt;class TYPE&gt;
+    int selectionId(const TYPE&amp; object);
+        // Return the id of the current selection if the selection is defined,
+        // and k_UNDEFINED_SELECTION_ID otherwise.
+
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
+    // OVERLOADABLE FUNCTIONS
+
+    // The following functions should be overloaded for other types (in their
+    // respective namespaces).  The following functions are the default
+    // implementations (for &#39;bas_codegen.pl&#39;-generated types).  Do *not* call
+    // these functions directly.  Use the functions above instead.
+
+    // MANIPULATORS
+    template &lt;class TYPE&gt;
+    int bdlat_choiceMakeSelection(TYPE *object, int selectionId);
+    template &lt;class TYPE&gt;
+    int bdlat_choiceMakeSelection(TYPE       *object,
+                                  const char *selectionName,
+                                  int         selectionNameLength);
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_choiceManipulateSelection(TYPE         *object,
+                                        MANIPULATOR&amp;  manipulator);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_choiceAccessSelection(const TYPE&amp; object, ACCESSOR&amp; accessor);
+    template &lt;class TYPE&gt;
+    bool bdlat_choiceHasSelection(const TYPE&amp;  object,
+                                  const char  *selectionName,
+                                  int          selectionNameLength);
+    template &lt;class TYPE&gt;
+    bool bdlat_choiceHasSelection(const TYPE&amp; object,
+                                  int         selectionId);
+    template &lt;class TYPE&gt;
+    int bdlat_choiceSelectionId(const TYPE&amp; object);
+#endif
+
+}  // close namespace bdlat_ChoiceFunctions
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                      // -------------------------------
+                      // namespace bdlat_ChoiceFunctions
+                      // -------------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::makeSelection(TYPE *object, int selectionId)
+{
+    return bdlat_choiceMakeSelection(object, selectionId);
+}
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::makeSelection(TYPE       *object,
+                                         const char *selectionName,
+                                         int         selectionNameLength)
+{
+    return bdlat_choiceMakeSelection(object,
+                                     selectionName,
+                                     selectionNameLength);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_ChoiceFunctions::manipulateSelection(TYPE         *object,
+                                               MANIPULATOR&amp;  manipulator)
+{
+    BSLS_ASSERT_SAFE(k_UNDEFINED_SELECTION_ID
+                                          != bdlat_choiceSelectionId(*object));
+
+    return bdlat_choiceManipulateSelection(object, manipulator);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_ChoiceFunctions::accessSelection(const TYPE&amp; object,
+                                           ACCESSOR&amp;   accessor)
+{
+    BSLS_ASSERT_SAFE(k_UNDEFINED_SELECTION_ID
+                                           != bdlat_choiceSelectionId(object));
+
+    return bdlat_choiceAccessSelection(object, accessor);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_ChoiceFunctions::hasSelection(const TYPE&amp;  object,
+                                         const char  *selectionName,
+                                         int          selectionNameLength)
+{
+    return bdlat_choiceHasSelection(object,
+                                    selectionName,
+                                    selectionNameLength);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_ChoiceFunctions::hasSelection(const TYPE&amp; object,
+                                         int         selectionId)
+{
+    return bdlat_choiceHasSelection(object, selectionId);
+}
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::selectionId(const TYPE&amp; object)
+{
+    return bdlat_choiceSelectionId(object);
+}
+
+          // --------------------------------------------------------
+          // namespace bdlat_ChoiceFunctions (OVERLOADABLE FUNCTIONS)
+          // --------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+namespace bdlat_ChoiceFunctions {
+    // xlC 6 will not do Koenig (argument-dependent) lookup is the function
+    // being called has already been declared in some scope at the point of
+    // the template function *definition* (not instantiation).  We work around
+    // this bug by not declaring these functions until *after* the template
+    // definitions that call them.
+
+    // MANIPULATORS
+    template &lt;typename TYPE&gt;
+    int bdlat_choiceMakeSelection(TYPE *object, int selectionId);
+    template &lt;typename TYPE&gt;
+    int bdlat_choiceMakeSelection(TYPE       *object,
+                                  const char *selectionName,
+                                  int         selectionNameLength);
+    template &lt;typename TYPE, typename MANIPULATOR&gt;
+    int bdlat_choiceManipulateSelection(TYPE         *object,
+                                        MANIPULATOR&amp;  manipulator);
+
+    // ACCESSORS
+    template &lt;typename TYPE, typename ACCESSOR&gt;
+    int bdlat_choiceAccessSelection(const TYPE&amp; object, ACCESSOR&amp; accessor);
+    template &lt;typename TYPE&gt;
+    bool bdlat_choiceHasSelection(const TYPE&amp;  object,
+                                  const char  *selectionName,
+                                  int          selectionNameLength);
+    template &lt;typename TYPE&gt;
+    bool bdlat_choiceHasSelection(const TYPE&amp; object,
+                                  int         selectionId);
+    template &lt;typename TYPE&gt;
+    int bdlat_choiceSelectionId(const TYPE&amp; object);
+}  // close namespace bdlat_ChoiceFunctions
+#endif
+
+// MANIPULATORS
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::bdlat_choiceMakeSelection(TYPE *object,
+                                                     int   selectionId)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return object-&gt;makeSelection(selectionId);
+}
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::bdlat_choiceMakeSelection(
+                                               TYPE       *object,
+                                               const char *selectionName,
+                                               int         selectionNameLength)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return object-&gt;makeSelection(selectionName, selectionNameLength);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_ChoiceFunctions::bdlat_choiceManipulateSelection(
+                                                     TYPE         *object,
+                                                     MANIPULATOR&amp;  manipulator)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return object-&gt;manipulateSelection(manipulator);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_ChoiceFunctions::bdlat_choiceAccessSelection(const TYPE&amp; object,
+                                                       ACCESSOR&amp;   accessor)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return object.accessSelection(accessor);
+}
+
+// VC2008 does not detect that address is used.
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning( push )
+#pragma warning( disable : 4100 )
+#endif
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_ChoiceFunctions::bdlat_choiceHasSelection(
+                                              const TYPE&amp;  object,
+                                              const char  *selectionName,
+                                              int          selectionNameLength)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return 0 != object.lookupSelectionInfo(selectionName, selectionNameLength);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_ChoiceFunctions::bdlat_choiceHasSelection(const TYPE&amp; object,
+                                                     int         selectionId)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return 0 != object.lookupSelectionInfo(selectionId);
+}
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning( pop )
+#endif
+
+template &lt;class TYPE&gt;
+inline
+int bdlat_ChoiceFunctions::bdlat_choiceSelectionId(const TYPE&amp; object)
+{
+    BSLMF_ASSERT((bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicChoice&gt;::VALUE));
+
+    return object.selectionId();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,1690 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_socketimputil.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_SOCKETIMPUTIL
+#define INCLUDED_BTLSO_SOCKETIMPUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide platform-independent operations on sockets.
+//
+//@CLASSES:
+//  btlso::SocketImpUtil: platform-independent socket function suite
+//
+//@SEE_ALSO: btlso_socketoptutil, btlso_ioutil
+//
+//@DESCRIPTION: This component provides a suite of pure procedures to support
+// various commonly used operations on sockets.  No provisions are made within
+// this component for setting socket options (see &#39;btlso_socketoptutil&#39; for
+// option-setting functions and &#39;btlso_ioutil&#39; for IO modes).  However,
+// specific behavior is documented for sockets in blocking and non-blocking
+// mode.
+//
+///Synopsis
+///--------
+// The table below lists the functions of this component, and summarizes their
+// behavior.  Where the behavior for sockets in blocking and non-blocking mode
+// is different, the behavior is documented separately.
+//..
+//  +=========================================================================+
+//  | OPERATION         | BLOCKING SOCKET         | NON-BLOCKING SOCKET       |
+//  +=========================================================================+
+//  |                   |                                                     |
+//  | startup           |              initialize environment                 |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | open              |                  open new socket                    |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | bind              |          bind socket to a local address             |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |              listen passively for                   |
+//  | listen            |              connection requests;                   |
+//  |                   |              specify the queue size                 |
+//  +-------------------------------------------------------------------------+
+//  |                   | accept request from the |                           |
+//  | accept            | queue if available,     | accept request from the   |
+//  |                   | block otherwise         |        queue              |
+//  +-------------------------------------------------------------------------+
+//  |                   | connect to the specified|  return immediately with  |
+//  | connect           | peer; block until       |  an error indicating that |
+//  |                   | connection              |  the call would block     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | getLocalAddress   |    get address of local socket                      |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | getPeerAddress    |    get address of peer socket                       |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   | read data if available, |                           |
+//  | read              | block otherwise         | read data if available    |
+//  |                   |                         |                           |
+//  +-------------------------------------------------------------------------+
+//  |                   | read data if available, |                           |
+//  | readFrom          | block otherwise;        | read data if available;   |
+//  |                   | load address and port   | load address and port     |
+//  +-------------------------------------------------------------------------+
+//  |                   | write data if possible, |                           |
+//  | write             | block otherwise         | write data if possible    |
+//  |                   |                         |                           |
+//  +-------------------------------------------------------------------------+
+//  |                   | write data if possible, | write data if possible;   |
+//  | writeTo           | block otherwise;        | specify address, port     |
+//  |                   | specify address, port   |                           |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | shutDown          |                shut down the connection             |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | close             |                  close the socket                   |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//  |                   |                                                     |
+//  | cleanup           |               clean up the environment              |
+//  |                   |                                                     |
+//  +-------------------------------------------------------------------------+
+//..
+//
+///Note About Transport Layers
+///---------------------------
+// The utilities in this component explicitly assume that the sockets will be
+// using the Network Layer protocol, but no assumptions are made regarding the
+// transport layer, other than that it is consistent with the address type
+// specified as the template parameter.  Individual functions may behave
+// differently depending on the transport layer in use.  It is not possible to
+// document every eventuality (since this component supports transport layer
+// protocols that have not yet been written), and so only the most common cases
+// (i.e., the behavior of TCP and UDP sockets) are discussed in the
+// function-level documentation.
+//
+///Signals
+///-------
+// Signals may be generated in response to socket operations including the
+// SIGPIPE and SIGIO signals.  The processing of these signals is outside the
+// scope of this component.  The SIGPIPE signal will be generated on UNIX like
+// systems when a write operation is performed on a socket that has no reader.
+//
+///Addresses
+///---------
+// Some functions are templatized by &#39;ADDRESS&#39;, where &#39;ADDRESS&#39; is a network
+// address type.  The address type implicitly specifies the native socket
+// domain (e.g., AF_INET for IPv4 addresses).  The address type for IPv4
+// addresses is &#39;btlso::IPv4Address&#39;.  After a socket has been created with a
+// particular address type, all further functions on this socket taking the
+// &#39;ADDRESS&#39; parameter must use the same address type.
+//
+///Errors
+///------
+// On success, all functions return a non-negative integer value.  On errors,
+// these functions return a error classification as a negative integer as
+// defined &#39;btlso::SocketHandle&#39;.  Additionally, each function has an optional
+// parameter &#39;errorCode&#39; which returns the platform-specific error code.
+// Platform specific error codes map onto the error classifications.  When a
+// mapping does not exist, the classification is
+// &#39;btlso::SocketHandle::e_ERROR_UNCLASSIFIED&#39;.  This component does not use
+// the &#39;btlso::SocketHandle::e_ERROR_EOF&#39; or the
+// &#39;btlso::SocketHandle::e_ERROR_TIMEDOUT&#39; classifications.
+//
+///Interrupted System Calls: &#39;btlso::SocketHandle::e_ERROR_INTERRUPTED&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// On some platforms, calls can be interrupted without completing the requested
+// operation.  For read or write calls, when some data was transferred the
+// number of bytes transferred is returned and &#39;ERROR_INTERRUPTED&#39; otherwise.
+// For other calls &#39;ERROR_INTERRUPTED&#39; is returned.  When &#39;ERROR_INTERRUPTED&#39;
+// is returned, the function call did not perform its requested operation and
+// the operation can be repeated.  An exception is the &#39;connect&#39; operation
+// which should not be repeated.  In this case, the state of the socket is
+// undefined and should be closed.  The platform specific error code on UNIX is
+// EINTR.
+//
+///Would Block: &#39;btlso::SocketHandle::e_ERROR_WOULDBLOCK&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// When a socket is in non-blocking mode and the call cannot complete without
+// blocking, the error classification &#39;BTESO_ERROR_WOULDBLOCK&#39; is returned.
+// The platform specific error codes on UNIX are &#39;EINPROGRESS&#39;, &#39;EAGAIN&#39; or
+// &#39;EWOULDBLOCK&#39;.  On Windows, the platform specified error codes are
+// &#39;WSAEINPROGRESS&#39; or &#39;WSAEWOULDBLOCK&#39;.
+//
+///Connection Dead: &#39;btlso::SocketHandle::e_ERROR_CONNDEAD&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This error is returned when an attempt to setup a connection has failed or
+// an operation was attempted on an existing connection that has been
+// terminated.
+//
+///Startup and Cleanup
+///-------------------
+// Prior to any socket operations on a process, the &#39;startup&#39; function must be
+// called.  Although some socket implementations (e.g., UNIX) do not require
+// any initialization, this function must be called to ensure maximum
+// portability.  After completing all socket operations, the &#39;cleanup&#39; function
+// should be called.  The state of any open sockets after cleanup is undefined.
+// The &#39;startup&#39; function may be invoked any number of times.  However, the
+// &#39;cleanup&#39; function must invoked the same number of times.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Client and Server
+///- - - - - - - - - - - - - - - - - - - - - -
+// This component supports inter-process communication functionality, and so
+// possible usage within a single process would consist of half of a dialog,
+// either the &quot;client&quot; or the &quot;server&quot;.  Note that the &#39;shutDown&#39; operation is
+// optional.  The following diagram shows a typical sequence of operations on
+// the client and the server processes, for sockets using the TCP protocol:
+//..
+//                                                 TCP SERVER
+//                                               +-----------+ prepares
+//                                               | startup() | sockets
+//                                               +-----------+ environment
+//                                                     |
+//                                               +-----------+ gets a
+//                                               |   open()  | socket
+//                                               +-----------+
+//                                                     |
+//                                               +-----------+ binds this
+//                                               |   bind()  | socket to a
+//                                               +-----------+ port number
+//                TCP CLIENT                           |
+//                                               +-----------+ queues up
+//                                               |  listen() | connection
+//                                               +-----------+ requests
+//                                                     |
+//                                               +-----------+ accepts
+//                                               |  accept() | connection
+//  prepares     +-----------+                   +-----------+ requests from
+//  sockets      | startup() |                         |       the queue
+//  environment  +-----------+                         |
+//                     |                     blocks until a connection
+//    gets a     +-----------+                  request is accepted
+//    socket     |   open()  |                         |
+//               +-----------+                         |
+//                     |                               | connection request
+// establishes a +-----------+                         | &quot;accepted&quot; by server,
+// connection    |  connect()|------------------------&gt;| creates a new socket
+// request with  +-----------+                         | socket
+// the server          |                               |
+//               +-----------+                   +-----------+
+//     writes    |   write() |------------------&gt;| read()    | reads client
+//   requests    +-----------+                   +-----------+ requests,
+//     and             :                               :       process them
+//    reads         :                               :       and writes
+//   replies     +-----------+                   +-----------+ back replies
+//               | read()    |&lt;------------------|   write() | until client
+//               +-----------+                   +-----------+ closes the
+//                     |                               |       connection
+//  closes the   +-----------+                   +-----------+
+//  connection   | shutDown()|-------------------| shutDown()|
+//  when done    +-----------+                   +-----------+
+//                     |                               |       connection
+//  closes the   +-----------+                   +-----------+
+//  connection   |   close() |-------------------|   close() |
+//  when done    +-----------+                   +-----------+
+//                     |                               |       connection
+//  cleans up    +-----------+                   +-----------+ cleans up
+//  sockets      | cleanup() |                   | cleanup() | sockets
+//  environment  +-----------+                   +-----------+ environment
+//..
+//
+///Typical Server Usage
+/// - - - - - - - - - -
+// The following snippets of code illustrate a simple single user echo server
+// implemented using &#39;btlso_socketimputil&#39;.  Note that the server binds to and
+// the client connects to the specified IP_ADDR.
+//..
+//  btlso::SocketHandle::Handle serverSocket, sessionSocket;
+//  const int                   BACKLOG      = 32;
+//  const int                   RECEIVE_SIZE = 32;
+//  char                        readBuffer[RECEIVE_SIZE];
+//  int                         rc, errCode = 0;
+//
+//  rc = btlso::SocketImpUtil::startup(&amp;errCode);      assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::open&lt;btlso::IPv4Address&gt;(
+//                                       &amp;serverSocket,
+//                                       btlso::SocketImpUtil::k_SOCKET_STREAM,
+//                                       &amp;errCode);    assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::bind&lt;btlso::IPv4Address&gt;(serverSocket,
+//                                                      IP_ADDR,
+//                                                      &amp;errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::listen(serverSocket, BACKLOG, &amp;errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::accept&lt;btlso::IPv4Address&gt;(&amp;sessionSocket,
+//                                                        serverSocket,
+//                                                        &amp;errCode);
+//                                                     assert(0 == rc);
+//
+//  do {
+//      // Echo each packet back until the client disconnects
+//      rc = btlso::SocketImpUtil::read(readBuffer,
+//                                      sessionSocket,
+//                                      RECEIVE_SIZE,
+//                                      &amp;errCode);
+//      if (rc &gt; 0) {
+//          btlso::SocketImpUtil::write(sessionSocket,
+//                                      readBuffer,
+//                                      rc,
+//                                      &amp;errCode);
+//      }
+//  } while (rc &gt; 0);
+//
+//  rc = btlso::SocketImpUtil::shutDown(
+//                                sessionSocket,
+//                                btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+//                                &amp;errCode);           assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(sessionSocket, &amp;errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(serverSocket, &amp;errCode);
+//                                                     assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::cleanup(&amp;errCode);      assert(0 == rc);
+//..
+//
+///Typical Client Usage
+/// - - - - - - - - - -
+// The following snippets of code illustrate a simple client implemented using
+// &#39;bteso_socketutil&#39;.
+//..
+//  btlso::SocketHandle::Handle  sendSocket;
+//  const int                    RECEIVE_SIZE = 32;
+//  char                         buffer[RECEIVE_SIZE];
+//  int                          rc, errorCode = 0;
+//  const char                  *DATA = &quot;Is it raining in London now?&quot;;
+//  const int                    DATA_SIZE = bsl::strlen(DATA) + 1;
+//
+//  rc = btlso::SocketImpUtil::startup(&amp;errorCode);       assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::open&lt;btlso::IPv4Address&gt;(
+//                                &amp;sendSocket,
+//                                btlso::SocketImpUtil::k_SOCKET_STREAM,
+//                                &amp;errorCode);
+//                                                        assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::connect&lt;btlso::IPv4Address&gt;(sendSocket,
+//                                                         IP_ADDR,
+//                                                         &amp;errorCode);
+//                                                        assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::write(sendSocket,
+//                                   DATA,
+//                                   DATA_SIZE,
+//                                   &amp;errorCode);  assert(DATA_SIZE == rc);
+//
+//  rc = btlso::SocketImpUtil::read(buffer,
+//                                  sendSocket,
+//                                  RECEIVE_SIZE,
+//                                  &amp;errorCode);   assert(DATA_SIZE == rc);
+//
+//  assert(0 == bsl::strcmp(DATA, buffer));
+//
+//  rc = btlso::SocketImpUtil::shutDown(
+//                                sendSocket,
+//                                btlso::SocketImpUtil::e_SHUTDOWN_BOTH,
+//                                &amp;errorCode);            assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::close(sendSocket, &amp;errorCode);
+//                                                        assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::cleanup(&amp;errorCode);       assert(0 == rc);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_PLATFORM
+#include &lt;btlso_platform.h&gt;
+#endif
+
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+
+// The #include &lt;winsock2.h&gt; *must* precede any potential #include &lt;windows.h&gt;,
+// such as may occur with a transitive include of a platform header, even the
+// native STL.
+    #ifndef INCLUDED_WINSOCK2
+    #include &lt;winsock2.h&gt;                    // for WSABUF
+    #define INCLUDED_WINSOCK2
+    #endif
+
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+
+    #ifndef INCLUDED_BSL_ALGORITHM
+    #include &lt;bsl_algorithm.h&gt;               // for copy_n
+    #endif
+
+#endif
+
+#ifdef BTLSO_PLATFORM_BSD_SOCKETS
+
+    #ifndef INCLUDED_SYS_TYPES
+    #include &lt;sys/types.h&gt;
+    #define INCLUDED_SYS_TYPES
+    #endif
+
+    #ifndef INCLUDED_SYS_SOCKET
+    #include &lt;sys/socket.h&gt;
+    #define INCLUDED_SYS_SOCKET
+    #endif
+
+    #ifndef INCLUDED_NETINET_IN
+    #include &lt;netinet/in.h&gt;
+    #define INCLUDED_NETINET_IN
+    #endif
+
+    #ifndef INCLUDED_BSL_C_STRING
+    #include &lt;bsl_c_string.h&gt; // memset
+    #endif
+
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                          // ====================
+                          // struct SocketImpUtil
+                          // ====================
+
+struct SocketImpUtil {
+    // This class provides a suite of platform-independent pure procedures that
+    // manipulate operating-system-level sockets.  All methods take an
+    // &#39;errorCode&#39; as an optional parameter, which is loaded with
+    // platform-specific error number if an error occurs during the operation.
+    // All functions return a negative value on error.  This value defined in
+    // &#39;SocketHandle&#39; classifies the error and is not platform-specific.
+
+    enum Type {
+        // When creating a socket with the &#39;open&#39; or &#39;socketPair&#39; operations,
+        // this indicates the type of socket(s) to be created.
+
+        k_SOCKET_STREAM   = SOCK_STREAM,  // Provides sequenced, reliable,
+                                          // two-way, connection-based byte
+                                          // streams.  An out-of-band data
+                                          // transmission mechanism may be
+                                          // supported.
+
+        k_SOCKET_DATAGRAM = SOCK_DGRAM,   // Supports datagrams
+                                          // (connectionless, unreliable
+                                          // messages of a fixed maximum
+                                          // length).
+
+        k_SOCKET_RAW      = SOCK_RAW      // Provides raw network protocol
+                                          // access.
+
+
+    };
+
+    enum ShutDownType {
+        // Indicates how to shut down the socket with &#39;shutDown&#39; operation.
+
+        e_SHUTDOWN_RECEIVE, // shut down the receive half of the full-duplex
+                            // connection associated with the specified
+                            // &#39;socket&#39;, leaving its send half unaffected.
+
+        e_SHUTDOWN_SEND,    // shut down the send half of the full-duplex
+                            // connection associated with the specified
+                            // &#39;socket&#39;, leaving its receive half unaffected.
+
+        e_SHUTDOWN_BOTH     // shut down both halves of the full-duplex
+                            // connection associated with the specified
+                            // &#39;socket&#39;.
+
+
+    };
+
+    template &lt;class ADDRESS&gt;
+    static int accept(SocketHandle::Handle        *newSocket,
+                      const SocketHandle::Handle&amp;  socket);
+    template &lt;class ADDRESS&gt;
+    static int accept(SocketHandle::Handle        *newSocket,
+                      const SocketHandle::Handle&amp;  socket,
+                      int                         *errorCode);
+        // Accept a connection request on the specified listening &#39;socket&#39;.  On
+        // success, load the specified &#39;newSocket&#39; with the handle for the
+        // socket created for the newly established connection.  Load the
+        // optionally specified &#39;errorCode&#39; with the platform-specific error
+        // number on error.  Return 0 on success and a negative value otherwise
+        // representing an error classification.  Note that if &#39;socket&#39; is in
+        // non-blocking mode and there is no pending connection request
+        // available, this call returns immediately with an error status, but
+        // if &#39;socket&#39; is in blocking mode, this call blocks until either it
+        // succeeds or an error occurs.  Also note that, when created,
+        // &#39;newSocket&#39; has exactly the same socket options as &#39;socket&#39;.
+
+    template &lt;class ADDRESS&gt;
+    static int accept(SocketHandle::Handle        *newSocket,
+                      ADDRESS                     *peerAddress,
+                      const SocketHandle::Handle&amp;  socket);
+    template &lt;class ADDRESS&gt;
+    static int accept(SocketHandle::Handle        *newSocket,
+                      ADDRESS                     *peerAddress,
+                      const SocketHandle::Handle&amp;  socket,
+                      int                         *errorCode);
+        // Accept a connection request on the specified listening &#39;socket&#39;.  On
+        // success, load the specified &#39;newSocket&#39; with the handle for the
+        // socket created for the newly established connection, and also load
+        // the specified &#39;peerAddress&#39; with the address of the newly connected
+        // client.  Load the optionally specified &#39;errorCode&#39; with the
+        // platform-specific error number on error.  Return 0 on success, and a
+        // negative value otherwise representing an error classification.  Note
+        // that if &#39;socket&#39; is in non-blocking mode and there is no pending
+        // connection request available, this call returns immediately with an
+        // error status, but if &#39;socket&#39; is in blocking mode, this call blocks
+        // until either it succeeds or an error occurs.  Also note that, when
+        // created, &#39;newSocket&#39; has exactly the same socket options as
+        // &#39;socket&#39;.  If a connection has been closed before the accept call is
+        // made, the call may fail and &#39;SocketHandle::e_ERROR_CONNDEAD&#39; will be
+        // returned.
+
+    template &lt;class ADDRESS&gt;
+    static int bind(const SocketHandle::Handle&amp;  socket,
+                    const ADDRESS&amp;               address);
+    template &lt;class ADDRESS&gt;
+    static int bind(const SocketHandle::Handle&amp;  socket,
+                    const ADDRESS&amp;               address,
+                    int                         *errorCode);
+        // Associate the specified &#39;address&#39; with the specified &#39;socket&#39;.  Load
+        // the optionally specified &#39;errorCode&#39; with a platform-specific error
+        // number on error.  Return 0 on success and a negative value otherwise
+        // representing an error classification.  Note that (a) typically,
+        // servers call &#39;bind&#39; with a well-known port number since they are
+        // known by their port numbers, and (b) typically, stream based clients
+        // allow the kernel to choose a temporary (ephemeral) port by not
+        // invoking this operation at all.  Note also that a port number 0 can
+        // be specified so that an address can be bound to a socket without
+        // binding a specific port number.
+
+    static int cleanup(int *errorCode = 0);
+        // Clean up the environment created for sockets-based activity.  All
+        // open sockets should be explicitly closed prior to this operation.
+        // No assumptions should be made about the state of any remaining open
+        // socket after this operation.  Load the optionally specified
+        // &#39;errorCode&#39; with a platform-specific error number on error.  Return
+        // 0 on success and a negative value otherwise representing an error
+        // classification.
+
+    static int close(const SocketHandle::Handle&amp;  socket,
+                     int                         *errorCode = 0);
+        // Close the specified &#39;socket&#39; and release all the resources
+        // associated with it.  If this socket is the last reference to an
+        // existing connection, this connection will be terminated.  Load the
+        // optionally specified &#39;errorCode&#39; with a platform-specific error
+        // number on error.  Return 0 on success, and a negative value
+        // otherwise representing an error classification.  Note that although
+        // call to &#39;close&#39; returns immediately, by default, the kernel tries to
+        // send all untransmitted data before actually closing the connection.
+        // This default behavior can be altered by changing the socket linger
+        // options (see btlso_socketoptutil).
+
+    template &lt;class ADDRESS&gt;
+    static int connect(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               address);
+    template &lt;class ADDRESS&gt;
+    static int connect(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               address,
+                       int                         *errorCode);
+        // For a stream type socket, connect the specified &#39;socket&#39; with the
+        // server process listening at the specified &#39;address&#39;.  Load the
+        // optionally specified &#39;errorCode&#39; with a platform-specific error
+        // number on error.  Return 0 on success, and a negative value
+        // otherwise representing an error classification.  If the socket is in
+        // blocking mode, the call will block until the connection is
+        // established or an error occurs.  If the socket is in non-blocking
+        // mode, the call may complete immediately returning
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; indicating that the operation has
+        // been initiated but may not have completed.  In this case the
+        // &#39;select&#39; function can be used to determine when the connection has
+        // completed.  For a datagram socket, associate the specified &#39;address&#39;
+        // with the specified &#39;socket&#39;.  If no address is specified for a send
+        // operation, the specified &#39;address&#39; is used.  For receive operations,
+        // only data from the specified &#39;address&#39; is received.
+
+    template &lt;class ADDRESS&gt;
+    static int getLocalAddress(ADDRESS                     *localAddress,
+                               const SocketHandle::Handle&amp;  socket);
+    template &lt;class ADDRESS&gt;
+    static int getLocalAddress(ADDRESS                     *localAddress,
+                               const SocketHandle::Handle&amp;  socket,
+                               int                         *errorCode);
+        // Load the local address and port number associated with the specified
+        // &#39;socket&#39; in the specified &#39;localAddress&#39;.  The result is undefined
+        // if the socket was not initially created with the specified ADDRESS
+        // type.  Load the optionally specified &#39;errorCode&#39; with a
+        // platform-specific error number on error.  Return 0 on success, and a
+        // negative value otherwise representing an error classification.
+
+    template &lt;class ADDRESS&gt;
+    static int getPeerAddress(ADDRESS                     *peerAddress,
+                              const SocketHandle::Handle&amp;  socket);
+    template &lt;class ADDRESS&gt;
+    static int getPeerAddress(ADDRESS                     *peerAddress,
+                              const SocketHandle::Handle&amp;  socket,
+                              int                         *errorCode);
+        // Load the specified &#39;peerAddress&#39; with the address and port number of
+        // the peer connected to the specified &#39;socket&#39;.  Load the optionally
+        // specified &#39;errorCode&#39; with a platform-specific error number on
+        // error.  Return 0 on success, and a negative value otherwise
+        // representing an error classification.
+
+    static int listen(const SocketHandle::Handle&amp;  socket,
+                      int                          queueSize,
+                      int                         *errorCode = 0);
+        // Listen passively to the incoming connection requests on the
+        // specified stream &#39;socket&#39;.  Also set the maximum number of pending
+        // connection requests to be queued before &quot;accepted&quot; to the specified
+        // &#39;queueSize&#39;.  If the backlog value is (system dependent)
+        // &#39;SOMAXCONN&#39;, then the backlog will be set to the maximum
+        // &quot;reasonable&quot; value.  There is no standard provision to find out the
+        // actual backlog value.  Load the optionally specified &#39;errorCode&#39;
+        // with a platform-specific error number on error.  Return 0 on
+        // success, and a negative value otherwise representing an error
+        // classification.  The behavior is undefined unless &#39;0 &lt; queueSize&#39;.
+
+    template &lt;class ADDRESS&gt;
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type);
+    template &lt;class ADDRESS&gt;
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type,
+                    int                  *errorCode);
+        // Initialize the specified &#39;newSocket&#39; with a newly created socket of
+        // the specified &#39;type&#39;.  Load the optionally specified &#39;errorCode&#39;
+        // with the platform-specific error number on error.  Return 0 on
+        // success, and a negative value otherwise representing an error
+        // classification.
+
+    template &lt;class ADDRESS&gt;
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type,
+                    int                   protocol);
+    template &lt;class ADDRESS&gt;
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type,
+                    int                   protocol,
+                    int                  *errorCode);
+        // Initialize the specified &#39;newSocket&#39; with a newly created socket of
+        // the specified &#39;type&#39; and the specified &#39;protocol&#39;.  Load the
+        // optionally specified &#39;errorCode&#39; with the platform-specific error
+        // number on error.  Return 0 on success, and a negative value
+        // otherwise representing an error classification.
+
+    static int read(void                        *buffer,
+                    const SocketHandle::Handle&amp;  socket,
+                    int                          numBytes,
+                    int                         *errorCode = 0);
+        // Receive up to a maximum of the specified &#39;numBytes&#39; bytes from the
+        // specified &#39;socket&#39; in the specified &#39;buffer&#39;.  Load the optionally
+        // specified &#39;errorCode&#39; with the platform-specific error number on
+        // error.  Return the non-negative number of bytes read on success, 0
+        // on EOF (when &#39;0 &lt; numBytes&#39;), and a negative value otherwise
+        // representing an error classification.  The behavior is undefined
+        // unless &#39;0 &lt;= numBytes&#39; and &#39;buffer&#39; refers to at least &#39;numBytes&#39;
+        // valid memory locations.  Note that if &#39;socket&#39; is in blocking mode,
+        // this call blocks until (a) data is read, (b) an EOF indication
+        // occurs, or (c) an error occurs.  Note that if &#39;numBytes&#39; is 0, this
+        // call returns immediately, with no effect on &#39;buffer&#39;.
+
+    template &lt;class ADDRESS&gt;
+    static int readFrom(ADDRESS                     *fromAddress,
+                        void                        *buffer,
+                        const SocketHandle::Handle&amp;  socket,
+                        int                          numBytes);
+    template &lt;class ADDRESS&gt;
+    static int readFrom(ADDRESS                     *fromAddress,
+                        void                        *buffer,
+                        const SocketHandle::Handle&amp;  socket,
+                        int                          numBytes,
+                        int                         *errorCode);
+        // Receive up to a maximum of the specified &#39;numBytes&#39; bytes from the
+        // specified &#39;socket&#39; in the specified &#39;buffer&#39; and load the address
+        // and port number of the source of the data in &#39;fromAddress&#39;.  Load
+        // the optionally specified &#39;errorCode&#39; with the platform-specific
+        // error number on error.  Return the non-negative number of bytes read
+        // on success, 0 on EOF or when &#39;0 == numBytes&#39;, and a negative value
+        // otherwise representing an error classification.  The &#39;socket&#39; must
+        // not be connected.  The &#39;fromAddress&#39; parameter will be ignored for
+        // connection-oriented sockets.  For message-oriented sockets data is
+        // extracted from the first enqueued message, up to the size of
+        // &#39;buffer&#39;.  If the datagram or message is larger than the buffer, it
+        // is filled with the first part of the datagram, and an error is
+        // generated.  For unreliable protocols (e.g., UDP) the excess data is
+        // lost.  The behavior is undefined unless &#39;0 &lt;= numBytes&#39; and &#39;buffer&#39;
+        // refers to at least &#39;numBytes&#39; valid memory locations.  Note that if
+        // &#39;socket&#39; is in blocking mode, this call blocks until (a) data is
+        // read, (b) an EOF indication occurs, or (c) an error occurs.  Note
+        // also that if &#39;numBytes&#39; is 0, this call returns immediately, with no
+        // effect on &#39;buffer&#39;.
+
+    static int readv(const btls::Iovec           *iovec,
+                     const SocketHandle::Handle&amp;  socket,
+                     int                          numBuffs,
+                     int                         *errorCode = 0);
+        // Receive from the specified &#39;socket&#39; into the buffers specified by
+        // &#39;iovec&#39; where the specified &#39;numBuffs&#39; is the number of buffers.
+        // Load the optionally specified &#39;errorCode&#39; with the platform-specific
+        // error number on error.  Return the non-negative number of bytes read
+        // on success, 0 on EOF or when &#39;0 == numBytes&#39;, and a negative value
+        // otherwise representing an error classification.  The behavior is
+        // undefined unless &#39;0 &lt; numBuffs&#39; and &#39;iovec&#39; refers to buffers at
+        // valid memory locations.  Note that if &#39;socket&#39; is in blocking mode,
+        // this call blocks until (a) data is read, (b) an EOF indication
+        // occurs, or (c) an error occurs.
+
+    template &lt;class ADDRESS&gt;
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type);
+    template &lt;class ADDRESS&gt;
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type,
+                          int                  *errorCode);
+        // Create a pair of connected sockets of the specified &#39;type&#39;.  On
+        // success, the specified &#39;newSockets&#39; will point to the handles for
+        // the new sockets.  Load the optionally specified &#39;errorCode&#39; with the
+        // platform-specific error number on error.  Return 0 on success, and a
+        // negative value otherwise representing an error classification.
+
+    template &lt;class ADDRESS&gt;
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type,
+                          int                   protocol);
+    template &lt;class ADDRESS&gt;
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type,
+                          int                   protocol,
+                          int                  *errorCode);
+        // Create a pair of connected sockets of the specified &#39;type&#39; and
+        // &#39;protocol&#39;.  On success, the specified &#39;newSockets&#39; will point to
+        // the handles for the new sockets.  Load the optionally specified
+        // &#39;errorCode&#39; with the platform-specific error number on error.
+        // Return 0 on success, and a negative value otherwise representing an
+        // error classification.  The behavior is undefined unless &#39;newSockets&#39;
+        // refers to at least 2 writable memory locations.
+
+    static int write(const SocketHandle::Handle&amp;  socket,
+                     const void                  *buffer,
+                     int                          numBytes,
+                     int                         *errorCode = 0);
+        // Send up to a maximum of the specified &#39;numBytes&#39; bytes using the
+        // specified &#39;socket&#39; from the specified &#39;buffer&#39;.  Load the optionally
+        // specified &#39;errorCode&#39; with the platform-specific error number on
+        // error.  Return the non-negative number of bytes written on success,
+        // and a negative value otherwise representing an error classification.
+        // The behavior is undefined unless &#39;0 &lt;= numBytes&#39; and &#39;buffer&#39; refers
+        // to at least &#39;numBytes&#39; valid memory locations.  Note that if
+        // &#39;socket&#39; is in blocking mode, this call blocks until either data is
+        // written or an error occurs.
+
+    template &lt;class ADDRESS&gt;
+    static int writeTo(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               toAddress,
+                       const void                  *buffer,
+                       int                          numBytes);
+    template &lt;class ADDRESS&gt;
+    static int writeTo(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               toAddress,
+                       const void                  *buffer,
+                       int                          numBytes,
+                       int                         *errorCode);
+        // Send up to a maximum of the specified &#39;numBytes&#39; bytes using the
+        // specified &#39;socket&#39; from the specified &#39;buffer&#39; to the destination
+        // described by the specified &#39;toAddress&#39;.  Load the optionally
+        // specified &#39;errorCode&#39; with the platform-specific error number on
+        // error.  Return the non-negative number of bytes written on success,
+        // and a negative value otherwise representing an error classification.
+        // If &#39;socket&#39; is a connectionless socket that had previously been
+        // connected to a specific destination, the &#39;toAddress&#39; will override
+        // the destination (if different) for this call only.  If &#39;socket&#39; is a
+        // connection-oriented socket, &#39;toAddress&#39; are ignored, making the
+        // function equivalent to &#39;write&#39;.  For message-oriented sockets, care
+        // must be taken not to exceed the maximum packet size of the
+        // underlying subnets; if the data is too long to pass atomically
+        // through the underlying protocol, an error indication will be
+        // returned and no data will be sent.  The behavior is undefined unless
+        // &#39;0 &lt;= numBytes&#39; and &#39;buffer&#39; refers to at least &#39;numBytes&#39; valid
+        // memory locations.  Note that if &#39;socket&#39; is in blocking mode, this
+        // call blocks until either data is written or an error occurs.  Note
+        // also that if &#39;numBytes&#39; is 0, this call returns immediately.
+
+    static int writev(const SocketHandle::Handle&amp;  socket,
+                      const btls::Ovec            *ovec,
+                      int                          numBuffs,
+                      int                         *errorCode = 0);
+        // Send to the specified &#39;socket&#39; from the buffers specified by &#39;ovec&#39;
+        // where &#39;numBuffs&#39; is the number of buffers.  Load the optionally
+        // specified &#39;errorCode&#39; with the platform-specific error number on
+        // error.  Return the non-negative number of bytes written on success,
+        // and a negative value otherwise representing an error classification.
+        // The behavior is undefined unless &#39;0 &lt; numBuffs&#39; and &#39;iovec&#39; refers
+        // to buffers at valid writable memory locations.  Note that if
+        // &#39;socket&#39; is in blocking mode, this call blocks until either data is
+        // written or an error occurs.
+
+    template &lt;class ADDRESS&gt;
+    static int writevTo(const SocketHandle::Handle&amp;  socket,
+                        const ADDRESS&amp;               toAddress,
+                        const btls::Ovec            *ovec,
+                        int                          numBuffs,
+                        int                         *errorCode = 0);
+        // Send to the specified &#39;socket&#39; from the buffers specified by &#39;ovec&#39;
+        // where &#39;numBuffs&#39; is the number of buffers to the destination
+        // described by the specified &#39;toAddress&#39;.  Load the optionally
+        // specified &#39;errorCode&#39; with the platform-specific error number on
+        // error.  Return the non-negative number of bytes written on success
+        // and a negative value otherwise representing an error classification.
+        // For message-oriented sockets, care must be taken not to exceed the
+        // maximum packet size of the underlying subnets; if the data is too
+        // long to pass atomically through the underlying protocol, an error
+        // indication will be returned and no data will be sent.  The behavior
+        // is undefined unless the specified &#39;socket&#39; is not connected,
+        // &#39;0 &lt; numBuffs&#39; and &#39;iovec&#39; refers to buffers at valid writable
+        // memory locations.  Note that if &#39;socket&#39; is in blocking mode, this
+        // call blocks until either data is written or an error occurs.
+
+    static int shutDown(const SocketHandle::Handle&amp;  socket,
+                        SocketImpUtil::ShutDownType  value,
+                        int                         *errorCode = 0);
+        // Shutdown the specified send and/or receive direction of the
+        // full-duplexed connection associated with this socket.  Return 0 on
+        // success, and a non-zero value otherwise representing an error
+        // classification.  A &#39;value&#39; of &#39;e_SHUTDOWN_RECEIVE&#39; or
+        // &#39;e_SHUTDOWN_SEND&#39; will close the receive or send stream,
+        // respectively, leaving the other stream unaffected.  A &#39;value&#39; of
+        // &#39;e_SHUTDOWN_BOTH&#39; will close both.  Once the receive(send) stream
+        // has been closed, any attempted read(write) operations will fail.
+        // Any data received after successfully shutting down the receive
+        // stream will be acknowledged but silently discarded.  Note that this
+        // function is typically used to transmit an EOF indication to the
+        // peer.  Load the optionally specified &#39;errorCode&#39; with the
+        // platform-specific error number on error.
+
+    static int startup(int *errorCode = 0);
+        // Initialize the environment for sockets-based activity.  Load the
+        // optionally specified &#39;errorCode&#39; with the platform-specific error
+        // number on error.  Return 0 on success, and a negative value
+        // otherwise representing an error classification.
+};
+
+                          // =========================
+                          // struct SocketImpUtil_Util
+                          // =========================
+
+struct SocketImpUtil_Util {
+    // This struct provides a namespace for typedefs, enums and static
+    // member functions used by &#39;btlso::SocketImpUtil&#39;.
+
+    // The type for the length of the sockaddr structure differs by platform
+    // create a type that is platform independent here.
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS) \
+    || defined(BSLS_PLATFORM_OS_HPUX)
+    typedef int ADDRLEN_T;
+
+#else
+    typedef socklen_t ADDRLEN_T;
+#endif
+
+    enum {
+        k_INVALID_SOCKET_HANDLE =
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+                                  INVALID_SOCKET
+#else
+                                  -1
+#endif
+    };
+        // The platform-specific value returned by a socket call that creates
+        // a new socket indicating failure to create a socket.
+
+    static int mapErrorCode(int errorNumber);
+        // Return the error classification as defined in &#39;btlso::SocketHandle&#39;
+        // mapped from specified platform-specific socket operation
+        // &#39;errorCode&#39;.
+
+    static int getErrorCode(void);
+        // Return the platform-specific socket operation error code.
+
+    static bool isValid(const btlso::SocketHandle::Handle&amp; handle);
+        // Return &#39;true&#39; if the specified socket &#39;handle&#39; returned from a
+        // socket operation creating a new socket represents a valid socket
+        // handle, and &#39;false&#39; otherwise.
+};
+
+inline bool SocketImpUtil_Util::isValid(const SocketHandle::Handle&amp; socket)
+{
+    return socket != k_INVALID_SOCKET_HANDLE;
+}
+
+                          // ============================
+                          // struct SocketImpUtil_Address
+                          // ============================
+
+template &lt;class ADDRESS&gt; struct SocketImpUtil_Address {
+    // Encapsulate the platform-specific socket address for a particular non
+    // platform-specific socket address.  Provide a mapping between objects of
+    // the two types.  This structure also provides the domain type for socket
+    // and socketpair calls.
+};
+
+template &lt;&gt;
+struct SocketImpUtil_Address&lt;class IPv4Address&gt; {
+    // Encapsulate the &#39;sockaddr_in&#39; structure and provide a mapping to the
+    // equivalent &#39;IPv4Address&#39;.
+
+    sockaddr_in d_address;
+
+    enum {
+        SocketDomain = AF_INET
+    };
+
+    // CREATORS
+    SocketImpUtil_Address() { }
+
+    SocketImpUtil_Address(const IPv4Address&amp; addr)
+    {
+        BSLMF_ASSERT(sizeof(int) == sizeof(in_addr));
+
+        // Obtain the ip address.  The address is already in network
+        // byte order.
+
+        int ipAddr = addr.ipAddress();
+        if (IPv4Address::k_ANY_ADDRESS != INADDR_ANY) {
+            if (ipAddr == IPv4Address::k_ANY_ADDRESS) {
+                ipAddr = INADDR_ANY;
+            }
+        }
+        d_address.sin_addr = *((struct in_addr *) &amp;ipAddr);
+
+        // The port number must be stored in network byte order.
+
+        d_address.sin_port   = htons((unsigned short)addr.portNumber());
+        d_address.sin_family = SocketDomain;
+
+        // Set sin_zero to zero.
+
+        enum { sizezero = sizeof(d_address.sin_zero) };
+        struct zerobuf {
+            char d_space[sizezero];
+        };
+
+        *((zerobuf *) d_address.sin_zero) = zerobuf();
+    }
+
+    // ACCESSORS
+    void fromSocketAddress(IPv4Address *addr) const
+    {
+        // No need to change network/host byte order.
+
+        if (d_address.sin_addr.s_addr == INADDR_ANY) {
+            addr-&gt;setIpAddress(IPv4Address::k_ANY_ADDRESS);
+        }
+        else {
+            addr-&gt;setIpAddress(d_address.sin_addr.s_addr);
+        }
+
+        // Must change to host byte order.
+
+        addr-&gt;setPortNumber(ntohs(d_address.sin_port));
+    }
+};
+
+                          // ========================
+                          // struct SocketImpUtil_Imp
+                          // ========================
+
+template &lt;class ADDRESS&gt;
+class SocketImpUtil_Imp {
+    // This is an implementation class for the static templatized member
+    // functions of &#39;SocketImpUtil&#39;.  Templatized static member functions are
+    // not well supported by all compilers.  Such functions are forwarded onto
+    // specializations of this class.  This class is only used by
+    // &#39;SocketImpUtil&#39;.
+
+    friend struct SocketImpUtil;
+
+    static int accept(SocketHandle::Handle        *newSocket,
+                      const SocketHandle::Handle&amp;  socket,
+                      int                         *errorCode);
+
+    static int accept(SocketHandle::Handle        *newSocket,
+                      ADDRESS                     *peerAddress,
+                      const SocketHandle::Handle&amp;  socket,
+                      int                         *errorCode);
+
+    static int bind(const SocketHandle::Handle&amp;  socket,
+                    const ADDRESS&amp;               address,
+                    int                         *errorCode);
+
+    static int connect(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               address,
+                       int                         *errorCode);
+
+    static int getLocalAddress(ADDRESS                     *localAddress,
+                               const SocketHandle::Handle&amp;  socket,
+                               int                         *errorCode);
+
+    static int getPeerAddress(ADDRESS                     *peerAddress,
+                              const SocketHandle::Handle&amp;  socket,
+                              int                         *errorCode);
+
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type,
+                    int                  *errorCode);
+
+    static int open(SocketHandle::Handle *newSocket,
+                    SocketImpUtil::Type   type,
+                    int                   protocol,
+                    int                  *errorCode);
+
+    static int readFrom(ADDRESS                     *fromAddress,
+                        void                        *buffer,
+                        const SocketHandle::Handle&amp;  socket,
+                        int                          numBytes,
+                        int                         *errorCode);
+
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type,
+                          int                  *errorCode);
+
+    static int socketPair(SocketHandle::Handle *newSockets,
+                          SocketImpUtil::Type   type,
+                          int                   protocol,
+                          int                  *errorCode);
+
+    static int writeTo(const SocketHandle::Handle&amp;  socket,
+                       const ADDRESS&amp;               toAddress,
+                       const void                  *buffer,
+                       int                          numBytes,
+                       int                         *errorCode);
+
+    static int writevTo(const SocketHandle::Handle&amp;  socket,
+                        const ADDRESS&amp;               toAddress,
+                        const btls::Ovec            *ovec,
+                        int                          numBuffs,
+                        int                         *errorCode);
+};
+
+template &lt;&gt;
+int SocketImpUtil_Imp&lt;btlso::IPv4Address&gt;::socketPair(
+                                      btlso::SocketHandle::Handle *newSockets,
+                                      btlso::SocketImpUtil::Type   type,
+                                      int                          protocol,
+                                      int                         *errorCode);
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // --------------------
+                        // struct SocketImpUtil
+                        // --------------------
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
+                                 ADDRESS                     *peerAddress,
+                                 const SocketHandle::Handle&amp;  socket,
+                                 int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(newSocket,
+                                              peerAddress,
+                                              socket,
+                                              errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
+                                 const SocketHandle::Handle&amp;  socket,
+                                 int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(newSocket, socket, errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
+                                 ADDRESS                     *peerAddress,
+                                 const SocketHandle::Handle&amp;  socket)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(newSocket,
+                                              peerAddress,
+                                              socket,
+                                              0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::accept(SocketHandle::Handle        *newSocket,
+                                 const SocketHandle::Handle&amp;  socket)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(newSocket, socket, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::bind(const SocketHandle::Handle&amp;  socket,
+                               const ADDRESS&amp;               address,
+                               int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::bind(socket, address, errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::bind(const SocketHandle::Handle&amp; socket,
+                               const ADDRESS&amp;              address)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::bind(socket, address, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::connect(const SocketHandle::Handle&amp;  socket,
+                                  const ADDRESS&amp;               address,
+                                  int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::connect(socket, address, errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::connect(const SocketHandle::Handle&amp; socket,
+                                  const ADDRESS&amp;              address)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::connect(socket, address, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::getLocalAddress(
+                                     ADDRESS                     *localAddress,
+                                     const SocketHandle::Handle&amp;  socket,
+                                     int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::getLocalAddress(localAddress,
+                                                       socket,
+                                                       errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::getLocalAddress(
+                                     ADDRESS                     *localAddress,
+                                     const SocketHandle::Handle&amp;  socket)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::getLocalAddress(localAddress,
+                                                       socket,
+                                                       0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::getPeerAddress(
+                                      ADDRESS                     *peerAddress,
+                                      const SocketHandle::Handle&amp;  socket,
+                                      int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::getPeerAddress(peerAddress,
+                                                      socket,
+                                                      errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::getPeerAddress(
+                                      ADDRESS                     *peerAddress,
+                                      const SocketHandle::Handle&amp;  socket)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::getPeerAddress(peerAddress, socket, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::open(SocketHandle::Handle *newSocket,
+                               SocketImpUtil::Type   type,
+                               int                   protocol,
+                               int                  *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::open(newSocket,
+                                            type,
+                                            protocol,
+                                            errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::open(SocketHandle::Handle *newSocket,
+                               SocketImpUtil::Type   type,
+                               int                   protocol)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::open(newSocket, type, protocol, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::open(SocketHandle::Handle  *newSocket,
+                               SocketImpUtil::Type    type,
+                               int                   *errorCode)
+{
+    // The protocol has not been specified so 0 is used.  This is appropriate
+    // for most socket types and protocol families, where only one protocol
+    // exists.
+
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::open(newSocket,
+                                            type,
+                                            0,
+                                            errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::open(SocketHandle::Handle *newSocket,
+                               SocketImpUtil::Type   type)
+{
+    // The protocol has not been specified so 0 is used.  This is appropriate
+    // for most socket types and protocol families, where only one protocol
+    // exists.
+
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::open(newSocket, type, 0, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::readFrom(
+                           ADDRESS                     *fromAddress,
+                           void                        *buffer,
+                           const SocketHandle::Handle&amp;  socket,
+                           int                          numBytes,
+                           int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::readFrom(fromAddress,
+                                                buffer,
+                                                socket,
+                                                numBytes,
+                                                errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::readFrom(ADDRESS                     *fromAddress,
+                                   void                        *buffer,
+                                   const SocketHandle::Handle&amp;  socket,
+                                   int                          numBytes)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::readFrom(fromAddress,
+                                                buffer,
+                                                socket,
+                                                numBytes,
+                                                0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::socketPair(SocketHandle::Handle *newSockets,
+                                     SocketImpUtil::Type   type,
+                                     int                  *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::socketPair(newSockets,
+                                                  type,
+                                                  0,
+                                                  errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::socketPair(SocketHandle::Handle *newSockets,
+                                     SocketImpUtil::Type   type)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::socketPair(newSockets, type, 0, 0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::socketPair(SocketHandle::Handle *newSockets,
+                                     SocketImpUtil::Type   type,
+                                     int                   protocol,
+                                     int                  *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::socketPair(newSockets,
+                                                  type,
+                                                  protocol,
+                                                  errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::socketPair(SocketHandle::Handle *newSockets,
+                                     SocketImpUtil::Type   type,
+                                     int                   protocol)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::socketPair(newSockets,
+                                                  type,
+                                                  protocol,
+                                                  0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::writeTo(const SocketHandle::Handle&amp;  socket,
+                                  const ADDRESS&amp;               toAddress,
+                                  const void                  *buffer,
+                                  int                          numBytes,
+                                  int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::writeTo(socket,
+                                               toAddress,
+                                               buffer,
+                                               numBytes,
+                                               errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::writeTo(const SocketHandle::Handle&amp;  socket,
+                                  const ADDRESS&amp;               toAddress,
+                                  const void                  *buffer,
+                                  int                          numBytes)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::writeTo(socket,
+                                               toAddress,
+                                               buffer,
+                                               numBytes,
+                                               0);
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil::writevTo(const SocketHandle::Handle&amp;  socket,
+                                   const ADDRESS&amp;               toAddress,
+                                   const btls::Ovec            *ovec,
+                                   int                          numBuffs,
+                                   int                         *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::writevTo(socket,
+                                                toAddress,
+                                                ovec,
+                                                numBuffs,
+                                                errorCode);
+}
+
+// ============================================================================
+//                 NON-INLINE TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ------------------------
+                        // struct SocketImpUtil_Imp
+                        // ------------------------
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(
+                                  SocketHandle::Handle        *newSocket,
+                                  const SocketHandle::Handle&amp;  listeningSocket,
+                                  int                         *errorCode)
+{
+    SocketImpUtil_Address&lt;ADDRESS&gt; address;
+    SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof address.d_address;
+
+    *newSocket = ::accept(listeningSocket,
+                          reinterpret_cast&lt;sockaddr *&gt;(&amp;address.d_address),
+                          &amp;siLen);
+
+    int errorNumber = SocketImpUtil_Util::isValid(*newSocket)
+                      ? 0
+                      : SocketImpUtil_Util::getErrorCode();
+
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::accept(
+                                  SocketHandle::Handle        *newSocket,
+                                  ADDRESS                     *peerAddress,
+                                  const SocketHandle::Handle&amp;  listeningSocket,
+                                  int                         *errorCode)
+{
+    SocketImpUtil_Address&lt;ADDRESS&gt; address;
+    SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof address.d_address;
+
+    *newSocket = ::accept(listeningSocket,
+                          reinterpret_cast&lt;sockaddr *&gt;(&amp;address.d_address),
+                          &amp;siLen);
+
+    if (SocketImpUtil_Util::isValid(*newSocket)) {
+        address.fromSocketAddress(peerAddress);
+        return 0;                                                     // RETURN
+    }
+    else {
+        int errorNumber = SocketImpUtil_Util::getErrorCode();
+        if (errorNumber &amp;&amp; errorCode) {
+            *errorCode = errorNumber;
+        }
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
+    }
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::bind(const SocketHandle::Handle&amp;  theSocket,
+                                     const ADDRESS&amp;               address,
+                                     int                         *errorCode)
+{
+    int                            rc;
+    SocketImpUtil_Address&lt;ADDRESS&gt; sockAddress(address);
+
+    rc = ::bind(theSocket,
+                reinterpret_cast&lt;sockaddr *&gt;(&amp;sockAddress.d_address),
+                sizeof sockAddress.d_address);
+
+    int errorNumber = rc &gt;= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
+
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::connect(const SocketHandle::Handle&amp;  theSocket,
+                                        const ADDRESS&amp;               address,
+                                        int                         *errorCode)
+{
+    int                            rc;
+    SocketImpUtil_Address&lt;ADDRESS&gt; sockAddress(address);
+
+    rc = ::connect(theSocket,
+                   reinterpret_cast&lt;sockaddr *&gt;(&amp;sockAddress.d_address),
+                   sizeof sockAddress.d_address);
+
+    int errorNumber = rc &gt;= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
+
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::getLocalAddress(
+                                     ADDRESS                     *localAddress,
+                                     const SocketHandle::Handle&amp;  theSocket,
+                                     int                         *errorCode)
+{
+    int                            rc;
+    SocketImpUtil_Address&lt;ADDRESS&gt; address;
+    SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof address.d_address;
+
+    rc = getsockname(theSocket,
+                     reinterpret_cast&lt;sockaddr *&gt;(&amp;address.d_address),
+                     &amp;siLen);
+
+    if (rc &gt;= 0) {
+        address.fromSocketAddress(localAddress);
+        return 0;                                                     // RETURN
+    }
+    else {
+        int errorNumber = SocketImpUtil_Util::getErrorCode();
+        if (errorNumber &amp;&amp; errorCode) {
+            *errorCode = errorNumber;
+        }
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
+    }
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::getPeerAddress(
+                                        ADDRESS                     *address,
+                                        const SocketHandle::Handle&amp;  theSocket,
+                                        int                         *errorCode)
+{
+    int                            rc;
+    SocketImpUtil_Address&lt;ADDRESS&gt; sockAddress;
+    SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof sockAddress.d_address;
+
+    rc = getpeername(theSocket,
+                     reinterpret_cast&lt;sockaddr *&gt;(&amp;sockAddress.d_address),
+                     &amp;siLen);
+
+    if (rc &gt;= 0) {
+        sockAddress.fromSocketAddress(address);
+        return 0;                                                     // RETURN
+    }
+    else {
+        int errorNumber = SocketImpUtil_Util::getErrorCode();
+        if (errorNumber &amp;&amp; errorCode) {
+            *errorCode = errorNumber;
+        }
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
+    }
+}
+
+template &lt;class ADDRESS&gt;
+inline int SocketImpUtil_Imp&lt;ADDRESS&gt;::open(SocketHandle::Handle *newSocket,
+                                            SocketImpUtil::Type   type,
+                                            int                  *errorCode)
+{
+    return SocketImpUtil_Imp&lt;ADDRESS&gt;::open(newSocket,
+                                            type,
+                                            0,
+                                            errorCode);
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::open(SocketHandle::Handle *newSocket,
+                                     SocketImpUtil::Type   type,
+                                     int                   protocol,
+                                     int                  *errorCode)
+{
+    *newSocket = ::socket(SocketImpUtil_Address&lt;ADDRESS&gt;::SocketDomain,
+                          static_cast&lt;int&gt;(type),
+                          protocol);
+
+    int errorNumber = SocketImpUtil_Util::isValid(*newSocket)
+                      ? 0
+                      : SocketImpUtil_Util::getErrorCode();
+
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::readFrom(
+                                      ADDRESS                     *fromAddress,
+                                      void                        *buffer,
+                                      const SocketHandle::Handle&amp;  socket,
+                                      int                          numBytes,
+                                      int                         *errorCode)
+{
+    // &#39;recvfrom&#39; may not assign &#39;address&#39; in some instances, so we should
+    // ensure that &#39;address&#39; has a reasonable default value (i.e., is not
+    // uninitialized memory).
+
+    SocketImpUtil_Address&lt;ADDRESS&gt; address(*fromAddress);
+    SocketImpUtil_Util::ADDRLEN_T  siLen = sizeof address.d_address;
+
+    int rc = static_cast&lt;int&gt;(
+                   ::recvfrom(socket,
+                              static_cast&lt;char *&gt;(buffer),
+                              numBytes,
+                              0,
+                              reinterpret_cast&lt;sockaddr *&gt;(&amp;address.d_address),
+                              &amp;siLen));
+
+    address.fromSocketAddress(fromAddress);
+    if (rc &gt;= 0) {
+        return rc;                                                    // RETURN
+    }
+    else {
+        int errorNumber = SocketImpUtil_Util::getErrorCode();
+        if (errorNumber &amp;&amp; errorCode) {
+            *errorCode = errorNumber;
+        }
+        return SocketImpUtil_Util::mapErrorCode(errorNumber);         // RETURN
+    }
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::writeTo(const SocketHandle::Handle&amp;  socket,
+                                        const ADDRESS&amp;               toAddress,
+                                        const void                  *buffer,
+                                        int                          numBytes,
+                                        int                         *errorCode)
+{
+    int rc;
+    SocketImpUtil_Address&lt;ADDRESS&gt; sockAddress(toAddress);
+
+    if (!numBytes) return 0;                                          // RETURN
+    rc = static_cast&lt;int&gt;(
+                 ::sendto(socket,
+                          static_cast&lt;const char *&gt;(buffer),
+                          numBytes,
+                          0,
+                          reinterpret_cast&lt;sockaddr *&gt;(&amp;sockAddress.d_address),
+                          sizeof sockAddress.d_address));
+
+    int errorNumber = rc &gt;= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
+
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::writevTo(
+                                        const SocketHandle::Handle&amp;  socket,
+                                        const ADDRESS&amp;               toAddress,
+                                        const btls::Ovec            *ovec,
+                                        int                          numBuffs,
+                                        int                         *errorCode)
+{
+#if defined(BTLSO_PLATFORM_BSD_SOCKETS)
+    int rc;
+
+    SocketImpUtil_Address&lt;ADDRESS&gt; sockAddress(toAddress);
+    struct msghdr                  msg;
+
+    // set unused fields to 0 portably
+
+    memset(&amp;msg, 0, sizeof msg);
+
+#if defined(BSLS_PLATFORM_OS_HPUX)
+    msg.msg_name = (caddr_t) &amp;sockAddress.d_address;
+#else
+    msg.msg_name = (sockaddr *) &amp;sockAddress.d_address;
+#endif
+    msg.msg_namelen = sizeof(sockAddress.d_address);
+    msg.msg_iov = reinterpret_cast&lt; ::iovec *&gt;(const_cast&lt;btls::Ovec *&gt;(ovec));
+    msg.msg_iovlen = numBuffs;
+
+    rc = static_cast&lt;int&gt;(::sendmsg(socket, &amp;msg, 0));
+
+    int errorNumber = rc &gt;= 0 ? 0 : SocketImpUtil_Util::getErrorCode();
+    if (errorNumber &amp;&amp; errorCode) {
+        *errorCode = errorNumber;
+    }
+    return errorNumber ? SocketImpUtil_Util::mapErrorCode(errorNumber) : rc;
+#endif
+
+#if defined(BTLSO_PLATFORM_WIN_SOCKETS)
+    // On platforms which don&#39;t have sendmsg we use the writeTo method
+    // and copy data if necessary.
+    const int maxPacket = 1500; // Assume MTU size of 1500
+    char      mergedData[maxPacket];
+
+    if (numBuffs==1) {
+        // Simple case
+
+        return writeTo(socket,
+                       toAddress,
+                       ovec[0].buffer(),
+                       ovec[0].length(),
+                       errorCode);
+    }
+    else {
+        // Copy the data into our buffer
+
+        char *to = &amp;(mergedData[0]);
+        int   numBytes = 0;
+
+        for (int i=0; i&lt;numBuffs; ++i) {
+            if (ovec[i].length() &gt; (maxPacket-numBytes)) {
+                // Behavior in this case is undefined but avoid
+                // trashing the stack.
+
+                return -1;
+            }
+            bsl::copy_n(static_cast&lt;char const*&gt;(ovec[i].buffer()),
+                        ovec[i].length(),
+                        to);
+            numBytes += ovec[i].length();
+            to += ovec[i].length();
+        }
+        return writeTo(socket,
+                       toAddress,
+                       &amp;(mergedData[0]),
+                       numBytes,
+                       errorCode);
+    }
+#endif
+}
+
+template &lt;class ADDRESS&gt;
+int SocketImpUtil_Imp&lt;ADDRESS&gt;::socketPair(SocketHandle::Handle *newSockets,
+                                           SocketImpUtil::Type   type,
+                                           int                  *errorCode)
+{
+    return socketPair(newSockets, type, 0, errorCode);
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

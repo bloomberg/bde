@@ -1,0 +1,162 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balst.txt
+
+@PURPOSE: Provide a portable facility for obtaining &amp; printing a stack trace
+
+@MNEMONIC: Basic Application Library STack utilities (balst)
+
+@DESCRIPTION: The &#39;balst&#39; package provides a facility for obtaining and
+ printing a stack trace at run time.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balst&#39; package currently has 14 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. balst_assertionlogger
+     balst_stacktraceprintutil
+     balst_stacktracetestallocator
+
+  4. balst_stacktraceutil
+
+  3. balst_stacktraceresolverimpl_dladdr                              !PRIVATE!
+     balst_stacktraceresolverimpl_elf                                 !PRIVATE!
+     balst_stacktraceresolverimpl_windows                             !PRIVATE!
+     balst_stacktraceresolverimpl_xcoff                               !PRIVATE!
+
+  2. balst_stackaddressutil
+     balst_stacktrace
+     balst_stacktraceresolver_filehelper                              !PRIVATE!
+
+  1. balst_dbghelpdllimpl_windows                                     !PRIVATE!
+     balst_objectfileformat
+     balst_stacktraceframe
+..
+
+/Component Synopsis
+/------------------
+: &#39;balst_assertionlogger&#39;:
+:      Provide configurable logging handler for assertion failures.
+:
+: &#39;balst_dbghelpdllimpl_windows&#39;:                                     !PRIVATE!
+:      Provide access to the &#39;dbghelp.dll&#39; shared library on Windows.
+:
+: &#39;balst_objectfileformat&#39;:
+:      Provide platform-dependent object file format trait definitions.
+:
+: &#39;balst_stackaddressutil&#39;:
+:      Provide a utility for obtaining return addresses from the stack.
+:
+: &#39;balst_stacktrace&#39;:
+:      Provide a description of a function-call stack.
+:
+: &#39;balst_stacktraceframe&#39;:
+:      Provide an attribute class describing an execution stack frame.
+:
+: &#39;balst_stacktraceprintutil&#39;:
+:      Provide a single function to perform and print a stack trace.
+:
+: &#39;balst_stacktraceresolver_filehelper&#39;:                              !PRIVATE!
+:      Provide platform-independent file input for stack trace resolvers.
+:
+: &#39;balst_stacktraceresolverimpl_dladdr&#39;:                              !PRIVATE!
+:      Provide functions for resolving a stack trace using &#39;dladdr&#39;.
+:
+: &#39;balst_stacktraceresolverimpl_elf&#39;:                                 !PRIVATE!
+:      Provide a utility to resolve ELF symbols in a stack trace.
+:
+: &#39;balst_stacktraceresolverimpl_windows&#39;:                             !PRIVATE!
+:      Provide resolution of symbols in stack trace for Windows objects.
+:
+: &#39;balst_stacktraceresolverimpl_xcoff&#39;:                               !PRIVATE!
+:      Provide a utility to resolve xcoff symbols in a stack trace.
+:
+: &#39;balst_stacktracetestallocator&#39;:
+:      Provide a test allocator that reports the call stack for leaks.
+:
+: &#39;balst_stacktraceutil&#39;:
+:      Provide low-level utilities for obtaining &amp; printing a stack-trace.
+
+/Usage
+/-----
+ This section illustrates intended use of this package.
+
+/Example 1: Printing a Stack Trace to a Stream
+/- - - - - - - - - - - - - - - - - - - - - - -
+ This example shows how to obtain a stack trace and print it to a stream, all
+ by calling just the static function
+ &#39;balst_StackTracePrintUtil::printStackTrace&#39;.
+
+ First, we define a recursive function &#39;recurseAndPrintStack&#39; that recurses to
+ the specified &#39;depth&#39;, then calls &#39;balst_StackTracePrintUtil::printStackTrace&#39;
+ to obtain a stack trace and print it to &#39;cout&#39;.  When we call
+ &#39;printStackTrace&#39;, neither of the optional arguments corresponding to
+ &#39;maxFrames&#39; or &#39;demanglingPreferredFlag&#39; are supplied; &#39;maxFrames&#39; defaults to
+ at least 1024 (which is more than we need), and &#39;demanglingPreferredFlag&#39;
+ defaults to &#39;true&#39;.
+..
+  static
+  void recurseAndPrintStack(int *depth)
+      // Recurse to the specified &#39;depth&#39;, then print out the stack trace to
+      // &#39;cout&#39;.
+  {
+      if (--*depth &gt; 0) {
+          recurseAndPrintStack(depth);
+      }
+      else {
+          balst_StackTracePrintUtil::printStackTrace(cout);
+      }
+
+      ++*depth;   // Prevent compiler from optimizing tail recursion as a
+                  // loop.
+  }
+..
+ Then, we call &#39;recurseAndPrintStack&#39; from the main program.
+..
+  int main()
+  {
+      int depth = 5;
+      recurseAndPrintStack(&amp;depth);
+      assert(5 == depth);
+  }
+..
+ Now, invoking the main program on AIX produces the following output:
+..
+  (0): BloombergLP::balst_StackTracePrintUtil::.printStackTrace(
+       bdl::basic_ostream&lt;char,bdl::char_traits&lt;char&gt; &gt;&amp;,int,bool)+0x170 at
+       0x1000a2c8 source:balst_stacktraceprintutil.cpp:52 in
+       balst_stacktraceprintutil.t.dbg_
+  (1): .recurseAndPrintStack(int*)+0x58 at 0x1000a118
+       source:balst_stacktraceprintutil.t.cpp:652 in
+       balst_stacktraceprintutil.t.dbg_
+  (2): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650
+       in balst_stacktraceprintutil.t.dbg_
+  (3): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (4): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (5): .recurseAndPrintStack(int*)+0x40 at 0x1000a100
+       source:balst_stacktraceprintutil.t.cpp:650 in
+       balst_stacktraceprintutil.t.dbg_
+  (6): .main+0x2f4 at 0x10000a4c source:balst_stacktraceprintutil.t.cpp:724
+       in balst_stacktraceprintutil.t.dbg_
+  (7): .__start+0x6c at 0x1000020c source:crt0main.s in
+       balst_stacktraceprintutil.t.dbg_
+..
+ Finally, we observe the following about the above output to &#39;cout&#39;.  Notice
+ that since the actual output would write each stack trace frame all on a
+ single line, and all the lines here were longer than 80 characters, it has
+ been manually edited to wrap and have every line be less than 80 columns.
+ Also note the program name is truncated to 32 characters in length.
+</pre>
+</body>
+</html>

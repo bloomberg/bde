@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_swaputil.h                                                  -*-C++-*-
@@ -37,8 +37,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: using &#39;bslalg::SwapUtil::swap&#39;
-/// - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using &#39;bslalg::SwapUtil::swap&#39;
+///- - - - - - - - - - - - - - - - - - - - -
 // In this example we define a type &#39;Container&#39; and use &#39;bslalg::SwapUtil&#39; to
 // both implement a user-defined &#39;swap&#39; for &#39;Container&#39;, and swap two container
 // objects.
@@ -142,7 +142,7 @@ class SwapUtil {
 
   public:
     // CLASS METHODS
-    template &lt;typename T&gt;
+    template &lt;class T&gt;
     static
     void swap(T *a, T *b);
         // Exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects using
@@ -151,16 +151,16 @@ class SwapUtil {
         // &#39;bsl::swap&#39; otherwise.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // ---------------
                            // struct SwapUtil
                            // ---------------
 
 // CLASS METHODS
-template &lt;typename T&gt;
+template &lt;class T&gt;
 void SwapUtil::swap(T *a, T *b)
 {
     BSLS_ASSERT_SAFE(a != NULL);

@@ -1,0 +1,279 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_resolveutil.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_RESOLVEUTIL
+#define INCLUDED_BTLSO_RESOLVEUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide operations to resolve an IPv4 address given a name.
+//
+//@CLASSES:
+//  btlso::ResolveUtil: namespace for platform-independent resolution utilities
+//
+//@SEE_ALSO: btlso_socketoptutil btlso_socketimputil
+//
+//@DESCRIPTION: This component provides a set of thread-safe resolution
+// functions (based on DNS and local databases) to map a name to an IPv4
+// address and a service name to the port number.  This component operates
+// using a dynamically replaceable resolution mechanism.  For applications that
+// choose to define their own mechanism for resolving addresses by name, this
+// component provides the ability to install a custom resolution callback.
+// Note that if an application provides its own mechanism to resolve by name,
+// this mechanism will be used by all calls to &#39;getAddress&#39; or &#39;getAddresses&#39;.
+// Otherwise, the default implementation will be used.  An application can
+// always use the default implementation by calling the &#39;getAddressDefault&#39; and
+// &#39;getAddressDefault&#39; methods explicitly.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Resolving an IP Address
+/// - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to get an IPv4address or a
+// port number from a name.  First we create two &#39;btlso::IPv4Address&#39; objects
+// to store the return value for host &#39;p111&#39;, &#39;ibm1&#39; respectively, and verify
+// the return addresses:
+//..
+//  int                retCode = 0, errorCode = 0;
+//  btlso::IPv4Address result1, result2;
+//
+//  const char *hostname = &quot;p111&quot;;
+//  retCode = btlso::ResolveUtil::getAddress(&amp;result1,
+//                                           hostname,
+//                                           &amp;errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout &lt;&lt; &quot;IPv4 address for &#39;&quot; &lt;&lt; hostname &lt;&lt; &quot;&#39;: &quot; &lt;&lt; result1
+//            &lt;&lt; bsl::endl;
+//
+//  const char *hostname2 = &quot;ibm1&quot;;
+//  retCode = btlso::ResolveUtil::getAddress(&amp;result2,
+//                                           hostname2,
+//                                           &amp;errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout &lt;&lt; &quot;IPv4 address for &#39;&quot; &lt;&lt; hostname2 &lt;&lt; &quot;&#39;: &quot; &lt;&lt; result2
+//            &lt;&lt; bsl::endl;
+//..
+// Next we try retrieving all IPv4 addresses for the given host name &#39;n024&#39; and
+// verify the return addresses:
+//..
+//  bsl::vector&lt;btlso::IPv4Address&gt; addr_array;
+//  btlso::IPv4Address              result3;
+//
+//  const char *hostname3 = &quot;n024&quot;;
+//  retCode = btlso::ResolveUtil::getAddresses(&amp;addr_array,
+//                                             hostname3,
+//                                             &amp;errorCode);
+//  assert(0 == retCode);
+//  assert(0 == errorCode);
+//  bsl::cout &lt;&lt; &quot;IPv4 address for &#39;&quot; &lt;&lt; hostname3 &lt;&lt; &quot;&#39;: &quot; &lt;&lt; addr_array
+//            &lt;&lt; bsl::endl;
+//..
+// Finally, we try to get the service port number of the given service names
+// &#39;ftp&#39;, &#39;systat&#39;, &#39;telnet&#39; respectively, and verify the result:
+//..
+//  const char *servname = &quot;ftp&quot;;
+//  retCode = btlso::ResolveUtil::getServicePort(&amp;result1,
+//                                               servname,
+//                                               0,
+//                                               &amp;errorCode);
+//  assert(0 == retCode);
+//  bsl::cout &lt;&lt; &quot;Port number for &#39;ftp&#39;: &quot; &lt;&lt; result1 &lt;&lt; bsl::endl;
+//
+//  const char *servname2 = &quot;systat&quot;;
+//  retCode = btlso::ResolveUtil::getServicePort(&amp;result2,
+//                                               servname2,
+//                                               0,
+//                                               &amp;errorCode);
+//  assert(0 == retCode);
+//  bsl::cout &lt;&lt; &quot;Port number for &#39;systat&#39;: &quot; &lt;&lt; result1 &lt;&lt; bsl::endl;
+//
+//  const char *servname3 = &quot;telnet&quot;;
+//  retCode = btlso::ResolveUtil::getServicePort(&amp;result3,
+//                                               servname3,
+//                                               0,
+//                                               &amp;errorCode);
+//  assert(0 == retCode);
+//  bsl::cout &lt;&lt; &quot;Port number for &#39;telnet&#39;: &quot; &lt;&lt; result1 &lt;&lt; bsl::endl;
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+class IPv4Address;
+
+                        // ==================
+                        // struct ResolveUtil
+                        // ==================
+
+struct ResolveUtil {
+    // This class provides a namespace for platform-independent thread-safe
+    // procedures to get the IPv4address and/or port number based on the names.
+    // These procedures take an &#39;errorCode&#39; as an optional parameter, which is
+    // loaded with platform-specific error number if an error occurs during the
+    // operation.  All functions return 0 on success or a negative value on
+    // error.  By default, they use the platform networking libraries for
+    // resolving addresses, but a user can substitute her own resolution
+    // mechanism by installing her own &#39;ResolveByNameCallback&#39; callback
+    // globally.  Although invoking the callback itself is thread-safe, the
+    // behavior is undefined if an application attempts to set up a callback
+    // mechanism via &#39;setResolveByNameCallback&#39; in a multi-threaded environment
+    // while another thread executes &#39;getAddress&#39; or &#39;getAddresses&#39;.
+
+  public:
+    // TYPES
+    typedef int (*ResolveByNameCallback)(
+                                       bsl::vector&lt;IPv4Address&gt; *hostAddresses,
+                                       const char               *hostName,
+                                       int                       numAddresses,
+                                       int                      *errorCode);
+        // Invoked by &#39;getAddress&#39; and &#39;getAddresses&#39;, &#39;ResolveByNameCallback&#39;
+        // is an alias for a pointer to a re-entrant function that returns
+        // &#39;int&#39; and takes as arguments a vector of &#39;hostAddresses&#39;, the
+        // &#39;hostName&#39;, a &#39;numAddresses&#39; parameter, and an &#39;errorCode&#39; pointer.
+        // Upon invocation, this function resolves the IP address(es) of the
+        // specified &#39;hostname&#39; and loads the specified &#39;hostAddresses&#39; with up
+        // to the specified &#39;numAddresses&#39; of the resolved IPv4 addresses if
+        // resolution succeeds.  It returns 0 with no effect on &#39;errorCode&#39;
+        // upon success, and otherwise returns a negative value.  Upon failure
+        // and if &#39;errorCode&#39; is not 0, it also loads a native error code into
+        // &#39;errorCode&#39;.  The behavior is undefined unless &#39;0 &lt; numAddresses&#39;.
+        // Note that, in any case, any &#39;hostAddresses&#39; entry present upon
+        // return must contain a valid IPv4Address corresponding to the
+        // &#39;hostName&#39;, and &#39;hostAddresses&#39; must be resized accordingly.
+
+    // CLASS METHODS
+    static int getAddress(IPv4Address *result,
+                          const char  *hostName,
+                          int         *errorCode = 0);
+    static int getAddressDefault(IPv4Address *result,
+                                 const char  *hostName,
+                                 int         *errorCode = 0);
+        // Load into the specified &#39;result&#39; the primary IPv4 address of the
+        // specified &#39;hostName&#39;.  Return 0, with no effect on &#39;errorCode&#39;, on
+        // success, and return a negative value otherwise.  If an error occurs,
+        // the optionally specified &#39;errorCode&#39; is set to the native error code
+        // of the operation and &#39;result&#39; is unchanged.  Note that &#39;getAddress&#39;
+        // uses the user-installed resolution mechanism, while
+        // &#39;getAddressDefault&#39; uses the default resolution mechanism.
+
+    static int getAddresses(bsl::vector&lt;IPv4Address&gt; *result,
+                            const char               *hostName,
+                            int                      *errorCode = 0);
+        // Load into the specified array &#39;result&#39; all IPv4 addresses of the
+        // specified &#39;hostName&#39;.  Return 0, with no effect on &#39;errorCode&#39;, on
+        // success, and return a negative value otherwise.  If an error occurs,
+        // the optionally specified &#39;errorCode&#39; is set to the native error code
+        // of the operation.  In any case, any addresses present in &#39;result&#39;
+        // upon return will contain a valid IPv4Address corresponding to the
+        // &#39;hostName&#39;, and &#39;hostAddress&#39; will be resized accordingly.  Note
+        // that &#39;getAddresses&#39; uses the user-installed resolution mechanism; to
+        // use the default resolution mechanism, simply call:
+        //..
+        //  (*defaultResolveByNameCallback())(result,
+        //                                    hostName,
+        //                                    INT_MAX,
+        //                                    errorCode);
+        //..
+
+    static int getHostnameByAddress(bsl::string        *canonicalHostname,
+                                    const IPv4Address&amp;  address,
+                                    int                *errorCode = 0);
+        // Load into the specified &#39;canonicalHostname&#39; string, the name
+        // associated with the specified &#39;address&#39;.  Return 0, with no effect
+        // on &#39;errorCode&#39;, on success, or a negative value otherwise.  If an
+        // error occurs, the optionally specified &#39;errorCode&#39; is set to the
+        // native error code of the operation and &#39;canonicalHostname&#39; is
+        // unchanged.
+
+    static int getServicePort(IPv4Address *result,
+                              const char  *serviceName,
+                              const char  *protocol = 0,
+                              int         *errorCode = 0);
+        // Load into the specified &#39;result&#39; the service port number associated
+        // with the specified &#39;serviceName&#39;.  Optionally specify a &#39;protocol&#39;
+        // string, such as &quot;tcp&quot; or &quot;udp&quot;; if &#39;protocol is 0, an entry with any
+        // protocol may be returned.  Return 0, with no effect on &#39;errorCode&#39;,
+        // on success, and a negative value otherwise.  If an error occurs,
+        // load into the optionally specified &#39;errorCode&#39; the native error code
+        // of the operation only on Windows platform.  Note that the IP address
+        // of &#39;result&#39; is not modified.  The behavior is undefined if &#39;result&#39;
+        // is 0.
+
+    static int getLocalHostname(bsl::string *result);
+        // Load into the specified &#39;result&#39; the name of the local machine as
+        // configured by the system administrator.  Return 0 on success, and
+        // non-zero (with no effect on &#39;result&#39;) otherwise.  Note that on
+        // Windows &#39;SocketImpUtil::startup()&#39; must have been called to
+        // initialize the socket layer before calling this method.
+
+    static ResolveByNameCallback setResolveByNameCallback(
+                                               ResolveByNameCallback callback);
+        // Install the user-specified custom &#39;callback&#39; function to resolve an
+        // IP address by name.  Return the address of the previously installed
+        // callback.  The behavior of &#39;getAddress&#39; and &#39;getAddresses&#39; will be
+        // corrupted unless &#39;callback&#39; conforms to the contract laid out in the
+        // &#39;ResolveByNameCallback&#39; type documentation.
+
+    static ResolveByNameCallback currentResolveByNameCallback();
+        // Return the currently installed &#39;ResolveByNameCallback&#39; function.
+
+    static ResolveByNameCallback defaultResolveByNameCallback();
+        // Return the default implementation of &#39;ResolveByNameCallback&#39;
+        // function.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Namespace bsls</title>
+<title>BDE 3.0: Namespace bsls</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -62,11 +62,12 @@
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>bsls Namespace Reference<br/>
 <small>
-[<a class="el" href="group__bsls__alignedbuffer.html">Component bsls_alignedbuffer</a>,&nbsp;<a class="el" href="group__bsls__alignment.html">Component bsls_alignment</a>,&nbsp;<a class="el" href="group__bsls__alignmentfromtype.html">Component bsls_alignmentfromtype</a>,&nbsp;<a class="el" href="group__bsls__alignmentimp.html">Component bsls_alignmentimp</a>,&nbsp;<a class="el" href="group__bsls__alignmenttotype.html">Component bsls_alignmenttotype</a>,&nbsp;<a class="el" href="group__bsls__alignmentutil.html">Component bsls_alignmentutil</a>,&nbsp;<a class="el" href="group__bsls__assert.html">Component bsls_assert</a>,&nbsp;<a class="el" href="group__bsls__asserttest.html">Component bsls_asserttest</a>,&nbsp;<a class="el" href="group__bsls__asserttestexception.html">Component bsls_asserttestexception</a>,&nbsp;<a class="el" href="group__bsls__atomic.html">Component bsls_atomic</a>,&nbsp;<a class="el" href="group__bsls__atomicoperations.html">Component bsls_atomicoperations</a>,&nbsp;<a class="el" href="group__bsls__atomicoperations__default.html">Component bsls_atomicoperations_default</a>,&nbsp;<a class="el" href="group__bsls__blockgrowth.html">Component bsls_blockgrowth</a>,&nbsp;<a class="el" href="group__bsls__bslexceptionutil.html">Component bsls_bslexceptionutil</a>,&nbsp;<a class="el" href="group__bsls__bsllock.html">Component bsls_bsllock</a>,&nbsp;<a class="el" href="group__bsls__bslonce.html">Component bsls_bslonce</a>,&nbsp;<a class="el" href="group__bsls__bsltestutil.html">Component bsls_bsltestutil</a>,&nbsp;<a class="el" href="group__bsls__buildtarget.html">Component bsls_buildtarget</a>,&nbsp;<a class="el" href="group__bsls__byteorderutil.html">Component bsls_byteorderutil</a>,&nbsp;<a class="el" href="group__bsls__byteorderutil__impl.html">Component bsls_byteorderutil_impl</a>,&nbsp;<a class="el" href="group__bsls__log.html">Component bsls_log</a>,&nbsp;<a class="el" href="group__bsls__nullptr.html">Component bsls_nullptr</a>,&nbsp;<a class="el" href="group__bsls__objectbuffer.html">Component bsls_objectbuffer</a>,&nbsp;<a class="el" href="group__bsls__protocoltest.html">Component bsls_protocoltest</a>,&nbsp;<a class="el" href="group__bsls__stopwatch.html">Component bsls_stopwatch</a>,&nbsp;<a class="el" href="group__bsls__systemclocktype.html">Component bsls_systemclocktype</a>,&nbsp;<a class="el" href="group__bsls__systemtime.html">Component bsls_systemtime</a>,&nbsp;<a class="el" href="group__bsls__timeinterval.html">Component bsls_timeinterval</a>,&nbsp;<a class="el" href="group__bsls__timeutil.html">Component bsls_timeutil</a>,&nbsp;<a class="el" href="group__bsls__types.html">Component bsls_types</a>,&nbsp;<a class="el" href="group__bsls__unspecifiedbool.html">Component bsls_unspecifiedbool</a>,&nbsp;<a class="el" href="group__bsls__util.html">Component bsls_util</a>]</small>
+[<a class="el" href="group__bsls__alignedbuffer.html">Component bsls_alignedbuffer</a>,&nbsp;<a class="el" href="group__bsls__alignment.html">Component bsls_alignment</a>,&nbsp;<a class="el" href="group__bsls__alignmentfromtype.html">Component bsls_alignmentfromtype</a>,&nbsp;<a class="el" href="group__bsls__alignmentimp.html">Component bsls_alignmentimp</a>,&nbsp;<a class="el" href="group__bsls__alignmenttotype.html">Component bsls_alignmenttotype</a>,&nbsp;<a class="el" href="group__bsls__alignmentutil.html">Component bsls_alignmentutil</a>,&nbsp;<a class="el" href="group__bsls__assert.html">Component bsls_assert</a>,&nbsp;<a class="el" href="group__bsls__asserttest.html">Component bsls_asserttest</a>,&nbsp;<a class="el" href="group__bsls__asserttestexception.html">Component bsls_asserttestexception</a>,&nbsp;<a class="el" href="group__bsls__atomic.html">Component bsls_atomic</a>,&nbsp;<a class="el" href="group__bsls__atomicoperations.html">Component bsls_atomicoperations</a>,&nbsp;<a class="el" href="group__bsls__atomicoperations__default.html">Component bsls_atomicoperations_default</a>,&nbsp;<a class="el" href="group__bsls__blockgrowth.html">Component bsls_blockgrowth</a>,&nbsp;<a class="el" href="group__bsls__bslexceptionutil.html">Component bsls_bslexceptionutil</a>,&nbsp;<a class="el" href="group__bsls__bsllock.html">Component bsls_bsllock</a>,&nbsp;<a class="el" href="group__bsls__bslonce.html">Component bsls_bslonce</a>,&nbsp;<a class="el" href="group__bsls__bsltestutil.html">Component bsls_bsltestutil</a>,&nbsp;<a class="el" href="group__bsls__buildtarget.html">Component bsls_buildtarget</a>,&nbsp;<a class="el" href="group__bsls__byteorderutil.html">Component bsls_byteorderutil</a>,&nbsp;<a class="el" href="group__bsls__byteorderutil__impl.html">Component bsls_byteorderutil_impl</a>,&nbsp;<a class="el" href="group__bsls__compilerfeatures.html">Component bsls_compilerfeatures</a>,&nbsp;<a class="el" href="group__bsls__log.html">Component bsls_log</a>,&nbsp;<a class="el" href="group__bsls__nullptr.html">Component bsls_nullptr</a>,&nbsp;<a class="el" href="group__bsls__objectbuffer.html">Component bsls_objectbuffer</a>,&nbsp;<a class="el" href="group__bsls__protocoltest.html">Component bsls_protocoltest</a>,&nbsp;<a class="el" href="group__bsls__spinlock.html">Component bsls_spinlock</a>,&nbsp;<a class="el" href="group__bsls__stopwatch.html">Component bsls_stopwatch</a>,&nbsp;<a class="el" href="group__bsls__systemclocktype.html">Component bsls_systemclocktype</a>,&nbsp;<a class="el" href="group__bsls__systemtime.html">Component bsls_systemtime</a>,&nbsp;<a class="el" href="group__bsls__timeinterval.html">Component bsls_timeinterval</a>,&nbsp;<a class="el" href="group__bsls__timeutil.html">Component bsls_timeutil</a>,&nbsp;<a class="el" href="group__bsls__types.html">Component bsls_types</a>,&nbsp;<a class="el" href="group__bsls__unspecifiedbool.html">Component bsls_unspecifiedbool</a>,&nbsp;<a class="el" href="group__bsls__util.html">Component bsls_util</a>,&nbsp;<a class="el" href="group__btlmt__asyncchannel.html">Component btlmt_asyncchannel</a>,&nbsp;<a class="el" href="group__btlsc__timedcbchannel.html">Component btlsc_timedcbchannel</a>,&nbsp;<a class="el" href="group__btlsc__timedcbchannelallocator.html">Component btlsc_timedcbchannelallocator</a>,&nbsp;<a class="el" href="group__btlsc__timedchannel.html">Component btlsc_timedchannel</a>,&nbsp;<a class="el" href="group__btlsc__timedchannelallocator.html">Component btlsc_timedchannelallocator</a>,&nbsp;<a class="el" href="group__btlso__defaulteventmanager.html">Component btlso_defaulteventmanager</a>,&nbsp;<a class="el" href="group__btlso__eventmanager.html">Component btlso_eventmanager</a>,&nbsp;<a class="el" href="group__btlso__eventmanagertester.html">Component btlso_eventmanagertester</a>,&nbsp;<a class="el" href="group__btlso__streamsocket.html">Component btlso_streamsocket</a>,&nbsp;<a class="el" href="group__btlso__timereventmanager.html">Component btlso_timereventmanager</a>]</small>
 </h1>  </div>
 </div>
 <div class="contents">
@@ -136,6 +137,10 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1ProtocolTest__Status.html">ProtocolTest_Status</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1ProtocolTestImp.html">ProtocolTestImp</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1ProtocolTest.html">ProtocolTest</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1SpinLock.html">SpinLock</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A mutex using "busy waiting" atomic operations.  <a href="structbsls_1_1SpinLock.html#_details">More...</a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1SpinLockGuard.html">SpinLockGuard</a></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Automatic locking-unlocking of <a class="el" href="structbsls_1_1SpinLock.html" title="A mutex using &quot;busy waiting&quot; atomic operations.">SpinLock</a>.  <a href="classbsls_1_1SpinLockGuard.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1Stopwatch.html">Stopwatch</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1SystemClockType.html">SystemClockType</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1SystemTime.html">SystemTime</a></td></tr>
@@ -149,6 +154,10 @@ Classes</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbsls_1_1BuildTargetExcYes.html">BuildTargetExcYes</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#aa2c6030de0bb64c0ff041513bb7afcc9">BuildTargetExc</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbsls_1_1BuildTargetMtYes.html">BuildTargetMtYes</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a550c5c533feb94a6c638508cbfc4981b">BuildTargetMt</a></td></tr>
+<tr><td colspan="2"><h2><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a6ba8d13bd64a928d85a18c7e64aae156">CompilerFeaturesNilT</a> { <a class="el" href="namespacebsls.html#a6ba8d13bd64a928d85a18c7e64aae156a4a5646135dfd47b808bc0bba262a8ba1">COMPILERFEATURESNILV</a> =  0x7fff6f76
+ }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#adaddaf11e612254a0f2f50ef0ddf76fb">debugprint</a> (bool v)</td></tr>
@@ -201,8 +210,7 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a1f844071f3156d606a528a77b71b6668">operator&gt;=</a> (const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;lhs, const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#ad4e7386be74933b8ab91e5cd6ff69bb9">operator&gt;=</a> (const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;lhs, double rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a68ce5fe949655b0020ba3b22cb16d1e7">operator&gt;=</a> (double lhs, const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;rhs)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebsls.html#add0ccaf2bbfca9cbb2d0e663145bd8a2">operator&lt;&lt;</a> (STREAM &amp;stream, const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;timeInterval)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">native_std::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a917609f4d482ae649e1bf7cdff4454b4">operator&lt;&lt;</a> (native_std::ostream &amp;stream, const <a class="el" href="classbsls_1_1TimeInterval.html">TimeInterval</a> &amp;timeInterval)</td></tr>
 </table>
 <hr/><h2>Typedef Documentation</h2>
 <a class="anchor" id="aa2c6030de0bb64c0ff041513bb7afcc9"></a><!-- doxytag: member="bsls::BuildTargetExc" ref="aa2c6030de0bb64c0ff041513bb7afcc9" args="" -->
@@ -228,6 +236,26 @@ Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Enumeration Type Documentation</h2>
+<a class="anchor" id="a6ba8d13bd64a928d85a18c7e64aae156"></a><!-- doxytag: member="bsls::CompilerFeaturesNilT" ref="a6ba8d13bd64a928d85a18c7e64aae156" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespacebsls.html#a6ba8d13bd64a928d85a18c7e64aae156">bsls::CompilerFeaturesNilT</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="a6ba8d13bd64a928d85a18c7e64aae156a4a5646135dfd47b808bc0bba262a8ba1"></a><!-- doxytag: member="COMPILERFEATURESNILV" ref="a6ba8d13bd64a928d85a18c7e64aae156a4a5646135dfd47b808bc0bba262a8ba1" args="" -->COMPILERFEATURESNILV</em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dd>
+</dl>
 
 </div>
 </div>
@@ -1345,16 +1373,14 @@ template&lt;class RESULT &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="add0ccaf2bbfca9cbb2d0e663145bd8a2"></a><!-- doxytag: member="bsls::operator&lt;&lt;" ref="add0ccaf2bbfca9cbb2d0e663145bd8a2" args="(STREAM &amp;stream, const TimeInterval &amp;timeInterval)" -->
+<a class="anchor" id="a917609f4d482ae649e1bf7cdff4454b4"></a><!-- doxytag: member="bsls::operator&lt;&lt;" ref="a917609f4d482ae649e1bf7cdff4454b4" args="(native_std::ostream &amp;stream, const TimeInterval &amp;timeInterval)" -->
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class STREAM &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">STREAM&amp; bsls::operator&lt;&lt; </td>
+          <td class="memname">native_std::ostream&amp; bsls::operator&lt;&lt; </td>
           <td>(</td>
-          <td class="paramtype">STREAM &amp;&nbsp;</td>
+          <td class="paramtype">native_std::ostream &amp;&nbsp;</td>
           <td class="paramname"> <em>stream</em>, </td>
         </tr>
         <tr>
@@ -1376,7 +1402,7 @@ template&lt;class STREAM &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:43 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

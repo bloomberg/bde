@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlb_guid.h                                                        -*-C++-*-
@@ -16,14 +16,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bdlscm_version.h&gt;
 #endif
 
-//@PURPOSE: Provide a value semantic type for Globally Unique Identifiers.
+//@PURPOSE: Provide a value-semantic type for Globally Unique Identifiers.
 //
 //@CLASSES:
 //  bdlb::Guid: value-semantic type to represent Globally Unique Identifiers
 //
 //@SEE_ALSO: bdlb_guidutil
 //
-//@DESCRIPTION: This component provides a value semantic type for Globally
+//@DESCRIPTION: This component provides a value-semantic type for Globally
 // Unique Identifiers (GUIDs), &#39;bdlb::Guid&#39;, with format as described by RFC
 // 4122 (&lt;http://http://www.ietf.org/rfc/rfc4122.txt&gt;).  All equality and
 // comparison methods are defined for these GUIDs.  Note that this component
@@ -363,6 +363,11 @@ bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Guid&amp; gui
     //  print(stream, 0, -1);
     //..
 
+template &lt;class HASH_ALGORITHM&gt;
+void hashAppend(HASH_ALGORITHM&amp; hashAlgorithm, const Guid&amp; guid);
+    // Invoke the specified &#39;hashAlgorithm&#39; on the underlying buffer held by
+    // the specified &#39;guid&#39; object.
+
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
@@ -543,6 +548,12 @@ bool bdlb::operator!=(const bdlb::Guid&amp; lhs, const bdlb::Guid&amp; rhs)
 {
     return !bsl::equal(
         lhs.d_buffer, lhs.d_buffer + lhs.k_GUID_NUM_BYTES, rhs.d_buffer);
+}
+
+template &lt;class HASH_ALGORITHM&gt;
+void bdlb::hashAppend(HASH_ALGORITHM&amp; hashAlgorithm, const Guid&amp; guid)
+{
+    hashAlgorithm(guid.data(), Guid::k_GUID_NUM_BYTES);
 }
 
 }  // close enterprise namespace

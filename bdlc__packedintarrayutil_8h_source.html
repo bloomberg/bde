@@ -1,0 +1,239 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlc_packedintarrayutil.h                                          -*-C++-*-
+#ifndef INCLUDED_BDLC_PACKEDINTARRAYUTIL
+#define INCLUDED_BDLC_PACKEDINTARRAYUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide common non-primitive operations on &#39;bdlc::PackedIntArray&#39;.
+//
+//@CLASSES:
+//  bdlc::PackedIntArrayUtil: non-primitive &#39;bdlc::PackedIntArray&#39; operations
+//
+//@SEE_ALSO: bdlc_packedintarray
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;, &#39;bdlc::PackedIntArrayUtil&#39;,
+// that serves as a namespace for utility functions that operate on
+// &#39;bdlc::PackedIntArray&#39; objects.
+//
+// The following list of methods are provided by &#39;bdlc::PackedIntArrayUtil&#39;:
+//..
+//  &#39;isSorted&#39;         Returns &#39;true&#39; if the range from a
+//                     &#39;bdlc::PackedIntArray&#39; is sorted, and &#39;false&#39; otherwise.
+//
+//  &#39;lowerBound&#39;       Returns an iterator to the first element in a sorted
+//                     range from a &#39;bdlc::PackedIntArray&#39; that compares
+//                     greater than or equal to a specified value.
+//
+//  &#39;upperBound&#39;       Returns an iterator to the first element in a sorted
+//                     range from a &#39;bdlc::PackedIntArray&#39; that compares
+//                     greater than a specified value.
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: &#39;lowerBound&#39;
+///- - - - - - - - - - - -
+// Suppose that given a sorted &#39;bdlc::PackedIntArray&#39;, we want to find the
+// first value greater than or equal to the value 17.  First, create and
+// populate with sorted data the &#39;bdlc::PackedIntArray&#39; to be searched:
+//..
+//  bdlc::PackedIntArray&lt;int&gt; array;
+//
+//  array.push_back( 5);
+//  array.push_back( 9);
+//  array.push_back(15);
+//  array.push_back(19);
+//  array.push_back(23);
+//  array.push_back(36);
+//  assert(6 == array.length());
+//..
+// Then, verify the array&#39;s data has sorted values:
+//..
+//  assert(bdlc::PackedIntArrayUtil::isSorted(array.begin(), array.end()));
+//..
+// Finally, use &#39;bdlc::PackedIntArrayUtil::lowerBound&#39; to find the desired
+// value:
+//..
+//  bdlc::PackedIntArrayConstIterator&lt;int&gt; iterator =
+//                          bdlc::PackedIntArrayUtil::lowerBound(array.begin(),
+//                                                               array.end(),
+//                                                               17);
+//  assert(iterator != array.end() &amp;&amp; 19 == *iterator);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLC_PACKEDINTARRAY
+#include &lt;bdlc_packedintarray.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlc {
+
+                      // =========================
+                      // struct PackedIntArrayUtil
+                      // =========================
+
+struct PackedIntArrayUtil {
+    // This &#39;struct&#39; provides a namespace for utility functions that provide
+    // non-primitive operations on &#39;bdlc::PackedIntArray&#39;.
+
+  public:
+    // CLASS METHODS
+    template &lt;class TYPE&gt;
+    static bool isSorted(PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                         PackedIntArrayConstIterator&lt;TYPE&gt; last);
+        // Return &#39;true&#39; if the range from the specified &#39;first&#39; (inclusive) to
+        // the specified &#39;last&#39; (exclusive) is sorted or empty, and &#39;false&#39;
+        // otherwise.  The behavior is undefined unless &#39;first &lt;= last&#39;.
+
+    template &lt;class TYPE&gt;
+    static PackedIntArrayConstIterator&lt;TYPE&gt; lowerBound(
+                                      PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                                      PackedIntArrayConstIterator&lt;TYPE&gt; last,
+                                      TYPE                              value);
+        // Return an iterator to the first element in the sorted range from the
+        // specified &#39;first&#39; (inclusive) to the specified &#39;last&#39; (exclusive)
+        // that compares greater than or equal to the specified &#39;value&#39;, and
+        // &#39;last&#39; if no such element exists.  The behavior is undefined unless
+        // &#39;first &lt;= last&#39; and the range is sorted.
+
+    template &lt;class TYPE&gt;
+    static PackedIntArrayConstIterator&lt;TYPE&gt; upperBound(
+                                      PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                                      PackedIntArrayConstIterator&lt;TYPE&gt; last,
+                                      TYPE                              value);
+        // Return an iterator to the first element in the sorted range from the
+        // specified &#39;first&#39; (inclusive) to the specified &#39;last&#39; (exclusive)
+        // that compares greater than the specified &#39;value&#39;, and &#39;last&#39; if no
+        // such element exists.  The behavior is undefined unless
+        // &#39;first &lt;= last&#39; and the range is sorted.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                      // -------------------------
+                      // struct PackedIntArrayUtil
+                      // -------------------------
+
+// CLASS METHODS
+template &lt;class TYPE&gt;
+bool PackedIntArrayUtil::isSorted(PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                                  PackedIntArrayConstIterator&lt;TYPE&gt; last)
+{
+    BSLS_ASSERT(first &lt;= last);
+
+    PackedIntArrayConstIterator&lt;TYPE&gt; at   = first;
+    PackedIntArrayConstIterator&lt;TYPE&gt; prev = first;
+
+    while (at &lt; last) {
+        if (*prev &gt; *at) {
+            return false;                                             // RETURN
+        }
+        prev = at++;
+    }
+
+    return true;
+}
+
+template &lt;class TYPE&gt;
+PackedIntArrayConstIterator&lt;TYPE&gt; PackedIntArrayUtil::lowerBound(
+                                       PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                                       PackedIntArrayConstIterator&lt;TYPE&gt; last,
+                                       TYPE                              value)
+{
+    BSLS_ASSERT(first &lt;= last);
+    BSLS_ASSERT_SAFE(isSorted(first, last));
+
+    typedef typename PackedIntArrayConstIterator&lt;TYPE&gt;::difference_type
+                                                               difference_type;
+
+    difference_type count = last - first;
+
+    while (count &gt; 0) {
+        difference_type                   step = count / 2;
+        PackedIntArrayConstIterator&lt;TYPE&gt; it   = first + step;
+
+        if (*it &lt; value) {
+            first = ++it;
+            count -= step + 1;
+        }
+        else {
+            count = step;
+        }
+    }
+
+    return first;
+}
+
+template &lt;class TYPE&gt;
+PackedIntArrayConstIterator&lt;TYPE&gt; PackedIntArrayUtil::upperBound(
+                                       PackedIntArrayConstIterator&lt;TYPE&gt; first,
+                                       PackedIntArrayConstIterator&lt;TYPE&gt; last,
+                                       TYPE                              value)
+{
+    BSLS_ASSERT(first &lt;= last);
+    BSLS_ASSERT_SAFE(isSorted(first, last));
+
+    typedef typename PackedIntArrayConstIterator&lt;TYPE&gt;::difference_type
+                                                               difference_type;
+
+    difference_type count = last - first;
+
+    while (count &gt; 0) {
+        difference_type                   step = count / 2;
+        PackedIntArrayConstIterator&lt;TYPE&gt; it   = first + step;
+
+        if (*it &lt;= value) {
+            first = ++it;
+            count -= step + 1;
+        }
+        else {
+            count = step;
+        }
+    }
+
+    return first;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

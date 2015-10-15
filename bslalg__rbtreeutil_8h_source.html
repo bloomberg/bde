@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_rbtreeutil.h                                                -*-C++-*-
@@ -696,9 +696,9 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 #include &lt;bsls_assert.h&gt;
 #endif
 
-#ifndef INCLUDED_STDIO
+#ifndef INCLUDED_STDIO_H
 #include &lt;stdio.h&gt;
-#define INCLUDED_STDIO
+#define INCLUDED_STDIO_H
 #endif
 
 namespace BloombergLP {
@@ -1874,7 +1874,7 @@ void RbTreeUtilTreeProctor&lt;DELETER&gt;::release()
     d_tree_p = 0;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

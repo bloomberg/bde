@@ -1,0 +1,341 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_concurrentallocatoradapter.h                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
+#define INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a thread-enabled adapter for the allocator protocol.
+//
+//@CLASSES:
+//   bdlma::ConcurrentAllocatorAdapter: thread-enabled allocator adapter
+//
+//@SEE_ALSO: bslma_allocator, bdlma_concurrentmultipool
+//
+//@DESCRIPTION: This component provides an adapter,
+// &#39;bdlma::ConcurrentAllocatorAdapter&#39;, that implements the &#39;bslma::Allocator&#39;
+// protocol and provides synchronization for operations on an allocator
+// supplied at construction using a mutex also supplied at construction.
+//..
+//   ,-----------------------------------.
+//  (  bdlma::ConcurrentAllocatorAdapter  )
+//   `-----------------------------------&#39;
+//                     |                ctor/dtor
+//                     V
+//             ,-----------------.
+//            ( bslma::Allocator  )
+//             `-----------------&#39;
+//                            allocate
+//                            deallocate
+//..
+//
+///Thread Safety
+///-------------
+// &#39;bdlma::ConcurrentAllocatorAdapter&#39; is *thread-enabled*, meaning any
+// operation on the same instance can be safely invoked from any thread.
+//
+///Usage
+///-----
+// In the following usage example, we develop a simple &#39;AddressBook&#39; class
+// containing two thread-enabled vectors of strings: one for names, the other
+// for addresses.  We use a &#39;bdlma::ConcurrentAllocatorAdapter&#39; to synchronize
+// memory allocations across our two thread-enabled vectors.  For the purpose
+// of this discussion, we first define a simple thread-enabled vector:
+//..
+//  template &lt;class TYPE&gt;
+//  class ThreadEnabledVector {
+//      // This class defines a trivial thread-enabled vector.
+//
+//      // DATA
+//      mutable bslmt::Mutex d_mutex;     // synchronize access
+//      bsl::vector&lt;TYPE&gt;    d_elements;  // underlying list of strings
+//
+//      // NOT IMPLEMENTED
+//      ThreadEnabledVector(const ThreadEnabledVector&amp;);
+//      ThreadEnabledVector&amp; operator=(const ThreadEnabledVector&amp;);
+//
+//    public:
+//      // CREATORS
+//      ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
+//          // Create a thread-enabled vector.  Optionally specify a
+//          // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is
+//          // 0, the currently installed default allocator is used.
+//      : d_elements(basicAllocator)
+//      {
+//      }
+//
+//      ~ThreadEnabledVector() {}
+//          // Destroy this thread-enabled vector object.
+//
+//      // MANIPULATORS
+//      int pushBack(const TYPE&amp; value)
+//          // Append the specified &#39;value&#39; to this thread-enabled vector and
+//          // return the index of the new element.
+//      {
+//          bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+//          d_elements.push_back(value);
+//          return static_cast&lt;int&gt;(d_elements.size()) - 1;
+//      }
+//
+//      void set(int index, const TYPE&amp; value)
+//          // Set the element at the specified &#39;index&#39; in this thread-enabled
+//          // vector to the specified &#39;value&#39;.  The behavior is undefined
+//          // unless &#39;0 &lt;= index &lt; length()&#39;.
+//      {
+//          bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+//          d_elements[index] = value;
+//      }
+//
+//      // ACCESSORS
+//      TYPE element(int index) const
+//          // Return the value of the element at the specified &#39;index&#39; in this
+//          // thread-enabled vector.  Note that elements are returned *by*
+//          // *value* because references to elements managed by this container
+//          // may be invalidated by another thread.
+//      {
+//          bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+//          return d_elements[index];
+//      }
+//
+//      int length() const
+//          // Return the number of elements in this thread-enabled vector.
+//      {
+//          bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+//          return static_cast&lt;int&gt;(d_elements.size());
+//      }
+//  };
+//..
+// We use this thread-enabled vector to create a AddressBook class.  However,
+// we use the &#39;bdlma::ConcurrentAllocatorAdapter&#39; to prevent our two
+// (thread-enabled) vectors from attempting synchronous memory allocations from
+// our (potentially) non-thread safe &#39;bslma::Allocator&#39;.  Note that we define a
+// local class, &#39;AddressBook_PrivateData&#39;, in order to guarantee that
+// &#39;d_allocatorAdapter&#39; and &#39;d_mutex&#39; are initialized before the thread-enabled
+// vectors that depend on them:
+//..
+//  struct AddressBook_PrivateData {
+//      // This &#39;struct&#39; contains a mutex and an allocator adapter.  The
+//      // &#39;AddressBook&#39; class will inherit from this structure, ensuring that
+//      // the mutex and adapter are initialized before other member variables
+//      // that depend on them.
+//
+//    private:
+//      // Not implemented:
+//      AddressBook_PrivateData(const AddressBook_PrivateData&amp;);
+//
+//    public:
+//      bslmt::Mutex           d_mutex;             // synchronize allocator
+//
+//      bdlma::ConcurrentAllocatorAdapter
+//                            d_allocatorAdapter;  // adapter for allocator
+//
+//      AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
+//          // Create a empty AddressBook private data object.  Optionally
+//          // specify a &#39;basicAllocator&#39; used to supply memory.  If
+//          // &#39;basicAllocator&#39; is 0, the currently installed default allocator
+//          // is used.
+//      : d_allocatorAdapter(&amp;d_mutex, basicAllocator)
+//      {
+//      }
+//  };
+//
+//  class AddressBook : private AddressBook_PrivateData {
+//      // This &#39;class&#39; defines a thread-enabled AddressBook containing vectors
+//      // of names and addresses.  Note that this class uses private
+//      // inheritance to ensure that the allocator adapter and mutex are
+//      // initialized before the vectors of names and addresses.
+//
+//      // DATA
+//      ThreadEnabledVector&lt;bsl::string&gt; d_names;      // list of names
+//      ThreadEnabledVector&lt;bsl::string&gt; d_addresses;  // list of addresses
+//
+//    private:
+//      // Not implemented:
+//      AddressBook(const AddressBook&amp;);
+//
+//    public:
+//      // CREATORS
+//      AddressBook(bslma::Allocator *basicAllocator = 0)
+//          // Create an empty AddressBook for storing names and addresses.
+//          // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+//          // &#39;basicAllocator&#39; is 0, the currently installed default allocator
+//          // is used.
+//      : AddressBook_PrivateData(basicAllocator)
+//      , d_names(&amp;d_allocatorAdapter)
+//      , d_addresses(&amp;d_allocatorAdapter)
+//      {
+//      }
+//
+//      ~AddressBook()
+//          // Destroy this AddressBook.
+//      {
+//      }
+//
+//      // MANIPULATORS
+//      int addName(const bsl::string&amp; name)
+//          // Add the specified &#39;name&#39; to this AddressBook and return the
+//          // index of the newly-added name.
+//      {
+//          return d_names.pushBack(name);
+//      }
+//
+//      int addAddress(const bsl::string&amp; address)
+//          // Add the specified &#39;address&#39; to this AddressBook and return the
+//          // index of the newly-added address.
+//      {
+//          return d_addresses.pushBack(address);
+//      }
+//
+//      // ACCESSORS
+//      bsl::string name(int index) const
+//          // Return the value of the name at the specified &#39;index&#39; in this
+//          // AddressBook.
+//      {
+//          return d_names.element(index);
+//      }
+//
+//      bsl::string address(int index) const
+//          // Return the value of the address at the specified &#39;index&#39; in this
+//          // AddressBook.
+//      {
+//          return d_addresses.element(index);
+//      }
+//
+//      int numNames() const
+//          // Return the number of names in this AddressBook.
+//      {
+//          return d_names.length();
+//      }
+//
+//      int numAddresses() const
+//          // Return the number of addresses in this AddressBook.
+//      {
+//          return d_addresses.length();
+//      }
+//  };
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt { class Mutex; }
+namespace bdlma {
+
+                     // ================================
+                     // class ConcurrentAllocatorAdapter
+                     // ================================
+
+class ConcurrentAllocatorAdapter : public bslma::Allocator {
+    // This class defines an implementation of the &#39;bslma::Allocator&#39; protocol
+    // that &quot;decorates&quot; (wraps) a concrete &#39;bslma::Allocator&#39; to ensure
+    // thread-safe access to the decorated allocator.
+
+    // DATA
+    bslmt::Mutex      *d_mutex_p;      // synchronizer for operations on the
+                                      // allocator (held, not owned)
+
+    bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    ConcurrentAllocatorAdapter(const ConcurrentAllocatorAdapter&amp;);
+    ConcurrentAllocatorAdapter&amp; operator=(const ConcurrentAllocatorAdapter&amp;);
+  public:
+    // CREATORS
+    ConcurrentAllocatorAdapter(bslmt::Mutex     *mutex,
+                               bslma::Allocator *basicAllocator);
+        // Create a thread-enabled allocator adapter that uses the specified
+        // &#39;mutex&#39; to synchronize access to the specified &#39;basicAllocator&#39;.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    virtual ~ConcurrentAllocatorAdapter();
+        // Destroy this thread-enabled allocator adapter.
+
+    // MANIPULATORS
+    virtual void *allocate(size_type numBytes);
+        // Return a newly-allocated block of memory of (at least) the specified
+        // &#39;numBytes&#39;.  If &#39;numBytes&#39; is 0, a null pointer is returned with no
+        // other effect.  If this allocator cannot return the requested number
+        // of bytes, then it will throw a &#39;bsl::bad_alloc&#39; exception in an
+        // exception-enabled build, or else will abort the program in a
+        // non-exception build.  Note that the alignment of the address
+        // returned conforms to the platform requirement for any object of the
+        // &#39;numBytes&#39;.
+
+    virtual void deallocate(void *address);
+        // Return the memory at the specified &#39;address&#39; back to this allocator.
+        // If &#39;address&#39; is 0, this function has no effect.  The behavior is
+        // undefined unless &#39;address&#39; was allocated using this allocator and
+        // has not since been deallocated.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                     // --------------------------------
+                     // class ConcurrentAllocatorAdapter
+                     // --------------------------------
+
+// CREATORS
+inline
+ConcurrentAllocatorAdapter::ConcurrentAllocatorAdapter(
+                                              bslmt::Mutex     *mutex,
+                                              bslma::Allocator *basicAllocator)
+: d_mutex_p(mutex)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

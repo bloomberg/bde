@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_bidirectionaliterator.h                                     -*-C++-*-
@@ -225,7 +225,7 @@ namespace bslstl {
                         // class BidirectionalIterator
                         //============================
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE =
+template &lt;class T, class ITER_IMP, class TAG_TYPE =
                                                std::bidirectional_iterator_tag&gt;
 class BidirectionalIterator
     : public ForwardIterator&lt;T, ITER_IMP, TAG_TYPE&gt; {
@@ -308,7 +308,7 @@ class BidirectionalIterator
 };
 
 // FREE OPERATORS
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator==(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const BidirectionalIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator has the same value as the
@@ -317,7 +317,7 @@ bool operator==(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs
     // end value for the underlying sequence.  The behavior is undefined unless
     // both iterators refer to the same underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator!=(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const BidirectionalIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator does not have the same
@@ -327,14 +327,14 @@ bool operator!=(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs
     // for the underlying sequence.  The behavior is undefined unless both
     // iterators refer to the same underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator++(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // Increment the specified &#39;iter&#39; to the next element.  Return the previous
     // value of &#39;iter&#39;.  The behavior is undefined if, on entry, &#39;iter&#39; has the
     // past-the-end value for an iterator of the underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator--(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // Decrement the specified &#39;iter&#39; to the previous element.  Return the
@@ -342,23 +342,23 @@ operator--(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // &#39;iter&#39; has the same value as an iterator to the start of the underlying
     // sequence.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                 //-----------------------------------
                 // class BidirectionalIterator
                 //-----------------------------------
 
 // CREATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::BidirectionalIterator()
 : ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;()
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::
 BidirectionalIterator(const ITER_IMP&amp; implementation)
@@ -366,7 +366,7 @@ BidirectionalIterator(const ITER_IMP&amp; implementation)
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::BidirectionalIterator(
                   const BidirectionalIterator&lt;UnCvqT,ITER_IMP,TAG_TYPE&gt;&amp; other)
@@ -375,7 +375,7 @@ BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::BidirectionalIterator(
 }
 
 // MANIPULATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
@@ -384,7 +384,7 @@ BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
     return *this;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator--()
@@ -396,7 +396,7 @@ BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator--()
 }  // close package namespace
 
 // FREE OPERATORS
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator==(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const BidirectionalIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -404,7 +404,7 @@ bool bslstl::operator==(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&
     return lhs.imp() == rhs.imp();
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator!=(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const BidirectionalIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -412,7 +412,7 @@ bool bslstl::operator!=(const BidirectionalIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&
     return !(lhs == rhs);
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator++(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)
@@ -422,7 +422,7 @@ bslstl::operator++(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, i
     return tmp;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator--(BidirectionalIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)

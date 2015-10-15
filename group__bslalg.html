@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg Package</title>
+<title>BDE 3.0: bslalg Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -213,9 +213,9 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a trait to mark classes as bit-wise eq.-comparable. </p>
 </td></tr>
 </p>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__typetraitbitwisemoveable.html">Component bslalg_typetraitbitwisemoveable</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__typetraitbitwisemoveable.html"><span style="color:gray;">Component bslalg_typetraitbitwisemoveable<strong>: DEPRECATED</strong></span></a></td></tr>
 
-<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a trait to mark classes as bit-wise moveable. </p>
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="color: gray;margin-top: 0; margin-bottom: 0;">Provide a trait to mark classes as bit-wise moveable. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslalg__typetraithaspointersemantics.html">Component bslalg_typetraithaspointersemantics</a></td></tr>
@@ -286,16 +286,10 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
 Utilities that provide efficient implementations of primitive operations on generic data types (e.g., construction, copy-construction), optimized based on the exposed traits of the type (e.g., bitwise-copyable, uses-allocator).  </li>
-</ul>
-</dd></dl>
-<dl class="user"><dt><b></b></dt><dd><ul>
 <li>
-Primitive data types and fundamental algorithms that form the basis of standard library containers (e.g., linked lists, hash tables, Red/ Black trees and deques).  </li>
-</ul>
-</dd></dl>
-<dl class="user"><dt><b></b></dt><dd><ul>
+Primitive data types and fundamental algorithms that form the basis of standard library containers (e.g., linked lists, hash tables, Red/Black trees and deques).  </li>
 <li>
-Legacy traits types used to tag user-defined (client) types according to properties such as whether they use a memory allocator to supply memory resources, have a trivial default constructor, are POD types, etc. These traits types have been superceded by the traits in the <code>bslmf</code> package, and are implemented in terms of <code>bslmf</code>.  </li>
+Legacy traits types used to tag user-defined (client) types according to properties such as whether they use a memory allocator to supply memory resources, have a trivial default constructor, are POD types, etc. These traits types have been superseded by the traits in the <code>bslmf</code> package, and are implemented in terms of <code>bslmf</code>.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -340,7 +334,7 @@ Legacy traits types used to tag user-defined (client) types according to propert
      bslalg_swaputil
      bslalg_typetraitbitwisecopyable
      bslalg_typetraitbitwiseequalitycomparable
-     bslalg_typetraitbitwisemoveable
+     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
      bslalg_typetraithaspointersemantics
      bslalg_typetraithasstliterators
      bslalg_typetraithastrivialdefaultconstructor
@@ -412,7 +406,7 @@ Legacy traits types used to tag user-defined (client) types according to propert
  Provide a trait to mark classes as bit-wise copyable.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslalg_typetraitbitwiseequalitycomparable</code>: <br/>
  Provide a trait to mark classes as bit-wise eq.-comparable.</div></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslalg_typetraitbitwisemoveable</code>: <br/>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslalg_typetraitbitwisemoveable</code>: <b>DEPRECATED</b> <br/>
  Provide a trait to mark classes as bit-wise moveable.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslalg_typetraithaspointersemantics</code>: <br/>
  Provide a trait to mark classes as having pointer semantics.</div></dd></dl>
@@ -429,9 +423,8 @@ Legacy traits types used to tag user-defined (client) types according to propert
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslalg_typetraitusesbslmaallocator</code>: <br/>
  Provide a trait to mark types that use <code>bslma</code> allocators.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

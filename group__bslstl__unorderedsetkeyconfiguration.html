@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_unorderedsetkeyconfiguration Component</title>
+<title>BDE 3.0: bslstl_unorderedsetkeyconfiguration Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -119,7 +119,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE, <span class="keyword">class</span> KEY_EXTRACTOR&gt;
   <span class="keywordtype">void</span> mySort(VALUE_TYPE *begin, VALUE_TYPE *end, <span class="keyword">const</span> KEY_EXTRACTOR&amp;)
       <span class="comment">// This function provides an order-preserving sort of the items in the</span>
-      <span class="comment">// range &#39;[ begin, end )&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the</span>
+      <span class="comment">// range &#39;[begin .. end)&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the</span>
       <span class="comment">// key being sorted over.  We require that &#39;VALUE_TYPE&#39; support copy</span>
       <span class="comment">// construction and assignment.</span>
   {
@@ -135,7 +135,7 @@ Namespaces</h2></td></tr>
               }
           }
 
-          <span class="comment">// &#39;*end&#39; is now the highest element in the range &#39;[ begin, end ]&#39;,</span>
+          <span class="comment">// &#39;*end&#39; is now the highest element in the range &#39;[begin .. end]&#39;,</span>
           <span class="comment">// so we only have to sort the elements before it in the next pass.</span>
       }
   }
@@ -212,7 +212,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  List of students, lowest GPA first:
   ===================================
-  Name   GPA  AGE
+                              Name   GPA  AGE
   -----  ---  ---
   Stan   1.9   18
   Ann    2.3   21
@@ -251,7 +251,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  List of students, youngest first:
   ================================
-  Name   GPA  AGE
+                              Name   GPA  AGE
   -----  ---  ---
   Stan   1.9   18
   Phil   3.4   19
@@ -297,7 +297,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

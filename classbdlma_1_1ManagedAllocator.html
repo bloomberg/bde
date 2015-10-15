@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdlma::ManagedAllocator</title>
+<title>BDE 3.0: Class bdlma::ManagedAllocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -81,11 +81,13 @@ Inheritance diagram for bdlma::ManagedAllocator:</div>
  <div class="center">
   <img src="classbdlma_1_1ManagedAllocator.png" usemap="#bdlma::ManagedAllocator_map" alt=""/>
   <map id="bdlma::ManagedAllocator_map" name="bdlma::ManagedAllocator_map">
-<area href="classbslma_1_1Allocator.html" alt="bslma::Allocator" shape="rect" coords="263,0,516,24"/>
-<area href="classbdlma_1_1BufferedSequentialAllocator.html" alt="bdlma::BufferedSequentialAllocator" shape="rect" coords="0,112,253,136"/>
-<area href="classbdlma_1_1MultipoolAllocator.html" alt="bdlma::MultipoolAllocator" shape="rect" coords="263,112,516,136"/>
-<area href="classbdlma_1_1SequentialAllocator.html" alt="bdlma::SequentialAllocator" shape="rect" coords="526,112,779,136"/>
-<area href="classbdlma_1_1LocalSequentialAllocator.html" alt="bdlma::LocalSequentialAllocator&lt; t_SIZE &gt;" shape="rect" coords="0,168,253,192"/>
+<area href="classbslma_1_1Allocator.html" alt="bslma::Allocator" shape="rect" coords="526,0,779,24"/>
+<area href="classbalst_1_1StackTraceTestAllocator.html" alt="balst::StackTraceTestAllocator" shape="rect" coords="0,112,253,136"/>
+<area href="classbdlma_1_1BufferedSequentialAllocator.html" alt="bdlma::BufferedSequentialAllocator" shape="rect" coords="263,112,516,136"/>
+<area href="classbdlma_1_1ConcurrentMultipoolAllocator.html" alt="bdlma::ConcurrentMultipoolAllocator" shape="rect" coords="526,112,779,136"/>
+<area href="classbdlma_1_1MultipoolAllocator.html" alt="bdlma::MultipoolAllocator" shape="rect" coords="789,112,1042,136"/>
+<area href="classbdlma_1_1SequentialAllocator.html" alt="bdlma::SequentialAllocator" shape="rect" coords="1052,112,1305,136"/>
+<area href="classbdlma_1_1LocalSequentialAllocator.html" alt="bdlma::LocalSequentialAllocator&lt; t_SIZE &gt;" shape="rect" coords="263,168,516,192"/>
 </map>
 </div>
 
@@ -137,7 +139,7 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Release all memory currently allocated through this allocator. </p>
 
-<p>Implemented in <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a4669495cf776abdaee087303e07df7bb">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a83308dc83138f5af89bfea13bde50da0">bdlma::MultipoolAllocator</a>, and <a class="el" href="classbdlma_1_1SequentialAllocator.html#a88b2b20d0384373ea5a99e5b632fc210">bdlma::SequentialAllocator</a>.</p>
+<p>Implemented in <a class="el" href="classbalst_1_1StackTraceTestAllocator.html#ab2e746a4657b0a2538181c49e6c79266">balst::StackTraceTestAllocator</a>, <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a4669495cf776abdaee087303e07df7bb">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentMultipoolAllocator.html#a50efb69ce3c3573b78f0a2437494f087">bdlma::ConcurrentMultipoolAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a83308dc83138f5af89bfea13bde50da0">bdlma::MultipoolAllocator</a>, and <a class="el" href="classbdlma_1_1SequentialAllocator.html#a88b2b20d0384373ea5a99e5b632fc210">bdlma::SequentialAllocator</a>.</p>
 
 </div>
 </div>
@@ -158,7 +160,7 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return a newly allocated block of memory of (at least) the specified positive <code>size</code> (in bytes). If <code>size</code> is 0, a null pointer is returned with no other effect. If this allocator cannot return the requested number of bytes, then it will throw a <code>std::bad_alloc</code> exception in an exception-enabled build, or else will abort the program in a non-exception build. The behavior is undefined unless <code>0 &lt;= size</code>. Note that the alignment of the address returned conforms to the platform requirement for any object of the specified <code>size</code>. </p>
 
-<p>Implemented in <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a1e3f353cc3248132d18c8b7e5cef9376">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1CountingAllocator.html#a6cf1e3a70ff483c2b9c4286b6b870420">bdlma::CountingAllocator</a>, <a class="el" href="classbdlma_1_1GuardingAllocator.html#a1b9eef0256af681e7de857367b73dcf4">bdlma::GuardingAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a6d6e04e2bfb4d48c06051a1f30f7488b">bdlma::MultipoolAllocator</a>, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a3696da7587a1c842d9430a960520af71">bdlma::SequentialAllocator</a>, <a class="el" href="classbslma_1_1MallocFreeAllocator.html#a325c3f98b1e7586f0564d4884e4d8611">bslma::MallocFreeAllocator</a>, <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a4467a22d277e8c0454909d4aad3159af">bslma::NewDeleteAllocator</a>, and <a class="el" href="classbslma_1_1TestAllocator.html#adadeba443e1ea37730a9cf936a600e56">bslma::TestAllocator</a>.</p>
+<p>Implemented in <a class="el" href="classball_1_1CountingAllocator.html#a3627152a402b26e2aea4c6d539351381">ball::CountingAllocator</a>, <a class="el" href="classbalst_1_1StackTraceTestAllocator.html#a1b7fc01c2c6c974fad944f1b995a34ad">balst::StackTraceTestAllocator</a>, <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a1e3f353cc3248132d18c8b7e5cef9376">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentAllocatorAdapter.html#a76c1a8aec720df614f84794c77461a3c">bdlma::ConcurrentAllocatorAdapter</a>, <a class="el" href="classbdlma_1_1ConcurrentMultipoolAllocator.html#a6ad193e12f7c6c6e8095c94dd713ccc4">bdlma::ConcurrentMultipoolAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentPoolAllocator.html#a4c5cc8b054ad8912b591e22a35d69ecb">bdlma::ConcurrentPoolAllocator</a>, <a class="el" href="classbdlma_1_1CountingAllocator.html#a6cf1e3a70ff483c2b9c4286b6b870420">bdlma::CountingAllocator</a>, <a class="el" href="classbdlma_1_1GuardingAllocator.html#a1b9eef0256af681e7de857367b73dcf4">bdlma::GuardingAllocator</a>, <a class="el" href="classbdlma_1_1HeapBypassAllocator.html#a8e53f4cfa691b434516e049f7c7d999d">bdlma::HeapBypassAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a6d6e04e2bfb4d48c06051a1f30f7488b">bdlma::MultipoolAllocator</a>, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a3696da7587a1c842d9430a960520af71">bdlma::SequentialAllocator</a>, <a class="el" href="group__bslma__allocatoradaptor.html#gad76053e58f117a25dd598f193390cc59">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC &gt;</a>, <a class="el" href="classbslma_1_1MallocFreeAllocator.html#a325c3f98b1e7586f0564d4884e4d8611">bslma::MallocFreeAllocator</a>, <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a4467a22d277e8c0454909d4aad3159af">bslma::NewDeleteAllocator</a>, <a class="el" href="classbslma_1_1TestAllocator.html#adadeba443e1ea37730a9cf936a600e56">bslma::TestAllocator</a>, and <a class="el" href="group__bslma__allocatoradaptor.html#gad76053e58f117a25dd598f193390cc59">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC::template rebind&lt; char &gt;::other &gt;</a>.</p>
 
 </div>
 </div>
@@ -179,7 +181,9 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return the memory block at the specified <code>address</code> back to this allocator. If <code>address</code> is 0, this function has no effect. The behavior is undefined unless <code>address</code> was allocated using this allocator object and has not already been deallocated. </p>
 
-<p>Implemented in <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a23ce15c3ede673b6c1da54850c6899b0">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1CountingAllocator.html#aa5e8299337deb9adbf0149350c0a9aba">bdlma::CountingAllocator</a>, <a class="el" href="classbdlma_1_1GuardingAllocator.html#ad25b41f61f97e3e28786d8f50555cf66">bdlma::GuardingAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a6aa286e1880de3ae0cc8f1831a34daa5">bdlma::MultipoolAllocator</a>, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a107050851e46527f4664869ec8a76f44">bdlma::SequentialAllocator</a>, <a class="el" href="classbslma_1_1MallocFreeAllocator.html#a08c03a4283be84a82d1b97bc17419dc6">bslma::MallocFreeAllocator</a>, <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a481b3511a0cd4ae014c9d04b38b8e377">bslma::NewDeleteAllocator</a>, and <a class="el" href="classbslma_1_1TestAllocator.html#aa3d86f105cc1a797cfa5ad9e2bbf6825">bslma::TestAllocator</a>.</p>
+<p>Implemented in <a class="el" href="classball_1_1CountingAllocator.html#ae56172707bd4472c5a1a718f1a89b355">ball::CountingAllocator</a>, <a class="el" href="classbalst_1_1StackTraceTestAllocator.html#afff71e94af64801b3b8a0184d3421724">balst::StackTraceTestAllocator</a>, <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a23ce15c3ede673b6c1da54850c6899b0">bdlma::BufferedSequentialAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentAllocatorAdapter.html#a7e258651e8d5cad5294ab98a525c59a8">bdlma::ConcurrentAllocatorAdapter</a>, <a class="el" href="classbdlma_1_1ConcurrentMultipoolAllocator.html#affe442f16ac55d2ea7578839920046ca">bdlma::ConcurrentMultipoolAllocator</a>, <a class="el" href="classbdlma_1_1ConcurrentPoolAllocator.html#a08cf904ca35832c202ff81f3bad26d86">bdlma::ConcurrentPoolAllocator</a>, <a class="el" href="classbdlma_1_1CountingAllocator.html#aa5e8299337deb9adbf0149350c0a9aba">bdlma::CountingAllocator</a>, <a class="el" href="classbdlma_1_1GuardingAllocator.html#ad25b41f61f97e3e28786d8f50555cf66">bdlma::GuardingAllocator</a>, <a class="el" href="classbdlma_1_1HeapBypassAllocator.html#a6ff181249b5a39f602fdc842ca9a4e87">bdlma::HeapBypassAllocator</a>, <a class="el" href="classbdlma_1_1MultipoolAllocator.html#a6aa286e1880de3ae0cc8f1831a34daa5">bdlma::MultipoolAllocator</a>, <a class="el" href="classbdlma_1_1SequentialAllocator.html#a107050851e46527f4664869ec8a76f44">bdlma::SequentialAllocator</a>, <a class="el" href="group__bslma__allocatoradaptor.html#ga2b0eb326709b558858c059a7cf38f692">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC &gt;</a>, <a class="el" href="classbslma_1_1MallocFreeAllocator.html#a08c03a4283be84a82d1b97bc17419dc6">bslma::MallocFreeAllocator</a>, <a class="el" href="classbslma_1_1NewDeleteAllocator.html#a481b3511a0cd4ae014c9d04b38b8e377">bslma::NewDeleteAllocator</a>, <a class="el" href="classbslma_1_1TestAllocator.html#aa3d86f105cc1a797cfa5ad9e2bbf6825">bslma::TestAllocator</a>, and <a class="el" href="group__bslma__allocatoradaptor.html#ga2b0eb326709b558858c059a7cf38f692">bslma::AllocatorAdaptor_Imp&lt; STL_ALLOC::template rebind&lt; char &gt;::other &gt;</a>.</p>
+
+<p>Referenced by <a class="el" href="classbtlso_1_1InetStreamSocketFactory.html#a0d04e0214dc3075539e9b318120274ca">btlso::InetStreamSocketFactory&lt; ADDRESS &gt;::deallocate()</a>.</p>
 
 </div>
 </div>
@@ -229,7 +233,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bdlma__managedallocator_8h_source.html">bdlma_managedallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:46 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

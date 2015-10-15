@@ -1,0 +1,555 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlmt_channelpoolchannel.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLMT_CHANNELPOOLCHANNEL
+#define INCLUDED_BTLMT_CHANNELPOOLCHANNEL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a concrete implementation of &#39;btlmt::AsyncChannel&#39;
+//
+//@CLASSES:
+//  btlmt::ChannelPoolChannel: implementation of &#39;btlmt::AsyncChannel&#39;
+//
+//@SEE_ALSO: btlmt_asyncchannel
+//
+//@DESCRIPTION: This component provides a class, &#39;btlmt::ChannelPoolChannel&#39;,
+// that is a concrete implementation of the &#39;btlmt::AsyncChannel&#39; protocol, and
+// allows asynchronous read and write operations over TCP/IP communication
+// channels.  This class is intended to be used with &#39;btlmt_sessionpool&#39; and
+// will rarely be used stand-alone.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Secure Channel Type
+///- - - - - - - - - - - - - - - - - - - - - - -
+// This &#39;class&#39;, &#39;btlmt::ChannelPoolChannel&#39;, provides a concrete
+// implementation of the &#39;btlmt::AsyncChannel&#39; protocol for a network
+// connection type that once connected to the peer allows asynchronous read and
+// write operations.
+//
+// In this usage example we will implement a secure channel type,
+// &#39;my_SecureChannel&#39; that encrypts data written by the user and decrypts
+// incoming data before providing it to the user.  This type uses
+// &#39;btlmt::ChannelPoolChannel&#39; to perform the read and write on the underlying
+// connection while implementing encryption/decryption on top of it.  For the
+// brevity of this example, we will elide some portions of the class
+// implementation including error checking for connection closure and
+// synchronizing access to a &#39;my_SecureChannel&#39; across multiple threads.
+//
+// First, we provide the class definition:
+//..
+//  class my_SecureChannel : public btlmt::AsyncChannel {
+//      // This &#39;class&#39; provides a concrete implementation of
+//      // &#39;btlmt::AsyncChannel&#39;.
+//
+//      // DATA
+//      btlmt::ChannelPoolChannel *d_channel_p;
+//      btlb::BlobBufferFactory   *d_blobFactory_p;
+//      btlb::Blob                 d_decryptedBlob;
+//
+//    public:
+//..
+// Next, we specify the interface of this class:
+//..
+//      // CREATORS
+//      my_SecureChannel(btlmt::ChannelPoolChannel *channel,
+//                       btlb::BlobBufferFactory   *blobFactory);
+//          // Create a &#39;my_SecureChannel&#39; concrete implementation reading from
+//          // and writing to the channel referenced by the specified
+//          // &#39;channelPoolChannel&#39;.
+//
+//      virtual ~my_SecureChannel();
+//          // Destroy this channel.
+//
+//      // MANIPULATORS
+//      virtual int read(int                          numBytes,
+//                       const BlobBasedReadCallback&amp; readCallback);
+//          // Initiate an asynchronous read operation on this channel, or
+//          // append this request to the currently pending requests if an
+//          // asynchronous read operation was already initiated.  When at
+//          // least the specified &#39;numBytes&#39; of data are available after all
+//          // previous requests have been processed, if any, the specified
+//          // &#39;readCallback&#39; will be invoked (with
+//          // &#39;btlmt::AsyncChannel::e_SUCCESS&#39;).  Return 0 on success, and a
+//          // non-zero value otherwise.  On error, the return value *may*
+//          // equal to one of the enumerators in &#39;ChannelStatus::Enum&#39;.
+//
+//      virtual int timedRead(int                          numBytes,
+//                            const bsls::TimeInterval&amp;    timeOut,
+//                            const BlobBasedReadCallback&amp; readCallback);
+//          // Initiate an asynchronous timed read operation on this channel,
+//          // or append this request to the currently pending requests if an
+//          // asynchronous read operation was already initiated, with an
+//          // associated specified absolute &#39;timeOut&#39;.  When at least the
+//          // specified &#39;numBytes&#39; of data are available after all previous
+//          // requests have been processed, if any, or when the &#39;timeOut&#39; is
+//          // reached, the specified &#39;readCallback&#39; will be invoked (with
+//          // either &#39;btlmt::AsyncChannel::e_SUCCESS&#39; or
+//          // &#39;btlmt::AsyncChannel::e_TIMEOUT&#39;, respectively).  Return 0 on
+//          // success, and a non-zero value otherwise.  On error, the return
+//          // value *may* equal to one of the enumerators in
+//          // &#39;ChannelStatus::Enum&#39;.
+//
+//      virtual int write(const btlb::Blob&amp; blob,
+//                        int               highWaterMark = INT_MAX);
+//          // Enqueue the specified &#39;blob&#39; message to be written to this
+//          // channel.  Optionally provide &#39;highWaterMark&#39; to specify the
+//          // maximum data size that can be enqueued.  If &#39;highWaterMark&#39; is
+//          // not specified then &#39;INT_MAX&#39; is used.  Return 0 on success, and
+//          // a non-zero value otherwise.  On error, the return value *may*
+//          // equal to one of the enumerators in &#39;ChannelStatus::Enum&#39;.  Note
+//          // that success does not imply that the data has been written or
+//          // will be successfully written to the underlying stream used by
+//          // this channel.  Also note that in addition to &#39;highWatermark&#39;
+//          // the enqueued portion must also be less than a high watermark
+//          // value supplied at the construction of this channel for the
+//          // write to succeed.
+//
+//      virtual int setSocketOption(int option, int level, int value);
+//          // Set the specified &#39;option&#39; (of the specified &#39;level&#39;) socket
+//          // option on this channel to the specified &#39;value&#39;.  Return 0 on
+//          // success and a non-zero value otherwise.  (See
+//          // &#39;btlso_socketoptutil&#39; for the list of commonly supported
+//          // options.)
+//
+//      virtual void cancelRead();
+//          // Cancel all pending &#39;read&#39; or &#39;timedRead&#39; requests, and invoke
+//          // their read callbacks with a &#39;btlmt::AsyncChannel::e_CANCELED&#39;
+//          // status.  Note that if the channel is active, the read callbacks
+//          // are invoked in the thread in which the channel&#39;s data callbacks
+//          // are invoked, else they are invoked in the thread calling
+//          // &#39;cancelRead&#39;.
+//
+//      virtual void close();
+//          // Shutdown this channel, and cancel all pending requests.  Note
+//          // that this call will result in the shutdown of the channel pool
+//          // channel associated with the channel, and will not invoke the
+//          // pending read requests.
+//
+//      void blobBasedReadCb(
+//                     int                                         result,
+//                     int                                        *numNeeded,
+//                     btlb::Blob                                 *blob,
+//                     int                                         channelId,
+//                     btlmt::AsyncChannel::BlobBasedReadCallback  callback);
+//          // This method is invoked in response to a blob based channel pool
+//          // channel data callback on &#39;channelId&#39;.
+//
+//      // ACCESSORS
+//      virtual btlso::IPv4Address localAddress() const;
+//          // Return the address of the &quot;local&quot; end of the channel.
+//
+//      virtual btlso::IPv4Address peerAddress() const;
+//          // Return the address of the &quot;remote&quot; end of the channel.
+//  };
+//..
+// Then, we provide the function implementations:
+//..
+//  my_SecureChannel::my_SecureChannel(btlmt::ChannelPoolChannel *channel,
+//                                     btlb::BlobBufferFactory   *blobFactory)
+//  : d_channel_p(channel)
+//  , d_blobFactory_p(blobFactory)
+//  , d_decryptedBlob(d_blobFactory_p)
+//  {
+//  }
+//
+//  my_SecureChannel::~my_SecureChannel()
+//  {
+//  }
+//
+//  int my_SecureChannel::read(int                          numBytes,
+//                             const BlobBasedReadCallback&amp; readCallback)
+//  {
+//      return timedRead(numBytes, bsls::TimeInterval(), readCallback);
+//  }
+//
+//  int my_SecureChannel::timedRead(int                          numBytes,
+//                                  const bsls::TimeInterval&amp;    timeOut,
+//                                  const BlobBasedReadCallback&amp; readCallback)
+//  {
+//      btlmt::AsyncChannel::BlobBasedReadCallback callback =
+//                     bdlf::BindUtil::bind(&amp;my_SecureChannel::blobBasedReadCb,
+//                                          this,
+//                                          bdlf::PlaceHolders::_1,
+//                                          bdlf::PlaceHolders::_2,
+//                                          bdlf::PlaceHolders::_3,
+//                                          bdlf::PlaceHolders::_4,
+//                                          readCallback);
+//
+//      return d_channel_p-&gt;timedRead(numBytes, timeOut, callback);
+//  }
+//
+//  int my_SecureChannel::write(const btlb::Blob&amp; blob,
+//                              int               highWaterMark)
+//  {
+//      btlb::Blob encryptedBlob(d_blobFactory_p);
+//
+//      // Encrypt data in &#39;blob&#39; and load into &#39;encryptedBlob&#39; (elided for
+//      // brevity)
+//
+//      encrypt(&amp;encryptedBlob, blob);
+//
+//      return d_channel_p-&gt;write(blob, highWaterMark);
+//  }
+//
+//  int my_SecureChannel::setSocketOption(int option, int level, int value)
+//  {
+//      return d_channel_p-&gt;setSocketOption(option, level, value);
+//  }
+//
+//  void my_SecureChannel::cancelRead()
+//  {
+//      return d_channel_p-&gt;cancelRead();
+//  }
+//
+//  void my_SecureChannel::close()
+//  {
+//      return d_channel_p-&gt;close();
+//  }
+//
+//  void my_SecureChannel::blobBasedReadCb(
+//                       int                                         result,
+//                       int                                        *numNeeded,
+//                       btlb::Blob                                 *blob,
+//                       int                                         channelId,
+//                       btlmt::AsyncChannel::BlobBasedReadCallback  callback)
+//  {
+//      btlb::Blob decryptedBlob(d_blobFactory_p);
+//
+//      // Decrypt data from &#39;blob&#39; and load into &#39;decryptedBlob&#39; (elided for
+//      // brevity)
+//
+//      decrypt(&amp;decryptedBlob, *blob);
+//
+//      btlb::BlobUtil::append(&amp;d_decryptedBlob, decryptedBlob);
+//
+//      callback(result, numNeeded, &amp;d_decryptedBlob, channelId);
+//
+//      blob-&gt;removeAll();
+//  }
+//
+//  // ACCESSORS
+//  btlso::IPv4Address my_SecureChannel::localAddress() const
+//  {
+//      return d_channel_p-&gt;localAddress();
+//  }
+//
+//  btlso::IPv4Address my_SecureChannel::peerAddress() const
+//  {
+//      return d_channel_p-&gt;peerAddress();
+//  }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLMT_ASYNCCHANNEL
+#include &lt;btlmt_asyncchannel.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLB_BLOB
+#include &lt;btlb_blob.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include &lt;bslmt_lockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_MANAGEDPTR
+#include &lt;bslma_managedptr.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_LIST
+#include &lt;bsl_list.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdlma { class ConcurrentPoolAllocator; }
+
+namespace btlmt {
+
+class ChannelPool;
+
+                       // ========================
+                       // class ChannelPoolChannel
+                       // ========================
+
+class ChannelPoolChannel: public AsyncChannel {
+    // This class provides an implementation of the &#39;AsyncChannel&#39; protocol for
+    // &#39;ChannelPool&#39;-based channels.
+
+    // TYPES
+    struct ReadQueueEntry {
+        BlobBasedReadCallback d_readCallback;    // read callback
+
+        bsls::TimeInterval    d_timeOut;         // optional read timeout
+
+        int                   d_timeOutTimerId;  // for timedRead requests
+
+        int                   d_numBytesNeeded;  // number of bytes needed
+                                                 // before to invoke the read
+                                                 // callback
+
+        int                   d_progress;        // status of read request,
+                                                 // one of
+                                                 // AsyncChannel::ReadResult
+                                                 // (SUCCESS, TIMEOUT or
+                                                 // CANCELED)
+    };
+
+    typedef bsl::list&lt;ReadQueueEntry&gt; ReadQueue;
+
+    // DATA
+    bslmt::Mutex           d_mutex;                // mutex used to control
+                                                   // access to this channel
+
+    volatile bool          d_callbackInProgress;   // indicates when a callback
+                                                   // is in progress
+
+    bool                   d_closed;
+
+    ReadQueue              d_readQueue;            // queue of pending read
+                                                   // requests.
+
+    bslma::ManagedPtr&lt;btlb::BlobBufferFactory&gt;
+                           d_blobBufferFactory_p;  // blob buffer factory used
+                                                   // to allocate
+                                                   // &#39;btlb::Blob&#39; objects
+                                                   // returned in data callback
+
+    bdlma::ConcurrentPoolAllocator
+                          *d_spAllocator_p;        // shared ptr pool
+
+    ChannelPool           *d_channelPool_p;        // held but not owned
+
+    int                    d_nextClockId;          // next clock ID for timer
+                                                   // registration
+
+    int                    d_channelId;            // id of associated
+                                                   // channelPool channel
+
+    btlso::IPv4Address     d_peerAddress;          // cached peer address
+
+    btlso::IPv4Address     d_localAddress;         // cached local address
+
+    bslma::Allocator      *d_allocator_p;          // allocator (held, not
+                                                   // owned)
+
+  private:
+    // PRIVATE MANIPULATORS
+    int addReadQueueEntry(int                          numBytes,
+                          const BlobBasedReadCallback&amp; callback,
+                          const bsls::TimeInterval&amp;    timeOut);
+        // Add a read queue entry with the specified &#39;callback&#39; for the
+        // specified &#39;numBytes&#39; and the specified &#39;timeOut&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that this function
+        // assumes that &#39;d_mutex&#39; is not locked when it is called.
+
+    void removeTopReadEntry(bool invokeCallback);
+        // Remove the top most read queue entry invoking its registered user
+        // callback with dummy arguments if &#39;invokeCallback&#39; is &#39;true&#39;.  Note
+        // that this function assumes that &#39;d_mutex&#39; is locked before the call
+        // and ensures that it is locked after the call.
+
+    void registerTimeoutAndUpdateClockId(const bsls::TimeInterval&amp; timeOut);
+        // Register the specified &#39;timeOut&#39; with the channel pool and update
+        // the next clock id for this channel appropriately.  Note that this
+        // function assumes that it is called after &#39;d_mutex&#39; is locked.
+
+    void timeoutCb(ReadQueue::iterator entry);
+        // Remove the specified &#39;entry&#39; from the read queue and invoke the read
+        // callback, or mark it as timed out (in the &#39;d_progress&#39; member) in
+        // case &#39;entry&#39; is currently being processed in the &#39;dataCb&#39;.  Note
+        // that the callback will be invoked only once, with either
+        // &#39;btlmt::AsyncChannel::e_SUCCESS&#39; (in the &#39;dataCallback&#39;) or with
+        // &#39;btlmt::AsyncChannel::e_TIMEOUT&#39; or
+        // &#39;btlmt::AsyncChannel::e_CANCELED&#39; (even if both timeout and
+        // cancellation happen at the same time as this read callback is
+        // currently at the front of the read queue in &#39;dataCb&#39;).
+
+  public:
+    // CREATORS
+    ChannelPoolChannel(int                             channelId,
+                       ChannelPool                    *channelPool,
+                       btlb::BlobBufferFactory        *blobBufferFactory,
+                       bdlma::ConcurrentPoolAllocator *spAllocator,
+                       bslma::Allocator               *basicAllocator = 0);
+        // Create a &#39;AsyncChannel&#39; concrete implementation reading from and
+        // writing to the channel referenced by the specified &#39;channelId&#39; in
+        // the specified &#39;channelPool&#39;, using the specified &#39;blobBufferFactory&#39;
+        // and the specified &#39;spAllocator&#39; to supply memory to the data
+        // messages.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.  If &#39;blobBufferFactory&#39; is 0, create a
+        // &#39;btlb::PooledBlobBufferFactory&#39; object internally using
+        // &#39;basicAllocator&#39; or the currently installed default allocator if
+        // &#39;basicAllocator&#39; is 0.
+
+    virtual ~ChannelPoolChannel();
+        // Destroy this channel.
+
+    // MANIPULATORS
+    virtual int read(int numBytes, const BlobBasedReadCallback&amp;  readCallback);
+        // Initiate an asynchronous read operation on this channel, or append
+        // this request to the currently pending requests if an asynchronous
+        // read operation was already initiated.  When at least the specified
+        // &#39;numBytes&#39; of data are available after all previous requests have
+        // been processed, if any, the specified &#39;readCallback&#39; will be invoked
+        // (with &#39;btlmt::AsyncChannel::e_SUCCESS&#39;).  Return 0 on success, and a
+        // non-zero value otherwise.  On error, the return value *may* equal to
+        // one of the enumerators in &#39;ChannelStatus::Enum&#39;.
+
+    virtual int timedRead(int                          numBytes,
+                          const bsls::TimeInterval&amp;    timeOut,
+                          const BlobBasedReadCallback&amp; readCallback);
+        // Initiate an asynchronous timed read operation on this channel, or
+        // append this request to the currently pending requests if an
+        // asynchronous read operation was already initiated, with an
+        // associated specified absolute &#39;timeOut&#39;.  When at least the
+        // specified &#39;numBytes&#39; of data are available after all previous
+        // requests have been processed, if any, or when the &#39;timeOut&#39; is
+        // reached, the specified &#39;readCallback&#39; will be invoked (with either
+        // &#39;btlmt::AsyncChannel::e_SUCCESS&#39; or
+        // &#39;btlmt::AsyncChannel::e_TIMEOUT&#39;, respectively).  Return 0 on
+        // success, and a non-zero value otherwise.  On error, the return value
+        // *may* equal to one of the enumerators in &#39;ChannelStatus::Enum&#39;.
+
+    virtual int write(const btlb::Blob&amp; blob,
+                      int               highWaterMark = INT_MAX);
+        // Enqueue the specified &#39;blob&#39; message to be written to this channel.
+        // Optionally provide &#39;highWaterMark&#39; to specify the maximum data size
+        // that can be enqueued.  If &#39;highWaterMark&#39; is not specified then
+        // &#39;INT_MAX&#39; is used.  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in &#39;ChannelStatus::Enum&#39;.  Note that success does not
+        // imply that the data has been written or will be successfully written
+        // to the underlying stream used by this channel.  Also note that in
+        // addition to &#39;highWatermark&#39; the enqueued portion must also be less
+        // than a high watermark value supplied at the construction of this
+        // channel for the write to succeed.
+
+    virtual int setSocketOption(int option, int level, int value);
+        // Set the specified &#39;option&#39; (of the specified &#39;level&#39;) socket option
+        // on this channel to the specified &#39;value&#39;.  Return 0 on success and a
+        // non-zero value otherwise.  (See &#39;btlso_socketoptutil&#39; for the list
+        // of commonly supported options.)
+
+    virtual void cancelRead();
+        // Cancel all pending &#39;read&#39; or &#39;timedRead&#39; requests, and invoke their
+        // read callbacks with a &#39;btlmt::AsyncChannel::e_CANCELED&#39; status.
+        // Note that if the channel is active, the read callbacks are invoked
+        // in the thread in which the channel&#39;s data callbacks are invoked,
+        // else they are invoked in the thread calling &#39;cancelRead&#39;.
+
+    virtual void close();
+        // Shutdown this channel, and cancel all pending requests.  Note that
+        // this call will result in the shutdown of the channel pool channel
+        // associated with the channel, and will not invoke the pending read
+        // requests.
+
+    void blobBasedDataCb(int *numNeeded, btlb::Blob *msg);
+        // This method is invoked in response to a blob based channel pool data
+        // callback on the channel id associated with this channel, and invokes
+        // the pending read requests until either more data is needed or this
+        // channel is closed.  Note that the behavior is undefined if this
+        // method is invoked concurrently from multiple threads.
+
+    // ACCESSORS
+    virtual btlso::IPv4Address localAddress() const;
+        // Return the address of the &quot;local&quot; end of the channel.
+
+    virtual btlso::IPv4Address peerAddress() const;
+        // Return the address of the &quot;remote&quot; end of the channel.
+
+    int channelId() const;
+        // Return the channelPool channel Id associated with this channel.
+
+    ChannelPool *channelPool();
+        // Return a pointer to the channelPool object associated with the
+        // channel.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                       // ------------------------
+                       // class ChannelPoolChannel
+                       // ------------------------
+
+// ACCESSORS
+inline
+int ChannelPoolChannel::channelId() const
+{
+    return d_channelId;
+}
+
+inline
+ChannelPool *ChannelPoolChannel::channelPool()
+{
+    return d_channelPool_p;
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

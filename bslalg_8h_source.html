@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bslalg.txt
@@ -13,20 +13,20 @@
  components (in particular, the standard library containers).  The facilities
  fall into three broad classes:
 
-: o Utilities that provide efficient implementations of primitive operations
-:   on generic data types (e.g., construction, copy-construction), optimized
-:   based on the exposed traits of the type (e.g., bitwise-copyable,
-:   uses-allocator).
-
+: o Utilities that provide efficient implementations of primitive operations on
+:   generic data types (e.g., construction, copy-construction), optimized based
+:   on the exposed traits of the type (e.g., bitwise-copyable, uses-allocator).
+:
 : o Primitive data types and fundamental algorithms that form the basis of
-:   standard library containers (e.g., linked lists, hash tables, Red/ Black
+:   standard library containers (e.g., linked lists, hash tables, Red/Black
 :   trees and deques).
-
+:
 : o Legacy traits types used to tag user-defined (client) types according to
 :   properties such as whether they use a memory allocator to supply memory
 :   resources, have a trivial default constructor, are POD types, etc.  These
-:   traits types have been superceded by the traits in the &#39;bslmf&#39; package,
-:   and are implemented in terms of &#39;bslmf&#39;.
+:   traits types have been superseded by the traits in the &#39;bslmf&#39; package, and
+:   are implemented in terms of &#39;bslmf&#39;.
+:
 
 /Hierarchical Synopsis
 /---------------------
@@ -72,7 +72,7 @@
      bslalg_swaputil
      bslalg_typetraitbitwisecopyable
      bslalg_typetraitbitwiseequalitycomparable
-     bslalg_typetraitbitwisemoveable
+     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
      bslalg_typetraithaspointersemantics
      bslalg_typetraithasstliterators
      bslalg_typetraithastrivialdefaultconstructor
@@ -170,7 +170,7 @@
 : &#39;bslalg_typetraitbitwiseequalitycomparable&#39;:
 :      Provide a trait to mark classes as bit-wise eq.-comparable.
 :
-: &#39;bslalg_typetraitbitwisemoveable&#39;:
+: &#39;bslalg_typetraitbitwisemoveable&#39;:                     !DEPRECATED!
 :      Provide a trait to mark classes as bit-wise moveable.
 :
 : &#39;bslalg_typetraithaspointersemantics&#39;:
@@ -193,7 +193,6 @@
 :
 : &#39;bslalg_typetraitusesbslmaallocator&#39;:
 :      Provide a trait to mark types that use &#39;bslma&#39; allocators.
-
 </pre>
 </body>
 </html>

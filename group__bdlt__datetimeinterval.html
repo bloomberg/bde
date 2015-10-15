@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_datetimeinterval Component</title>
+<title>BDE 3.0: bdlt_datetimeinterval Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -81,9 +81,11 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.1">The Representation of a Time Interval</a> </li>
 <li>
-<a href="#3.2">Usage</a> <ul>
+<a href="#3.2">Extremal Time Intervals</a> </li>
 <li>
-<a href="#3.2.1">Example 1: Basic <code>bdlt::DatetimeInterval</code> Usage</a> </li>
+<a href="#3.3">Usage</a> <ul>
+<li>
+<a href="#3.3.1">Example 1: Basic <code>bdlt::DatetimeInterval</code> Usage</a> </li>
 </ul>
 </li>
 </ul>
@@ -124,16 +126,20 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="extremal_time_intervals"></a> <a class="anchor" id="description.extremal_time_intervals"></a> <a class="anchor" id="3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Extremal Time Intervals: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code> class provides two integral constants, <code>k_MILLISECONDS_MAX</code> and <code>k_MILLISECONDS_MIN</code>, that define (respectively) the maximum and minimum intervals representable by <code>DatetimeInterval</code> objects. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="usage.example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="description.usage.example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="usage.example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="description.usage.example_1~3A_basic_bdlt~3A~3Adatetimeinterval_usage"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Basic bdlt::DatetimeInterval Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates how to create and use a <code><a class="el" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a></code> object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, create an object <code>i1</code> having the default value: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> i1;         assert(  0 == i1.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a018ec8db295d4d2afd3b7d32de6d6bd7">days</a>());
+<div class="fragment"><pre class="fragment">  bdlt::DatetimeInterval i1;         assert(  0 == i1.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a018ec8db295d4d2afd3b7d32de6d6bd7">days</a>());
                                      assert(  0 == i1.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a3aa1849ec11139d304d428cb00ad898e">hours</a>());
                                      assert(  0 == i1.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a520b875e1e5e527e9f3ccc265583fe42">minutes</a>());
                                      assert(  0 == i1.<a class="code" href="classbdlt_1_1DatetimeInterval.html#a7169511b8b1a9e1414d8e2df84c7a103">seconds</a>());
@@ -152,7 +158,7 @@ Namespaces</h2></td></tr>
 <br/>
  Next, create <code>i2</code> as a copy of <code>i1</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a> i2(i1);     assert( -4 == i2.days());
+<div class="fragment"><pre class="fragment">  bdlt::DatetimeInterval i2(i1);     assert( -4 == i2.days());
                                      assert( -8 == i2.hours());
                                      assert(  0 == i2.minutes());
                                      assert(  0 == i2.seconds());
@@ -187,7 +193,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

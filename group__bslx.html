@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslx Package</title>
+<title>BDE 3.0: bslx Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -151,6 +151,36 @@ Components</h2></td></tr>
 <a href="#3.1">Hierarchical Synopsis</a> </li>
 <li>
 <a href="#3.2">Component Synopsis</a> </li>
+<li>
+<a href="#3.3">Externalization</a> </li>
+<li>
+<a href="#3.4">Supported Types</a> <ul>
+<li>
+<a href="#3.4.1">The BDEX Protocols</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.5">Requirements for a BDEX-Compliant Class to be Streamable</a> <ul>
+<li>
+<a href="#3.5.1">Selection of Streams</a> </li>
+</ul>
+</li>
+<li>
+<a href="#3.6">Using BDEX with Your Own Class</a> </li>
+<li>
+<a href="#3.7">Recommended Selection of <code>versionSelector</code></a> </li>
+<li>
+<a href="#3.8">Updating Production Systems</a> </li>
+<li>
+<a href="#3.9">Overloading BDEX Free Functions</a> </li>
+<li>
+<a href="#3.10">Backward Compatibility with Older BDEX Serialization Packages</a> <ul>
+<li>
+<a href="#3.10.1">Appendix I: The BDEX <code>OutStream</code> Protocol</a> </li>
+<li>
+<a href="#3.10.2">Appendix II: The BDEX <code>InStream</code> Protocol</a> </li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -227,8 +257,1402 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslx_versionfunctions</code>: <br/>
  Provide functions to return BDEX version information for types.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="externalization"></a> <a class="anchor" id="description.externalization"></a> <a class="anchor" id="3.3"></a> </dd></dl>
+<dl class="user"><dt><b>Externalization: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Externalization is the process of creating another representation for an in-memory object (also referred to as an "in-core" object) that can be, but need not be, stored external to processor memory. Often this is done by streaming the object as a sequence (or array) of bytes, sometimes called "flattening" the object, because of the one-dimensional structure of a sequence or array. Such flattening allows easy externalization of the object, since a byte sequence can be written to a disk file without further modification. It is similarly the native <em>format</em> for other externalization <em>mechanisms</em>, such as OS sockets, and in conjunction with these can be used to stream the object outside of processor memory. Other externalizations include storing the relevant data members among various tables and fields of a relational database. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslx</code> streams provide better support for externalization than <code>iostream</code> objects because BDEX specifies a canonical, optimized representation for fundamental types, provides component authors the tools to externalize in a platform-neutral way any in-core object, and allows versioning of types not directly supported by BDEX. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When externalizing data, the version to be used must be supplied to the objects directly serialized (objects nested within these "top-level" objects obtain their version from the parent object explicitly), and this version is typically externalized as well. Likewise, the unexternalization process typically obtains the version information from the data for the top-level objects and the implementation of these top-level objects provides the corresponding version information for nested objects. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>As such, any implementation of <code>bdexStreamOut</code> is required to use only the methods provided by the BDEX-compliant stream and the methods defined in <code><a class="el" href="namespacebslx_1_1OutStreamFunctions.html">bslx::OutStreamFunctions</a></code> that require a version to be specified. For externalization of types not needing a version, the value <code><a class="el" href="namespacebslx_1_1VersionFunctions.html#ad7e684fc705c9bb8ef74110586ce7681aeb4ebb8b48cb4dbc6e0ac1f44746d5c6" title="Value to be used when there is no BDEX version.">bslx::VersionFunctions::k_NO_VERSION</a></code> should be supplied for this parameter. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>However, when using <code>operator&lt;&lt;</code> it is impractical to directly supply the version to be used with each top-level object. As such, an indirect method of versioning is employed, which incorporates data provided to the stream during the stream's construction, the <code>versionSelector</code>. One requirement of all BDEX-compliant serializable types is to implement the <code>maxSupportedBdexVersion</code> method, which converts this <code>versionSelector</code> to the needed version on a per object-type basis. While the list of versions supported by an object is typically a sequential set of numbers starting with 1, the <code>versionSelector</code> is expected to be formatted as "YYYYMMDD", a date representation. For example, an integral <code>versionSelector</code> value of 20140402 represents the date 2014/04/02 (April 2, 2014). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If a top-level object is of a type directly supported by the BDEX-compliant stream, no version is externalized for the data. For the stream-supported arrays, no version is externalized and the unexternalization of this data must use the corresponding stream-supported array unexternalization method. All <code>vector</code> externalizations include a version, which, for directly supported types, is explicitly the value 1. For nested vectors, the most-nested type is used to determine the version. If this type is directly supported by the stream, the value 1 is used; otherwise, the <code>maxSupportedBdexVersion</code> method provided for that type is used to obtain the version information. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="supported_types"></a> <a class="anchor" id="description.supported_types"></a> <a class="anchor" id="3.4"></a> </dd></dl>
+<dl class="user"><dt><b>Supported Types: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The supported types and required content are listed in the table below. All of the fundamental types in the table may be streamed as scalar values or as homogeneous arrays. <code>bsl::string</code> is streamed as an <code>int</code> representing the string's length and a homogeneous <code>char</code> array for the string's data. Note that <code>Int64</code> and <code>Uint64</code> denote <code><a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a></code> and <code><a class="el" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a></code>, respectively, which in turn are <code>typedef</code> names for the signed and unsigned 64-bit integer types, respectively, on the host platform: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  C++ TYPE          REQUIRED CONTENT OF ANY PLATFORM-NEUTRAL FORMAT
+  --------------    -----------------------------------------------
+  Int64             64 bits (<span class="keywordtype">signed</span>)
+  Uint64            64 bits (<span class="keywordtype">unsigned</span>)
+  <span class="keywordtype">int</span>               32 bits (<span class="keywordtype">signed</span>)
+  <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>      32 bits (<span class="keywordtype">unsigned</span>)
+  <span class="keywordtype">short</span>             16 bits (<span class="keywordtype">signed</span>)
+  <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>    16 bits (<span class="keywordtype">unsigned</span>)
+  <span class="keywordtype">char</span>               8 bits (platform-dependent)
+  <span class="keywordtype">signed</span> <span class="keywordtype">char</span>        8 bits (<span class="keywordtype">signed</span>)
+  <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>      8 bits (<span class="keywordtype">unsigned</span>)
+  <span class="keywordtype">double</span>            IEEE standard 8-byte floating-point value
+  <span class="keywordtype">float</span>             IEEE standard 4-byte floating-point value
+
+  bsl::<span class="keywordtype">string</span>       BDE implementation of the STL <span class="keywordtype">string</span> class
+</pre></div><br/>
+<br/>
+ BDEX also supports compact streaming of integer types. In particular, 64-bit integers can be streamed as 40-, 48-, 56-, or 64-bit values, and 32-bit integers can be streamed as 24- or 32-bit values, at the user's discretion. In all cases, the least-significant bytes of the fundamental integer type are written to the stream. Therefore, outputting a signed value may not preserve the sign of the original value; it is the user's responsibility to choose output methods appropriate to the data. On input, however, the non-standard bit patterns are sign-extended, so that correctly-written values will always be correctly read. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="the_bdex_protocols"></a> <a class="anchor" id="supported_types.the_bdex_protocols"></a> <a class="anchor" id="description.supported_types.the_bdex_protocols"></a> <a class="anchor" id="3.4.1"></a> </dd></dl>
+<dl class="user"><dt><b>The BDEX Protocols: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The BDEX protocols are primarily "documentation-only" protocols whereby BDEX-compliant value-semantic types and streams each adhere to a published documentation standard (this document) in order to interoperate correctly. The protocols specify what types that wish to support BDEX streaming must provide (three specifically-named methods), and what services the type can expect from all compliant streams (various "put" and "get" methods). In addition, BDEX also documents two interfaces, <code>InStream</code> and <code>OutStream</code>, that serve as the "documentation protocols" for input and output streams, respectively. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements_for_a_bdex-compliant_class_to_be_streamable"></a> <a class="anchor" id="description.requirements_for_a_bdex-compliant_class_to_be_streamable"></a> <a class="anchor" id="3.5"></a> </dd></dl>
+<dl class="user"><dt><b>Requirements for a BDEX-Compliant Class to be Streamable: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this section we give a brief synopsis of the required member functions for a class in order to be BDEX-streamable. See the "Using BDEX with Your Own
+ Class" section below for implementation details. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The required signatures and typical documentation (some behavioral details may be implementation-specific) of the three required methods for a BDEX-compliant class are as follows: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="comment">// CLASS METHODS</span>
+  <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector);
+      <span class="comment">// Return the maximum valid BDEX format version, as indicated by the</span>
+      <span class="comment">// specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;</span>
+      <span class="comment">// method.  Note that it is highly recommended that &#39;versionSelector&#39; be</span>
+      <span class="comment">// formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that</span>
+      <span class="comment">// &#39;versionSelector&#39; should be a *compile*-time-chosen value that selects</span>
+      <span class="comment">// a format version supported by both externalizer and unexternalizer.</span>
+      <span class="comment">// See the &#39;bslx&#39; package-level documentation for more information on</span>
+      <span class="comment">// BDEX streaming of value-semantic types and containers.</span>
+
+  <span class="comment">// MANIPULATORS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
+      <span class="comment">// Assign to this object the value read from the specified input &#39;stream&#39;</span>
+      <span class="comment">// using the specified &#39;version&#39; format, and return a reference to</span>
+      <span class="comment">// &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no</span>
+      <span class="comment">// effect.  If &#39;version&#39; is not supported, this object is unaltered and</span>
+      <span class="comment">// &#39;stream&#39; is invalidated, but otherwise unmodified.  If &#39;version&#39; is</span>
+      <span class="comment">// supported but &#39;stream&#39; becomes invalid during this operation, this</span>
+      <span class="comment">// object has an undefined, but valid, state.  Note that no version is</span>
+      <span class="comment">// read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for</span>
+      <span class="comment">// more information on BDEX streaming of value-semantic types and</span>
+      <span class="comment">// containers.</span>
+
+  <span class="comment">// ACCESSORS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version) <span class="keyword">const</span>;
+      <span class="comment">// Write the value of this object, using the specified &#39;version&#39; format,</span>
+      <span class="comment">// to the specified output &#39;stream&#39;, and return a reference to &#39;stream&#39;.</span>
+      <span class="comment">// If &#39;stream&#39; is initially invalid, this operation has no effect.  If</span>
+      <span class="comment">// &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but otherwise</span>
+      <span class="comment">// unmodified.  Note that &#39;version&#39; is not written to &#39;stream&#39;.  See the</span>
+      <span class="comment">// &#39;bslx&#39; package-level documentation for more information on BDEX</span>
+      <span class="comment">// streaming of value-semantic types and containers.</span>
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="selection_of_streams"></a> <a class="anchor" id="requirements_for_a_bdex-compliant_class_to_be_streamable.selection_of_streams"></a> <a class="anchor" id="description.requirements_for_a_bdex-compliant_class_to_be_streamable.selection_of_streams"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
+<dl class="user"><dt><b>Selection of Streams: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>At present, there are two pairs of concrete BDEX-compliant streams in <code>bslx</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  Out Stream               In Stream              Informal Designation
+  -------------------      ------------------     --------------------
+  <a class="code" href="classbslx_1_1ByteOutStream.html">bslx::ByteOutStream</a>      <a class="code" href="classbslx_1_1ByteInStream.html">bslx::ByteInStream</a>     <span class="stringliteral">&quot;Production Streams&quot;</span>
+  <a class="code" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a>      <a class="code" href="classbslx_1_1TestInStream.html">bslx::TestInStream</a>     <span class="stringliteral">&quot;Test Streams&quot;</span>
+</pre></div><br/>
+<br/>
+ The informal designations are used throughout this document. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In general, the concrete "in streams" and "out streams" must be used in matched pairs. For example, the user should not expect correct behavior if an object is externalized to a <code><a class="el" href="classbslx_1_1TestOutStream.html">bslx::TestOutStream</a></code> and then unexternalized from a seemingly-appropriately-constructed <code><a class="el" href="classbslx_1_1ByteInStream.html">bslx::ByteInStream</a></code>. Each pair of streams is designed with different aims in mind, and so their exact formats may vary. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The typical user will probably be content to use the production streams for most purposes. We will assume that the production stream is the "correct" choice without further explicit discussion in most usage examples. See the individual stream component documentation for specific details about using test streams. The test streams are meant for testing <em>only</em>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="using_bdex_with_your_own_class"></a> <a class="anchor" id="description.using_bdex_with_your_own_class"></a> <a class="anchor" id="3.6"></a> </dd></dl>
+<dl class="user"><dt><b>Using BDEX with Your Own Class: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>We will show a very brief example of a fictitious <code>MyPoint</code> class whose intended purpose is to hold a pair of <code>int</code> values representing a point in a two-dimensional rectilinear coordinate space. We will first define the class without BDEX support and then add that support. Note that, in this example, most of the required documentation and some required methods and free operators are omitted for ease of viewing. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A simple implementation of <code>MyPoint</code> might be: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">   <span class="keyword">class </span>MyPoint {
+       <span class="keywordtype">int</span> d_x;
+       <span class="keywordtype">int</span> d_y;
+
+     <span class="keyword">public</span>:
+       <span class="comment">// CREATORS</span>
+       MyPoint() : d_x(0), d_y(0) { }
+       MyPoint(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) : d_x(x), d_y(y) { }
+       MyPoint(<span class="keyword">const</span> MyPoint&amp; original)
+         : d_x(original.d_x), d_y(original.d_y) { }
+       ~MyPoint() { }
+
+       <span class="comment">// MANIPULATORS</span>
+       MyPoint&amp; operator=(<span class="keyword">const</span> MyPoint&amp; rhs)
+           { d_x = rhs.d_x;  d_y = rhs.d_y;  <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+       <span class="keywordtype">void</span> setX(<span class="keywordtype">int</span> x) { d_x = x; }
+       <span class="keywordtype">void</span> setY(<span class="keywordtype">int</span> y) { d_y = y; }
+
+       <span class="comment">// ACCESSORS</span>
+       <span class="keywordtype">int</span> x()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_x; }
+       <span class="keywordtype">int</span> y()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_y; }
+   };
+</pre></div><br/>
+<br/>
+ Putting other design decisions to one side for this discussion, we may ask: How would we incorporate BDEX streaming into such a class? We observe that the actual data footprint of such a point class is two <code>int</code> values. If BDEX succeeds in externalizing these two <code>int</code> values (preserving their order), then the task is accomplished. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The function-level documentation should make the purpose of each method clear, and we will show the implementations for <code>MyPoint</code> soon, but first let's just say a few words about "version". In a nutshell, the version is set to 1 in the initial release of the class, and in the best of all worlds, the version stays 1 forever. If, however, for some reason the developer wishes to alter the BDEX streaming contract (e.g., for some performance reasons), the explicit version maintains backward compatibility. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Adding the three methods to <code>MyPoint</code> that are required for BDEX-compliance is straightforward: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">   <span class="keyword">class </span>MyPoint {
+       <span class="keywordtype">int</span> d_x;
+       <span class="keywordtype">int</span> d_y;
+
+     <span class="keyword">public</span>:
+       <span class="comment">// CLASS METHODS</span>
+       <span class="keyword">static</span> <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector);
+           <span class="comment">// Return the maximum valid BDEX format version, as indicated by the</span>
+           <span class="comment">// specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;</span>
+           <span class="comment">// method.  Note that it is highly recommended that</span>
+           <span class="comment">// &#39;versionSelector&#39; be formatted as &quot;YYYYMMDD&quot;, a date</span>
+           <span class="comment">// representation.  Also note that &#39;versionSelector&#39; should be a</span>
+           <span class="comment">// *compile*-time-chosen value that selects a format version</span>
+           <span class="comment">// supported by both externalizer and unexternalizer.  See the</span>
+           <span class="comment">// &#39;bslx&#39; package-level documentation for more information on BDEX</span>
+           <span class="comment">// streaming of value-semantic types and containers.</span>
+
+       <span class="comment">// CREATORS</span>
+       MyPoint() : d_x(0), d_y(0) { }
+       MyPoint(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y) : d_x(x), d_y(y) { }
+       MyPoint(<span class="keyword">const</span> MyPoint&amp; original)
+         : d_x(original.d_x), d_y(original.d_y) { }
+       ~MyPoint() { }
+
+       <span class="comment">// MANIPULATORS</span>
+       MyPoint&amp; operator=(<span class="keyword">const</span> MyPoint&amp; rhs)
+           { d_x = rhs.d_x;  d_y = rhs.d_y;  <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+       <span class="keywordtype">void</span> setX(<span class="keywordtype">int</span> x) { d_x = x; }
+       <span class="keywordtype">void</span> setY(<span class="keywordtype">int</span> y) { d_y = y; }
+
+       <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+       STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version);
+           <span class="comment">// Assign to this object the value read from the specified input</span>
+           <span class="comment">// &#39;stream&#39; using the specified &#39;version&#39; format, and return a</span>
+           <span class="comment">// reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this</span>
+           <span class="comment">// operation has no effect.  If &#39;version&#39; is not supported, this</span>
+           <span class="comment">// object is unaltered and &#39;stream&#39; is invalidated, but otherwise</span>
+           <span class="comment">// unmodified.  If &#39;version&#39; is supported but &#39;stream&#39; becomes</span>
+           <span class="comment">// invalid during this operation, this object has an undefined, but</span>
+           <span class="comment">// valid, state.  Note that no version is read from &#39;stream&#39;.  See</span>
+           <span class="comment">// the &#39;bslx&#39; package-level documentation for more information on</span>
+           <span class="comment">// BDEX streaming of value-semantic types and containers.</span>
+
+       <span class="comment">// ACCESSORS</span>
+       <span class="keywordtype">int</span> x()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_x; }
+       <span class="keywordtype">int</span> y()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_y; }
+
+       <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+       STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version) <span class="keyword">const</span>;
+           <span class="comment">// Write the value of this object, using the specified &#39;version&#39;</span>
+           <span class="comment">// format, to the specified output &#39;stream&#39;, and return a reference</span>
+           <span class="comment">// to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation</span>
+           <span class="comment">// has no effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is</span>
+           <span class="comment">// invalidated, but otherwise unmodified.  Note that &#39;version&#39; is</span>
+           <span class="comment">// not written to &#39;stream&#39;.  See the &#39;bslx&#39; package-level</span>
+           <span class="comment">// documentation for more information on BDEX streaming of</span>
+           <span class="comment">// value-semantic types and containers.</span>
+   };
+</pre></div><br/>
+<br/>
+ The implementations of the new BDEX-required methods might be as follows. The <code>maxSupportedBdexVersion</code> method simply returns the value 1 regardless of the <code>versionSelector</code> requested: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">inline</span>
+  <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">MyPoint::maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector)
+  {
+      <span class="keywordflow">return</span> 1;
+  }
+</pre></div><br/>
+<br/>
+ The <code>bdexStreamOut</code> method is an accessor (i.e., a <code>const</code> instance method), and is therefore a bit simpler, so we'll show that one first. Anyway, it's a bit more logical to see the output format before implementing the input format. The method is a template method parameterized by <code>STREAM</code>, and the "protocol" of that <code>STREAM</code> must be compatible with the BDEX contract. We can therefore safely assume that the <code>stream</code> object has the required methods. See the "The BDEX Protocols" section above for the contracts. The heart of the method is the two sequential calls to <code>putInt32</code>, which externalize the <code>x</code> and <code>y</code> coordinates of the point value, in that order. These two lines are all the "new" code that the developer must understand and implement. Except for changing the class name from our <code>MyPoint</code> example, the rest of the code can be copied into the new component implementation directly. Note that this template method is implemented in the header of the component defining <code>MyClass</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">MyPoint::bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)<span class="keyword"> const</span>
+<span class="keyword">  </span>{
+      <span class="keywordflow">switch</span> (version) {
+        <span class="keywordflow">case</span> 1: { <span class="comment">// Implementation-specific code goes here.</span>
+          stream.putInt32(d_x);
+          stream.putInt32(d_y);
+        } <span class="keywordflow">break</span>;
+        <span class="keywordflow">default</span>: {
+          stream.invalidate();
+        } <span class="keywordflow">break</span>;
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+</pre></div><br/>
+<br/>
+ Having implemented <code>bdexStreamOut</code>, implementing <code>bdexStreamIn</code> is extremely straightforward, involving a template member function whose body can be safely copied from this example or from any appropriate component. Note that the two sequential calls to <code>getInt32</code> must match, in both method selection and data member order, the <code>putInt32</code> methods used in the <code>bdexStreamOut</code> method: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">MyPoint::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
+  {
+      <span class="keywordflow">if</span> (stream) {
+          <span class="keywordflow">switch</span> (version) {
+              <span class="comment">// switch on the schema version (starting with 1)</span>
+            <span class="keywordflow">case</span> 1: { <span class="comment">// Implementation-specific code goes here.</span>
+              stream.getInt32(d_x);
+              stream.getInt32(d_y);
+            } <span class="keywordflow">break</span>;
+            <span class="keywordflow">default</span>: {
+              stream.invalidate();
+            } <span class="keywordflow">break</span>;
+          }
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+</pre></div><br/>
+<br/>
+ The above implementation is sufficient for our point class, and with a very few additional considerations, illustrates the general recipe for incorporating BDEX streaming into a class that has an externalizable value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Very briefly, we will mention two considerations that may be important when implementing a type that is more complicated than our simple point class. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For our first consideration, notice that, for our simple point class, any pattern of bits within the two <code>int</code> data members represents a valid value. However, in general, since we require the state of an object to be valid in the face of a stream error (e.g., an exception being thrown during streaming in), the manipulator method <code>bdexStreamIn</code> must validate the input data, set the object to some valid state in the case of an error, and invalidate the stream before returning. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The second consideration is that if the new type being implemented has as a data member a type that is already BDEX-compliant, the new implementation would use that data member's BDEX methods rather than the stream's methods directly. This is important for encapsulation. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="recommended_selection_of_versionselector"></a> <a class="anchor" id="description.recommended_selection_of_versionselector"></a> <a class="anchor" id="3.7"></a> </dd></dl>
+<dl class="user"><dt><b>Recommended Selection of versionSelector: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>BDEX provides two concepts that support versioning the BDEX serialization format of a type: <code>version</code> and <code>versionSelector</code>. A <code>version</code> is a 1-based integer indicating one of the supported formats (e.g., format 1, format 2, etc.). A <code>versionSelector</code> is a value that is mapped to a <code>version</code> for a type by the type's implementation of <code>maxSupportedBdexVersion</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Selecting a value for a <code>versionSelector</code> is required at two different points: (1) when implementing a new <code>version</code> format within the <code>bdexStreamIn</code> and <code>bdexStreamOut</code> methods of a type, and (2) when implementing code that constructs a BDEX <code>OutStream</code>. In both cases, the value should be a <em>compile</em>-time-selected value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When a new <code>version</code> format is implemented within the <code>bdexStreamIn</code> and <code>bdexStreamOut</code> methods of a type, a new mapping in <code>maxSupportedBdexVersion</code> should be created to expose this new <code>version</code> with a <code>versionSelector</code>. A simple - and the recommended - approach is to use a value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to the "go-live" date of the corresponding <code>version</code> format. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When constructing an <code>OutStream</code>, a simple approach is to use the current date as a <em>compile</em>-time constant value (but see <a href="group__bslx.html#updating_production_systems" class="el">Updating Production Systems</a>). In combination with the recommended selection of <code>versionSelector</code> values for <code>maxSupportedBdexVersion</code>, this will result in consistent and predictable behavior while externalizing types. Note that this recommendation is chosen for its simplicity: to ensure the largest possible audience for an externalized representation, clients can select the minimum date value that will result in the desired version of all types externalized with <code>operator&lt;&lt;</code> being selected. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Clients streaming one or more objects with BDEX create a stream and supply a <code>versionSelector</code>: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  MyObject foo( <span class="comment">/* some value */</span> );
+  <a class="code" href="classbslx_1_1ByteOutStream.html">bslx::ByteOutStream</a> stream(20140725);   <span class="comment">// The minimum date that will</span>
+                                          <span class="comment">// result in all streamed types</span>
+                                          <span class="comment">// using the correct versions</span>
+                                          <span class="comment">// during externalization.</span>
+  stream &lt;&lt; foo;
+</pre></div><br/>
+<br/>
+ Notice that the <code>versionSelector</code> is a <em>compile</em>-time-selected value (in this case, the minimum date that will result in all streamed types using the correct versions during externalization) that can be mapped to the serialization format version of the types being serialized. The receiver of this information must support all these versions as well. Specifying future dates or allowing a run-time selection of <code>versionSelector</code> is error prone: tasks exchanging serialized data are often compiled and deployed at different times, which would result in serialization errors if they were selecting a serialization version at run-time (there is no guarantee the receiver has been rebuilt to accept the updated format version). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For an example, assume the <code>MyPoint</code> class is determined to need 64-bit storage for the coordinate values. The new <code>bdexStreamIn</code> and <code>bdexStreamOut</code> code might be implemented as: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">MyPoint::bdexStreamIn</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)
+  {
+      <span class="keywordflow">if</span> (stream) {
+          <span class="keywordflow">switch</span> (version) {
+              <span class="comment">// switch on the schema version (starting with 1)</span>
+            <span class="keywordflow">case</span> 2: { <span class="comment">// Implementation-specific code goes here.</span>
+              stream.getInt64(d_x);
+              stream.getInt64(d_y);
+            } <span class="keywordflow">break</span>;
+            <span class="keywordflow">case</span> 1: { <span class="comment">// NOTE: &#39;d_x&#39; and &#39;d_y&#39; were switched to 64-bit</span>
+              <span class="keywordtype">int</span> tmp;
+              stream.getInt32(tmp);
+              d_x = <span class="keyword">static_cast&lt;</span><a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a><span class="keyword">&gt;</span>(tmp);
+              stream.getInt32(tmp);
+              d_y = <span class="keyword">static_cast&lt;</span><a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a><span class="keyword">&gt;</span>(tmp);
+            } <span class="keywordflow">break</span>;
+            <span class="keywordflow">default</span>: {
+              stream.invalidate();
+            } <span class="keywordflow">break</span>;
+          }
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">MyPoint::bdexStreamOut</a>(STREAM&amp; stream, <span class="keywordtype">int</span> version)<span class="keyword"> const</span>
+<span class="keyword">  </span>{
+      <span class="keywordflow">switch</span> (version) {
+        <span class="keywordflow">case</span> 2: {
+          stream.putInt64(d_x);
+          stream.putInt64(d_y);
+        } <span class="keywordflow">break</span>;
+        <span class="keywordflow">case</span> 1: { <span class="comment">// NOTE: &#39;d_x&#39; and &#39;d_y&#39; were switched to 64-bit</span>
+          stream.putInt32(static_cast&lt;int&gt;(d_x));
+          stream.putInt32(static_cast&lt;int&gt;(d_y));
+        } <span class="keywordflow">break</span>;
+        <span class="keywordflow">default</span>: {
+          stream.invalidate();
+        } <span class="keywordflow">break</span>;
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+</pre></div><br/>
+<br/>
+ The corresponding <code>maxSupportedBdexVersion</code>, where 2014/04/02 is the date on which the new version is introduced, might look something like: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">inline</span>
+  <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">MyPoint::maxSupportedBdexVersion</a>(<span class="keywordtype">int</span> versionSelector)
+  {
+      <span class="keywordflow">if</span> (versionSelector &gt;= 20140402) {
+          <span class="keywordflow">return</span> 2;                                                   <span class="comment">// RETURN</span>
+      }
+      <span class="keywordflow">return</span> 1;
+  }
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="updating_production_systems"></a> <a class="anchor" id="description.updating_production_systems"></a> <a class="anchor" id="3.8"></a> </dd></dl>
+<dl class="user"><dt><b>Updating Production Systems: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>---------------------------- The basic recommendation for choosing a <code>versionSelector</code> (which is supplied to the BDEX <code>OutStream</code> constructor) is to use the current date as a <em>compile</em>-time constant value. Using the current date will select the most recent BDEX version. However, in environments were multiple tasks may be reading the resulting serialized value, it is important to ensure that all the tasks participating in the system are capable of reading that BDEX version before selecting it as an output version. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The roll-out of a new BDEX version for an existing type (<code>A</code>) in a production system typically involves these steps: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><ol>
+<li>
+Update Type <code>A</code>, introducing a new BDEX version, and version selector for that version that is the date the change is expected to "go-live".  </li>
+<li>
+Rebuild and redeploy all the tasks that de-serialize <code>A</code>.  </li>
+<li>
+Update the version selector for tasks that serialize <code>A</code> (choosing the date used in step 1).  </li>
+<li>
+Rebuild and redeploy all the tasks that serialize <code>A</code>.  </li>
+</ol>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="overloading_bdex_free_functions"></a> <a class="anchor" id="description.overloading_bdex_free_functions"></a> <a class="anchor" id="3.9"></a> </dd></dl>
+<dl class="user"><dt><b>Overloading BDEX Free Functions: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>For third-party components, and potentially enumerations, three free functions are available for overloading to allow BDEX streaming of these types. Overloading these methods takes priority over any class methods defined for similar functionality. Note that either none or all three must be overloaded to ensure proper behavior. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Within the component's namespace, the following methods may be overloaded: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM, <span class="keyword">class</span> TYPE&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">bdexStreamIn</a>(STREAM&amp; stream, TYPE&amp; variable, <span class="keywordtype">int</span> version);
+      <span class="comment">// Assign to the specified &#39;variable&#39; the &#39;TYPE&#39; value read from the</span>
+      <span class="comment">// specified input &#39;stream&#39; using the specified &#39;version&#39; format, and</span>
+      <span class="comment">// return a reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid,</span>
+      <span class="comment">// this operation has no effect.  If &#39;version&#39; is not supported by</span>
+      <span class="comment">// &#39;TYPE&#39;, &#39;variable&#39; is unaltered and &#39;stream&#39; is invalidated, but</span>
+      <span class="comment">// otherwise unmodified.  If &#39;version&#39; is supported by &#39;TYPE&#39; but</span>
+      <span class="comment">// &#39;stream&#39; becomes invalid during this operation, &#39;variable&#39; has an</span>
+      <span class="comment">// undefined, but valid, state.  The behavior is undefined unless</span>
+      <span class="comment">// &#39;STREAM&#39; and &#39;TYPE&#39; are BDEX-compliant.  Note that no version is read</span>
+      <span class="comment">// from &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more</span>
+      <span class="comment">// information on BDEX streaming of value-semantic types and containers.</span>
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM, <span class="keyword">class</span> TYPE&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">bdexStreamOut</a>(STREAM&amp; stream, <span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span> version);
+      <span class="comment">// Write the specified &#39;value&#39;, using the specified &#39;version&#39; format, to</span>
+      <span class="comment">// the specified output &#39;stream&#39;, and return a reference to &#39;stream&#39;.  If</span>
+      <span class="comment">// &#39;stream&#39; is initially invalid, this operation has no effect.  If</span>
+      <span class="comment">// &#39;version&#39; is not supported by &#39;TYPE&#39;, &#39;stream&#39; is invalidated, but</span>
+      <span class="comment">// otherwise unmodified.  The behavior is undefined unless &#39;STREAM&#39; and</span>
+      <span class="comment">// &#39;TYPE&#39; are BDEX-compliant.  Note that &#39;version&#39; is not written to</span>
+      <span class="comment">// &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more</span>
+      <span class="comment">// information on BDEX streaming of value-semantic types and containers.</span>
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">maxSupportedBdexVersion</a>(<span class="keyword">const</span> TYPE *, <span class="keywordtype">int</span> versionSelector);
+      <span class="comment">// Return the maximum valid BDEX format version, as indicated by the</span>
+      <span class="comment">// specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;</span>
+      <span class="comment">// method while streaming an object of the (template parameter) type</span>
+      <span class="comment">// &#39;TYPE&#39;.  Note that it is highly recommended that &#39;versionSelector&#39; be</span>
+      <span class="comment">// formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that</span>
+      <span class="comment">// &#39;versionSelector&#39; should be a *compile*-time-chosen value that selects</span>
+      <span class="comment">// a format version supported by both externalizer and unexternalizer.</span>
+      <span class="comment">// See the &#39;bslx&#39; package-level documentation for more information on</span>
+      <span class="comment">// BDEX streaming of value-semantic types and containers.</span>
+</pre></div><br/>
+<br/>
+ As a brief example, consider the following enumeration that is to be streamed as an 8-bit integer as opposed to the default 32-bit integer: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keyword">namespace </span>ThirdParty {
+
+  <span class="keyword">struct </span>MyStruct {
+    <span class="keyword">public</span>:
+      <span class="keyword">enum</span> Value {
+          e_A = 7,
+          e_B = 8,
+          e_C = 9
+      };
+  };
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a7fd2d27c8ca153888e33f4c09f0fd913">bdexStreamIn</a>(STREAM&amp; stream, MyStruct::Value&amp; value, <span class="keywordtype">int</span> version)
+  {
+      <span class="keyword">using</span> bslx::InStreamFunctions::bdexStreamIn;
+
+      <span class="keywordflow">if</span> (stream) {
+          <span class="keywordflow">switch</span> (version) {
+            <span class="keywordflow">case</span> 1: {
+              <span class="keywordtype">char</span> newValue;
+              stream.getInt8(newValue);
+              <span class="keywordflow">if</span> (stream) {
+                  value = <span class="keyword">static_cast&lt;</span>MyStruct::Value<span class="keyword">&gt;</span>(newValue);
+              }
+            } <span class="keywordflow">break</span>;
+            <span class="keywordflow">default</span>: {
+              stream.invalidate();
+            } <span class="keywordflow">break</span>;
+          }
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> STREAM&gt;
+  STREAM&amp; <a class="code" href="namespacebbldc.html#a4b1bdb11d0d2a85a2f99b2fd4414b279">bdexStreamOut</a>(STREAM&amp;                stream,
+                        <span class="keyword">const</span> MyStruct::Value&amp; value,
+                        <span class="keywordtype">int</span>                    version)
+  {
+      <span class="keyword">using</span> bslx::OutStreamFunctions::bdexStreamOut;
+
+      <span class="keywordflow">if</span> (stream) {
+          <span class="keywordflow">switch</span> (version) {
+            <span class="keywordflow">case</span> 1: {
+              stream.putInt8(static_cast&lt;char&gt;(value));
+            } <span class="keywordflow">break</span>;
+            <span class="keywordflow">default</span>: {
+              stream.invalidate();
+            } <span class="keywordflow">break</span>;
+          }
+      }
+      <span class="keywordflow">return</span> stream;
+  }
+
+  <span class="keyword">inline</span>
+  <span class="keywordtype">int</span> <a class="code" href="namespacebbldc.html#ac8267f245d1e34795846545f712d0f47">maxSupportedBdexVersion</a>(<span class="keyword">const</span> MyStruct::Value *,
+                              <span class="keywordtype">int</span>                    versionSelector)
+  {
+      <span class="keyword">using</span> bslx::VersionFunctions::maxSupportedBdexVersion;
+
+      <span class="keywordflow">return</span> 1;
+  }
+
+  }  <span class="comment">// close ThirdParty namespace</span>
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="backward_compatibility_with_older_bdex_serialization_packages"></a> <a class="anchor" id="description.backward_compatibility_with_older_bdex_serialization_packages"></a> <a class="anchor" id="3.10"></a> </dd></dl>
+<dl class="user"><dt><b>Backward Compatibility with Older BDEX Serialization Packages: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Users of the previous implementation of the BDEX concept can find documentation on compatibility in the older package documentation. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="appendix_i~3A_the_bdex_outstream_protocol"></a> <a class="anchor" id="backward_compatibility_with_older_bdex_serialization_packages.appendix_i~3A_the_bdex_outstream_protocol"></a> <a class="anchor" id="description.backward_compatibility_with_older_bdex_serialization_packages.appendix_i~3A_the_bdex_outstream_protocol"></a> <a class="anchor" id="appendix_i"></a> <a class="anchor" id="backward_compatibility_with_older_bdex_serialization_packages.appendix_i"></a> <a class="anchor" id="description.backward_compatibility_with_older_bdex_serialization_packages.appendix_i"></a> <a class="anchor" id="3.10.1"></a> </dd></dl>
+<dl class="user"><dt><b>Appendix I: The BDEX OutStream Protocol: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this section we present the function documentation of BDEX <code>OutStream</code>, which serves as the "documentation protocol" for all BDEX-compliant output streams: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      <span class="comment">// MANIPULATORS</span>
+      <span class="keywordtype">void</span> invalidate();
+          <span class="comment">// Put this output stream in an invalid state.  This function has no</span>
+          <span class="comment">// effect if this stream is already invalid.</span>
+
+      OutStream&amp; putLength(<span class="keywordtype">int</span> length);
+          <span class="comment">// If the specified &#39;length&#39; is less than 128, write to this stream</span>
+          <span class="comment">// the one-byte integer comprised of the least-significant one byte</span>
+          <span class="comment">// of the &#39;length&#39;; otherwise, write to this stream the four-byte,</span>
+          <span class="comment">// two&#39;s complement integer (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant four bytes of the &#39;length&#39; (in host byte order)</span>
+          <span class="comment">// with the most-significant bit set.  Return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  The behavior is undefined unless &#39;0 &lt;= length&#39;.</span>
+
+      OutStream&amp; putVersion(<span class="keywordtype">int</span> version);
+          <span class="comment">// Write to this stream the one-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer comprised of the least-significant one byte of the</span>
+          <span class="comment">// specified &#39;version&#39;, and return a reference to this stream.  If</span>
+          <span class="comment">// this stream is initially invalid, this operation has no effect.</span>
+
+      <span class="keywordtype">void</span> reserveCapacity(<span class="keywordtype">int</span> newCapacity);
+          <span class="comment">// Set the internal buffer size of this stream to be at least the</span>
+          <span class="comment">// specified &#39;newCapacity&#39; (in bytes).  The behavior is undefined</span>
+          <span class="comment">// unless &#39;0 &lt;= newCapacity&#39;.</span>
+
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ValueTypeFunctions.html#a712743f16be0f4121bca7574c9face99">reset</a>();
+          <span class="comment">// Remove all content in this stream and validate this stream if it</span>
+          <span class="comment">// is currently invalid.</span>
+
+                        <span class="comment">// *** scalar integer values ***</span>
+
+      OutStream&amp; putInt64(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value);
+          <span class="comment">// Write to this stream the eight-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant eight bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint64(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value);
+          <span class="comment">// Write to this stream the eight-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// eight bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt56(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value);
+          <span class="comment">// Write to this stream the seven-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant seven bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint56(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value);
+          <span class="comment">// Write to this stream the seven-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// seven bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt48(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value);
+          <span class="comment">// Write to this stream the six-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant six bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint48(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value);
+          <span class="comment">// Write to this stream the six-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// six bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt40(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> value);
+          <span class="comment">// Write to this stream the five-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant five bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint40(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> value);
+          <span class="comment">// Write to this stream the five-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// five bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt32(<span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the four-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant four bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint32(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the four-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// four bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt24(<span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the three-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant three bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint24(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the three-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// three bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt16(<span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the two-byte, two&#39;s complement integer (in</span>
+          <span class="comment">// network byte order) comprised of the least-significant two bytes</span>
+          <span class="comment">// of the specified &#39;value&#39; (in host byte order), and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.</span>
+
+      OutStream&amp; putUint16(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the two-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer (in network byte order) comprised of the least-significant</span>
+          <span class="comment">// two bytes of the specified &#39;value&#39; (in host byte order), and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.</span>
+
+      OutStream&amp; putInt8(<span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the one-byte, two&#39;s complement integer</span>
+          <span class="comment">// comprised of the least-significant one byte of the specified</span>
+          <span class="comment">// &#39;value&#39;, and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.</span>
+
+      OutStream&amp; putUint8(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> value);
+          <span class="comment">// Write to this stream the one-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integer comprised of the least-significant one byte of the</span>
+          <span class="comment">// specified &#39;value&#39;, and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.</span>
+
+                        <span class="comment">// *** scalar floating-point values ***</span>
+
+      OutStream&amp; putFloat64(<span class="keywordtype">double</span> value);
+          <span class="comment">// Write to this stream the eight-byte IEEE double-precision</span>
+          <span class="comment">// floating-point number (in network byte order) comprised of the</span>
+          <span class="comment">// most-significant eight bytes of the specified &#39;value&#39; (in host</span>
+          <span class="comment">// byte order), and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.  Note</span>
+          <span class="comment">// that for non-conforming platforms, this operation may be lossy.</span>
+
+      OutStream&amp; putFloat32(<span class="keywordtype">float</span> value);
+          <span class="comment">// Write to this stream the four-byte IEEE single-precision</span>
+          <span class="comment">// floating-point number (in network byte order) comprised of the</span>
+          <span class="comment">// most-significant four bytes of the specified &#39;value&#39; (in host byte</span>
+          <span class="comment">// order), and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  Note that for</span>
+          <span class="comment">// non-conforming platforms, this operation may be lossy.</span>
+
+                        <span class="comment">// *** string values ***</span>
+
+      OutStream&amp; putString(<span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; value);
+          <span class="comment">// Write to this stream the length of the specified &#39;value&#39; (see</span>
+          <span class="comment">// &#39;putLength&#39;) and an array of one-byte, two&#39;s complement unsigned</span>
+          <span class="comment">// integers comprised of the least-significant one byte of each</span>
+          <span class="comment">// character in the &#39;value&#39;, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+
+                        <span class="comment">// *** arrays of integer values ***</span>
+
+      OutStream&amp; putArrayInt64(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *values,
+                               <span class="keywordtype">int</span>                       numValues);
+          <span class="comment">// Write to this stream the consecutive eight-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant eight bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint64(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *values,
+                                <span class="keywordtype">int</span>                        numValues);
+          <span class="comment">// Write to this stream the consecutive eight-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant eight bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt56(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *values,
+                               <span class="keywordtype">int</span>                       numValues);
+          <span class="comment">// Write to this stream the consecutive seven-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant seven bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint56(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *values,
+                                <span class="keywordtype">int</span>                        numValues);
+          <span class="comment">// Write to this stream the consecutive seven-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant seven bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt48(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *values,
+                               <span class="keywordtype">int</span>                       numValues);
+          <span class="comment">// Write to this stream the consecutive six-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant six bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint48(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *values,
+                                <span class="keywordtype">int</span>                        numValues);
+          <span class="comment">// Write to this stream the consecutive six-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant six bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt40(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *values,
+                               <span class="keywordtype">int</span>                       numValues);
+          <span class="comment">// Write to this stream the consecutive five-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant five bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint40(<span class="keyword">const</span> <a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *values,
+                                <span class="keywordtype">int</span>                        numValues);
+          <span class="comment">// Write to this stream the consecutive five-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant five bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt32(<span class="keyword">const</span> <span class="keywordtype">int</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive four-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant four bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint32(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive four-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant four bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt24(<span class="keyword">const</span> <span class="keywordtype">int</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive three-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant three bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint24(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive three-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant three bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt16(<span class="keyword">const</span> <span class="keywordtype">short</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive two-byte, two&#39;s complement</span>
+          <span class="comment">// integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant two bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint16(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive two-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers (in network byte order) comprised of the</span>
+          <span class="comment">// least-significant two bytes of each of the specified &#39;numValues&#39;</span>
+          <span class="comment">// leading entries in the specified &#39;values&#39; (in host byte order),</span>
+          <span class="comment">// and return a reference to this stream.  If this stream is</span>
+          <span class="comment">// initially invalid, this operation has no effect.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayInt8(<span class="keyword">const</span> <span class="keywordtype">char</span>        *values, <span class="keywordtype">int</span> numValues);
+      OutStream&amp; putArrayInt8(<span class="keyword">const</span> <span class="keywordtype">signed</span> <span class="keywordtype">char</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive one-byte, two&#39;s complement</span>
+          <span class="comment">// integers comprised of the least-significant one byte of each of</span>
+          <span class="comment">// the specified &#39;numValues&#39; leading entries in the specified</span>
+          <span class="comment">// &#39;values&#39;, and return a reference to this stream.  If this stream</span>
+          <span class="comment">// is initially invalid, this operation has no effect.  The behavior</span>
+          <span class="comment">// is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+      OutStream&amp; putArrayUint8(<span class="keyword">const</span> <span class="keywordtype">char</span>          *values, <span class="keywordtype">int</span> numValues);
+      OutStream&amp; putArrayUint8(<span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive one-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integers comprised of the least-significant one byte of</span>
+          <span class="comment">// each of the specified &#39;numValues&#39; leading entries in the specified</span>
+          <span class="comment">// &#39;values&#39;, and return a reference to this stream.  If this stream</span>
+          <span class="comment">// is initially invalid, this operation has no effect.  The behavior</span>
+          <span class="comment">// is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has sufficient</span>
+          <span class="comment">// contents.</span>
+
+                        <span class="comment">// *** arrays of floating-point values ***</span>
+
+      OutStream&amp; putArrayFloat64(<span class="keyword">const</span> <span class="keywordtype">double</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive eight-byte IEEE</span>
+          <span class="comment">// double-precision floating-point numbers (in network byte order)</span>
+          <span class="comment">// comprised of the most-significant eight bytes of each of the</span>
+          <span class="comment">// specified &#39;numValues&#39; leading entries in the specified &#39;values&#39;</span>
+          <span class="comment">// (in host byte order), and return a reference to this stream.  If</span>
+          <span class="comment">// this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// The behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has</span>
+          <span class="comment">// sufficient contents.  Note that for non-conforming platforms, this</span>
+          <span class="comment">// operation may be lossy.</span>
+
+      OutStream&amp; putArrayFloat32(<span class="keyword">const</span> <span class="keywordtype">float</span> *values, <span class="keywordtype">int</span> numValues);
+          <span class="comment">// Write to this stream the consecutive four-byte IEEE</span>
+          <span class="comment">// single-precision floating-point numbers (in network byte order)</span>
+          <span class="comment">// comprised of the most-significant four bytes of each of the</span>
+          <span class="comment">// specified &#39;numValues&#39; leading entries in the specified &#39;values&#39;</span>
+          <span class="comment">// (in host byte order), and return a reference to this stream.  If</span>
+          <span class="comment">// this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// The behavior is undefined unless &#39;0 &lt;= numValues&#39; and &#39;values&#39; has</span>
+          <span class="comment">// sufficient contents.  Note that for non-conforming platforms, this</span>
+          <span class="comment">// operation may be lossy.</span>
+
+      <span class="comment">// ACCESSORS</span>
+      operator const void *() <span class="keyword">const</span>;
+          <span class="comment">// Return a non-zero value if this stream is valid, and 0 otherwise.</span>
+          <span class="comment">// An invalid stream is a stream for which an output operation was</span>
+          <span class="comment">// detected to have failed or &#39;invalidate&#39; was called.</span>
+
+      <span class="keywordtype">int</span> bdexVersionSelector() <span class="keyword">const</span>;
+          <span class="comment">// Return the &#39;versionSelector&#39; to be used with &#39;operator&lt;&lt;&#39; for BDEX</span>
+          <span class="comment">// streaming as per the &#39;bslx&#39; package-level documentation.</span>
+
+      <span class="keyword">const</span> <span class="keywordtype">char</span> *data() <span class="keyword">const</span>;
+          <span class="comment">// Return the address of the contiguous, non-modifiable internal</span>
+          <span class="comment">// memory buffer of this stream.  The address will remain valid as</span>
+          <span class="comment">// long as this stream is not destroyed or modified.  The behavior of</span>
+          <span class="comment">// accessing elements outside the range</span>
+          <span class="comment">// &#39;[ data() .. data() + (length() - 1) ]&#39; is undefined.</span>
+
+      <span class="keywordtype">bool</span> isValid() <span class="keyword">const</span>;
+          <span class="comment">// Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An</span>
+          <span class="comment">// invalid stream is a stream for which an output operation was</span>
+          <span class="comment">// detected to have failed or &#39;invalidate&#39; was called.</span>
+
+      bsl::size_t length() <span class="keyword">const</span>;
+          <span class="comment">// Return the number of bytes in this stream.</span>
+
+  <span class="comment">// FREE OPERATORS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+  OutStream&amp; <a class="code" href="namespacebalb.html#a777d713a1c54d1359c8cb8144cc50b7a">operator&lt;&lt;</a>(OutStream&amp; stream, <span class="keyword">const</span> TYPE&amp; value);
+      <span class="comment">// Write the specified &#39;value&#39; to the specified output &#39;stream&#39; following</span>
+      <span class="comment">// the requirements of the BDEX protocol (see the &#39;bslx&#39; package-level</span>
+      <span class="comment">// documentation), and return a reference to &#39;stream&#39;.  The behavior is</span>
+      <span class="comment">// undefined unless &#39;TYPE&#39; is BDEX-compliant.</span>
+</pre></div><br/>
+<br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="appendix_ii~3A_the_bdex_instream_protocol"></a> <a class="anchor" id="backward_compatibility_with_older_bdex_serialization_packages.appendix_ii~3A_the_bdex_instream_protocol"></a> <a class="anchor" id="description.backward_compatibility_with_older_bdex_serialization_packages.appendix_ii~3A_the_bdex_instream_protocol"></a> <a class="anchor" id="appendix_ii"></a> <a class="anchor" id="backward_compatibility_with_older_bdex_serialization_packages.appendix_ii"></a> <a class="anchor" id="description.backward_compatibility_with_older_bdex_serialization_packages.appendix_ii"></a> <a class="anchor" id="3.10.2"></a> </dd></dl>
+<dl class="user"><dt><b>Appendix II: The BDEX InStream Protocol: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>In this section we present the function documentation of BDEX <code>InStream</code>, which serves as the "documentation protocol" for all BDEX-compliant input streams: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      <span class="comment">// MANIPULATORS</span>
+      InStream&amp; getLength(<span class="keywordtype">int</span>&amp; length);
+          <span class="comment">// If the most-significant bit of the one byte of this stream at the</span>
+          <span class="comment">// current cursor location is set, assign to the specified &#39;length&#39;</span>
+          <span class="comment">// the four-byte, two&#39;s complement integer (in host byte order)</span>
+          <span class="comment">// comprised of the four bytes of this stream at the current cursor</span>
+          <span class="comment">// location (in network byte order) with the most-significant bit</span>
+          <span class="comment">// unset; otherwise, assign to &#39;length&#39; the one-byte, two&#39;s</span>
+          <span class="comment">// complement integer comprised of the one byte of this stream at the</span>
+          <span class="comment">// current cursor location.  Update the cursor location and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;length&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+      InStream&amp; getVersion(<span class="keywordtype">int</span>&amp; version);
+          <span class="comment">// Assign to the specified &#39;version&#39; the one-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer comprised of the one byte of this stream at the</span>
+          <span class="comment">// current cursor location, update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;version&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+      <span class="keywordtype">void</span> invalidate();
+          <span class="comment">// Put this input stream in an invalid state.  This function has no</span>
+          <span class="comment">// effect if this stream is already invalid.  Note that this function</span>
+          <span class="comment">// should be called whenever a value extracted from this stream is</span>
+          <span class="comment">// determined to be invalid, inconsistent, or otherwise incorrect.</span>
+
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ValueTypeFunctions.html#a712743f16be0f4121bca7574c9face99">reset</a>();
+          <span class="comment">// Set the index of the next byte to be extracted from this stream to</span>
+          <span class="comment">// 0 (i.e., the beginning of the stream) and validate this stream if</span>
+          <span class="comment">// it is currently invalid.</span>
+
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ValueTypeFunctions.html#a712743f16be0f4121bca7574c9face99">reset</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *buffer, bsl::size_t numBytes);
+          <span class="comment">// Reset this stream to extract from the specified &#39;buffer&#39;</span>
+          <span class="comment">// containing the specified &#39;numBytes&#39;, set the index of the next</span>
+          <span class="comment">// byte to be extracted to 0 (i.e., the beginning of the stream), and</span>
+          <span class="comment">// validate this stream if it is currently invalid.  The behavior is</span>
+          <span class="comment">// undefined unless &#39;0 == numBytes&#39; if &#39;0 == buffer&#39;.</span>
+
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ValueTypeFunctions.html#a712743f16be0f4121bca7574c9face99">reset</a>(<span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp; srcData);
+          <span class="comment">// Reset this stream to extract from the specified &#39;srcData&#39;, set the</span>
+          <span class="comment">// index of the next byte to be extracted to 0 (i.e., the beginning</span>
+          <span class="comment">// of the stream), and validate this stream if it is currently</span>
+          <span class="comment">// invalid.</span>
+
+                        <span class="comment">// *** scalar integer values ***</span>
+
+      InStream&amp; getInt64(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the eight-byte, two&#39;s</span>
+          <span class="comment">// complement integer (in host byte order) comprised of the eight</span>
+          <span class="comment">// bytes of this stream at the current cursor location (in network</span>
+          <span class="comment">// byte order), update the cursor location, and return a reference to</span>
+          <span class="comment">// this stream.  If this stream is initially invalid, this operation</span>
+          <span class="comment">// has no effect.  If this function otherwise fails to extract a</span>
+          <span class="comment">// valid value, this stream is marked invalid and the value of</span>
+          <span class="comment">// &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// sign-extended.</span>
+
+      InStream&amp; getUint64(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the eight-byte, two&#39;s</span>
+          <span class="comment">// complement unsigned integer (in host byte order) comprised of the</span>
+          <span class="comment">// eight bytes of this stream at the current cursor location (in</span>
+          <span class="comment">// network byte order), update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+      InStream&amp; getInt56(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the seven-byte, two&#39;s</span>
+          <span class="comment">// complement integer (in host byte order) comprised of the seven</span>
+          <span class="comment">// bytes of this stream at the current cursor location (in network</span>
+          <span class="comment">// byte order), update the cursor location, and return a reference to</span>
+          <span class="comment">// this stream.  If this stream is initially invalid, this operation</span>
+          <span class="comment">// has no effect.  If this function otherwise fails to extract a</span>
+          <span class="comment">// valid value, this stream is marked invalid and the value of</span>
+          <span class="comment">// &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// sign-extended.</span>
+
+      InStream&amp; getUint56(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the seven-byte, two&#39;s</span>
+          <span class="comment">// complement unsigned integer (in host byte order) comprised of the</span>
+          <span class="comment">// seven bytes of this stream at the current cursor location (in</span>
+          <span class="comment">// network byte order), update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+      InStream&amp; getInt48(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the six-byte, two&#39;s complement</span>
+          <span class="comment">// integer (in host byte order) comprised of the six bytes of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variable&#39; is undefined.</span>
+          <span class="comment">// Note that the value will be sign-extended.</span>
+
+      InStream&amp; getUint48(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the six-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer (in host byte order) comprised of the six bytes</span>
+          <span class="comment">// of this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variable&#39;</span>
+          <span class="comment">// is undefined.  Note that the value will be zero-extended.</span>
+
+      InStream&amp; getInt40(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the five-byte, two&#39;s complement</span>
+          <span class="comment">// integer (in host byte order) comprised of the five bytes of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variable&#39; is undefined.</span>
+          <span class="comment">// Note that the value will be sign-extended.</span>
+
+      InStream&amp; getUint40(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the five-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer (in host byte order) comprised of the five bytes</span>
+          <span class="comment">// of this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variable&#39;</span>
+          <span class="comment">// is undefined.  Note that the value will be zero-extended.</span>
+
+      InStream&amp; getInt32(<span class="keywordtype">int</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the four-byte, two&#39;s complement</span>
+          <span class="comment">// integer (in host byte order) comprised of the four bytes of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variable&#39; is undefined.</span>
+          <span class="comment">// Note that the value will be sign-extended.</span>
+
+      InStream&amp; getUint32(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the four-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer (in host byte order) comprised of the four bytes</span>
+          <span class="comment">// of this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variable&#39;</span>
+          <span class="comment">// is undefined.  Note that the value will be zero-extended.</span>
+
+      InStream&amp; getInt24(<span class="keywordtype">int</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the three-byte, two&#39;s</span>
+          <span class="comment">// complement integer (in host byte order) comprised of the three</span>
+          <span class="comment">// bytes of this stream at the current cursor location (in network</span>
+          <span class="comment">// byte order), update the cursor location, and return a reference to</span>
+          <span class="comment">// this stream.  If this stream is initially invalid, this operation</span>
+          <span class="comment">// has no effect.  If this function otherwise fails to extract a</span>
+          <span class="comment">// valid value, this stream is marked invalid and the value of</span>
+          <span class="comment">// &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// sign-extended.</span>
+
+      InStream&amp; getUint24(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the three-byte, two&#39;s</span>
+          <span class="comment">// complement unsigned integer (in host byte order) comprised of the</span>
+          <span class="comment">// three bytes of this stream at the current cursor location (in</span>
+          <span class="comment">// network byte order), update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+      InStream&amp; getInt16(<span class="keywordtype">short</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the two-byte, two&#39;s complement</span>
+          <span class="comment">// integer (in host byte order) comprised of the two bytes of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variable&#39; is undefined.</span>
+          <span class="comment">// Note that the value will be sign-extended.</span>
+
+      InStream&amp; getUint16(<span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the two-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer (in host byte order) comprised of the two bytes</span>
+          <span class="comment">// of this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variable&#39;</span>
+          <span class="comment">// is undefined.  Note that the value will be zero-extended.</span>
+
+      InStream&amp; getInt8(<span class="keywordtype">char</span>&amp;        variable);
+      InStream&amp; getInt8(<span class="keywordtype">signed</span> <span class="keywordtype">char</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the one-byte, two&#39;s complement</span>
+          <span class="comment">// integer comprised of the one byte of this stream at the current</span>
+          <span class="comment">// cursor location, update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// sign-extended.</span>
+
+      InStream&amp; getUint8(<span class="keywordtype">char</span>&amp;          variable);
+      InStream&amp; getUint8(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the one-byte, two&#39;s complement</span>
+          <span class="comment">// unsigned integer comprised of the one byte of this stream at the</span>
+          <span class="comment">// current cursor location, update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variable&#39; is undefined.  Note that the value will be</span>
+          <span class="comment">// zero-extended.</span>
+
+                        <span class="comment">// *** scalar floating-point values ***</span>
+
+      InStream&amp; getFloat64(<span class="keywordtype">double</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the eight-byte IEEE</span>
+          <span class="comment">// double-precision floating-point number (in host byte order)</span>
+          <span class="comment">// comprised of the eight bytes of this stream at the current cursor</span>
+          <span class="comment">// location (in network byte order), update the cursor location, and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.  If this function otherwise</span>
+          <span class="comment">// fails to extract a valid value, this stream is marked invalid and</span>
+          <span class="comment">// the value of &#39;variable&#39; is undefined.</span>
+
+      InStream&amp; getFloat32(<span class="keywordtype">float</span>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the four-byte IEEE</span>
+          <span class="comment">// single-precision floating-point number (in host byte order)</span>
+          <span class="comment">// comprised of the four bytes of this stream at the current cursor</span>
+          <span class="comment">// location (in network byte order), update the cursor location, and</span>
+          <span class="comment">// return a reference to this stream.  If this stream is initially</span>
+          <span class="comment">// invalid, this operation has no effect.  If this function otherwise</span>
+          <span class="comment">// fails to extract a valid value, this stream is marked invalid and</span>
+          <span class="comment">// the value of &#39;variable&#39; is undefined.</span>
+
+                        <span class="comment">// *** string values ***</span>
+
+      InStream&amp; getString(<a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; variable);
+          <span class="comment">// Assign to the specified &#39;variable&#39; the string comprised of the</span>
+          <span class="comment">// length of the string (see &#39;getLength&#39;) and the string data (see</span>
+          <span class="comment">// &#39;getUint8&#39;), update the cursor location, and return a reference to</span>
+          <span class="comment">// this stream.  If this stream is initially invalid, this operation</span>
+          <span class="comment">// has no effect.  If this function otherwise fails to extract a</span>
+          <span class="comment">// valid value, this stream is marked invalid and the value of</span>
+          <span class="comment">// &#39;variable&#39; is undefined.</span>
+
+                        <span class="comment">// *** arrays of integer values ***</span>
+
+      InStream&amp; getArrayInt64(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive eight-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; eight-byte sequences of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint64(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *variables,
+                               <span class="keywordtype">int</span>                  numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive eight-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; eight-byte sequences of</span>
+          <span class="comment">// this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variables&#39;</span>
+          <span class="comment">// is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt56(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive seven-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; seven-byte sequences of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint56(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *variables,
+                               <span class="keywordtype">int</span>                  numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive seven-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; seven-byte sequences of</span>
+          <span class="comment">// this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variables&#39;</span>
+          <span class="comment">// is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt48(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive six-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; six-byte sequences of this stream</span>
+          <span class="comment">// at the current cursor location (in network byte order), update the</span>
+          <span class="comment">// cursor location, and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.  If</span>
+          <span class="comment">// this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint48(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *variables,
+                               <span class="keywordtype">int</span>                  numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive six-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; six-byte sequences of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt40(<a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive five-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; five-byte sequences of this stream</span>
+          <span class="comment">// at the current cursor location (in network byte order), update the</span>
+          <span class="comment">// cursor location, and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.  If</span>
+          <span class="comment">// this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint40(<a class="code" href="structbsls_1_1Types.html#a62cdf73ffc20667bc9de36b07c9c25f0">bsls::Types::Uint64</a> *variables,
+                               <span class="keywordtype">int</span>                  numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive five-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; five-byte sequences of</span>
+          <span class="comment">// this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variables&#39;</span>
+          <span class="comment">// is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt32(<span class="keywordtype">int</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive four-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; four-byte sequences of this stream</span>
+          <span class="comment">// at the current cursor location (in network byte order), update the</span>
+          <span class="comment">// cursor location, and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.  If</span>
+          <span class="comment">// this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint32(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive four-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; four-byte sequences of</span>
+          <span class="comment">// this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variables&#39;</span>
+          <span class="comment">// is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt24(<span class="keywordtype">int</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive three-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; three-byte sequences of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint24(<span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive three-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; three-byte sequences of</span>
+          <span class="comment">// this stream at the current cursor location (in network byte</span>
+          <span class="comment">// order), update the cursor location, and return a reference to this</span>
+          <span class="comment">// stream.  If this stream is initially invalid, this operation has</span>
+          <span class="comment">// no effect.  If this function otherwise fails to extract a valid</span>
+          <span class="comment">// value, this stream is marked invalid and the value of &#39;variables&#39;</span>
+          <span class="comment">// is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt16(<span class="keywordtype">short</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive two-byte,</span>
+          <span class="comment">// two&#39;s complement integers (in host byte order) comprised of each</span>
+          <span class="comment">// of the specified &#39;numVariables&#39; two-byte sequences of this stream</span>
+          <span class="comment">// at the current cursor location (in network byte order), update the</span>
+          <span class="comment">// cursor location, and return a reference to this stream.  If this</span>
+          <span class="comment">// stream is initially invalid, this operation has no effect.  If</span>
+          <span class="comment">// this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint16(<span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive two-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers (in host byte order) comprised</span>
+          <span class="comment">// of each of the specified &#39;numVariables&#39; two-byte sequences of this</span>
+          <span class="comment">// stream at the current cursor location (in network byte order),</span>
+          <span class="comment">// update the cursor location, and return a reference to this stream.</span>
+          <span class="comment">// If this stream is initially invalid, this operation has no effect.</span>
+          <span class="comment">// If this function otherwise fails to extract a valid value, this</span>
+          <span class="comment">// stream is marked invalid and the value of &#39;variables&#39; is</span>
+          <span class="comment">// undefined.  The behavior is undefined unless &#39;0 &lt;= numVariables&#39;</span>
+          <span class="comment">// and &#39;variables&#39; has sufficient capacity.  Note that each of the</span>
+          <span class="comment">// values will be zero-extended.</span>
+
+      InStream&amp; getArrayInt8(<span class="keywordtype">char</span> *variables,        <span class="keywordtype">int</span> numVariables);
+      InStream&amp; getArrayInt8(<span class="keywordtype">signed</span> <span class="keywordtype">char</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive one-byte,</span>
+          <span class="comment">// two&#39;s complement integers comprised of each of the specified</span>
+          <span class="comment">// &#39;numVariables&#39; one-byte sequences of this stream at the current</span>
+          <span class="comment">// cursor location, update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variables&#39; is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be sign-extended.</span>
+
+      InStream&amp; getArrayUint8(<span class="keywordtype">char</span> *variables,          <span class="keywordtype">int</span> numVariables);
+      InStream&amp; getArrayUint8(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive one-byte,</span>
+          <span class="comment">// two&#39;s complement unsigned integers comprised of each of the</span>
+          <span class="comment">// specified &#39;numVariables&#39; one-byte sequences of this stream at the</span>
+          <span class="comment">// current cursor location, update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variables&#39; is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.  Note</span>
+          <span class="comment">// that each of the values will be zero-extended.</span>
+
+                        <span class="comment">// *** arrays of floating-point values ***</span>
+
+      InStream&amp; getArrayFloat64(<span class="keywordtype">double</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive eight-byte</span>
+          <span class="comment">// IEEE double-precision floating-point numbers (in host byte order)</span>
+          <span class="comment">// comprised of each of the specified &#39;numVariables&#39; eight-byte</span>
+          <span class="comment">// sequences of this stream at the current cursor location (in</span>
+          <span class="comment">// network byte order), update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variables&#39; is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.</span>
+
+      InStream&amp; getArrayFloat32(<span class="keywordtype">float</span> *variables, <span class="keywordtype">int</span> numVariables);
+          <span class="comment">// Assign to the specified &#39;variables&#39; the consecutive four-byte IEEE</span>
+          <span class="comment">// single-precision floating-point numbers (in host byte order)</span>
+          <span class="comment">// comprised of each of the specified &#39;numVariables&#39; four-byte</span>
+          <span class="comment">// sequences of this stream at the current cursor location (in</span>
+          <span class="comment">// network byte order), update the cursor location, and return a</span>
+          <span class="comment">// reference to this stream.  If this stream is initially invalid,</span>
+          <span class="comment">// this operation has no effect.  If this function otherwise fails to</span>
+          <span class="comment">// extract a valid value, this stream is marked invalid and the value</span>
+          <span class="comment">// of &#39;variables&#39; is undefined.  The behavior is undefined unless</span>
+          <span class="comment">// &#39;0 &lt;= numVariables&#39; and &#39;variables&#39; has sufficient capacity.</span>
+
+      <span class="comment">// ACCESSORS</span>
+      operator const void *() <span class="keyword">const</span>;
+          <span class="comment">// Return a non-zero value if this stream is valid, and 0 otherwise.</span>
+          <span class="comment">// An invalid stream is a stream for which an input operation was</span>
+          <span class="comment">// detected to have failed.</span>
+
+      bsl::size_t cursor() <span class="keyword">const</span>;
+          <span class="comment">// Return the index of the next byte to be extracted from this</span>
+          <span class="comment">// stream.</span>
+
+      <span class="keyword">const</span> <span class="keywordtype">char</span> *data() <span class="keyword">const</span>;
+          <span class="comment">// Return the address of the contiguous, non-modifiable external</span>
+          <span class="comment">// memory buffer of this stream.  The behavior of accessing elements</span>
+          <span class="comment">// outside the range &#39;[ data() .. data() + (length() - 1) ]&#39; is</span>
+          <span class="comment">// undefined.</span>
+
+      <span class="keywordtype">bool</span> isValid() <span class="keyword">const</span>;
+          <span class="comment">// Return &#39;true&#39; if this stream is valid, and &#39;false&#39; otherwise.  An</span>
+          <span class="comment">// invalid stream is a stream in which insufficient or invalid data</span>
+          <span class="comment">// was detected during an extraction operation.  Note that an empty</span>
+          <span class="comment">// stream will be valid unless an extraction attempt or explicit</span>
+          <span class="comment">// invalidation causes it to be otherwise.</span>
+
+      <span class="keywordtype">bool</span> isEmpty() <span class="keyword">const</span>;
+          <span class="comment">// Return &#39;true&#39; if this stream is empty, and &#39;false&#39; otherwise.</span>
+          <span class="comment">// Note that this function enables higher-level types to verify that,</span>
+          <span class="comment">// after successfully reading all expected data, no data remains.</span>
+
+      bsl::size_t length() <span class="keyword">const</span>;
+          <span class="comment">// Return the total number of bytes stored in the external memory</span>
+          <span class="comment">// buffer.</span>
+
+   <span class="comment">// FREE OPERATORS</span>
+   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
+   InStream&amp; <a class="code" href="namespacebdlc.html#aa769ff53ac041a71ffe7140e39efb85d">operator&gt;&gt;</a>(InStream&amp; stream, TYPE&amp; value);
+       <span class="comment">// Read the specified &#39;value&#39; from the specified input &#39;stream&#39;</span>
+       <span class="comment">// following the requirements of the BDEX protocol (see the &#39;bslx&#39;</span>
+       <span class="comment">// package-level documentation), and return a reference to &#39;stream&#39;.</span>
+       <span class="comment">// The behavior is undefined unless &#39;TYPE&#39; is BDEX-compliant.</span>
+</pre></div><br/>
+<br/>
+ </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:24 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:00 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

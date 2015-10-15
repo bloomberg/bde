@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_hashtable Component</title>
+<title>BDE 3.0: bslstl_hashtable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -157,7 +157,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception_safety"></a> <a class="anchor" id="description.exception_safety"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Exception Safety: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The operations of a <code>HashTable</code> provide the strong exception guarantee (see {'bsldoc_glossary')) except in the presence of a hash-functor or equality-comparator that throws exceptions. If either the hash-function or equality-comparator throws an exception from a non-const method, <code>HashTable</code> provides only the basic exception guarantee, and the operation will leave the container in a valid but unspecified (potentially empty) state. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The operations of a <code>HashTable</code> provide the strong exception guarantee (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>) except in the presence of a hash-functor or equality-comparator that throws exceptions. If either the hash-functor or equality-comparator throws an exception from a non-const method, <code>HashTable</code> provides only the basic exception guarantee, and the operation will leave the container in a valid but unspecified (potentially empty) state. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="internal_data_structure"></a> <a class="anchor" id="description.internal_data_structure"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Internal Data Structure: </b></dt><dd></dd></dl>
@@ -250,7 +250,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; MyPair objects have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  &#39;lhs&#39; has the same value as</span>
@@ -258,7 +258,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; MyPair objects do not</span>
       <span class="comment">// have the same value, and &#39;false&#39; otherwise.  &#39;lhs&#39; does not have the</span>
@@ -290,7 +290,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.first == rhs.first &amp;&amp; lhs.second == rhs.second;
@@ -298,7 +298,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.first != rhs.first || lhs.second != rhs.second;
@@ -358,7 +358,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
           <span class="comment">// &#39;bsl::allocator&#39; (the default), then &#39;allocator&#39; shall be</span>
           <span class="comment">// convertible to &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is</span>
           <span class="comment">// &#39;bsl::allocator&#39; and &#39;allocator&#39; is not supplied, the currently</span>
-          <span class="comment">// installed default allocator will be used to supply memory.</span>
+          <span class="comment">// installed default allocator is used to supply memory.</span>
 
           <span class="comment">// Destroy this object.</span>
 
@@ -387,7 +387,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
           <span class="comment">// entry exists, and the iterator returned by the &#39;cend&#39; method</span>
           <span class="comment">// otherwise.</span>
 
-      size_type size() <span class="keyword">const</span>;
+      size_type <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements in this set.</span>
   };
 </pre></div><br/>
@@ -458,7 +458,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> KEY, <span class="keyword">class</span> HASH, <span class="keyword">class</span> EQUAL, <span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keyword">inline</span>
   <span class="keyword">typename</span> MyHashedSet&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size_type
-           MyHashedSet&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size()<span class="keyword"> const</span>
+           <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">MyHashedSet&lt;KEY, HASH, EQUAL, ALLOCATOR&gt;::size</a>()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_impl.size();
   }
@@ -482,7 +482,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   assert(true  ==  status.second);
 
   status = mhs.insert(10);
-  assert( 1    ==  mhs.size());
+  assert( 1    ==  mhs.<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>());
   assert(10    == *status.first)
   assert(false ==  status.second);
 </pre></div><br/>
@@ -613,7 +613,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
       <span class="comment">// default), then &#39;allocator&#39; shall be convertible to</span>
       <span class="comment">// &#39;bslma::Allocator *&#39;.  If &#39;ALLOCATOR&#39; is &#39;bsl::allocator&#39; and</span>
       <span class="comment">// &#39;allocator&#39; is not supplied, the currently installed default</span>
-      <span class="comment">// allocator will be used to supply memory.  Note that more than</span>
+      <span class="comment">// allocator is used to supply memory.  Note that more than</span>
       <span class="comment">// &#39;initialNumBuckets&#39; buckets may be created in order to preserve the</span>
       <span class="comment">// bucket allocation strategy of the hash-table (but never fewer).</span>
 
@@ -626,9 +626,9 @@ This and the subsequent examples in this component use the <code><a class="el" h
           <span class="comment">// unordered map; if this unordered map does not already contain a</span>
           <span class="comment">// &#39;value_type&#39; object with &#39;key&#39;, first insert a new &#39;value_type&#39;</span>
           <span class="comment">// object having &#39;key&#39; and a default-constructed &#39;VALUE&#39; object.</span>
-          <span class="comment">// This method requires that the (template parameter) type &#39;KEY&#39; is</span>
-          <span class="comment">// &quot;copy-constructible&quot; and the (template parameter) &#39;VALUE&#39; is</span>
-          <span class="comment">// &quot;default-constructible&quot;.</span>
+          <span class="comment">// Note that this method requires that the (template parameter)</span>
+          <span class="comment">// type &#39;KEY&#39; is &quot;copy-constructible&quot; and the (template parameter)</span>
+          <span class="comment">// &#39;VALUE&#39; is &quot;default-constructible&quot;.</span>
   };
 </pre></div><br/>
 <br/>
@@ -761,7 +761,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
       <span class="comment">// default), then &#39;allocator&#39; shall be convertible to</span>
       <span class="comment">// &#39;bslma::Allocator *&#39;.  If the &#39;ALLOCATOR&#39; is &#39;bsl::allocator&#39; and</span>
       <span class="comment">// &#39;allocator&#39; is not supplied, the currently installed default</span>
-      <span class="comment">// allocator will be used to supply memory.</span>
+      <span class="comment">// allocator is used to supply memory.</span>
 
           <span class="comment">// Destroy this object.</span>
 
@@ -769,11 +769,11 @@ This and the subsequent examples in this component use the <code><a class="el" h
       <span class="keyword">template</span> &lt;<span class="keyword">class</span> SOURCE_TYPE&gt;
       iterator insert(<span class="keyword">const</span> SOURCE_TYPE&amp; value);
           <span class="comment">// Insert the specified &#39;value&#39; into this multi-map, and return an</span>
-          <span class="comment">// iterator to the newly inserted element.  This method requires</span>
-          <span class="comment">// that the (class template parameter) types &#39;KEY&#39; and &#39;VALUE&#39;</span>
-          <span class="comment">// types both be &quot;copy-constructible&quot;, and that the (function</span>
-          <span class="comment">// template parameter) &#39;SOURCE_TYPE&#39; be convertible to the</span>
-          <span class="comment">// (class template parameter) &#39;VALUE&#39; type.</span>
+          <span class="comment">// iterator to the newly inserted element.  Note that this method</span>
+          <span class="comment">// requires that the (class template parameter) types &#39;KEY&#39; and</span>
+          <span class="comment">// &#39;VALUE&#39; types both be &quot;copy-constructible&quot;, and that the</span>
+          <span class="comment">// (function template parameter) &#39;SOURCE_TYPE&#39; be convertible to</span>
+          <span class="comment">// the (class template parameter) &#39;VALUE&#39; type.</span>
 
       <span class="comment">// ACCESSORS</span>
       MyPair&lt;const_iterator, const_iterator&gt; equal_range(<span class="keyword">const</span> KEY&amp; key)
@@ -783,7 +783,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
           <span class="comment">// the specified &#39;key&#39;, where the the first iterator is positioned</span>
           <span class="comment">// at the start of the sequence and the second iterator is</span>
           <span class="comment">// positioned one past the end of the sequence.  If this container</span>
-          <span class="comment">// contains no &#39;value_type&#39; objects matching &#39;key&#39; then the two</span>
+          <span class="comment">// contains no &#39;value_type&#39; objects matching &#39;key&#39;, then the two</span>
           <span class="comment">// returned iterators will have the same value.</span>
   };
 </pre></div><br/>
@@ -1069,7 +1069,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
                                                                   ItrPtrById;
 </pre></div><br/>
 <br/>
- If we were to provide iterators of type <code>ItrPtrById</code> to our users, dereferencing the iterator would provide a <code>MySalesRecord</code> pointer, which would then have to be dereferences. Instead, we use <code>ItrPtrById</code> to define <code>ItrById</code> in which accessors have been overriden to provide that extra dereference implicitly. <br/>
+ If we were to provide iterators of type <code>ItrPtrById</code> to our users, dereferencing the iterator would provide a <code>MySalesRecord</code> pointer, which would then have to be dereferences. Instead, we use <code>ItrPtrById</code> to define <code>ItrById</code> in which accessors have been overridden to provide that extra dereference implicitly. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <span class="keyword">class </span>ItrById : <span class="keyword">public</span> ItrPtrById
       {
@@ -1408,7 +1408,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

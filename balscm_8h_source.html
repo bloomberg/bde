@@ -1,0 +1,45 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balscm.txt
+
+@PURPOSE: Provide versioning information for library components in &#39;bal&#39;
+
+@MNEMONIC: Basic Application Environment Source Control Management (balscm)
+
+@SEE_ALSO: bdescm
+
+@DESCRIPTION: This package is for use only by the BDE library.  Components in
+ the &#39;bal&#39; package group include this component in order to generate versioning
+ information.  Developers use this versioning information to track releases of
+ individual components when diagnosing problems using the &#39;bal&#39; library.
+
+ This component is only used within the &#39;bal&#39; package group.  Each BDE package
+ group contains a similar component that provides the same functionality for
+ components in that package group.  Thus separate package groups can be
+ deployed independently from one another.
+
+ In normal usage, developers should not need to refer to this component.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balscm&#39; package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. balscm_version
+
+  1. balscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: &#39;balscm_version&#39;:
+:      Provide source control management (versioning) information.
+:
+: &#39;balscm_versiontag&#39;:
+:      Provide versioning information for the &#39;bae&#39; package group.
+</pre>
+</body>
+</html>

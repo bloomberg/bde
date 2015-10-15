@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_movableref Component</title>
+<title>BDE 3.0: bslmf_movableref Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -159,7 +159,7 @@ Users of a potentially move-enabled class may take advantage of moving objects b
       TYPE *d_end;
       TYPE *d_endBuffer;
 
-      <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(TYPE*&amp; a, TYPE*&amp; b);
+      <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(TYPE*&amp; a, TYPE*&amp; b);
           <span class="comment">// Swap the specified pointers &#39;a&#39; and &#39;b&#39;.</span>
 
     <span class="keyword">public</span>:
@@ -218,10 +218,10 @@ Users of a potentially move-enabled class may take advantage of moving objects b
           <span class="comment">// Reserve enough capacity to fit at least as many elements as</span>
           <span class="comment">// specified by &#39;newCapacity&#39;.</span>
 
-      <span class="keywordtype">int</span> size()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> int(this-&gt;d_end - this-&gt;d_begin); }
+      <span class="keywordtype">int</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> int(this-&gt;d_end - this-&gt;d_begin); }
           <span class="comment">// Return the size of the object.</span>
 
-      <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(vector&amp; other);
+      <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(vector&amp; other);
           <span class="comment">// Swap the content of the vector with the specified &#39;other&#39;.</span>
   };
 </pre></div><br/>
@@ -238,21 +238,21 @@ Users of a potentially move-enabled class may take advantage of moving objects b
   }
 </pre></div><br/>
 <br/>
- To leverage already implemented functionality some of the member functions operate on a temporary <code>vector&lt;TYPE&gt;</code> and move the result into place using the <code><a class="el" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap()</a></code> member function that simply does a memberwise <code><a class="el" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap()</a></code> (the function swapping pointers is implemented here to avoid any dependency on functions defined in another level): <br/>
+ To leverage already implemented functionality some of the member functions operate on a temporary <code>vector&lt;TYPE&gt;</code> and move the result into place using the <code><a class="el" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap()</a></code> member function that simply does a memberwise <code><a class="el" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap()</a></code> (the function swapping pointers is implemented here to avoid any dependency on functions defined in another level): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">vector&lt;TYPE&gt;::swap</a>(TYPE*&amp; a, TYPE*&amp; b)
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">vector&lt;TYPE&gt;::swap</a>(TYPE*&amp; a, TYPE*&amp; b)
   {
       TYPE *tmp = a;
       a = b;
       b = tmp;
   }
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">vector&lt;TYPE&gt;::swap</a>(vector&amp; other)
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">vector&lt;TYPE&gt;::swap</a>(vector&amp; other)
   {
-      this-&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(this-&gt;d_begin, other.d_begin);
-      this-&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(this-&gt;d_end, other.d_end);
-      this-&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(this-&gt;d_endBuffer, other.d_endBuffer);
+      this-&gt;<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(this-&gt;d_begin, other.d_begin);
+      this-&gt;<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(this-&gt;d_end, other.d_end);
+      this-&gt;<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(this-&gt;d_endBuffer, other.d_endBuffer);
   }
 </pre></div><br/>
 <br/>
@@ -272,7 +272,7 @@ Users of a potentially move-enabled class may take advantage of moving objects b
               <span class="keyword">new</span> (tmp.d_end) TYPE(*it);
               ++tmp.d_end;
           }
-          this-&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(tmp);
+          this-&gt;<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(tmp);
       }
   }
 </pre></div><br/>
@@ -312,12 +312,12 @@ Users of a potentially move-enabled class may take advantage of moving objects b
   }
 </pre></div><br/>
 <br/>
- A simple copy assignment operator can be implemented in terms of copy/move constructors, <code><a class="el" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap()</a></code>, and destructor (in a real implementation the copy assignment would probably try to use already allocated objects). In this implementation that argument is taken by value, i.e., the argument is already constructed using copy or move construction (which may have been elided), the content of <code>this</code> is swapped with the content of <code>other</code> leaving this in the desired state, and the destructor will release the former representation of <code>this</code> when <code>other</code> is destroyed': <br/>
+ A simple copy assignment operator can be implemented in terms of copy/move constructors, <code><a class="el" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap()</a></code>, and destructor (in a real implementation the copy assignment would probably try to use already allocated objects). In this implementation that argument is taken by value, i.e., the argument is already constructed using copy or move construction (which may have been elided), the content of <code>this</code> is swapped with the content of <code>other</code> leaving this in the desired state, and the destructor will release the former representation of <code>this</code> when <code>other</code> is destroyed': <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
   vector&lt;TYPE&gt;&amp; vector&lt;TYPE&gt;::operator= (vector other)
   {
-      this-&gt;<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">swap</a>(other);
+      this-&gt;<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">swap</a>(other);
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
 </pre></div><br/>
@@ -328,7 +328,7 @@ Users of a potentially move-enabled class may take advantage of moving objects b
   <span class="keywordtype">void</span> vector&lt;TYPE&gt;::push_back(<span class="keyword">const</span> TYPE&amp; value)
   {
       <span class="keywordflow">if</span> (this-&gt;d_end == this-&gt;d_endBuffer) {
-          this-&gt;reserve(this-&gt;size()? <span class="keywordtype">int</span>(1.5 * this-&gt;size()): 4);
+          this-&gt;reserve(this-&gt;<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>()? <span class="keywordtype">int</span>(1.5 * this-&gt;<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>()): 4);
       }
       assert(this-&gt;d_end != this-&gt;d_endBuffer);
       <span class="keyword">new</span>(this-&gt;d_end) TYPE(value);
@@ -358,7 +358,7 @@ Users of a potentially move-enabled class may take advantage of moving objects b
   <span class="keywordtype">void</span> vector&lt;TYPE&gt;::push_back(<a class="code" href="classbslmf_1_1MovableRef.html">bslmf::MovableRef&lt;TYPE&gt;</a> value)
   {
       <span class="keywordflow">if</span> (this-&gt;d_end == this-&gt;d_endBuffer) {
-          this-&gt;reserve(this-&gt;size()? <span class="keywordtype">int</span>(1.5 * this-&gt;size()): 4);
+          this-&gt;reserve(this-&gt;<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>()? <span class="keywordtype">int</span>(1.5 * this-&gt;<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>()): 4);
       }
       assert(this-&gt;d_end != this-&gt;d_endBuffer);
       <span class="keyword">new</span>(this-&gt;d_end) TYPE(<a class="code" href="structbslmf_1_1MovableRefUtil.html#a81937fc82df2e42449aa541ec1954bb7">bslmf::MovableRefUtil::move</a>(value));
@@ -402,7 +402,7 @@ Users of a potentially move-enabled class may take advantage of moving objects b
   vvector.push_back(vector2);                          <span class="comment">// copy</span>
   assert(vector2.size() == 5);
   assert(vvector.size() == 1);
-  assert(vvector[0].size() == vector2.size());
+  assert(vvector[0].<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() == vector2.size());
   assert(vvector[0].begin() != first);
   <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != 5; ++i) {
       assert(vvector[0][i] == i);
@@ -415,12 +415,12 @@ Users of a potentially move-enabled class may take advantage of moving objects b
 <div class="fragment"><pre class="fragment">  vvector.push_back(<a class="code" href="structbslmf_1_1MovableRefUtil.html#a81937fc82df2e42449aa541ec1954bb7">bslmf::MovableRefUtil::move</a>(vector2)); <span class="comment">// move</span>
   assert(vvector.size() == 2);
   assert(vvector[1].begin() == first);
-  assert(vvector[1].size() == 5);
+  assert(vvector[1].<a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() == 5);
 </pre></div><br/>
 <br/>
  Compiling this code with both C++03 and C++11 compilers shows that there is no need for conditional compilation in when using <code>MovableRef&lt;TYPE&gt;</code> while move semantics is enabled in both modes. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

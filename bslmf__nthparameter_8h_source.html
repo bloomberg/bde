@@ -1,0 +1,932 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmf_nthparameter.h                  -*-C++-*-
+#ifndef INCLUDED_BSLMF_NTHPARAMETER
+#define INCLUDED_BSLMF_NTHPARAMETER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Metafunction to return the Nth type parameter in a parameter pack
+//
+//@CLASSES: bslmf::NthParameter&lt;N, PARAM_0, PARAMS...&gt;
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component contains a metafunction that treates a
+// parameter pack of types as compile-time array of types, returning the Nth
+// type (counting from zero).  It is useful for implementing types like
+// &#39;tuple&#39; that need access to a specific element of a parameter pack.
+//
+///Usage
+///-----
+// We wish to implement a &#39;tuple&#39;-like class that holds a heterogenous
+// collection of elements, each of which might have a different type.  The
+// metafunction, &#39;my_tuple_element&lt;I, my_tuple&lt;ELEMS...&gt;&gt;::Type&#39; would be type
+// of the &#39;I&#39;th element in the tuple (where &#39;I&#39; is zero-based).
+//
+// First, we define our &#39;my_tuple&#39; class template.  The body of the class is
+// unimportant for this usage examples:
+//..
+// template &lt;class... ELEMS&gt;
+// class my_tuple {
+//     // ...
+// };
+//..
+// Then, we use &#39;bslmf::NthParameter&#39; to implement &#39;my_tuple_element&#39;:
+//..
+// #include &lt;bslmf_nthparameter.h&gt;
+//
+// template &lt;std::size_t I, class TUPLE&gt;
+// struct my_tuple_element;  // Not defined
+//
+// template &lt;std::size_t I, class... ELEMS&gt;
+// struct my_tuple_element&lt;I, my_tuple&lt;ELEMS...&gt; &gt; {
+//     typedef typename bslmf::NthParameter&lt;I, ELEMS...&gt;::Type Type;
+// };
+//..
+// Finally, we test this implementation using &#39;bsl::is_same&#39;:
+//..
+// #include &lt;bslmf_issame.h&gt;
+//
+// int main()
+// {
+//    typedef my_tuple&lt;int, short, char*&gt; ttype;
+//
+//    assert((bsl::is_same&lt;int,    my_tuple_element&lt;0, ttype&gt;::Type&gt;::value));
+//    assert((bsl::is_same&lt;short,  my_tuple_element&lt;1, ttype&gt;::Type&gt;::value));
+//    assert((bsl::is_same&lt;char *, my_tuple_element&lt;2, ttype&gt;::Type&gt;::value));
+//
+//    assert(! (bsl::is_same&lt;short, my_tuple_element&lt;0, ttype&gt;::Type&gt;::value));
+// }
+//..
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_CSTDLIB
+#include &lt;cstdlib&gt;
+#define INCLUDED_CSTDLIB
+#endif
+
+namespace BloombergLP {
+
+namespace bslmf {
+
+struct NthParameter_Sentinel;  // Declared but not defined
+
+                        // ===========================
+                        // class template NthParameter
+                        // ===========================
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
+
+template &lt;std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
+          class... PARAMS&gt;
+struct NthParameter {
+    // Metafunction to compute the specified &#39;N&#39;th element of the spcified
+    // &#39;PARAMS&#39; template parameter pack.  The &#39;Type&#39; nested typedef will match
+    // the &#39;N&#39;th element of &#39;PARAMS&#39;, where &#39;N&#39; is zero-based (so that an &#39;N&#39;
+    // of zero corresponds to the first parameter.
+
+    typedef typename NthParameter&lt;N - 1, PARAMS...&gt;::Type Type;
+        // The type of the Nth parameter, computed by recursively stripping
+        // off the first parameter until N == 0.
+};
+
+// ===========================================================================
+//                      IMPLEMENTATION
+// ===========================================================================
+
+template &lt;class FIRST_PARAM, class... PARAMS&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS...&gt; {
+    // Specialization of &#39;NthParameter&#39; for when &#39;N&#39; is zero.
+
+    typedef FIRST_PARAM Type;
+        // The type of the 0th parameter.
+};
+
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// The following section is automatically generated.  **DO NOT EDIT**
+// Generator command line: sim_cpp11_features.pl bslmf_nthparameter.h
+
+template &lt;std::size_t N,
+          class FIRST_PARAM = NthParameter_Sentinel,
+          class PARAMS_0 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_1 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_2 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_3 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_4 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_5 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_6 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_7 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_8 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_9 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_10 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_11 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_12 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_13 = BSLS_COMPILERFEATURES_NILT,
+          class PARAMS_14 = BSLS_COMPILERFEATURES_NILT,
+          class = BSLS_COMPILERFEATURES_NILT&gt;
+struct NthParameter;
+
+template &lt;std::size_t N, class FIRST_PARAM&gt;
+struct NthParameter&lt;N, FIRST_PARAM&gt; {
+
+    typedef typename NthParameter&lt;N - 1&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10,
+                                            class PARAMS_11&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10,
+                                         PARAMS_11&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10,
+                                            class PARAMS_11,
+                                            class PARAMS_12&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10,
+                                         PARAMS_11,
+                                         PARAMS_12&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10,
+                                            class PARAMS_11,
+                                            class PARAMS_12,
+                                            class PARAMS_13&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10,
+                                         PARAMS_11,
+                                         PARAMS_12,
+                                         PARAMS_13&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10,
+                                            class PARAMS_11,
+                                            class PARAMS_12,
+                                            class PARAMS_13,
+                                            class PARAMS_14&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13,
+                                    PARAMS_14&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10,
+                                         PARAMS_11,
+                                         PARAMS_12,
+                                         PARAMS_13,
+                                         PARAMS_14&gt;::Type Type;
+};
+
+template &lt;std::size_t N, class FIRST_PARAM, class PARAMS_01,
+                                            class PARAMS_02,
+                                            class PARAMS_03,
+                                            class PARAMS_04,
+                                            class PARAMS_05,
+                                            class PARAMS_06,
+                                            class PARAMS_07,
+                                            class PARAMS_08,
+                                            class PARAMS_09,
+                                            class PARAMS_10,
+                                            class PARAMS_11,
+                                            class PARAMS_12,
+                                            class PARAMS_13,
+                                            class PARAMS_14,
+                                            class PARAMS_15&gt;
+struct NthParameter&lt;N, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13,
+                                    PARAMS_14,
+                                    PARAMS_15&gt; {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS_01,
+                                         PARAMS_02,
+                                         PARAMS_03,
+                                         PARAMS_04,
+                                         PARAMS_05,
+                                         PARAMS_06,
+                                         PARAMS_07,
+                                         PARAMS_08,
+                                         PARAMS_09,
+                                         PARAMS_10,
+                                         PARAMS_11,
+                                         PARAMS_12,
+                                         PARAMS_13,
+                                         PARAMS_14,
+                                         PARAMS_15&gt;::Type Type;
+};
+
+
+
+template &lt;class FIRST_PARAM&gt;
+struct NthParameter&lt;0, FIRST_PARAM&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10,
+                             class PARAMS_11&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10,
+                             class PARAMS_11,
+                             class PARAMS_12&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10,
+                             class PARAMS_11,
+                             class PARAMS_12,
+                             class PARAMS_13&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10,
+                             class PARAMS_11,
+                             class PARAMS_12,
+                             class PARAMS_13,
+                             class PARAMS_14&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13,
+                                    PARAMS_14&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+template &lt;class FIRST_PARAM, class PARAMS_01,
+                             class PARAMS_02,
+                             class PARAMS_03,
+                             class PARAMS_04,
+                             class PARAMS_05,
+                             class PARAMS_06,
+                             class PARAMS_07,
+                             class PARAMS_08,
+                             class PARAMS_09,
+                             class PARAMS_10,
+                             class PARAMS_11,
+                             class PARAMS_12,
+                             class PARAMS_13,
+                             class PARAMS_14,
+                             class PARAMS_15&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS_01,
+                                    PARAMS_02,
+                                    PARAMS_03,
+                                    PARAMS_04,
+                                    PARAMS_05,
+                                    PARAMS_06,
+                                    PARAMS_07,
+                                    PARAMS_08,
+                                    PARAMS_09,
+                                    PARAMS_10,
+                                    PARAMS_11,
+                                    PARAMS_12,
+                                    PARAMS_13,
+                                    PARAMS_14,
+                                    PARAMS_15&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+
+template &lt;std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
+          class... PARAMS&gt;
+struct NthParameter {
+
+    typedef typename NthParameter&lt;N - 1, PARAMS...&gt;::Type Type;
+};
+
+
+template &lt;class FIRST_PARAM, class... PARAMS&gt;
+struct NthParameter&lt;0, FIRST_PARAM, PARAMS...&gt; {
+
+    typedef FIRST_PARAM Type;
+};
+
+// }}} END GENERATED CODE
+#endif
+
+template &lt;&gt;
+struct NthParameter&lt;0, NthParameter_Sentinel&gt; {
+    // Specialization of &#39;NthParameter&#39; for when &#39;N&#39; excedes the actual
+    // number of parameters.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    // No &#39;Type&#39; member is defined.
+#else
+    // Because this is a full specialization, there are no dependent
+    // parameters.  When used in another simulated variadic template, the
+    // compiler may attempt to evaluate the &#39;Type&#39; member even when that
+    // client is not actually instantiated.  To avoid a spurious compilation
+    // error, we must therefore make sure that &#39;Type&#39; is defined, even if it
+    // is defined as an incomplete class.
+    typedef NthParameter_Sentinel Type;
+#endif
+
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif // ! defined(INCLUDED_BSLMF_NTHPARAMETER)
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2013 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

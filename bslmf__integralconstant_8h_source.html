@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_integralconstant.h                                           -*-C++-*-
@@ -98,8 +98,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //        return 0;
 //    }
 //..
-///Example 2: Base class for metafunctions
-/// - - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Base Class For Metafunctions
+///- - - - - - - - - - - - - - - - - - - -
 // Hard-coding the value of an &#39;integral_constant&#39; is not especially useful.
 // Rather, &#39;integral_constant&#39; is typically used as the base class for
 // &quot;metafunction&quot; classes, classes that yield the value of compile-time
@@ -154,8 +155,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bslmf {
 template &lt;int&gt; struct MetaInt;
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -227,9 +228,9 @@ typedef integral_constant&lt;bool, true&gt; true_type;
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // STATIC MEMBER VARIABLES
 template &lt;class TYPE, TYPE VAL&gt;

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_alignmentimp Component</title>
+<title>BDE 3.0: bsls_alignmentimp Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -132,7 +132,7 @@ Namespaces</h2></td></tr>
  The compiler lays this structure out in memory as follows: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  +---+---+-------+
-  |d_c| P |  d_t  |
+  |d_c| <a class="code" href="bdlf__bind__test_8h.html#a6dce1d51457f0415ec5302d3c05cded5">P</a> |  d_t  |
   +---+---+-------+
 </pre></div><br/>
 <br/>
@@ -184,6 +184,7 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_types_supporting_alignmenttotype"></a> <a class="anchor" id="usage.example_2~3A_types_supporting_alignmenttotype"></a> <a class="anchor" id="description.usage.example_2~3A_types_supporting_alignmenttotype"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Types Supporting AlignmentToType: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we to be able to determine a fundamental or pointer type that has both its size and alignment requirement equal to the alignment requirement of a specified template parameter type. We can use the <code>AlignmentImpTag</code> <code>struct</code> template, the overloads of <code>AlignmentImpMatch::match</code> class method, the <code>AiignmentImp_Priority</code> template class, and the <code>AlignmentImpPrioriityToType</code> template class to do this calculation. </dd></dl>
@@ -212,7 +213,7 @@ Namespaces</h2></td></tr>
           <span class="comment">// be the one with the highest priority &#39;AlignmentImp_Priority&#39;</span>
           <span class="comment">// arg.</span>
 
-          PRIORITY = <span class="keyword">sizeof</span>(<a class="code" href="structbsls_1_1AlignmentImpMatch.html#a5f19800350a3639ab24ae6eaa58620c6">bsls::AlignmentImpMatch::match</a>(Tag(),
+          PRIORITY = <span class="keyword">sizeof</span>(<a class="code" href="structbsls_1_1AlignmentImpMatch.html#a3300ea826cbc9ea1743804838dbdd570">bsls::AlignmentImpMatch::match</a>(Tag(),
                                                            Tag(),
                                                            MaxPriority()))
       };
@@ -265,7 +266,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

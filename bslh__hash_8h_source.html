@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslh_hash.h                                                        -*-C++-*-
@@ -136,9 +136,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Keying a hash table with a user defined type
+///Example 1: Keying a Hash Table with a User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value semantic type, &#39;Box&#39;, that contains attributes that
+// Suppose we have a value-semantic type, &#39;Box&#39;, that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing.  Some of these attributes are themselves user defined types.  We
 // want to store objects of type &#39;Box&#39; in a hash table, so we need to be able
@@ -152,7 +152,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // two dimensional Cartesian plane.
 //..
 //  class Point {
-//      // This class is a value semantic type that represents a two
+//      // This class is a value-semantic type that represents a two
 //      // dimensional location on a Cartesian plane.
 //
 //    private:
@@ -232,11 +232,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      hashAppend(hashAlg, point.getY());
 //  }
 //..
-// Then, we declare another value semantic type, &#39;Box&#39; that will have a &#39;Point&#39;
+// Then, we declare another value-semantic type, &#39;Box&#39; that will have a &#39;Point&#39;
 // as one of its attributes that are salient to hashing.
 //..
 //  class Box {
-//      // This class is a value semantic type that represents a box drawn on
+//      // This class is a value-semantic type that represents a box drawn on
 //      // to a Cartesian plane.
 //
 //    private:
@@ -780,7 +780,7 @@ namespace bslmf {
 template &lt;class TYPE&gt;
 struct IsBitwiseMoveable&lt;bslh::Hash&lt;TYPE&gt; &gt;
     : bsl::true_type {};
-}  // close traits namespace
+}  // close namespace bslmf
 
 
 }  // close enterprise namespace
@@ -795,7 +795,7 @@ template &lt;class TYPE&gt;
 struct is_trivially_copyable&lt; ::BloombergLP::bslh::Hash&lt;TYPE&gt; &gt;
 : bsl::true_type
 {};
-}  // close traits namespace
+}  // close namespace bsl
 
 
 

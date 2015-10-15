@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslstl::SharedPtrAllocateOutofplaceRep_InitProctor</title>
+<title>BDE 3.0: Class bslstl::SharedPtrAllocateOutofplaceRep_InitProctor</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -87,7 +87,7 @@ Public Member Functions</h2></td></tr>
 <h3>template&lt;class TYPE, class DELETER&gt;<br/>
  class bslstl::SharedPtrAllocateOutofplaceRep_InitProctor&lt; TYPE, DELETER &gt;</h3>
 
-<p>This proctor is used for out-of-place shared pointer instantiations. Generally, a proctor is created prior to constructing a <code><a class="el" href="classbslstl_1_1SharedPtrAllocateOutofplaceRep.html">SharedPtrAllocateOutofplaceRep</a></code> and released after successful construction. In the event that an exception is thrown during construction of the representation, the proctor will delete the provided pointer using the provided deleter. Note that the provided deleter is held by reference and must remain valid for the lifetime of the proctor. If the proctor is not released before it's destruction, a copy of the deleter is instantiated to delete the pointer (in case <code>operator()</code> is non-'const'). Also note that if the deleter throws during copy-construction, the provided pointer will not be destroyed. </p>
+<p>This proctor is used for out-of-place shared pointer instantiations. Generally, a proctor is created prior to constructing a <code><a class="el" href="classbslstl_1_1SharedPtrAllocateOutofplaceRep.html">SharedPtrAllocateOutofplaceRep</a></code> and released after successful construction. In the event that an exception is thrown during construction of the representation, the proctor will delete the provided pointer using the provided deleter. Note that the provided deleter is held by reference and must remain valid for the lifetime of the proctor. If the proctor is not released before it's destruction, a copy of the deleter is instantiated to delete the pointer (in case <code>operator()</code> is non-'const'). Also note that if the deleter throws during copy construction, the provided pointer will not be destroyed. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a7c0c383b838e845ea70b9f7305d9f5b7"></a><!-- doxytag: member="bslstl::SharedPtrAllocateOutofplaceRep_InitProctor::SharedPtrAllocateOutofplaceRep_InitProctor" ref="a7c0c383b838e845ea70b9f7305d9f5b7" args="(TYPE *ptr, const DELETER &amp;deleter)" -->
 <div class="memitem">
@@ -164,7 +164,7 @@ template&lt;class TYPE , class DELETER &gt; </div>
 <li><a class="el" href="bslstl__sharedptrallocateoutofplacerep_8h_source.html">bslstl_sharedptrallocateoutofplacerep.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:45 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

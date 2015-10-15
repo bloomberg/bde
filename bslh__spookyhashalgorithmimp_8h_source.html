@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslh_spookyhashalgorithmimp.h                                      -*-C++-*-
@@ -203,10 +203,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: 14 Made function names lower case (had to change &#39;Final&#39; to &#39;finalize&#39; and
 //:    &#39;Short&#39; to &#39;shortHash&#39; to avoid using a keyword)
 //
+///Third-Party Documentation
+///-------------------------
 //..
-///Third Party Doc
-///---------------
-//
 // SpookyHash: a 128-bit non cryptographic hash function
 //
 // By Bob Jenkins, public domain
@@ -247,8 +246,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_types.h&gt;
 #endif
 
-#ifndef INCLUDED_STDDEF
+#ifndef INCLUDED_STDDEF_H
 #include &lt;stddef.h&gt;    // &#39;size_t&#39;
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Namespace bdlma</title>
+<title>BDE 3.0: Namespace bdlma</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -60,36 +60,111 @@
 </div>
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>bdlma Namespace Reference<br/>
 <small>
-[<a class="el" href="group__bdlma__autoreleaser.html">Component bdlma_autoreleaser</a>,&nbsp;<a class="el" href="group__bdlma__blocklist.html">Component bdlma_blocklist</a>,&nbsp;<a class="el" href="group__bdlma__bufferedsequentialallocator.html">Component bdlma_bufferedsequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__bufferedsequentialpool.html">Component bdlma_bufferedsequentialpool</a>,&nbsp;<a class="el" href="group__bdlma__bufferimputil.html">Component bdlma_bufferimputil</a>,&nbsp;<a class="el" href="group__bdlma__buffermanager.html">Component bdlma_buffermanager</a>,&nbsp;<a class="el" href="group__bdlma__countingallocator.html">Component bdlma_countingallocator</a>,&nbsp;<a class="el" href="group__bdlma__guardingallocator.html">Component bdlma_guardingallocator</a>,&nbsp;<a class="el" href="group__bdlma__infrequentdeleteblocklist.html">Component bdlma_infrequentdeleteblocklist</a>,&nbsp;<a class="el" href="group__bdlma__localsequentialallocator.html">Component bdlma_localsequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__managedallocator.html">Component bdlma_managedallocator</a>,&nbsp;<a class="el" href="group__bdlma__multipool.html">Component bdlma_multipool</a>,&nbsp;<a class="el" href="group__bdlma__multipoolallocator.html">Component bdlma_multipoolallocator</a>,&nbsp;<a class="el" href="group__bdlma__pool.html">Component bdlma_pool</a>,&nbsp;<a class="el" href="group__bdlma__sequentialallocator.html">Component bdlma_sequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__sequentialpool.html">Component bdlma_sequentialpool</a>]</small>
+[<a class="el" href="group__bdlma__alignedallocator.html">Component bdlma_alignedallocator</a>,&nbsp;<a class="el" href="group__bdlma__autoreleaser.html">Component bdlma_autoreleaser</a>,&nbsp;<a class="el" href="group__bdlma__blocklist.html">Component bdlma_blocklist</a>,&nbsp;<a class="el" href="group__bdlma__bufferedsequentialallocator.html">Component bdlma_bufferedsequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__bufferedsequentialpool.html">Component bdlma_bufferedsequentialpool</a>,&nbsp;<a class="el" href="group__bdlma__bufferimputil.html">Component bdlma_bufferimputil</a>,&nbsp;<a class="el" href="group__bdlma__buffermanager.html">Component bdlma_buffermanager</a>,&nbsp;<a class="el" href="group__bdlma__concurrentallocatoradapter.html">Component bdlma_concurrentallocatoradapter</a>,&nbsp;<a class="el" href="group__bdlma__concurrentfixedpool.html">Component bdlma_concurrentfixedpool</a>,&nbsp;<a class="el" href="group__bdlma__concurrentmultipool.html">Component bdlma_concurrentmultipool</a>,&nbsp;<a class="el" href="group__bdlma__concurrentmultipoolallocator.html">Component bdlma_concurrentmultipoolallocator</a>,&nbsp;<a class="el" href="group__bdlma__concurrentpool.html">Component bdlma_concurrentpool</a>,&nbsp;<a class="el" href="group__bdlma__concurrentpoolallocator.html">Component bdlma_concurrentpoolallocator</a>,&nbsp;<a class="el" href="group__bdlma__countingallocator.html">Component bdlma_countingallocator</a>,&nbsp;<a class="el" href="group__bdlma__defaultdeleter.html">Component bdlma_defaultdeleter</a>,&nbsp;<a class="el" href="group__bdlma__deleter.html">Component bdlma_deleter</a>,&nbsp;<a class="el" href="group__bdlma__factory.html">Component bdlma_factory</a>,&nbsp;<a class="el" href="group__bdlma__guardingallocator.html">Component bdlma_guardingallocator</a>,&nbsp;<a class="el" href="group__bdlma__heapbypassallocator.html">Component bdlma_heapbypassallocator</a>,&nbsp;<a class="el" href="group__bdlma__infrequentdeleteblocklist.html">Component bdlma_infrequentdeleteblocklist</a>,&nbsp;<a class="el" href="group__bdlma__localsequentialallocator.html">Component bdlma_localsequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__managedallocator.html">Component bdlma_managedallocator</a>,&nbsp;<a class="el" href="group__bdlma__memoryblockdescriptor.html">Component bdlma_memoryblockdescriptor</a>,&nbsp;<a class="el" href="group__bdlma__multipool.html">Component bdlma_multipool</a>,&nbsp;<a class="el" href="group__bdlma__multipoolallocator.html">Component bdlma_multipoolallocator</a>,&nbsp;<a class="el" href="group__bdlma__pool.html">Component bdlma_pool</a>,&nbsp;<a class="el" href="group__bdlma__sequentialallocator.html">Component bdlma_sequentialallocator</a>,&nbsp;<a class="el" href="group__bdlma__sequentialpool.html">Component bdlma_sequentialpool</a>,&nbsp;<a class="el" href="group__btlmt__channelpoolchannel.html">Component btlmt_channelpoolchannel</a>]</small>
 </h1>  </div>
 </div>
 <div class="contents">
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1AlignedAllocator.html">AlignedAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1AutoReleaser.html">AutoReleaser</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BlockList.html">BlockList</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html">BufferedSequentialAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferedSequentialPool.html">BufferedSequentialPool</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlma_1_1BufferImpUtil.html">BufferImpUtil</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1BufferManager.html">BufferManager</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentAllocatorAdapter.html">ConcurrentAllocatorAdapter</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlma_1_1ConcurrentFixedPool__Node.html">ConcurrentFixedPool_Node</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentFixedPool.html">ConcurrentFixedPool</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentMultipool.html">ConcurrentMultipool</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentMultipoolAllocator.html">ConcurrentMultipoolAllocator</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentPool.html">ConcurrentPool</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ConcurrentPoolAllocator.html">ConcurrentPoolAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1CountingAllocator.html">CountingAllocator</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1DefaultDeleter.html">DefaultDeleter</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1Deleter.html">Deleter</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1Factory.html">Factory</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1GuardingAllocator.html">GuardingAllocator</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1HeapBypassAllocator.html">HeapBypassAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1InfrequentDeleteBlockList.html">InfrequentDeleteBlockList</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1LocalSequentialAllocator.html">LocalSequentialAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1ManagedAllocator.html">ManagedAllocator</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">MemoryBlockDescriptor</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1Multipool.html">Multipool</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1MultipoolAllocator.html">MultipoolAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1Pool.html">Pool</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialAllocator.html">SequentialAllocator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlma_1_1SequentialPool.html">SequentialPool</a></td></tr>
+<tr><td colspan="2"><h2><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebdlma.html#ae1aa3909b086d2362aba6bbe4e1278ab">operator==</a> (const <a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">MemoryBlockDescriptor</a> &amp;lhs, const <a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">MemoryBlockDescriptor</a> &amp;rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebdlma.html#ae3a181c2785b5b960ce81ec0d45960b8">operator!=</a> (const <a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">MemoryBlockDescriptor</a> &amp;lhs, const <a class="el" href="classbdlma_1_1MemoryBlockDescriptor.html">MemoryBlockDescriptor</a> &amp;rhs)</td></tr>
 </table>
+<hr/><h2>Function Documentation</h2>
+<a class="anchor" id="ae1aa3909b086d2362aba6bbe4e1278ab"></a><!-- doxytag: member="bdlma::operator==" ref="ae1aa3909b086d2362aba6bbe4e1278ab" args="(const MemoryBlockDescriptor &amp;lhs, const MemoryBlockDescriptor &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bdlma::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const MemoryBlockDescriptor &amp;&nbsp;</td>
+          <td class="paramname"> <em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const MemoryBlockDescriptor &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> memory block descriptors have the same value and <code>false</code> otherwise. Two descriptors have the same value if and only if they have the same address and size. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae3a181c2785b5b960ce81ec0d45960b8"></a><!-- doxytag: member="bdlma::operator!=" ref="ae3a181c2785b5b960ce81ec0d45960b8" args="(const MemoryBlockDescriptor &amp;lhs, const MemoryBlockDescriptor &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool bdlma::operator!= </td>
+          <td>(</td>
+          <td class="paramtype">const MemoryBlockDescriptor &amp;&nbsp;</td>
+          <td class="paramname"> <em>lhs</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const MemoryBlockDescriptor &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> memory block descriptors do not have the same value and <code>false</code> otherwise. Two descriptors differ in value if they differ in either their address or size. </p>
+
+</div>
+</div>
+</div>
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslh_hash Component</title>
+<title>BDE 3.0: bslh_hash Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -89,7 +89,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.5">Usage</a> <ul>
 <li>
-<a href="#3.5.1">Example 1: Keying a hash table with a user defined type</a> </li>
+<a href="#3.5.1">Example 1: Keying a Hash Table with a User-Defined Type</a> </li>
 </ul>
 </li>
 </ul>
@@ -156,13 +156,13 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended usage of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="usage.example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="description.usage.example_1~3A_keying_a_hash_table_with_a_user_defined_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Keying a hash table with a user defined type: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose we have a value semantic type, <code>Box</code>, that contains attributes that are salient to hashing as well as attributes that are not salient to hashing. Some of these attributes are themselves user defined types. We want to store objects of type <code>Box</code> in a hash table, so we need to be able to produce hash values that represent instances of <code>Box</code>. We don't want to write our own hashing or hash combine algorithm, because we know it is very difficult and labor-intensive to write a proper hashing algorithm. In order to hash this <code>Box</code>, we will use the modular hashing system supplied in <code>bslh</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_keying_a_hash_table_with_a_user-defined_type"></a> <a class="anchor" id="usage.example_1~3A_keying_a_hash_table_with_a_user-defined_type"></a> <a class="anchor" id="description.usage.example_1~3A_keying_a_hash_table_with_a_user-defined_type"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.5.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Keying a Hash Table with a User-Defined Type: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose we have a value-semantic type, <code>Box</code>, that contains attributes that are salient to hashing as well as attributes that are not salient to hashing. Some of these attributes are themselves user defined types. We want to store objects of type <code>Box</code> in a hash table, so we need to be able to produce hash values that represent instances of <code>Box</code>. We don't want to write our own hashing or hash combine algorithm, because we know it is very difficult and labor-intensive to write a proper hashing algorithm. In order to hash this <code>Box</code>, we will use the modular hashing system supplied in <code>bslh</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define <code>Point</code>, a class that allows us to identify a location on a two dimensional Cartesian plane. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Point {
-      <span class="comment">// This class is a value semantic type that represents a two</span>
+      <span class="comment">// This class is a value-semantic type that represents a two</span>
       <span class="comment">// dimensional location on a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
@@ -216,7 +216,7 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we define <code>operator==</code>. Notice how it checks only attributes that we would want to incorporate into the hashed value. Note that attributes that are salient to hashing tend to be the same as or a subset of the attributes that are checked in <code>operator==</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Point &amp;lhs, <span class="keyword">const</span> Point &amp;rhs)
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Point &amp;lhs, <span class="keyword">const</span> Point &amp;rhs)
       <span class="comment">// Return true if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value.</span>
       <span class="comment">// Two &#39;Point&#39; objects have the same value if they have the same x and</span>
       <span class="comment">// y coordinates.</span>
@@ -228,19 +228,19 @@ Namespaces</h2></td></tr>
  Next, we define <code>hashAppend</code>. This function will allow any hashing algorithm that meets the <code>bslh</code> hashing algorithm requirements to be applied to <code>Point</code>. This is the full extent of the work that needs to be done by type creators. They do not need to implement any algorithms, they just need to call out the attributes that are salient to hashing by calling <code>hashAppend</code> on them. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Point &amp;point)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Point &amp;point)
       <span class="comment">// Apply the specified &#39;hashAlg&#39; to the specified &#39;point&#39;</span>
   {
       <span class="keyword">using</span> bslh::hashAppend;
-      <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, point.getX());
-      <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, point.getY());
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, point.getX());
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, point.getY());
   }
 </pre></div><br/>
 <br/>
- Then, we declare another value semantic type, <code>Box</code> that will have a <code>Point</code> as one of its attributes that are salient to hashing. <br/>
+ Then, we declare another value-semantic type, <code>Box</code> that will have a <code>Point</code> as one of its attributes that are salient to hashing. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Box {
-      <span class="comment">// This class is a value semantic type that represents a box drawn on</span>
+      <span class="comment">// This class is a value-semantic type that represents a box drawn on</span>
       <span class="comment">// to a Cartesian plane.</span>
 
     <span class="keyword">private</span>:
@@ -288,7 +288,7 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we define <code>operator==</code>. This time all of the data members are salient to equality. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Box &amp;lhs, <span class="keyword">const</span> Box &amp;rhs)
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Box &amp;lhs, <span class="keyword">const</span> Box &amp;rhs)
       <span class="comment">// Return true if the specified &#39;lhs&#39; and &#39;rhs&#39; have the same value.</span>
       <span class="comment">// Two &#39;Box&#39; objects have the same value if they have the same length,</span>
       <span class="comment">// width, and position.</span>
@@ -302,13 +302,13 @@ Namespaces</h2></td></tr>
  Next, we define <code>hashAppend</code> for <code>Box</code>. Notice how as well as calling <code>hashAppend</code> on fundamental types, we can also call it with our user defined type <code>Point</code>. Calling <code>hashAppend</code> with <code>Point</code> will propogate a reference to the hashing algorithm functor <code>hashAlg</code> down to the fundamental types that make up <code>Point</code>, and those types will then be passed into the referenced algorithm functor. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> HASH_ALGORITHM&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(HASH_ALGORITHM &amp;hashAlg, <span class="keyword">const</span> Box &amp;box)
       <span class="comment">// Apply the specified &#39;hashAlg&#39; to the specified &#39;box&#39;</span>
   {
       <span class="keyword">using</span> bslh::hashAppend;
-      <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.getPosition());
-      <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.getLength());
-      <a class="code" href="namespacebslh.html#a31a7b904ae7d10296832e8bb46b22aee">hashAppend</a>(hashAlg, box.getWidth());
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.getPosition());
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.getLength());
+      <a class="code" href="namespacebdlb.html#a55903c875202f0400336538b847a6446">hashAppend</a>(hashAlg, box.getWidth());
   }
 </pre></div><br/>
 <br/>
@@ -410,7 +410,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

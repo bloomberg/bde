@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_util Component</title>
+<title>BDE 3.0: bsls_util Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -87,7 +87,7 @@ Defines</h2></td></tr>
 <li>
 <a href="#4.1">Usage</a> <ul>
 <li>
-<a href="#4.1.1">Example 1: Obtain the address of a <code>class</code> that defines <code>operator&amp;</code>.</a> </li>
+<a href="#4.1.1">Example 1: Obtain the Address of a <code>class</code> That Defines <code>operator&amp;</code>.</a> </li>
 </ul>
 </li>
 </ul>
@@ -124,7 +124,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_obtain_the_address_of_a_class_that_defines_operator~26."></a> <a class="anchor" id="usage.example_1~3A_obtain_the_address_of_a_class_that_defines_operator~26."></a> <a class="anchor" id="description.usage.example_1~3A_obtain_the_address_of_a_class_that_defines_operator~26."></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1: Obtain the address of a class that defines operator&amp;.: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 1: Obtain the Address of a class That Defines operator&amp;.: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There are times, especially within low-level library functions, where it is necessary to obtain the address of an object even if that object's class overloads <code>operator&amp;</code> to return something other than the object's address. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create a special reference-like type that can refer to a single bit within a byte (inline implementations are provided in class scope for ease of exposition): <br/>
 <br/>
@@ -178,7 +178,7 @@ Defines</h2></td></tr>
 <br/>
  Next, we overload <code>operator&amp;</code> for <code>BitReference</code> to return a <code>BitPointer</code> instead of a raw pointer, completing the setup: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">inline</span> BitPointer <a class="code" href="namespacebdldfp.html#ad7816bf075fbe7d979ade785bd6e785e">operator&amp;</a>(<span class="keyword">const</span> BitReference&amp; <a class="code" href="group__bslstl__referencewrapper.html#ga76ebecda2ba89ed1e46b563220a60043">ref</a>)
+<div class="fragment"><pre class="fragment">  <span class="keyword">inline</span> BitPointer <a class="code" href="namespacebdlc.html#a61c03f8633ce4608d22e6ca7b1e711b6">operator&amp;</a>(<span class="keyword">const</span> BitReference&amp; <a class="code" href="group__bslstl__referencewrapper.html#ga76ebecda2ba89ed1e46b563220a60043">ref</a>)
   {
       <span class="keywordflow">return</span> BitPointer(ref.byteptr(), ref.bitpos());
   }
@@ -228,7 +228,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:54 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

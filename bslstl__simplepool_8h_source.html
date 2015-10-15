@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_simplepool.h                                                -*-C++-*-
@@ -556,6 +556,16 @@ SimplePool&lt;VALUE, ALLOCATOR&gt;::allocator() const
 template &lt;class VALUE, class ALLOCATOR&gt;
 void SimplePool&lt;VALUE, ALLOCATOR&gt;::release()
 {
+    // The values in &#39;d_chunkList_p&#39; are allocated using
+    // &#39;AllocatorTraits::allocate&#39; for max-aligned type (see
+    // &#39;allocateChunk&#39;). Casting from &#39;Chunk *&#39; back to that type
+    // will not impact alignment, but may generate warnings.
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored &quot;-Wcast-align&quot;
+#endif
+
     while (d_chunkList_p) {
         typename AllocatorTraits::value_type *lastChunk =
                       reinterpret_cast&lt;typename AllocatorTraits::value_type *&gt;(
@@ -564,9 +574,14 @@ void SimplePool&lt;VALUE, ALLOCATOR&gt;::release()
         AllocatorTraits::deallocate(allocator(), lastChunk, 1);
     }
     d_freeList_p = 0;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
 }
 
-}  // close namespace bslstl
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

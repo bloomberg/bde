@@ -1,0 +1,291 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_flag.h                                                       -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_FLAG
+#define INCLUDED_BTLSO_FLAG
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate all flags for stream-based-channel transport.
+//
+//@CLASSES:
+//  btlso_Flag: namespace for enumerating all stream-based-channel flags
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type,
+// &#39;btlso_Flag&#39;, for enumerating all flags of use to the various socket-based
+// components.  Functionality is provided to convert each of these enumerated
+// values to its corresponding string representation, to write its string form
+// directly to a standard &#39;ostream&#39;.  In addition, this class supports
+// functions that convert these types to a well-defined ascii representation.
+//
+///Enumerators
+///-----------
+//..
+//  Type         Name                Description
+//  ------------ -----------------   -----------------------------------------
+//  FlagType
+//               k_ASYNC_INTERRUPT   Flag permitting an operation to be
+//                                   interrupted by an asynchronous event
+//
+//               k_NFLAGS            Number of &#39;FlagType&#39; enumerators
+//
+//  BlockingMode
+//               e_BLOCKING_MODE     Flag indicating blocking mode
+//
+//               e_NONBLOCKING_MODE  Flag indicating non-blocking mode
+//
+//  ShutdownType
+//               e_SHUTDOWN_RECEIVE  Shut down input stream of connection
+//
+//               e_SHUTDOWN_SEND     Shut down output stream of connection
+//
+//               e_SHUTDOWN_BOTH     Shut down both input and output streams
+//                                   of connection
+//
+//  IOWaitType
+//               e_IO_READ           Wait for data to arrive on a socket
+//
+//               e_IO_WRITE          Wait for buffer space to write on a socket
+//
+//               e_IO_RW             Wait for data to arrive or buffer space
+//                                   to write on a socket
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of using
+// one of the enumerations defined in this component, &#39;btlso::BlockingMode&#39;.
+//
+// First, we create a variable &#39;value&#39; of type &#39;btlso::Flag::BlockingMode&#39; and
+// initialize it with the enumerator value &#39;btlso::Flag::e_NONBLOCKING_MODE&#39;:
+//..
+//  btlso::Flag::BlockingMode value = btlso::Flag::e_NONBLOCKING_MODE;
+//..
+// Now, we store the address of its ASCII representation in a pointer variable,
+// &#39;asciiValue&#39;, of type &#39;const char *&#39;:
+//..
+//  const char *asciiValue = btlso::Flag::toAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, &quot;NONBLOCKING_MODE&quot;));
+//..
+// Finally, we print &#39;value&#39; to &#39;bsl::cout&#39;.
+//..
+//  bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;stdout&#39;:
+//..
+//  NONBLOCKING_MODE
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace btlso {
+
+                        // ==========
+                        // class Flag
+                        // ==========
+
+struct Flag {
+    // This class provides a namespace for enumerating all flags for the
+    // &#39;btlso&#39; package.
+
+    // TYPES
+    enum FlagType {
+        // Value used to specify if an operation can be interrupted by an
+        // asynchronous event.
+
+        k_ASYNC_INTERRUPT = 0x01, // If set, this flag permits an operation to
+                                  // be interrupted by an unspecified
+                                  // asynchronous event.  By default, the
+                                  // implementation will ignore such events if
+                                  // possible, or fail otherwise.
+
+        k_NFLAGS          = 1     // The number of FlagType enumerators.  This
+                                  // must be maintained &quot;by hand&quot; since flags
+                                  // are not consecutive.
+
+
+    };
+
+    enum BlockingMode {
+        // Values used to set/determine the blocking mode of a
+        // &#39;btlso::StreamSocket&#39; object.
+
+        e_BLOCKING_MODE,    // Indicates blocking mode
+        e_NONBLOCKING_MODE  // Indicates non-blocking mode
+
+
+    };
+
+    enum ShutdownType {
+        // Values for options used by &#39;btlso::StreamSocket&lt;&gt;::shutdown&#39;.
+
+        e_SHUTDOWN_RECEIVE, // Shut down the input stream of the full-duplex
+                            // connection associated with a
+                            // &#39;btlso::StreamSocket&#39; object.
+
+        e_SHUTDOWN_SEND,    // Shut down the output stream of the full-duplex
+                            // connection associated with a
+                            // &#39;btlso::StreamSocket&#39; object.
+
+        e_SHUTDOWN_BOTH     // Shut down the input and output streams of the
+                            // full-duplex connection associated a
+                            // &#39;btlso::StreamSocket&#39; object.
+
+
+    };
+
+    enum IOWaitType {
+        // Values for options used by &#39;btlso::StreamSocket&lt;&gt;::waitForIO&#39;.
+
+        e_IO_READ,  // Wait for data to arrive on a socket.
+
+        e_IO_WRITE, // Wait for buffer space to become available on a socket.
+
+        e_IO_RW     // Wait for data to arrive or space to become available on
+                    // a socket.
+
+
+    };
+
+    // CLASS METHODS
+    static bsl::ostream&amp; streamOut(bsl::ostream&amp; stream, Flag::FlagType rhs);
+        // Write to the specified &#39;stream&#39; the string representation exactly
+        // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+    static bsl::ostream&amp; streamOut(bsl::ostream&amp;      stream,
+                                   Flag::BlockingMode rhs);
+        // Write to the specified &#39;stream&#39; the string representation exactly
+        // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+    static bsl::ostream&amp; streamOut(bsl::ostream&amp;      stream,
+                                   Flag::ShutdownType rhs);
+        // Write to the specified &#39;stream&#39; the string representation exactly
+        // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+    static bsl::ostream&amp; streamOut(bsl::ostream&amp; stream, Flag::IOWaitType rhs);
+        // Write to the specified &#39;stream&#39; the string representation exactly
+        // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+    static const char *toAscii(Flag::FlagType value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumerator &#39;value&#39;.
+
+    static const char *toAscii(Flag::BlockingMode value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumerator &#39;value&#39;.
+
+    static const char *toAscii(Flag::ShutdownType value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumerator &#39;value&#39;.
+
+    static const char *toAscii(Flag::IOWaitType value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumerator &#39;value&#39;.
+};
+
+// FREE FUNCTIONS
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, Flag::FlagType rhs);
+    // Write to the specified &#39;stream&#39; the string representation exactly
+    // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, Flag::BlockingMode rhs);
+    // Write to the specified &#39;stream&#39; the string representation exactly
+    // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, Flag::ShutdownType rhs);
+    // Write to the specified &#39;stream&#39; the string representation exactly
+    // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, Flag::IOWaitType rhs);
+    // Write to the specified &#39;stream&#39; the string representation exactly
+    // matching the name corresponding to the specified &#39;rhs&#39; value.
+
+}  // close package namespace
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ----------
+                        // class Flag
+                        // ----------
+// FREE OPERATORS
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp;         stream,
+                                btlso::Flag::FlagType rhs)
+{
+    return btlso::Flag::streamOut(stream, rhs);
+}
+
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp;             stream,
+                                btlso::Flag::BlockingMode rhs)
+{
+    return btlso::Flag::streamOut(stream, rhs);
+}
+
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp;             stream,
+                                btlso::Flag::ShutdownType rhs)
+{
+    return btlso::Flag::streamOut(stream, rhs);
+}
+
+inline
+bsl::ostream&amp; btlso::operator&lt;&lt;(bsl::ostream&amp;           stream,
+                                btlso::Flag::IOWaitType rhs)
+{
+    return btlso::Flag::streamOut(stream, rhs);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

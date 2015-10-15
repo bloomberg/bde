@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_alignmentimp.h                                                -*-C++-*-
@@ -119,6 +119,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  assert(sizeof(MyStruct) &gt; MY_STRUCT_ALIGNMENT);
 //..
+//
 ///Example 2: Types Supporting &#39;AlignmentToType&#39;
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we to be able to determine a fundamental or pointer type that has
@@ -438,10 +439,11 @@ struct AlignmentImpMatch {
     // Namespace for a set of overloaded &#39;match&#39; functions, as defined by the
     // macro &#39;BSLS_ALIGNMENTIMP_MATCH_FUNC&#39;.
 
-#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                               \
-           bsls::AlignmentImpTag&lt;P&gt; match(bsls::AlignmentImpCalc&lt;T&gt;::Tag,   \
-                                          bsls::AlignmentImpTag&lt;sizeof(T)&gt;, \
-                                          bsls::AlignmentImp_Priority&lt;P&gt;)
+#   define BSLS_ALIGNMENTIMP_MATCH_FUNC(T, P)                                 \
+           bsls::AlignmentImpTag&lt;P&gt; match(                                    \
+                          bsls::AlignmentImpCalc&lt;T&gt;::Tag,                     \
+                          bsls::AlignmentImpTag&lt;static_cast&lt;int&gt;(sizeof(T))&gt;, \
+                          bsls::AlignmentImp_Priority&lt;P&gt;)
 
     // CLASS METHODS
     static BSLS_ALIGNMENTIMP_MATCH_FUNC(long double,                        1);

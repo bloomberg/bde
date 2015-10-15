@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsltf_stdstatefulallocator.h                                       -*-C++-*-
@@ -33,7 +33,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // this allows a common test strategy to support testing allocation with BDE
 // allocators, and testing the general notion of stateful STL allocators.  The
 // key differences between this test allocator and a regular BDE allocator are:
-//..
+//
 //: o This allocator does not support the &#39;scoped&#39; allocation model, so that
 //:   elements in a container will often have a different allocator to the
 //:   container object itself.
@@ -44,7 +44,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: o This allocator is not DefaultConstructible, and has no notion of the
 //:   default allocator.
-//..
 //
 ///Usage
 ///-----
@@ -361,9 +360,9 @@ bool operator!=(const StdStatefulAllocator&lt;
     // test allocators, and &#39;false&#39; otherwise.
 
 
-// ===========================================================================
+// ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
-// ===========================================================================
+// ============================================================================
 
                         // --------------------------
                         // class StdStatefulAllocator

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdldfp_decimalconvertutil.h                                        -*-C++-*-
@@ -17,7 +17,7 @@ BSLS_IDENT(&quot;$Id$&quot;)
 //@CLASSES:
 //  bdldfp::DecimalConvertUtil: Namespace for decimal FP conversion functions
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides namespace,
 // &#39;bdldfp::DecimalConvertUtil&#39;, containing functions that are able to convert
@@ -730,7 +730,7 @@ int DecimalConvertUtil::decimal64ToUnpackedSpecial(
                               BDLDFP_DU_INTELDFP_SPECIAL_ENCODING_MASK64)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         // punt on special encodings
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *isNegative = (bidValue &amp; 0x8000000000000000ull) ? 1 : 0;

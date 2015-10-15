@@ -1,0 +1,1059 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_sequencefunctions.h                                          -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
+#define INCLUDED_BDLAT_SEQUENCEFUNCTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace defining sequence functions.
+//
+//@CLASSES:
+//  bdlat_SequenceFunctions: namespace for calling sequence functions
+//
+//@SEE_ALSO: bdlat_attributeinfo
+//
+//@DESCRIPTION: The &#39;bdlat_SequenceFunctions&#39; &#39;namespace&#39; provided in this
+// component defines parameterized functions that expose &quot;sequence&quot; behavior
+// for &quot;sequence&quot; types.  See the package-level documentation for a full
+// description of &quot;sequence&quot; types.  The functions in this namespace allow
+// users to:
+//..
+//      o manipulate an attribute by attribute id or attribute name using a
+//        parameterized manipulator (&#39;manipulateAttribute&#39;).
+//      o manipulate all attributes sequentially using a parameterized
+//        manipulator (&#39;manipulateAttributes&#39;).
+//      o access an attribute by attribute id or attribute name using a
+//        parameterized accessor (&#39;accessAttribute&#39;).
+//      o access all attributes sequentially using a parameterized accessor
+//        (&#39;accessAttributes&#39;).
+//..
+// Also, the meta-function &#39;IsSequence&#39; contains a compile-time constant
+// &#39;VALUE&#39; that is non-zero if the parameterized &#39;TYPE&#39; exposes &quot;sequence&quot;
+// behavior through the &#39;bdlat_SequenceFunctions&#39; &#39;namespace&#39;.
+//
+// This component specializes all of these functions for types that have the
+// &#39;bdlat_TypeTraitBasicSequence&#39; trait.
+//
+// Types that do not have the &#39;bdlat_TypeTraitBasicSequence&#39; trait can be
+// plugged into the &#39;bdlat&#39; framework.  This is done by overloading the
+// &#39;bdlat_sequence*&#39; functions inside the namespace of the plugged in type.
+// For example, suppose there is a type called &#39;mine::MySequence&#39;.  In order to
+// plug this type into the &#39;bdlat&#39; framework as a &quot;sequence&quot;, the following
+// functions must be declared and implemented in the &#39;mine&#39; namespace:
+//..
+//  namespace mine {
+//
+//  // MANIPULATORS
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttribute(
+//                                      MySequence   *object,
+//                                      MANIPULATOR&amp;  manipulator,
+//                                      const char   *attributeName,
+//                                      int           attributeNameLength);
+//      // Invoke the specified &#39;manipulator&#39; on the address of the
+//      // (modifiable) attribute indicated by the specified &#39;attributeName&#39;
+//      // and &#39;attributeNameLength&#39; of the specified &#39;object&#39;, supplying
+//      // &#39;manipulator&#39; with the corresponding attribute information
+//      // structure.  Return non-zero value if the attribute is not found, and
+//      // the value returned from the invocation of &#39;manipulator&#39; otherwise.
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttribute(MySequence   *object,
+//                                        MANIPULATOR&amp;  manipulator,
+//                                        int           attributeId);
+//      // Invoke the specified &#39;manipulator&#39; on the address of the
+//      // (modifiable) attribute indicated by the specified &#39;attributeId&#39; of
+//      // the specified &#39;object&#39;, supplying &#39;manipulator&#39; with the
+//      // corresponding attribute information structure.  Return non-zero
+//      // value if the attribute is not found, and the value returned from the
+//      // invocation of &#39;manipulator&#39; otherwise.
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttributes(MySequence   *object,
+//                                         MANIPULATOR&amp;  manipulator);
+//      // Invoke the specified &#39;manipulator&#39; sequentially on the address of
+//      // each (modifiable) attribute of the specified &#39;object&#39;, supplying
+//      // &#39;manipulator&#39; with the corresponding attribute information structure
+//      // until such invocation returns non-zero value.  Return the value from
+//      // the last invocation of &#39;manipulator&#39; (i.e., the invocation that
+//      // terminated the sequence).
+//
+//  // ACCESSORS
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttribute(const MySequence&amp;  object,
+//                                    ACCESSOR&amp;          accessor,
+//                                    const char        *attributeName,
+//                                    int                attributeNameLength);
+//      // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute of
+//      // the specified &#39;object&#39; indicated by the specified &#39;attributeName&#39;
+//      // and &#39;attributeNameLength&#39;, supplying &#39;accessor&#39; with the
+//      // corresponding attribute information structure.  Return non-zero
+//      // value if the attribute is not found, and the value returned from the
+//      // invocation of &#39;accessor&#39; otherwise.
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttribute(const MySequence&amp; object,
+//                                    ACCESSOR&amp;         accessor,
+//                                    int               attributeId);
+//      // Invoke the specified &#39;accessor&#39; on the attribute of the specified
+//      // &#39;object&#39; with the given &#39;attributeId&#39;, supplying &#39;accessor&#39; with the
+//      // corresponding attribute information structure.  Return non-zero if
+//      // the attribute is not found, and the value returned from the
+//      // invocation of &#39;accessor&#39; otherwise.
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttributes(const MySequence&amp; object,
+//                                     ACCESSOR&amp;         accessor);
+//      // Invoke the specified &#39;accessor&#39; sequentially on each attribute of
+//      // the specified &#39;object&#39;, supplying &#39;accessor&#39; with the corresponding
+//      // attribute information structure until such invocation returns a
+//      // non-zero value.  Return the value from the last invocation of
+//      // &#39;accessor&#39; (i.e., the invocation that terminated the sequence).
+//
+//  bool bdlat_sequenceHasAttribute(const MySequence&amp;  object,
+//                                  const char        *attributeName,
+//                                  int                attributeNameLength);
+//      // Return true if the specified &#39;object&#39; has an attribute with the
+//      // specified &#39;attributeName&#39; of the specified &#39;attributeNameLength&#39;,
+//      // and false otherwise.
+//
+//  bool bdlat_sequenceHasAttribute(const MySequence&amp; object,
+//                                  int               attributeId);
+//      // Return true if the specified &#39;object&#39; has an attribute with the
+//      // specified &#39;attributeId&#39;, and false otherwise.
+//
+//  }  // close namespace &#39;mine&#39;
+//..
+// Also, the &#39;IsSequence&#39; meta-function must be specialized for the
+// &#39;mine::MySequence&#39; type in the &#39;bdlat_SequenceFunctions&#39; namespace.
+//
+// An example of plugging in a user-defined sequence type into the &#39;bdlat&#39;
+// framework is shown in the &#39;Usage&#39; section of this document.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you had a &#39;struct&#39; that contains three members:
+//..
+//  #include &lt;bdlat_sequencefunctions.h&gt;
+//  #include &lt;bdlat_formattingmode.h&gt;
+//  #include &lt;bdlat_attributeinfo.h&gt;
+//  #include &lt;bdlb_string.h&gt;
+//  #include &lt;string&gt;
+//
+//  namespace BloombergLP {
+//
+//  namespace mine {
+//
+//  struct MySequence {
+//      // This struct represents a sequence containing a &#39;string&#39; member, an
+//      // &#39;int&#39; member, and a &#39;float&#39; member.
+//
+//      // CONSTANTS
+//      enum {
+//          NAME_ATTRIBUTE_ID   = 1,
+//          AGE_ATTRIBUTE_ID    = 2,
+//          SALARY_ATTRIBUTE_ID = 3
+//      };
+//
+//      // DATA MEMBERS
+//      bsl::string d_name;
+//      int         d_age;
+//      float       d_salary;
+//  };
+//
+//  }  // close namespace &#39;mine&#39;
+//..
+// We can now make &#39;mine::MySequence&#39; expose &quot;sequence&quot; behavior by
+// implementing the necessary &#39;bdlat_sequence*&#39; functions for &#39;MySequence&#39;
+// inside the &#39;mine&#39; namespace.  First, we should forward declare all the
+// functions that we will implement inside the &#39;mine&#39; namespace:
+//..
+//  namespace mine {
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttribute(MySequence   *object,
+//                                        MANIPULATOR&amp;  manipulator,
+//                                        const char   *attributeName,
+//                                        int           attributeNameLength);
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttribute(MySequence   *object,
+//                                        MANIPULATOR&amp;  manipulator,
+//                                        int           attributeId);
+//  template &lt;typename MANIPULATOR&gt;
+//  int bdlat_sequenceManipulateAttributes(MySequence   *object,
+//                                         MANIPULATOR&amp;  manipulator);
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttribute(const MySequence&amp;  object,
+//                                    ACCESSOR&amp;          accessor,
+//                                    const char        *attributeName,
+//                                    int                attributeNameLength);
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttribute(const MySequence&amp; object,
+//                                    ACCESSOR&amp;         accessor,
+//                                    int               attributeId);
+//  template &lt;typename ACCESSOR&gt;
+//  int bdlat_sequenceAccessAttributes(const MySequence&amp; object,
+//                                     ACCESSOR&amp;         accessor);
+//  bool bdlat_sequenceHasAttribute(const MySequence&amp;  object,
+//                                  const char        *attributeName,
+//                                  int                attributeNameLength);
+//  bool bdlat_sequenceHasAttribute(const MySequence&amp; object,
+//                                  int               attributeId);
+//
+//  }  // close namespace &#39;mine&#39;
+//..
+// Now, we will implement these functions.  Note that for this implementation,
+// we will create a temporary &#39;bdlat_AttributeInfo&#39; object and pass it along
+// when invoking the manipulator or accessor.  See the &#39;bdlat_attributeinfo&#39;
+// component-level documentation for more information.  The implementation of
+// the functions are as follows:
+//..
+//  template &lt;typename MANIPULATOR&gt;
+//  int mine::bdlat_sequenceManipulateAttribute(
+//                                        MySequence   *object,
+//                                        MANIPULATOR&amp;  manipulator,
+//                                        const char   *attributeName,
+//                                        int           attributeNameLength)
+//  {
+//      enum { NOT_FOUND = -1 };
+//
+//      if (bdlb::String::areEqualCaseless(&quot;name&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceManipulateAttribute(
+//                                              object,
+//                                              manipulator,
+//                                              MySequence::NAME_ATTRIBUTE_ID);
+//      }
+//
+//      if (bdlb::String::areEqualCaseless(&quot;age&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceManipulateAttribute(
+//                                               object,
+//                                               manipulator,
+//                                               MySequence::AGE_ATTRIBUTE_ID);
+//      }
+//
+//      if (bdlb::String::areEqualCaseless(&quot;salary&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceManipulateAttribute(
+//                                            object,
+//                                            manipulator,
+//                                            MySequence::SALARY_ATTRIBUTE_ID);
+//      }
+//
+//      return NOT_FOUND;
+//  }
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int mine::bdlat_sequenceManipulateAttribute(MySequence   *object,
+//                                              MANIPULATOR&amp;  manipulator,
+//                                              int           attributeId)
+//  {
+//      enum { NOT_FOUND = -1 };
+//
+//      switch (attributeId) {
+//        case MySequence::NAME_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Name of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::NAME_ATTRIBUTE_ID;
+//          info.name()           = &quot;name&quot;;
+//          info.nameLength()     = 4;
+//
+//          return manipulator(&amp;object-&gt;d_name, info);
+//        }
+//        case MySequence::AGE_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Age of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::AGE_ATTRIBUTE_ID;
+//          info.name()           = &quot;age&quot;;
+//          info.nameLength()     = 3;
+//
+//          return manipulator(&amp;object-&gt;d_age, info);
+//        }
+//        case MySequence::SALARY_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Salary of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
+//          info.name()           = &quot;salary&quot;;
+//          info.nameLength()     = 6;
+//
+//          return manipulator(&amp;object-&gt;d_salary, info);
+//        }
+//        default: {
+//            return NOT_FOUND;
+//        }
+//      }
+//  }
+//
+//  template &lt;typename MANIPULATOR&gt;
+//  int mine::bdlat_sequenceManipulateAttributes(MySequence   *object,
+//                                               MANIPULATOR&amp;  manipulator)
+//  {
+//      int retVal;
+//
+//      retVal = bdlat_sequenceManipulateAttribute(
+//                                              object,
+//                                              manipulator,
+//                                              MySequence::NAME_ATTRIBUTE_ID);
+//
+//      if (0 != retVal) {
+//          return retVal;
+//      }
+//
+//      retVal = bdlat_sequenceManipulateAttribute(
+//                                               object,
+//                                               manipulator,
+//                                               MySequence::AGE_ATTRIBUTE_ID);
+//
+//      if (0 != retVal) {
+//          return retVal;
+//      }
+//
+//      retVal = bdlat_sequenceManipulateAttribute(
+//                                            object,
+//                                            manipulator,
+//                                            MySequence::SALARY_ATTRIBUTE_ID);
+//
+//      return retVal;
+//  }
+//
+//  // ACCESSORS
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int mine::bdlat_sequenceAccessAttribute(
+//                                      const MySequence&amp;  object,
+//                                      ACCESSOR&amp;          accessor,
+//                                      const char        *attributeName,
+//                                      int                attributeNameLength)
+//  {
+//      enum { NOT_FOUND = -1 };
+//
+//      if (bdlb::String::areEqualCaseless(&quot;name&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceAccessAttribute(
+//                                              object,
+//                                              accessor,
+//                                              MySequence::NAME_ATTRIBUTE_ID);
+//      }
+//
+//      if (bdlb::String::areEqualCaseless(&quot;age&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceAccessAttribute(object,
+//                                               accessor,
+//                                               MySequence::AGE_ATTRIBUTE_ID);
+//      }
+//
+//      if (bdlb::String::areEqualCaseless(&quot;salary&quot;,
+//                                        attributeName,
+//                                        attributeNameLength)) {
+//          return bdlat_sequenceAccessAttribute(
+//                                            object,
+//                                            accessor,
+//                                            MySequence::SALARY_ATTRIBUTE_ID);
+//      }
+//
+//      return NOT_FOUND;
+//  }
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int mine::bdlat_sequenceAccessAttribute(const MySequence&amp; object,
+//                                          ACCESSOR&amp;         accessor,
+//                                          int               attributeId)
+//  {
+//      enum { NOT_FOUND = -1 };
+//
+//      switch (attributeId) {
+//        case MySequence::NAME_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Name of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::NAME_ATTRIBUTE_ID;
+//          info.name()           = &quot;name&quot;;
+//          info.nameLength()     = 4;
+//
+//          return accessor(object.d_name, info);
+//        }
+//        case MySequence::AGE_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Age of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::AGE_ATTRIBUTE_ID;
+//          info.name()           = &quot;age&quot;;
+//          info.nameLength()     = 3;
+//
+//          return accessor(object.d_age, info);
+//        }
+//        case MySequence::SALARY_ATTRIBUTE_ID: {
+//          bdlat_AttributeInfo info;
+//
+//          info.annotation()     = &quot;Salary of employee&quot;;
+//          info.formattingMode() = bdlat_FormattingMode::DEFAULT;
+//          info.id()             = MySequence::SALARY_ATTRIBUTE_ID;
+//          info.name()           = &quot;salary&quot;;
+//          info.nameLength()     = 6;
+//
+//          return accessor(object.d_salary, info);
+//        }
+//        default: {
+//            return NOT_FOUND;
+//        }
+//      }
+//  }
+//
+//  template &lt;typename ACCESSOR&gt;
+//  int mine::bdlat_sequenceAccessAttributes(const MySequence&amp; object,
+//                                           ACCESSOR&amp;         accessor)
+//  {
+//      int retVal;
+//
+//      retVal = bdlat_sequenceAccessAttribute(object,
+//                                             accessor,
+//                                             MySequence::NAME_ATTRIBUTE_ID);
+//
+//      if (0 != retVal) {
+//          return retVal;
+//      }
+//
+//      retVal = bdlat_sequenceAccessAttribute(object,
+//                                             accessor,
+//                                             MySequence::AGE_ATTRIBUTE_ID);
+//
+//      if (0 != retVal) {
+//          return retVal;
+//      }
+//
+//      retVal = bdlat_sequenceAccessAttribute(object,
+//                                            accessor,
+//                                            MySequence::SALARY_ATTRIBUTE_ID);
+//
+//      return retVal;
+//  }
+//
+//  bool mine::bdlat_sequenceHasAttribute(
+//                                      const MySequence&amp;  object,
+//                                      const char        *attributeName,
+//                                      int                attributeNameLength)
+//  {
+//      return bdlb::String::areEqualCaseless(&quot;name&quot;,
+//                                           attributeName,
+//                                           attributeNameLength)
+//          || bdlb::String::areEqualCaseless(&quot;age&quot;,
+//                                           attributeName,
+//                                           attributeNameLength)
+//          || bdlb::String::areEqualCaseless(&quot;salary&quot;,
+//                                           attributeName,
+//                                           attributeNameLength);
+//  }
+//
+//  bool mine::bdlat_sequenceHasAttribute(const MySequence&amp; object,
+//                                        int               attributeId)
+//  {
+//      return MySequence::NAME_ATTRIBUTE_ID   == attributeId
+//          || MySequence::AGE_ATTRIBUTE_ID    == attributeId
+//          || MySequence::SALARY_ATTRIBUTE_ID == attributeId;
+//  }
+//..
+// Finally, we need to specialize the &#39;IsSequence&#39; meta-function in the
+// &#39;bdlat_SequenceFunctions&#39; namespace for the &#39;mine::MySequence&#39; type.  This
+// makes the &#39;bdlat&#39; infrastructure recognize &#39;mine::MySequence&#39; as a sequence
+// abstraction:
+//..
+//  namespace bdlat_SequenceFunctions {
+//
+//      template &lt;&gt;
+//      struct IsSequence&lt;mine::MySequence&gt; {
+//          enum { VALUE = 1 };
+//      };
+//
+//  }  // close namespace &#39;bdlat_SequenceFunctions&#39;
+//  }  // close namespace &#39;BloombergLP&#39;
+//..
+// The &#39;bdlat&#39; infrastructure (and any component that uses this infrastructure)
+// will now recognize &#39;mine::MySequence&#39; as a &quot;sequence&quot; type.  For example,
+// suppose we have the following XML data:
+//..
+//  &lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39; ?&gt;
+//  &lt;MySequence&gt;
+//      &lt;name&gt;John Doe&lt;/name&gt;
+//      &lt;age&gt;29&lt;/age&gt;
+//      &lt;salary&gt;12345.00&lt;/salary&gt;
+//  &lt;/MySequence&gt;
+//..
+// Using the &#39;balxml_decoder&#39; component, we can now load this XML data into a
+// &#39;mine::MySequence&#39; object:
+//..
+//  #include &lt;balxml_decoder.h&gt;
+//
+//  void decodeMySequenceFromXML(bsl::istream&amp; inputData)
+//  {
+//      using namespace BloombergLP;
+//
+//      mine::MySequence object;
+//
+//      balxml::DecoderOptions options;
+//      balxml::MiniReader     reader;
+//      balxml::ErrorInfo      errInfo;
+//
+//      balxml::Decoder decoder(&amp;options, &amp;reader, &amp;errInfo);
+//      int result = decoder.decode(inputData, &amp;object);
+//
+//      assert(0          == result);
+//      assert(&quot;John Doe&quot; == object.d_name);
+//      assert(29         == object.d_age);
+//      assert(12345.00   == object.d_salary);
+//  }
+//..
+// Note that the &#39;bdlat&#39; framework can be used for functionality other than
+// encoding/decoding into XML.  When &#39;mine::MySequence&#39; is plugged into the
+// framework, then it will be automatically usable within the framework.  For
+// example, the following snippets of code will print out all the attributes of
+// a sequence object:
+//..
+//  struct PrintAttribute {
+//      // Print each visited object to the bound &#39;d_stream_p&#39; object.
+//
+//      // DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//
+//      template &lt;typename TYPE, typename INFO&gt;
+//      int operator()(const TYPE&amp; object, const INFO&amp; info)
+//      {
+//          (*d_stream_p) &lt;&lt; info.name() &lt;&lt; &quot;: &quot; &lt;&lt; object &lt;&lt; bsl::endl;
+//          return 0;
+//      }
+//  };
+//
+//  template &lt;typename TYPE&gt;
+//  void printSequenceAttributes(bsl::ostream&amp; stream, const TYPE&amp; object)
+//  {
+//      PrintAttribute accessor;
+//      accessor.d_stream_p = &amp;stream;
+//
+//      bdlat_SequenceFunctions::accessAttributes(object, accessor);
+//  }
+//..
+// Now we have a generic function that takes an output stream and a sequence
+// object, and prints out each attribute with its name and value.  We can use
+// this generic function as follows:
+//..
+//  void printMySequence(bsl::ostream&amp; stream)
+//  {
+//      using namespace BloombergLP;
+//
+//      mine::MySequence object;
+//
+//      object.d_name   = &quot;John Doe&quot;;
+//      object.d_age    = 25;
+//      object.d_salary = 12345.00;
+//
+//      stream &lt;&lt; bsl::fixed &lt;&lt; bsl::setprecision(2);
+//
+//      printSequenceAttributes(stream, object);
+//  }
+//..
+// The function above will print the following to provided stream:
+//..
+//  name: John Doe
+//  age: 25
+//  salary: 12345.00
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#include &lt;bdlat_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_MATCHANYTYPE
+#include &lt;bslmf_matchanytype.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                      // =================================
+                      // namespace bdlat_SequenceFunctions
+                      // =================================
+
+namespace bdlat_SequenceFunctions {
+    // This &#39;namespace&#39; provides methods that expose &quot;sequence&quot; behavior for
+    // &quot;sequence&quot; types.  See the component-level documentation for more
+    // information.
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct IsSequence {
+        // This &#39;struct&#39; should be specialized for third-party types that need
+        // to expose &quot;sequence&quot; behavior.  See the component-level
+        // documentation for further information.
+
+        enum {
+//ARB:VALUE
+            VALUE = bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE
+        };
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateAttribute(TYPE         *object,
+                            MANIPULATOR&amp;  manipulator,
+                            const char   *attributeName,
+                            int           attributeNameLength);
+        // Invoke the specified &#39;manipulator&#39; on the address of the
+        // (modifiable) attribute indicated by the specified &#39;attributeName&#39;
+        // and &#39;attributeNameLength&#39; of the specified &#39;object&#39;, supplying
+        // &#39;manipulator&#39; with the corresponding attribute information
+        // structure.  Return non-zero value if the attribute is not found, and
+        // the value returned from the invocation of &#39;manipulator&#39; otherwise.
+
+
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateAttribute(TYPE         *object,
+                            MANIPULATOR&amp;  manipulator,
+                            int           attributeId);
+        // Invoke the specified &#39;manipulator&#39; on the address of the
+        // (modifiable) attribute indicated by the specified &#39;attributeId&#39; of
+        // the specified &#39;object&#39;, supplying &#39;manipulator&#39; with the
+        // corresponding attribute information structure.  Return non-zero
+        // value if the attribute is not found, and the value returned from the
+        // invocation of &#39;manipulator&#39; otherwise.
+
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateAttributes(TYPE *object, MANIPULATOR&amp; manipulator);
+        // Invoke the specified &#39;manipulator&#39; sequentially on the address of
+        // each (modifiable) attribute of the specified &#39;object&#39;, supplying
+        // &#39;manipulator&#39; with the corresponding attribute information structure
+        // until such invocation returns non-zero value.  Return the value
+        // from the last invocation of &#39;manipulator&#39; (i.e., the invocation that
+        // terminated the sequence).
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessAttribute(const TYPE&amp;  object,
+                        ACCESSOR&amp;    accessor,
+                        const char  *attributeName,
+                        int          attributeNameLength);
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute of
+        // the specified &#39;object&#39; indicated by the specified &#39;attributeName&#39;
+        // and &#39;attributeNameLength&#39;, supplying &#39;accessor&#39; with the
+        // corresponding attribute information structure.  Return non-zero
+        // value if the attribute is not found, and the value returned from the
+        // invocation of &#39;accessor&#39; otherwise.
+
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessAttribute(const TYPE&amp; object,
+                        ACCESSOR&amp;   accessor,
+                        int         attributeId);
+        // Invoke the specified &#39;accessor&#39; on the attribute of the specified
+        // &#39;object&#39; with the given &#39;attributeId&#39;, supplying &#39;accessor&#39; with the
+        // corresponding attribute information structure.  Return non-zero if
+        // the attribute is not found, and the value returned from the
+        // invocation of &#39;accessor&#39; otherwise.
+
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessAttributes(const TYPE&amp; object, ACCESSOR&amp; accessor);
+        // Invoke the specified &#39;accessor&#39; sequentially on each attribute of
+        // the specified &#39;object&#39;, supplying &#39;accessor&#39; with the corresponding
+        // attribute information structure until such invocation returns a
+        // non-zero value.  Return the value from the last invocation of
+        // &#39;accessor&#39; (i.e., the invocation that terminated the sequence).
+
+    template &lt;class TYPE&gt;
+    bool hasAttribute(const TYPE&amp;  object,
+                      const char  *attributeName,
+                      int          attributeNameLength);
+        // Return true if the specified &#39;object&#39; has an attribute with the
+        // specified &#39;attributeName&#39; of the specified &#39;attributeNameLength&#39;,
+        // and false otherwise.
+
+    template &lt;class TYPE&gt;
+    bool hasAttribute(const TYPE&amp; object,
+                      int         attributeId);
+        // Return true if the specified &#39;object&#39; has an attribute with the
+        // specified &#39;attributeId&#39;, and false otherwise.
+
+
+
+#if ! defined(BSLS_PLATFORM_CMP_IBM)
+    // OVERLOADABLE FUNCTIONS
+
+    // The following functions should be overloaded for other types (in their
+    // respective namespaces).  The following functions are the default
+    // implementations (for &#39;bas_codegen.pl&#39;-generated types).  Do *not* call
+    // these functions directly.  Use the functions above instead.
+
+    // MANIPULATORS
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttribute(TYPE         *object,
+                                          MANIPULATOR&amp;  manipulator,
+                                          const char   *attributeName,
+                                          int           attributeNameLength);
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttribute(TYPE         *object,
+                                          MANIPULATOR&amp;  manipulator,
+                                          int           attributeId);
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttributes(TYPE         *object,
+                                           MANIPULATOR&amp;  manipulator);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_sequenceAccessAttribute(const TYPE&amp;  object,
+                                      ACCESSOR&amp;    accessor,
+                                      const char  *attributeName,
+                                      int          attributeNameLength);
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_sequenceAccessAttribute(const TYPE&amp; object,
+                                      ACCESSOR&amp;   accessor,
+                                      int         attributeId);
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int bdlat_sequenceAccessAttributes(const TYPE&amp; object, ACCESSOR&amp; accessor);
+    template &lt;class TYPE&gt;
+    bool bdlat_sequenceHasAttribute(const TYPE&amp;  object,
+                                    const char  *attributeName,
+                                    int          attributeNameLength);
+    template &lt;class TYPE&gt;
+    bool bdlat_sequenceHasAttribute(const TYPE&amp; object,
+                                    int         attributeId);
+#endif
+
+}  // close namespace bdlat_SequenceFunctions
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                     // ---------------------------------
+                     // namespace bdlat_SequenceFunctions
+                     // ---------------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::manipulateAttribute(
+                                             TYPE         *object,
+                                             MANIPULATOR&amp;  manipulator,
+                                             const char   *attributeName,
+                                             int           attributeNameLength)
+{
+    return bdlat_sequenceManipulateAttribute(object,
+                                             manipulator,
+                                             attributeName,
+                                             attributeNameLength);
+}
+
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::manipulateAttribute(TYPE         *object,
+                                                 MANIPULATOR&amp;  manipulator,
+                                                 int           attributeId)
+{
+    return bdlat_sequenceManipulateAttribute(object, manipulator, attributeId);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::manipulateAttributes(TYPE         *object,
+                                                  MANIPULATOR&amp;  manipulator)
+{
+    return bdlat_sequenceManipulateAttributes(object, manipulator);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::accessAttribute(const TYPE&amp;  object,
+                                             ACCESSOR&amp;    accessor,
+                                             const char  *attributeName,
+                                             int          attributeNameLength)
+{
+    return bdlat_sequenceAccessAttribute(object,
+                                         accessor,
+                                         attributeName,
+                                         attributeNameLength);
+}
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::accessAttribute(const TYPE&amp; object,
+                                             ACCESSOR&amp;   accessor,
+                                             int         attributeId)
+{
+    return bdlat_sequenceAccessAttribute(object, accessor, attributeId);
+}
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::accessAttributes(const TYPE&amp; object,
+                                              ACCESSOR&amp;   accessor)
+{
+    return bdlat_sequenceAccessAttributes(object, accessor);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_SequenceFunctions::hasAttribute(const TYPE&amp;  object,
+                                           const char  *attributeName,
+                                           int          attributeNameLength)
+{
+    return bdlat_sequenceHasAttribute(object,
+                                      attributeName,
+                                      attributeNameLength);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_SequenceFunctions::hasAttribute(const TYPE&amp; object,
+                                           int         attributeId)
+{
+    return bdlat_sequenceHasAttribute(object, attributeId);
+}
+
+         // ----------------------------------------------------------
+         // namespace bdlat_SequenceFunctions (OVERLOADABLE FUNCTIONS)
+         // ----------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+namespace bdlat_SequenceFunctions {
+    // xlC 6 will not do Koenig (argument-dependent) lookup is the function
+    // being called has already been declared in some scope at the point of
+    // the template function *definition* (not instantiation).  We work around
+    // this bug by not declaring these functions until *after* the template
+    // definitions that call them.
+
+    // OVERLOADABLE FUNCTIONS
+    // The following functions should be overloaded for other types (in their
+    // respective namespaces).  The following functions are the default
+    // implementations (for &#39;bas_codegen.pl&#39;-generated types).  Do *not* call
+    // these functions directly.  Use the functions above instead.
+
+    // MANIPULATORS
+    template &lt;typename TYPE, typename MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttribute(TYPE         *object,
+                                          MANIPULATOR&amp;  manipulator,
+                                          const char   *attributeName,
+                                          int           attributeNameLength);
+    template &lt;typename TYPE, typename MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttribute(TYPE         *object,
+                                          MANIPULATOR&amp;  manipulator,
+                                          int           attributeId);
+    template &lt;typename TYPE, typename MANIPULATOR&gt;
+    int bdlat_sequenceManipulateAttributes(TYPE         *object,
+                                           MANIPULATOR&amp;  manipulator);
+
+    // ACCESSORS
+    template &lt;typename TYPE, typename ACCESSOR&gt;
+    int bdlat_sequenceAccessAttribute(const TYPE&amp;  object,
+                                      ACCESSOR&amp;    accessor,
+                                      const char  *attributeName,
+                                      int          attributeNameLength);
+    template &lt;typename TYPE, typename ACCESSOR&gt;
+    int bdlat_sequenceAccessAttribute(const TYPE&amp; object,
+                                      ACCESSOR&amp;   accessor,
+                                      int         attributeId);
+    template &lt;typename TYPE, typename ACCESSOR&gt;
+    int bdlat_sequenceAccessAttributes(const TYPE&amp; object, ACCESSOR&amp; accessor);
+    template &lt;typename TYPE&gt;
+    bool bdlat_sequenceHasAttribute(const TYPE&amp;  object,
+                                    const char  *attributeName,
+                                    int          attributeNameLength);
+    template &lt;typename TYPE&gt;
+    bool bdlat_sequenceHasAttribute(const TYPE&amp; object,
+                                    int         attributeId);
+
+}  // close namespace bdlat_SequenceFunctions
+#endif
+
+// MANIPULATORS
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttribute(
+                                             TYPE         *object,
+                                             MANIPULATOR&amp;  manipulator,
+                                             const char   *attributeName,
+                                             int           attributeNameLength)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object-&gt;manipulateAttribute(manipulator,
+                                       attributeName,
+                                       attributeNameLength);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttribute(
+                                                     TYPE         *object,
+                                                     MANIPULATOR&amp;  manipulator,
+                                                     int           attributeId)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object-&gt;manipulateAttribute(manipulator, attributeId);
+}
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceManipulateAttributes(
+                                                     TYPE         *object,
+                                                     MANIPULATOR&amp;  manipulator)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object-&gt;manipulateAttributes(manipulator);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceAccessAttribute(
+                                              const TYPE&amp;  object,
+                                              ACCESSOR&amp;    accessor,
+                                              const char  *attributeName,
+                                              int          attributeNameLength)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object.accessAttribute(accessor,
+                                  attributeName,
+                                  attributeNameLength);
+}
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceAccessAttribute(
+                                                       const TYPE&amp; object,
+                                                       ACCESSOR&amp;   accessor,
+                                                       int         attributeId)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object.accessAttribute(accessor, attributeId);
+}
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_SequenceFunctions::bdlat_sequenceAccessAttributes(
+                                                          const TYPE&amp; object,
+                                                          ACCESSOR&amp;   accessor)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return object.accessAttributes(accessor);
+}
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning( push )
+#pragma warning( disable : 4100 )
+#endif
+template &lt;class TYPE&gt;
+inline
+bool bdlat_SequenceFunctions::bdlat_sequenceHasAttribute(
+                                              const TYPE&amp;  object,
+                                              const char  *attributeName,
+                                              int          attributeNameLength)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return 0 != object.lookupAttributeInfo(attributeName, attributeNameLength);
+}
+
+template &lt;class TYPE&gt;
+inline
+bool bdlat_SequenceFunctions::bdlat_sequenceHasAttribute(
+                                                       const TYPE&amp; object,
+                                                       int         attributeId)
+{
+    BSLMF_ASSERT(
+                (bslalg::HasTrait&lt;TYPE, bdlat_TypeTraitBasicSequence&gt;::VALUE));
+
+    return 0 != object.lookupAttributeInfo(attributeId);
+}
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning( pop )
+#endif
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

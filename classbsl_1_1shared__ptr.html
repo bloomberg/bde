@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bsl::shared_ptr</title>
+<title>BDE 3.0: Class bsl::shared_ptr</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -71,10 +71,7 @@
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#friends">Friends</a>  </div>
   <div class="headertitle">
-<h1>bsl::shared_ptr&lt; ELEMENT_TYPE &gt; Class Template Reference<br/>
-<small>
-[<a class="el" href="group__bslstl__sharedptr.html">Component bslstl_sharedptr</a>]</small>
-</h1>  </div>
+<h1>bsl::shared_ptr&lt; ELEMENT_TYPE &gt; Class Template Reference</h1>  </div>
 </div>
 <div class="contents">
 <!-- doxytag: class="bsl::shared_ptr" -->
@@ -84,108 +81,109 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga61ba33bd2aeb0d92257c509d5871e5e2">element_type</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga499733138e91edd57c5e1094a3a3ab57">ElementType</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a61ba33bd2aeb0d92257c509d5871e5e2">element_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef ELEMENT_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a499733138e91edd57c5e1094a3a3ab57">ElementType</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga25bfad5e168d83249437014e7b6b8892">shared_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga5d2c2bd0c5dedf8e1198be362c0e0a82">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a>)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a25bfad5e168d83249437014e7b6b8892">shared_ptr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a5d2c2bd0c5dedf8e1198be362c0e0a82">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a>)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga841c0f3459e54c1bf2158eb56b285093">shared_ptr</a> (COMPATIBLE_TYPE *ptr)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a841c0f3459e54c1bf2158eb56b285093">shared_ptr</a> (COMPATIBLE_TYPE *ptr)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab7e1c63bc0f6cdf8a18745b0c52139ea">shared_ptr</a> (COMPATIBLE_TYPE *ptr, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga2a2e4bbff3006535d3173733b9f8ae2e">shared_ptr</a> (ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ab7e1c63bc0f6cdf8a18745b0c52139ea">shared_ptr</a> (COMPATIBLE_TYPE *ptr, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a2a2e4bbff3006535d3173733b9f8ae2e">shared_ptr</a> (ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga63d96baa49ed23efc1ac35505e2470ec">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER *deleter)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a63d96baa49ed23efc1ac35505e2470ec">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER *deleter)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga4cf0fdbff78c2ec3563ce9b7e6035b5a">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a4cf0fdbff78c2ec3563ce9b7e6035b5a">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE , class DELETER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab2364e0cb3da8a2dfb19a423e3ce7d78">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaadfe208676a03d4f1a718ac73b9f02e5">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ab2364e0cb3da8a2dfb19a423e3ce7d78">shared_ptr</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aadfe208676a03d4f1a718ac73b9f02e5">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, BloombergLP::bslma::Allocator *basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class DELETER &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab0aa4a12d2b2002b2a6b5ec8d45ee774">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ab0aa4a12d2b2002b2a6b5ec8d45ee774">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class DELETER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga171ec51dc51b118a2c6bcfeac955fef8">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a171ec51dc51b118a2c6bcfeac955fef8">shared_ptr</a> (<a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a> nullPointerLiteral, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad32ea0635de6a74d765ff432e7b6567e">shared_ptr</a> (BloombergLP::bslma::ManagedPtr&lt; COMPATIBLE_TYPE &gt; managedPtr, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ad32ea0635de6a74d765ff432e7b6567e">shared_ptr</a> (BloombergLP::bslma::ManagedPtr&lt; COMPATIBLE_TYPE &gt; managedPtr, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga31b7a3668bfef03fb5f66571eee139ed">shared_ptr</a> (native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; &amp;autoPtr, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gabc7e7eb011eeea91ca07faeba21d5637">shared_ptr</a> (native_std::auto_ptr_ref&lt; ELEMENT_TYPE &gt; autoRef, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a31b7a3668bfef03fb5f66571eee139ed">shared_ptr</a> (native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; &amp;autoPtr, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#abc7e7eb011eeea91ca07faeba21d5637">shared_ptr</a> (native_std::auto_ptr_ref&lt; ELEMENT_TYPE &gt; autoRef, BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga12461f1c2a32564f2e6aed992f147811">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a12461f1c2a32564f2e6aed992f147811">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga52fd5aa2c3c730f07461871d120d2030">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae1ba18a40fd81b46b1a579a0500164f2">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;original)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a52fd5aa2c3c730f07461871d120d2030">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ae1ba18a40fd81b46b1a579a0500164f2">shared_ptr</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;original)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga00a7faf4ca60527b1506d9f90696d904">shared_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;ptr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaec035331c8d985691fd7c5929173259a">~shared_ptr</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1888243089d89d2d68487862ebe43eb8">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a00a7faf4ca60527b1506d9f90696d904">shared_ptr</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;ptr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aec035331c8d985691fd7c5929173259a">~shared_ptr</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a1888243089d89d2d68487862ebe43eb8">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga40dddf94f309f6c0cfbe24d83a175f4c">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a40dddf94f309f6c0cfbe24d83a175f4c">operator=</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;rhs)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaca3f778cf04e601b8ecf06e73fd42b8c">operator=</a> (native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; rhs)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga37f640bcf2343ba65ee81e87a794e35f">reset</a> ()</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aca3f778cf04e601b8ecf06e73fd42b8c">operator=</a> (native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; rhs)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a37f640bcf2343ba65ee81e87a794e35f">reset</a> ()</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga1a88d1f07d3287acb0a33871f005c6be">reset</a> (COMPATIBLE_TYPE *ptr)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a1a88d1f07d3287acb0a33871f005c6be">reset</a> (COMPATIBLE_TYPE *ptr)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa004e232be1e2d260520369cbc95490d">reset</a> (COMPATIBLE_TYPE *ptr, DELETER deleter)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aa004e232be1e2d260520369cbc95490d">reset</a> (COMPATIBLE_TYPE *ptr, DELETER deleter)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class COMPATIBLE_TYPE , class DELETER , class ALLOCATOR &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gad56d4c635e12daf994c79a264d45bd19">reset</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ad56d4c635e12daf994c79a264d45bd19">reset</a> (COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga880253329316183fae55d7670bf02cd5">reset</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *ptr)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga57d3480dc19ef08fb4704e768a7f69ff">swap</a> (<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;other)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaafc3dbf236739df5e017f082b64db6ea">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a880253329316183fae55d7670bf02cd5">reset</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *ptr)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a57d3480dc19ef08fb4704e768a7f69ff">swap</a> (<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> &amp;other)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aafc3dbf236739df5e017f082b64db6ea">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator=0)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga03b9c9c63a4f1edccfb12a1a1075f72e">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a03b9c9c63a4f1edccfb12a1a1075f72e">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga39246fe1a4523a81686c59232495a3f5">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a39246fe1a4523a81686c59232495a3f5">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gab3fc58be99de52434c7974e3d6fa795e">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ab3fc58be99de52434c7974e3d6fa795e">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga652422a023fdaa27313f11d5d0ce384c">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a652422a023fdaa27313f11d5d0ce384c">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga55af65860795eb30bad02fb83508d5e2">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a55af65860795eb30bad02fb83508d5e2">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9260b9f283836bd34814564f475759e3">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a9260b9f283836bd34814564f475759e3">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga02d1f3eb9a6c35471edb1ac1979b2da0">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a02d1f3eb9a6c35471edb1ac1979b2da0">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gae3066aae4de276e4327ba8d94a09f130">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ae3066aae4de276e4327ba8d94a09f130">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga640c4b75bf8a9ac0fb2af1604605a833">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a640c4b75bf8a9ac0fb2af1604605a833">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga6565009e5d3855e7dc86f62de741b928">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a6565009e5d3855e7dc86f62de741b928">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa80b3327e687a5abf2c479986507d1aa">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aa80b3327e687a5abf2c479986507d1aa">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga64401cd05e867290147dabf55dfbf3b1">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a64401cd05e867290147dabf55dfbf3b1">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga51e62667dc0fa364f94d7d70d34f424b">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a51e62667dc0fa364f94d7d70d34f424b">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf998e53f52f90d11c49a564bdbf5ae61">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#af998e53f52f90d11c49a564bdbf5ae61">createInplace</a> (BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga710218b15aeac3ab96e1269038a5aa21">loadAlias</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)</td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a710218b15aeac3ab96e1269038a5aa21">loadAlias</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbsl_1_1pair.html">pair</a>&lt; ELEMENT_TYPE <br class="typebreak"/>
-*, BloombergLP::bslma::SharedPtrRep * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga54f46f5bb220e063bd7c097b8302a838">release</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga31292c33e0410049a25c59c0c4b74049">operator BoolType</a> () const </td></tr>
+*, BloombergLP::bslma::SharedPtrRep * &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a54f46f5bb220e063bd7c097b8302a838">release</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a31292c33e0410049a25c59c0c4b74049">operator BoolType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbsl_1_1add__lvalue__reference.html">add_lvalue_reference</a><br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7561cfb064b73fc506712a0bf4b4f6d1">operator*</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf0b9e0d68f8775c9f64c4df92d0f0d9b">operator-&gt;</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga48f002a13755bd11276a297079d8254e">get</a> () const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a7561cfb064b73fc506712a0bf4b4f6d1">operator*</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#af0b9e0d68f8775c9f64c4df92d0f0d9b">operator-&gt;</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a48f002a13755bd11276a297079d8254e">get</a> () const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac888622df34e855572e95f569686308c">owner_before</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ac888622df34e855572e95f569686308c">owner_before</a> (const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class ANY_TYPE &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga02e27d5b5b2bd9654791f92988bad1ea">owner_before</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga71ce3c0494bfb53b944cfad471f458cc">unique</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga577317da7b2aa99e58309cc7db1941de">use_count</a> () const </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a02e27d5b5b2bd9654791f92988bad1ea">owner_before</a> (const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;other) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a71ce3c0494bfb53b944cfad471f458cc">unique</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a577317da7b2aa99e58309cc7db1941de">use_count</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbsl_1_1add__lvalue__reference.html">add_lvalue_reference</a><br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac951c0325b8179829b715d8e9e48c595">operator[]</a> (ptrdiff_t index) const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#ac951c0325b8179829b715d8e9e48c595">operator[]</a> (ptrdiff_t index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::ManagedPtr<br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gacf1fa65139ac6e757e041353be18897e">managedPtr</a> () const </td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa2c9e02ec8be7cb54746f8a41b0b5c12">rep</a> () const </td></tr>
+&lt; ELEMENT_TYPE &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#acf1fa65139ac6e757e041353be18897e">managedPtr</a> () const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aa2c9e02ec8be7cb54746f8a41b0b5c12">rep</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="friends"></a>
 Friends</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">class&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga9a4da829475f0cf1809fc6ef555ffe06">shared_ptr</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#a9a4da829475f0cf1809fc6ef555ffe06">shared_ptr</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsl_1_1shared__ptr.html#aba1611b319f8c340c9b8d3e0e79bd855">BloombergLP::bslstl::SharedPtr_ImpUtil</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class ELEMENT_TYPE&gt;<br/>
@@ -194,11 +192,2202 @@ Friends</h2></td></tr>
 <p>This class provides a thread-safe reference-counted "smart pointer" to support "shared ownership" of objects: a shared pointer ensures that the shared object is destroyed, using the appropriate deletion method, only when there are no shared references to it. The object (of template parameter type <code>ELEMENT_TYPE</code>) referred to by a shared pointer may be accessed directly using the <code>-&gt;</code> operator, or the dereference operator (operator <code>*</code>) can be used to obtain a reference to that object.</p>
 <p>Note that the object referred to by a shared pointer representation is usually the same as the object referred to by that shared pointer (of the same <code>ELEMENT_TYPE</code>), but this need not always be true in the presence of conversions or "aliasing": the object referred to (of template parameter type <code>ELEMENT_TYPE</code>) by the shared pointer may differ from the object of type <code>COMPATIBLE_TYPE</code> (see the "Aliasing" section in the component-level documentation) referred to by the shared pointer representation.</p>
 <p>More generally, this class supports a complete set of <em>in</em>-*core* pointer semantic operations. </p>
+<hr/><h2>Member Typedef Documentation</h2>
+<a class="anchor" id="a61ba33bd2aeb0d92257c509d5871e5e2"></a><!-- doxytag: member="bsl::shared_ptr::element_type" ref="a61ba33bd2aeb0d92257c509d5871e5e2" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ELEMENT_TYPE <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html#a61ba33bd2aeb0d92257c509d5871e5e2">element_type</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a499733138e91edd57c5e1094a3a3ab57"></a><!-- doxytag: member="bsl::shared_ptr::ElementType" ref="a499733138e91edd57c5e1094a3a3ab57" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ELEMENT_TYPE <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html#a499733138e91edd57c5e1094a3a3ab57">ElementType</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a25bfad5e168d83249437014e7b6b8892"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a25bfad5e168d83249437014e7b6b8892" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an empty shared pointer, i.e., a shared pointer with no representation that does not refer to any object and has no deleter. </p>
+
+</div>
+</div>
+<a class="anchor" id="a5d2c2bd0c5dedf8e1198be362c0e0a82"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a5d2c2bd0c5dedf8e1198be362c0e0a82" args="(bsl::nullptr_t)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">bsl::nullptr_t</a>&nbsp;</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>IMPLICIT: Create an empty shared pointer, i.e., a shared pointer with no representation that does not refer to any object and has no deleter. </p>
+
+</div>
+</div>
+<a class="anchor" id="a841c0f3459e54c1bf2158eb56b285093"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a841c0f3459e54c1bf2158eb56b285093" args="(COMPATIBLE_TYPE *ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [explicit]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>(ELEMENT_TYPE *)ptr</code>. The currently installed default allocator is used to allocate and deallocate the internal representation of the shared pointer. When all references have been released, the object pointed to by the managed pointer will be destroyed by a call to <code>delete ptr</code>. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then this shared pointer will still allocate an internal representation to share ownership of that empty state, which will be reclaimed when the last reference is destroyed. If an exception is thrown allocating storage for the representation, then <code>delete ptr</code> will be called. Note that if <code>ptr</code> is a null-pointer constant, the compiler will actually select the <code><a class="el" href="classbsl_1_1shared__ptr.html#a5d2c2bd0c5dedf8e1198be362c0e0a82">shared_ptr(bsl::nullptr_t)</a></code> constructor, resulting in an empty shared pointer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab7e1c63bc0f6cdf8a18745b0c52139ea"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="ab7e1c63bc0f6cdf8a18745b0c52139ea" args="(COMPATIBLE_TYPE *ptr, BloombergLP::bslma::Allocator *basicAllocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> and refers to the specified <code>ptr</code> cast to a pointer to the (template parameter) type <code>ELEMENT_TYPE</code>. If the specified <code>basicAllocator</code> is not 0, then <code>basicAllocator</code> is used to allocate and deallocate the internal representation of the shared pointer and to destroy the shared object when all references have been released; otherwise, the currently installed default allocator is used. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then this shared pointer will still allocate an internal representation to share ownership of that empty state, which will be reclaimed when the last reference is destroyed. Note that if <code>ptr</code> is a null-pointer constant, the compiler will actually select the <code><a class="el" href="classbsl_1_1shared__ptr.html#aadfe208676a03d4f1a718ac73b9f02e5">shared_ptr(bsl::nullptr_t, BloombergLP::bslma::Allocator *)</a></code> constructor, resulting in an empty shared pointer. Note that if <code>basicAllocator</code> is a pointer to a class derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, the compiler will actually select the following (more general) constructor that has the same behavior: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          <span class="keyword">template</span> &lt;<span class="keyword">class</span> COMPATIBLE_TYPE, <span class="keyword">class</span> DELETER&gt;
+          <a class="code" href="classbsl_1_1shared__ptr.html#a25bfad5e168d83249437014e7b6b8892">shared_ptr</a>(COMPATIBLE_TYPE *ptr, DELETER * deleter);
+</pre></div><p><br/>
+<br/>
+ </p>
+
+</div>
+</div>
+<a class="anchor" id="a2a2e4bbff3006535d3173733b9f8ae2e"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a2a2e4bbff3006535d3173733b9f8ae2e" args="(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">ELEMENT_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::SharedPtrRep *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that takes ownership of the specified <code>rep</code> and refers to the modifiable object at the specified <code>ptr</code> address. The number of references to <code>rep</code> is <em>NOT</em> incremented. Note that if <code>rep</code> is a pointer to a class derived from <code>BloombergLP::bslma::SharedPtrRep</code>, the compiler will actually select the following (more general) constructor that has the same behavior: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          <span class="keyword">template</span> &lt;<span class="keyword">class</span> COMPATIBLE_TYPE, <span class="keyword">class</span> DELETER&gt;
+          <a class="code" href="classbsl_1_1shared__ptr.html#a25bfad5e168d83249437014e7b6b8892">shared_ptr</a>(COMPATIBLE_TYPE *ptr, DELETER * deleter);
+</pre></div><p><br/>
+<br/>
+ </p>
+
+</div>
+</div>
+<a class="anchor" id="a63d96baa49ed23efc1ac35505e2470ec"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a63d96baa49ed23efc1ac35505e2470ec" args="(COMPATIBLE_TYPE *ptr, DELETER *deleter)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER *&nbsp;</td>
+          <td class="paramname"> <em>deleter</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code>, refers to the specified <code>ptr</code> cast to a pointer to the (template parameter) type <code>ELEMENT_TYPE</code>, and uses the specified <code>deleter</code> to delete the shared object when all references have been released. Use the currently installed default allocator to allocate and deallocate the internal representation of the shared pointer, unless <code>DELETER</code> is a class derived from either <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> or <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>; if <code>DELETER</code> is a class derived from <code>bslma::allocator</code>, create a shared pointer as if calling the constructor: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          <span class="keyword">template</span> &lt;<span class="keyword">class</span> COMPATIBLE_TYPE&gt;
+          <a class="code" href="classbsl_1_1shared__ptr.html#a25bfad5e168d83249437014e7b6b8892">shared_ptr</a>(COMPATIBLE_TYPE               *ptr,
+                     BloombergLP::bslma::Allocator *basicAllocator);
+</pre></div><p><br/>
+<br/>
+ If <code>DELETER</code> is a class derived from <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>, create a shared pointer as if calling the constructor: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          <a class="code" href="classbsl_1_1shared__ptr.html#a25bfad5e168d83249437014e7b6b8892">shared_ptr</a>(ELEMENT_TYPE                     *ptr,
+                     BloombergLP::bslma::SharedPtrRep *<a class="code" href="classbsl_1_1shared__ptr.html#aa2c9e02ec8be7cb54746f8a41b0b5c12">rep</a>);
+</pre></div><p><br/>
+<br/>
+ If <code>DELETER</code> does not derive from either <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> or <code>BloombergLP::bslma::SharedPtrRep</code>, then <code>deleter</code> shall be a pointer to a factory object that exposes a member function that can be invoked as <code>deleteObject(ptr)</code> that will be called to destroy the object at the <code>ptr</code> address (i.e., <code>deleter-&gt;deleteObject(ptr)</code> will be called to delete the shared object). (See the "Deleters" section in the component-level documentation.) If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then the null pointer will be reference counted, and the deleter will be called when the last reference is destroyed. If an exception is thrown when allocating storage for the internal representation, then <code>deleter(ptr)</code> will be called. Note that this method is a BDE extension and not part of the C++ standard interface. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4cf0fdbff78c2ec3563ce9b7e6035b5a"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a4cf0fdbff78c2ec3563ce9b7e6035b5a" args="(COMPATIBLE_TYPE *ptr, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code>, refers to the specified <code>(ELEMENT_TYPE *)ptr</code>, and uses the specified <code>deleter</code> to delete the shared object when all references have been released. Optionally specify a <code>basicAllocator</code> to allocate and deallocate the internal representation of the shared pointer (including a copy of <code>deleter</code>). If <code>basicAllocator</code> is 0, the currently installed default allocator is used. <code>DELETER</code> shall be either a function pointer or a function-like deleter that may be invoked to destroy the object referred to by a single argument of type <code>COMPATIBLE_TYPE *</code> (i.e., <code>deleter(ptr)</code> will be called to destroy the shared object). (See the "Deleters" section in the component- level documentation.) If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then the null pointer will be reference counted, and <code>deleter(ptr)</code> will be called when the last reference is destroyed. If an exception is thrown when allocating storage for the internal representation, then <code>deleter(ptr)</code> will be called. The behavior is undefined unless the constructor making a copy of <code>deleter</code> does not throw an exception. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab2364e0cb3da8a2dfb19a423e3ce7d78"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="ab2364e0cb3da8a2dfb19a423e3ce7d78" args="(COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE , class DELETER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename ALLOCATOR::value_type *&nbsp;</td>
+          <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages a modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code>, refers to the specified <code>ptr</code> cast to a pointer to the (template parameter) type <code>ELEMENT_TYPE</code>, and uses the specified <code>deleter</code> to delete the shared object when all references have been released. Use the specified <code>basicAllocator</code> to allocate and deallocate the internal representation of the shared pointer (including a copy of the <code>deleter</code>). The (template parameter) type <code>DELETER</code> shall be either a function pointer or a function-like deleter that may be invoked to destroy the object referred to by a single argument of type <code>COMPATIBLE_TYPE *</code> (i.e., <code>deleter(ptr)</code> will be called to destroy the shared object). (See the "Deleters" section in the component- level documentation.) The (template parameter) type <code>ALLOCATOR</code> shall satisfy the Allocator requirements of the C++ standard (C++11 17.6.3.5, [allocator.requirements]). If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. If <code>ptr</code> is 0, then the null pointer will be reference counted, and <code>deleter(ptr)</code> will be called when the last reference is destroyed. If an exception is thrown when allocating storage for the internal representation, then <code>deleter(ptr)</code> will be called. The behavior is undefined unless the constructor making a copy of <code>deleter</code> does not throw an exception. Note that the final dummy parameter is a simple SFINAE check that the (template parameter) <code>ALLOCATOR</code> type probably satisfies the standard allocator requirements; in particular, it will not match pointer types, so any pointers to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> derived classes will dispatch to the constructor above this, and not be greedily matched to a generic type parameter. </p>
+
+</div>
+</div>
+<a class="anchor" id="aadfe208676a03d4f1a718ac73b9f02e5"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="aadfe208676a03d4f1a718ac73b9f02e5" args="(nullptr_t nullPointerLiteral, BloombergLP::bslma::Allocator *basicAllocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a>&nbsp;</td>
+          <td class="paramname"> <em>nullPointerLiteral</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create an empty shared pointer. The specified <code>nullPointerLiteral</code> and <code>basicAllocator</code> are not used. Note that use of this constructor is equivalent to calling the default constructor. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab0aa4a12d2b2002b2a6b5ec8d45ee774"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="ab0aa4a12d2b2002b2a6b5ec8d45ee774" args="(nullptr_t nullPointerLiteral, DELETER deleter, BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class DELETER &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a>&nbsp;</td>
+          <td class="paramname"> <em>nullPointerLiteral</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that reference-counts the null pointer, and calls the specified <code>deleter</code> with a null pointer (i.e., invokes <code>deleter((ELEMENT_TYPE *)0)</code>) when the last shared reference is destroyed. The specified <code>nullPointerLiteral</code> is not used. Optionally specify a <code>basicAllocator</code> to allocate and deallocate the internal representation of the shared pointer (including a copy of <code>deleter</code>). If <code>basicAllocator</code> is 0, the currently installed default allocator is used. If an exception is thrown when allocating storage for the internal representation, then <code>deleter((ELEMENT_TYPE *)0)</code> will be called. The behavior is undefined unless <code>deleter</code> can be called with a null pointer, and unless the constructor making a copy of <code>deleter</code> does not throw an exception. </p>
+
+</div>
+</div>
+<a class="anchor" id="a171ec51dc51b118a2c6bcfeac955fef8"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a171ec51dc51b118a2c6bcfeac955fef8" args="(nullptr_t nullPointerLiteral, DELETER deleter, ALLOCATOR basicAllocator, typename ALLOCATOR::value_type *=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class DELETER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacebsl.html#a15d68a87901fa9543f847ada4ee76fd3">nullptr_t</a>&nbsp;</td>
+          <td class="paramname"> <em>nullPointerLiteral</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">typename ALLOCATOR::value_type *&nbsp;</td>
+          <td class="paramname"> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that reference-counts the null pointer, calls the specified <code>deleter</code> with a null pointer (i.e., invokes <code>deleter((ELEMENT_TYPE *)0)</code>) when the last shared reference is destroyed, and uses the specified <code>basicAllocator</code> to allocate and deallocate the internal representation of the shared pointer (including a copy of the <code>deleter</code>). The (template parameter) type <code>DELETER</code> shall be either a function pointer or a function-like deleter (See the "Deleters" section in the component- level documentation). The (template parameter) type <code>ALLOCATOR</code> shall satisfy the Allocator requirements of the C++ standard (C++11 17.6.3.5, [allocator.requirements]). The specified <code>nullPointerLiteral</code> is not used. If an exception is thrown when allocating storage for the internal representation, then <code>deleter((ELEMENT_TYPE *)0)</code> will be called. The behavior is undefined unless <code>deleter</code> can be called with a null pointer, and unless the constructor making a copy of <code>deleter</code> does not throw an exception. Note that the final dummy parameter is a simple SFINAE check that the <code>ALLOCATOR</code> type probably satisfies the standard allocator requirements; in particular, it will not match pointer types, so any pointers to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> derived classes will dispatch to the constructor above this, and not be greedily matched to a generic type parameter. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad32ea0635de6a74d765ff432e7b6567e"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="ad32ea0635de6a74d765ff432e7b6567e" args="(BloombergLP::bslma::ManagedPtr&lt; COMPATIBLE_TYPE &gt; managedPtr, BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::ManagedPtr&lt; COMPATIBLE_TYPE &gt;&nbsp;</td>
+          <td class="paramname"> <em>managedPtr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a31b7a3668bfef03fb5f66571eee139ed"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a31b7a3668bfef03fb5f66571eee139ed" args="(native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; &amp;autoPtr, BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>autoPtr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [explicit]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that takes over the management of the modifiable object previously managed by the specified <code>autoPtr</code> to the (template parameter) type <code>COMPATIBLE_TYPE</code>, and that refers to <code>(ELEMENT_TYPE *)autoPtr.get()</code>. <code>delete(autoPtr.release())</code> will be called to destroy the shared object when all references have been released. Optionally specify a <code>basicAllocator</code> used to allocate and deallocate the internal representation of the shared pointer. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. </p>
+
+</div>
+</div>
+<a class="anchor" id="abc7e7eb011eeea91ca07faeba21d5637"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="abc7e7eb011eeea91ca07faeba21d5637" args="(native_std::auto_ptr_ref&lt; ELEMENT_TYPE &gt; autoRef, BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">native_std::auto_ptr_ref&lt; ELEMENT_TYPE &gt;&nbsp;</td>
+          <td class="paramname"> <em>autoRef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [explicit]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that takes over the management of the modifiable object of (template parameter) type <code>COMPATIBLE_TYPE</code> previously managed by the auto pointer object that the specified <code>autoRef</code> refers to; this shared pointer refers to the same object that it manages, and <code>delete(<a class="el" href="classbsl_1_1shared__ptr.html#a48f002a13755bd11276a297079d8254e">get()</a>)</code> will be called to destroy the shared object when all references have been released. Optionally specify a <code>basicAllocator</code> used to allocate and deallocate the internal representation of the shared pointer. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. </p>
+
+</div>
+</div>
+<a class="anchor" id="a12461f1c2a32564f2e6aed992f147811"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a12461f1c2a32564f2e6aed992f147811" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ELEMENT_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>object</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages the same modifiable object (if any) as the specified <code>source</code> shared pointer to the (template parameter) type <code>ANY_TYPE</code>, and that refers to the modifiable object at the specified <code>object</code> address. The resulting shared pointer is known as an "alias" of <code>source</code>. Note that typically the objects referred to by <code>source</code> and <code>object</code> have identical lifetimes (e.g., one might be a part of the other), so that the deleter for <code>source</code> will destroy them both, but they do not necessarily have the same type. Also note that if <code>source</code> is empty, then an empty shared pointer is created, even if <code>object</code> is not null (in which case this empty shared pointer will refer to the same object as <code>object</code>). Also note that if <code>object</code> is null and <code>source</code> is not empty, then a reference-counted null pointer alias will be created. </p>
+
+</div>
+</div>
+<a class="anchor" id="a52fd5aa2c3c730f07461871d120d2030"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a52fd5aa2c3c730f07461871d120d2030" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that manages the same modifiable object (if any) as the specified <code>other</code> shared pointer to the (template parameter) type <code>COMPATIBLE_TYPE</code>, uses the same deleter as <code>other</code> to destroy the shared object, and refers to <code>(ELEMENT_TYPE*)other.get()</code>. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. Note that if <code>other</code> is empty, then an empty shared pointer is created. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae1ba18a40fd81b46b1a579a0500164f2"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="ae1ba18a40fd81b46b1a579a0500164f2" args="(const shared_ptr &amp;original)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>original</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that refers to and manages the same object (if any) as the specified <code>original</code> shared pointer, and used the same deleter as <code>original</code> to destroy the shared object. Note that if <code>original</code> is empty, then an empty shared pointer is created. </p>
+
+</div>
+</div>
+<a class="anchor" id="a00a7faf4ca60527b1506d9f90696d904"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a00a7faf4ca60527b1506d9f90696d904" args="(const weak_ptr&lt; COMPATIBLE_TYPE &gt; &amp;ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [explicit]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a shared pointer that refers to and manages the same object as the specified <code>ptr</code> if <code>false == ptr.expired()</code>; otherwise, create a shared pointer in the empty state. Note that the referenced and managed objects may be different if <code>ptr</code> was created from a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> in an aliasing state. </p>
+
+</div>
+</div>
+<a class="anchor" id="aec035331c8d985691fd7c5929173259a"></a><!-- doxytag: member="bsl::shared_ptr::~shared_ptr" ref="aec035331c8d985691fd7c5929173259a" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::~<a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a> </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy this shared pointer. If this shared pointer refers to a (possibly shared) object, then release the reference to that object, and destroy the shared object using its associated deleter if this shared pointer is the last reference to that object. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a1888243089d89d2d68487862ebe43eb8"></a><!-- doxytag: member="bsl::shared_ptr::operator=" ref="a1888243089d89d2d68487862ebe43eb8" args="(const shared_ptr &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&amp; <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this shared pointer manage the same modifiable object as the specified <code>rhs</code> shared pointer to the (template parameter) type <code>COMPATIBLE_TYPE</code>, use the same deleter as <code>rhs</code>, and refer to <code>(ELEMENT_TYPE *)rhs.get()</code>; return a reference providing modifiable access to this shared pointer. Note that if <code>rhs</code> is empty, then this shared pointer will also be empty after the assignment. Also note that if <code>*this</code> is the same object as <code>rhs</code>, then this method has no effect. </p>
+
+</div>
+</div>
+<a class="anchor" id="a40dddf94f309f6c0cfbe24d83a175f4c"></a><!-- doxytag: member="bsl::shared_ptr::operator=" ref="a40dddf94f309f6c0cfbe24d83a175f4c" args="(const shared_ptr&lt; COMPATIBLE_TYPE &gt; &amp;rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&amp; <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; COMPATIBLE_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Make this shared pointer refer to and manage the same modifiable object as the specified <code>rhs</code> shared pointer to the (template parameter) type <code>COMPATIBLE_TYPE</code>, using the same deleter as <code>rhs</code> and referring to <code>(ELEMENT_TYPE *)rhs.get()</code>, and return a reference to this modifiable shared pointer. If this shared pointer is already managing a (possibly shared) object, then release the shared reference to that object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. Note that if <code>rhs</code> is empty, then this shared pointer will also be empty after the assignment. </p>
+
+</div>
+</div>
+<a class="anchor" id="aca3f778cf04e601b8ecf06e73fd42b8c"></a><!-- doxytag: member="bsl::shared_ptr::operator=" ref="aca3f778cf04e601b8ecf06e73fd42b8c" args="(native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt; rhs)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&amp; <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator= </td>
+          <td>(</td>
+          <td class="paramtype">native_std::auto_ptr&lt; COMPATIBLE_TYPE &gt;&nbsp;</td>
+          <td class="paramname"> <em>rhs</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Transfer, to this shared pointer, ownership of the modifiable object managed by the specified <code>rhs</code> auto pointer to the (template parameter) type <code>COMPATIBLE_TYPE</code>, and make this shared pointer refer to <code>(ELEMENT_TYPE *)rhs.get()</code>. <code>delete(autoPtr.release())</code> will be called to destroy the shared object when all references have been released. If this shared pointer is already managing a (possibly shared) object, then release the reference to that shared object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. Note that if <code>rhs</code> is empty, then this shared pointer will be empty after the assignment. </p>
+
+</div>
+</div>
+<a class="anchor" id="a37f640bcf2343ba65ee81e87a794e35f"></a><!-- doxytag: member="bsl::shared_ptr::reset" ref="a37f640bcf2343ba65ee81e87a794e35f" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Reset this shared pointer to the empty state. If this shared pointer is managing a (possibly shared) object, then release the reference to the shared object, calling the associated deleter to destroy the shared object if this shared pointer is the last shared reference. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1a88d1f07d3287acb0a33871f005c6be"></a><!-- doxytag: member="bsl::shared_ptr::reset" ref="a1a88d1f07d3287acb0a33871f005c6be" args="(COMPATIBLE_TYPE *ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Modify this shared pointer to manage the modifiable object of the (template parameter) type <code>COMPATIBLE_TYPE</code> at the specified <code>ptr</code> address and to refer to <code>(ELEMENT_TYPE *)ptr</code>. If this shared pointer is already managing a (possibly shared) object, then, unless an exception is thrown allocating memory to manage <code>ptr</code>, release the reference to the shared object, calling the associated deleter to destroy the shared object if this shared pointer is the last reference. The currently installed default allocator is used to allocate the internal representation of this shared pointer, and the shared object will be destroyed by a call to <code>delete ptr</code> when all references have been released. If an exception is thrown allocating the internal representation, then <code>delete ptr</code> is called and this shared pointer retains ownership of its original object. If <code>COMPATIBLE_TYPE*</code> is not implicitly convertible to <code>ELEMENT_TYPE*</code>, then a compiler diagnostic will be emitted indicating the error. Note that if <code>ptr</code> is 0, then this shared pointer will still allocate an internal representation to share ownership of that empty state, which will be reclaimed when the last reference is destroyed. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa004e232be1e2d260520369cbc95490d"></a><!-- doxytag: member="bsl::shared_ptr::reset" ref="aa004e232be1e2d260520369cbc95490d" args="(COMPATIBLE_TYPE *ptr, DELETER deleter)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE , class DELETER &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Modify this shared pointer to manage the modifiable object of the (template parameter) type <code>COMPATIBLE_TYPE</code> at the specified <code>ptr</code> address, refer to <code>(ELEMENT_TYPE *)ptr</code>, and use the specified <code>deleter</code> to delete the shared object when all references have been released. If this shared pointer is already managing a (possibly shared) object, then unless an exception is thrown allocating memory to manage <code>ptr</code>, release the reference to the shared object, calling the associated deleter to destroy the shared object if this shared pointer is the last reference. If <code>DELETER</code> is an object type, then <code>deleter</code> is assumed to be a function-like deleter that may be invoked to destroy the object referred to by a single argument of type <code>COMPATIBLE_TYPE *</code> (i.e., <code>deleter(ptr)</code> will be called to destroy the shared object). If <code>DELETER</code> is a pointer type that is not a function pointer, then <code>deleter</code> shall be a pointer to a factory object that exposes a member function that can be invoked as <code>deleteObject(ptr)</code> that will be called to destroy the object at the <code>ptr</code> address (i.e., <code>deleter-&gt;deleteObject(ptr)</code> will be called to delete the shared object). (See the "Deleters" section in the component-level documentation.) If <code>DELETER</code> is also a pointer to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> or to a class derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, then that allocator will also be used to allocate and destroy the internal representation of this shared pointer when all references have been released; otherwise, the currently installed default allocator is used to allocate and destroy the internal representation of this shared pointer when all references have been released. If an exception is thrown allocating the internal representation, then <code>deleter(ptr)</code> is called (or <code>deleter-&gt;deleteObject(ptr)</code> for factory-type deleters) and this shared pointer retains ownership of its original object. If <code>COMPATIBLE_TYPE*</code> is not implicitly convertible to <code>ELEMENT_TYPE*</code>, then a compiler diagnostic will be emitted indicating the error. Note that, for factory deleters, <code>deleter</code> must remain valid until all references to <code>ptr</code> have been released. If <code>ptr</code> is 0, then an internal representation will still be allocated, and this shared pointer will share ownership of a copy of <code>deleter</code>. Further note that this function is logically equivalent to: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          *<span class="keyword">this</span> = shared_ptr&lt;ELEMENT_TYPE&gt;(ptr, deleter);
+</pre></div><p><br/>
+<br/>
+ </p>
+
+</div>
+</div>
+<a class="anchor" id="ad56d4c635e12daf994c79a264d45bd19"></a><!-- doxytag: member="bsl::shared_ptr::reset" ref="ad56d4c635e12daf994c79a264d45bd19" args="(COMPATIBLE_TYPE *ptr, DELETER deleter, ALLOCATOR basicAllocator)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class COMPATIBLE_TYPE , class DELETER , class ALLOCATOR &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramtype">COMPATIBLE_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">DELETER&nbsp;</td>
+          <td class="paramname"> <em>deleter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ALLOCATOR&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Modify this shared pointer to manage the modifiable object of the (template parameter) type <code>COMPATIBLE_TYPE</code> at the specified <code>ptr</code> address, refer to <code>(ELEMENT_TYPE *)ptr</code> and use the specified <code>deleter</code> to delete the shared object when all references have been released. Use the specified <code>basicAllocator</code> to allocate and deallocate the internal representation of the shared pointer. If this shared pointer is already managing a (possibly shared) object, then, unless an exception is thrown allocating memory to manage <code>ptr</code>, release the shared reference to that shared object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. If <code>DELETER</code> is a reference type, then <code>deleter</code> is assumed to be a function-like deleter that may be invoked to destroy the object referred to by a single argument of type <code>COMPATIBLE_TYPE *</code> (i.e., <code>deleter(ptr)</code> will be called to destroy the shared object). If <code>DELETER</code> is a pointer type, then <code>deleter</code> is assumed to be a pointer to a factory object that exposes a member function that can be invoked as <code>deleteObject(ptr)</code> that will be called to destroy the object at the <code>ptr</code> address (i.e., <code>deleter-&gt;deleteObject(ptr)</code> will be called to delete the shared object). (See the "Deleters" section in the component-level documentation.) If an exception is thrown allocating the internal representation, then <code>deleter(ptr)</code> is called (or <code>deleter-&gt;deleteObject(ptr)</code> for factory-type deleters) and this shared pointer retains ownership of its original object. The behavior is undefined unless <code>deleter(ptr)</code> is a well-defined expression (or <code>deleter-&gt;deleteObject(ptr)</code> for factory-type deleters), and unless the copy constructor for <code>deleter</code> does not throw an exception. If <code>COMPATIBLE_TYPE *</code> is not implicitly convertible to <code>ELEMENT_TYPE *</code>, then a compiler diagnostic will be emitted indicating the error. Note that, for factory deleters, the <code>deleter</code> must remain valid until all references to <code>ptr</code> have been released. Also note that if <code>ptr</code> is 0, then an internal representation will still be allocated, and this shared pointer will share ownership of a copy of <code>deleter</code>. Further note that this function is logically equivalent to: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          *<span class="keyword">this</span> = shared_ptr&lt;ELEMENT_TYPE&gt;(ptr, deleter, basicAllocator);
+</pre></div><p><br/>
+<br/>
+ </p>
+
+</div>
+</div>
+<a class="anchor" id="a880253329316183fae55d7670bf02cd5"></a><!-- doxytag: member="bsl::shared_ptr::reset" ref="a880253329316183fae55d7670bf02cd5" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *ptr)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::reset </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ELEMENT_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>ptr</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Modify this shared pointer to manage the same modifiable object (if any) as the specified <code>source</code> shared pointer to the (template parameter) type <code>ANY_TYPE</code>, and refer to the modifiable object at the specified <code>ptr</code> address (i.e., make this shared pointer an "alias" of <code>source</code>). If this shared pointer is already managing a (possibly shared) object, then release the reference to the shared object, calling the associated deleter to destroy the shared object if this shared pointer is the last reference. Note that typically the objects referred to by <code>source</code> and <code>ptr</code> have identical lifetimes (e.g., one might be a part of the other), so that the deleter for <code>source</code> will destroy them both, but do not necessarily have the same type. Also note that if <code>source</code> is empty, then this shared pointer will be reset to an empty state, even if <code>ptr</code> is not null (in which case this empty shared pointer will refer to the same object as <code>ptr</code>). Also note that if <code>ptr</code> is null and <code>source</code> is not empty, then this shared pointer will be reset to a (reference-counted) null pointer alias. Further note that the behavior of this method is the same as <code>loadAlias(source, ptr)</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a57d3480dc19ef08fb4704e768a7f69ff"></a><!-- doxytag: member="bsl::shared_ptr::swap" ref="a57d3480dc19ef08fb4704e768a7f69ff" args="(shared_ptr &amp;other)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::swap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ELEMENT_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Efficiently exchange the states of this shared pointer and the specified <code>other</code> shared pointer such that each will refer to the object formerly referred to by the other and each will manage the object formerly managed by the other. </p>
+
+</div>
+</div>
+<a class="anchor" id="aafc3dbf236739df5e017f082b64db6ea"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="aafc3dbf236739df5e017f082b64db6ea" args="(BloombergLP::bslma::Allocator *basicAllocator=0)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em> = <code>0</code></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create "in-place" in a large enough contiguous memory region both an internal representation for this shared pointer and a default-constructed object of <code>ELEMENT_TYPE</code>, and make this shared pointer refer to the newly-created <code>ELEMENT_TYPE</code> object. Optionally specify a <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is 0, the currently installed default allocator is used. If an exception is thrown during allocation or construction of the <code>ELEMENT_TYPE</code> object, this shared pointer will be unchanged. Otherwise, if this shared pointer is already managing a (possibly shared) object, then release the shared reference to that shared object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. Note that the allocator argument is <em>not</em> passed to the constructor for <code>ELEMENT_TYPE</code>; to construct an in-place <code>ELEMENT_TYPE</code> with an allocator, use one of the other variants of <code>createInplace</code> below. </p>
+
+<p>Referenced by <a class="el" href="classbdlf_1_1BindWrapper.html#a9ca2f990bd5f3c80b9c6b39156d846c1">bdlf::BindWrapper&lt; RET, FUNC, TUPLE &gt;::BindWrapper()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a03b9c9c63a4f1edccfb12a1a1075f72e"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a03b9c9c63a4f1edccfb12a1a1075f72e" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a39246fe1a4523a81686c59232495a3f5"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a39246fe1a4523a81686c59232495a3f5" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ab3fc58be99de52434c7974e3d6fa795e"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="ab3fc58be99de52434c7974e3d6fa795e" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a652422a023fdaa27313f11d5d0ce384c"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a652422a023fdaa27313f11d5d0ce384c" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a55af65860795eb30bad02fb83508d5e2"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a55af65860795eb30bad02fb83508d5e2" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a9260b9f283836bd34814564f475759e3"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a9260b9f283836bd34814564f475759e3" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a02d1f3eb9a6c35471edb1ac1979b2da0"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a02d1f3eb9a6c35471edb1ac1979b2da0" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ae3066aae4de276e4327ba8d94a09f130"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="ae3066aae4de276e4327ba8d94a09f130" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a640c4b75bf8a9ac0fb2af1604605a833"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a640c4b75bf8a9ac0fb2af1604605a833" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a6565009e5d3855e7dc86f62de741b928"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a6565009e5d3855e7dc86f62de741b928" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A10 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a10</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aa80b3327e687a5abf2c479986507d1aa"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="aa80b3327e687a5abf2c479986507d1aa" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A10 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a10</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A11 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a11</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a64401cd05e867290147dabf55dfbf3b1"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a64401cd05e867290147dabf55dfbf3b1" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A10 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a10</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A11 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a11</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A12 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a12</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a51e62667dc0fa364f94d7d70d34f424b"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="a51e62667dc0fa364f94d7d70d34f424b" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A10 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a10</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A11 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a11</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A12 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a12</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A13 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a13</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="af998e53f52f90d11c49a564bdbf5ae61"></a><!-- doxytag: member="bsl::shared_ptr::createInplace" ref="af998e53f52f90d11c49a564bdbf5ae61" args="(BloombergLP::bslma::Allocator *basicAllocator, const A1 &amp;a1, const A2 &amp;a2, const A3 &amp;a3, const A4 &amp;a4, const A5 &amp;a5, const A6 &amp;a6, const A7 &amp;a7, const A8 &amp;a8, const A9 &amp;a9, const A10 &amp;a10, const A11 &amp;a11, const A12 &amp;a12, const A13 &amp;a13, const A14 &amp;a14)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class A1 , class A2 , class A3 , class A4 , class A5 , class A6 , class A7 , class A8 , class A9 , class A10 , class A11 , class A12 , class A13 , class A14 &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::createInplace </td>
+          <td>(</td>
+          <td class="paramtype">BloombergLP::bslma::Allocator *&nbsp;</td>
+          <td class="paramname"> <em>basicAllocator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A1 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A2 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A3 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A4 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a4</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A5 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a5</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A6 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a6</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A7 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A8 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a8</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A9 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a9</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A10 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a10</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A11 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a11</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A12 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a12</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A13 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a13</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const A14 &amp;&nbsp;</td>
+          <td class="paramname"> <em>a14</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create "in-place" in a large enough contiguous memory region, using the specified <code>basicAllocator</code> to supply memory, both an internal representation for this shared pointer and an object of <code>ELEMENT_TYPE</code> using the <code>ELEMENT_TYPE</code> constructor that takes the specified arguments <code>a1</code> up to <code>aN</code> where <code>N</code> (at most 14) is the number of arguments passed to this method, and make this shared pointer refer to the newly-created <code>ELEMENT_TYPE</code> object. If an exception is thrown during the construction of the <code>ELEMENT_TYPE</code> object, this shared pointer will be unchanged. Otherwise, if this shared pointer is already managing a (possibly shared) object, then release the shared reference to that shared object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. Note that the allocator argument is <em>not</em> implicitly passed to the constructor for <code>ELEMENT_TYPE</code>; to construct an object of <code>ELEMENT_TYPE</code> with an allocator, pass the allocator as one of the arguments (typically the last argument). </p>
+
+</div>
+</div>
+<a class="anchor" id="a710218b15aeac3ab96e1269038a5aa21"></a><!-- doxytag: member="bsl::shared_ptr::loadAlias" ref="a710218b15aeac3ab96e1269038a5aa21" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;source, ELEMENT_TYPE *object)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::loadAlias </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ELEMENT_TYPE *&nbsp;</td>
+          <td class="paramname"> <em>object</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>[!DEPRECATED!] Use <code>reset</code> instead.</p>
+<p>Modify this shared pointer to manage the same modifiable object (if any) as the specified <code>source</code> shared pointer to the (template parameter) type <code>ANY_TYPE</code>, and refer to the modifiable object at the specified <code>object</code> address (i.e., make this shared pointer an "alias" of <code>source</code>). If this shared pointer is already managing a (possibly shared) object, then release the shared reference to that shared object, and destroy it using its associated deleter if this shared pointer held the last shared reference to that object. Note that typically the objects referred to by <code>source</code> and <code>object</code> have identical lifetimes (e.g., one might be a part of the other), so that the deleter for <code>source</code> will destroy them both, but they do not necessarily have the same type. Also note that if <code>source</code> is empty, then this shared pointer will be reset to an empty state, even if <code>object</code> is not null (in which case this empty shared pointer will refer to the same object as <code>object</code>). Also note that if <code>object</code> is null and <code>source</code> is not empty, then this shared pointer will be reset to a (reference-counted) null pointer alias. Also note that this function is logically equivalent to: <br/>
+<br/>
+</p>
+<div class="fragment"><pre class="fragment">          *<span class="keyword">this</span> = shared_ptr&lt;ELEMENT_TYPE&gt;(source, object);
+</pre></div><p><br/>
+<br/>
+ Further note that the behavior of this method is the same as <code>reset(source, object)</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a54f46f5bb220e063bd7c097b8302a838"></a><!-- doxytag: member="bsl::shared_ptr::release" ref="a54f46f5bb220e063bd7c097b8302a838" args="()" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1pair.html">pair</a>&lt;ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *&gt; <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::release </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the pair consisting of the addresses of the modifiable <code>ELEMENT_TYPE</code> object referred to, and the representation shared by, this shared pointer, and reset this shared pointer to the empty state, referring to no object, with no effect on the representation. The reference counter is not modified nor is the shared object deleted; if the reference count of the representation is greater than one, then it is not safe to release the representation (thereby destroying the shared object), but it is always safe to create another shared pointer with the representation using the constructor with the signature 'shared_ptr(ELEMENT_TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep)'. Note that this function returns a pair of null pointers if this shared pointer is empty. </p>
+
+</div>
+</div>
+<a class="anchor" id="a31292c33e0410049a25c59c0c4b74049"></a><!-- doxytag: member="bsl::shared_ptr::operator BoolType" ref="a31292c33e0410049a25c59c0c4b74049" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator BoolType </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a value of an "unspecified bool" type that evaluates to <code>false</code> if this shared pointer does not refer to an object, and <code>true</code> otherwise. Note that this conversion operator allows a shared pointer to be used within a conditional context (e.g., within an <code>if</code> or <code>while</code> statement), but does <em>not</em> allow shared pointers to unrelated types to be compared (e.g., via <code>&lt;</code> or <code>&gt;</code>). </p>
+
+</div>
+</div>
+<a class="anchor" id="a7561cfb064b73fc506712a0bf4b4f6d1"></a><!-- doxytag: member="bsl::shared_ptr::operator*" ref="a7561cfb064b73fc506712a0bf4b4f6d1" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structbsl_1_1add__lvalue__reference.html">add_lvalue_reference</a>&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator* </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a reference providing modifiable access to the object referred to by this shared pointer. The behavior is undefined unless this shared pointer refers to an object, and <code>ELEMENT_TYPE</code> is not (potentially <code>const</code> or <code>volatile</code> qualified) <code>void</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="af0b9e0d68f8775c9f64c4df92d0f0d9b"></a><!-- doxytag: member="bsl::shared_ptr::operator&#45;&gt;" ref="af0b9e0d68f8775c9f64c4df92d0f0d9b" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">ELEMENT_TYPE* <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator-&gt; </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address providing modifiable access to the object referred to by this shared pointer, or 0 if this shared pointer does not refer to an object. Note that applying this operator conventionally (e.g., to invoke a method) to an shared pointer that does not refer to an object will result in undefined behavior. </p>
+
+</div>
+</div>
+<a class="anchor" id="a48f002a13755bd11276a297079d8254e"></a><!-- doxytag: member="bsl::shared_ptr::get" ref="a48f002a13755bd11276a297079d8254e" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">ELEMENT_TYPE* <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::get </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address providing modifiable access to the object referred to by this shared pointer, or 0 if this shared pointer does not refer to an object. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac888622df34e855572e95f569686308c"></a><!-- doxytag: member="bsl::shared_ptr::owner_before" ref="ac888622df34e855572e95f569686308c" args="(const shared_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a02e27d5b5b2bd9654791f92988bad1ea"></a><!-- doxytag: member="bsl::shared_ptr::owner_before" ref="a02e27d5b5b2bd9654791f92988bad1ea" args="(const weak_ptr&lt; ANY_TYPE &gt; &amp;other) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+<div class="memtemplate">
+template&lt;class ANY_TYPE &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::owner_before </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbsl_1_1weak__ptr.html">weak_ptr</a>&lt; ANY_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>other</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by this shared pointer is ordered before the address of the <code>BloombergLP::bslma::SharedPtrRep</code> object used by the specified <code>other</code> shared pointer under the total ordering defined by <code>std::less&lt;BloombergLP::bslma::SharedPtrRep *&gt;</code>, and <code>false</code> otherwise. </p>
+
+</div>
+</div>
+<a class="anchor" id="a71ce3c0494bfb53b944cfad471f458cc"></a><!-- doxytag: member="bsl::shared_ptr::unique" ref="a71ce3c0494bfb53b944cfad471f458cc" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::unique </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return <code>true</code> if this shared pointer is not empty and does not share ownership of the object it managed with any other shared pointer, and <code>false</code> otherwise. Note that a shared pointer with a custom deleter can refer to a null pointer without being empty, and so may be <code>unique</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a577317da7b2aa99e58309cc7db1941de"></a><!-- doxytag: member="bsl::shared_ptr::use_count" ref="a577317da7b2aa99e58309cc7db1941de" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">long <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::use_count </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a "snapshot" of the number of shared pointers (including this one) that share ownership of the object managed by this shared pointer. Note that 0 is returned if this shared pointer is empty. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac951c0325b8179829b715d8e9e48c595"></a><!-- doxytag: member="bsl::shared_ptr::operator[]" ref="ac951c0325b8179829b715d8e9e48c595" args="(ptrdiff_t index) const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structbsl_1_1add__lvalue__reference.html">add_lvalue_reference</a>&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator[] </td>
+          <td>(</td>
+          <td class="paramtype">ptrdiff_t&nbsp;</td>
+          <td class="paramname"> <em>index</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a reference providing modifiable access to the object at the specified <code>index</code> offset in the object referred to by this shared pointer. The behavior is undefined unless this shared pointer is not empty, <code>ELEMENT_TYPE</code> is not <code>void</code> (a compiler error will be generated if this operator is instantiated within the <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a>&lt;void&gt;</code> class), and this shared pointer refers to an array of <code>ELEMENT_TYPE</code> objects. Note that this method is logically equivalent to <code>*(<a class="el" href="classbsl_1_1shared__ptr.html#a48f002a13755bd11276a297079d8254e">get()</a> + index)</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="acf1fa65139ac6e757e041353be18897e"></a><!-- doxytag: member="bsl::shared_ptr::managedPtr" ref="acf1fa65139ac6e757e041353be18897e" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">BloombergLP::bslma::ManagedPtr&lt;ELEMENT_TYPE&gt; <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::managedPtr </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return a managed pointer that refers to the same object as this shared pointer and that has a deleter that decrements the reference count for the shared object. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa2c9e02ec8be7cb54746f8a41b0b5c12"></a><!-- doxytag: member="bsl::shared_ptr::rep" ref="aa2c9e02ec8be7cb54746f8a41b0b5c12" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">BloombergLP::bslma::SharedPtrRep* <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::rep </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the address providing modifiable access to the <code>BloombergLP::bslma::SharedPtrRep</code> object used by this shared pointer, or 0 if this shared pointer is empty. </p>
+
+</div>
+</div>
+<hr/><h2>Friends And Related Function Documentation</h2>
+<a class="anchor" id="a9a4da829475f0cf1809fc6ef555ffe06"></a><!-- doxytag: member="bsl::shared_ptr::shared_ptr" ref="a9a4da829475f0cf1809fc6ef555ffe06" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">friend class <a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a><code> [friend]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aba1611b319f8c340c9b8d3e0e79bd855"></a><!-- doxytag: member="bsl::shared_ptr::BloombergLP::bslstl::SharedPtr_ImpUtil" ref="aba1611b319f8c340c9b8d3e0e79bd855" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class ELEMENT_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">friend struct BloombergLP::bslstl::SharedPtr_ImpUtil<code> [friend]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:32 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

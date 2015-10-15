@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bslmf::IsBitwiseMoveable_Imp</title>
+<title>BDE 3.0: Struct bslmf::IsBitwiseMoveable_Imp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -61,7 +61,7 @@
   <div class="navpath">
     <ul>
       <li><a class="el" href="namespacebslmf.html">bslmf</a>      </li>
-      <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable__Imp.html">bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;</a>      </li>
+      <li><a class="el" href="structbslmf_1_1IsBitwiseMoveable__Imp.html">bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;</a>      </li>
     </ul>
   </div>
 </div>
@@ -71,18 +71,18 @@
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a>  </div>
   <div class="headertitle">
-<h1>bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt; Struct Template Reference</h1>  </div>
+<h1>bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt; Struct Template Reference</h1>  </div>
 </div>
 <div class="contents">
-<!-- doxytag: class="bslmf::IsBitwiseMoveable_Imp" --><!-- doxytag: inherits="integral_constant&lt; bool,!bsl::is_reference&lt; TYPE &gt;::value &amp;&amp;(bsl::is_trivially_copyable&lt; TYPE &gt;::value||DetectNestedTrait&lt; TYPE, IsBitwiseMoveable &gt;::value)&gt;" -->
+<!-- doxytag: class="bslmf::IsBitwiseMoveable_Imp" --><!-- doxytag: inherits="bsl::integral_constant" -->
 <p><code>#include &lt;<a class="el" href="bslmf__isbitwisemoveable_8h_source.html">bslmf_isbitwisemoveable.h</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;:</div>
+Inheritance diagram for bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="structbslmf_1_1IsBitwiseMoveable__Imp.png" usemap="#bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;_map" alt=""/>
-  <map id="bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;_map" name="bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;_map">
-<area href="structbsl_1_1integral__constant.html" alt="bsl::integral_constant&lt; bool,!bsl::is_reference&lt; TYPE &gt;::value &amp;&amp;(bsl::is_trivially_copyable&lt; TYPE &gt;::value||DetectNestedTrait&lt; TYPE, IsBitwiseMoveable &gt;::value)&gt;" shape="rect" coords="0,0,941,24"/>
+  <img src="structbslmf_1_1IsBitwiseMoveable__Imp.png" usemap="#bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;_map" alt=""/>
+  <map id="bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;_map" name="bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;_map">
+<area href="structbsl_1_1integral__constant.html" alt="bsl::integral_constant&lt; TYPE, VAL &gt;" shape="rect" coords="0,0,266,24"/>
 </map>
 </div>
 
@@ -90,25 +90,29 @@ Inheritance diagram for bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;:</div>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef integral_constant&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#aca5effb998c846c4fdaa8b91a3bafb38">type</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#a0c1fff97e19011a3bc61cd8663407a19">operator value_type</a> () const</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#a0c1fff97e19011a3bc61cd8663407a19">operator value_type</a> () const </td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">value</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static const TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">value</a> = VAL</td></tr>
 </table>
-<h3>template&lt;class TYPE&gt;<br/>
- struct bslmf::IsBitwiseMoveable_Imp&lt; TYPE &gt;</h3>
+<hr/><a name="_details"></a><h2>Detailed Description</h2>
+<h3>template&lt;class TYPE, bool = bsl::is_reference&lt;TYPE&gt;::value || bsl::is_function&lt;TYPE&gt;::value&gt;<br/>
+ struct bslmf::IsBitwiseMoveable_Imp&lt; TYPE, bool &gt;</h3>
 
+<p>Function types and reference types are not object types, and so are not bitwise-movable. Both categories of types must be explicitly handled by a distinct template specialization to avoid attempting to instantiate invalid code, such as <code>sizeof(FUNCTION_TYPE)</code>, when computing the trait result for other (object) types. </p>
 <hr/><h2>Member Typedef Documentation</h2>
 <a class="anchor" id="acc23b3e7d3af16f977c8655fe1d26bc1"></a><!-- doxytag: member="bslmf::IsBitwiseMoveable_Imp::value_type" ref="acc23b3e7d3af16f977c8655fe1d26bc1" args="" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE, TYPE VAL&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef bool  <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; bool , VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a><code> [inherited]</code></td>
+          <td class="memname">typedef TYPE <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; TYPE, VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a><code> [inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -119,9 +123,11 @@ Static Public Attributes</h2></td></tr>
 <a class="anchor" id="aca5effb998c846c4fdaa8b91a3bafb38"></a><!-- doxytag: member="bslmf::IsBitwiseMoveable_Imp::type" ref="aca5effb998c846c4fdaa8b91a3bafb38" args="" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE, TYPE VAL&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef integral_constant <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; bool , VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html">type</a><code> [inherited]</code></td>
+          <td class="memname">typedef integral_constant <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; TYPE, VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html">type</a><code> [inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -130,12 +136,14 @@ Static Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Function Documentation</h2>
-<a class="anchor" id="a0c1fff97e19011a3bc61cd8663407a19"></a><!-- doxytag: member="bslmf::IsBitwiseMoveable_Imp::operator value_type" ref="a0c1fff97e19011a3bc61cd8663407a19" args="() const" -->
+<a class="anchor" id="a0c1fff97e19011a3bc61cd8663407a19"></a><!-- doxytag: member="bslmf::IsBitwiseMoveable_Imp::operator value_type" ref="a0c1fff97e19011a3bc61cd8663407a19" args="() const " -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE, TYPE VAL&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; bool , VAL &gt;::operator <a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a> </td>
+          <td class="memname"><a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; TYPE, VAL &gt;::operator <a class="el" href="structbsl_1_1integral__constant.html#acc23b3e7d3af16f977c8655fe1d26bc1">value_type</a> </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -152,9 +160,11 @@ Static Public Attributes</h2></td></tr>
 <a class="anchor" id="ae8eee2a9fe60bc75aeefc45c9e4e5b94"></a><!-- doxytag: member="bslmf::IsBitwiseMoveable_Imp::value" ref="ae8eee2a9fe60bc75aeefc45c9e4e5b94" args="" -->
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;class TYPE, TYPE VAL&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">const bool  <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; bool , VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">value</a><code> [static, inherited]</code></td>
+          <td class="memname">const TYPE <a class="el" href="structbsl_1_1integral__constant.html">bsl::integral_constant</a>&lt; TYPE, VAL &gt;::<a class="el" href="structbsl_1_1integral__constant.html#ae8eee2a9fe60bc75aeefc45c9e4e5b94">value</a> = VAL<code> [static, inherited]</code></td>
         </tr>
       </table>
 </div>
@@ -166,7 +176,7 @@ Static Public Attributes</h2></td></tr>
 <li><a class="el" href="bslmf__isbitwisemoveable_8h_source.html">bslmf_isbitwisemoveable.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:36 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:03 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

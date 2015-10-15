@@ -1,0 +1,315 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_integercollector.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_INTEGERCOLLECTOR
+#define INCLUDED_BALM_INTEGERCOLLECTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for collecting integral metric values.
+//
+//@CLASSES:
+//   balm::IntegerCollector: a container for collecting integral values
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides a class for collecting and aggregating
+// the values of an integral metric.  The &#39;balm::IntegerCollector&#39; records the
+// number of times an event occurs as well as an associated integral
+// measurement value.  This component does *not* define what constitutes an
+// event or what the value measures.  The collector manages, in a fully
+// thread-safe manner, the count of event occurrences and the aggregated
+// minimum, maximum, and total of the measured metric value.  This collector
+// class provides operations to update the aggregated value, a &#39;load&#39; method
+// to populate a &#39;balm::MetricRecord&#39; with the current state of the collector,
+// a &#39;reset&#39; operator to reset the current state of the integer collector, and
+// finally a combined &#39;loadAndReset&#39; method that performs both a load and a
+// reset in a single (atomic) operation.
+//
+///Thread Safety
+///-------------
+// &#39;balm::IntegerCollector&#39; is fully *thread-safe*, meaning that all
+// non-creator operations on a given instance can be safely invoked
+// simultaneously from multiple threads.
+//
+///Usage
+///-----
+// The following example creates a &#39;balm::IntegerCollector&#39;, modifies its
+// values, then collects a &#39;balm::MetricRecord&#39;.
+//
+// We start by creating a &#39;balm::MetricId&#39; object by hand, but in practice, an
+// id should be obtained from a &#39;balm::MetricRegistry&#39; object (such as the one
+// owned by a &#39;balm::MetricsManager&#39;):
+//..
+//  balm::Category           myCategory(&quot;MyCategory&quot;);
+//  balm::MetricDescription  description(&amp;myCategory, &quot;MyMetric&quot;);
+//  balm::MetricId           myMetric(&amp;description);
+//..
+// Now we create a &#39;balm::IntegerCollector&#39; object for &#39;myMetric&#39; and use the
+// &#39;update&#39; method to update its collected value:
+//..
+//  balm::IntegerCollector collector(myMetric);
+//
+//  collector.update(1);
+//  collector.update(3);
+//..
+// The collector accumulated the values 1 and 3.  The result should have a
+// count of 2, a total of 4 (3 + 1), a max of 3 (max(3, 1)), and a min of 1
+// (min(3, 1)).
+//..
+//  balm::MetricRecord record;
+//  collector.loadAndReset(&amp;record);
+//
+//      assert(myMetric == record.metricId());
+//      assert(2        == record.count());
+//      assert(4        == record.total());
+//      assert(1        == record.min());
+//      assert(3        == record.max());
+//..
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICID
+#include &lt;balm_metricid.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICRECORD
+#include &lt;balm_metricrecord.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_LOCKGUARD
+#include &lt;bslmt_lockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balm {
+                           // ======================
+                           // class IntegerCollector
+                           // ======================
+
+class IntegerCollector {
+    // This class provides a mechanism for collecting and aggregating the
+    // value of an integer metric over a period of time.  The collector
+    // contains a &#39;MetricId&#39; object identifying the metric being collected,
+    // the number of times an event occurred, and the total, minimum, and
+    // maximum aggregates of the associated measurement value.  The default
+    // value for the count is 0, the default value for the total is 0, the
+    // default value for the minimum is &#39;k_DEFAULT_MIN&#39;, and the default value
+    // for the maximum is &#39;k_DEFAULT_MAX&#39;.
+
+    // DATA
+    MetricId             d_metricId;  // metric identifier
+    int                  d_count;     // aggregated count of events
+    bsls::Types::Int64   d_total;     // total of values across events
+    int                  d_min;       // minimum value across events
+    int                  d_max;       // maximum value across events
+    mutable bslmt::Mutex d_mutex;     // synchronizes access to data
+
+    // NOT IMPLEMENTED
+    IntegerCollector(const IntegerCollector&amp;);
+    IntegerCollector&amp; operator=(const IntegerCollector&amp;);
+
+  public:
+    // PUBLIC CONSTANTS
+    static const int k_DEFAULT_MIN;  // default minimum value (INT_MAX)
+    static const int k_DEFAULT_MAX;  // default maximum value (INT_MIN)
+
+    // CREATORS
+    IntegerCollector(const MetricId&amp; metricId);
+        // Create an integer collector for a metric having the specified
+        // &#39;metricId&#39;, and having an initial count of 0, total of 0, min of
+        // &#39;k_DEFAULT_MIN&#39;, and max of &#39;k_DEFAULT_MAX&#39;.
+
+    ~IntegerCollector();
+        // Destroy this object.
+
+    // MANIPULATORS
+    void reset();
+        // Reset the count, total, minimum, and maximum values of the metric
+        // being collected to their default states.  After this operation, the
+        // count and total values will be 0, the minimum value will be
+        // &#39;k_DEFAULT_MIN&#39;, and the maximum value will be &#39;k_DEFAULT_MAX&#39;.
+
+    void loadAndReset(MetricRecord *records);
+        // Load into the specified &#39;record&#39; the id of the metric being
+        // collected as well as the current count, total, minimum, and maximum
+        // aggregated values for that metric; then reset the count, total,
+        // minimum, and maximum values to their default states.  After this
+        // operation, the count and total values will be 0, the minimum value
+        // will be &#39;k_DEFAULT_MIN&#39;, and the maximum value will be
+        // &#39;k_DEFAULT_MAX&#39;.  Note that
+        // &#39;k_DEFAULT_MIN != MetricRecord::k_DEFAULT_MIN&#39; and
+        // &#39;k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX&#39;; when populating
+        // &#39;record&#39;, this operation will convert default values for minimum and
+        // maximum.  A minimum value of &#39;k_DEFAULT_MIN&#39; will populate a minimum
+        // value of of &#39;MetricRecord::k_DEFAULT_MIN&#39; and a maximum value of
+        // &#39;k_DEFAULT_MAX&#39; will populate a maximum value of
+        // &#39;MetricRecord::k_DEFAULT_MAX&#39;.
+
+    void update(int value);
+        // Increment the event count by 1, add the specified &#39;value&#39; to the
+        // total, if &#39;value&#39; is less than the minimum value, set &#39;value&#39; to be
+        // the minimum value, and if &#39;value&#39; is greater than the maximum
+        // value, set &#39;value&#39; to be the maximum value.
+
+    void accumulateCountTotalMinMax(int count, int total, int min, int max);
+        // Increment the event count by the specified &#39;count&#39;, add the
+        // specified &#39;total&#39; to the accumulated total, and if the specified
+        // &#39;min&#39; is less than the minimum value, set &#39;min&#39; to be the minimum
+        // value, and if the specified &#39;max&#39; is greater than the maximum value,
+        // set &#39;max&#39; to be the maximum value.
+
+    void setCountTotalMinMax(int count, int total, int min, int max);
+        // Set the event count to the specified &#39;count&#39;, the total aggregate to
+        // the specified &#39;total&#39;, the minimum aggregate to the specified &#39;min&#39;
+        // and the maximum aggregate to the specified &#39;max&#39;.
+
+    // ACCESSORS
+    const MetricId&amp; metricId() const;
+        // Return a reference to the non-modifiable &#39;MetricId&#39; object
+        // identifying the metric for which this object collects values.
+
+    void load(MetricRecord *record) const;
+        // Load into the specified &#39;record&#39; the id of the metric being
+        // collected, as well as the current count, total, minimum, and
+        // maximum aggregated values for the metric.  Note that
+        // &#39;k_DEFAULT_MIN != MetricRecord::k_DEFAULT_MIN&#39; and
+        // &#39;k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX&#39;; when populating
+        // &#39;record&#39;, this operation will convert default values for minimum
+        // and maximum.  A minimum value of &#39;k_DEFAULT_MIN&#39; will populate a
+        // minimum value of &#39;MetricRecord::k_DEFAULT_MIN&#39; and a maximum value
+        // of &#39;k_DEFAULT_MAX&#39; will populate a maximum value of
+        // &#39;MetricRecord::k_DEFAULT_MAX&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ----------------------
+                           // class IntegerCollector
+                           // ----------------------
+
+// CREATORS
+inline
+IntegerCollector::IntegerCollector(const MetricId&amp; metricId)
+: d_metricId(metricId)
+, d_count(0)
+, d_total(0)
+, d_min(k_DEFAULT_MIN)
+, d_max(k_DEFAULT_MAX)
+, d_mutex()
+{
+}
+
+inline
+IntegerCollector::~IntegerCollector()
+{
+}
+
+// MANIPULATORS
+inline
+void IntegerCollector::reset()
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    d_count = 0;
+    d_total = 0;
+    d_min   = k_DEFAULT_MIN;
+    d_max   = k_DEFAULT_MAX;
+}
+
+inline
+void IntegerCollector::update(int value)
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    ++d_count;
+    d_total += value;
+    d_min = bsl::min(value, d_min);
+    d_max = bsl::max(value, d_max);
+}
+
+inline
+void IntegerCollector::accumulateCountTotalMinMax(int count,
+                                                  int total,
+                                                  int min,
+                                                  int max)
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    d_count += count;
+    d_total += total;
+    d_min   = bsl::min(min, d_min);
+    d_max   = bsl::max(max, d_max);
+}
+
+inline
+void IntegerCollector::setCountTotalMinMax(int count,
+                                           int total,
+                                           int min,
+                                           int max)
+{
+    bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(&amp;d_mutex);
+    d_count = count;
+    d_total = total;
+    d_min   = min;
+    d_max   = max;
+}
+
+// ACCESSORS
+inline
+const MetricId&amp; IntegerCollector::metricId() const
+{
+    return d_metricId;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

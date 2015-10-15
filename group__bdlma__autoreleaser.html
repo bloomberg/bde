@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_autoreleaser Component</title>
+<title>BDE 3.0: bdlma_autoreleaser Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -79,7 +79,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3">Description</a> <ul>
 <li>
-<a href="#3.1">REQUIREMENTS</a> </li>
+<a href="#3.1">Requirements</a> </li>
 <li>
 <a href="#3.2">Usage</a> <ul>
 <li>
@@ -107,16 +107,17 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component provides a proctor object to manage memory allocated from a managed allocator or pool. The proctor's destructor invokes the <code>release</code> method of its managed allocator or pool unless the proctor's own <code>release</code> method has been called. Note that after a proctor releases management of its managed allocator or pool, the proctor can be reused by invoking its <code>reset</code> method with another allocator or pool object (of the same (template parameter) type <code>ALLOCATOR</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component provides a proctor object, <code><a class="el" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser</a></code>, to manage memory allocated from a managed allocator or pool. The proctor's destructor invokes the <code>release</code> method of its managed allocator or pool unless the proctor's own <code>release</code> method has been called. Note that after a proctor releases management of its managed allocator or pool, the proctor can be reused by invoking its <code>reset</code> method with another allocator or pool object (of the same (template parameter) type <code>ALLOCATOR</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="requirements"></a> <a class="anchor" id="description.requirements"></a> <a class="anchor" id="3.1"></a> </dd></dl>
-<dl class="user"><dt><b>REQUIREMENTS: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Requirements: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The object of the (template parameter) type <code>ALLOCATOR</code> must provide a method having the following signature: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> release();
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
@@ -127,9 +128,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>In this example, we illustrate use of a <code><a class="el" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser</a></code> proctor within the <code>operator=</code> method of <code>my_FastStrArray</code>, a class that implements an array of C string elements. Note that a <code>my_FastStrArray</code> object allocates memory for its C string elements using a string pool, <code>my_StrPool</code>, the definition of which is elided. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the interface of our <code>my_FastStrArray</code> class: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">// my_fastcstrarray.h</span>
-
-  <span class="keyword">class </span>my_FastCstrArray {
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>my_FastCstrArray {
       <span class="comment">// This class implements an array of C string elements.  Each C string</span>
       <span class="comment">// is allocated using the &#39;my_StrPool&#39; member for fast memory</span>
       <span class="comment">// allocation and deallocation.</span>
@@ -145,6 +144,9 @@ Namespaces</h2></td></tr>
       <span class="comment">// PRIVATE MANIPULATORS</span>
       <span class="keywordtype">void</span> increaseSize();
 
+      <span class="comment">// Not implemented:</span>
+      my_FastCstrArray(<span class="keyword">const</span> my_FastCstrArray&amp;);
+
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
       my_FastCstrArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
@@ -159,17 +161,87 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">int</span> length()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_length; }
   };
 
-  <span class="comment">// ...</span>
+  <span class="comment">// FREE OPERATORS</span>
+  ostream&amp; <a class="code" href="namespacebalb.html#a777d713a1c54d1359c8cb8144cc50b7a">operator&lt;&lt;</a>(ostream&amp; stream, <span class="keyword">const</span> my_FastCstrArray&amp; array);
 </pre></div><br/>
 <br/>
- Finally, we implement <code>my_FastCstrArray::operator=</code> using a <code><a class="el" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser</a></code> proctor to preserve exception neutrality: <br/>
+ Then, we implement the methods: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">// my_fastcstrarray.cpp</span>
-<span class="preprocessor">  #include &lt;my_fastcstrarray.h&gt;</span>
+<div class="fragment"><pre class="fragment">  <span class="keyword">enum</span> {
+      k_MY_INITIAL_SIZE = 1, <span class="comment">// initial physical capacity</span>
+      k_MY_GROW_FACTOR  = 2  <span class="comment">// factor by which to grow &#39;d_capacity&#39;</span>
+  };
 
-  <span class="comment">// ...</span>
+  <span class="keyword">static</span> <span class="keyword">inline</span>
+  <span class="keywordtype">int</span> nextSize(<span class="keywordtype">int</span> size)
+      <span class="comment">// Return the specified &#39;size&#39; multiplied by &#39;k_MY_GROW_FACTOR&#39;.</span>
+  {
+      <span class="keywordflow">return</span> size * k_MY_GROW_FACTOR;
+  }
 
-  <span class="comment">// MANIPULATORS</span>
+  <span class="keyword">static</span> <span class="keyword">inline</span>
+  <span class="keywordtype">void</span> reallocate(<span class="keywordtype">char</span>             ***array,
+                  <span class="keywordtype">int</span>                *size,
+                  <span class="keywordtype">int</span>                 newSize,
+                  <span class="keywordtype">int</span>                 length,
+                  <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>   *allocator)
+      <span class="comment">// Reallocate memory in the specified &#39;array&#39; and update the specified</span>
+      <span class="comment">// &#39;size&#39; to the specified &#39;newSize&#39;, using the specified &#39;allocator&#39;</span>
+      <span class="comment">// to supply memory.  The specified &#39;length&#39; number of leading elements</span>
+      <span class="comment">// are preserved.  If &#39;allocate&#39; should throw an exception, this</span>
+      <span class="comment">// function has no effect.  The behavior is undefined unless</span>
+      <span class="comment">// &#39;1 &lt;= newSize&#39;, &#39;0 &lt;= length&#39;, and &#39;length &lt;= newSize&#39;.</span>
+  {
+      ASSERT(array);
+      ASSERT(*array);
+      ASSERT(size);
+      ASSERT(1 &lt;= newSize);
+      ASSERT(0 &lt;= length);
+      ASSERT(length &lt;= *size);    <span class="comment">// sanity check</span>
+      ASSERT(length &lt;= newSize);  <span class="comment">// ensure class invariant</span>
+
+      <span class="keywordtype">char</span> **tmp = *array;
+
+      *array = (<span class="keywordtype">char</span> **)allocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#ad4499967960770d979508ef9df5544b9">allocate</a>(newSize * <span class="keyword">sizeof</span> **array);
+
+      <span class="comment">// commit</span>
+      bsl::memcpy(*array, tmp, length * <span class="keyword">sizeof</span> **array);
+      *size = newSize;
+      allocator-&gt;<a class="code" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">deallocate</a>(tmp);
+  }
+
+  <span class="keywordtype">void</span> my_FastCstrArray::increaseSize()
+  {
+      reallocate(&amp;d_array_p,
+                 &amp;d_capacity,
+                 nextSize(d_capacity),
+                 d_length,
+                 d_allocator_p);
+  }
+
+  <span class="comment">// CREATORS</span>
+  my_FastCstrArray::my_FastCstrArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+  : d_capacity(k_MY_INITIAL_SIZE)
+  , d_length(0)
+  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+  {
+      d_array_p = (<span class="keywordtype">char</span> **)d_allocator_p-&gt;allocate(
+                                             d_capacity * <span class="keyword">sizeof</span> *d_array_p);
+  }
+
+  my_FastCstrArray::~my_FastCstrArray()
+  {
+      ASSERT(1        &lt;= d_capacity);
+      ASSERT(0        &lt;= d_length);
+      ASSERT(d_length &lt;= d_capacity);
+
+      d_allocator_p-&gt;deallocate(d_array_p);
+  }
+</pre></div><br/>
+<br/>
+ Now, we implement <code>my_FastCstrArray::operator=</code> using a <code><a class="el" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser</a></code> proctor to preserve exception neutrality: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="comment">// MANIPULATORS</span>
   my_FastCstrArray&amp;
   my_FastCstrArray::operator=(<span class="keyword">const</span> my_FastCstrArray&amp; rhs)
   {
@@ -188,7 +260,8 @@ Namespaces</h2></td></tr>
           <a class="code" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser&lt;my_StrPool&gt;</a> autoReleaser(&amp;d_strPool);
 
           <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; rhs.d_length; ++i) {
-              <span class="keyword">const</span> <span class="keywordtype">int</span> size = bsl::strlen(rhs.d_array_p[i]) + 1;
+              <span class="keyword">const</span> <span class="keywordtype">int</span> size =
+                         <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(bsl::strlen(rhs.d_array_p[i])) + 1;
               d_array_p[i] = (<span class="keywordtype">char</span> *)d_strPool.allocate(size);
               bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
           }
@@ -199,13 +272,37 @@ Namespaces</h2></td></tr>
 
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
-
-  <span class="comment">// ...</span>
 </pre></div><br/>
 <br/>
  Note that a <code><a class="el" href="classbdlma_1_1AutoReleaser.html">bdlma::AutoReleaser</a></code> proctor is used to manage the array's C string memory pool while allocating memory for the individual elements. If an exception is thrown during the <code>for</code> loop, the proctor's destructor releases memory for all elements allocated through the pool, thus ensuring that no memory is leaked. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Finally, we complete the implementation: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> my_FastCstrArray::append(<span class="keyword">const</span> <span class="keywordtype">char</span> *item)
+  {
+      <span class="keywordflow">if</span> (d_length &gt;= d_capacity) {
+          this-&gt;increaseSize();
+      }
+      <span class="keyword">const</span> <span class="keywordtype">int</span> sSize = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(bsl::strlen(item)) + 1;
+      <span class="keywordtype">char</span> *elem = (<span class="keywordtype">char</span> *)d_strPool.allocate(sSize);
+      bsl::memcpy(elem, item, sSize * <span class="keyword">sizeof</span> *item);
+      d_array_p[d_length] = elem;
+      ++d_length;
+  }
+
+  <span class="comment">// FREE OPERATORS</span>
+  ostream&amp; <a class="code" href="namespacebalb.html#a777d713a1c54d1359c8cb8144cc50b7a">operator&lt;&lt;</a>(ostream&amp; stream, <span class="keyword">const</span> my_FastCstrArray&amp; array)
+  {
+      stream &lt;&lt; <span class="stringliteral">&quot;[ &quot;</span>;
+      <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; array.length(); ++i) {
+          stream &lt;&lt; <span class="charliteral">&#39;&quot;&#39;</span> &lt;&lt; array[i] &lt;&lt; <span class="stringliteral">&quot;\&quot; &quot;</span>;
+      }
+      <span class="keywordflow">return</span> stream &lt;&lt; <span class="charliteral">&#39;]&#39;</span> &lt;&lt; flush;
+  }
+</pre></div><br/>
+<br/>
+ </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:43 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

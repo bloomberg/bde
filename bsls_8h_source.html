@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bsls.txt
@@ -23,7 +23,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsls&#39; package currently has 58 components having 14 levels of physical
+ The &#39;bsls&#39; package currently has 60 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -48,6 +48,7 @@
    9. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_spinlock
 
    8. bsls_assert
       bsls_atomic
@@ -95,6 +96,7 @@
    2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
+      bsls_macrorepeat
       bsls_platform
       bsls_protocoltest
 
@@ -235,6 +237,9 @@
 : &#39;bsls_macroincrement&#39;:
 :      Provide a macro to increment preprocessor numbers.
 :
+: &#39;bsls_macrorepeat&#39;:
+:      repreat a macro invocation with different numeric arguments
+:
 : &#39;bsls_nativestd&#39;:
 :      Define the namespace &#39;native_std&#39; as an alias for &#39;::std&#39;.
 :
@@ -252,6 +257,9 @@
 :
 : &#39;bsls_protocoltest&#39;:
 :      Provide classes and macros for testing abstract protocols.
+:
+: &#39;bsls_spinlock&#39;:
+:      Provide a spin lock.
 :
 : &#39;bsls_stopwatch&#39;:
 :      Provide access to user, system, and wall times of current process.
@@ -279,7 +287,8 @@
 
 /Component Overview
 /------------------
- This section summarizes the components that are available in &#39;bsls&#39;.
+ This section provides a brief introduction to some of the components in the
+ &#39;bsls&#39; package.  See the documentation in each component for full details.
 
 /&#39;bsls_alignedbuffer&#39;
 / - - - - - - - - - -
@@ -488,7 +497,7 @@
 /- - - - - -
  The {&#39;bsls_util&#39;} component provides pure functions that supply essential
  low-level support for implementing portable generic facilities such as might
- be found the the C++ standard library.
+ be found in the C++ standard library.
 </pre>
 </body>
 </html>

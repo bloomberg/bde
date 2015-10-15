@@ -1,0 +1,528 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_userfieldvalue.h                                              -*-C++-*-
+#ifndef INCLUDED_BALL_USERFIELDVALUE
+#define INCLUDED_BALL_USERFIELDVALUE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a type for the value of a user supplied field.
+//
+//@CLASSES:
+//  ball::UserFieldValue: the value of a user supplied field
+//
+//@SEE_ALSO: ball_userfields, ball_userfieldsschema
+//
+//@DESCRIPTION: This component provides a value-semantic class,
+// &#39;ball::UserFieldValue&#39;, that represents the value of a user supplied log
+// field value.  A user field value acts as a discriminated union, and may
+// represent a value of any of types described in &#39;ball::UserFieldType&#39; or an
+// unset value (indicated by the type &#39;ball::UserFieldType::e_VOID&#39;).
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;ball::UserFieldValue&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to create and use a
+// &#39;ball::UserFieldValue&#39; object.  Note that &#39;ball::UserFieldValue&#39; objects
+// are typically used in a description of a sequence of user fields (see
+// &#39;ball_userfields&#39;).
+//
+// First, we create a default &#39;ball::UserFieldValue&#39;, &#39;valueA&#39;, and observe
+// that it is in the unset state, meaning that &#39;isUnset&#39; is true and its type
+// is &#39;ball::UserFieldValue::e_VOID&#39;:
+//..
+//  ball::UserFieldValue valueA;
+//
+//  assert(true                         == valueA.isUnset());
+//  assert(ball::UserFieldValue::e_VOID == valueA.type());
+//..
+// Next, we create a second &#39;ball::UserFieldValue&#39; having the value 5, and
+// then confirm its value and observe that it does not compare equal to the
+// &#39;valueA&#39;:
+//..
+//  ball::UserFieldValue valueB(5);
+//
+//  assert(false                         == valueB.isUnset());
+//  assert(ball::UserFieldValue::e_INT64 == valueB.type());
+//  assert(5                             == valueB.theInt64();
+//
+//  assert(valueA != valueB);
+//..
+// Finally, we call &#39;reset&#39; of &#39;valueB&#39; resetting it to the unset state, and
+// observer that &#39;valueA&#39; now compares equal to &#39;valueB&#39;:
+//..
+//  valueB.reset();
+//
+//  assert(valueA == valueB);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_USERFIELDTYPE
+#include &lt;ball_userfieldtype.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_VARIANT
+#include &lt;bdlb_variant.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+                        // ====================
+                        // class UserFieldValue
+                        // ====================
+
+class UserFieldValue {
+    // This class implements a value-semantic type for representing the value
+    // of a user field in a log record.  A user field value acts as a
+    // discriminated union, and may represent a value of any of types described
+    // in &#39;ball::UserFieldType&#39; or an unset value (indicated type
+    // &#39;ball::UserFieldType::e_VOID&#39;).
+
+    // TYPES
+    typedef bdlb::Variant&lt;bsl::int64_t,
+                          double,
+                          bsl::string,
+                          bdlt::DatetimeTz&gt; ValueVariant;
+
+    // DATA
+    ValueVariant d_value;  // value
+
+    // FRIENDS
+    friend bool operator==(const UserFieldValue&amp;, const UserFieldValue&amp;);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(UserFieldValue, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit UserFieldValue(bslma::Allocator *basicAllocator = 0);
+        // Create a user field value having the unset value.  Optionally
+        // specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    explicit UserFieldValue(bsl::int64_t             value,
+                            bslma::Allocator        *basicAllocator = 0);
+    explicit UserFieldValue(double                   value,
+                            bslma::Allocator        *basicAllocator = 0);
+    explicit UserFieldValue(bslstl::StringRef        value,
+                            bslma::Allocator        *basicAllocator = 0);
+    explicit UserFieldValue(const bdlt::DatetimeTz&amp;  value,
+                            bslma::Allocator        *basicAllocator = 0);
+        // Create a user field value having the specified &#39;value&#39;.  Optionally
+        // specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    template &lt;class INTEGRAL_TYPE&gt;
+    explicit UserFieldValue(
+                INTEGRAL_TYPE     value,
+                bslma::Allocator *basicAllocator = 0,
+                typename bsl::enable_if&lt;
+                     bsl::is_integral&lt;INTEGRAL_TYPE&gt;::value&gt;::type * = 0)
+    : d_value(static_cast&lt;bsl::int64_t&gt;(value), basicAllocator) {}
+        // Create a user field value having the specified integral &#39;value&#39;.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+        //
+        // Note that this constructor is provided to disambiguate between
+        // constructors taking &#39;double&#39; and &#39;bsl::int64_t&#39; when supplied a
+        // integer that is not of type &#39;bsl::int64_t&#39;.  Note also that the
+        // implementation is (temporarily) provided inline to avoid issues with
+        // MSVC 2008.
+
+    UserFieldValue(const UserFieldValue&amp;  original,
+                   bslma::Allocator      *basicAllocator = 0);
+        // Create a &#39;UserFieldValue&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    //! ~UserFieldValue() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    UserFieldValue&amp; operator=(const UserFieldValue&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void reset();
+        // Set this object to the unset value.  After this operation &#39;type&#39;
+        // will be &#39;ball::UserFieldType::e_VOID&#39;.
+
+    void setInt64(bsl::int64_t value);
+        // Set this object to the specified &#39;value&#39;.  After this operation,
+        // &#39;type&#39; is &#39;ball::UserFieldType::e_INT64&#39;.
+
+    void setDouble(double value);
+        // Set this object to the specified &#39;value&#39;.  After this operation,
+        // &#39;type&#39; is &#39;ball::UserFieldType::e_DOUBLE&#39;.
+
+    void setString(bslstl::StringRef value);
+        // Set this object to the specified &#39;value&#39;.  After this operation,
+        // &#39;type&#39; is &#39;ball::UserFieldType::e_STRING&#39;.
+
+    void setDatetimeTz(const bdlt::DatetimeTz&amp; value);
+        // Set this object to the specified &#39;value&#39;.  After this operation,
+        // &#39;type&#39; is &#39;ball::UserFieldType::e_DATETIMETZ&#39;.
+
+                                  // Aspects
+
+    void swap(UserFieldValue&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // guarantee if &#39;type&#39; is the same as &#39;other.type()&#39;;  otherwise it
+        // provides the basic guarantee.
+
+    // ACCESSORS
+    bool isUnset() const;
+        // Return &#39;true&#39; if this object has the unset value, and &#39;false&#39;
+        // otherwise.  Note that if &#39;isUnset&#39; is &#39;true&#39;, then &#39;type&#39; is
+        // &#39;ball::UserFieldType::e_VOID&#39;.
+
+    ball::UserFieldType::Enum type() const;
+        // Return the type of this user field value.  The type
+        // &#39;ball::UserFieldValue::e_VOID&#39; represents the unset value.
+
+    const bsl::int64_t&amp; theInt64() const;
+        // Return a reference providing non-modifiable access to the 64-bit
+        // integer value of this object.  The behavior is undefined unless
+        // &#39;type&#39; is &#39;ball::UserFieldType::e_INT64&#39;.
+
+    const double&amp; theDouble() const;
+        // Return a reference providing non-modifiable access to the double
+        // value of this object.  The behavior is undefined unless &#39;type&#39; is
+        // &#39;ball::UserFieldType::e_DOUBLE&#39;.
+
+    const bsl::string&amp; theString() const;
+        // Return a reference providing non-modifiable access to the string
+        // value of this object.  The behavior is undefined unless &#39;type&#39; is
+        // &#39;ball::UserFieldType::e_STRING&#39;.
+
+    const bdlt::DatetimeTz&amp; theDatetimeTz() const;
+        // Return a reference providing non-modifiable access to the
+        // &#39;DatetimeTz&#39; value of this object.  The behavior is undefined
+        // unless &#39;type&#39; is &#39;ball::UserFieldType::e_DATETIMETZ&#39;.
+
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in
+        // a human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute
+        // value indicates the number of spaces per indentation level for this
+        // and all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const UserFieldValue&amp; lhs, const UserFieldValue&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;UserFieldValue&#39; objects have the
+    // same value if they have the same &#39;type&#39;, and (if the type is not
+    // &#39;e_VOID&#39;) the value of that type (as accessed through &#39;the*&#39; methods)
+    // is the same.
+
+bool operator!=(const UserFieldValue&amp; lhs, const UserFieldValue&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;UserFieldValue&#39; objects do not
+    // have the same value if their &#39;type&#39; is not the same, or (if their type
+    // is not &#39;e_VOID&#39;) the value of that type (as accessed through &#39;the*&#39;
+    // methods) is not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;         stream,
+                         const UserFieldValue&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified, can change
+    // without notice, and is logically equivalent to:
+    //..
+    //  print(stream, 0, -1);
+    //..
+
+// FREE FUNCTIONS
+void swap(ball::UserFieldValue&amp; a, ball::UserFieldValue&amp; b);
+    // Swap the value of the specified &#39;a&#39; object with the value of the
+    // specified &#39;b&#39; object.  This method provides the no-throw guarantee if
+    // &#39;a.type()&#39; is the same as &#39;b.type()&#39;; otherwise it provides the basic
+    // guarantee.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                        // ---------------------
+                        // class UserFieldValue
+                        // ---------------------
+
+inline
+UserFieldValue::UserFieldValue(bslma::Allocator *basicAllocator)
+: d_value(basicAllocator)
+{
+}
+
+inline
+UserFieldValue::UserFieldValue(bsl::int64_t value,
+                               bslma::Allocator *basicAllocator)
+: d_value(value, basicAllocator)
+{
+}
+
+inline
+UserFieldValue::UserFieldValue(double value, bslma::Allocator *basicAllocator)
+: d_value(value, basicAllocator)
+{
+}
+
+inline
+UserFieldValue::UserFieldValue(bslstl::StringRef  value,
+                               bslma::Allocator  *basicAllocator)
+: d_value(basicAllocator)
+{
+    d_value.assign&lt;bsl::string&gt;(value);
+}
+
+inline
+UserFieldValue::UserFieldValue(const bdlt::DatetimeTz&amp;  value,
+                               bslma::Allocator        *basicAllocator)
+: d_value(value, basicAllocator)
+{
+}
+
+inline
+UserFieldValue::UserFieldValue(const UserFieldValue&amp;  original,
+                               bslma::Allocator      *basicAllocator)
+: d_value(original.d_value, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+UserFieldValue&amp; UserFieldValue::operator=(const UserFieldValue&amp; rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
+inline
+void UserFieldValue::reset()
+{
+    d_value.reset();
+}
+
+inline
+void UserFieldValue::setInt64(bsl::int64_t value)
+{
+    d_value.assign(value);
+}
+
+inline
+void UserFieldValue::setDouble(double value)
+{
+    d_value.assign(value);
+}
+
+inline
+void UserFieldValue::setString(bslstl::StringRef value)
+{
+    d_value.assign&lt;bsl::string&gt;(value);
+}
+
+inline
+void UserFieldValue::setDatetimeTz(const bdlt::DatetimeTz&amp; value)
+{
+    d_value.assign(value);
+}
+
+inline
+void UserFieldValue::swap(UserFieldValue&amp; other)
+{
+    d_value.swap(other.d_value);
+}
+
+// ACCESSORS
+inline
+bslma::Allocator *UserFieldValue::allocator() const
+{
+    return d_value.getAllocator();
+}
+
+inline
+bool UserFieldValue::isUnset() const
+{
+    return d_value.isUnset();
+}
+
+inline
+ball::UserFieldType::Enum UserFieldValue::type() const
+{
+    switch (d_value.typeIndex()) {
+      case 0: {
+          BSLS_ASSERT_SAFE(d_value.isUnset());
+          return ball::UserFieldType::e_VOID;                         // RETURN
+      } break;
+      case 1: {
+          BSLS_ASSERT_SAFE(d_value.is&lt;bsl::int64_t&gt;());
+          return ball::UserFieldType::e_INT64;                        // RETURN
+      } break;
+      case 2: {
+          BSLS_ASSERT_SAFE(d_value.is&lt;double&gt;());
+          return ball::UserFieldType::e_DOUBLE;                       // RETURN
+      } break;
+
+      case 3: {
+          BSLS_ASSERT_SAFE(d_value.is&lt;bsl::string&gt;());
+          return ball::UserFieldType::e_STRING;                       // RETURN
+      } break;
+
+      case 4: {
+          BSLS_ASSERT_SAFE(d_value.is&lt;bdlt::DatetimeTz&gt;());
+          return ball::UserFieldType::e_DATETIMETZ;                   // RETURN
+      } break;
+      default: {
+          BSLS_ASSERT_OPT(false);
+      }
+    }
+    BSLS_ASSERT_OPT(false);
+    return ball::UserFieldType::e_INT64;
+}
+
+inline
+const bsl::int64_t&amp; UserFieldValue::theInt64() const
+{
+    BSLS_ASSERT_SAFE(d_value.is&lt;bsl::int64_t&gt;());
+    return d_value.the&lt;bsl::int64_t&gt;();
+}
+
+inline
+const double&amp; UserFieldValue::theDouble() const
+{
+    BSLS_ASSERT_SAFE(d_value.is&lt;double&gt;());
+    return d_value.the&lt;double&gt;();
+}
+
+inline
+const bsl::string&amp; UserFieldValue::theString() const
+{
+    BSLS_ASSERT_SAFE(d_value.is&lt;bsl::string&gt;());
+    return d_value.the&lt;bsl::string&gt;();
+}
+
+inline
+const bdlt::DatetimeTz&amp; UserFieldValue::theDatetimeTz() const
+{
+    BSLS_ASSERT_SAFE(d_value.is&lt;bdlt::DatetimeTz&gt;());
+    return d_value.the&lt;bdlt::DatetimeTz&gt;();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const UserFieldValue&amp; lhs, const UserFieldValue&amp; rhs)
+{
+    return lhs.d_value == rhs.d_value;
+}
+
+inline
+bool ball::operator!=(const UserFieldValue&amp; lhs, const UserFieldValue&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;         stream,
+                               const UserFieldValue&amp; object)
+{
+    return object.print(stream, 0, -1);
+}
+
+
+// FREE FUNCTIONS
+inline
+void swap(ball::UserFieldValue&amp; a, ball::UserFieldValue&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

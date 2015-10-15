@@ -1,0 +1,555 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_arrayfunctions.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
+#define INCLUDED_BDLAT_ARRAYFUNCTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace defining array functions.
+//
+//@CLASSES:
+//  bdlat_ArrayFunctions: namespace for calling array functions
+//
+//@SEE_ALSO:
+//
+// TBD: update this documentation to reflect the new overloaded functions
+//
+//@DESCRIPTION: The &#39;bdlat_ArrayFunctions&#39; &#39;namespace&#39; provided in this
+// component defines parameterized functions that expose &quot;array&quot; behavior for
+// &quot;array&quot; types.  See the package-level documentation for a full description
+// of &quot;array&quot; types.  The functions in this namespace allow users to:
+//..
+//      o obtain the number of elements in an array (&#39;size&#39;).
+//      o set the number of elements in an array (&#39;resize&#39;).
+//      o manipulate an element in an array using a parameterized manipulator
+//        (&#39;manipulateElement&#39;).
+//      o access an element in an array using a parameterized accessor
+//        (&#39;accessElement&#39;).
+//..
+// Also, the meta-function &#39;IsArray&#39; contains a compile-time constant &#39;VALUE&#39;
+// that is non-zero if the parameterized &#39;TYPE&#39; exposes &quot;array&quot; behavior
+// through the &#39;bdlat_ArrayFunctions&#39; &#39;namespace&#39;.
+//
+// The &#39;ElementType&#39; meta-function contains a typedef &#39;Type&#39; that specifies the
+// type of element stored in the parameterized &quot;array&quot; type.
+//
+// This component specializes all of these functions for &#39;bsl::vector&lt;TYPE&gt;&#39;.
+//
+// Custom types can be plugged into the &#39;bdlat&#39; framework.  This is done by
+// overloading the &#39;bdlat_array*&#39; functions inside the namespace of the plugged
+// in type.  For example, suppose there is a type called &#39;mine::MyArray&#39;.  In
+// order to plug this type into the &#39;bdlat&#39; framework as an &quot;array&quot;, the
+// following functions must be declared and implemented in the &#39;mine&#39;
+// namespace:
+//..
+//  // MANIPULATORS
+//  template &lt;typename TYPE, typename MANIPULATOR&gt;
+//  int bdlat_arrayManipulateElement(TYPE         *array,
+//                                   MANIPULATOR&amp;  manipulator,
+//                                   int           index);
+//      // Invoke the specified &#39;manipulator&#39; on the address of the element at
+//      // the specified &#39;index&#39; of the specified &#39;array&#39;.  Return the value
+//      // from the invocation of &#39;manipulator&#39;.  The behavior is undefined
+//      // unless &#39;0 &lt;= index&#39; and &#39;index &lt; size(*array)&#39;.
+//
+//  template &lt;typename TYPE&gt;
+//  void resize(TYPE *array, int newSize);
+//      // Set the size of the specified modifiable &#39;array&#39; to the specified
+//      // &#39;newSize&#39;.  If newSize &gt; size(array), then newSize - size(array)
+//      // elements with default values are appended to &#39;array&#39;.  If newSize &lt;
+//      // size(array), then the size(array) - newSize elements at the end of
+//      // &#39;array&#39; are destroyed.  The behavior is undefined unless
+//      // &#39;0 &lt;= newSize&#39;.
+//
+//  // ACCESSORS
+//  template &lt;typename TYPE, typename ACCESSOR&gt;
+//  int bdlat_arrayAccessElement(const TYPE&amp; array,
+//                               ACCESSOR&amp;   accessor,
+//                               int         index);
+//      // Invoke the specified &#39;accessor&#39; on the non-modifiable element at the
+//      // specified &#39;index&#39; of the specified &#39;array&#39;.  Return the value from
+//      // the invocation of &#39;accessor&#39;.  The behavior is undefined unless
+//      // &#39;0 &lt;= index&#39; and &#39;index &lt; size(array)&#39;.
+//
+//  template &lt;typename TYPE&gt;
+//  bsl::size_t bdlat_arraySize(const TYPE&amp; array);
+//      // Return the number of elements in the specified &#39;array&#39;.
+//..
+// Also, the &#39;IsArray&#39; meta-function must be specialized for the
+// &#39;mine::MyArray&#39; type in the &#39;bdlat_ArrayFunctions&#39; namespace.
+//
+// An example of plugging in a user-defined sequence type into the &#39;bdlat&#39;
+// framework is shown in the &#39;Usage&#39; section of the &#39;bdlat_SequenceFunctions&#39;
+// component.
+//
+///Usage
+///-----
+// The following snippets of code illustrate the usage of this component.
+// Suppose you wanted to create a function that prints values to a specified
+// output stream.  The function should also be able to expand arrays and print
+// each element in the array.  We will use a stateful function object for this
+// example.  First, define a &#39;PrintValue&#39; function class:
+//..
+//  #include &lt;bdlat_arrayfunctions.h&gt;
+//  #include &lt;bslmf::If.h&gt;
+//
+//  #include &lt;ostream&gt;
+//
+//  using namespace BloombergLP;
+//
+//  class PrintValue {
+//      // This function will print values to the specified output stream.
+//
+//      // PRIVATE DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//..
+// Define two tags, &#39;IsNotArrayType&#39; and &#39;IsArrayType&#39;.  These two tags will be
+// used to toggle between two implementations of the &#39;PrintValue&#39; function:
+//..
+//      // PRIVATE TYPES
+//      struct IsNotArrayType { };
+//      struct IsArrayType    { };
+//..
+// Provide two implementations of the &#39;PrintValue&#39; function, one for non-array
+// types and another for array types:
+//..
+//      // PRIVATE OPERATIONS
+//      template &lt;typename TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNotArrayType)
+//      {
+//          enum { SUCCESS = 0 };
+//
+//          (*d_stream_p) &lt;&lt; value &lt;&lt; &#39; &#39;;
+//
+//          return SUCCESS;
+//      }
+//
+//      template &lt;typename TYPE&gt;
+//      int execute(const TYPE&amp; value, IsArrayType)
+//      {
+//          enum { SUCCESS = 0, FAILURE = -1 };
+//..
+// For the array type implementation, first we need to obtain the number of
+// elements in the array so that we can loop over them:
+//..
+//          int numElements = bdlat_ArrayFunctions::size(value);
+//..
+// Next, access each element in a loop using a reference to &#39;this&#39; object as
+// the parameterized accessor:
+//..
+//          for (int index = 0; index &lt; numElements; ++index) {
+//              if (0 != bdlat_ArrayFunctions::accessElement(value,
+//                                                           *this,
+//                                                           index)) {
+//                  return FAILURE;
+//              }
+//          }
+//..
+// Since &#39;*this&#39; is used as the parameterized accessor, the &#39;accessElement&#39;
+// function will invoke the &#39;operator()&#39; method (defined below), passing to it
+// a non-modifiable reference to the element at the specified &#39;index&#39;.
+//
+// If all elements are accessed successfully, simply return &#39;SUCCESS&#39;:
+//..
+//          return SUCCESS;
+//      }
+//..
+// Add a constructor that takes a pointer to the output stream:
+//..
+//    public:
+//      // CREATORS
+//      PrintValue(bsl::ostream *stream)
+//      : d_stream_p(stream)
+//      {
+//      }
+//..
+// Add a parameterized function call operator that toggles between array types
+// and non-array types and close the definition of the &#39;PrintValue&#39; function
+// class:
+//..
+//      // OPERATIONS
+//      template &lt;typename TYPE&gt;
+//      int operator()(const TYPE&amp; value)
+//      {
+//          typedef typename
+//          bslmf::If&lt;bdlat_ArrayFunctions::IsArray&lt;TYPE&gt;::VALUE,
+//                   IsArrayType,
+//                   IsNotArrayType&gt;::Type Toggle;
+//
+//          return execute(value, Toggle());
+//      }
+//  };  // end &#39;class PrintValue&#39;
+//..
+// The entire &#39;PrintValue&#39; function class is provided below, uninterrupted, for
+// clarity:
+//..
+//  class PrintValue {
+//      // This function will print values to the specified output stream.
+//
+//      // PRIVATE DATA MEMBERS
+//      bsl::ostream *d_stream_p;
+//
+//      // PRIVATE TYPES
+//      struct IsNotArrayType { };
+//      struct IsArrayType    { };
+//
+//      // PRIVATE OPERATIONS
+//      template &lt;typename TYPE&gt;
+//      int execute(const TYPE&amp; value, IsNotArrayType)
+//      {
+//          enum { SUCCESS = 0 };
+//
+//          (*d_stream_p) &lt;&lt; value &lt;&lt; &#39; &#39;;
+//
+//          return SUCCESS;
+//      }
+//
+//      template &lt;typename TYPE&gt;
+//      int execute(const TYPE&amp; value, IsArrayType)
+//      {
+//          enum { SUCCESS = 0, FAILURE = -1 };
+//
+//          int numElements = bdlat_ArrayFunctions::size(value);
+//
+//          for (int index = 0; index &lt; numElements; ++index) {
+//              if (0 != bdlat_ArrayFunctions::accessElement(value,
+//                                                           *this,
+//                                                           index)) {
+//                  return FAILURE;
+//              }
+//          }
+//
+//          return SUCCESS;
+//      }
+//
+//    public:
+//      // CREATORS
+//      PrintValue(bsl::ostream *stream)
+//      : d_stream_p(stream)
+//      {
+//      }
+//
+//      // OPERATIONS
+//      template &lt;typename TYPE&gt;
+//      int operator()(const TYPE&amp; value)
+//      {
+//          typedef typename
+//          bslmf::If&lt;bdlat_ArrayFunctions::IsArray&lt;TYPE&gt;::VALUE,
+//                   IsArrayType,
+//                   IsNotArrayType&gt;::Type Toggle;
+//
+//          return execute(value, Toggle());
+//      }
+//  };  // end &#39;class PrintValue&#39;
+//..
+// The &#39;PrintValue&#39; function class can be used for types that expose &quot;array&quot;
+// behavior through the &#39;bdlat_ArrayFunctions&#39; &#39;namespace&#39; (e.g.,
+// &#39;bsl::vector&#39;) and any other type that has &#39;operator&lt;&lt;&#39; defined for it.  For
+// example:
+//..
+//  #include &lt;iostream&gt;
+//  #include &lt;vector&gt;
+//
+//  void usageExample()
+//  {
+//      PrintValue printValue(bsl::cout);
+//
+//      int intScalar = 123;
+//
+//      printValue(intScalar);  // expected output: &#39;123 &#39;
+//
+//      bsl::vector&lt;int&gt; intArray;
+//      intArray.push_back(345);
+//      intArray.push_back(456);
+//      intArray.push_back(567);
+//
+//      printValue(intArray);  // expected output: &#39;345 456 567 &#39;
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_METAINT
+#include &lt;bslmf_metaint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDLIB
+#include &lt;bsl_cstdlib.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+                       // ==============================
+                       // namespace bdlat_ArrayFunctions
+                       // ==============================
+
+namespace bdlat_ArrayFunctions {
+    // This &#39;namespace&#39; provides functions that expose &quot;array&quot; behavior for
+    // &quot;array&quot; types.  Specializations are provided for &#39;bsl::vector&lt;TYPE&gt;&#39;.
+    // See the component-level documentation for more information.
+
+    // META-FUNCTIONS
+    template &lt;class TYPE&gt;
+    struct ElementType;
+        // This meta-function should contain a typedef &#39;Type&#39; that specifies
+        // the type of element stored in an array of the parameterized &#39;TYPE&#39;.
+
+
+    template &lt;class TYPE&gt;
+    struct IsArray {
+        // This &#39;struct&#39; should be specialized for third-party types that are
+        // need to expose &quot;array&quot; behavior.  See the component-level
+        // documentation for further information.
+
+        enum {
+//ARB:VALUE
+            VALUE = 0
+        };
+
+        typedef bslmf::MetaInt&lt;VALUE&gt; Type;
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE, class MANIPULATOR&gt;
+    int manipulateElement(TYPE         *array,
+                          MANIPULATOR&amp;  manipulator,
+                          int           index);
+        // Invoke the specified &#39;manipulator&#39; on the address of the element at
+        // the specified &#39;index&#39; of the specified &#39;array&#39;.  Return the value
+        // from the invocation of &#39;manipulator&#39;.  The behavior is undefined
+        // unless &#39;0 &lt;= index&#39; and &#39;index &lt; size(*array)&#39;.
+
+    template &lt;class TYPE&gt;
+    void resize(TYPE *array, int newSize);
+        // Set the size of the specified modifiable &#39;array&#39; to the specified
+        // &#39;newSize&#39;.  If &#39;newSize &gt; size(array)&#39;, then &#39;newSize - size(array)&#39;
+        // elements with default values are appended to &#39;array&#39;.  If
+        // &#39;newSize &lt; size(array)&#39;, then the &#39;size(array) - newSize&#39; elements
+        // at the end of &#39;array&#39; are destroyed.  The behavior is undefined
+        // unless &#39;0 &lt;= newSize&#39;.
+
+    // ACCESSORS
+    template &lt;class TYPE, class ACCESSOR&gt;
+    int accessElement(const TYPE&amp; array,
+                      ACCESSOR&amp;   accessor,
+                      int         index);
+        // Invoke the specified &#39;accessor&#39; on the non-modifiable element at the
+        // specified &#39;index&#39; of the specified &#39;array&#39;.  Return the value from
+        // the invocation of &#39;accessor&#39;.  The behavior is undefined unless
+        // &#39;0 &lt;= index&#39; and &#39;index &lt; size(array)&#39;.
+
+    template &lt;class TYPE&gt;
+    bsl::size_t size(const TYPE&amp; array);
+        // Return the number of elements in the specified &#39;array&#39;.
+
+
+
+    // OVERLOADABLE FUNCTIONS
+
+    // The following functions should be overloaded for other types (in their
+    // respective namespaces).  The following functions are the default
+    // implementations (for &#39;bas_codegen.pl&#39;-generated types).  Do *not* call
+    // these functions directly.  Use the functions above instead.
+    //
+    // Also note that the following functions are commented out.  They are just
+    // included here for reference, and so that users can copy-paste the
+    // required functions easily.
+
+#if 0
+    // MANIPULATORS
+    template &lt;typename TYPE, typename MANIPULATOR&gt;
+    int bdlat_arrayManipulateElement(TYPE         *array,
+                                     MANIPULATOR&amp;  manipulator,
+                                     int           index);
+    template &lt;typename TYPE&gt;
+    void bdlat_arrayResize(TYPE *array, int newSize);
+
+    // ACCESSORS
+    template &lt;typename TYPE, typename ACCESSOR&gt;
+    int bdlat_arrayAccessElement(const TYPE&amp; array,
+                                 ACCESSOR&amp;   accessor,
+                                 int         index);
+    template &lt;typename TYPE&gt;
+    bsl::size_t bdlat_arraySize(const TYPE&amp; array);
+        // Return the number of elements in the specified &#39;array&#39;.
+#endif
+
+}  // close namespace bdlat_ArrayFunctions
+
+                        // ===========================
+                        // bsl::vector specializations
+                        // ===========================
+
+namespace bdlat_ArrayFunctions {
+
+    // META-FUNCTIONS
+    template &lt;class TYPE, class ALLOC&gt;
+    struct IsArray&lt;bsl::vector&lt;TYPE, ALLOC&gt; &gt; : bslmf::MetaInt&lt;1&gt; {
+    };
+
+    template &lt;class TYPE, class ALLOC&gt;
+    struct ElementType&lt;bsl::vector&lt;TYPE, ALLOC&gt; &gt; {
+        typedef TYPE Type;
+    };
+
+    // MANIPULATORS
+    template &lt;class TYPE, class ALLOC, class MANIPULATOR&gt;
+    int bdlat_arrayManipulateElement(bsl::vector&lt;TYPE, ALLOC&gt; *array,
+                                     MANIPULATOR&amp;              manipulator,
+                                     int                       index);
+
+    template &lt;class TYPE, class ALLOC&gt;
+    void bdlat_arrayResize(bsl::vector&lt;TYPE, ALLOC&gt; *array, int newSize);
+
+    // ACCESSORS
+    template &lt;class TYPE, class ALLOC, class ACCESSOR&gt;
+    int bdlat_arrayAccessElement(const bsl::vector&lt;TYPE, ALLOC&gt;&amp; array,
+                                 ACCESSOR&amp;                       accessor,
+                                 int                             index);
+
+    template &lt;class TYPE, class ALLOC&gt;
+    bsl::size_t bdlat_arraySize(const bsl::vector&lt;TYPE, ALLOC&gt;&amp; array);
+
+}  // close namespace bdlat_ArrayFunctions
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                       // -------------------------
+                       // namespace-level functions
+                       // -------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE, class MANIPULATOR&gt;
+inline
+int bdlat_ArrayFunctions::manipulateElement(TYPE         *array,
+                                            MANIPULATOR&amp;  manipulator,
+                                            int           index)
+{
+    return bdlat_arrayManipulateElement(array, manipulator, index);
+}
+
+template &lt;class TYPE&gt;
+inline
+void bdlat_ArrayFunctions::resize(TYPE *array, int newSize)
+{
+    bdlat_arrayResize(array, newSize);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ACCESSOR&gt;
+inline
+int bdlat_ArrayFunctions::accessElement(const TYPE&amp; array,
+                                        ACCESSOR&amp;   accessor,
+                                        int         index)
+{
+    return bdlat_arrayAccessElement(array, accessor, index);
+}
+
+template &lt;class TYPE&gt;
+inline
+bsl::size_t bdlat_ArrayFunctions::size(const TYPE&amp; array)
+{
+    return bdlat_arraySize(array);
+}
+
+
+                        // ---------------------------
+                        // bsl::vector specializations
+                        // ---------------------------
+
+// MANIPULATORS
+
+template &lt;class TYPE, class ALLOC, class MANIPULATOR&gt;
+inline
+int bdlat_ArrayFunctions::bdlat_arrayManipulateElement(
+                                         bsl::vector&lt;TYPE, ALLOC&gt; *array,
+                                         MANIPULATOR&amp;              manipulator,
+                                         int                       index)
+{
+    TYPE&amp; element = (*array)[index];
+    return manipulator(&amp;element);
+}
+
+template &lt;class TYPE, class ALLOC&gt;
+inline
+void bdlat_ArrayFunctions::bdlat_arrayResize(bsl::vector&lt;TYPE, ALLOC&gt; *array,
+                                             int                       newSize)
+{
+    array-&gt;resize(newSize);
+}
+
+// ACCESSORS
+
+template &lt;class TYPE, class ALLOC, class ACCESSOR&gt;
+inline
+int bdlat_ArrayFunctions::bdlat_arrayAccessElement(
+                                      const bsl::vector&lt;TYPE, ALLOC&gt;&amp; array,
+                                      ACCESSOR&amp;                       accessor,
+                                      int                             index)
+{
+    return accessor(array[index]);
+}
+
+template &lt;class TYPE, class ALLOC&gt;
+inline
+bsl::size_t bdlat_ArrayFunctions::bdlat_arraySize(
+                                         const bsl::vector&lt;TYPE, ALLOC&gt;&amp; array)
+{
+    return array.size();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

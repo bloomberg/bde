@@ -1,0 +1,891 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balber_beruniversaltagnumber.h                                     -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
+#define INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Enumerate the set of BER universal tag numbers.
+//
+//@CLASSES:
+//  balber::BerUniversalTagNumber: namespace universal tag number enumeration
+//
+//@SEE_ALSO: balber_berencoder, balber_berdecoder
+//          http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf
+//
+//@DESCRIPTION: This component provides a namespace for the &#39;enum&#39; type
+// &#39;balber::BerUniversalTagNumber::Value&#39;.  &#39;Value&#39; enumerates the set of BER
+// universal tag numbers used by the BER encoder and decoder.  The universal
+// tag numbers are defined in the X.680 standard, in section 8.
+//
+// In addition, this component supports functions that convert the &#39;Value&#39;
+// enumerations to a well-defined ASCII representation.
+//
+// This component also provides a function that returns the universal tag
+// number for an object with formatting mode, according to the following table:
+//..
+//  C++ Type                           Formatting Mode  Universal Tag Number
+//  --------                           ---------------  --------------------
+//  bool                               DEFAULT          e_BER_BOOL
+//                                     DEC              e_BER_BOOL
+//                                     TEXT             e_BER_BOOL
+//  char                               DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//                                     TEXT             e_BER_UTF8_STRING
+//  unsigned char                      DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//  [unsigned] short                   DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//  [unsigned] int                     DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//  [unsigned] long                    DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//  bsls::Types::[Uint64|Int64]        DEFAULT          e_BER_INT
+//                                     DEC              e_BER_INT
+//  float                              DEFAULT          e_BER_REAL
+//  double                             DEFAULT          e_BER_REAL
+//  bsl::string                        DEFAULT          e_BER_UTF8_STRING
+//                                     TEXT             e_BER_UTF8_STRING
+//                                     BASE64           e_BER_OCTET_STRING
+//                                     HEX              e_BER_OCTET_STRING
+//  bdlt::Date                         DEFAULT          e_BER_VISIBLE_STRING
+//  bdlt::DateTz                       DEFAULT          e_BER_VISIBLE_STRING
+//  bdlt::Datetime                     DEFAULT          e_BER_VISIBLE_STRING
+//  bdlt::DateTimeTz                   DEFAULT          e_BER_VISIBLE_STRING
+//  bdlt::Time                         DEFAULT          e_BER_VISIBLE_STRING
+//  bdlt::TimeTz                       DEFAULT          e_BER_VISIBLE_STRING
+//  bsl::vector&lt;char&gt;                  DEFAULT          e_BER_OCTET_STRING
+//                                     BASE64           e_BER_OCTET_STRING
+//                                     HEX              e_BER_OCTET_STRING
+//                                     TEXT             e_BER_UTF8_STRING
+//..
+// If the object is not one of these types, then the universal tag number is
+// selected based on the object&#39;s type category, as follows:
+//..
+//  Category             Universal Tag Number
+//  --------             --------------------
+//  CustomizedType       Use universal tag number of the base type.
+//  Enumeration          &#39;e_BER_ENUMERATION&#39; when formatting mode is either
+//                       &#39;DEFAULT&#39;, &#39;DEC&#39;, or &#39;TEXT&#39;.
+//  Sequence             &#39;e_BER_SEQUENCE&#39; when formatting mode is &#39;DEFAULT&#39;.
+//  Choice               &#39;e_BER_SEQUENCE&#39; when formatting mode is &#39;DEFAULT&#39;.
+//  Array                &#39;e_BER_SEQUENCE&#39; when formatting mode is &#39;DEFAULT&#39;.
+//..
+// The behavior is undefined if the object does not fall into one the above
+// categories or formatting modes.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Exercise 1: Basic Syntax
+/// - - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// &#39;balber::BerUniversalTagNumber&#39; operation.
+//
+// First, create a variable &#39;tagNumber&#39; of type
+// &#39;balber::BerUniversalTagNumber::Value&#39; and initialize it to the value
+// &#39;balber::BerUniversalTagNumber::e_BER_INT&#39;:
+//..
+//  balber::BerUniversalTagNumber::Value tagNumber
+//                                  = balber::BerUniversalTagNumber::e_BER_INT;
+//..
+// Next, store its representation in a variable &#39;rep&#39; of type &#39;const char *&#39;:
+//..
+//  const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
+//  assert(0 == strcmp(rep, &quot;INT&quot;));
+//..
+// Finally, print the value of &#39;tagNumber&#39; to &#39;bsl::cout&#39;:
+//..
+//  bsl::cout &lt;&lt; tagNumber &lt;&lt; bsl::endl;
+//..
+// This statement produces the following output on &#39;bsl::cout&#39;:
+//..
+//  INT
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALBER_BERENCODEROPTIONS
+#include &lt;balber_berencoderoptions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
+#include &lt;bdlat_customizedtypefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_FORMATTINGMODE
+#include &lt;bdlat_formattingmode.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
+#include &lt;bdlat_nullablevaluefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPECATEGORY
+#include &lt;bdlat_typecategory.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_VARIANT
+#include &lt;bdlb_variant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include &lt;bsl_ostream.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace balber {
+                        // ============================
+                        // struct BerUniversalTagNumber
+                        // ============================
+
+struct BerUniversalTagNumber {
+    // This &#39;struct&#39; contains an enumeration of the universal tag numbers for
+    // BER encoding.
+
+    // TYPES
+    enum Value {
+        e_BER_INVALID        = -1
+
+        // Universal tag numbers as per X.680 section 8
+
+      , e_BER_BOOL           = 0x01  // ( 1) Boolean type
+      , e_BER_INT            = 0x02  // ( 2) Integer type
+      , e_BER_OCTET_STRING   = 0x04  // ( 4) Octet string type
+      , e_BER_REAL           = 0x09  // ( 9) Real type
+      , e_BER_ENUMERATION    = 0x0A  // (10) Enumerated type
+      , e_BER_UTF8_STRING    = 0x0C  // (12) UTF8 string type
+      , e_BER_SEQUENCE       = 0x10  // (16) Sequence and Sequence-of types
+      , e_BER_VISIBLE_STRING = 0x1A  // (26) VisibleString type (7-bit ASCII)
+
+    };
+
+    // CONSTANTS
+    enum {
+        k_LENGTH = 8  // the number of enumerations in the &#39;Value&#39; enumeration
+
+    };
+
+    // CLASS METHODS
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration &#39;value&#39;.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified &#39;result&#39; the enumerator matching the
+        // specified &#39;string&#39; of the specified &#39;stringLength&#39;.  Return 0 on
+        // success, and a non-zero value with no effect on &#39;result&#39; otherwise
+        // (i.e., &#39;string&#39; does not match any enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified &#39;result&#39; the enumerator matching the
+        // specified &#39;number&#39;.  Return 0 on success, and a non-zero value with
+        // no effect on &#39;result&#39; otherwise (i.e., &#39;number&#39; does not match any
+        // enumerator).
+
+    static bsl::ostream&amp; print(bsl::ostream&amp; stream, Value value);
+        // Write to the specified &#39;stream&#39; the string representation of the
+        // specified enumeration &#39;value&#39;.  Return a reference to the modifiable
+        // &#39;stream&#39;.
+
+    template &lt;typename TYPE&gt;
+    static Value select(const TYPE&amp;  object,
+                        int          formattingMode,
+                        int         *alternateTag);
+        // Return the universal tag number for the specified &#39;object&#39; using the
+        // specified &#39;formattingMode&#39;, and load into the specified
+        // &#39;alternateTag&#39; any alternative tag numbers corresponding to
+        // &#39;object&#39;.  The behavior is undefined if the type category of
+        // &#39;object&#39; and the &#39;formattingMode&#39; does not permit a universal tag
+        // number (see {DESCRIPTION} for allowed type categories and formatting
+        // modes).  Note that if an alternate tag number does not exist for
+        // &#39;object&#39; then &#39;alternateTag&#39; is not modified.
+
+    template &lt;typename TYPE&gt;
+    static Value select(const TYPE&amp;              object,
+                        int                      formattingMode,
+                        const BerEncoderOptions *options);
+        // Return the universal tag number for the specified &#39;object&#39; with the
+        // specified &#39;formattingMode&#39; using the specified &#39;options&#39;.  The
+        // behavior is undefined if the type category of &#39;object&#39; and the
+        // &#39;formattingMode&#39; do not permit a universal tag number (see
+        // {DESCRIPTION} for allowed type categories and formatting modes).
+};
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;                stream,
+                         BerUniversalTagNumber::Value rhs);
+    // Format the specified &#39;rhs&#39; to the specified output &#39;stream&#39; and return a
+    // reference providing modifiable access to &#39;stream&#39;.
+
+
+                    // ====================================
+                    // struct BerUniversalTagNumber_ImpUtil
+                    // ====================================
+
+class BerUniversalTagNumber_Imp {
+    // Component-private class.  Do not use.  This class contains
+    // implementation details for this component.
+
+    typedef bdlat_FormattingMode         FMode;   // shorthand
+    typedef BerUniversalTagNumber::Value TagVal;  // shorthand
+
+    int                      d_formattingMode;
+    const BerEncoderOptions *d_options_p;         // options (held, not owned)
+    int                      d_alternateTag;      // alternate tag
+
+    // PRIVATE MANIPULATORS
+    TagVal selectForDateAndTimeTypes();
+        // Return the universal tag number for date and time types and load
+        // into the internal &#39;alternateTag&#39; data member the any alternative tag
+        // numbers corresponding to those types.
+
+  public:
+    BerUniversalTagNumber_Imp(int                      fm,
+                              const BerEncoderOptions *options = 0)
+    : d_formattingMode(fm)
+    , d_options_p(options)
+    , d_alternateTag(-1)
+    {
+    }
+
+                        //  ** By Type **
+
+    TagVal select(const bool&amp;              object, bdlat_TypeCategory::Simple);
+    TagVal select(const char&amp;              object, bdlat_TypeCategory::Simple);
+    TagVal select(const signed char&amp;       object, bdlat_TypeCategory::Simple);
+    TagVal select(const unsigned char&amp;     object, bdlat_TypeCategory::Simple);
+    TagVal select(const short&amp;             object, bdlat_TypeCategory::Simple);
+    TagVal select(const unsigned short&amp;    object, bdlat_TypeCategory::Simple);
+    TagVal select(const int&amp;               object, bdlat_TypeCategory::Simple);
+    TagVal select(const unsigned int&amp;      object, bdlat_TypeCategory::Simple);
+    TagVal select(const long&amp;              object, bdlat_TypeCategory::Simple);
+    TagVal select(const unsigned long&amp;     object, bdlat_TypeCategory::Simple);
+    TagVal select(const bsls::Types::Int64&amp;
+                                           object, bdlat_TypeCategory::Simple);
+    TagVal select(const bsls::Types::Uint64&amp;
+                                           object, bdlat_TypeCategory::Simple);
+    TagVal select(const float&amp;             object, bdlat_TypeCategory::Simple);
+    TagVal select(const double&amp;            object, bdlat_TypeCategory::Simple);
+    TagVal select(const bsl::string&amp;       object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::Date&amp;        object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::DateTz&amp;      object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::Datetime&amp;    object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::DatetimeTz&amp;  object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::Time&amp;        object, bdlat_TypeCategory::Simple);
+    TagVal select(const bdlt::TimeTz&amp;      object, bdlat_TypeCategory::Simple);
+    template &lt;typename TYPE, typename TYPETZ&gt;
+    TagVal select(const bdlb::Variant2&lt;TYPE, TYPETZ&gt;&amp;
+                                           object, bdlat_TypeCategory::Simple);
+
+    TagVal select(const bsl::vector&lt;char&gt;&amp; object, bdlat_TypeCategory::Array);
+
+                        //  ** By Catetory **
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::CustomizedType);
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::Enumeration);
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::Array);
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::Sequence);
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::Choice);
+
+    template &lt;typename TYPE&gt;
+    TagVal select(const TYPE&amp; object, bdlat_TypeCategory::NullableValue);
+
+    template &lt;typename TYPE, typename ANY_CATEGORY&gt;
+    TagVal select(const TYPE&amp; object, ANY_CATEGORY);
+
+    // FUNCTOR OPERATORS
+    template &lt;typename TYPE&gt;
+    inline
+    TagVal operator()(const TYPE&amp;, bslmf::Nil)
+    {
+        BSLS_ASSERT(0 &amp;&amp; &quot;Invalid type category&quot;);
+        return BerUniversalTagNumber::e_BER_INVALID;
+    }
+
+    template &lt;typename TYPE, typename ANY_CATEGORY&gt;
+    inline
+    TagVal operator()(const TYPE&amp; object, ANY_CATEGORY category)
+    {
+        return BerUniversalTagNumber_Imp::select(object, category);
+    }
+
+    int alternateTag() {
+        return d_alternateTag;
+    }
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                    // ------------------------------------
+                    // struct balber::BerUniversalTagNumber
+                    // ------------------------------------
+
+// FORWARD DECLARATIONS
+
+// Updated by &#39;bde-replace-bdet-forward-declares.py -m bdlt&#39;: 2015-02-03
+// Updated declarations tagged with &#39;// bdet -&gt; bdlt&#39;.
+
+namespace bdlt { class Date; }                                  // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::Date Date; }      // bdet -&gt; bdlt
+
+namespace bdlt { class DateTz; }                                // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::DateTz DateTz; }  // bdet -&gt; bdlt
+
+namespace bdlt { class Datetime; }                              // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::Datetime Datetime; }
+                                                                // bdet -&gt; bdlt
+
+namespace bdlt { class DatetimeTz; }                            // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::DatetimeTz DatetimeTz; }
+                                                                // bdet -&gt; bdlt
+
+namespace bdlt { class Time; }                                  // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::Time Time; }      // bdet -&gt; bdlt
+
+namespace bdlt { class TimeTz; }                                // bdet -&gt; bdlt
+namespace bdet { typedef ::BloombergLP::bdlt::TimeTz TimeTz; }  // bdet -&gt; bdlt
+
+namespace balber {
+
+// CLASS METHODS
+inline
+int BerUniversalTagNumber::fromInt(BerUniversalTagNumber::Value *result,
+                                   int                           number)
+{
+    enum { k_SUCCESS = 0, k_NOT_FOUND = 1 };
+
+    switch (number) {
+      case e_BER_BOOL:
+      case e_BER_INT:
+      case e_BER_OCTET_STRING:
+      case e_BER_REAL:
+      case e_BER_ENUMERATION:
+      case e_BER_UTF8_STRING:
+      case e_BER_SEQUENCE:
+      case e_BER_VISIBLE_STRING:
+        *result = static_cast&lt;BerUniversalTagNumber::Value&gt;(number);
+        return k_SUCCESS;                                             // RETURN
+      default:
+        return k_NOT_FOUND;                                           // RETURN
+    }
+}
+
+inline
+bsl::ostream&amp; BerUniversalTagNumber::print(bsl::ostream&amp;                stream,
+                                           BerUniversalTagNumber::Value value)
+{
+    return stream &lt;&lt; toString(value);
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber::select(const TYPE&amp;              object,
+                              int                      formattingMode,
+                              const BerEncoderOptions *options)
+{
+    BerUniversalTagNumber_Imp imp(formattingMode, options);
+    int retVal = bdlat_TypeCategoryUtil::accessByCategory(object, imp);
+    return (BerUniversalTagNumber::Value) retVal;
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber::select(const TYPE&amp;  object,
+                              int          formattingMode,
+                              int         *alternateTag)
+{
+    BerUniversalTagNumber_Imp imp(formattingMode);
+    int retVal = bdlat_TypeCategoryUtil::accessByCategory(object, imp);
+
+    const int tag = imp.alternateTag();
+    if (-1 != tag) {
+        *alternateTag = tag;
+    }
+
+    return (BerUniversalTagNumber::Value) retVal;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; balber::operator&lt;&lt;(bsl::ostream&amp;                stream,
+                                 BerUniversalTagNumber::Value rhs)
+{
+    return BerUniversalTagNumber::print(stream, rhs);
+}
+
+namespace balber {
+
+                      // --------------------------------
+                      // struct BerUniversalTagNumber_Imp
+                      // --------------------------------
+
+// PRIVATE MANIPULATORS
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::selectForDateAndTimeTypes()
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    if (d_options_p) {
+        return d_options_p-&gt;encodeDateAndTimeTypesAsBinary()
+             ? BerUniversalTagNumber::e_BER_OCTET_STRING
+             : BerUniversalTagNumber::e_BER_VISIBLE_STRING;
+    }
+    else {
+        d_alternateTag = BerUniversalTagNumber::e_BER_OCTET_STRING;
+
+        return BerUniversalTagNumber::e_BER_VISIBLE_STRING;
+    }
+}
+
+                        //  ** By Type **
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bool&amp;, bdlat_TypeCategory::Simple)
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_TEXT    == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_BOOL;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const char&amp;, bdlat_TypeCategory::Simple)
+{
+    if (FMode::e_TEXT == (d_formattingMode &amp; FMode::e_TYPE_MASK)) {
+        return BerUniversalTagNumber::e_BER_UTF8_STRING;
+    }
+
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const signed char&amp;         ,
+                                  bdlat_TypeCategory::Simple )
+{
+    if (FMode::e_TEXT == (d_formattingMode &amp; FMode::e_TYPE_MASK)) {
+        return BerUniversalTagNumber::e_BER_UTF8_STRING;
+    }
+
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const unsigned char&amp;            ,
+                                       bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const short&amp;                    ,
+                                       bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const unsigned short&amp;           ,
+                                       bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const int&amp;, bdlat_TypeCategory::Simple)
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const unsigned int&amp;        ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const long&amp;                ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const unsigned long&amp;       ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bsls::Types::Int64&amp;  ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bsls::Types::Uint64&amp; ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_INT;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const float&amp;               ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_REAL;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const double&amp;              ,
+                                  bdlat_TypeCategory::Simple )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_REAL;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bsl::string&amp;        ,
+                                  bdlat_TypeCategory::Simple)
+{
+    if (FMode::e_BASE64 == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+     || FMode::e_HEX    == (d_formattingMode &amp; FMode::e_TYPE_MASK)) {
+        return BerUniversalTagNumber::e_BER_OCTET_STRING;
+    }
+
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_TEXT    == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_UTF8_STRING;
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::Date&amp;          ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::DateTz&amp;        ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::Datetime&amp;      ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::DatetimeTz&amp;    ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::Time&amp;          ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlt::TimeTz&amp;        ,
+                                  bdlat_TypeCategory::Simple )
+{
+    return selectForDateAndTimeTypes();
+}
+
+template &lt;typename TYPE, typename TYPETZ&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bdlb::Variant2&lt;TYPE, TYPETZ&gt;&amp; ,
+                                  bdlat_TypeCategory::Simple          )
+{
+    BSLMF_ASSERT((bslmf::IsSame&lt;bdlt::Date,       TYPE  &gt;::VALUE
+               &amp;&amp; bslmf::IsSame&lt;bdlt::DateTz,     TYPETZ&gt;::VALUE)
+              || (bslmf::IsSame&lt;bdlt::Time,       TYPE  &gt;::VALUE
+               &amp;&amp; bslmf::IsSame&lt;bdlt::TimeTz,     TYPETZ&gt;::VALUE)
+              || (bslmf::IsSame&lt;bdlt::Datetime,   TYPE  &gt;::VALUE
+               &amp;&amp; bslmf::IsSame&lt;bdlt::DatetimeTz, TYPETZ&gt;::VALUE));
+
+    return selectForDateAndTimeTypes();
+}
+
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const bsl::vector&lt;char&gt;&amp;  ,
+                                  bdlat_TypeCategory::Array )
+{
+    if (FMode::e_TEXT == (d_formattingMode &amp; FMode::e_TYPE_MASK)) {
+        return BerUniversalTagNumber::e_BER_UTF8_STRING;
+    }
+
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_BASE64  == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_HEX     == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_OCTET_STRING;
+}
+
+                        //  ** By Catetory **
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;                        ,
+                                  bdlat_TypeCategory::CustomizedType )
+{
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType&lt;TYPE&gt;::Type BaseType;
+
+    // The object referenced by the following pointer is never used.  A null
+    // pointer was chosen to force a SEGV in case of inadvertent use.
+    // Dereferencing null is technically illegal, but will work in this case
+    // because the value is never retrieved from memory.
+    BaseType *tmp = 0;
+    return (TagVal) bdlat_TypeCategoryUtil::accessByCategory(*tmp, *this);
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;                     ,
+                                  bdlat_TypeCategory::Enumeration )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_DEC     == (d_formattingMode &amp; FMode::e_TYPE_MASK)
+       || FMode::e_TEXT    == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_ENUMERATION;
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;               ,
+                                  bdlat_TypeCategory::Array )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_SEQUENCE;
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;                  ,
+                                  bdlat_TypeCategory::Sequence )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    return BerUniversalTagNumber::e_BER_SEQUENCE;
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;                ,
+                                  bdlat_TypeCategory::Choice )
+{
+    BSLS_ASSERT_SAFE(
+          FMode::e_DEFAULT == (d_formattingMode &amp; FMode::e_TYPE_MASK));
+
+    // According to X.694 (clause 20.4), an XML choice element is encoded as a
+    // sequence with 1 element.
+
+    return BerUniversalTagNumber::e_BER_SEQUENCE;
+}
+
+template &lt;typename TYPE&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;                       ,
+                                  bdlat_TypeCategory::NullableValue )
+{
+    if (d_formattingMode &amp; FMode::e_NILLABLE) {
+        return BerUniversalTagNumber::e_BER_SEQUENCE;
+    }
+
+    // If got here, then value is nullable, but not nillable.
+    typedef typename
+    bdlat_NullableValueFunctions::ValueType&lt;TYPE&gt;::Type ValueType;
+
+    // The object referenced by the following pointer is never used.  A null
+    // pointer was chosen to force a SEGV in case of inadvertent use.
+    // Dereferencing null is technically illegal, but will work in this case
+    // because the value is never retrieved from memory.
+    ValueType *tmp = 0;
+    return (TagVal) bdlat_TypeCategoryUtil::accessByCategory(*tmp, *this);
+}
+
+template &lt;typename TYPE, typename ANY_CATEGORY&gt;
+inline
+BerUniversalTagNumber::Value
+BerUniversalTagNumber_Imp::select(const TYPE&amp;, ANY_CATEGORY)
+{
+    BSLS_ASSERT(0 &amp;&amp; &quot;invalid type category&quot;);
+    return static_cast&lt;TagVal&gt;(-1);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

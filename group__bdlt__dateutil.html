@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_dateutil Component</title>
+<title>BDE 3.0: bdlt_dateutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -147,46 +147,14 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>End-of-Month Adjustment Conventions: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Two adjustment conventions are used to determine the behavior of the functions (<code>addMonths</code> and <code>addYears</code>) that adjust a date by a particular number of months or years: the end-of-month convention and the non-end-of-month convention. The difference between the two conventions is that the end-of-month convention adjusts the resulting date to the end of the month if the original date is the last day of the month, while the non-end-of-month convention does not perform this adjustment. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>For example, if we add 3 months to February 28, 2013 using the non-end-of-month convention, then the resulting date will be May 28, 2013. If we do the same operation except using the end-of-month convention, then the resulting date will be May 31, 2013. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>More formal definitions of the two conventions are provided below: <br/>
-<br/>
-<div class="fragment"><pre class="fragment"> &lt;ul&gt;
- &lt;li&gt;
- The End-of-Month Convention
-
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  If the original date to be adjusted is the last day of a month, or <span class="keywordflow">if</span> the
-
- \par
-  day of the month of the original date does not exist in the resulting
-
- \par
-  date, then adjust the resulting date to be the last day of the month.
- \par
- &lt;/div&gt;
-
- &lt;/li&gt;
- &lt;li&gt;
- The Non-End-of-Month Convention
-
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  If the day of the month of the original date does not exist in the
-
- \par
-  resulting date, then adjust the resulting date to be the last day of the
-
- \par
-  month.
-
- \par
- &lt;/div&gt;
-
- &lt;/li&gt;
- &lt;/ul&gt;
-</pre></div><br/>
-<br/>
- </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>More formal definitions of the two conventions are provided below: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> The End-of-Month Convention: <br/>
+ If the original date to be adjusted is the last day of a month, or if the day of the month of the original date does not exist in the resulting date, then adjust the resulting date to be the last day of the month.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> The Non-End-of-Month Convention: <br/>
+ If the day of the month of the original date does not exist in the resulting date, then adjust the resulting date to be the last day of the month.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -238,7 +206,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that the dates have been adjusted to the end of the month. If we had used <code>addMonthsNoEom</code> instead of <code>addMonthsEom</code>, this adjustment would not have occurred. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

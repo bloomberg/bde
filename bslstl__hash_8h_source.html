@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_hash.h                                                      -*-C++-*-
@@ -24,18 +24,19 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // compliant, implementation defined, hash function to fundamental types
 // returning the result of such application.
 //
-/// Standard Hash Function
+///Standard Hash Function
+///----------------------
 // According to the C++ standard the requirements of a standard hash function
 // &#39;h&#39; are:
 //
 //: 1 Return a &#39;size_t&#39; value between 0 and
-//:   &#39;numeric_limits&lt;std::size_t&gt;::max()&#39;
+//:   &#39;numeric_limits&lt;std::size_t&gt;::max()&#39;.
 //:
 //: 2 The value returned must depend only on the argument &#39;k&#39;.  For multiple
 //:   evaluations with the same argument &#39;k&#39;, the value returned must be
 //:   always the same.
 //:
-//: 3 The function should not modify it&#39;s argument.
+//: 3 The function should not modify its argument.
 //
 ///Usage
 ///-----
@@ -229,19 +230,19 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //
 ///Example 2: Using &#39;hashAppend&#39; from &#39;bslh&#39; with &#39;HashCrossReference&#39;
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We want to specialize &#39;bsl::hash&#39; for a custom class. We can use the the
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We want to specialize &#39;bsl::hash&#39; for a custom class.  We can use the
 // modular hashing system implemented in &#39;bslh&#39; rather than explicitly
-// specializing &#39;bsl::hash&#39;. We will re-use the &#39;HashCrossReference&#39; template
+// specializing &#39;bsl::hash&#39;.  We will re-use the &#39;HashCrossReference&#39; template
 // class defined in Example 1.
 //
-// First, we declare &#39;Point&#39;, a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we declare &#39;Point&#39;, a class that allows us to identify a location on
+// a two dimensional Cartesian plane.
 //..
 //
 //  class Point {
-//      // This class is a value semantic type that represents as two
-//      // dimensional location on a cartesian plane.
+//      // This class is a value-semantic type that represents a two-
+//      // dimensional location on a Cartesian plane.
 //
 //    private:
 //      int    d_x;
@@ -283,8 +284,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //
 //..
-// Then, we define &#39;operator==&#39;. Notice how it only checks salient attributes -
-// attributes that contribute to the value of the class. We ignore
+// Then, we define &#39;operator==&#39;.  Notice how it only checks salient attributes
+// - attributes that contribute to the value of the class.  We ignore
 // &#39;d_distToOrigin&#39; which is not required to determine equality.
 //..
 //  bool operator==(const Point &amp;left, const Point &amp;right)
@@ -293,9 +294,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //
 //..
-// Next, we define &#39;hashAppend&#39;. This method will allow any hashing algorithm
-// to be applied to &#39;Point&#39;. This is the extent of the work that needs to be
-// done by type creators. They do not need to implement any algorithms, they
+// Next, we define &#39;hashAppend&#39;.  This method will allow any hashing algorithm
+// to be applied to &#39;Point&#39;.  This is the extent of the work that needs to be
+// done by type creators.  They do not need to implement any algorithms, they
 // just need to call out the salient attributes (which have already been
 // determined by &#39;operator==&#39;) by calling &#39;hashAppend&#39; on them.
 //..
@@ -308,17 +309,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //
 //..
-// Then, we declare another value semantic type, &#39;Box&#39; that will have point as
+// Then, we declare another value-semantic type, &#39;Box&#39;, that has a &#39;Point&#39; as
 // one of its salient attributes.
 //..
 //  class Box {
-//      // This class is a value semantic type that represents a box drawn on
-//      // to a cartesian plane.
+//      // This class is a value-semantic type that represents a box drawn on
+//      // to a Cartesian plane.
 //
 //    private:
 //      Point d_position;
-//      int d_length;
-//      int d_width;
+//      int   d_length;
+//      int   d_width;
 //
 //    public:
 //      Box(Point position, int length, int width);
@@ -341,7 +342,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                                    d_width(width) { }
 //
 //..
-// Then, we define &#39;operator==&#39;. This time all of the data members contribute
+// Then, we define &#39;operator==&#39;.  This time all of the data members contribute
 // to equality.
 //..
 //  bool operator==(const Box &amp;left, const Box &amp;right)
@@ -352,9 +353,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //
 //..
-// Next, we define &#39;hashAppend&#39; for &#39;Box&#39;. Notice how as well as calling
-// &#39;hashAppend&#39; on fundamental types, we can also call it on our user defined
-// type &#39;Point&#39;. Calling &#39;hashAppend&#39; on &#39;Point&#39; will propogate the hashing
+// Next, we define &#39;hashAppend&#39; for &#39;Box&#39;.  Notice how as well as calling
+// &#39;hashAppend&#39; on fundamental types, we can also call it on our user-defined
+// type &#39;Point&#39;.  Calling &#39;hashAppend&#39; on &#39;Point&#39; will propagate the hashing
 // algorithm functor &#39;hashAlg&#39; down to the fundamental types that make up
 // &#39;Point&#39;, and those types will then be passed into the algorithm functor.
 //..
@@ -382,7 +383,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Next, we create our cross-reference &#39;hcrsts&#39; and verify that it constructed
 // properly.  Note we don&#39;t pass a second parameter template argument and let
-// &#39;HASHER&#39; default to &#39;bsl::hash&lt;TYPE&gt;&#39;. Since we have not specialized
+// &#39;HASHER&#39; default to &#39;bsl::hash&lt;TYPE&gt;&#39;.  Since we have not specialized
 // &#39;bsl::hash&#39; for &#39;Box&#39;, &#39;bsl::hash&lt;TYPE&gt;&#39; will attempt to use &#39;bslh::hash&lt;&gt;&#39;
 // to hash &#39;Box&#39;.
 //..
@@ -458,14 +459,14 @@ namespace bsl {
 
 template &lt;class TYPE&gt;
 struct hash : ::BloombergLP::bslh::Hash&lt;&gt; {
-    // Empty base class for hashing. This class, and all explicit and partial
+    // Empty base class for hashing.  This class, and all explicit and partial
     // specializations of this class, shall conform to the C++11 Hash
-    // Requirements (C++11 17.6.3.4, [hash.requirements]). Unless this template
-    // is explicitly specialized, it will use the defualt hash algorithm
-    // provided by &#39;bslh::Hash&lt;&gt;&#39; to supply hash values. In order to hash a
-    // user defined type using &#39;bsl::hash&#39;, &#39;bsl::hash&#39; must be explicitly
-    // specialized for the type, or, perferably, &#39;hashAppend&#39; must be
-    // implemented for the type. For more details on &#39;hashAppend&#39; and
+    // Requirements (C++11 17.6.3.4, [hash.requirements]).  Unless this
+    // template is explicitly specialized, it will use the default hash
+    // algorithm provided by &#39;bslh::Hash&lt;&gt;&#39; to supply hash values.  In order to
+    // hash a user-defined type using &#39;bsl::hash&#39;, &#39;bsl::hash&#39; must be
+    // explicitly specialized for the type, or, preferably, &#39;hashAppend&#39; must
+    // be implemented for the type.  For more details on &#39;hashAppend&#39; and
     // &#39;bslh::Hash&#39; see the component &#39;bslh_hash&#39;.
 };
 
@@ -492,7 +493,7 @@ struct hash&lt;bool&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -501,8 +502,8 @@ struct hash&lt;bool&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(bool x) const;
@@ -522,7 +523,7 @@ struct hash&lt;char&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -531,8 +532,8 @@ struct hash&lt;char&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(char x) const;
@@ -552,7 +553,7 @@ struct hash&lt;signed char&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -561,8 +562,8 @@ struct hash&lt;signed char&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(signed char x) const;
@@ -582,7 +583,7 @@ struct hash&lt;unsigned char&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -591,8 +592,8 @@ struct hash&lt;unsigned char&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned char x) const;
@@ -612,7 +613,7 @@ struct hash&lt;wchar_t&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -621,8 +622,8 @@ struct hash&lt;wchar_t&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(wchar_t x) const;
@@ -642,7 +643,7 @@ struct hash&lt;short&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -651,8 +652,8 @@ struct hash&lt;short&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(short x) const;
@@ -672,7 +673,7 @@ struct hash&lt;unsigned short&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -681,8 +682,8 @@ struct hash&lt;unsigned short&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned short x) const;
@@ -702,7 +703,7 @@ struct hash&lt;int&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -711,8 +712,8 @@ struct hash&lt;int&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(int x) const;
@@ -732,7 +733,7 @@ struct hash&lt;unsigned int&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -741,8 +742,8 @@ struct hash&lt;unsigned int&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned int x) const;
@@ -762,7 +763,7 @@ struct hash&lt;long&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -771,8 +772,8 @@ struct hash&lt;long&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(long x) const;
@@ -792,7 +793,7 @@ struct hash&lt;unsigned long&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -801,8 +802,8 @@ struct hash&lt;unsigned long&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long x) const;
@@ -822,7 +823,7 @@ struct hash&lt;long long&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -831,8 +832,8 @@ struct hash&lt;long long&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(long long x) const;
@@ -852,7 +853,7 @@ struct hash&lt;unsigned long long&gt; {
 
     //! hash(const hash&amp; original) = default;
         // Create a &#39;hash&#39; object.  Note that as &#39;hash&#39; is an empty (stateless)
-        // type, this operation will have no observable effect.
+        // type, this operation has no observable effect.
 
     //! ~hash() = default;
         // Destroy this object.
@@ -861,8 +862,8 @@ struct hash&lt;unsigned long long&gt; {
     //! hash&amp; operator=(const hash&amp; rhs) = default;
         // Assign to this object the value of the specified &#39;rhs&#39; object, and
         // return a reference providing modifiable access to this object.  Note
-        // that as &#39;hash&#39; is an empty (stateless) type, this operation will
-        // have no observable effect.
+        // that as &#39;hash&#39; is an empty (stateless) type, this operation has no
+        // observable effect.
 
     // ACCESSORS
     std::size_t operator()(unsigned long long x) const;

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_objectbuffer.h                                                -*-C++-*-
@@ -45,8 +45,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // which returns a null-terminated string.  &#39;my_String&#39; does not have a default
 // constructor and thus cannot be used in C-style arrays or unions.
 //
-///Usage Example 1:
-///- - - - - - - -
+///Example 1: Creating a Dynamic Array of Objects
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Here we use &#39;bsls::ObjectBuffer&#39; to create a variable-length array of
 // &#39;my_String&#39; objects.  For efficiency, the array is created on the stack as
 // a fixed-sized array of &#39;bsls::ObjectBuffer&lt;my_String&gt;&#39; objects and the
@@ -100,8 +100,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return 0;
 //  }
 //..
-///Usage Example 2:
-///- - - - - - - -
+//
+///Example 2: Containing Different Object Types
+/// - - - - - - - - - - - - - - - - - - - - - -
 // Here we use &#39;bsls::ObjectBuffer&#39; to compose a variable-type object capable
 // of holding a string or an integer:
 //..
@@ -111,9 +112,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      enum TypeTag { INT, STRING };
 //
 //    private:
-//      TypeTag                          d_type;
+//      TypeTag                           d_type;
 //      union {
-//          int                          d_int;
+//          int                           d_int;
 //          bsls::ObjectBuffer&lt;my_String&gt; d_string;
 //      };
 //
@@ -278,9 +279,9 @@ union ObjectBuffer {
         // &#39;const char*&#39; pointer.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 template &lt;class TYPE&gt;
@@ -314,9 +315,9 @@ const char *ObjectBuffer&lt;TYPE&gt;::buffer() const
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                          BACKWARD COMPATIBILITY
-// ===========================================================================
+// ============================================================================
 
 
 

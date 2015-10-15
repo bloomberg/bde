@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_unorderedmapkeyconfiguration.h                              -*-C++-*-
@@ -21,7 +21,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@DESCRIPTION: This component will, given an object of a value type consisting
 // of a key type and some other information, return a const reference to only
-// the key type within that object.  The object passed will be of parametrized
+// the key type within that object.  The object passed will be of parameterized
 // type &#39;VALUE_TYPE&#39;, for which a type &#39;VALUE_TYPE::first_type&#39; must be
 // defined and be of the key type, and for which the operation &#39;.first&#39; must be
 // defined and must yield the object of the key type.
@@ -51,7 +51,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  template &lt;class VALUE_TYPE, class KEY_EXTRACTOR&gt;
 //  void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&amp;)
 //      // This function provides an order-preserving sort of the items in the
-//      // range &#39;[ begin, end )&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the
+//      // range &#39;[begin .. end)&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the
 //      // key being sorted over.  We require that &#39;VALUE_TYPE&#39; support copy
 //      // construction and assignment.
 //  {
@@ -67,7 +67,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //              }
 //          }
 //
-//          // &#39;*end&#39; is now the highest element in the range &#39;[ begin, end ]&#39;,
+//          // &#39;*end&#39; is now the highest element in the range &#39;[begin .. end]&#39;,
 //          // so we only have to sort the elements before it in the next pass.
 //      }
 //  }
@@ -142,7 +142,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  List of students, lowest GPA first:
 //  ===================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Ann    2.3   21
@@ -181,7 +181,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  List of students, youngest first:
 //  ================================
-//  Name   GPA  AGE
+//                              Name   GPA  AGE
 //  -----  ---  ---
 //  Stan   1.9   18
 //  Phil   3.4   19
@@ -210,7 +210,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      {  7.75, &quot;Kenny&quot; } };
 //  const int NUM_EMPLOYEES = sizeof employees / sizeof *employees;
 //..
-// Then, we create an &#39;UnorderedMapKeyConfiguration&#39; type paramtrized on
+// Then, we create an &#39;UnorderedMapKeyConfiguration&#39; type parameterized on
 // &#39;EmployeePair&#39;, which will extract the &#39;.first&#39; field, which is the wage,
 // from an employee pair:
 //..
@@ -241,7 +241,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //  List of employees, cheapest first:
 //  ==================================
-//  Name   Wage
+//                              Name   Wage
 //  -----  -----
 //  Kenny   7.75
 //  Kyle   12.25
@@ -278,9 +278,9 @@ struct UnorderedMapKeyConfiguration {
         // &#39;key&#39; portion of &#39;obj&#39;.
 };
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                        //-----------------------------------
                        // class UnorderedMapKeyConfiguration
@@ -295,7 +295,7 @@ UnorderedMapKeyConfiguration&lt;VALUE_TYPE&gt;::extractKey(const VALUE_TYPE&amp;
     return obj.first;
 }
 
-}  // close namespace bslalg
+}  // close package namespace
 
 }  // close enterprise namespace
 

@@ -1,0 +1,695 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlc_indexclerk.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLC_INDEXCLERK
+#define INCLUDED_BDLC_INDEXCLERK
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a manager of reusable, non-negative integer indices.
+//
+//@CLASSES:
+//   bdlc::IndexClerkIter: sequential accessor to decommissioned indices
+//   bdlc::IndexClerk: manager of reusable, non-negative integer indices
+//
+//@DESCRIPTION: This component implements an efficient, value-semantic manager
+// class for reusable, non-negative integer indices.  Each new instance of a
+// &#39;bdlc::IndexClerk&#39; will issue consecutive integers on request, beginning
+// with &#39;0, 1, 2, ...&#39;.  Indices that are no longer needed may be returned for
+// reuse.  Existing decommissioned indices are reissued before any new ones are
+// created.  Value-semantic operations such as copy construction and
+// assignment, equality comparison, and streaming are also provided.  Finally,
+// a &#39;bdlc::IndexClerkIter&#39; is provided to enable sequential, read-only access
+// to the currently decommissioned indices.  Note that the order of iteration
+// is not defined.
+//
+///Performance
+///-----------
+// The following characterizes the performance of representative operations
+// using &quot;big-oh&quot; notation, O[f(N,M)], where the names &#39;N&#39; and &#39;M&#39; also refer
+// to the number of respective elements in the sequence of decommissioned
+// indices.
+//..
+//     Operation                     Worst Case
+//     ---------                     ----------
+//     DEFAULT CTOR                  O[1]
+//     COPY CTOR(N)                  O[N]
+//     N.DTOR()                      O[1]
+//     N.OP=(M)                      O[M]
+//     OP==(N,M)                     O[min(N,M)]
+//
+//     N.getIndex()                  O[1]
+//     N.putIndex(index)             O[1]
+//     N.removeAll()                 O[1]
+//     N.numCommissionedIndices()    O[1]
+//     N.numDecommissionedIndices()  O[1]
+//     N.nextNewIndex()              O[1]
+//     N.isInUse(index)              O[N]
+//..
+//
+///Usage
+///-----
+// A &#39;bdlc::IndexClerk&#39; is commonly used in conjunction with an array to enable
+// machine-address-independent referencing.  Rather than dynamically allocating
+// an object and holding its address, the object is stored in the array at the
+// next position dispensed by its associated &#39;bdlc::IndexClerk&#39;, and that index
+// becomes an identifier (Id) for the new object.  Instead of destroying an
+// unneeded object, its Id is merely returned to the clerk.
+//
+// Care must be taken to ensure that objects &quot;created&quot; at reused indices (i.e.,
+// indices below the current length of the array) *replace* (the value of) an
+// existing object in the array while objects created at new indices (i.e.,
+// indices at the current length) are *appended* to the array.
+//
+// For example, suppose we have a security class object.  To add and remove
+// security values from a security array/clerk pair, you might write the
+// following two functions:
+//..
+//  int addSecurity(bsl::vector&lt;Security&gt; *securityArray,
+//                  bdlc::IndexClerk      *securityClerk,
+//                  const Security&amp;        newSecurity)
+//      // Add a copy of the specified &#39;newSecurity&#39; to the specified
+//      // &#39;securityArray&#39; at the index dispensed by the specified
+//      // &#39;securityClerk&#39;.  Also update the &#39;securityClerk&#39;, and return the id
+//      // (in &#39;securityArray&#39;) for the newly added security.
+//  {
+//      BSLS_ASSERT(securityArray);
+//      BSLS_ASSERT(securityClerk);
+//
+//      int id = securityClerk-&gt;getIndex();
+//
+//      if (id &lt; securityArray-&gt;size()) {
+//          (*securityArray)[id] = newSecurity;
+//      }
+//      else {
+//          securityArray-&gt;push_back(newSecurity);
+//      }
+//
+//      return id;
+//  }
+//
+//  void removeSecurity(bsl::vector&lt;Security&gt; *securityArray,
+//                      bdlc::IndexClerk      *securityClerk,
+//                      int                    securityId)
+//      // Remove the security object identified by the specified &#39;securityId&#39;
+//      // from the specified &#39;securityArray&#39;, and update the specified
+//      // &#39;securityClerk&#39; (making &#39;securityId&#39; available for reuse).  The
+//      // behavior is undefined unless &#39;securityId&#39; refers to an active
+//      // security in &#39;securityArray&#39; dispensed by &#39;securityClerk&#39;.
+//  {
+//      BSLS_ASSERT(securityArray);
+//      BSLS_ASSERT(securityClerk);
+//
+//      BSLS_ASSERT(0                             &lt;= securityId);
+//      BSLS_ASSERT(securityClerk-&gt;nextNewIndex() &gt;  securityId);
+//      BSLS_ASSERT(securityArray-&gt;size()         &gt;  securityId);
+//
+//      // Note that the &#39;isInUse&#39; function (below) runs in linear time.
+//
+//      BSLS_ASSERT_SAFE(securityClerk-&gt;isInUse(securityId));
+//
+//      (*securityArray)[securityId] = Security();  // optional
+//      securityClerk-&gt;putIndex(securityId);
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
+#include &lt;bslx_instreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include &lt;bslx_outstreamfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
+#include &lt;bslalg_typetraitbitwisecopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include &lt;bsl_iterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlc {
+                            // ====================
+                            // class IndexClerkIter
+                            // ====================
+
+class IndexClerkIter {
+    // This class defines an in-core value-semantic iterator providing
+    // sequential read-only access to the decommissioned indices of a
+    // &#39;IndexClerk&#39;.  The order of iteration is implementation dependent.
+
+    // DATA
+    bsl::reverse_iterator&lt;const int *&gt; d_index_p;  // pointer to current
+                                                   // decommissioned index
+
+    // FRIENDS
+    friend bool operator==(const IndexClerkIter&amp; lhs,
+                           const IndexClerkIter&amp; rhs);
+    friend bool operator!=(const IndexClerkIter&amp; lhs,
+                           const IndexClerkIter&amp; rhs);
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(IndexClerkIter,
+                                 bslalg::TypeTraitBitwiseCopyable);
+    // CREATORS
+    IndexClerkIter();
+        // Create an unbound iterator.
+
+    IndexClerkIter(const int *index);
+        // Create an iterator referring to the specified integer &#39;index&#39;.
+
+    IndexClerkIter(const IndexClerkIter&amp; original);
+        // Create an iterator having the same value as the specified &#39;original&#39;
+        // iterator.
+
+  //~IndexClerkIter();
+        // Destroy this index clerk iterator.  Note that this method is
+        // generated by the compiler.
+
+    // MANIPULATORS
+    IndexClerkIter&amp; operator=(const IndexClerkIter&amp; rhs);
+        // Create an iterator having the same value as the specified &#39;rhs&#39;
+        // iterator.
+
+    IndexClerkIter&amp; operator++();
+        // Increment this iterator to refer to the next index in the
+        // corresponding sequence of decommissioned indices.  Return a
+        // reference to this modifiable iterator.  The behavior is undefined
+        // unless the current index is within the range &#39;[ begin() .. end() )&#39;.
+
+    IndexClerkIter&amp; operator--();
+        // Decrement this iterator to refer to the previous index in the
+        // corresponding sequence of decommissioned indices.  Return a
+        // reference to this modifiable iterator.  The behavior is undefined
+        // unless the current index is within the range &#39;( begin() .. end() ]&#39;.
+
+    // ACCESSORS
+    int operator*() const;
+        // Return the value of the integer to which this iterator currently
+        // refers.  The behavior is undefined unless the iterator is within the
+        // range &#39;[ begin() .. end() )&#39;.
+};
+
+bool operator==(const IndexClerkIter&amp; lhs, const IndexClerkIter&amp; rhs);
+    // Return &#39;true&#39; if &#39;lhs&#39; and &#39;rhs&#39; have the same value and &#39;false&#39;
+    // otherwise.  Two iterators have the same value if they refer to the same
+    // element of the same container or if they both have the end iterator
+    // value for the same container.  The behavior is undefined unless &#39;lhs&#39;
+    // and &#39;rhs&#39; refer to the same container and are non-singular (i.e., are
+    // not default-constructed or copies of singular iterators).
+
+bool operator!=(const IndexClerkIter&amp; lhs, const IndexClerkIter&amp; rhs);
+    // Return &#39;true&#39; if &#39;lhs&#39; and &#39;rhs&#39; do not have the same value and &#39;false&#39;
+    // otherwise.  Two iterators do not have the same value if they do not
+    // refer to the same element of the same container or if one has the end
+    // iterator value of a container and the other refers to an element (not
+    // the end) of the same container.  The behavior is undefined unless &#39;lhs&#39;
+    // and &#39;rhs&#39; refer to the same container and are non-singular (i.e., are
+    // not default-constructed or copies of singular iterators).
+
+                              // ================
+                              // class IndexClerk
+                              // ================
+
+class IndexClerk {
+    // This class defines an efficient, value-semantic manager type for
+    // reusable, non-negative integer indices.  The class invariants are that
+    // the all decommissioned indices must be non-negative, less than the next
+    // new index, and unique.
+
+    // DATA
+    bsl::vector&lt;int&gt; d_unusedStack;   // stack of decommissioned indices
+    int              d_nextNewIndex;  // next unused index to be created
+
+    // FRIENDS
+    friend bool operator==(const IndexClerk&amp;, const IndexClerk&amp;);
+    friend bool operator!=(const IndexClerk&amp;, const IndexClerk&amp;);
+
+    // PRIVATE CLASS METHODS
+    static bool areInvariantsPreserved(const bsl::vector&lt;int&gt;&amp; unusedStack,
+                                       int                     nextNewIndex);
+        // Return &#39;true&#39; if the class invariants of the object represented by
+        // the specified &#39;unusedStack&#39; are preserved and &#39;false&#39; otherwise.
+        // The class invariants are that all decommissioned indices are
+        // non-negative, less than the specified &#39;nextNewIndex&#39;, and unique.
+        // Note that the run time of this function is proportional to
+        // &#39;numDecommissionedIndices()&#39;, but it requires temporary space that
+        // is proportional to &#39;nextNewIndex&#39;.
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(IndexClerk,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified &#39;versionSelector&#39;, to be passed to the &#39;bdexStreamOut&#39;
+        // method.  Note that it is highly recommended that &#39;versionSelector&#39;
+        // be formatted as &quot;YYYYMMDD&quot;, a date representation.  Also note that
+        // &#39;versionSelector&#39; should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    // CREATORS
+    explicit IndexClerk(bslma::Allocator *basicAllocator = 0);
+        // Create a new index clerk that dispenses consecutive non-negative
+        // integers beginning with &#39;0, 1, 2, ...&#39;; however, indices returned
+        // via &#39;putIndex&#39; will be reissued before any new ones are created.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    IndexClerk(const IndexClerk&amp;  original,
+               bslma::Allocator  *basicAllocator = 0);
+        // Create a new index clerk having the value of the specified
+        // &#39;original&#39; index clerk.  Optionally specify a &#39;basicAllocator&#39; used
+        // to supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    ~IndexClerk();
+        // Destroy this index clerk.
+
+    // MANIPULATORS
+
+    // !IndexClerk&amp; operator=(const IndexClerk&amp; rhs);
+        // Assign to this index clerk the value of the specified &#39;rhs&#39; index
+        // clerk, and return a reference to this modifiable index clerk.  Note
+        // that this method&#39;s definition is compiler generated.
+
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamIn(STREAM&amp; stream, int version);
+        // Assign to this object the value read from the specified input
+        // &#39;stream&#39; using the specified &#39;version&#39; format, and return a
+        // reference to &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  If &#39;version&#39; is not supported, this object
+        // is unaltered and &#39;stream&#39; is invalidated, but otherwise unmodified.
+        // If &#39;version&#39; is supported but &#39;stream&#39; becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from &#39;stream&#39;.  See the &#39;bslx&#39; package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
+    int getIndex();
+        // Return the next available unused integer index.  Existing
+        // decommissioned indices are reissued before new ones are created.
+
+    void putIndex(int index);
+        // Return the specified &#39;index&#39; to this index clerk, which indicates
+        // that &#39;index&#39; is no longer in use and may be reissued.  The behavior
+        // is undefined if &#39;index&#39; has never been generated by this clerk or is
+        // currently decommissioned.
+
+    void removeAll();
+        // Remove all of the indices from this index clerk.  Note that the
+        // following post conditions apply:
+        //..
+        //  assert(0 == numCommissionedIndices());
+        //  assert(0 == numDecommissionedIndices());
+        //  assert(0 == nextNewIndex());
+        //..
+
+    // ACCESSORS
+    template &lt;class STREAM&gt;
+    STREAM&amp; bdexStreamOut(STREAM&amp; stream, int version) const;
+        // Write the value of this object, using the specified &#39;version&#39;
+        // format, to the specified output &#39;stream&#39;, and return a reference to
+        // &#39;stream&#39;.  If &#39;stream&#39; is initially invalid, this operation has no
+        // effect.  If &#39;version&#39; is not supported, &#39;stream&#39; is invalidated, but
+        // otherwise unmodified.  Note that &#39;version&#39; is not written to
+        // &#39;stream&#39;.  See the &#39;bslx&#39; package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
+    IndexClerkIter begin() const;
+        // Return a &#39;IndexClerkIter&#39; referring to the first index returned to
+        // this &#39;IndexClerk&#39; that is currently unused, or &#39;end()&#39; if there are
+        // currently no decommissioned indices.
+
+    IndexClerkIter end() const;
+        // Return a &#39;IndexClerkIter&#39; referring to an invalid index, indicating
+        // the end of the sequence of decommissioned index.
+
+    bool isInUse(int index) const;
+        // Return &#39;true&#39; if the specified &#39;index&#39; is currently in use, and
+        // &#39;false&#39; otherwise.  The behavior is undefined unless &#39;0 &lt;= index&#39;
+        // and &#39;index &lt; nextNewIndex()&#39;.  Note that this method runs in time
+        // proportional to the number of decommissioned indices.
+
+    int numCommissionedIndices() const;
+        // Return the number of indices currently in use.
+
+    int numDecommissionedIndices() const;
+        // Return the number of indices that are currently decommissioned.
+
+    int nextNewIndex() const;
+        // Return the smallest (non-negative) index that has not been issued by
+        // this index clerk.  Note that this function offers the client a
+        // &quot;peek&quot; at the next &quot;new&quot; index, but has no effect on the value of
+        // this index clerk.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this index clerk to the specified output &#39;stream&#39; at the
+        // (absolute value of) the optionally specified indentation &#39;level&#39; and
+        // return a reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const IndexClerk&amp; lhs, const IndexClerk&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; index clerks have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;IndexClerk&#39; objects have the
+    // same value if they have the same &#39;nextNewIndex()&#39; and would always
+    // generate the same sequence of integer indices.
+
+bool operator!=(const IndexClerk&amp; lhs, const IndexClerk&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; index clerks do not have
+    // the same value, and &#39;false&#39; otherwise.  Two &#39;IndexClerk&#39; objects do not
+    // have the same value if they do not have the same &#39;nextNewIndex()&#39;, or
+    // might generate different sequences of integer indices.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const IndexClerk&amp; rhs);
+    // Write the specified &#39;rhs&#39; index clerk to the specified output &#39;stream&#39;
+    // in some single-line (human-readable) format, and return a reference to
+    // the modifiable &#39;stream&#39;.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                            // --------------------
+                            // class IndexClerkIter
+                            // --------------------
+
+// CREATORS
+inline
+bdlc::IndexClerkIter::IndexClerkIter()
+: d_index_p(0)
+{
+}
+
+inline
+bdlc::IndexClerkIter::IndexClerkIter(const int *index)
+: d_index_p(index)
+{
+}
+
+inline
+bdlc::IndexClerkIter::IndexClerkIter(const IndexClerkIter&amp; original)
+: d_index_p(original.d_index_p)
+{
+}
+
+// MANIPULATORS
+inline
+bdlc::IndexClerkIter&amp;
+bdlc::IndexClerkIter::operator=(const IndexClerkIter&amp; rhs)
+{
+    d_index_p = rhs.d_index_p;
+    return *this;
+}
+
+inline
+bdlc::IndexClerkIter&amp; bdlc::IndexClerkIter::operator++()
+{
+    BSLS_ASSERT_SAFE(0 != d_index_p.base());
+
+    ++d_index_p;
+    return *this;
+}
+
+inline
+bdlc::IndexClerkIter&amp; bdlc::IndexClerkIter::operator--()
+{
+    BSLS_ASSERT_SAFE(0 != d_index_p.base());
+
+    --d_index_p;
+    return *this;
+}
+
+// ACCESSORS
+inline
+int bdlc::IndexClerkIter::operator*() const
+{
+    BSLS_ASSERT_SAFE(0 != d_index_p.base());
+
+    return *d_index_p;
+}
+
+// FREE OPERATORS
+inline
+bool bdlc::operator==(const IndexClerkIter&amp; lhs, const IndexClerkIter&amp; rhs)
+{
+    return lhs.d_index_p == rhs.d_index_p;
+}
+
+inline
+bool bdlc::operator!=(const IndexClerkIter&amp; lhs, const IndexClerkIter&amp; rhs)
+{
+    return lhs.d_index_p != rhs.d_index_p;
+}
+
+                              // ----------------
+                              // class IndexClerk
+                              // ----------------
+
+// CREATORS
+inline
+bdlc::IndexClerk::IndexClerk(bslma::Allocator *basicAllocator)
+: d_unusedStack(basicAllocator)
+, d_nextNewIndex(0)
+{
+}
+
+inline
+bdlc::IndexClerk::IndexClerk(const IndexClerk&amp;  original,
+                             bslma::Allocator  *basicAllocator)
+: d_unusedStack(original.d_unusedStack, basicAllocator)
+, d_nextNewIndex(original.d_nextNewIndex)
+{
+}
+
+inline
+bdlc::IndexClerk::~IndexClerk()
+{
+    BSLS_ASSERT_SAFE(areInvariantsPreserved(d_unusedStack, d_nextNewIndex));
+}
+
+// MANIPULATORS
+inline
+int bdlc::IndexClerk::getIndex()
+{
+    if (d_unusedStack.empty()) {
+        return d_nextNewIndex++;                                      // RETURN
+    }
+    else {
+        int index = d_unusedStack.back();
+        d_unusedStack.pop_back();
+        return index;                                                 // RETURN
+    }
+}
+
+inline
+void bdlc::IndexClerk::putIndex(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt; d_nextNewIndex);
+    BSLS_ASSERT_SAFE(isInUse(index));
+
+    d_unusedStack.push_back(index);
+}
+
+inline
+void bdlc::IndexClerk::removeAll()
+{
+    d_unusedStack.clear();
+    d_nextNewIndex = 0;
+}
+
+// Note: Order changed from declaration to make use of inlined &#39;removeAll&#39;.
+
+template &lt;class STREAM&gt;
+STREAM&amp; bdlc::IndexClerk::bdexStreamIn(STREAM&amp; stream, int version)
+{
+    switch (version) {
+      case 1: {
+        int nextNewIndex;
+        stream.getInt32(nextNewIndex);
+
+        if (!stream || nextNewIndex &lt; 0) {
+            stream.invalidate();
+            return stream;                                            // RETURN
+        }
+
+        bsl::vector&lt;int&gt; unusedStack;
+        bslx::InStreamFunctions::bdexStreamIn(stream, unusedStack, version);
+
+        // Stream can be invalidated after streaming in &#39;d_unusedStack&#39;.
+
+        if (!stream || !areInvariantsPreserved(unusedStack, nextNewIndex)) {
+            stream.invalidate();
+            return stream;                                            // RETURN
+        }
+
+        d_unusedStack  = unusedStack;
+        d_nextNewIndex = nextNewIndex;
+      } break;
+      default: {
+        stream.invalidate();
+      } break;
+    }
+    return stream;
+}
+
+// ACCESSORS
+template &lt;class STREAM&gt;
+inline
+STREAM&amp; bdlc::IndexClerk::bdexStreamOut(STREAM&amp; stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            stream.putInt32(d_nextNewIndex);
+            bslx::OutStreamFunctions::bdexStreamOut(
+                                               stream, d_unusedStack, version);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
+inline
+int bdlc::IndexClerk::numCommissionedIndices() const
+{
+    return d_nextNewIndex - static_cast&lt;int&gt;(d_unusedStack.size());
+}
+
+inline
+bdlc::IndexClerkIter bdlc::IndexClerk::begin() const
+{
+    return IndexClerkIter(d_unusedStack.begin() + d_unusedStack.size());
+}
+
+inline
+bdlc::IndexClerkIter bdlc::IndexClerk::end() const
+{
+    return IndexClerkIter(d_unusedStack.begin());
+}
+
+inline
+int bdlc::IndexClerk::numDecommissionedIndices() const
+{
+    return static_cast&lt;int&gt;(d_unusedStack.size());
+}
+
+inline
+int bdlc::IndexClerk::nextNewIndex() const
+{
+    return d_nextNewIndex;
+}
+
+inline
+int bdlc::IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
+
+// FREE OPERATORS
+inline
+bool bdlc::operator==(const IndexClerk&amp; lhs, const IndexClerk&amp; rhs)
+{
+    return lhs.d_nextNewIndex == rhs.d_nextNewIndex
+        &amp;&amp; lhs.d_unusedStack  == rhs.d_unusedStack;
+}
+
+inline
+bool bdlc::operator!=(const IndexClerk&amp; lhs, const IndexClerk&amp; rhs)
+{
+    return lhs.d_nextNewIndex != rhs.d_nextNewIndex
+        || lhs.d_unusedStack  != rhs.d_unusedStack;
+}
+
+inline
+bsl::ostream&amp; bdlc::operator&lt;&lt;(bsl::ostream&amp; stream, const IndexClerk&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_forwarditerator.h                                           -*-C++-*-
@@ -123,7 +123,7 @@ namespace bslstl {
                     // class ForwardIterator
                     //======================
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE =
+template &lt;class T, class ITER_IMP, class TAG_TYPE =
                                                      std::forward_iterator_tag&gt;
 class ForwardIterator
                    : public std::iterator&lt;TAG_TYPE, T, std::ptrdiff_t, T *, T&amp;&gt;
@@ -222,7 +222,7 @@ class ForwardIterator
 };
 
 // FREE OPERATORS
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator==(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const ForwardIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator has the same value as the
@@ -231,7 +231,7 @@ bool operator==(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // end value for the underlying sequence.  The behavior is undefined unless
     // both iterators refer to the same underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator!=(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const ForwardIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator does not have the same
@@ -241,30 +241,30 @@ bool operator!=(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // for the underlying sequence.  The behavior is undefined unless both
     // iterators refer to the same underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator++(ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // Increment the specified &#39;iter&#39; to the next element.  Return the previous
     // value of &#39;iter&#39;.  The behavior is undefined if, on entry, &#39;iter&#39; has the
     // past-the-end value for an iterator of the underlying sequence.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-----------------------------
                         // class ForwardIterator
                         //-----------------------------
 
 // CREATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::ForwardIterator()
 : d_imp()
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::
 ForwardIterator(const ITER_IMP&amp; implementation)
@@ -272,7 +272,7 @@ ForwardIterator(const ITER_IMP&amp; implementation)
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::
 ForwardIterator(const ForwardIterator&lt;UnCvqT,ITER_IMP,TAG_TYPE&gt;&amp; other)
@@ -281,7 +281,7 @@ ForwardIterator(const ForwardIterator&lt;UnCvqT,ITER_IMP,TAG_TYPE&gt;&amp; other
 }
 
 // MANIPULATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
@@ -290,7 +290,7 @@ ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
     return *this;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 ITER_IMP&amp; ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::imp()
 {
@@ -298,21 +298,21 @@ ITER_IMP&amp; ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::imp()
 }
 
 // ACCESSORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 T&amp; ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator*() const
 {
     return *d_imp;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 T *ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator-&gt;() const
 {
     return BSLS_UTIL_ADDRESSOF(*d_imp);
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 const ITER_IMP&amp;
 ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::imp() const
@@ -323,7 +323,7 @@ ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::imp() const
 }  // close package namespace
 
 // FREE OPERATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator++(ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)
@@ -333,7 +333,7 @@ bslstl::operator++(ForwardIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)
     return tmp;
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator==(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const ForwardIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -341,7 +341,7 @@ bool bslstl::operator==(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; l
     return lhs.imp() == rhs.imp();
 }
 
-template &lt;typename T1,  typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1,  class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator!=(const ForwardIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const ForwardIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)

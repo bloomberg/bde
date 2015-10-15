@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlma_pool Component</title>
+<title>BDE 3.0: bdlma_pool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -219,9 +219,13 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
       <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;TYPE *&gt;</a> d_array_p;  <span class="comment">// array of pooled elements</span>
       <a class="code" href="classbdlma_1_1Pool.html">bdlma::Pool</a>         d_pool;     <span class="comment">// memory manager for array elements</span>
 
+    <span class="keyword">private</span>:
+      <span class="comment">// Not implemented:</span>
+      my_PooledArray(<span class="keyword">const</span> my_PooledArray&amp;);
+
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
-      my_PooledArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
+      <span class="keyword">explicit</span> my_PooledArray(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
           <span class="comment">// Create a pooled array that stores the &#39;TYPE&#39; element values</span>
           <span class="comment">// &quot;out-of-place&quot;.  Optionally specify a &#39;basicAllocator&#39; used to</span>
           <span class="comment">// supply memory.  If &#39;basicAllocator&#39; is 0, the currently</span>
@@ -238,7 +242,7 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
           <span class="comment">// Remove all elements from this array.</span>
 
       <span class="comment">// ACCESSORS</span>
-      <span class="keywordtype">int</span> length() <span class="keyword">const</span>;
+      bsl::size_t length() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements in this array.</span>
 
       <span class="keyword">const</span> TYPE&amp; operator[](<span class="keywordtype">int</span> index) <span class="keyword">const</span>;
@@ -257,13 +261,13 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
   <span class="keywordtype">void</span> my_PooledArray&lt;TYPE&gt;::removeAll()
   {
       d_array_p.clear();
-      d_pool.release();
+      d_pool.<a class="code" href="classbdlma_1_1Pool.html#afd51c71be6e7ab898b79e8a0b61090b0">release</a>();
   }
 
   <span class="comment">// ACCESSORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">int</span> my_PooledArray&lt;TYPE&gt;::length()<span class="keyword"> const</span>
+  bsl::size_t my_PooledArray&lt;TYPE&gt;::length()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_array_p.size();
   }
@@ -273,7 +277,7 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
   <span class="keyword">const</span> TYPE&amp; my_PooledArray&lt;TYPE&gt;::operator[](<span class="keywordtype">int</span> index)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       assert(0     &lt;= index);
-      assert(index &lt;  length());
+      assert(index &lt;  static_cast&lt;int&gt;(length()));
 
       <span class="keywordflow">return</span> *d_array_p[index];
   }
@@ -283,7 +287,6 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
 <dl class="user"><dt><b></b></dt><dd>Note that the growth strategy and maximum chunk size of the pool defaults to those provided by <code><a class="el" href="classbdlma_1_1Pool.html">bdlma::Pool</a></code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_poolarray.cpp</span>
-<span class="preprocessor">  #include &lt;my_poolarray.h&gt;</span>
 
   <span class="comment">// CREATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
@@ -398,7 +401,7 @@ BASIC ALLOCATOR -- the allocator used to supply memory to replenish the internal
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:45 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

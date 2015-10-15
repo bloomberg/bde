@@ -1,0 +1,309 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_threadgroup.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_THREADGROUP
+#define INCLUDED_BSLMT_THREADGROUP
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for managing a group of threads.
+//
+//@CLASSES:
+// bslmt::ThreadGroup: A container that manages a group of threads.
+//
+//@SEE_ALSO: bslmt_threadutil, bslmt_threadattributes
+//
+//@DESCRIPTION: This component provides a simple mechanism for managing a group
+// of threads.  The group is represented by an instance of the
+// &#39;bslmt::ThreadGroup&#39; class.  To use this component, the client code calls
+// &#39;addThread&#39;, providing a function to be executed.  The specified function is
+// executed in a new thread managed by the thread group (note that &#39;addThread&#39;
+// is thread-safe).  The &#39;joinAll&#39; call blocks until all threads in the group
+// have finished executing.
+//
+///Thread Safety
+///-------------
+// This component is thread-safe and thread-enabled, meaning that multiple
+// threads may safely use their own instances or a shared instance of a
+// &#39;bslmt::ThreadGroup&#39; object.
+//
+///Usage
+///-----
+// The following usage example illustrates how &#39;bslmt::ThreadGroup&#39; might be
+// used in a typical test driver to simplify the execution of a common function
+// in multiple threads.  Suppose that we are interested in creating a
+// stress-test for the &#39;bslmt::Mutex&#39; class.  The test is controlled by two
+// parameters: the number of executions (defined by subsequent calls to &#39;lock&#39;
+// and &#39;unlock&#39;, and the amount of contention, defined by the number of threads
+// accessing the mutex.  The test can be expressed as two functions.  The first
+// is executed in each thread via a functor object:
+//..
+//  class MutexTestJob {
+//      int           d_numIterations;
+//      int          *d_value_p;
+//      bslmt::Mutex *d_mutex_p;
+//
+//    public:
+//      MutexTestJob(int numIterations, int *value, bslmt::Mutex *mutex)
+//      : d_numIterations(numIterations)
+//      , d_value_p(value)
+//      , d_mutex_p(mutex)
+//      {}
+//
+//      void operator()() {
+//          for (int i = 0; i &lt; d_numIterations; ++i) {
+//              bslmt::LockGuard&lt;bslmt::Mutex&gt; guard(d_mutex_p);
+//              ++*d_value_p;
+//          }
+//      }
+//  };
+//..
+// The second executes the main body of the test:
+//..
+//  bslma::TestAllocator ta;
+//  {
+//      const int NUM_ITERATIONS = 10000;
+//      const int NUM_THREADS    = 8;
+//
+//      bslmt::Mutex   mutex;                     // object under test
+//      int            value = 0;
+//
+//      MutexTestJob testJob(NUM_ITERATIONS, &amp;value, &amp;mutex);
+//
+//      bslmt::ThreadGroup threadGroup(&amp;ta);
+//      for (int i = 0; i &lt; NUM_THREADS; ++i) {
+//          assert(0 == threadGroup.addThread(testJob));
+//      }
+//      threadGroup.joinAll();
+//      assert(NUM_ITERATIONS * NUM_THREADS == value);
+//  }
+//  assert(0 &lt;  ta.numAllocations());
+//  assert(0 == ta.numBytesInUse());
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
+#include &lt;bslmt_threadattributes.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include &lt;bslmt_threadutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+                            // =================
+                            // class ThreadGroup
+                            // =================
+
+class ThreadGroup {
+    // This class provides a simple mechanism for managing a group of joinable
+    // threads.  The destructor ensures that any running threads are detached
+    // so that resources are not leaked.  This class is thread-enabled,
+    // thread-safe, and exception-neutral.
+
+    // PRIVATE TYPES
+    typedef bsl::vector&lt;ThreadUtil::Handle&gt; ThreadContainer;
+
+    // INSTANCE DATA
+    bsls::AtomicInt d_numThreads;
+    ThreadContainer d_threads;
+    Mutex           d_threadsMutex;
+
+    // PRIVATE MANIPULATORS
+    void addThread(const ThreadUtil::Handle&amp; handle);
+        // Add the specified &#39;handle&#39; to the &#39;d_threads&#39; container.  If an
+        // exception is thrown, &#39;handle&#39; will be released.
+
+  private:
+    // not implemented
+    ThreadGroup(const ThreadGroup&amp;);
+    ThreadGroup&amp; operator=(const ThreadGroup&amp;);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(ThreadGroup,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    explicit
+    ThreadGroup(bslma::Allocator *basicAllocator = 0);
+        // Create an empty thread group.  Optionally specify &#39;basicAllocator&#39;
+        // will be used to supply memory.  If &#39;basicAllocator&#39; is 0, the
+        // currently installed default allocator will be used.
+
+    ~ThreadGroup();
+        // Destroy this object.  Any threads not joined will be allowed to run
+        // independently, and will no longer be joinable.
+
+    // MANIPULATORS
+    template &lt;class INVOKABLE&gt;
+    int addThread(const INVOKABLE&amp; functor);
+    template &lt;class INVOKABLE&gt;
+    int addThread(const INVOKABLE&amp;        functor,
+                  const ThreadAttributes&amp; attributes);
+        // Begin executing the specified invokable &#39;functor&#39; in a new thread,
+        // using the optionally specified thread &#39;attributes&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  &#39;INVOKABLE&#39; shall be a
+        // copy-constructible type having the equivalent of
+        // &#39;void operator()()&#39;.  Note that threads are always created joinable,
+        // regardless of the mode specified in &#39;attributes&#39;.
+
+    template &lt;class INVOKABLE&gt;
+    int addThreads(const INVOKABLE&amp; functor, int numThreads);
+    template &lt;class INVOKABLE&gt;
+    int addThreads(const INVOKABLE&amp;        functor,
+                   int                     numThreads,
+                   const ThreadAttributes&amp; attributes);
+        // Begin executing the specified invokable &#39;functor&#39; in the specified
+        // new &#39;numThreads&#39;, using the optionally specified thread
+        // &#39;attributes&#39;.  Return &#39;numThreads&#39; on success, or the number of
+        // threads successfully started otherwise.  &#39;INVOKABLE&#39; shall be a
+        // copy-constructible type having the equivalent of
+        // &#39;void operator()()&#39;.  Note that threads are always created joinable,
+        // regardless of the mode specified in &#39;attributes&#39;.
+
+    void joinAll();
+        // Block the calling thread until all threads started in this group
+        // have finished executing.
+
+    // ACCESSORS
+    int numThreads() const;
+        // Return a snapshot of the number of threads started in this group
+        // that have not been joined.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                            // -----------------
+                            // class ThreadGroup
+                            // -----------------
+
+// MANIPULATORS
+template&lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadGroup::addThread(const INVOKABLE&amp; functor)
+{
+    return addThread(functor, ThreadAttributes());
+}
+
+template&lt;class INVOKABLE&gt;
+inline
+int bslmt::ThreadGroup::addThreads(const INVOKABLE&amp; functor, int numThreads)
+{
+    return addThreads(functor, numThreads, ThreadAttributes());
+}
+
+template&lt;class INVOKABLE&gt;
+int bslmt::ThreadGroup::addThread(const INVOKABLE&amp;        functor,
+                                  const ThreadAttributes&amp; attributes)
+{
+    ThreadUtil::Handle handle;
+    int rc = 1;
+    if (ThreadAttributes::e_CREATE_JOINABLE != attributes.detachedState()) {
+        ThreadAttributes newAttributes(attributes);
+        newAttributes.setDetachedState(
+                                ThreadAttributes::e_CREATE_JOINABLE);
+        rc = ThreadUtil::create(&amp;handle, newAttributes, functor);
+    }
+    else {
+        rc = ThreadUtil::create(&amp;handle, attributes, functor);
+    }
+
+    if (0 == rc) {
+        addThread(handle);
+    }
+    return rc;
+}
+
+template&lt;class INVOKABLE&gt;
+int bslmt::ThreadGroup::addThreads(const INVOKABLE&amp;        functor,
+                                   int                     numThreads,
+                                   const ThreadAttributes&amp; attributes)
+{
+    BSLS_ASSERT(0 &lt;= numThreads);
+
+    int numAdded;
+    for (numAdded = 0; numAdded &lt; numThreads; ++numAdded) {
+        if (0 != addThread(functor, attributes)) {
+            break;
+        }
+    }
+    return numAdded;
+}
+
+// ACCESSORS
+inline
+int bslmt::ThreadGroup::numThreads() const
+{
+   return d_numThreads.loadRelaxed();
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

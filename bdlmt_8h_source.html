@@ -1,0 +1,59 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ bdlmt.txt
+
+@PURPOSE: Provides thread pools and event schedulers.
+
+@MNEMONIC: Basic Development Library Multi Thread (bdlmt)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@DESCRIPTION: The &#39;bdlmt&#39; (&quot;Basic Development Library Multi Thread&quot;) package
+ provides components for creating and managing thread pools, and components for
+ scheduling (time-based) events.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;bdlmt&#39; package currently has 7 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlmt_multiqueuethreadpool
+     bdlmt_threadmultiplexor
+
+  1. bdlmt_eventscheduler
+     bdlmt_fixedthreadpool
+     bdlmt_multiprioritythreadpool
+     bdlmt_threadpool
+     bdlmt_timereventscheduler
+..
+
+/Component Synopsis
+/------------------
+: &#39;bdlmt_eventscheduler&#39;:
+:      Provide a thread-safe recurring and one-time event scheduler.
+:
+: &#39;bdlmt_fixedthreadpool&#39;:
+:      Provide portable implementation for a fixed-size pool of threads.
+:
+: &#39;bdlmt_multiprioritythreadpool&#39;:
+:      Provide a mechanism to parallelize a prioritized sequence of jobs.
+:
+: &#39;bdlmt_multiqueuethreadpool&#39;:
+:      Provide a pool of queues, each processed serially by a thread pool.
+:
+: &#39;bdlmt_threadmultiplexor&#39;:
+:      Provide a mechanism for partitioning a collection of threads.
+:
+: &#39;bdlmt_threadpool&#39;:
+:      Provide portable implementation for a dynamic pool of threads.
+:
+: &#39;bdlmt_timereventscheduler&#39;:
+:      Provide a thread-safe recurring and non-recurring event scheduler.
+</pre>
+</body>
+</html>

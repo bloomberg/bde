@@ -1,0 +1,164 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bbldc_basicbasicdaycountadapter.h                                  -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
+#define INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a parameterized day-count convention implementation.
+//
+//@CLASSES:
+//  bbldc::BasicBasicDayCountAdapter: &#39;bbldc::BasicDayCount&#39; realization
+//
+//@DESCRIPTION: This component provides a parameterized (template)
+// implementation, &#39;bbldc::BasicBasicDayCountAdapter&#39;, of the
+// &#39;bbldc::BasicDayCount&#39; protocol.  The template argument can be any type
+// supporting the following two class methods.
+//..
+//  int daysDiff(const bdlt::Date&amp; beginDate, const bdlt::Date&amp; endDate);
+//
+//  double yearsDiff(const bdlt::Date&amp; beginDate, const bdlt::Date&amp; endDate);
+//..
+// The template class &#39;bbldc::BasicBasicDayCountAdapter&#39; provides convenient
+// support for run-time polymorphic choice of day-count conventions (via
+// conventional use of a base-class pointer or reference) without having to
+// implement each derived type explicitly.  In this sense,
+// &#39;bbldc::BasicBasicDayCountAdapter&#39; adapts the various concrete &quot;basic&quot;
+// day-count convention classes (e.g., &#39;bbldc::BasicIsma30360&#39;) to a run-time
+// binding mechanism.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Adapting &#39;bbldc::BasicIsma30360&#39;
+///- - - - - - - - - - - - - - - - - - - - - -
+// This example shows the procedure for using
+// &#39;bbldc::BasicBasicDayCountAdapter&#39; to adapt the &#39;bbldc::BasicIsma30360&#39;
+// day-count convention to the &#39;bbldc::BasicDayCount&#39; protocol, and then the
+// use of the day-count methods.  First, we define an instance of the adapted
+// day-count convention and obtain a reference to the &#39;bbldc::BasicDayCount&#39;:
+//..
+//  const bbldc::BasicBasicDayCountAdapter&lt;bbldc::BasicIsma30360&gt; myDcc =
+//                   bbldc::BasicBasicDayCountAdapter&lt;bbldc::BasicIsma30360&gt;();
+//  const bbldc::BasicDayCount&amp;                                   dcc = myDcc;
+//..
+// Then, create two &#39;bdlt::Date&#39; variables, &#39;d1&#39; and &#39;d2&#39;, with which to use
+// the day-count convention methods:
+//..
+//  const bdlt::Date d1(2003, 10, 18);
+//  const bdlt::Date d2(2003, 12, 31);
+//..
+// Now, use the base-class reference to compute the day count between the two
+// dates:
+//..
+//  const int daysDiff = dcc.daysDiff(d1, d2);
+//  assert(72 == daysDiff);
+//..
+// Finally, use the base-class reference to compute the year fraction between
+// the two dates:
+//..
+//  const double yearsDiff = dcc.yearsDiff(d1, d2);
+//  // Need fuzzy comparison since &#39;yearsDiff&#39; is a &#39;double&#39;.
+//  assert(0.1999 &lt; yearsDiff &amp;&amp; 0.2001 &gt; yearsDiff);
+//..
+
+#ifndef INCLUDED_BBLSCM_VERSION
+#include &lt;bblscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BBLDC_BASICDAYCOUNT
+#include &lt;bbldc_basicdaycount.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {  class Date;  }
+namespace bbldc {
+
+                     // ===============================
+                     // class BasicBasicDayCountAdapter
+                     // ===============================
+
+template &lt;class CONVENTION&gt;
+class BasicBasicDayCountAdapter : public BasicDayCount {
+    // This &#39;class&#39; provides an &quot;adapter&quot; from the specified &#39;CONVENTION&#39; to
+    // the &#39;bbldc::BasicDayCount&#39; protocol that can be used for determining
+    // values based on dates according to the day-count &#39;CONVENTION&#39;.
+
+  public:
+    // ACCESSORS
+    int daysDiff(const bdlt::Date&amp; beginDate, const bdlt::Date&amp; endDate) const;
+        // Return the (signed) number of days between the specified &#39;beginDate&#39;
+        // and &#39;endDate&#39; as per the &#39;CONVENTION&#39; template policy.  If
+        // &#39;beginDate &lt;= endDate&#39;, then the result is non-negative.  Note that
+        // reversing the order of &#39;beginDate&#39; and &#39;endDate&#39; negates the result.
+
+    double yearsDiff(const bdlt::Date&amp; beginDate,
+                     const bdlt::Date&amp; endDate) const;
+        // Return the (signed fractional) number of years between the specified
+        // &#39;beginDate&#39; and &#39;endDate&#39; as per the &#39;CONVENTION&#39; template policy.
+        // If &#39;beginDate &lt;= endDate&#39;, then the result is non-negative.  Note
+        // that reversing the order of &#39;beginDate&#39; and &#39;endDate&#39; negates the
+        // result; specifically,
+        // &#39;|yearsDiff(b, e) + yearsDiff(e, b)| &lt;= 1.0e-15&#39; for all dates &#39;b&#39;
+        // and &#39;e&#39;.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                     // -------------------------------
+                     // class BasicBasicDayCountAdapter
+                     // -------------------------------
+
+// ACCESSORS
+template &lt;class CONVENTION&gt;
+inline
+int BasicBasicDayCountAdapter&lt;CONVENTION&gt;::daysDiff(
+                                               const bdlt::Date&amp; beginDate,
+                                               const bdlt::Date&amp; endDate) const
+{
+    return CONVENTION::daysDiff(beginDate, endDate);
+}
+
+template &lt;class CONVENTION&gt;
+inline
+double
+BasicBasicDayCountAdapter&lt;CONVENTION&gt;::yearsDiff(
+                                               const bdlt::Date&amp; beginDate,
+                                               const bdlt::Date&amp; endDate) const
+{
+    return CONVENTION::yearsDiff(beginDate, endDate);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslx_genericinstream.h                                             -*-C++-*-
@@ -78,7 +78,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;bsl::stringbuf&#39; with a user-defined &#39;STREAMBUF&#39;.
 //
 ///Example 1: Basic Unexternalization
-///- - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - -
 // Suppose we wish to implement a (deliberately simple) &#39;MyPerson&#39; class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose
@@ -350,7 +350,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 //
 ///Example 2: Sample &#39;STREAMBUF&#39; Implementation
-///- - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - -
 // For this example, we will implement &#39;MyStreamBuf&#39;, a minimal &#39;STREAMBUF&#39; to
 // to be used with &#39;bslx::GenericInStream&#39; and &#39;bslx::GenericOutStream&#39;.  The
 // implementation will consist of only what is required of the type.  For
@@ -2361,25 +2361,19 @@ GenericInStream&lt;STREAMBUF&gt;&amp;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2014 Bloomberg L.P.
+// Copyright 2014 Bloomberg Finance L.P.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-// IN THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
 </pre>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_performancehint.h                                             -*-C++-*-
@@ -41,8 +41,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 // The following describes the macros provided by this component:
 //..
-///               Macro Name                          Description of Macro
-///----------------------------------------       -----------------------------
+//                Macro Name                          Description of Macro
+// ----------------------------------------       -----------------------------
 // BSLS_PERFORMANCEHINT_PREDICT_LIKELY(expr)      Hint to the compiler that the
 //                                                specified *integral* &#39;expr&#39;
 //                                                expression is likely to
@@ -74,6 +74,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                                &#39;PREDICT_UNLIKELY&#39; clause for
 //                                                maximum portability.
 //..
+//
 ///Warning
 ///- - - -
 // Please use the macros provided in this component *with* *caution*.  Always
@@ -156,8 +157,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // The following series of examples illustrates use of the macros and functions
 // provided by this component.
 //
-///Example 1 -- USING BRANCH PREDICTION MACROS
-///-- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+///Example 1: Using the Branch Prediction Macros
+///- - - - - - - - - - - - - - - - - - - - - - -
 // The following demonstrates the use of &#39;BSLS_PERFORMANCEHINT_PREDICT_LIKELY&#39;
 // and &#39;BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY&#39; to generate more efficient
 // assembly instructions.  Note the use of &#39;BSLS_PERFORMANCEHINT_UNLIKELY_HINT&#39;
@@ -243,8 +244,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  user    0m2.149s
 //  sys     0m0.005s
 //..
-///Example 2 -- USING &#39;BSLS_PERFORMANCEHINT_PREDICT_EXPECT&#39;
-///-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+//
+///Example 2: Using &#39;BSLS_PERFORMANCEHINT_PREDICT_EXPECT&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is essentially the same as the &#39;__builtin_expect(expr, value)&#39;
 // macro that is provided by some compilers.  This macro allows the user to
 // define more complex hints to the compiler, such as the optimization of
@@ -268,8 +270,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // However, this is sufficient to illustrate the intent of this macro.
 //
-///Example 3 -- Cache Line Prefetching
-///-- -- -- -- -- -- -- -- -- -- -- --
+///Example 3: Cache Line Prefetching
+///- - - - - - - - - - - - - - - - -
 // The following demonstrates use of &#39;prefetchForReading&#39; and
 // &#39;prefetchForWriting&#39; to prefetch data cache lines:
 //..

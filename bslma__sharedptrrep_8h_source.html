@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_sharedptrrep.h                                               -*-C++-*-
@@ -44,7 +44,7 @@ BSLS_IDENT(&quot;$Id$ $CSID$&quot;)
 // &#39;acquireWeakRef&#39; should be called when a new weak reference is created and
 // &#39;releaseWeakRef&#39; should be called when a weak reference is removed.
 //
-///Thread-Safety
+///Thread Safety
 ///-------------
 // &#39;bslma::SharedPtrRep&#39; is thread-safe provided that &#39;disposeObject&#39; and
 // &#39;disposeRep&#39; are not called explicitly, meaning that all non-creator
@@ -519,8 +519,8 @@ int SharedPtrRep::numWeakReferences() const
     return weakCount / 2;
 }
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

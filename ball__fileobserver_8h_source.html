@@ -1,0 +1,790 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_fileobserver.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_FILEOBSERVER
+#define INCLUDED_BALL_FILEOBSERVER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a thread-safe observer that logs to a file and to &#39;stdout&#39;.
+//
+//@CLASSES:
+//  ball::FileObserver: observer that writes log records to a file and &#39;stdout&#39;
+//
+//@SEE_ALSO: ball_record, ball_context, ball_observer, ball_fileobserver2
+//
+//@DESCRIPTION: This component provides a concrete implementation of the
+// &#39;ball::Observer&#39; protocol for publishing log records to a user-specified
+// file.  The following inheritance hierarchy diagram shows the classes
+// involved and their methods:
+//..
+//                ,-----------------.
+//               ( ball::FileObserver )
+//                `-----------------&#39;
+//                         |              ctor
+//                         |              disableFileLogging
+//                         |              disableTimeIntervalRotation
+//                         |              disableSizeRotation
+//                         |              disableStdoutLoggingPrefix
+//                         |              disablePublishInLocalTime
+//                         |              enableFileLogging
+//                         |              enableStdoutLoggingPrefix
+//                         |              enablePublishInLocalTime
+//                         |              forceRotation
+//                         |              rotateOnSize
+//                         |              rotateOnTimeInterval
+//                         |              setOnFileRotationCallback
+//                         |              setStdoutThreshold
+//                         |              setLogFormat
+//                         |              isFileLoggingEnabled
+//                         |              isStdoutLoggingPrefixEnabled
+//                         |              isUserFieldsLoggingEnabled
+//                         |              isPublishInLocalTimeEnabled
+//                         |              rotationLifetime
+//                         |              rotationSize
+//                         |              localTimeOffset
+//                         |              stdoutThreshold
+//                         |              getLogFormat
+//                         V
+//                  ,-------------.
+//                 ( ball::Observer )
+//                  `-------------&#39;
+//                                        dtor
+//                                        publish
+//                                        releaseRecords
+//..
+// A &#39;ball::FileObserver&#39; object processes the log records received through its
+// &#39;publish&#39; method by writing them to a user-specified file.  The format of
+// published log records is user-configurable (see &quot;Log Record Formatting&quot;
+// below).  In addition, a file observer may be configured to perform automatic
+// log file rotation (see &quot;Log File Rotation&quot; below).
+//
+///Log Record Formatting
+///---------------------
+// By default, the output format of published log records (whether to &#39;stdout&#39;
+// or a user-specified file) is:
+//..
+//  DATE_TIME PID:THREAD-ID SEVERITY FILE:LINE CATEGORY MESSAGE USER-FIELDS
+//..
+// where &#39;DATE&#39; and &#39;TIME&#39; are of the form &#39;DDMonYYYY&#39; and &#39;HH:MM:SS.mmm&#39;,
+// respectively (&#39;Mon&#39; being the 3-letter abbreviation for the month).  For
+// example, assuming that no user-defined fields are present, a log record
+// will have the following appearance when the default format is in effect:
+//..
+//  18MAY2005_18:58:12.000 7959:1 WARN ball_fileobserver.t.cpp:404 TEST hello!
+//..
+// The default format for records published to &#39;stdout&#39; can be shortened by
+// calling &#39;disableStdoutLoggingPrefix&#39;.  This method has the effect of
+// reducing the above example message to:
+//..
+//  WARN ball_fileobserver.t.cpp:404 TEST hello!
+//..
+// For additional flexibility, the &#39;setLogFormat&#39; method can be called to
+// configure the format of published records.  This method takes two arguments:
+// one specifies the format of records logged to &#39;stdout&#39; and the other applies
+// to records that are logged to a file.  The respective formats are specified
+// using &#39;printf&#39;-style (&#39;%&#39;-prefixed) conversion specifications.  (See the
+// component-level documentation of &#39;ball_recordstringformatter&#39; for
+// information on how format specifications are defined and interpreted.)  For
+// example, the following statement will force subsequent records to be logged
+// in a format that is almost identical to the default (long) format except
+// that the timestamp attribute will be written in ISO 8601 format:
+//..
+//   fileObserver.setLogFormat(&quot;%i %p:%t %s %f:%l %c %m %u&quot;,
+//                             &quot;%i %p:%t %s %f:%l %c %m %u&quot;);
+//..
+// Note that once a customized format is specified for &#39;stdout&#39;, calling
+// &#39;disableStdoutLoggingPrefix&#39; will switch to the default short format (i.e.,
+// &quot;%s %f:%l %c %m %u&quot;).  If &#39;enableStdoutLoggingPrefix&#39; is subsequently
+// called, the customized format specified in an earlier call to &#39;setLogFormat&#39;
+// will be reinstated.
+//
+///Log Record Timestamps
+///---------------------
+// By default, the timestamp attributes of published records are written in UTC
+// time.  This behavior can be changed by calling &#39;enablePublishInLocalTime&#39;
+// which will cause timestamp attributes to be written in local time instead.
+// The local time offset is calculated using the UTC timestamp of each record.
+// Note that local time offsets for the calculation of log file names (see {Log
+// Filename Pattern}) use the local time offset in effect at construction.
+//
+///Local Time Offset Calculations
+/// - - - - - - - - - - - - - - -
+// The calculation of the local time offset adds some overhead to the
+// publication of each log record.  If that is problematic, the overhead can be
+// mitigated if the owner of &#39;main&#39; installs a high-performance local-time
+// offset callback for &#39;bdlt::CurrentTime&#39;.  See {&#39;bdetu_systemtime&#39;} for
+// details of installing such callback and see {&#39;baltzo_localtimeoffsetutil&#39;}
+// for a an example facility.  Note that such callbacks can improve performance
+// for all users of &#39;bdlt::CurrentTime&#39;, not just logging.
+//
+///Log Filename Pattern
+///--------------------
+// The &#39;enableFileLogging&#39; method allow the use of &#39;%&#39;-escape sequences to
+// specify the log filename.  The recognized sequences are as follows:
+//..
+//   %Y - current year (four digits with leading zeros)
+//   %M - current month (two digits with leading zeros)
+//   %D - current day (two digits with leading zeros)
+//   %h - current hour (two digits with leading zeros)
+//   %m - current minute (two digits with leading zeros)
+//   %s - current second (two digits with leading zeros)
+//   %T - current datetime, equivalent to &quot;%Y%M%D_%h%m%s&quot;
+//   %p - process Id
+//..
+// For example, a log filename pattern of &quot;task.log.%Y%M%D_%h%m%s&quot; will yield
+// the a filename with the appearance of &quot;task.log.20110501_123000&quot; if the file
+// is opened on &#39;01-May-2011 12:30:00&#39;.
+//
+///Log File Rotation
+///-----------------
+// A &#39;ball::FileObserver&#39; may be configured to perform automatic rotation of
+// log files based on simple file rotation conditions (or rules).
+//
+///File Rotation Conditions
+/// - - - - - - - - - - - -
+// Rotation rules may be established based on the size of the log file (i.e., a
+// &quot;rotation-on-size&quot; rule), and a periodic time interval (i.e., a
+// &quot;rotation-on-time-interval&quot; rule).  These rules are independently enabled by
+// the &#39;rotateOnSize&#39; and &#39;rotateOnTimeInterval&#39; methods, respectively.  If
+// both rules are in effect, log file rotation is performed when either rule
+// applies.
+//
+///Rotated File Naming
+///- - - - - - - - - -
+// When file rotation occurs, a new log filename is generated using the pattern
+// supplied to &#39;enableFileLogging&#39;.  If the new log filename is the same as the
+// old log filename, the old log file is renamed by appending a timestamp in
+// the form &quot;.%Y%M%D_%h%m%s&quot;.
+//
+// The table below demonstrates the names of the log files opened at
+// &#39;2011-May-11 12:30:00&#39; and rotated in the same day based on the filename
+// patterns:
+//..
+// ----------------+-------------------------+---------------------------------
+//  Pattern        | Name Before Rotation    | Name After Rotation
+// ----------------+-------------------------+---------------------------------
+//  &quot;a.log&quot;        | &quot;a.log&quot;                 | &quot;a.log.20110520_123000&quot;
+//  &quot;a.log.%T&quot;     | &quot;a.log.20110520_123000&quot; | &quot;a.log.20110520_123000&quot;
+//  &quot;a.log.%Y&quot;     | &quot;a.log.2011&quot;            | &quot;a.log.2011_20110520_123000&quot;
+//  &quot;a.log.%Y%M%D&quot; | &quot;a.log.20110520&quot;        | &quot;a.log.20110520_20110520_123000&quot;
+// ----------------+-------------------------+---------------------------------
+//..
+// Note that timestamp pattern elements in a log file name are typically
+// selected so they produce unique names for each rotation.
+//
+///Thread Safety
+///-------------
+// All methods of &#39;ball::FileObserver&#39; are thread-safe, and can be called
+// concurrently by multiple threads.
+//
+///Usage
+///-----
+// The following code fragments illustrate the essentials of using a file
+// observer within a &#39;ball&#39; logging system.
+//
+// First create a &#39;ball::FileObserver&#39; named &#39;fileObserver&#39;:
+//..
+//  ball::FileObserver fileObserver;
+//..
+// The file observer must then be installed within a &#39;ball&#39; logging system.
+// This is done by passing &#39;fileObserver&#39; to the &#39;ball::LoggerManager&#39;
+// &#39;initSingleton&#39; method:
+//..
+//  ball::LoggerManagerConfiguration configuration;
+//  ball::LoggerManager::initSingleton(&amp;fileObserver, configuration);
+//..
+// Optionally, the format can be changed by calling the &#39;setLogFormat&#39; method.
+// The statement below outputs timestamps in ISO 8601 format to a log file and
+// in &#39;bdet&#39;-style (default) format to &#39;stdout&#39;:
+//..
+//  observer.setLogFormat(&quot;%i %p:%t %s %f:%l %c %m&quot;,
+//                        &quot;%d %p:%t %s %f:%l %c %m&quot;);
+//..
+// Henceforth, all messages that are published by the logging system will be
+// transmitted to the &#39;publish&#39; method of &#39;fileObserver&#39;.  By default, only the
+// messages with a &#39;WARN&#39;, &#39;ERROR&#39; or &#39;FATAL&#39; severity will be logged to
+// &#39;stdout&#39;:
+//..
+//  BALL_LOG_INFO &lt;&lt; &quot;Will not be published on &#39;stdout&#39;.&quot;
+//                &lt;&lt; BALL_LOG_END;
+//  BALL_LOG_WARN &lt;&lt; &quot;This warning *will* be published on &#39;stdout&#39;.&quot;
+//                &lt;&lt; BALL_LOG_END;
+//..
+// This default can be changed by specifying an optional argument to the
+// &#39;ball::FileObserver&#39; constructor or by calling the &#39;setStdoutThreshold&#39;
+// method:
+//..
+//  fileObserver.setStdoutThreshold(ball::Severity::e_INFO);
+//  BALL_LOG_DEBUG &lt;&lt; &quot;This debug message is not published on &#39;stdout&#39;.&quot;
+//                 &lt;&lt; BALL_LOG_END;
+//  BALL_LOG_INFO  &lt;&lt; &quot;This info will be published on &#39;stdout&#39;.&quot;
+//                 &lt;&lt; BALL_LOG_END;
+//  BALL_LOG_WARN  &lt;&lt; &quot;This warning will be published on &#39;stdout&#39;.&quot;
+//                 &lt;&lt; BALL_LOG_END;
+//..
+// The user can log all messages to a specified file and specify rotation rules
+// based on the size of the log file or its lifetime:
+//..
+//  fileObserver.enableFileLogging(&quot;/var/log/task/task.log&quot;);
+//      // Create and log records to a file named &quot;/var/log/task/task.log&quot;.
+//
+//  fileObserver.setStdoutThreshold(ball::Severity::e_OFF);
+//      // Disable &#39;stdout&#39; logging.
+//
+//  fileObserver.rotateOnSize(1024 * 256);
+//      // Rotate the file when its size becomes greater than or equal to 256
+//      // mega-bytes.
+//
+//  fileObserver.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+//      // Rotate the file every 24 hours.
+//..
+// Note that in this configuration the user may end up with multiple log files
+// for a specific day (because of the rotation-on-size rule).  This feature can
+// be disabled dynamically later:
+//..
+//  fileObserver.disableSizeRotation();
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_FILEOBSERVER2
+#include &lt;ball_fileobserver2.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_OBSERVER
+#include &lt;ball_observer.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RECORDSTRINGFORMATTER
+#include &lt;ball_recordstringformatter.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_SEVERITY
+#include &lt;ball_severity.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
+#include &lt;bdlt_datetimeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class Context;
+class Record;
+
+                          // ==================
+                          // class FileObserver
+                          // ==================
+
+class FileObserver : public Observer {
+    // This class implements the &#39;Observer&#39; protocol.  The &#39;publish&#39; method of
+    // this class outputs the log records that it receives to &#39;stdout&#39; and
+    // optionally to a user-specified file.  This class is thread-safe;
+    // different threads can operate on this object concurrently.  This class
+    // is exception-neutral with no guarantee of rollback.  In no event is
+    // memory leaked.
+
+    // DATA
+    RecordStringFormatter d_logFileFormatter;   // record formatter used when
+                                                // logging to a file
+
+    RecordStringFormatter d_stdoutFormatter;    // record formatter used when
+                                                // logging to &#39;stdout&#39;
+
+    Severity::Level       d_stdoutThreshold;    // minimum severity for
+                                                // published messages
+
+    bool                  d_useRegularFormatOnStdoutFlag;
+                                                // &#39;true&#39; if messages published
+                                                // to &#39;stdout&#39; in regular
+                                                // format
+
+    bool                  d_publishInLocalTime; // &#39;true&#39; if timestamps of
+                                                // records are published in
+                                                // local time
+
+    bool                  d_userFieldsLoggingFlag;
+                                                // &#39;true&#39; if user-defined
+                                                // fields published
+
+    bsl::string           d_stdoutLongFormat;   // long format of records
+                                                // printed to &#39;stdout&#39;
+
+    bsl::string           d_stdoutShortFormat;  // short format records
+                                                // printed to &#39;stdout&#39;
+
+    mutable bslmt::Mutex  d_mutex;              // serialize operations
+
+    FileObserver2         d_fileObserver2;      // forward most operations
+                                                // this object
+
+  private:
+    // NOT IMPLEMENTED
+    FileObserver(const FileObserver&amp;);
+    FileObserver&amp; operator=(const FileObserver&amp;);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit FileObserver(
+              Severity::Level   stdoutThreshold = Severity::e_WARN,
+              bslma::Allocator *basicAllocator  = 0);
+        // Create a file observer that publishes log records to &#39;stdout&#39; if
+        // their severity is at least as severe as the optionally specified
+        // &#39;stdoutThreshold&#39; level.  If &#39;stdoutThreshold&#39; is not specified, log
+        // records are published to &#39;stdout&#39; if their severity is at least as
+        // severe as &#39;Severity::e_WARN&#39;.  The timestamp attribute of
+        // published records is written in UTC time by default.  Optionally
+        // specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  Note that user-defined fields are published to &#39;stdout&#39; by
+        // default.  Also note that file logging is initially disabled.
+
+    FileObserver(Severity::Level   stdoutThreshold,
+                 bool              publishInLocalTime,
+                 bslma::Allocator *basicAllocator = 0);
+        // Create a file observer that publishes log records to &#39;stdout&#39; if
+        // their severity is at least as severe as the specified
+        // &#39;stdoutThreshold&#39; level.  If the specified &#39;publishInLocalTime&#39; flag
+        // is &#39;true&#39;, the timestamp attribute of published records is written
+        // in local time; otherwise the timestamp attribute of published
+        // records is written in UTC time.  The offset between the local time
+        // and UTC time is computed at construction and remains unchanged
+        // during the lifetime of this object.  Note that user-defined fields
+        // are published to &#39;stdout&#39; by default.  Also note that file logging
+        // is initially disabled.
+
+    ~FileObserver();
+        // Close the log file of this file observer if file logging is enabled,
+        // and destroy this file observer.
+
+    // MANIPULATORS
+    void disableFileLogging();
+        // Disable file logging for this file observer.  This method has no
+        // effect if file logging is not enabled.
+
+    void disableLifetimeRotation();
+        // Disable log file rotation based on periodic time interval for this
+        // file observer.  This method has no effect if
+        // rotation-on-time-interval is not enabled.
+        //
+        // DEPRECATED: Use &#39;disableTimeIntervalRotation&#39; instead.
+
+    void disableTimeIntervalRotation();
+        // Disable log file rotation based on periodic time interval for this
+        // file observer.  This method has no effect if
+        // rotation-on-time-interval is not enabled.
+
+    void disableSizeRotation();
+        // Disable log file rotation based on log file size for this file
+        // observer.  This method has no effect if rotation-on-size is not
+        // enabled.
+
+    void disableStdoutLoggingPrefix();
+        // Disable this file observer from using the default long output format
+        // when logging to &#39;stdout&#39;.  This method has no effect if the default
+        // long output format for &#39;stdout&#39; logging is not enabled.
+
+    void disableUserFieldsLogging();
+        // Disable the logging of user-defined fields by this file observer.
+        // This method has no effect if logging of user-defined fields is not
+        // enabled, or if a format string other than the default one is in
+        // effect.
+        //
+        // DEPRECATED: Use &#39;setLogFormat&#39; instead.
+
+    void disablePublishInLocalTime();
+        // Disable publishing of the timestamp attribute of records in local
+        // time by this file observer.  This method has no effect if publishing
+        // in local time is not enabled.
+
+    int enableFileLogging(const char *logFilenamePattern);
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified &#39;logFilenamePattern&#39;.  Return 0 on
+        // success, a positive value if file logging is already enabled, and a
+        // negative value otherwise.  The basename of &#39;logFilenamePattern&#39; may
+        // contain &#39;%&#39;-escape sequences that are interpreted as follows:
+        //..
+        //   %Y - current year (four digits with leading zeros)
+        //   %M - current month (two digits with leading zeros)
+        //   %D - current day (two digits with leading zeros)
+        //   %h - current hour (two digits with leading zeros)
+        //   %m - current minute (two digits with leading zeros)
+        //   %s - current second (two digits with leading zeros)
+        //   %T - current datetime, equivalent to &quot;%Y%M%D_%h%m%s&quot;
+        //   %p - process Id
+        //..
+        // Each time a log file is opened by this file observer (upon a
+        // successful call to this method and following each log file rotation)
+        // the name of the log file is derived from &#39;logFilenamePattern&#39; by
+        // interpreting the above recognized &#39;%&#39;-escape sequences.  On
+        // rotation, the current log file is closed, and a new log-file name is
+        // derived.  If the newly derived log-file name is the same as that of
+        // the current (rotated) log file, the current log file is renamed by
+        // appending a timestamp of the form &quot;.%Y%M%D_%h%m%s&quot;.  Then, the new
+        // log file is opened for logging.
+
+    int enableFileLogging(const char *logFilenamePattern,
+                          bool        appendTimestampFlag);
+        // Enable logging of all messages published to this file observer to a
+        // file indicated by the specified &#39;logFilenamePattern&#39; and append a
+        // timestamp to the log filename if specified &#39;appendTimestampFlag&#39; is
+        // set to &#39;true&#39;.  Return 0 on success, a positive value if file
+        // logging is already enabled, and a negative value otherwise.  If the
+        // &#39;appendTimestampFlag&#39; is &#39;true&#39; and &#39;logFilenamePattern&#39; does not
+        // contain any &#39;%&#39;-escape sequence, this method behaves as if &quot;.%T&quot; is
+        // appended to &#39;logFilenamePattern&#39;.
+        //
+        // DEPRECATED: Use &#39;enableFileLogging(logFilenamePattern)&#39; instead (use
+        // the &quot;.%T&quot; pattern to replicate &#39;appendTimestampFlag&#39; being enabled).
+
+    void enableStdoutLoggingPrefix();
+        // Enable this file observer to use the default long output format
+        // when logging to &#39;stdout&#39;.  This method has no effect if the default
+        // long output format for &#39;stdout&#39; logging is already enabled.
+
+    void enableUserFieldsLogging();
+        // Enable the logging of user-defined fields by this file observer.
+        // This method has no effect if logging of user-defined fields is
+        // already enabled, or if a format string other than the default one is
+        // in effect.
+        //
+        // DEPRECATED: Use &#39;setLogFormat&#39; instead.
+
+    void enablePublishInLocalTime();
+        // Enable publishing of the timestamp attribute of records in local
+        // time by this file observer.  This method has no effect if publishing
+        // in local time is already enabled.
+
+    void publish(const Record&amp; record, const Context&amp; context);
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39; by writing &#39;record&#39; and &#39;context&#39; to a file if file
+        // logging is enabled for this file observer, and to &#39;stdout&#39; if the
+        // severity of &#39;record&#39; is at least as severe as the severity level
+        // specified at construction.
+
+    void publish(const bsl::shared_ptr&lt;const Record&gt;&amp; record,
+                 const Context&amp;                       context);
+        // Process the record referred by the specified shared pointer &#39;record&#39;
+        // by writing the record and the specified &#39;context&#39; of the record to
+        // a file if file logging is enabled for this file observer, and to
+        // &#39;stdout&#39; if the severity of &#39;record&#39; is at least as severe as the
+        // severity level specified at construction.
+
+    void releaseRecords();
+        // Discard any shared reference to a &#39;Record&#39; object that was supplied
+        // to the &#39;publish&#39; method, and is held by this observer.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
+
+    void forceRotation();
+        // Forcefully perform a log file rotation by this file observer.  Close
+        // the current log file, rename the log file if necessary, and open a
+        // new log file.  See the &quot;Rotated File Naming&quot; section under
+        // @DESCRIPTION in the component-level documentation for details on
+        // filenames of the rotated log files.  This method has no effect if
+        // file logging is not enabled.
+
+    void rotateOnSize(int size);
+        // Set this file observer to perform log file rotation when the size of
+        // the file exceeds the specified &#39;size&#39; (in kilo-bytes).  This rule
+        // replaces any rotation-on-size rule currently in effect.  The
+        // behavior is undefined unless &#39;size &gt; 0&#39;.
+
+    void rotateOnLifetime(const bdlt::DatetimeInterval&amp; timeInterval);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified &#39;interval&#39;.  The behavior is undefined
+        // unless &#39;0 &lt; interval.totalMilliseconds()&#39;.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.
+        //
+        // DEPRECATED: Use &#39;rotateOnTimeInterval&#39; instead.
+
+    void rotateOnTimeInterval(const bdlt::DatetimeInterval&amp; interval);
+    void rotateOnTimeInterval(
+                             const bdlt::DatetimeInterval&amp; interval,
+                             const bdlt::Datetime&amp;         referenceStartTime);
+        // Set this file observer to perform a periodic log-file rotation at
+        // multiples of the specified &#39;interval&#39;.  Optionally, specify
+        // &#39;referenceStartTime&#39; indicating the *local* datetime to use as the
+        // starting point for computing the periodic rotation schedule.
+        // &#39;referenceStartTime&#39; is interpreted using the local-time offset at
+        // the time this object was constructed.  If &#39;referenceStartTime&#39; is
+        // unspecified, the current time is used.  The behavior is undefined
+        // unless &#39;0 &lt; interval.totalMilliseconds()&#39;.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.  Note that
+        // &#39;referenceStartTime&#39; may be a fixed time in the past.  E.g., a
+        // reference time of &#39;bdlt::Datetime(1, 1, 1)&#39; and an interval of 24
+        // hours would configure a periodic rotation at midnight each day.
+
+    void setOnFileRotationCallback(
+         const FileObserver2::OnFileRotationCallback&amp; onRotationCallback);
+        // Set the specified &#39;onRotationCallback&#39; to be invoked after each time
+        // this file observer attempts perform a log file rotation.  The
+        // behavior is undefined if the supplied function calls either
+        // &#39;setOnFileRotationCallback&#39;, &#39;forceRotation&#39;, or &#39;publish&#39; on this
+        // file observer (i.e., the supplied callback should *not* attempt to
+        // write to the &#39;ball&#39; log).
+
+    void setStdoutThreshold(Severity::Level stdoutThreshold);
+        // Set the minimum severity of messages logged to &#39;stdout&#39; by this file
+        // observer to the specified &#39;stdoutThreshold&#39; level.  Note that if the
+        // value of &#39;stdoutThreshold&#39; is &#39;Severity::e_OFF&#39;, logging to &#39;stdout&#39;
+        // is disabled.
+
+    void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
+        // Set the format of log records written to the log file and to
+        // &#39;stdout&#39; to the specified &#39;logFileFormat&#39; and &#39;stdoutFormat&#39;,
+        // respectively.  If this method is not called, default formats are
+        // used when publishing log records.  See &quot;Log Record Formatting&quot; under
+        // @DESCRIPTION for details of formatting syntax.
+
+    // ACCESSORS
+    bool isFileLoggingEnabled() const;
+    bool isFileLoggingEnabled(bsl::string *result) const;
+        // Return &#39;true&#39; if file logging is enabled for this file observer, and
+        // &#39;false&#39; otherwise.  Load the optionally specified &#39;result&#39; with the
+        // name of the current log file if file logging is enabled, and leave
+        // &#39;result&#39; unaffected otherwise.
+
+    bool isStdoutLoggingPrefixEnabled() const;
+        // Return &#39;true&#39; if this file observer uses the default output format
+        // when writing to &#39;stdout&#39;, and &#39;false&#39; otherwise.
+
+    bool isUserFieldsLoggingEnabled() const;
+        // Return &#39;true&#39; if the logging of user-defined fields is enabled for
+        // this file observer, and &#39;false&#39; otherwise.
+
+    bool isPublishInLocalTimeEnabled() const;
+        // Return &#39;true&#39; if this file observer writes the timestamp attribute
+        // of records that it publishes in local time, and &#39;false&#39; otherwise.
+
+    bdlt::DatetimeInterval rotationLifetime() const;
+        // Return the lifetime of the log file that will trigger a file
+        // rotation by this file observer if rotation-on-lifetime is in effect,
+        // and a 0 time interval otherwise.
+
+    int rotationSize() const;
+        // Return the size (in kilo-bytes) of the log file that will trigger a
+        // file rotation by this file observer if rotation-on-size is in
+        // effect, and 0 otherwise.
+
+    bdlt::DatetimeInterval localTimeOffset() const;
+        // [!DEPRECATED!] Use &#39;bdlt::LocalTimeOffset&#39; instead.
+        //
+        // Return the difference between the local time and UTC time in effect
+        // when this file observer was constructed.  Note that this value
+        // remains unchanged during the lifetime of this object and therefore
+        // may become incorrect when the difference between the local time and
+        // UTC time changes (e.g., when transitioning into or out of daylight
+        // savings time).
+
+    Severity::Level stdoutThreshold() const;
+        // Return the minimum severity of messages that will be logged to
+        // &#39;stdout&#39; by this file observer.
+
+    void getLogFormat(const char **logFileFormat,
+                      const char **stdoutFormat) const;
+        // Load the format of log records written by this file observer to the
+        // log file into the specified &#39;*logFileFormat&#39; address and the format
+        // of log records written to &#39;stdout&#39; into the specified
+        // &#39;*stdoutFormat&#39; address.  See &quot;Log Record Formatting&quot; under
+        // @DESCRIPTION for details of formatting syntax.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                          // ------------------
+                          // class FileObserver
+                          // ------------------
+
+// MANIPULATORS
+inline
+void FileObserver::disableFileLogging()
+{
+    d_fileObserver2.disableFileLogging();
+}
+
+inline
+void FileObserver::disableLifetimeRotation()
+{
+    d_fileObserver2.disableLifetimeRotation();
+}
+
+inline
+void FileObserver::disableTimeIntervalRotation()
+{
+    d_fileObserver2.disableTimeIntervalRotation();
+}
+
+inline
+void FileObserver::disableSizeRotation()
+{
+    d_fileObserver2.disableSizeRotation();
+}
+
+inline
+int FileObserver::enableFileLogging(const char *logFilenamePattern)
+{
+    return d_fileObserver2.enableFileLogging(logFilenamePattern);
+}
+
+inline
+int FileObserver::enableFileLogging(const char *logFilenamePattern,
+                                    bool        appendTimestampFlag)
+{
+    return d_fileObserver2.enableFileLogging(logFilenamePattern,
+                                             appendTimestampFlag);
+}
+
+inline
+void FileObserver::forceRotation()
+{
+    d_fileObserver2.forceRotation();
+}
+
+inline
+void FileObserver::publish(const bsl::shared_ptr&lt;const Record&gt;&amp; record,
+                           const Context&amp;                       context)
+{
+    publish(*record, context);
+}
+
+inline
+void FileObserver::releaseRecords()
+{
+}
+
+inline
+void FileObserver::rotateOnSize(int size)
+{
+    d_fileObserver2.rotateOnSize(size);
+}
+
+inline
+void FileObserver::rotateOnLifetime(const bdlt::DatetimeInterval&amp; timeInterval)
+{
+    d_fileObserver2.rotateOnLifetime(timeInterval);
+}
+
+inline
+void FileObserver::rotateOnTimeInterval(const bdlt::DatetimeInterval&amp; interval)
+{
+    d_fileObserver2.rotateOnTimeInterval(interval);
+}
+
+inline
+void FileObserver::rotateOnTimeInterval(
+                              const bdlt::DatetimeInterval&amp; interval,
+                              const bdlt::Datetime&amp;         referenceStartTime)
+{
+    d_fileObserver2.rotateOnTimeInterval(interval, referenceStartTime);
+}
+
+inline
+void FileObserver::setOnFileRotationCallback(
+          const FileObserver2::OnFileRotationCallback&amp; onRotationCallback)
+{
+    d_fileObserver2.setOnFileRotationCallback(onRotationCallback);
+}
+
+// ACCESSORS
+inline
+bool FileObserver::isFileLoggingEnabled() const
+{
+    return d_fileObserver2.isFileLoggingEnabled();
+}
+
+inline
+bool FileObserver::isFileLoggingEnabled(bsl::string *result) const
+{
+    return d_fileObserver2.isFileLoggingEnabled(result);
+}
+
+inline
+bdlt::DatetimeInterval FileObserver::rotationLifetime() const
+{
+    return d_fileObserver2.rotationLifetime();
+}
+
+inline
+int FileObserver::rotationSize() const
+{
+    return d_fileObserver2.rotationSize();
+}
+
+inline
+bdlt::DatetimeInterval FileObserver::localTimeOffset() const
+{
+    return d_fileObserver2.localTimeOffset();
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

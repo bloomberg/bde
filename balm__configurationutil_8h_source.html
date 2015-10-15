@@ -1,0 +1,408 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_configurationutil.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_CONFIGURATIONUTIL
+#define INCLUDED_BALM_CONFIGURATIONUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a namespace for metrics configuration utilities.
+//
+//@CLASSES:
+//    balm::ConfigurationUtil: namespace for metrics configuration utilities
+//
+//@SEE_ALSO: balm_metricsmanager, balm_defaultmetricsmanager
+//
+//@DESCRIPTION: This component provides a set of utility functions for
+// configuring metrics.  The &#39;balm::ConfigurationUtil&#39; &#39;struct&#39; provides
+// short-cuts for common configuration operations that are performed on other
+// components in the &#39;balm&#39; package.
+//
+///Thread Safety
+///-------------
+// &#39;balm::ConfigurationUtil&#39; is fully *thread-safe*, meaning that all the
+// methods can be safely invoked simultaneously from multiple threads.
+//
+///Usage
+///-----
+// The following examples demonstrate how to use &#39;balm::ConfigurationUtil&#39;.
+//
+///Configuring the Output of a Metric
+/// - - - - - - - - - - - - - - - - -
+// This example uses &#39;balm::ConfigurationUtil&#39; to configure the output for a
+// metric.
+//
+// We start by initializing a default metrics manager by creating a
+// &#39;balm::DefaultMetricsManagerScopedGuard&#39;, which manages the lifetime of the
+// default metrics manager object.  At construction, we provide the scoped
+// guard an output stream (&#39;stdout&#39;) to which the default metrics manager will
+// publish metrics.  Note that the default metrics manager is intended to be
+// created and destroyed by the *owner* of &#39;main&#39;.  A metrics manager should
+// be created during the initialization of an application (while the task has
+// a single thread) and destroyed just prior to termination (when there is
+// similarly a single thread).
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//
+//      balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
+//..
+// Next we create a metric, &quot;avgElapsedTimeMs&quot;, that will output the average
+// time, in milliseconds, spent in a section of code.  We set the preferred
+// publication type for the metric to be average:
+//..
+//      balm::ConfigurationUtil::setPreferredPublicationType(
+//                                               &quot;myCategory&quot;,
+//                                               &quot;avgElapsedTimeMs&quot;,
+//                                               balm::PublicationType::e_AVG);
+//..
+// Next, because we will record the elapsed time in seconds, we configure a
+// format to scale the elapsed time by 1000.0:
+//..
+//     balm::ConfigurationUtil::setFormatSpec(
+//                                   &quot;myCategory&quot;,
+//                                   &quot;avgElapsedTimeMs&quot;,
+//                                   balm::PublicationType::e_AVG,
+//                                   balm::MetricFormatSpec(1000.0, &quot;%.2f ms&quot;);
+//..
+// We now collect an example value of .005:
+//..
+//     BALM_METRIC_UPDATE(&quot;myCategory&quot;, &quot;avgElapsedTimeMs&quot;, .005);
+//..
+// Finally, we publish the metric.  Note that in practice, clients of the
+// &#39;balm&#39; package can use the &#39;balm::PublicationScheduler&#39; to schedule the
+// periodic publication of metrics:
+//..
+//  balm::DefaultMetricsManager::instance()-&gt;publishAll();
+//..
+// The output for the publication will look like:
+//..
+//  06AUG2009_20:27:51.982+0000 1 Records
+//          Elapsed Time: 0.000816s
+//                  myCategory.avgElapsedTimeMs[ avg (total/count) = 5.00 ms ]
+//..
+//
+///Using a Metric&#39;s User Data
+/// - - - - - - - - - - - - -
+// In the following example we configure, using &#39;balm::ConfigurationUtil&#39;,
+// application-specific publication thresholds for a series of metrics.  We
+// will create an application-specific publisher that will use the configured
+// thresholds to determine whether a metric should be written to the console.
+// For simplicity, the metric thresholds in this example will be a single
+// unsigned integer value that will be compared with the metric&#39;s total.
+//
+// We start by defining an application-specific publisher implementation.
+// This implementation is supplied a user data key on construction, which it
+// uses to look up the threshold for a particular metric.  If a metric&#39;s total
+// value is greater than its threshold, it will log the metric to the console.
+//..
+//  // thresholdpublisher.h
+//  class ThresholdPublisher : public balm::Publisher {
+//      // A simple implementation of the &#39;balm::Publisher&#39; protocol that
+//      // writes metric records to the console when their value is greater
+//      // than an application-specific threshold.
+//
+//      // DATA
+//      balm::MetricDescription::UserDataKey d_thresholdKey;  // key for a
+//                                                            // metric&#39;s
+//                                                            // threshold
+//
+//      // NOT IMPLEMENTED
+//      ThresholdPublisher(const ThresholdPublisher&amp;);
+//      ThresholdPublisher&amp; operator=(const ThresholdPublisher&amp;);
+//
+//    public:
+//      // CREATORS
+//      ThresholdPublisher(balm::MetricDescription::UserDataKey thresholdKey);
+//          // Create a publisher that will publish metrics to the console if
+//          // their total value is greater than their associated threshold,
+//          // accessed via the specified &#39;thresholdKey&#39;.
+//
+//      virtual ~ThresholdPublisher();
+//           // Destroy this publisher.
+//
+//      // MANIPULATORS
+//      virtual void publish(const balm::MetricSample&amp; metricValues);
+//          // Publish the specified &#39;metricValues&#39; to the console if they are
+//          // greater than their associated threshold.
+//  };
+//
+//  // thresholdpublisher.cpp
+//
+//  // CREATORS
+//  ThresholdPublisher::ThresholdPublisher(
+//                           balm::MetricDescription::UserDataKey thresholdKey)
+//  : d_thresholdKey(thresholdKey)
+//  {
+//  }
+//
+//  ThresholdPublisher::~ThresholdPublisher()
+//  {
+//  }
+//
+//  // MANIPULATORS
+//  void ThresholdPublisher::publish(const balm::MetricSample&amp; metricValues)
+//  {
+//      if (0 &gt;= metricValues.numRecords()) {
+//          return;                                                   // RETURN
+//      }
+//      balm::MetricSample::const_iterator sIt = metricValues.begin();
+//      for (; sIt != metricValues.end(); ++sIt) {
+//          balm::MetricSampleGroup::const_iterator gIt = sIt-&gt;begin();
+//          for (; gIt != sIt-&gt;end(); ++gIt) {
+//..
+// We now use the user data key to lookup the address of the threshold value.
+// If this address is 0, no threshold is specified for the metric.
+//..
+//              const balm::MetricDescription&amp; description =
+//                                              *gIt-&gt;metricId().description();
+//              unsigned int *thresholdPtr =
+//                       (unsigned int *)description.userData(d_thresholdKey);
+//              if (thresholdPtr &amp;&amp; gIt-&gt;total() &gt; *thresholdPtr) {
+//                  bsl::cout &lt;&lt; &quot;WARNING: &quot; &lt;&lt; gIt-&gt;metricId()
+//                            &lt;&lt; &quot; = &quot;       &lt;&lt; gIt-&gt;total()
+//                            &lt;&lt; bsl::endl;
+//              }
+//          }
+//      }
+//  }
+//..
+// Now we examine how to configure a metrics manager with a
+// &#39;ThresholdPublisher&#39;, and set the thresholds for a couple of metrics.  We
+// start by defining a couple of threshold constants for our metrics:
+//..
+//  static const unsigned int ELAPSED_TIME_THRESHOLD = 10;
+//  static const unsigned int NUM_REQUESTS_THRESHOLD = 100;
+//..
+// Now, we configure a default metrics manager and publish a couple of example
+// metrics.  We start by initializing a default metrics manager by creating a
+// &#39;balm::DefaultMetricsManagerScopedGuard&#39;, which manages the lifetime of the
+// default metrics manager:
+//..
+//  int main(int argc, char *argv[])
+//  {
+//      // ...
+//      bslma::Allocator *allocator = bslma::Default::allocator(0);
+//      balm::DefaultMetricsManagerScopedGuard managerGuard;
+//..
+// Now we create a user data key for our threshold information:
+//..
+//      balm::MetricDescription::UserDataKey thresholdKey =
+//                                balm::ConfigurationUtil::createUserDataKey();
+//..
+// Next we create an object of our application-specific publisher type,
+// &#39;ThresholdPublisher&#39;, and configure the default metrics manager to publish
+// metrics using this publisher:
+//..
+//      bsl::shared_ptr&lt;balm::Publisher&gt; publisher(
+//            new (*allocator) ThresholdPublisher(thresholdKey),
+//            allocator);
+//     balm::DefaultMetricsManager::instance()-&gt;addGeneralPublisher(publisher);
+//..
+// Next we configure two metric thresholds:
+//..
+//      balm::ConfigurationUtil::setUserData(&quot;myCategory&quot;,
+//                                          &quot;elapsedTime&quot;,
+//                                          thresholdKey,
+//                                          &amp;ELAPSED_TIME_THRESHOLD);
+//      balm::ConfigurationUtil::setUserData(&quot;myCategory&quot;,
+//                                          &quot;numRequests&quot;,
+//                                          thresholdKey,
+//                                          &amp;NUM_REQUESTS_THRESHOLD);
+//..
+// Now we update the value of a couple of metrics.  Note that the recorded
+// number of requests is greater than the metric&#39;s configured threshold:
+//..
+//      BALM_METRICS_UPDATE(&quot;myCategory&quot;, &quot;elapsedTime&quot;, 2);
+//      BALM_METRICS_UPDATE(&quot;myCategory&quot;, &quot;numRequests&quot;, 150);
+//..
+// Finally, we publish the collected metrics.  Note that in practice, clients
+// of the &#39;balm&#39; package can use the &#39;balm::PublicationScheduler&#39; to schedule
+// the periodic publication of metrics:
+//..
+//  balm::DefaultMetricsManager::instance()-&gt;publishAll();
+//..
+// The console output of the call to &#39;publishAll&#39; will look like:
+//..
+//  WARNING: myCategory.numRequests = 150
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICDESCRIPTION
+#include &lt;balm_metricdescription.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_PUBLICATIONTYPE
+#include &lt;balm_publicationtype.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace balm {class MetricFormat;
+class MetricFormatSpec;
+class MetricsManager;
+
+                          // ========================
+                          // struct ConfigurationUtil
+                          // ========================
+
+struct ConfigurationUtil {
+    // This &#39;struct&#39; provides utilities for configuring metrics.
+
+    // CLASS METHODS
+    static int setFormat(const char          *category,
+                         const char          *metricName,
+                         const MetricFormat&amp;  format,
+                         MetricsManager      *manager = 0);
+        // Set the format specification for the metric indicated by the
+        // specified &#39;category&#39; and &#39;metricName&#39; to the specified &#39;format&#39;.
+        // Optionally specify a metrics &#39;manager&#39; to configure.  If &#39;manager&#39;
+        // is 0, configure the default metrics manager; if &#39;manager&#39; is 0 and
+        // the default metrics manager has not been initialized, this method
+        // has no effect.  Return 0 on success, or a non-zero value if
+        // &#39;manager&#39; is 0 and the default metrics manager has not been
+        // initialized.  If a &#39;MetricId&#39; does not exist for &#39;category&#39; and
+        // &#39;metricName&#39;, create one and add it to the metric registry of the
+        // indicated metrics manager.
+
+    static int setFormatSpec(const char              *category,
+                             const char              *metricName,
+                             PublicationType::Value   publicationType,
+                             const MetricFormatSpec&amp;  formatSpec,
+                             MetricsManager          *manager = 0);
+        // Set the format specification for the metric aggregate indicated by
+        // the specified &#39;category&#39;, &#39;metricName&#39;, and &#39;publicationType&#39; to
+        // the specified &#39;formatSpec&#39;.  Optionally specify a metrics &#39;manager&#39;
+        // to configure.  If &#39;manager&#39; is 0, configure the default metrics
+        // manager; if &#39;manager&#39; is 0 and the default metrics manager has not
+        // been initialized, this method has no effect.  Return 0 on success,
+        // or a non-zero value if &#39;manager&#39; is 0 and the default metrics
+        // manager has not been initialized.  If a &#39;MetricId&#39; does not exist
+        // for &#39;category&#39; and &#39;metricName&#39;, create one and add it to the metric
+        // registry of the indicated metrics manager.  For example a
+        // publication type of &#39;e_AVG&#39;, and a format spec with a scale of
+        // 1000.0 and a format of &quot;%.2f ms&quot;, indicates that the average value
+        // of the indicated metric should be formatted by scaling the value by
+        // 1000 and then rounding the value to the second decimal place and
+        // appending &quot; ms&quot;.
+
+    static int setPreferredPublicationType(
+                               const char             *category,
+                               const char             *metricName,
+                               PublicationType::Value  publicationType,
+                               MetricsManager         *manager = 0);
+        // Set the preferred publication type of the metric identified by the
+        // specified &#39;category&#39; and &#39;metricName&#39; to the specified
+        // &#39;publicationType&#39;.  Optionally specify a metrics &#39;manager&#39; to
+        // configure.  If &#39;manager&#39; is 0, configure the default metrics
+        // manager; if &#39;manager&#39; is 0 and the default metrics manager has not
+        // been initialized, this method has no effect.  Return 0 on success,
+        // or a non-zero value if &#39;manager&#39; is 0 and the default metrics
+        // manager has not been initialized.  The preferred publication type of
+        // a metric indicates the preferred aggregate to publish for that
+        // metric, or &#39;PublicationType::e_UNSPECIFIED&#39; if there is no
+        // preference.  For example, specifying &#39;e_AVG&#39; indicates that the
+        // average value of the collected metric should be reported.  If a
+        // &#39;MetricId&#39; does not exist for &#39;category&#39; and &#39;metricName&#39;, create
+        // one and add it to the metric registry of the indicated metrics
+        // manager.  Note that there is no uniform definition for how
+        // publishers will interpret this value.
+
+    static MetricDescription::UserDataKey createUserDataKey(
+                                                  MetricsManager *manager = 0);
+        // Return a new unique key that can be used to associate (via
+        // &#39;setUserData&#39;) a value with a metric (or group of metrics).
+        // Optionally specify a metrics &#39;manager&#39; to configure.  If &#39;manager&#39;
+        // is 0, configure the default metrics manager; if &#39;manager&#39; is 0 and
+        // the default metrics manager has not been initialized, then an
+        // unspecified integer value is returned.  Note that the returned key
+        // can be used by clients of &#39;balm&#39; to associate additional
+        // information with a metric.
+
+    static void setUserData(const char                     *category,
+                            const char                     *metricName,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value,
+                            MetricsManager                 *manager = 0);
+        // Associate the specified &#39;value&#39; with the specified data &#39;key&#39; in the
+        // description of the metric having the specified &#39;category&#39; and
+        // &#39;metricName&#39;.  Optionally specify a metrics &#39;manager&#39; to configure.
+        // If &#39;manager&#39; is 0, configure the default metrics manager; if
+        // &#39;manager&#39; is 0 and the default metrics manager has not been
+        // initialized, this method has no effect.  If a &#39;MetricId&#39; does not
+        // exist for the &#39;category&#39; and &#39;metricName&#39;, create one and add it to
+        // the metric registry of the indicated metrics manager.  The behavior
+        // is undefined unless &#39;key&#39; was previously created for the indicated
+        // metrics manager&#39;s metrics registry (e.g., by calling
+        // &#39;createUserDataKey&#39;).  Note that this method allows clients of
+        // &#39;balm&#39; to associate (opaque) application-specific information with a
+        // metric.
+
+    static void setUserData(const char                     *categoryName,
+                            MetricDescription::UserDataKey  key,
+                            const void                     *value,
+                            MetricsManager                 *manager = 0);
+        // Associate the specified &#39;value&#39; with the specified data &#39;key&#39; in
+        // any metric belonging to a category having the specified
+        // &#39;categoryName&#39;, or, if &#39;categoryName&#39; ends with an asterisk (&#39;*&#39;),
+        // any metric belonging to a category whose name begins with
+        // &#39;categoryName&#39; (without the asterisk).  Optionally specify a
+        // metrics &#39;manager&#39; to configure.  If &#39;manager&#39; is 0, configure the
+        // default metrics manager; if &#39;manager&#39; is 0 and the default metrics
+        // manager has not been initialized, this method has no effect.  This
+        // association applies to existing metrics as well as any subsequently
+        // created ones.  When a metric is created that matches more than one
+        // registered category prefix, it is not specified which supplied
+        // value will be associated with &#39;key&#39;, unless only one of those values
+        // is non-null, in which case the unique non-null value is used.  The
+        // behavior is undefined unless &#39;key&#39; was previously created for the
+        // indicated metrics manager&#39;s metrics registry (e.g., by calling
+        // &#39;createUserDataKey&#39;).
+};
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

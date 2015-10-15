@@ -1,0 +1,499 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktrace.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACE
+#define INCLUDED_BALST_STACKTRACE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a description of a function-call stack.
+//
+//@CLASSES:
+//  balst::StackTrace: a description of a function-call stack
+//
+//@SEE_ALSO: balst_stacktraceframe, balst_stacktraceutil,
+//           balst_stacktraceprintutil, bdlma_heapbypassallocator
+//
+//@DESCRIPTION: This component provides a (value-semantic) container class,
+// &#39;balst::StackTrace&#39;, that is used to describe a function-call stack.  A
+// stack-trace object contains a sequence of &#39;balst::StackTraceFrame&#39; objects.
+// By default, a &#39;balst::StackTrace&#39; object is supplied memory by an owned
+// &#39;bdlma::HeapBypassAllocator&#39; object, though the client may specify another
+// allocator at construction to be used in its place.
+//
+///Usage
+///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1: Configuring a Stack-Trace Value
+/// - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to create a &#39;balst::StackTrace&#39; object,
+// and then to both modify and access its value.
+//
+// First, we set up a test allocator as default allocator.  A
+// &#39;balst::StackTrace&#39; object, by default, gets all its memory from an owned
+// &#39;bdlma::HeapBypassAllocator&#39; object.  To demonstrate this default behavior
+// we start by setting the default allocator to a test allocator so we can
+// verify later that it was unused:
+//..
+//  bslma::TestAllocator         da;
+//  bslma::DefaultAllocatorGuard guard(&amp;da);
+//..
+// Then, we create a stack-trace object.  Note that when we don&#39;t specify an
+// allocator, the default allocator is not used -- rather, a heap-bypass
+// allocator owned by the stack-trace object is used.  The heap-bypass
+// allocator is recommended because this component is often used to obtain
+// debug information in situations where an error has occurred, and the
+// possibility of heap corruption can&#39;t be ruled out.  The heap-bypass
+// allocator obtains its memory directly from virtual memory rather than going
+// through the heap, avoiding potential complications due to heap corruption.
+//..
+//  balst::StackTrace stackTrace;
+//  assert(0 == stackTrace.length());
+//..
+// Next, we &#39;resize&#39; the stack-trace object to contain two default-constructed
+// frames, and take references to each of the two new frames:
+//..
+//  stackTrace.resize(2);
+//  assert(2 == stackTrace.length());
+//  balst::StackTraceFrame&amp; frame0 = stackTrace[0];
+//  balst::StackTraceFrame&amp; frame1 = stackTrace[1];
+//..
+// Then, we set the values of the fields of the two new frames.
+//..
+//  frame0.setAddress((void *) 0x12ab);
+//  frame0.setLibraryFileName(&quot;/a/b/c/balst_stacktrace.t.dbg_exc_mt&quot;);
+//  frame0.setLineNumber(5);
+//  frame0.setOffsetFromSymbol(116);
+//  frame0.setSourceFileName(&quot;/a/b/c/sourceFile.cpp&quot;);
+//  frame0.setMangledSymbolName(&quot;_woof_1a&quot;);
+//  frame0.setSymbolName(&quot;woof&quot;);
+//
+//  frame1.setAddress((void *) 0x34cd);
+//  frame1.setLibraryFileName(&quot;/lib/libd.a&quot;);
+//  frame1.setLineNumber(15);
+//  frame1.setOffsetFromSymbol(228);
+//  frame1.setSourceFileName(&quot;/a/b/c/secondSourceFile.cpp&quot;);
+//  frame1.setMangledSymbolName(&quot;_arf_1a&quot;);
+//  frame1.setSymbolName(&quot;arf&quot;);
+//..
+// Next, we verify the frames have the values we expect:
+//..
+//  assert((void *) 0x12ab               == frame0.address());
+//  assert(&quot;/a/b/c/balst_stacktrace.t.dbg_exc_mt&quot;
+//                                       == frame0.libraryFileName());
+//  assert(  5                           == frame0.lineNumber());
+//  assert(116                           == frame0.offsetFromSymbol());
+//  assert(&quot;/a/b/c/sourceFile.cpp&quot;       == frame0.sourceFileName());
+//  assert(&quot;_woof_1a&quot;                    == frame0.mangledSymbolName());
+//  assert(&quot;woof&quot;                        == frame0.symbolName());
+//
+//  assert((void *) 0x34cd               == frame1.address());
+//  assert(&quot;/lib/libd.a&quot;                 == frame1.libraryFileName());
+//  assert( 15                           == frame1.lineNumber());
+//  assert(228                           == frame1.offsetFromSymbol());
+//  assert(&quot;/a/b/c/secondSourceFile.cpp&quot; == frame1.sourceFileName());
+//  assert(&quot;_arf_1a&quot;                     == frame1.mangledSymbolName());
+//  assert(&quot;arf&quot;                         == frame1.symbolName());
+//..
+// Next, we output the stack-trace object:
+//..
+//  stackTrace.print(cout, 1, 2);
+//..
+// Finally, we observe the default allocator was never used.
+//..
+//  assert(0 == da.numAllocations());
+//..
+// The above usage produces the following output:
+//..
+//  [
+//    [
+//      address = 0x12ab
+//      library file name = &quot;/a/b/c/balst_stacktrace.t.dbg_exc_mt&quot;
+//      line number = 5
+//      mangled symbol name = &quot;_woof_1a&quot;
+//      offset from symbol = 116
+//      source file name = &quot;/a/b/c/sourceFile.cpp&quot;
+//      symbol name = &quot;woof&quot;
+//    ]
+//    [
+//      address = 0x34cd
+//      library file name = &quot;/lib/libd.a&quot;
+//      line number = 15
+//      mangled symbol name = &quot;_arf_1a&quot;
+//      offset from symbol = 228
+//      source file name = &quot;/a/b/c/secondSourceFile.cpp&quot;
+//      symbol name = &quot;arf&quot;
+//    ]
+//  ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_STACKTRACEFRAME
+#include &lt;balst_stacktraceframe.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
+#include &lt;bdlma_heapbypassallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include &lt;bslalg_typetraitbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balst {
+                              // ================
+                              // class StackTrace
+                              // ================
+
+class StackTrace {
+    // This value-semantic class describes a function-call stack, represented
+    // as a sequence of randomly accesible &#39;StackTraceFrame&#39; objects,
+    // each of which represents one function call on the stack.  Note that if
+    // no allocator is supplied at construction, an owned
+    // &#39;bdlma::HeapBypassAllocator&#39; object is used to supply memory.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    bdlma::HeapBypassAllocator    d_hbpAlloc;  // Used if no allocator is
+                                              // supplied at construction.
+                                              // Note this member must be
+                                              // declared and constructed prior
+                                              // to &#39;d_frames&#39;.
+
+    bsl::vector&lt;StackTraceFrame&gt;
+                                 d_frames;    // sequence of stack-trace frames
+
+    friend bool operator==(const StackTrace&amp;,
+                           const StackTrace&amp;);
+
+  public:
+    BSLALG_DECLARE_NESTED_TRAITS2(StackTrace,
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
+
+    // CREATORS
+    explicit
+    StackTrace(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;StackTrace&#39; object (having a length of 0).
+        // Optionally specify &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, then an owned heap-bypass allocator object is
+        // used.  Note that the heap-bypass allocator is used by default to
+        // avoid heap allocation in situations where the heap may have been
+        // corrupted.
+
+    StackTrace(const StackTrace&amp;  original,
+                     bslma::Allocator        *basicAllocator = 0);
+        // Create a &#39;StackTrace&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, then an owned
+        // heap-bypass allocator object is used.  Note that the heap-bypass
+        // allocator is used by default to avoid heap allocation in situations
+        // where the heap may have been corrupted.
+
+    //! ~StackTrace() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    StackTrace&amp; operator=(const StackTrace&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    StackTraceFrame&amp; operator[](int index);
+        // Return a reference providing modifiable access to the stack-trace
+        // frame at the specified &#39;index&#39;.  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt; length()&#39;.
+
+    void append(const StackTraceFrame&amp; value);
+        // Append to this sequence the specified &#39;value&#39;.
+
+    void removeAll();
+        // Remove all stack-trace frames from this object.  After this
+        // operation, the &#39;length()&#39; method will return 0.
+
+    void resize(int newLength);
+        // Add default constructed stack-trace frames to, or remove stack-trace
+        // frames from, the end of this stack-trace object such that, after the
+        // operation, &#39;length() == newLength&#39;.  Stack trace frames whose
+        // indices are in the range &#39;0 &lt;= index &lt; min(length, newLength)&#39; will
+        // be unchanged.  The behavior is undefined unless &#39;0 &lt;= newLength&#39;.
+
+                        // Aspects
+
+    void swap(StackTrace&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    const StackTraceFrame&amp; operator[](int index) const;
+        // Return a reference providing non-modifiable access to the
+        // stack-trace frame at the specified &#39;index&#39;.  The behavior is
+        // undefined unless &#39;0 &lt;= index &lt; length()&#39;.
+
+    int length() const;
+        // Return the number of stack-trace frames contained in this object.
+
+                        // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the owned
+        // heap-bypass allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const StackTrace&amp; lhs, const StackTrace&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;StackTrace&#39; objects have the
+    // same value if they have the save length, and each of their corresponding
+    // stack-trace frames have the same value.
+
+bool operator!=(const StackTrace&amp; lhs, const StackTrace&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;StackTrace&#39; objects do
+    // not have the same value if they do not have the same length, or any of
+    // their corresponding stack-trace frames do not have the same value.
+
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;           stream,
+                         const StackTrace&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // &#39;object.print(stream, 0, -1)&#39;, but with the attribute names elided.
+
+// FREE FUNCTIONS
+void swap(StackTrace&amp; a, StackTrace&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                              // ----------------
+                              // class StackTrace
+                              // ----------------
+
+                            // -----------------
+                            // Level 0 Functions
+                            // -----------------
+
+// ACCESSORS
+inline
+bslma::Allocator *StackTrace::allocator() const
+{
+    return d_frames.get_allocator().mechanism();
+}
+
+// CREATORS
+inline
+StackTrace::StackTrace(bslma::Allocator *basicAllocator)
+: d_hbpAlloc()
+, d_frames(basicAllocator ? basicAllocator : &amp;d_hbpAlloc)
+{
+}
+
+inline
+StackTrace::StackTrace(const StackTrace&amp;  original,
+                       bslma::Allocator        *basicAllocator)
+: d_hbpAlloc()
+, d_frames(original.d_frames,
+           basicAllocator ? basicAllocator : &amp;d_hbpAlloc)
+{
+}
+
+// MANIPULATORS
+inline
+StackTrace&amp; StackTrace::operator=(const StackTrace&amp; rhs)
+{
+    d_frames = rhs.d_frames;
+
+    return *this;
+}
+
+inline
+StackTraceFrame&amp; StackTrace::operator[](int index)
+{
+    BSLS_ASSERT_SAFE(index &gt;= 0);
+    BSLS_ASSERT_SAFE(index &lt; length());
+
+    return d_frames[index];
+}
+
+inline
+void StackTrace::append(const StackTraceFrame&amp; value)
+{
+    d_frames.push_back(value);
+}
+
+inline
+void StackTrace::removeAll()
+{
+    d_frames.clear();
+}
+
+inline
+void StackTrace::resize(int newLength)
+{
+    BSLS_ASSERT_SAFE(newLength &gt;= 0);
+
+    d_frames.resize(newLength);
+}
+
+inline
+void StackTrace::swap(StackTrace&amp; other)
+{
+    // &#39;swap&#39; is undefined for objects with non-equal allocators.
+
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    d_frames.swap(other.d_frames);
+}
+
+// ACCESSORS
+inline
+const StackTraceFrame&amp; StackTrace::operator[](int index) const
+{
+    BSLS_ASSERT_SAFE(index &gt;= 0);
+    BSLS_ASSERT_SAFE(index &lt; length());
+
+    return d_frames[index];
+}
+
+inline
+int StackTrace::length() const
+{
+    return (int) d_frames.size();
+}
+
+// FREE FUNCTIONS
+inline
+void swap(StackTrace&amp; a, StackTrace&amp; b)
+{
+    a.swap(b);
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const StackTrace&amp; lhs, const StackTrace&amp; rhs)
+{
+    return lhs.d_frames == rhs.d_frames;
+}
+
+inline
+bool operator!=(const StackTrace&amp; lhs,
+                const StackTrace&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;     stream,
+                         const StackTrace&amp; object)
+{
+    object.print(stream, 0, -1);
+
+    return stream;
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

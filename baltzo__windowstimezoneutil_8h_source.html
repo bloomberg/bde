@@ -1,0 +1,316 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_windowstimezoneutil.h                                       -*-C++-*-
+#ifndef INCLUDED_BALTZO_WINDOWSTIMEZONEUTIL
+#define INCLUDED_BALTZO_WINDOWSTIMEZONEUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide utilities to map Zoneinfo identifiers to other systems.
+//
+//@CLASSES:
+//  baltzo::WindowsTimeZoneUtil: utilities for mapping Zoneinfo time-zone ids
+//
+//@SEE_ALSO: bsitzo_tzdftimezoneutil
+//
+//@DESCRIPTION: This component provides a namespace,
+// &#39;baltzo::WindowsTimeZoneUtil&#39;, containing utility functions supporting the
+// use of Windows time-zone facilities with &#39;baltzo&#39; facilities.  Currently,
+// this component provides functions that map Windows time-zone identifiers to
+// and from &#39;baltzo&#39; (Zoneinfo) time-zone identifiers.
+//
+///Windows Time-Zone Identifiers
+///-----------------------------
+// The mapping from Windows to Zoneinfo identifiers used by the &#39;baltzo&#39;
+// package is defined in the table titled &quot;Mapping for: windows&quot; at
+// &#39;http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/zone_tzid.html&#39;.
+// The Zoneinfo values on the unicode webpage are given in the column labeled
+// &quot;TZID&quot;.  Each Windows identifier is qualified by one or more &quot;Region&quot;
+// attributes so, in general, there may be more than one Zoneinfo identifier
+// for a given Windows identifier.  The mapping in this component uses the
+// default mapping (Region &quot;001&quot;).  The 99 entries are:
+//..
+//  +--------------------------------+---------------------+
+//  |Windows Identifier              | Zoneinfo Identifier |
+//  +--------------------------------+---------------------+
+//  |      AUS Central Standard Time | Australia/Darwin    |
+//  |      AUS Eastern Standard Time | Australia/Sydney    |
+//  |      Afghanistan Standard Time | Asia/Kabul          |
+//  |          Alaskan Standard Time | America/Anchorage   |
+//  |             Arab Standard Time | Asia/Riyadh         |
+//  |          Arabian Standard Time | Asia/Dubai          |
+//  |           Arabic Standard Time | Asia/Baghdad        |
+//  |        Argentina Standard Time | America/Buenos_Aires|
+//  |         Atlantic Standard Time | America/Halifax     |
+//  |       Azerbaijan Standard Time | Asia/Baku           |
+//  |           Azores Standard Time | Atlantic/Azores     |
+//  |            Bahia Standard Time | America/Bahia       |
+//  |       Bangladesh Standard Time | Asia/Dhaka          |
+//  |   Canada Central Standard Time | America/Regina      |
+//  |       Cape Verde Standard Time | Atlantic/Cape_Verde |
+//  |         Caucasus Standard Time | Asia/Yerevan        |
+//  |   Cen. Australia Standard Time | Australia/Adelaide  |
+//  |  Central America Standard Time | America/Guatemala   |
+//  |     Central Asia Standard Time | Asia/Almaty         |
+//  |Central Brazilian Standard Time | America/Cuiaba      |
+//  |   Central Europe Standard Time | Europe/Budapest     |
+//  | Central European Standard Time | Europe/Warsaw       |
+//  |  Central Pacific Standard Time | Pacific/Guadalcanal |
+//  |          Central Standard Time | America/Chicago     |
+//  | Central Standard Time (Mexico) | America/Mexico_City |
+//  |            China Standard Time | Asia/Shanghai       |
+//  |         Dateline Standard Time | Etc/GMT+12          |
+//  |        E. Africa Standard Time | Africa/Nairobi      |
+//  |     E. Australia Standard Time | Australia/Brisbane  |
+//  |        E. Europe Standard Time | Asia/Nicosia        |
+//  | E. South America Standard Time | America/Sao_Paulo   |
+//  |          Eastern Standard Time | America/New_York    |
+//  |            Egypt Standard Time | Africa/Cairo        |
+//  |     Ekaterinburg Standard Time | Asia/Yekaterinburg  |
+//  |              FLE Standard Time | Europe/Kiev         |
+//  |             Fiji Standard Time | Pacific/Fiji        |
+//  |              GMT Standard Time | Europe/London       |
+//  |              GTB Standard Time | Europe/Bucharest    |
+//  |         Georgian Standard Time | Asia/Tbilisi        |
+//  |        Greenland Standard Time | America/Godthab     |
+//  |        Greenwich Standard Time | Atlantic/Reykjavik  |
+//  |         Hawaiian Standard Time | Pacific/Honolulu    |
+//  |            India Standard Time | Asia/Calcutta       |
+//  |             Iran Standard Time | Asia/Tehran         |
+//  |           Israel Standard Time | Asia/Jerusalem      |
+//  |           Jordan Standard Time | Asia/Amman          |
+//  |      Kaliningrad Standard Time | Europe/Kaliningrad  |
+//  |            Korea Standard Time | Asia/Seoul          |
+//  |          Magadan Standard Time | Asia/Magadan        |
+//  |        Mauritius Standard Time | Indian/Mauritius    |
+//  |      Middle East Standard Time | Asia/Beirut         |
+//  |       Montevideo Standard Time | America/Montevideo  |
+//  |          Morocco Standard Time | Africa/Casablanca   |
+//  |         Mountain Standard Time | America/Denver      |
+//  |Mountain Standard Time (Mexico) | America/Chihuahua   |
+//  |          Myanmar Standard Time | Asia/Rangoon        |
+//  |  N. Central Asia Standard Time | Asia/Novosibirsk    |
+//  |          Namibia Standard Time | Africa/Windhoek     |
+//  |            Nepal Standard Time | Asia/Katmandu       |
+//  |      New Zealand Standard Time | Pacific/Auckland    |
+//  |     Newfoundland Standard Time | America/St_Johns    |
+//  |  North Asia East Standard Time | Asia/Irkutsk        |
+//  |       North Asia Standard Time | Asia/Krasnoyarsk    |
+//  |       Pacific SA Standard Time | America/Santiago    |
+//  |          Pacific Standard Time | America/Los_Angeles |
+//  | Pacific Standard Time (Mexico) | America/Santa_Isabel|
+//  |         Pakistan Standard Time | Asia/Karachi        |
+//  |         Paraguay Standard Time | America/Asuncion    |
+//  |          Romance Standard Time | Europe/Paris        |
+//  |          Russian Standard Time | Europe/Moscow       |
+//  |       SA Eastern Standard Time | America/Cayenne     |
+//  |       SA Pacific Standard Time | America/Bogota      |
+//  |       SA Western Standard Time | America/La_Paz      |
+//  |          SE Asia Standard Time | Asia/Bangkok        |
+//  |            Samoa Standard Time | Pacific/Apia        |
+//  |        Singapore Standard Time | Asia/Singapore      |
+//  |     South Africa Standard Time | Africa/Johannesburg |
+//  |        Sri Lanka Standard Time | Asia/Colombo        |
+//  |            Syria Standard Time | Asia/Damascus       |
+//  |           Taipei Standard Time | Asia/Taipei         |
+//  |         Tasmania Standard Time | Australia/Hobart    |
+//  |            Tokyo Standard Time | Asia/Tokyo          |
+//  |            Tonga Standard Time | Pacific/Tongatapu   |
+//  |           Turkey Standard Time | Europe/Istanbul     |
+//  |       US Eastern Standard Time | America/Indianapolis|
+//  |      US Mountain Standard Time | America/Phoenix     |
+//  |                            UTC | Etc/GMT             |
+//  |                         UTC+12 | Etc/GMT-12          |
+//  |                         UTC-02 | Etc/GMT+2           |
+//  |                         UTC-11 | Etc/GMT+11          |
+//  |      Ulaanbaatar Standard Time | Asia/Ulaanbaatar    |
+//  |        Venezuela Standard Time | America/Caracas     |
+//  |      Vladivostok Standard Time | Asia/Vladivostok    |
+//  |     W. Australia Standard Time | Australia/Perth     |
+//  |W. Central Africa Standard Time | Africa/Lagos        |
+//  |        W. Europe Standard Time | Europe/Berlin       |
+//  |        West Asia Standard Time | Asia/Tashkent       |
+//  |     West Pacific Standard Time | Pacific/Port_Moresby|
+//  |          Yakutsk Standard Time | Asia/Yakutsk        |
+//  +--------------------------------+---------------------+
+//..
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Converting Between Windows and Zoneinfo Time-Zone Identifiers
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows how to find the Zoneinfo time-zone time-zone identifier
+// for a given Windows time-zone identifier, and the inverse operation.
+//
+// First, given the &quot;Central Standard Time (Mexico)&quot; Windows time-zone
+// identifier, use the &#39;getZoneinfoId&#39; method to find the corresponding
+// Zoneinfo time-zone identifier.
+//..
+//  int         rc;
+//  const char *timeZoneId;
+//  const char *windowsTimeZoneId;
+//
+//  rc = baltzo::WindowsTimeZoneUtil::getZoneinfoId(
+//                                           &amp;timeZoneId,
+//                                           &quot;Central Standard Time (Mexico)&quot;);
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp(&quot;America/Mexico_City&quot;, timeZoneId));
+//..
+// Notice that the corresponding Zoneinfo time-zone identifier is
+// &quot;America/Mexico_City&quot;.
+//
+// Next, use &#39;getWindowsTimeZoneId&#39; method to find the Windows time-zone
+// identifier corresponding to &quot;America/Mexico_City&quot;.
+//..
+//  rc = baltzo::WindowsTimeZoneUtil::getWindowsTimeZoneId(
+//                                                      &amp;windowsTimeZoneId,
+//                                                      &quot;America/Mexico_City&quot;);
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp(&quot;Central Standard Time (Mexico)&quot;,
+//                           windowsTimeZoneId));
+//..
+// Notice that the time zone returned is &quot;Central Standard Time (Mexico)&quot;, the
+// original time-zone identifier.
+//
+///Example 2: Creating a &#39;baltzo::LocalDatetime&#39; Object on Windows
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates how to create on a Windows platform a
+// &#39;baltzo::LocalDatetime&#39; object with the value of the current time.
+//
+// First, use the Windows &#39;GetTimeZoneInformation&#39; function to load a
+// &#39;TIME_ZONE_INFORMATION&#39; structure.
+//..
+//  int                   rc;
+//  TIME_ZONE_INFORMATION tzi;
+//  rc = GetTimeZoneInformation(&amp;tzi);
+//  assert(TIME_ZONE_ID_UNKNOWN  == rc
+//      || TIME_ZONE_ID_STANDARD == rc
+//      || TIME_ZONE_ID_DAYLIGHT == rc);
+//..
+// The &#39;StandardName&#39; member of the structure, of type &#39;WCHAR[32]&#39;, contains
+// the Windows time-zone identifier for Standard Time for the system&#39;s local
+// time zone.
+//
+// Next, use the &#39;wcstombs_s&#39; function to convert the wide string in the
+// &#39;StandardName&#39; member to its multi-byte equivalent in the &#39;standardName&#39;
+// buffer, and assign the result to &#39;localTimezone&#39;.  Note that every Windows
+// time-zone identifier mapped by this component consists entirely of 7-bit
+// ASCII characters.
+//..
+//  bsl::string localTimezone;
+//
+//  {
+//      // Convert &#39;StandardName&#39; field (&#39;WCHAR[32]&#39;) to &#39;bsl::string&#39;.
+//
+//      char    standardName[sizeof(tzi.StandardName) * 2 + 1] = { &#39;\0&#39; };
+//      errno_t error = wcstombs_s(NULL,
+//                                 standardName,
+//                                 sizeof(standardName),
+//                                 tzi.StandardName,
+//                                 _TRUNCATE);
+//      assert(0 == errno);
+//      localTimezone.assign(standardName);
+//  }
+//  assert(&quot;Arab Standard Time&quot; == localTimezone);
+//..
+// Now, use the &#39;getZoneinfoId&#39; method to find the corresponding Zoneinfo
+// time-zone identifier.
+//..
+//  const char *zoneinfoId;
+//  rc = baltzo::WindowsTimeZoneUtil::getZoneinfoId(&amp;zoneinfoId,
+//                                                 localTimezone.c_str());
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp(&quot;Asia/Riyadh&quot;, zoneinfoId));
+//..
+// Then, use the Windows &#39;GetSystemTime&#39; function to load an &#39;SYSTEMTIME&#39;
+// structure with UTC time information.  The returned information includes
+// year, month (&#39;[1 .. 12]&#39;), day-of-month (&#39;[1 .. 31]&#39;), and hour-of-day
+// (&#39;[0 .. 23]&#39;).  Note &#39;bdet_date&#39; and &#39;bdet_time&#39; use the same numerical
+// values to represent month, day, etc.  The range of years is different but
+// practically the same as they overlap for several centuries around the
+// current time.
+//..
+//  SYSTEMTIME systemTime;
+//  GetSystemTime(&amp;systemTime);
+//..
+// Finally, use the these Windows SystemTime values and and the calculated
+// Zoneinfo time-zone identifier to set the value of a &#39;baltzo::LocalDatetime&#39;
+// object.
+//..
+//  baltzo::LocalDatetime localDatetime;
+//
+//  rc = baltzo::TimeZoneUtil::convertUtcToLocalTime(
+//                                  &amp;localDatetime,
+//                                  zoneinfoId,
+//                                  bdlt::Datetime(systemTime.wYear,
+//                                                systemTime.wMonth,
+//                                                systemTime.wDay,
+//                                                systemTime.wHour));
+//  assert(0             == rc);
+//  assert(&quot;Asia/Riyadh&quot; == localDatetime.timeZoneId());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                         // ==========================
+                         // struct WindowsTimeZoneUtil
+                         // ==========================
+
+struct WindowsTimeZoneUtil {
+    // This &#39;struct&#39; provides a namespace for utility functions that convert
+    // Zoneinfo time-zone identifiers both to and Windows time-zone
+    // identifiers.
+
+    // CLASS METHODS
+    static int getZoneinfoId(const char **result,
+                             const char  *windowsTimeZoneId);
+        // Load into the specified &#39;result&#39; the address of a 0 terminated
+        // C-string containing the default Zoneinfo time-zone identifier for
+        // the specified &#39;windowsTimeZoneId&#39;.  Return 0 on success, and
+        // non-zero value with no other effect otherwise.  The returned address
+        // is valid for the life-time of the process.
+
+    static int getWindowsTimeZoneId(const char **result,
+                                    const char  *zoneinfoId);
+        // Load into the specified &#39;result&#39; the address of a 0 terminated
+        // C-string containing the Windows time-zone identifier for the
+        // specified &#39;zoneinfoId&#39;.  Return 0 on success, and non-zero value
+        // with no other effect otherwise.  The returned address is valid for
+        // the life-time of the process.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

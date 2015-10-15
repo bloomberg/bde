@@ -1,0 +1,178 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_recursivemuteximpl_pthread.h                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
+#define INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a POSIX implementation of &#39;bslmt::RecursiveMutex&#39;.
+//
+//@CLASSES:
+//  bslmt::RecursiveMutexImpl&lt;PosixThreads&gt;: POSIX specialization
+//
+//@SEE_ALSO: bslmt_recursivemutex
+//
+//@DESCRIPTION: This component provides an implementation of
+// &#39;bslmt::RecursiveMutex&#39; for POSIX threads (&quot;pthreads&quot;),
+// &#39;bslmt::RecursiveMutexImpl&lt;PosixThreads&gt;&#39;, via the template specialization:
+//..
+//  bslmt::RecursiveMutexImpl&lt;Platform::PosixThreads&gt;
+//..
+// This template class should not be used (directly) by client code.  Clients
+// should instead use &#39;bslmt::RecursiveMutex&#39;.
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;bslmt&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifdef BSLMT_PLATFORM_POSIX_THREADS
+
+// Platform-specific implementation starts here.
+
+#ifndef INCLUDED_PTHREAD
+#include &lt;pthread.h&gt;
+#define INCLUDED_PTHREAD
+#endif
+
+#ifndef PTHREAD_MUTEX_RECURSIVE
+#ifndef INCLUDED_BSLS_SPINLOCK
+#include &lt;bsls_spinlock.h&gt;
+#endif
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class THREAD_POLICY&gt;
+class RecursiveMutexImpl;
+
+             // ================================================
+             // class RecursiveMutexImpl&lt;Platform::PosixThreads&gt;
+             // ================================================
+
+template &lt;&gt;
+class RecursiveMutexImpl&lt;Platform::PosixThreads&gt; {
+    // This class provides a full specialization of &#39;RecursiveMutexImpl&#39; for
+    // pthreads.  If the pthreads implementation supports the &quot;recursive&quot;
+    // attribute, then the native implementation is used, otherwise, a
+    // portable, efficient implementation is provided.
+
+    // DATA
+    pthread_mutex_t d_lock;       // TBD doc
+
+#ifndef PTHREAD_MUTEX_RECURSIVE
+    bsls::SpinLock  d_spin;       // spin lock controlling access to this
+                                  // object
+
+    pthread_t       d_owner;      // thread id of thread currently owning this
+                                  // lock object
+
+    int             d_lockCount;  // current lock recursion level
+#endif
+
+    // NOT IMPLEMENTED
+    RecursiveMutexImpl(const RecursiveMutexImpl&amp;);
+    RecursiveMutexImpl&amp; operator=(const RecursiveMutexImpl&amp;);
+
+  public:
+    // CREATORS
+    RecursiveMutexImpl();
+        // Create a recursive mutex initialized to an unlocked state.
+
+    ~RecursiveMutexImpl();
+        // Destroy this recursive mutex object.
+
+    // MANIPULATORS
+    void lock();
+        // Acquire a lock on this mutex object.  If this object is currently
+        // locked by a different thread, then suspend execution of the current
+        // thread until a lock can be acquired.  Otherwise, if it unlocked, or
+        // locked by the calling thread, then grant ownership of the lock
+        // immediately and return.  Note that when this object is recursively
+        // locked by a thread, &#39;unlock&#39; must be called an equal number of times
+        // before the lock is actually released.
+
+    int tryLock();
+        // Attempt to acquire a lock on this mutex object.  If this object is
+        // unlocked, or locked by the calling thread, then grant ownership of
+        // the lock immediately and return 0.  Otherwise If this object is
+        // currently locked by a different thread or if an error occurs, then
+        // return a non-zero value.  Note that when this object is recursively
+        // locked by a thread, &#39;unlock&#39; must be called an equal number of times
+        //  before the lock is actually released.
+
+    void unlock();
+        // Release a lock on this mutex that was previously acquired through a
+        // successful call to &#39;lock&#39;, or &#39;tryLock&#39;.  The behavior is undefined,
+        // unless the calling thread currently owns the lock on this mutex.
+        // Note that when this object is recursively locked by a thread,
+        // &#39;unlock&#39; must be called an equal number of times before the lock is
+        // actually released.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+             // ------------------------------------------------
+             // class RecursiveMutexImpl&lt;Platform::PosixThreads&gt;
+             // ------------------------------------------------
+
+// CREATORS
+inline
+bslmt::RecursiveMutexImpl&lt;bslmt::Platform::PosixThreads&gt;::~RecursiveMutexImpl()
+{
+    pthread_mutex_destroy(&amp;d_lock);
+}
+
+}  // close enterprise namespace
+
+#endif // BSLMT_PLATFORM_POSIX_THREADS
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

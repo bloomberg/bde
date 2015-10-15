@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bdlma.txt
@@ -14,7 +14,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdlma&#39; package currently has 16 components having 6 levels of physical
+ The &#39;bdlma&#39; package currently has 28 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -25,25 +25,40 @@
      bdlma_multipool
 
   4. bdlma_bufferedsequentialallocator
+     bdlma_concurrentmultipoolallocator
      bdlma_sequentialallocator
 
   3. bdlma_bufferedsequentialpool
+     bdlma_concurrentfixedpool
+     bdlma_concurrentmultipool
+     bdlma_concurrentpoolallocator
      bdlma_sequentialpool
 
   2. bdlma_buffermanager
+     bdlma_concurrentpool
+     bdlma_defaultdeleter
+     bdlma_factory
      bdlma_pool
 
-  1. bdlma_autoreleaser
+  1. bdlma_alignedallocator
+     bdlma_autoreleaser
      bdlma_blocklist
      bdlma_bufferimputil
+     bdlma_concurrentallocatoradapter
      bdlma_countingallocator
+     bdlma_deleter
      bdlma_guardingallocator
+     bdlma_heapbypassallocator
      bdlma_infrequentdeleteblocklist
      bdlma_managedallocator
+     bdlma_memoryblockdescriptor
 ..
 
 /Component Synopsis
 /------------------
+: &#39;bdlma_alignedallocator&#39;:
+:      Provide a protocol for memory allocators that support alignment.
+:
 : &#39;bdlma_autoreleaser&#39;:
 :      Release memory to a managed allocator or pool at destruction.
 :
@@ -62,11 +77,41 @@
 : &#39;bdlma_buffermanager&#39;:
 :      Provide a memory manager that manages an external buffer.
 :
+: &#39;bdlma_concurrentallocatoradapter&#39;:
+:      Provide a thread-enabled adapter for the allocator protocol.
+:
+: &#39;bdlma_concurrentfixedpool&#39;:
+:      Provide thread-safe pool of limited # of blocks of uniform size.
+:
+: &#39;bdlma_concurrentmultipool&#39;:
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: &#39;bdlma_concurrentmultipoolallocator&#39;:
+:      Provide an allocator to manage pools of varying object sizes.
+:
+: &#39;bdlma_concurrentpool&#39;:
+:      Provide thread-safe allocation of memory blocks of uniform size.
+:
+: &#39;bdlma_concurrentpoolallocator&#39;:
+:      Provide thread-safe memory-pooling allocator of fixed-size blocks.
+:
 : &#39;bdlma_countingallocator&#39;:
 :      Provide a memory allocator that counts allocated bytes.
 :
+: &#39;bdlma_defaultdeleter&#39;:
+:      Provide a concrete default deleter w/optionally-supplied allocator.
+:
+: &#39;bdlma_deleter&#39;:
+:      Provide a protocol for deleting objects of parameterized type.
+:
+: &#39;bdlma_factory&#39;:
+:      Provide a protocol for creator/deleter of parameterized objects.
+:
 : &#39;bdlma_guardingallocator&#39;:
 :      Provide a memory allocator that guards against buffer overruns.
+:
+: &#39;bdlma_heapbypassallocator&#39;:
+:      Support memory allocation directly from virtual memory.
 :
 : &#39;bdlma_infrequentdeleteblocklist&#39;:
 :      Provide allocation and management of infrequently deleted blocks.
@@ -76,6 +121,9 @@
 :
 : &#39;bdlma_managedallocator&#39;:
 :      Provide a protocol for memory allocators that support &#39;release&#39;.
+:
+: &#39;bdlma_memoryblockdescriptor&#39;:
+:      Provide a class describing a block of memory.
 :
 : &#39;bdlma_multipool&#39;:
 :      Provide a memory manager to manage pools of varying block sizes.

@@ -1,0 +1,381 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btls5_networkconnector.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLS5_NETWORKCONNECTOR
+#define INCLUDED_BTLS5_NETWORKCONNECTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a mechanism to connect through SOCKS5 proxies.
+//
+//@CLASSES:
+//  btls5::NetworkConnector: mechanism to connect via SOCKS5 hosts
+//
+//@SEE_ALSO: btls5_negotiator
+//
+//@DESCRIPTION: This component provides a mechanism class,
+// &#39;btls5::NetworkConnector&#39;, that establishes connections through proxy hosts
+// using the SOCKS5 protocol.  The connections are established asynchronously,
+// with status reported to a client-supplied callback.  Each connection attempt
+// is identified by a &#39;ConnectionAttemptHandle&#39;, which can be used to start the
+// attempt as well as cancel it.  The client code should call
+// &#39;makeConnectionAttemptHandle&#39;, which returns a &#39;ConnectionAttemptHandle&#39;,
+// followed by &#39;startConnectionAttempt&#39; to initiate the connection attempt.
+//
+// After initiating the attempt the client can wait until the attempt is
+// concluded and the callback is invoked, or cancel the attempt by calling
+// &#39;cancelConnectionAttempt&#39;.  Note that the callback may still be invoked
+// after &#39;cancelConnectionAttempt&#39; is called.
+//
+// Note that on MS Windows, &#39;btlso::SocketImpUtil::startup&#39; must be called to
+// initialize the socket environment before calling
+// &#39;btls5::NetworkConnector::startConnectionAttempt&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Connect to a Server Through Two Proxy Levels
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to connect to a server reachable through two levels of
+// proxies: first through one of our corporate SOCKS5 servers, and then through
+// one of the regional SOCKS5 servers.
+//
+// First, we define a callback function to process connection status, and if
+// successful, perform useful work and finally deallocate the socket.  After
+// the work is done (or an error is reported) we signal the main thread with
+// the status; this also signifies that we no longer need the stream factory
+// passed to us:
+//..
+//  void connectCb(
+//              int                                             status,
+//              btlso::StreamSocket&lt; btlso::IPv4Address&gt;       *socket,
+//              btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *socketFactory,
+//              const btls5::DetailedStatus&amp;                    detailedStatus,
+//              bslmt::Mutex                                   *stateLock,
+//              bslmt::Condition                               *stateChanged,
+//              volatile int                                   *state)
+//  {
+//      if (0 == status) {
+//          // Success: conduct I/O operations with &#39;socket&#39; ... and deallocate
+//
+//          socketFactory-&gt;deallocate(socket);
+//      } else {
+//          cout &lt;&lt; &quot;Connect failed &quot; &lt;&lt; status &lt;&lt; &quot;: &quot; &lt;&lt; detailedStatus
+//               &lt;&lt; endl;
+//      }
+//      bslmt::LockGuard&lt;bslmt::Mutex&gt; lock(stateLock);
+//      *state = status ? -1 : 1; // 1 for success, -1 for failure
+//      stateChanged-&gt;signal();
+//  }
+//..
+// Then, we define the function that will set up the proxy network description
+// and attempt to connect to a remote host.  The first level of proxies should
+// be reachable directly:
+//..
+//  static int connectThroughProxies(const btlso::Endpoint&amp; corpProxy1,
+//                                   const btlso::Endpoint&amp; corpProxy2)
+//  {
+//      btls5::NetworkDescription proxies;
+//      proxies.addProxy(0, corpProxy1);
+//      proxies.addProxy(0, corpProxy2);
+//..
+// Next, we add a level for regional proxies reachable from the corporate
+// proxies.  Note that &#39;.tk&#39; stands for Tokelau in the Pacific Ocean:
+//..
+//      proxies.addProxy(1, btlso::Endpoint(&quot;proxy1.example.tk&quot;, 1080));
+//      proxies.addProxy(1, btlso::Endpoint(&quot;proxy2.example.tk&quot;, 1080));
+//..
+// Then, we set the username and password, which will be used in case one of
+// the proxies in the connection path requires that type of authentication:
+//..
+//      btls5::Credentials credentials(&quot;John.smith&quot;, &quot;pass1&quot;);
+//      btls5::NetworkDescriptionUtil::setAllCredentials(&amp;proxies,
+//                                                       credentials);
+//..
+// Now, we construct a &#39;btls5::NetworkConnector&#39; that will be used to connect
+// to one or more destinations:
+//..
+//      btlso::InetStreamSocketFactory&lt;btlso::IPv4Address&gt; factory;
+//      btlmt::TcpTimerEventManager eventManager;
+//      eventManager.enable();
+//      btls5::NetworkConnector connector(proxies, &amp;factory, &amp;eventManager);
+//..
+// Finally, we attempt to connect to the destination.  Input, output, and
+// eventual closing of the connection will be handled from &#39;connectCb&#39;, which
+// will signal by changing &#39;state&#39;, with the access protected by a mutex and
+// condition variable:
+//..
+//      const bsls::TimeInterval proxyTimeout(5.0);
+//      const bsls::TimeInterval totalTimeout(30.0);
+//      bslmt::Mutex     stateLock;
+//      bslmt::Condition stateChanged;
+//      volatile int     state = 0; // value &gt; 0 is success and &lt; 0 is error
+//      using namespace bdlf::PlaceHolders;
+//      btls5::NetworkConnector::ConnectionAttemptHandle attempt =
+//         connector.makeConnectionAttemptHandle(bdlf::BindUtil::bind(
+//                                                            connectCb,
+//                                                            _1, _2, _3, _4,
+//                                                            &amp;stateLock,
+//                                                            &amp;stateChanged,
+//                                                            &amp;state),
+//                                               proxyTimeout,
+//                                               totalTimeout,
+//                                               btlso::Endpoint(
+//                                                   &quot;destination.example.com&quot;,
+//                                                   8194));
+//      connector.startConnectionAttempt(attempt);
+//      bslmt::LockGuard&lt;bslmt::Mutex&gt; lock(&amp;stateLock);
+//      while (!state) {
+//          stateChanged.wait(&amp;stateLock);
+//      }
+//      return state;
+//  }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_DETAILEDSTATUS
+#include &lt;btls5_detailedstatus.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_NETWORKDESCRIPTION
+#include &lt;btls5_networkdescription.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLMT_TCPTIMEREVENTMANAGER
+#include &lt;btlmt_tcptimereventmanager.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include &lt;btlso_endpoint.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKET
+#include &lt;btlso_streamsocket.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKETFACTORY
+#include &lt;btlso_streamsocketfactory.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace btls5 {
+
+                           // ======================
+                           // class NetworkConnector
+                           // ======================
+
+class NetworkConnector {
+    // This class supports a connection to a destination TCP server using one
+    // or more levels of SOCKS5 proxies to reach the destination.  At least one
+    // of the proxies in the first level must be reachable from the source;
+    // with each successive level providing connectivity to a proxy in the next
+    // level, and finally to the destination.  If one of the SOCKS5 servers
+    // requires username/password authentication, and the credentials were
+    // supplied at construction, then they will be used to attempt
+    // authentication.  If a SOCKS5 server requires a different authentication
+    // method, or it requires username/password and none were supplied, the
+    // negotiation will fail with &#39;status == e_AUTHENTICATION&#39;.
+    //
+    // A &#39;NetworkConnector&#39; object allows multiple concurrent connection
+    // attempts.  A connection attempt is initiated by calling
+    // &#39;makeConnectionAttemptHandle&#39; to obtain a &#39;ConnectionAttemptHandle&#39; that
+    // is subsequently passed to &#39;startConnectionAttempt&#39;.  The
+    // &#39;ConnectionAttemptHandle&#39; object can also be used to cancel the
+    // connection attempt.
+
+    // PRIVATE TYPES
+    class Connector;
+        // persistent state of the SOCKS5 network connector
+
+    class ConnectionAttempt;
+        // state of a connection attempt
+
+  public:
+    // TYPES
+    enum ConnectionStatus {
+        e_SUCCESS = 0,    // connection successfully established
+        e_TIMEOUT,        // connection attempt timed out
+        e_AUTHENTICATION, // no acceptable authentication methods
+        e_CANCEL,         // connection was canceled
+        e_ERROR           // any other error
+    };
+
+    typedef bsl::function&lt;void(
+               NetworkConnector::ConnectionStatus              status,
+               btlso::StreamSocket&lt;btlso::IPv4Address&gt;        *socket,
+               btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *socketFactory,
+               const DetailedStatus&amp;                           detailedStatus)&gt;
+                                                       ConnectionStateCallback;
+        // A callback of this type is invoked when the &#39;NetworkConnector&#39;
+        // object establishes a connection or fails.  If the specified &#39;status&#39;
+        // is zero, use the specified &#39;socket&#39; for communication, and the
+        // specified &#39;socketFactory&#39; for eventual deallocation.  Otherwise,
+        // process connection failure as described by the specified
+        // &#39;detailedStatus&#39;.
+
+    typedef bsl::shared_ptr&lt;ConnectionAttempt&gt; ConnectionAttemptHandle;
+        // A &#39;ConnectionAttemptHandle&#39; object can be used to start a connection
+        // attempt, as well as cancel it.
+
+  private:
+    // DATA
+    bsl::shared_ptr&lt;Connector&gt; d_connector; // persistent state
+
+  private:
+    // NOT IMPLEMENTED
+    NetworkConnector(const NetworkConnector&amp;);
+    NetworkConnector&amp; operator=(const NetworkConnector&amp;);
+
+  public:
+    // CREATORS
+    NetworkConnector(
+           const NetworkDescription&amp;                       socks5Servers,
+           btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *socketFactory,
+           btlmt::TcpTimerEventManager                    *eventManager,
+           bslma::Allocator                               *basicAllocator = 0);
+    NetworkConnector(
+           const NetworkDescription&amp;                       socks5Servers,
+           btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *socketFactory,
+           btlmt::TcpTimerEventManager                    *eventManager,
+           int                                             minSourcePort,
+           int                                             maxSourcePort,
+           bslma::Allocator                               *basicAllocator = 0);
+        // Create a &#39;NetworkConnector&#39; object that will use the specified
+        // &#39;socks5Servers&#39; to connect to a TCP server, allocating and
+        // deallocating sockets using the specified &#39;socketFactory&#39;.  Use the
+        // specified &#39;eventManager&#39; for timeout and socket operations.
+        // Optionally specify &#39;minSourcePort&#39; and &#39;maxSourcePort&#39; to bind the
+        // source port to a value in this range.  If &#39;minSourcePort&#39; and
+        // &#39;maxSourcePort&#39; are not specified, the system will assign the source
+        // port.  Optionally specify a &#39;basicAllocator&#39; used to supply memory.
+        // If &#39;basicAllocator&#39; is 0, the currently installed default allocator
+        // is used.  The behavior is undefined unless
+        // &#39;NetworkDescriptionUtil::isWellFormed(socks5Servers)&#39; is &#39;true&#39;,
+        // and, for the second signature, &#39;1 &lt;= minSourcePort&#39; and
+        // &#39;minSourcePort &lt;= maxSourcePort&#39; and &#39;maxSourcePort &lt;= 65535&#39;.
+
+    //! ~NetworkConnector() = default;
+        // Destroy this object.  Connection attempts in progress will continue,
+        // and established connections are not closed.
+
+    // MANIPULATORS
+    ConnectionAttemptHandle makeConnectionAttemptHandle(
+                                   const ConnectionStateCallback&amp; callback,
+                                   const bsls::TimeInterval&amp;      proxyTimeout,
+                                   const bsls::TimeInterval&amp;      totalTimeout,
+                                   const btlso::Endpoint&amp;         server);
+        // Return a &#39;ConnectionAttemptHandle&#39; object that can be used to
+        // asynchronously connect to the specified &#39;server&#39;; the specified
+        // &#39;callback&#39; will be invoked with connection status.  If the specified
+        // &#39;proxyTimeout&#39; is non-zero, a successful connection attempt to each
+        // proxy must occur within that time; otherwise individual proxy
+        // connections will not time out.  If the specified &#39;totalTimeout&#39; is
+        // non-zero, a successful connection must occur within that time;
+        // otherwise the connection attempt will not time out.  Note that the
+        // handle can be used to start the connection attempt by calling
+        // &#39;startConnectionAttempt&#39; and cancel the attempt by calling
+        // &#39;cancelConnectionAttempt&#39;.
+
+    void startConnectionAttempt(const ConnectionAttemptHandle&amp; handle);
+        // Start a connection attempt for the specified &#39;handle&#39;.  If the
+        // source port range was specified at construction and a port in that
+        // range cannot be bound, use a system-assigned source port.  The
+        // behavior is undefined unless the event manager supplied at
+        // construction is enabled.
+
+    void startConnectionAttemptStrict(const ConnectionAttemptHandle&amp; handle);
+        // Start a connection attempt for the specified &#39;handle&#39;.  If the
+        // source port range was specified at construction and a port in that
+        // range cannot be bound, fail the connection attempt.  The behavior is
+        // undefined unless the event manager supplied at construction is
+        // enabled.
+
+    void cancelConnectionAttempt(const ConnectionAttemptHandle&amp; handle);
+        // Cancel the connection attempt for the specified &#39;handle&#39;.  Further
+        // invocation of the associated callback is disabled, but this function
+        // does *not* synchronize with callback invocation (i.e., an invocation
+        // initiated before the call to this function may execute after the
+        // return from this function).
+
+    // ACCESSORS
+    const NetworkDescription&amp; socks5Servers() const;
+        // Return a reference providing non-modifiable access to the internal
+        // copy of the network description that was suplied at construction.
+};
+
+}  // close package namespace
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btls5::NetworkConnector&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

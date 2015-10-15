@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslstl::BidirectionalIterator</title>
+<title>BDE 3.0: Class bslstl::BidirectionalIterator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -112,7 +112,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">T *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1ForwardIterator.html#a3e53f14eff0793fb8542490161bce3f7">operator-&gt;</a> () const </td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt;<br/>
+<h3>template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt;<br/>
  class bslstl::BidirectionalIterator&lt; T, ITER_IMP, TAG_TYPE &gt;</h3>
 
 <p>Given an <code>ITER_IMP</code> type that implements a minimal subset of an iterator interface, this template generates a complete iterator that meets all of the requirements of a "bidirectional iterator" in the C++ standard. If <code>T</code> is <code>const</code>-qualified, then the resulting type is a constant iterator. <code>T</code> shall not be a function or reference type. <code>ITER_IMP</code> must provide public operations so that, for objects <code>i</code> and <code>j</code> of type <code>ITER_IMP</code>, the following operations are supported: <br/>
@@ -133,7 +133,7 @@ Public Member Functions</h2></td></tr>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef T <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html#a13edcf3b8c7084739b85df809817ce96">value_type</a></td>
@@ -152,7 +152,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::ptrdiff_t <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html#af0989359ad7e00eba8036a4a61130488">difference_type</a></td>
@@ -171,7 +171,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef T* <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html#adcc2140f2b288a5e5cd6f502f08b31ad">pointer</a></td>
@@ -190,7 +190,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef T&amp; <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html#a4933e301ad5dd0210e63dca328784f82">reference</a></td>
@@ -209,7 +209,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef std::bidirectional_iterator_tag <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html#aa06d6d2bd7cf21e8d760ec10bee4b3a2">iterator_category</a></td>
@@ -229,7 +229,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a> </td>
@@ -249,7 +249,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a> </td>
@@ -270,7 +270,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a> </td>
@@ -291,7 +291,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::<a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a> </td>
@@ -312,7 +312,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::~<a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a> </td>
@@ -333,7 +333,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a>&amp; <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::operator= </td>
@@ -354,7 +354,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a>&amp; <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::operator++ </td>
@@ -378,7 +378,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::bidirectional_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbslstl_1_1BidirectionalIterator.html">BidirectionalIterator</a>&amp; <a class="el" href="classbslstl_1_1BidirectionalIterator.html">bslstl::BidirectionalIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::operator-- </td>
@@ -400,7 +400,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::bidirectiona
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::forward_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">ITER_IMP&amp; <a class="el" href="classbslstl_1_1ForwardIterator.html">bslstl::ForwardIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::imp </td>
@@ -420,7 +420,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iter
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::forward_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const ITER_IMP&amp; <a class="el" href="classbslstl_1_1ForwardIterator.html">bslstl::ForwardIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::imp </td>
@@ -440,7 +440,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iter
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::forward_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">T&amp; <a class="el" href="classbslstl_1_1ForwardIterator.html">bslstl::ForwardIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::operator* </td>
@@ -460,7 +460,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iter
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iterator_tag&gt; </div>
+template&lt;class T, class ITER_IMP, class TAG_TYPE = std::forward_iterator_tag&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">T* <a class="el" href="classbslstl_1_1ForwardIterator.html">bslstl::ForwardIterator</a>&lt; T, ITER_IMP, TAG_TYPE &gt;::operator-&gt; </td>
@@ -480,7 +480,7 @@ template&lt;typename T, typename ITER_IMP, typename TAG_TYPE = std::forward_iter
 <li><a class="el" href="bslstl__bidirectionaliterator_8h_source.html">bslstl_bidirectionaliterator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:44 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:11 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

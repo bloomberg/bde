@@ -1,0 +1,226 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdls_filedescriptorguard.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLS_FILEDESCRIPTORGUARD
+#define INCLUDED_BDLS_FILEDESCRIPTORGUARD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a RAII guard class used to close files.
+//
+//@CLASSES:
+//  bdls::FileDescriptorGuard: RAII guard class used to close files
+//
+//@SEE_ALSO: bdls_filesystemutil
+//
+//@DESCRIPTION: This component defines a class, &#39;bdls::FileDescriptorGuard&#39;, an
+// object of which manages an open file descriptor, and closes it when the
+// guard goes out of scope and is destroyed.  A &#39;release&#39; method is provided,
+// which will release the descriptor from management by the guard.  When a
+// released guard is destroyed, nothing happens.  A &#39;closeAndRelease&#39; method
+// is also provided, which closes the managed file handle and puts the guard
+// into a released state.
+//
+///Usage
+///-----
+//
+///Example 1: Close a File Descriptor
+/// - - - - - - - - - - - - - - - - -
+// Suppose we want to open a file and perform some I/O operations.  We use an
+// object of type &#39;bdls::FileDescriptorGuard&#39; to ensure this handle is closed
+// after the operations are complete.
+//
+// First, we create a name for our temporary file name and a few local
+// varriables.
+//..
+//  const bsl::string fileName = &quot;essay.txt&quot;;
+//  int rc;
+//..
+// Then, we open the file:
+//..
+//  Util::FileDescriptor fd = Util::open(fileName,
+//                                       Util::e_CREATE,
+//                                       Util::e_READ_WRITE);
+//  assert(Util::k_INVALID_FD != fd);
+//..
+// Next, we enter a lexical scope and create a guard object to manage &#39;fd&#39;:
+//..
+//  {
+//      bdls::FileDescriptorGuard guard(fd);
+//..
+// Then, we declare an essay we would like to write to the file:
+//..
+//      const char essay[] = {
+//                         &quot;If you can&#39;t annoy somebody, there is little\n&quot;
+//                         &quot;point in writing.\n&quot;
+//                         &quot;                Kingsley Amis\n&quot;
+//                         &quot;\n&quot;
+//                         &quot;It takes a lifetime to build a reputation, and\n&quot;
+//                         &quot;five minutes to lose it.\n&quot;
+//                         &quot;                Warren Buffet\n&quot;
+//                         &quot;\n&quot;
+//                         &quot;Originality is stubborn but not indestructible.\n&quot;
+//                         &quot;You can&#39;t tell it what to do, and if you try too\n&quot;
+//                         &quot;hard to steer it, you either chase it away or\n&quot;
+//                         &quot;murder it.\n&quot;
+//                         &quot;                Salman Khan\n&quot; };
+//..
+// Next, we write our essay to the file:
+//..
+//      rc = Util::write(fd, essay, sizeof(essay));
+//      assert(sizeof(essay) == rc);
+//..
+// Now, &#39;guard&#39; goes out of scope, and its destructor closes the file
+// descriptor.
+//..
+//  }
+//..
+// Finally, we observe that further attempts to access &#39;fd&#39; fail because the
+// descriptor has been closed:
+//..
+//  Util::Offset off = Util::seek(fd,
+//                                0,
+//                                Util::e_SEEK_FROM_BEGINNING);
+//  assert(-1 == off);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include &lt;bdls_filesystemutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdls {
+                         // ==========================
+                         // struct FileDescriptorGuard
+                         // ==========================
+
+struct FileDescriptorGuard {
+    // This class implements a guard that conditionally closes an open file
+    // descriptor upon its destruction.
+
+    // DATA
+    FilesystemUtil::FileDescriptor d_descriptor;    // handle for the
+                                                          // merged file
+
+  private:
+    // NOT IMPLEMENTED
+    FileDescriptorGuard(const FileDescriptorGuard&amp;);
+    FileDescriptorGuard&amp; operator=(const FileDescriptorGuard&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    FileDescriptorGuard(FilesystemUtil::FileDescriptor descriptor);
+        // Create a guard object that will manage the specified &#39;descriptor&#39;,
+        // closing it upon destruction (unless either &#39;realease&#39; or
+        // &#39;closeAndRelease&#39; has been called).  It is permissible for
+        // &#39;descriptor&#39; to be &#39;FilesystemUtil::k_INVALID_FD&#39;, in which case the
+        // guard created will not manage anything.
+
+    ~FileDescriptorGuard();
+        // If this guard object manages a file, close that file.
+
+    // MANIPULATORS
+    void closeAndRelease();
+        // Close the file managed by this guard and release that file from
+        // management by this object.  The behavior is undefined unless this
+        // object is managing a file.
+
+    FilesystemUtil::FileDescriptor release();
+        // Release the file from management by this object (without closing it)
+        // and return the formerly managed descriptor.  The behavior is
+        // undefined unless this object is managing a file.
+
+    // ACCESSORS
+    FilesystemUtil::FileDescriptor descriptor() const;
+        // If this guard is managing a file, return the file descriptor
+        // referring to that file, and return &#39;FilesystemUtil::k_INVALID_FD&#39;
+        // otherwise.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// CREATORS
+inline
+FileDescriptorGuard::FileDescriptorGuard(
+                               FilesystemUtil::FileDescriptor descriptor)
+: d_descriptor(descriptor)
+{
+}
+
+inline
+FileDescriptorGuard::~FileDescriptorGuard()
+{
+    if (FilesystemUtil::k_INVALID_FD != d_descriptor) {
+        closeAndRelease();
+    }
+}
+
+// MANIPULATORS
+inline
+FilesystemUtil::FileDescriptor FileDescriptorGuard::release()
+{
+    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_descriptor);
+
+    FilesystemUtil::FileDescriptor ret = d_descriptor;
+    d_descriptor = FilesystemUtil::k_INVALID_FD;
+
+    return ret;
+}
+
+// ACCESSORS
+inline
+FilesystemUtil::FileDescriptor FileDescriptorGuard::descriptor()
+                                                                          const
+{
+    return d_descriptor;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

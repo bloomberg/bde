@@ -1,0 +1,328 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_condition.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_CONDITION
+#define INCLUDED_BSLMT_CONDITION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a portable, efficient condition variable.
+//
+//@CLASSES:
+//  bslmt::Condition: portable intra-process signaling mechanism
+//
+//@SEE_ALSO: bslmt_mutex
+//
+//@DESCRIPTION: The &#39;bslmt::Condition&#39; class provided by this component
+// implements the concept of a *condition* *variable*, enabling multiple
+// threads to communicate information about the state of shared data.  A
+// condition variable is a signaling mechanism associated with a mutex, which
+// in turn protects a data invariant.  A condition variable enables threads to
+// wait for a predicate (i.e., logical expression) to become true, and to
+// communicate to other threads that the predicate might be true.
+//
+// One or more threads can wait efficiently on a condition variable, either
+// indefinitely or until some absolute time, by invoking one of the following
+// methods of &#39;bslmt::Condition&#39;:
+//..
+//  int wait(bslmt::Mutex *mutex);
+//  int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval&amp; absoluteTime);
+//..
+// The caller must lock the mutex before invoking these functions.  The
+// &#39;bslmt::Condition&#39; atomically releases the lock and waits, thereby
+// preventing other threads from changing the predicate after the lock is
+// released, but before the thread begins to wait.  The &#39;bslmt&#39; package
+// guarantees that this lock will be reacquired before returning from a call to
+// the &#39;wait&#39; and &#39;timedWait&#39; methods, unless an error occurs.
+//
+// When invoking the &#39;timedWait&#39; method, clients must specify a timeout after
+// which the call will return even if the condition is not signaled.  The
+// timeout is expressed as a &#39;bsls::TimeInterval&#39; object that holds the
+// absolute time according to the clock type the &#39;bslmt::Condition&#39; object is
+// constructed with (the default clock is &#39;bsls::SystemClockType::e_REALTIME&#39;).
+// Clients should use the &#39;bsls::SystemTime::now(clockType)&#39; utility method to
+// obtain the current time.
+//
+// Other threads can indicate that the predicate is true by signaling or
+// broadcasting the same &#39;bslmt::Condition&#39; object.  A broadcast wakes up all
+// waiting threads, whereas a signal wakes only one thread.  The client has no
+// control over which thread will be signaled if multiple threads are waiting:
+//..
+//  void signal();
+//  void broadcast();
+//..
+// A thread waiting on a condition variable may be signaled (i.e., the thread
+// may wake up without an error), but find that the predicate is still false.
+// This situation can arise for a few reasons: spurious wakeups produced by the
+// operating system, intercepted wakeups, and loose predicates.  Therefore, a
+// waiting thread should always check the predicate *after* (as well as before)
+// the call to the &#39;wait&#39; function.
+//
+///Supported Clock-Types
+///---------------------
+// The component &#39;bsls::SystemClockType&#39; supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_REALTIME&#39;, the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)&#39;.  If the
+// clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_MONOTONIC&#39;, the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)&#39;.
+//
+///Usage
+///-----
+// Suppose we have a &#39;bslmt::Condition&#39; object, &#39;condition&#39;, and a boolean
+// predicate associated with &#39;condition&#39; (represented here as a free function
+// that returns a &#39;bool&#39; value):
+//..
+//  bool predicate()
+//      // Return &#39;true&#39; if the invariant holds for &#39;condition&#39;, and &#39;false&#39;
+//      // otherwise.
+//  {
+//      return true;
+//  }
+//..
+// The following usage pattern should always be followed:
+//..
+//    // ...
+//
+//    bslmt::Condition condition;
+//    bslmt::Mutex     mutex;
+//
+//    mutex.lock();
+//    while (false == predicate()) {
+//        condition.wait(&amp;mutex);
+//    }
+//
+//    // Modify shared resources and adjust the predicate here.
+//
+//    mutex.unlock();
+//
+//    // ...
+//..
+// The usage pattern for a timed wait is similar, but has extra branches to
+// handle a timeout:
+//..
+//    // ...
+//
+//    enum { e_TIMED_OUT = -1 };
+//    bsls::TimeInterval timeout = bsls::SystemTime::nowRealtimeClock();
+//
+//    // Advance &#39;timeout&#39; to some delta into the future here.
+//
+//    mutex.lock();
+//    while (false == predicate()) {
+//        const int status = condition.timedWait(&amp;mutex, timeout);
+//        if (e_TIMED_OUT == status) {
+//            break;
+//        }
+//    }
+//
+//    if (false == predicate()) {
+//        // The wait timed out and &#39;predicate&#39; returned &#39;false&#39;.  Perform
+//        // timeout logic here.
+//
+//        // ...
+//    }
+//    else {
+//        // The condition variable was either signaled or timed out and
+//        // &#39;predicate&#39; returned &#39;true&#39;.  Modify shared resources and adjust
+//        // predicate here.
+//
+//        // ...
+//    }
+//    mutex.unlock();
+//
+//    // ...
+//..
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_PTHREAD
+#include &lt;bslmt_conditionimpl_pthread.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_CONDITIONIMPL_WIN32
+#include &lt;bslmt_conditionimpl_win32.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include &lt;bsls_systemclocktype.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class THREAD_POLICY&gt;
+class ConditionImpl;
+
+class Mutex;
+
+                             // ===============
+                             // class Condition
+                             // ===============
+
+class Condition {
+    // This &#39;class&#39; implements a portable inter-thread signaling primitive.
+
+    // DATA
+    ConditionImpl&lt;Platform::ThreadPolicy&gt; d_imp;  // platform-specific
+                                                  // implementation
+
+    // NOT IMPLEMENTED
+    Condition(const Condition&amp;);
+    Condition&amp; operator=(const Condition&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    Condition(
+    bsls::SystemClockType::Enum clockType = bsls::SystemClockType::e_REALTIME);
+        // Create a condition variable object.  Optionally specify a
+        // &#39;clockType&#39; indicating the type of the system clock against which
+        // the &#39;bsls::TimeInterval&#39; timeouts passed to the &#39;timedWait&#39; method
+        // are to be interpreted.  If &#39;clockType&#39; is not specified then the
+        // realtime system clock is used.
+
+    ~Condition();
+        // Destroy this condition variable object.
+
+    // MANIPULATORS
+    void broadcast();
+        // Signal this condition variable object by waking up *all* threads
+        // that are currently waiting on this condition.  If there are no
+        // threads waiting on this condition, this method has no effect.
+
+    void signal();
+        // Signal this condition variable object by waking up a single thread
+        // that is currently waiting on this condition.  If there are no
+        // threads waiting on this condition, this method has no effect.
+
+    int timedWait(Mutex *mutex, const bsls::TimeInterval&amp; absoluteTime);
+        // Atomically unlock the specified &#39;mutex&#39; and suspend execution of the
+        // current thread until this condition object is &quot;signaled&quot; (i.e., one
+        // of the &#39;signal&#39; or &#39;broadcast&#39; methods is invoked on this object) or
+        // until the specified &#39;timeout&#39;, then re-acquire a lock on the
+        // &#39;mutex&#39;.  The &#39;timeout&#39; is an absolute time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {&#39;Supported Clock-Types&#39;} in the component
+        // documentation).  Return 0 on success, -1 on timeout, and a non-zero
+        // value different from -1 if an error occurs.  The behavior is
+        // undefined unless &#39;mutex&#39; is locked by the calling thread prior to
+        // calling this method.  Note that &#39;mutex&#39; remains locked by the
+        // calling thread upon returning from this function with success or
+        // timeout, but is *not* guaranteed to remain locked otherwise.  Also
+        // note that spurious wakeups are rare but possible, i.e., this method
+        // may succeed (return 0) and return control to the thread without the
+        // condition object being signaled.
+
+    int wait(Mutex *mutex);
+        // Atomically unlock the specified &#39;mutex&#39; and suspend execution of the
+        // current thread until this condition object is &quot;signaled&quot; (i.e.,
+        // either &#39;signal&#39; or &#39;broadcast&#39; is invoked on this object in another
+        // thread), then re-acquire a lock on the &#39;mutex&#39;.  Return 0 on
+        // success, and a non-zero value otherwise.  Spurious wakeups are rare
+        // but possible; i.e., this method may succeed (return 0), and return
+        // control to the thread without the condition object being signaled.
+        // The behavior is undefined unless &#39;mutex&#39; is locked by the calling
+        // thread prior to calling this method.  Note that &#39;mutex&#39; remains
+        // locked by the calling thread upon successfully returning from this
+        // function, but is *not* guaranteed to remain locked if an error
+        // occurs.
+};
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                             // ---------------
+                             // class Condition
+                             // ---------------
+
+// CREATORS
+inline
+bslmt::Condition::Condition(bsls::SystemClockType::Enum clockType)
+: d_imp(clockType)
+{
+}
+
+inline
+bslmt::Condition::~Condition()
+{
+}
+
+// MANIPULATORS
+inline
+void bslmt::Condition::broadcast()
+{
+    d_imp.broadcast();
+}
+
+inline
+void bslmt::Condition::signal()
+{
+    d_imp.signal();
+}
+
+inline
+int bslmt::Condition::timedWait(Mutex                     *mutex,
+                                const bsls::TimeInterval&amp;  absoluteTime)
+{
+    return d_imp.timedWait(mutex, absoluteTime);
+}
+
+inline
+int bslmt::Condition::wait(Mutex *mutex)
+{
+    return d_imp.wait(mutex);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

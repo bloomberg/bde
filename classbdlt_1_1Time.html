@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdlt::Time</title>
+<title>BDE 3.0: Class bdlt::Time</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -125,7 +125,7 @@ Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Time.html#aec06c83f9a2dec47058200e7d8c1012e">operator&gt;</a> (const <a class="el" href="classbdlt_1_1Time.html">Time</a> &amp;, const <a class="el" href="classbdlt_1_1Time.html">Time</a> &amp;)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>This class implements a value semantic type that represents the time of day to a resolution of one millisecond. Each object of this (almost) simply constrained attribute class <em>always</em> represents a valid time value to a resolution of one millisecond. The valid range for times is 00:00:00.000 through 23:59:59.999, except that 24:00:00.000 represents the default-constructed value. The value 24:00:00.000 behaves, in most cases, as if it were the value 00:00:00.000; however for all relational comparison operators, 24:00:00.000 is not a valid argument and, therefore, would result in undefined behavior. Each add operation on a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object will return the (signed) number of times that the 23:59:59.999 - 00:00:00.000 boundary was crossed while performing the operation. Attempting to construct a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> with any attribute outside its valid range (or with an hour attribute value of 24, and any other attribute non-zero) will result in undefined behavior. </p>
+<p>This class implements a value-semantic type that represents the time of day to a resolution of one millisecond. Each object of this (almost) simply constrained attribute class <em>always</em> represents a valid time value to a resolution of one millisecond. The valid range for times is 00:00:00.000 through 23:59:59.999, except that 24:00:00.000 represents the default-constructed value. The value 24:00:00.000 behaves, in most cases, as if it were the value 00:00:00.000; however for all relational comparison operators, 24:00:00.000 is not a valid argument and, therefore, would result in undefined behavior. Each add operation on a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> object will return the (signed) number of times that the 23:59:59.999 - 00:00:00.000 boundary was crossed while performing the operation. Attempting to construct a <code><a class="el" href="classbdlt_1_1Time.html">Time</a></code> with any attribute outside its valid range (or with an hour attribute value of 24, and any other attribute non-zero) will result in undefined behavior. </p>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a90b13c48a6dfc1d636e43992c2eb4f89"></a><!-- doxytag: member="bdlt::Time::Time" ref="a90b13c48a6dfc1d636e43992c2eb4f89" args="()" -->
 <div class="memitem">
@@ -1037,7 +1037,7 @@ template&lt;class STREAM &gt; </div>
 <li><a class="el" href="bdlt__time_8h_source.html">bdlt_time.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:27 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

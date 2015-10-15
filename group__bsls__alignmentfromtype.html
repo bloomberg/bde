@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_alignmentfromtype Component</title>
+<title>BDE 3.0: bsls_alignmentfromtype Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -85,9 +85,9 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.3">Usage</a> <ul>
 <li>
-<a href="#3.3.1">Usage Example 1</a> </li>
+<a href="#3.3.1">Example 1: Creating a Static "Database" of Types</a> </li>
 <li>
-<a href="#3.3.2">Usage Example 2</a> </li>
+<a href="#3.3.2">Example 2: Creating an Aligned Buffer</a> </li>
 </ul>
 </li>
 </ul>
@@ -126,9 +126,10 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section illustrates intended use of this component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_1"></a> <a class="anchor" id="usage.usage_example_1"></a> <a class="anchor" id="description.usage.usage_example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 1: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_a_static_~22database~22_of_types"></a> <a class="anchor" id="usage.example_1~3A_creating_a_static_~22database~22_of_types"></a> <a class="anchor" id="description.usage.example_1~3A_creating_a_static_~22database~22_of_types"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Creating a Static "Database" of Types: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following shows how <code><a class="el" href="structbsls_1_1AlignmentFromType.html">bsls::AlignmentFromType</a>&lt;T&gt;VALUE</code> can be used to create a static "database" of types storing their size and required alignment. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This information can be populated into an array of <code>my_ElemAttr</code> elements below: <br/>
 <br/>
@@ -149,8 +150,9 @@ Namespaces</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_example_2"></a> <a class="anchor" id="usage.usage_example_2"></a> <a class="anchor" id="description.usage.usage_example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Example 2: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_creating_an_aligned_buffer"></a> <a class="anchor" id="usage.example_2~3A_creating_an_aligned_buffer"></a> <a class="anchor" id="description.usage.example_2~3A_creating_an_aligned_buffer"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Creating an Aligned Buffer: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Consider a parameterized type, <code>my_AlignedBuffer</code>, that provides aligned memory to store a user-defined type. A <code>my_AlignedBuffer</code> object is useful in situations where efficient (e.g., stack-based) storage is required. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code>my_AlignedBuffer</code> <code>union</code> (defined below) takes a template parameter <code>TYPE</code>, and provides an appropriately sized and aligned block of memory via the <code>buffer</code> functions. Note that <code>my_AlignedBuffer</code> ensures that the returned memory is aligned correctly for the specified size by using <code><a class="el" href="structbsls_1_1AlignmentFromType.html">bsls::AlignmentFromType</a>&lt;TYPE&gt;Type</code>, which provides a primitive type having the same alignment requirement as <code>TYPE</code>. The class definition of <code>my_AlignedBuffer</code> is as follows: <br/>
 <br/>
@@ -301,7 +303,7 @@ Namespaces</h2></td></tr>
   Response::~Response()
   {
       <span class="keywordflow">if</span> (d_isError) {
-          <span class="keyword">typedef</span> <span class="keywordtype">string</span> Type;
+          <span class="keyword">typedef</span> <span class="keywordtype">string</span> <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;
           d_errorMessage.object().~Type();
       }
   }
@@ -370,7 +372,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,0 +1,368 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_arrayiterators.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_ARRAYITERATORS
+#define INCLUDED_BDLAT_ARRAYITERATORS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide iterator support for bdlat_ArrayFunction-conformant types.
+//
+//@CLASSES:
+//   bdlat_ArrayIterators::BackInsertIterator: class for appending to arrays
+//
+//@SEE_ALSO: bdlat_arrayfunctions
+//
+//@DESCRIPTION: This component provides a namespace &#39;bdlat_ArrayIterators&#39; that
+// contains definitions for the &#39;bdlat_ArrayIterators::BackInsertIterator&#39;
+// class template and the &#39;backInserter&#39; convenience function.  Additional
+// iterator types may be added in the future.
+//
+// &#39;BackInsertIterator&lt;ARRAY_TYPE&gt;&#39; is an iterator type which, when used in an
+// expression like &quot;*i++ = v&quot;, appends the value &#39;v&#39; to the end of the
+// &#39;ARRAY_TYPE&#39; object used to construct the iterator, &#39;i&#39;.  It meets the
+// requirements of an STL output iterator and it can be instantiated for any
+// type that meets the requirements described in &#39;bdlat_arrayfunctions&#39;.
+// &#39;BackInsertIterator&#39; is similar to the standard &#39;bsl::back_insert_iterator&#39;
+// class template, which works for STL sequence containers.
+//
+// The &#39;backInserter&#39; function template takes a parameter of type
+// pointer-to-&#39;ARRAY_TYPE&#39;, where &#39;ARRAY_TYPE&#39; is a type that conforms to the
+// interface described in the &#39;bdlat_arrayfunctions&#39; component, and returns an
+// object of type &#39;BackInsertIterator&lt;ARRAY_TYPE&gt;&#39;.  It is a convenience
+// function for creating a &#39;BackInsertIterator&#39; without declaring its exact
+// type.  The &#39;backInserter&#39; function is similar to the standard
+// &#39;bsl::back_inserter&#39; template function, which works for STL sequence
+// containers.  In fact, &#39;backInserter&#39; is specialized for &#39;bsl::vector&#39; so
+// that it returns an &#39;bsl::back_insert_iterator&#39;, just like
+// &#39;bsl::back_inserter&#39; does.
+//
+///Thread Safety
+///-------------
+// A &#39;BackInsertIterator&#39; contains a pointer to an array object and multiple
+// &#39;backInsertIterator&#39; objects may point to the same array object.  It is
+// safe to access or modify two &#39;BackInsertIterator&#39; objects simultaneously,
+// each from a separate thread, if they each refer to a different array
+// object.  It is safe to access a single &#39;BackInsertIterator&#39; object
+// simultaneously from two or more separate threads, provided no other thread
+// is simultaneously modifying the iterator or its referenced array.  It is
+// not safe to access or modify a &#39;BackInsertIterator&#39; object in one thread
+// while another thread modifies the same iterator, its referenced array
+// object, or another iterator referring to the same array.
+//
+///Usage
+///-----
+// To use the facilities in this component, you must of course include the
+// header file:
+//..
+//  #include &lt;bdlat_arrayiterators.h&gt;
+//..
+// The main use of the facilities in this component is for creating generic
+// algorithms.  The following generic function appends a few integers to the
+// end of an object of type &#39;ARRAY&#39; that adheres to the &#39;bdlat_ArrayFunctions&#39;
+// interface.  It starts by creating a &#39;BackInsertIterator&#39;:
+//..
+//  template &lt;typename ARRAY&gt;
+//  void appendSome(ARRAY *arrayObj)
+//  {
+//      bdlat_ArrayIterators::BackInsertIterator&lt;ARRAY&gt; it(arrayObj);
+//..
+// Now, using the &quot;*i++ = v&quot; idiom, append the numbers 5 and 4 to the array
+// object:
+//..
+//      *it++ = 5;
+//      *it++ = 4;
+//..
+// Alternatively, one can use the iterator in a standard algorithm.  For
+// example, the following code appends the numbers 3, 2, and 1 to the array
+// object:
+//..
+//      const int VALUES[] = { 3, 2, 1 };
+//      const int NUM_VALUES = sizeof(VALUES) / sizeof(VALUES[0]);
+//      bsl::copy(VALUES, VALUES + NUM_VALUES, it);
+//  }
+//..
+// An alternative implementation of &#39;appendSome&#39; would use &#39;backInserter&#39; to
+// create an iterator without declaring its exact type.  Note that, in this
+// case, we do not create a variable &#39;it&#39;, but simply pass the iterator to a
+// standard algorithm:
+//..
+//  template &lt;typename ARRAY&gt;
+//  void appendSome2(ARRAY *arrayObj)
+//  {
+//      const int VALUES[] = { 5, 4, 3, 2, 1 };
+//      const int NUM_VALUES = sizeof(VALUES) / sizeof(VALUES[0]);
+//      bsl::copy(VALUES, VALUES + NUM_VALUES,
+//                bdlat_ArrayIterators::backInserter(arrayObj));
+//  }
+//..
+// In our main program, we need to construct an array that adheres to the
+// &#39;bdlat_arrayfunctions&#39; interface:
+//..
+//  #include &lt;vector&gt;
+//
+//  int main()
+//  {
+//      typedef bsl::vector&lt;int&gt; my_IntArrayType;
+//..
+// The result of calling &#39;appendSome&#39; is that the elements 5, 4, 3, 2 and 1
+// are appended to the array:
+//..
+//      my_IntArrayType array1;
+//      appendSome(&amp;array1);
+//      assert(5 == array1[0]);
+//      assert(4 == array1[1]);
+//      assert(3 == array1[2]);
+//      assert(2 == array1[3]);
+//      assert(1 == array1[4]);
+//..
+// The result of calling &#39;appendSome2&#39; is the same:
+//..
+//      my_IntArrayType array2;
+//      appendSome2(&amp;array2);
+//      assert(array2 == array1);
+//
+//      return 0;
+//  }
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
+#include &lt;bdlat_arrayfunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
+#include &lt;bdlat_valuetypefunctions.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include &lt;bsl_iterator.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+                        // ==============================
+                        // namespace bdlat_ArrayIterators
+                        // ==============================
+
+namespace bdlat_ArrayIterators {
+
+                          // ========================
+                          // class BackInsertIterator
+                          // ========================
+
+template &lt;class TYPE&gt;
+class BackInsertIterator
+        : public bsl::iterator&lt;
+                        bsl::output_iterator_tag,
+                        typename bdlat_ArrayFunctions::ElementType&lt;TYPE&gt;::Type,
+                        void, void, void&gt; {
+    // TBD doc
+
+  public:
+    // TYPES
+    typedef typename bdlat_ArrayFunctions::ElementType&lt;TYPE&gt;::Type value_type;
+
+  private:
+    // Random-access iterator for any type that meets the requirements of a
+    // &#39;bdlat&#39; array type.
+    TYPE* d_array;
+
+    template &lt;class ELEM_TYPE&gt;
+    struct ValueSetter {
+        // Manipulator to set the value of a newly-inserted element.
+        const ELEM_TYPE *d_value;
+
+      public:
+        ValueSetter(const ELEM_TYPE* value) : d_value(value) { }
+        int operator()(value_type* element) {
+            bdlat_ValueTypeFunctions::assign(element, *d_value);
+            return 0;
+        }
+    };
+
+  public:
+    // CREATORS
+    BackInsertIterator(TYPE* array);
+        // Construct a back-insertion iterator to manipulate the specified
+        // &#39;array&#39;.
+
+#ifdef DOXYGEN // Compiler-generated functions:
+    BackInsertIterator(const BackInsertIterator&amp; other);
+        // Construct a copy of the specified &#39;other&#39;.
+
+    ~BackInsertIterator();
+        // Destroy this iterator
+#endif
+
+    // MANIPULATORS
+    BackInsertIterator&amp; operator=(const BackInsertIterator&amp; rhs);
+        // Assign this iterator the value of the specified &#39;rhs&#39;.
+
+    template &lt;class ELEM_TYPE&gt;
+    BackInsertIterator&amp; operator=(const ELEM_TYPE&amp; obj);
+        // Append the specified &#39;obj&#39; to the end of the array manipulated by
+        // this iterator and return this iterator.
+
+    BackInsertIterator&amp; operator*();
+        // Do nothing and return a reference to this modifiable iterator.  This
+        // function is used in generic algorithms that use the expression
+        // &#39;*i++ = v&#39; or &#39;*++i = v&#39;.
+
+    BackInsertIterator&amp; operator++();
+        // Do nothing and return a reference to this modifiable iterator.  This
+        // function is used in generic algorithms that use the expression
+        // &#39;*++i = v&#39;
+
+    BackInsertIterator operator++(int);
+        // Do nothing and return a copy of this iterator.  This function is
+        // used in generic algorithms that use the expression &#39;*i++ = v&#39;
+};
+
+template &lt;class TYPE&gt;
+BackInsertIterator&lt;TYPE&gt; backInserter(TYPE *array);
+    // Return a &#39;BackInsertIterator&#39; (of the appropriate type) to manipulate
+    // the specified &#39;array&#39;.  Specializations of this function might return a
+    // different back-inserter type.
+
+template &lt;class TYPE, class ALLOC&gt;
+typename bsl::back_insert_iterator&lt;bsl::vector&lt;TYPE, ALLOC&gt; &gt;
+backInserter(bsl::vector&lt;TYPE, ALLOC&gt; *array);
+    // Specialization of &#39;backInserter&#39; for &#39;bsl::vector&#39;.  Return
+    // &#39;bsl::back_insert_iterator instead of &#39;BackInsertIterator&#39;.
+
+}  // close namespace bdlat_ArrayIterators
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                   // ------------------------------
+                   // namespace bdlat_ArrayIterators
+                   // ------------------------------
+
+                          // ------------------------
+                          // class BackInsertIterator
+                          // ------------------------
+
+// CREATORS
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::BackInsertIterator(TYPE* array)
+    : d_array(array)
+{
+}
+
+// MANIPULATORS
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;&amp;
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::operator=(
+    const BackInsertIterator&amp; rhs)
+{
+    d_array = rhs.d_array;
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+template &lt;class ELEM_TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;&amp;
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::operator=(const ELEM_TYPE&amp; obj)
+{
+    const int length = static_cast&lt;int&gt;(bdlat_ArrayFunctions::size(*d_array));
+    bdlat_ArrayFunctions::resize(d_array, length + 1);
+    ValueSetter&lt;ELEM_TYPE&gt; setter(&amp;obj);
+    bdlat_ArrayFunctions::manipulateElement(d_array, setter, length);
+
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;&amp;
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::operator*()
+{
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;&amp;
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::operator++()
+{
+    return *this;
+}
+
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;::operator++(int)
+{
+    return *this;
+}
+
+                       // -------------------------
+                       // namespace-level functions
+                       // -------------------------
+
+template &lt;class TYPE&gt;
+inline
+bdlat_ArrayIterators::BackInsertIterator&lt;TYPE&gt;
+bdlat_ArrayIterators::backInserter(TYPE *array)
+{
+    return BackInsertIterator&lt;TYPE&gt;(array);
+}
+
+template &lt;class TYPE, class ALLOC&gt;
+inline
+typename bsl::back_insert_iterator&lt;bsl::vector&lt;TYPE, ALLOC&gt; &gt;
+bdlat_ArrayIterators::backInserter(bsl::vector&lt;TYPE, ALLOC&gt; *array)
+{
+    return bsl::back_insert_iterator&lt;bsl::vector&lt;TYPE, ALLOC&gt; &gt;(*array);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

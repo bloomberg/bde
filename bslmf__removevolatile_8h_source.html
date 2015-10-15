@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_removevolatile.h                                             -*-C++-*-
@@ -59,6 +59,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_STDDEF_H
 #include &lt;stddef.h&gt;
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace bsl {
@@ -152,8 +153,43 @@ struct remove_volatile&lt;volatile TYPE[]&gt; {
         // This &#39;typedef&#39; is an alias to the same type as the (template
         // parameter) &#39;TYPE[]&#39; except with the &#39;volatile&#39;-qualifier removed.
 };
-#endif
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+// The Microsoft compiler does not recognize array-types as cv-qualified when
+// the element type is cv-qualified when performing matching for partial
+// template specialization, but does get the correct result when performing
+// overload resolution for functions (taking arrays by reference).  Given the
+// function dispatch behavior being correct, we choose to work around this
+// compiler bug, rather than try to report compiler behavior, as the compiler
+// itself is inconsistent depending on how the trait might be used.  This also
+// corresponds to how Microsoft itself implements the trait in VC2010 and
+// later.  Last tested against VC 2015 (Release Candidate).
 
+template &lt;class TYPE&gt;
+struct remove_volatile&lt;TYPE[]&gt; {
+     // This partial specialization of &#39;bsl::remove_volatile&#39;, for when the
+     // (template parameter) &#39;TYPE&#39; is an array type.  On Microsoft compilers,
+     // it is necessary to separately &#39;remove_volatile&#39; on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile&lt;TYPE&gt;::type type[];
+        // This &#39;typedef&#39; is an alias to the same type as the (template
+        // parameter) &#39;TYPE[]&#39; except with the &#39;volatile&#39;-qualifier removed.
+};
+
+template &lt;class TYPE, size_t LENGTH&gt;
+struct remove_volatile&lt;TYPE[LENGTH]&gt; {
+     // This partial specialization of &#39;bsl::remove_volatile&#39;, for when the
+     // (template parameter) &#39;TYPE&#39; is an array type.  On Microsoft compilers,
+     // it is necessary to separately &#39;remove_volatile&#39; on the element type,
+     // and then reconstruct the array dimensions.
+
+    // PUBLIC TYPES
+    typedef typename remove_volatile&lt;TYPE&gt;::type type[LENGTH];
+        // This &#39;typedef&#39; is an alias to the same type as the (template
+        // parameter) &#39;TYPE[N]&#39; except with the &#39;volatile&#39;-qualifier removed.
+};
+#endif
 }  // close namespace bsl
 
 #endif

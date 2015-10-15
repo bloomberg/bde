@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bsls::AlignmentUtil</title>
+<title>BDE 3.0: Struct bsls::AlignmentUtil</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -85,10 +85,10 @@ Classes</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">union &nbsp;</td><td class="memItemRight" valign="bottom"><b>MaxAlignedUnion</b></td></tr>
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbsls_1_1AlignmentUtil.html#aab13e853fd9dea2815d49d227ff9c502a74bef72781f251014a813e406edabedb">BSLS_MAX_ALIGNMENT</a> =  AlignmentFromType&lt;MaxAlignedUnion&gt;::VALUE
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">BSLS_MAX_ALIGNMENT</a> =  AlignmentFromType&lt;MaxAlignedUnion&gt;::VALUE
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbsls_1_1AlignmentToType.html">AlignmentToType</a><br class="typebreak"/>
-&lt; BSLS_MAX_ALIGNMENT &gt;::Type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AlignmentUtil.html#a8e9ba3fe648c80e5b29ae2d0920b61c8">MaxAlignedType</a></td></tr>
+&lt; BSLS_MAX_ALIGNMENT &gt;::<a class="el" href="classBind__ImplSelector_1_1Type.html">Type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AlignmentUtil.html#a8e9ba3fe648c80e5b29ae2d0920b61c8">MaxAlignedType</a></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsls_1_1AlignmentUtil.html#a22499d10c8827af367d52693472ca491">calculateAlignmentFromSize</a> (std::size_t size)</td></tr>
@@ -109,7 +109,7 @@ Friends</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="structbsls_1_1AlignmentToType.html">AlignmentToType</a>&lt;BSLS_MAX_ALIGNMENT&gt;::Type <a class="el" href="structbsls_1_1AlignmentUtil.html#a8e9ba3fe648c80e5b29ae2d0920b61c8">bsls::AlignmentUtil::MaxAlignedType</a></td>
+          <td class="memname">typedef <a class="el" href="structbsls_1_1AlignmentToType.html">AlignmentToType</a>&lt;BSLS_MAX_ALIGNMENT&gt;::<a class="el" href="classBind__ImplSelector_1_1Type.html">Type</a> <a class="el" href="structbsls_1_1AlignmentUtil.html#a8e9ba3fe648c80e5b29ae2d0920b61c8">bsls::AlignmentUtil::MaxAlignedType</a></td>
         </tr>
       </table>
 </div>
@@ -118,7 +118,7 @@ Friends</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Member Enumeration Documentation</h2>
-<a class="anchor" id="aab13e853fd9dea2815d49d227ff9c502"></a><!-- doxytag: member="bsls::AlignmentUtil::@162" ref="aab13e853fd9dea2815d49d227ff9c502" args="" -->
+<a class="anchor" id="a6b75b476a8862e9508d03ed9c217bb69"></a><!-- doxytag: member="bsls::AlignmentUtil::@384" ref="a6b75b476a8862e9508d03ed9c217bb69" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -130,7 +130,7 @@ Friends</h2></td></tr>
 <div class="memdoc">
 <p>Define the minimal value that satisfies the alignment requirements for all types. </p>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="aab13e853fd9dea2815d49d227ff9c502a74bef72781f251014a813e406edabedb"></a><!-- doxytag: member="BSLS_MAX_ALIGNMENT" ref="aab13e853fd9dea2815d49d227ff9c502a74bef72781f251014a813e406edabedb" args="" -->BSLS_MAX_ALIGNMENT</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb"></a><!-- doxytag: member="BSLS_MAX_ALIGNMENT" ref="a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb" args="" -->BSLS_MAX_ALIGNMENT</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -269,7 +269,7 @@ The architecture and our compiler settings may result in unexpectedly lenient al
 <br/>
 </p>
 <div class="fragment"><pre class="fragment">          size &lt;= std::numeric_limits&lt;std::size_t&gt;::max()
-                  - <a class="code" href="structbsls_1_1AlignmentUtil.html#aab13e853fd9dea2815d49d227ff9c502a74bef72781f251014a813e406edabedb">BSLS_MAX_ALIGNMENT</a> + 1
+                  - <a class="code" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">BSLS_MAX_ALIGNMENT</a> + 1
 </pre></div><p><br/>
 <br/>
  </p>
@@ -294,7 +294,7 @@ The architecture and our compiler settings may result in unexpectedly lenient al
 <li><a class="el" href="bsls__alignmentutil_8h_source.html">bsls_alignmentutil.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:43 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:10 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

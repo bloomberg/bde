@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_nil Component</title>
+<title>BDE 3.0: bslmf_nil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -111,36 +111,36 @@ Namespaces</h2></td></tr>
             <span class="keyword">class </span>TRUE_TYPE = <a class="code" href="structbslmf_1_1Nil.html">bslmf::Nil</a>,
             <span class="keyword">class </span>FALSE_TYPE = <a class="code" href="structbslmf_1_1Nil.html">bslmf::Nil</a>&gt;
   <span class="keyword">struct </span>my_If {
-      <span class="keyword">typedef</span> TRUE_TYPE Type;
+      <span class="keyword">typedef</span> TRUE_TYPE <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;
   };
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TRUE_TYPE, <span class="keyword">class</span> FALSE_TYPE&gt;
   <span class="keyword">struct </span>my_If&lt;0, TRUE_TYPE, FALSE_TYPE&gt; {
-      <span class="keyword">typedef</span> FALSE_TYPE Type;
+      <span class="keyword">typedef</span> FALSE_TYPE <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;
   };
 </pre></div><br/>
 <br/>
  Next, we can use the <code>my_If</code> meta-function to implement a print function that checks whether a type has a print method (using a fictitious meta-function <code>my_IsPrintable</code>), and print the value. Note the use of <code><a class="el" href="structbslmf_1_1Nil.html">bslmf::Nil</a></code> as the type for overloading: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> print(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span>)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span>)
   {
       bsl::cout &lt;&lt; value &lt;&lt; bsl::endl;
   }
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> print(<span class="keyword">const</span> TYPE&amp;, <a class="code" href="structbslmf_1_1Nil.html">bslmf::Nil</a>)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(<span class="keyword">const</span> TYPE&amp;, <a class="code" href="structbslmf_1_1Nil.html">bslmf::Nil</a>)
   {
       bsl::cout &lt;&lt; <span class="stringliteral">&quot;Cannot be printed.&quot;</span> &lt;&lt; bsl::endl;
   }
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> print(<span class="keyword">const</span> TYPE&amp; value)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(<span class="keyword">const</span> TYPE&amp; value)
   {
-      my_If&lt;my_IsPrintable&lt;TYPE&gt;::value, <span class="keywordtype">int</span>&gt;::Type Type;  <span class="comment">// default false</span>
+      my_If&lt;my_IsPrintable&lt;TYPE&gt;::value, <span class="keywordtype">int</span>&gt;<a class="code" href="classBind__ImplSelector_1_1Type.html">::Type</a> <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>;  <span class="comment">// default false</span>
                                                            <span class="comment">// type is</span>
                                                            <span class="comment">// &#39;bslmf::Nil&#39;.</span>
-      print(value, Type());
+      <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(value, Type());
   }
 </pre></div><br/>
 <br/>
@@ -165,7 +165,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

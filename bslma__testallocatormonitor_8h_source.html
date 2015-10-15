@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslma_testallocatormonitor.h                                       -*-C++-*-
@@ -174,7 +174,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:
 //: 3 No accessor allocates any memory.
 //:
-//: 4 All memory allocation is exception neutral.
+//: 4 All memory allocation is exception-neutral.
 //:
 //: 5 QoI: The default constructor allocates no memory.
 //:
@@ -216,7 +216,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //:     Confirm that the attribute was set and that memory was allocated.
 //:
 //:   3 Confirm the the primary manipulator (the &#39;setDescription&#39; method) is
-//:     exception neutral (i.e., exceptions from the allocator are propagated
+//:     exception-neutral (i.e., exceptions from the allocator are propagated
 //:     and no memory is leaked).  Use the
 //:     &#39;BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*&#39; macros to manage the test,
 //:     and use the test allocator monitor to confirm that memory is allocated

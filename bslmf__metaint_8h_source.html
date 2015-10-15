@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_metaint.h                                                    -*-C++-*-
@@ -79,8 +79,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return 0;
 //  }
 //..
-///Example 2: Reading the &#39;VALUE&#39; member
-/// - - - - - - - - - - - - - - - - - -
+//
+///Example 2: Reading the &#39;VALUE&#39; Member
+///- - - - - - - - - - - - - - - - - - -
 // In addition to forming new types, the value of the integral parameter to
 // &#39;MetaInt&#39; is &quot;saved&quot; in the enum member &#39;VALUE&#39;, and is accessible for use
 // in compile-time or run-time operations.
@@ -253,9 +254,9 @@ struct MetaInt&lt;1&gt; : public bsl::true_type {
     // expression, &#39;expr&#39;, is not evaluated at run-time.
 
 
-// ===========================================================================
+// ============================================================================
 //                            INLINE FUNCTIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 template &lt;int INT_VALUE&gt;

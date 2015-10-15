@@ -1,0 +1,237 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bslmt_timedsemaphoreimpl_posixadv.h                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
+#define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide &quot;advanced&quot; POSIX implementation of &#39;bslmt::TimedSemaphore&#39;.
+//
+//@CLASSES:
+//  bslmt::TimedSemaphoreImpl&lt;PosixAdvTimedSemaphore&gt;: POSIXa specialization
+//
+//@SEE_ALSO: bslmt_timedsemaphore
+//
+//@DESCRIPTION: This component provides an implementation of
+// &#39;bslmt::TimedSemaphore&#39;,
+// &#39;bslmt::TimedSemaphoreImpl&lt;PosixAdvTimedSemaphore&gt;&#39;, for conforming POSIX
+// platforms via the template specialization:
+//..
+//  bslmt::TimedSemaphoreImpl&lt;Platform::PosixAdvTimedSemaphore&gt;
+//..
+// This template class should not be used (directly) by client code.  Clients
+// should instead use &#39;bslmt::TimedSemaphore&#39;.
+//
+// This implementation of &#39;bslmt::TimedSemaphore&#39; is preferred over that
+// defined in &#39;bslmt_timedsemaphoreimpl_pthread&#39; on platforms that support
+// advanced realtime POSIX extensions (e.g., &#39;sem_timedwait&#39;).
+//
+///Supported Clock-Types
+///---------------------
+// The component &#39;bsls::SystemClockType&#39; supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_REALTIME&#39;, the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)&#39;.  If the
+// clock type indicated at construction is
+// &#39;bsls::SystemClockType::e_MONOTONIC&#39;, the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in &#39;bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)&#39;.
+//
+///Usage
+///-----
+// This component is an implementation detail of &#39;bslmt&#39; and is *not* intended
+// for direct client use.  It is subject to change without notice.  As such, a
+// usage example is not provided.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include &lt;bslscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_PLATFORM
+#include &lt;bslmt_platform.h&gt;
+#endif
+
+#ifdef BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
+
+// Platform-specific implementation starts here.
+
+#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
+#include &lt;bsls_systemclocktype.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_SEMAPHORE
+#include &lt;semaphore.h&gt;
+#define INCLUDED_SEMAPHORE
+#endif
+
+namespace BloombergLP {
+namespace bslmt {
+
+template &lt;class TIMED_SEMAPHORE_POLICY&gt;
+class TimedSemaphoreImpl;
+
+             // ================================================
+             // class TimedSemaphoreImpl&lt;PosixAdvTimedSemaphore&gt;
+             // ================================================
+
+template &lt;&gt;
+class TimedSemaphoreImpl&lt;Platform::PosixAdvTimedSemaphore&gt; {
+    // This class implements a timed semaphore in terms of POSIX operations.
+    // Note that only certain platforms provide &#39;sem_timedwait&#39;; on those that
+    // do not, &#39;TimedSemaphoreImpl&lt;PthreadTimedSemaphore&gt;&#39; is used.
+
+    // DATA
+    sem_t                       d_sem;        // POSIX timed semaphore
+
+    bsls::SystemClockType::Enum d_clockType;  // clock type used for timeout in
+                                              // &#39;timedWait&#39;
+
+    // NOT IMPLEMENTED
+    TimedSemaphoreImpl(const TimedSemaphoreImpl&amp;);
+    TimedSemaphoreImpl&amp; operator=(const TimedSemaphoreImpl&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType
+                                          = bsls::SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having a count of 0.  Optionally
+        // specify a &#39;clockType&#39; indicating the type of the system clock
+        // against which the &#39;bsls::TimeInterval&#39; timeouts passed to the
+        // &#39;timedWait&#39; method are to be interpreted.  If &#39;clockType&#39; is not
+        // specified then the realtime system clock is used.
+
+    explicit
+    TimedSemaphoreImpl(int                         count,
+                       bsls::SystemClockType::Enum clockType
+                                          = bsls::SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having the specified &#39;count&#39;.
+        // Optionally specify a &#39;clockType&#39; indicating the type of the system
+        // clock against which the &#39;bsls::TimeInterval&#39; timeouts passed to the
+        // &#39;timedWait&#39; method are to be interpreted.  If &#39;clockType&#39; is not
+        // specified then the realtime system clock is used.
+
+    ~TimedSemaphoreImpl();
+        // Destroy this semaphore object.
+
+    // MANIPULATORS
+    void post();
+        // Atomically increment the count of the semaphore.
+
+    void post(int number);
+        // Atomically increment the count by the specified &#39;number&#39; of the
+        // semaphore.  The behavior is undefined unless &#39;number&#39; is a positive
+        // value.
+
+    int timedWait(const bsls::TimeInterval&amp; timeout);
+        // Block until the count of this semaphore is a positive value, or
+        // until the specified &#39;timeout&#39; expires.  The &#39;timeout&#39; is an absolute
+        // time represented as an interval from some epoch, which is determined
+        // by the clock indicated at construction (see {&#39;Supported
+        // Clock-Types&#39;} in the component documentation).  If the &#39;timeout&#39; did
+        // not expire before the count attained a positive value, atomically
+        // decrement the count and return 0; otherwise, return a non-zero value
+        // with no effect on the count.
+
+    int tryWait();
+        // Decrement the count of this semaphore if it is positive and return
+        // 0.  Return a non-zero value otherwise.
+
+    void wait();
+        // Block until the count is a positive value and atomically decrement
+        // it.
+};
+
+}  // close package namespace
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+             // ------------------------------------------------
+             // class TimedSemaphoreImpl&lt;PosixAdvTimedSemaphore&gt;
+             // ------------------------------------------------
+
+// CREATORS
+inline
+bslmt::TimedSemaphoreImpl&lt;bslmt::Platform::PosixAdvTimedSemaphore&gt;::
+    TimedSemaphoreImpl(bsls::SystemClockType::Enum clockType)
+: d_clockType(clockType)
+{
+    ::sem_init(&amp;d_sem, 0, 0);
+}
+
+inline
+bslmt::TimedSemaphoreImpl&lt;bslmt::Platform::PosixAdvTimedSemaphore&gt;::
+    TimedSemaphoreImpl(int count, bsls::SystemClockType::Enum clockType)
+: d_clockType(clockType)
+{
+    ::sem_init(&amp;d_sem, 0, count);
+}
+
+inline
+bslmt::TimedSemaphoreImpl&lt;bslmt::Platform::PosixAdvTimedSemaphore&gt;::
+    ~TimedSemaphoreImpl()
+{
+    ::sem_destroy(&amp;d_sem);
+}
+
+// MANIPULATORS
+inline
+void bslmt::TimedSemaphoreImpl&lt;bslmt::Platform::PosixAdvTimedSemaphore&gt;::post()
+{
+    ::sem_post(&amp;d_sem);
+}
+
+inline
+int bslmt::TimedSemaphoreImpl&lt;bslmt::Platform::PosixAdvTimedSemaphore&gt;::
+    tryWait()
+{
+    return ::sem_trywait(&amp;d_sem);
+}
+
+}  // close enterprise namespace
+
+#endif  // BSLMT_PLATFORM_POSIX_THREADS
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

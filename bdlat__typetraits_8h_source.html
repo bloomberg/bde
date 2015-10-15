@@ -1,0 +1,320 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlat_typetraits.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#define INCLUDED_BDLAT_TYPETRAITS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide compile-time traits for generated types.
+//
+//@CLASSES:
+//  bdlat_IsBasicChoice&lt;TYPE&gt;:           true for generated &quot;choice&quot; types
+//  bdlat_IsBasicSequence&lt;TYPE&gt;:         true for generated &quot;sequence&quot; types
+//  bdlat_IsBasicEnumeration&lt;TYPE&gt;:      true for generated &quot;enumeration&quot; types
+//  bdlat_BasicEnumerationWrapper&lt;TYPE&gt;: characteristics of enumeration type
+//  bdlat_IsBasicCustomizedType&lt;TYPE&gt;:   true for generated &quot;customized&quot; types
+//
+//@MACROS:
+//  BDLAT_DECL_CHOICE_TRAITS(ClassName)
+//  BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(ClassName)
+//  BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)
+//  BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)
+//  BDLAT_DECL_SEQUENCE_TRAITS(ClassName)
+//  BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(ClassName)
+//  BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)
+//  BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)
+//  BDLAT_DECL_ENUMERATION_TRAITS(ClassName)
+//  BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
+//  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(ClassName)
+//  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)
+//  BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component provides compile-time traits that pertain to
+// generated types.  The four traits provided, &#39;bdlat_IsBasicChoice&#39;,
+// &#39;bdlat_IsBasicSequence&#39;, &#39;bdlat_IsBasicEnumeration&#39;,
+// &#39;bdlat_IsBasicCustomizedType&#39; are used for generated &quot;choice&quot; types,
+// &quot;sequence&quot; types, &quot;enumeration&quot;, and &quot;customized type&quot; types respectively.
+//
+///Usage
+///-----
+// This component is intended to be used by components generated using the
+// &#39;bas_codegen.pl&#39; tool.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_PRINTMETHODS
+#include &lt;bdlb_printmethods.h&gt;      // for &#39;bdlb::TypeTraitHasPrintMethod&#39;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
+#include &lt;bslalg_typetraitbitwisemoveable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
+#include &lt;bslalg_typetraitusesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
+#include &lt;bdlat_bdeatoverrides.h&gt;
+#endif
+
+
+namespace BloombergLP {
+
+template &lt;class TYPE&gt;
+struct bdlat_IsBasicChoice :
+        bslmf::DetectNestedTrait&lt;TYPE, bdlat_IsBasicChoice&gt;::type
+{
+    // This trait may be declared for &quot;choice&quot; types.
+};
+
+template &lt;class TYPE&gt;
+struct bdlat_IsBasicSequence :
+        bslmf::DetectNestedTrait&lt;TYPE, bdlat_IsBasicSequence&gt;::type
+{
+    // This trait may be declared for &quot;sequence&quot; types.
+};
+
+template &lt;class TYPE&gt;
+struct bdlat_IsBasicEnumeration :
+        bslmf::DetectNestedTrait&lt;TYPE, bdlat_IsBasicEnumeration&gt;::type
+{
+    // This trait may be declared for &quot;enumeration&quot; types.
+};
+
+template &lt;class TYPE&gt;
+struct bdlat_IsBasicCustomizedType :
+        bslmf::DetectNestedTrait&lt;TYPE, bdlat_IsBasicCustomizedType&gt;::type
+{
+    // This trait may be declared for &quot;customized type&quot; types.
+};
+
+template &lt;class TYPE&gt;
+struct bdlat_BasicEnumerationWrapper;
+    // This template has no definition for most types.  However for types that
+    // meet the requirements of &#39;BasicEnumeration&#39;, this template is
+    // specialized to inherit from the wrapper class that defines functions
+    // like &#39;toString&#39; and &#39;toInt&#39;.  The specialization should also define the
+    // type &#39;Wrapper&#39; to be the name of the wrapper class.
+
+struct bdlat_TypeTraitBasicChoice {
+    // Legacy adaptor for bdlat_IsBasicChoice.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bdlat_IsBasicChoice&gt;
+    {
+        // This class template ties the &#39;bdlat_TypeTraitBasicChoice&#39; trait tag
+        // to the &#39;bdlat_IsBasicChoice&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bdlat_IsBasicChoice&lt;TYPE&gt;::type { };
+};
+
+struct bdlat_TypeTraitBasicSequence {
+    // Legacy adaptor for bdlat_IsBasicSequence.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bdlat_IsBasicSequence&gt;
+    {
+        // This class template ties the &#39;bdlat_TypeTraitBasicSequence&#39; trait
+        // tag to the &#39;bdlat_IsBasicSequence&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bdlat_IsBasicSequence&lt;TYPE&gt;::type { };
+};
+
+struct bdlat_TypeTraitBasicEnumeration {
+    // Legacy adaptor for bdlat_IsBasicEnumeration.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bdlat_IsBasicEnumeration&gt;
+    {
+        // This class template ties the &#39;bdlat_TypeTraitBasicEnumeration&#39; trait
+        // tag to the &#39;bdlat_IsBasicEnumeration&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bdlat_IsBasicEnumeration&lt;TYPE&gt;::type { };
+};
+
+struct bdlat_TypeTraitBasicCustomizedType {
+    // Legacy adaptor for bdlat_IsBasicCustomizedType.
+
+    template &lt;class TYPE&gt;
+    struct NestedTraitDeclaration :
+        bslmf::NestedTraitDeclaration&lt;TYPE, bdlat_IsBasicCustomizedType&gt;
+    {
+        // This class template ties the &#39;bdlat_TypeTraitBasicCustomizedType&#39;
+        // trait tag to the &#39;bdlat_IsBasicCustomizedType&#39; trait metafunction.
+    };
+
+    template &lt;class TYPE&gt;
+    struct Metafunction : bdlat_IsBasicCustomizedType&lt;TYPE&gt;::type { };
+};
+
+// Macros defined to facilitate declaring traits for generated code.
+
+// BDE_VERIFY pragma: -SLM01  // leaking macros is the whole point!
+
+#define BDLAT_DECL_CHOICE_TRAITS(ClassName)                                   \
+    template &lt;&gt;                                                               \
+    struct bdlat_IsBasicChoice&lt;ClassName&gt; : bsl::true_type { };               \
+    namespace bdlb {                                                          \
+        template &lt;&gt;                                                           \
+        struct HasPrintMethod&lt;ClassName&gt; : bsl::true_type { };                \
+    }
+
+#define BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(ClassName)                    \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    BDLAT_DECL_CHOICE_TRAITS(ClassName)
+
+#define BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)              \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_CHOICE_TRAITS(ClassName)
+
+#define BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)    \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_CHOICE_TRAITS(ClassName)
+
+#define BDLAT_DECL_SEQUENCE_TRAITS(ClassName)                                 \
+    template &lt;&gt;                                                               \
+    struct bdlat_IsBasicSequence&lt;ClassName&gt; : bsl::true_type { };             \
+    namespace bdlb {                                                          \
+        template &lt;&gt;                                                           \
+        struct HasPrintMethod&lt;ClassName&gt; : bsl::true_type { };                \
+    }
+
+#define BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(ClassName)                  \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    BDLAT_DECL_SEQUENCE_TRAITS(ClassName)
+
+#define BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)            \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_SEQUENCE_TRAITS(ClassName)
+
+#define BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName)  \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_SEQUENCE_TRAITS(ClassName)
+
+#define BDLAT_DECL_ENUMERATION_TRAITS(ClassName)                              \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName::Value&gt; : bsl::true_type { };      \
+    }                                                                         \
+    template &lt;&gt;                                                               \
+    struct bdlat_IsBasicEnumeration&lt;ClassName::Value&gt; : bsl::true_type { };   \
+    template &lt;&gt;                                                               \
+    struct bdlat_BasicEnumerationWrapper&lt;ClassName::Value&gt; : ClassName {      \
+        typedef ClassName Wrapper;                                            \
+    };
+
+#define BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)                           \
+    template &lt;&gt;                                                               \
+    struct bdlat_IsBasicCustomizedType&lt;ClassName&gt; : bsl::true_type { };       \
+    namespace bdlb {                                                          \
+        template &lt;&gt;                                                           \
+        struct HasPrintMethod&lt;ClassName&gt; : bsl::true_type { };                \
+    }
+
+#define BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(ClassName)            \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
+
+#define BDLAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(ClassName)      \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
+
+#define                                                                       \
+   BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(ClassName) \
+    namespace bslma {                                                         \
+        template &lt;&gt;                                                           \
+        struct UsesBslmaAllocator&lt;ClassName&gt; : bsl::true_type { };            \
+    }                                                                         \
+    namespace bslmf {                                                         \
+        template &lt;&gt;                                                           \
+        struct IsBitwiseMoveable&lt;ClassName&gt; : bsl::true_type { };             \
+    }                                                                         \
+    BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(ClassName)
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

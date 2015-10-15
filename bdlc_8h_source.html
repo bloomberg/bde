@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
  bdlc.txt
@@ -14,15 +14,39 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bdlc&#39; package currently has 1 component.
+ The &#39;bdlc&#39; package currently has 6 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
 ..
-  1. bdlc_packedintarray
+  2. bdlc_packedintarrayutil
+
+  1. bdlc_bitarray
+     bdlc_hashtable
+     bdlc_indexclerk
+     bdlc_packedintarray
+     bdlc_queue                                          !DEPRECATED!
 ..
 
 /Component Synopsis
 /------------------
+: &#39;bdlc_bitarray&#39;:
+:      Provide a space-efficient, sequential container of boolean values.
+:
+: &#39;bdlc_hashtable&#39;:
+:      Provide a double-hashed table with utility.
+:
+: &#39;bdlc_indexclerk&#39;:
+:      Provide a manager of reusable, non-negative integer indices.
+:
 : &#39;bdlc_packedintarray&#39;:
 :      Provide an extensible, packed array of integral values.
+:
+: &#39;bdlc_packedintarrayutil&#39;:
+:      Provide common non-primitive operations on &#39;bdlc::PackedIntArray&#39;.
+:
+: &#39;bdlc_queue&#39;:                                          !DEPRECATED!
+:      Provide an in-place double-ended queue of &#39;T&#39; values.
 </pre>
 </body>
 </html>

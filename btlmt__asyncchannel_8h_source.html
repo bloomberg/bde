@@ -1,0 +1,516 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlmt_asyncchannel.h                                               -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLMT_ASYNCCHANNEL
+#define INCLUDED_BTLMT_ASYNCCHANNEL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for asynchronous IO operations
+//
+//@CLASSES:
+//  btlmt::AsyncChannel: *pure* protocol for asynchronous IO operations
+//
+//@SEE_ALSO: btlmt_channelpoolchannel, btlmt_sessionpool
+//
+//@DESCRIPTION: This component provides a pure protocol, &#39;btlmt::AsyncChannel&#39;,
+// for asynchronous read and write operations over TCP/IP communication
+// channel.  Concrete implementations of this protocol are intended to be used
+// with &#39;btlmt_sessionpool&#39; and will rarely be used stand-alone.  A concrete
+// implementation of this protocol is provided in &#39;btlmt_channelpoolchannel&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Implementing a Concrete Channel Type
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// This &#39;class&#39;, &#39;btlmt::AsyncChannel&#39;, provides a pure protocol for a network
+// connection type that once connected to the peer allows asynchronous reads
+// and writes.
+//
+// In this usage example we will implement a derived implementation of
+// &#39;btlmt::AsyncChannel&#39;, &#39;my_AsyncChannel&#39;.  An object of this type is
+// constructed with a &#39;btlmt::ChannelPool&#39; object and provided a channel id
+// that represents this connection in that channel pool object.  For the
+// brevity of this example, we will elide some portions of the class
+// implementation including error checking for connection closure and
+// synchronizing access to a &#39;my_AsyncChannel&#39; across multiple threads.
+//
+// First, we provide the class definition:
+//..
+//  class my_AsyncChannel : public btlmt::AsyncChannel {
+//      // This &#39;class&#39; provides a concrete implementation of
+//      // &#39;btlmt::AsyncChannel&#39;.
+//
+//..
+// Next, we specify an &#39;Entry&#39; type that stores the data corresponding to a
+// read callback:
+//..
+//      // TYPES
+//      struct Entry {
+//          // This &#39;struct&#39; provides a type storing the attributes of a read
+//          // callback.
+//
+//          BlobBasedReadCallback d_readCallback;    // read callback
+//
+//          bsls::TimeInterval    d_timeOut;         // optional read timeout
+//
+//          int                   d_numBytesNeeded;  // number of bytes needed
+//                                                   // before to invoke the
+//                                                   // read callback
+//      };
+//
+//      typedef bsl::vector&lt;Entry&gt; ReadQueue;
+//
+//..
+// Then, we specify the data for this type.  This type stores a
+// &#39;btlmt::ChannelPool&#39;, the channelId in that channel pool used to represent
+// this connection, and a vector storing all the read callbacks:
+//..
+//      // DATA
+//      int                 d_channelId;
+//      btlmt::ChannelPool *d_channelPool_p;
+//      ReadQueue           d_entries;
+//
+//..
+// Next, we specify the interface of this class:
+//..
+//    public:
+//      // CREATORS
+//      my_AsyncChannel(int                 channelId,
+//                      btlmt::ChannelPool *channelPool,
+//                      bslma::Allocator   *basicAllocator = 0);
+//          // Create a &#39;my_AsyncChannel&#39; concrete implementation reading from
+//          // and writing to the channel referenced by the specified
+//          // &#39;channelId&#39; in the specified &#39;channelPool&#39;.  Optionally specify
+//          // a &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39;
+//          // is 0, the currently installed default allocator is used.
+//
+//      virtual ~my_AsyncChannel();
+//          // Destroy this channel.
+//
+//      // MANIPULATORS
+//      virtual int read(int                          numBytes,
+//                       const BlobBasedReadCallback&amp; readCallback);
+//          // Initiate an asynchronous read operation on this channel, or
+//          // append this request to the currently pending requests if an
+//          // asynchronous read operation was already initiated.  When at
+//          // least the specified &#39;numBytes&#39; of data are available after all
+//          // previous requests have been processed, if any, the specified
+//          // &#39;readCallback&#39; will be invoked (with
+//          // &#39;btlmt::AsyncChannel::e_SUCCESS&#39;).  Return 0 on success, and a
+//          // non-zero value otherwise.  On error, the return value *may*
+//          // equal to one of the enumerators in &#39;ChannelStatus::Enum&#39;.
+//
+//      virtual int timedRead(int                          numBytes,
+//                            const bsls::TimeInterval&amp;    timeOut,
+//                            const BlobBasedReadCallback&amp; readCallback);
+//          // Initiate an asynchronous timed read operation on this channel,
+//          // or append this request to the currently pending requests if an
+//          // asynchronous read operation was already initiated, with an
+//          // associated specified absolute &#39;timeOut&#39;.  When at least the
+//          // specified &#39;numBytes&#39; of data are available after all previous
+//          // requests have been processed, if any, or when the &#39;timeOut&#39; is
+//          // reached, the specified &#39;readCallback&#39; will be invoked (with
+//          // either &#39;btlmt::AsyncChannel::e_SUCCESS&#39; or
+//          // &#39;btlmt::AsyncChannel::e_TIMEOUT&#39;, respectively).  Return 0 on
+//          // success, and a non-zero value otherwise.  On error, the return
+//          // value *may* equal to one of the enumerators in
+//          // &#39;ChannelStatus::Enum&#39;.
+//
+//      virtual int write(const btlb::Blob&amp; blob,
+//                        int               highWaterMark = INT_MAX);
+//          // Enqueue the specified &#39;blob&#39; message to be written to this
+//          // channel.  Optionally provide &#39;highWaterMark&#39; to specify the
+//          // maximum data size that can be enqueued.  If &#39;highWaterMark&#39; is
+//          // not specified then &#39;INT_MAX&#39; is used.  Return 0 on success, and
+//          // a non-zero value otherwise.  On error, the return value *may*
+//          // equal to one of the enumerators in &#39;ChannelStatus::Enum&#39;.  Note
+//          // that success does not imply that the data has been written or
+//          // will be successfully written to the underlying stream used by
+//          // this channel.  Also note that in addition to &#39;highWatermark&#39;
+//          // the enqueued portion must also be less than a high watermark
+//          // value supplied at the construction of this channel for the
+//          // write to succeed.
+//
+//      virtual int setSocketOption(int option, int level, int value);
+//          // Set the specified &#39;option&#39; (of the specified &#39;level&#39;) socket
+//          // option on this channel to the specified &#39;value&#39;.  Return 0 on
+//          // success and a non-zero value otherwise.  (See
+//          // &#39;btlso_socketoptutil&#39; for the list of commonly supported
+//          // options.)
+//
+//      virtual void cancelRead();
+//          // Cancel all pending &#39;read&#39; or &#39;timedRead&#39; requests, and invoke
+//          // their read callbacks with a &#39;btlmt::AsyncChannel::e_CANCELED&#39;
+//          // status.  Note that if the channel is active, the read callbacks
+//          // are invoked in the thread in which the channel&#39;s data callbacks
+//          // are invoked, else they are invoked in the thread calling
+//          // &#39;cancelRead&#39;.
+//
+//      virtual void close();
+//          // Shutdown this channel, and cancel all pending requests.  Note
+//          // that this call will result in the shutdown of the channel pool
+//          // channel associated with the channel, and will not invoke the
+//          // pending read requests.
+//
+//..
+// Then, we define a method, &#39;blobBasedReadCb&#39;, that can be invoked by a higher
+// level component after reading data from the channel pool held by this object
+// on the channel id represented by this object.  Note that the &#39;read&#39; and
+// &#39;timedRead&#39; methods of this type are asynchronous and they do not directly
+// result in any data being read from the network.  Instead, this type relies
+// on a higher class (like &#39;btlmt::SessionPool&#39;) for the data reads:
+//..
+//      void blobBasedReadCb(int *numNeeded, btlb::Blob *msg);
+//          // This method is invoked in response to a blob based channel pool
+//          // data callback on the channel id associated with this channel,
+//          // and invokes the pending read requests until either more data is
+//          // needed or this channel is closed.
+//
+//      // ACCESSORS
+//      virtual btlso::IPv4Address localAddress() const;
+//          // Return the address of the &quot;local&quot; end of the channel.
+//
+//      virtual btlso::IPv4Address peerAddress() const;
+//          // Return the address of the &quot;remote&quot; end of the channel.
+//  };
+//..
+// Then, we provide the function implementations:
+//..
+//  my_AsyncChannel::my_AsyncChannel(int                 channelId,
+//                                   btlmt::ChannelPool *channelPool,
+//                                   bslma::Allocator   *basicAllocator)
+//  : d_channelId(channelId)
+//  , d_channelPool_p(channelPool)
+//  , d_entries(basicAllocator)
+//  {
+//  }
+//
+//  my_AsyncChannel::~my_AsyncChannel()
+//  {
+//      // Cancel future callbacks, but do not invoke them if this channel is
+//      // closed.
+//
+//      cancelRead();
+//      d_channelPool_p-&gt;shutdown(d_channelId);
+//  }
+//
+//  int my_AsyncChannel::read(int                          numBytes,
+//                            const BlobBasedReadCallback&amp; readCallback)
+//  {
+//      return timedRead(numBytes, bsls::TimeInterval(), readCallback);
+//  }
+//
+//  int my_AsyncChannel::timedRead(int                          numBytes,
+//                                 const bsls::TimeInterval&amp;    timeOut,
+//                                 const BlobBasedReadCallback&amp; readCallback)
+//  {
+//      Entry entry;
+//      entry.d_numBytesNeeded = numBytes;
+//      entry.d_timeOut        = timeOut;
+//      entry.d_readCallback   = readCallback;
+//
+//      if (bsls::TimeInterval(0) != timeOut) {
+//          // Register a callback to be invoked when timeout expires (elided
+//          // for brevity).
+//
+//          // . . .
+//      }
+//      d_entries.push_back(entry);
+//  }
+//
+//  int my_AsyncChannel::write(const btlb::Blob&amp; blob,
+//                             int               highWaterMark)
+//  {
+//      return d_channelPool_p-&gt;write(d_channelId, blob, highWaterMark);
+//  }
+//
+//  int my_AsyncChannel::setSocketOption(int option, int level, int value)
+//  {
+//      return d_channelPool_p-&gt;setSocketOption(option,
+//                                              level,
+//                                              value,
+//                                              d_channelId);
+//  }
+//
+//  void my_AsyncChannel::cancelRead()
+//  {
+//      ReadQueue::iterator iter = d_entries.begin();
+//      ReadQueue::iterator end  = d_entries.end();
+//
+//      int        dummy = 0;
+//      btlb::Blob dummyBlob;
+//      for (iter = d_entries.begin(); iter != end; ++iter) {
+//          BlobBasedReadCallback callback = iter-&gt;d_readCallback;
+//
+//          callback(btlmt::AsyncChannel::e_CANCELED,
+//                   &amp;dummy,
+//                   &amp;dummyBlob,
+//                   d_channelId);
+//      }
+//
+//      d_entries.erase(iter, end);
+//  }
+//
+//  void my_AsyncChannel::close()
+//  {
+//      d_channelPool_p-&gt;shutdown(d_channelId);
+//
+//      ReadQueue::iterator iter = d_entries.begin();
+//      ReadQueue::iterator end  = d_entries.end();
+//
+//      for (iter = d_entries.begin(); iter != end; ++iter) {
+//          if (bsls::TimeInterval(0) != iter-&gt;d_timeOut) {
+//              // Deregister timeout.  Not shown here.
+//
+//              // . . .
+//          }
+//      }
+//
+//      d_entries.erase(iter, end);
+//  }
+//
+//  void my_AsyncChannel::blobBasedReadCb(int *numNeeded, btlb::Blob *msg)
+//  {
+//      *numNeeded            = 1;
+//      int numBytesAvailable = msg-&gt;length();
+//
+//      while (d_entries.size()
+//          &amp;&amp; d_entries.front().d_numBytesNeeded &lt;= numBytesAvailable) {
+//
+//          Entry&amp; entry = d_entries.front();
+//
+//          int numConsumed = 0;
+//          int nNeeded     = 0;
+//
+//          const BlobBasedReadCallback&amp; callback = entry.d_readCallback;
+//          numBytesAvailable = msg-&gt;length();
+//
+//          {
+//              callback(e_SUCCESS, &amp;nNeeded, msg, d_channelId);
+//              numConsumed = numBytesAvailable - msg-&gt;length();
+//          }
+//
+//          assert(0 &lt;= nNeeded);
+//          assert(0 &lt;= numConsumed);
+//
+//          numBytesAvailable -= numConsumed;
+//
+//          if (nNeeded) {
+//              entry.d_numBytesNeeded = nNeeded;
+//              if (nNeeded &lt;= numBytesAvailable) {
+//                  continue;
+//              }
+//
+//              *numNeeded = nNeeded - numBytesAvailable;
+//          }
+//          else {
+//              d_entries.erase(d_entries.begin());
+//              if (!d_entries.size()) {
+//                  d_channelPool_p-&gt;disableRead(d_channelId);
+//              }
+//          }
+//      }
+//  }
+//
+//  // ACCESSORS
+//  btlso::IPv4Address my_AsyncChannel::localAddress() const
+//  {
+//      btlso::IPv4Address address;
+//      d_channelPool_p-&gt;getLocalAddress(&amp;address, d_channelId);
+//      return address;
+//  }
+//
+//  btlso::IPv4Address my_AsyncChannel::peerAddress() const
+//  {
+//      btlso::IPv4Address address;
+//      d_channelPool_p-&gt;getPeerAddress(&amp;address, d_channelId);
+//      return address;
+//  }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include &lt;bsl_climits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
+namespace btlb { class Blob; }
+
+namespace btlmt {
+
+                          // ==================
+                          // class AsyncChannel
+                          // ==================
+
+class AsyncChannel {
+    // This class defines a *pure* protocol for asynchronous IO operations.
+
+  public:
+    // PUBLIC TYPES
+    enum ReadResult{
+        // Result codes passed in read callback
+
+        e_SUCCESS  = 0,   // The operation was successful.
+
+        e_TIMEOUT  = 1,   // The &#39;timedRead&#39; operation has timed out.
+
+        e_CLOSED   = 2,   // The underlying stream used by this channel
+                          // has been closed.
+
+        e_FAILURE  = 3,   // An I/O error occurred during the read
+                          // operation.
+
+        e_CANCELED = 4    // The asynchronous read request was canceled.
+
+
+    };
+
+    typedef bsl::function&lt;void(int, int *, btlb::Blob *, int)&gt;
+                                                         BlobBasedReadCallback;
+        // A callback of this type is invoked for &#39;read&#39; and &#39;timeRead&#39; when
+        // either the requested number of bytes are available, or an error
+        // occurs.  The callback is invoked with four arguments: (1) an integer
+        // result code corresponding to &#39;ReadResult&#39; that indicates the result
+        // of the read operation, and if this code is equal to &#39;e_SUCCESS&#39;, (2)
+        // a pointer to an integer value where the callee can indicate how many
+        // more bytes are needed to complete the read operation, (3) a
+        // modifiable &#39;btlb::Blob&#39; object containing the payload.  The caller
+        // is responsible for taking ownership of a certain number of bytes in
+        // the &#39;btlb::Blob&#39; and readjusting it appropriately.  Note that the
+        // read operation is not considered completed until the callee
+        // indicates that zero more bytes are needed (argument 2), and (4)
+        // channel id.  Also note that the last three arguments are ignored if
+        // the first argument is different from &#39;e_SUCCESS&#39;.
+        //
+        // A typical function matching this interface might look as follows:
+        //..
+        //  void myReadCallback(int         result,
+        //                      int        *numNeeded,
+        //                      btlb::Blob *blob,
+        //                      int         channelId);
+        //..
+
+    // CREATORS
+    virtual ~AsyncChannel();
+        // Destroy this channel.
+
+    // MANIPULATORS
+    virtual int read(int                          numBytes,
+                     const BlobBasedReadCallback&amp; readCallback) = 0;
+        // Initiate an asynchronous read operation on this channel, or append
+        // this request to the currently pending requests if an asynchronous
+        // read operation was already initiated.  When at least the specified
+        // &#39;numBytes&#39; of data are available after all previous requests have
+        // been processed, if any, the specified &#39;readCallback&#39; will be invoked
+        // (with &#39;e_SUCCESS&#39;).  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in &#39;ChannelStatus::Enum&#39;.
+
+    virtual int timedRead(int                          numBytes,
+                          const bsls::TimeInterval&amp;    timeout,
+                          const BlobBasedReadCallback&amp; readCallback) = 0;
+        // Initiate an asynchronous timed read operation on this channel, or
+        // append this request to the currently pending requests if an
+        // asynchronous read operation was already initiated, with an
+        // associated specified absolute &#39;timeOut&#39;.  When at least the
+        // specified &#39;numBytes&#39; of data are available after all previous
+        // requests have been processed, if any, or when the &#39;timeOut&#39; is
+        // reached, the specified &#39;readCallback&#39; will be invoked (with either
+        // &#39;e_SUCCESS&#39; or &#39;e_TIMEOUT&#39;, respectively).  Return 0 on success, and
+        // a non-zero value otherwise.  On error, the return value *may* equal
+        // to one of the enumerators in &#39;ChannelStatus::Enum&#39;.
+
+    virtual int write(const btlb::Blob&amp; blob,
+                      int               highWaterMark = INT_MAX) = 0;
+        // Enqueue the specified &#39;blob&#39; message to be written to this channel.
+        // Optionally provide &#39;highWaterMark&#39; to specify the maximum data size
+        // that can be enqueued.  If &#39;highWaterMark&#39; is not specified then
+        // &#39;INT_MAX&#39; is used.  Return 0 on success, and a non-zero value
+        // otherwise.  On error, the return value *may* equal to one of the
+        // enumerators in &#39;ChannelStatus::Enum&#39;.  Note that success does not
+        // imply that the data has been written or will be successfully written
+        // to the underlying stream used by this channel.  Also note that in
+        // addition to &#39;highWatermark&#39; the enqueued portion must also be less
+        // than a high watermark value supplied at the construction of this
+        // channel for the write to succeed.
+
+    virtual int setSocketOption(int option, int level, int value) = 0;
+        // Set the specified &#39;option&#39; (of the specified &#39;level&#39;) socket option
+        // on this channel to the specified &#39;value&#39;.  Return 0 on success and a
+        // non-zero value otherwise.  (See &#39;btlso_socketoptutil&#39; for the list
+        // of commonly supported options.)
+
+    virtual void cancelRead() = 0;
+        // Cancel all pending &#39;read&#39; or &#39;timedRead&#39; requests, and invoke their
+        // read callbacks with a &#39;e_CANCELED&#39; status.  Note that if the channel
+        // has not been closed, the read callbacks are invoked in the thread in
+        // which the channel&#39;s data callbacks are invoked, else they are
+        // invoked in the thread calling &#39;cancelRead&#39;.
+
+    virtual void close() = 0;
+        // Shutdown this channel, and cancel all pending &#39;read&#39; or &#39;timedRead&#39;
+        // requests (but do not invoke them).
+
+    // ACCESSORS
+    virtual btlso::IPv4Address localAddress() const = 0;
+        // Return the address of the &quot;local&quot; end of this channel.
+
+    virtual btlso::IPv4Address peerAddress() const = 0;
+        // Return the address of the &quot;remote&quot; end of this channel.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

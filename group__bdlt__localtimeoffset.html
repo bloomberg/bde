@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_localtimeoffset Component</title>
+<title>BDE 3.0: bdlt_localtimeoffset Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -127,7 +127,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a> now = <a class="code" href="structbsls_1_1SystemTime.html#a6660573c743055976dfbbe09fb1b8fb1">bsls::SystemTime::nowRealtimeClock</a>();
 
   <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a> utc = <a class="code" href="structbdlt_1_1EpochUtil.html#ae2e0d2e91687e5f6eb75921dfb64a785">bdlt::EpochUtil::epoch</a>() +
-                              <a class="code" href="classbdlt_1_1DatetimeInterval.html">bdlt::DatetimeInterval</a>(0, 0, 0, now.<a class="code" href="classbsls_1_1TimeInterval.html#aff5c7e04f8c57985059393dc5e1ed638">seconds</a>());
+                              bdlt::DatetimeInterval(0, 0, 0, now.<a class="code" href="classbsls_1_1TimeInterval.html#aff5c7e04f8c57985059393dc5e1ed638">seconds</a>());
 </pre></div><br/>
 <br/>
  Then, obtain the local time offset: <br/>
@@ -260,7 +260,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

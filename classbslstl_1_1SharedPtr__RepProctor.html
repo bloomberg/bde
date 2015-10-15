@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslstl::SharedPtr_RepProctor</title>
+<title>BDE 3.0: Class bslstl::SharedPtr_RepProctor</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -69,10 +69,7 @@
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a>  </div>
   <div class="headertitle">
-<h1>bslstl::SharedPtr_RepProctor Class Reference<br/>
-<small>
-[<a class="el" href="group__bslstl__sharedptr.html">Component bslstl_sharedptr</a>]</small>
-</h1>  </div>
+<h1>bslstl::SharedPtr_RepProctor Class Reference</h1>  </div>
 </div>
 <div class="contents">
 <!-- doxytag: class="bslstl::SharedPtr_RepProctor" -->
@@ -82,17 +79,74 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga8e1b55cac7dd44a68a1c4994289e373d">SharedPtr_RepProctor</a> (<a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a> *rep)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gabd1cddccae2f2fb5da0afd605c732110">~SharedPtr_RepProctor</a> ()</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga64a079eb850eb72d5468958edbe37388">release</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html#a8e1b55cac7dd44a68a1c4994289e373d">SharedPtr_RepProctor</a> (<a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a> *rep)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html#abd1cddccae2f2fb5da0afd605c732110">~SharedPtr_RepProctor</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html#a64a079eb850eb72d5468958edbe37388">release</a> ()</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This <code>class</code> implements a proctor that, unless its <code>release</code> method has previously been invoked, automatically releases a reference held by the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> object that is supplied at construction. </p>
+<hr/><h2>Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a8e1b55cac7dd44a68a1c4994289e373d"></a><!-- doxytag: member="bslstl::SharedPtr_RepProctor::SharedPtr_RepProctor" ref="a8e1b55cac7dd44a68a1c4994289e373d" args="(bslma::SharedPtrRep *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bslstl::SharedPtr_RepProctor::SharedPtr_RepProctor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a> *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [explicit]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a <code><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html">SharedPtr_RepProctor</a></code> that conditionally manages the specified <code>rep</code> (if non-zero). </p>
+
+</div>
+</div>
+<a class="anchor" id="abd1cddccae2f2fb5da0afd605c732110"></a><!-- doxytag: member="bslstl::SharedPtr_RepProctor::~SharedPtr_RepProctor" ref="abd1cddccae2f2fb5da0afd605c732110" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bslstl::SharedPtr_RepProctor::~SharedPtr_RepProctor </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Destroy this <code><a class="el" href="classbslstl_1_1SharedPtr__RepProctor.html">SharedPtr_RepProctor</a></code>, and dispose of (deallocate) the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> it manages (if any). If no such object is currently being managed, this method has no effect. Note that the destructor of the <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code> will not be called as the reference count will not be decremented. </p>
+
+</div>
+</div>
+<hr/><h2>Member Function Documentation</h2>
+<a class="anchor" id="a64a079eb850eb72d5468958edbe37388"></a><!-- doxytag: member="bslstl::SharedPtr_RepProctor::release" ref="a64a079eb850eb72d5468958edbe37388" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bslstl::SharedPtr_RepProctor::release </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Release from management the object currently managed by this proctor. If no object is currently being managed, this method has no effect. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bslstl__sharedptr_8h_source.html">bslstl_sharedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:45 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:12 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

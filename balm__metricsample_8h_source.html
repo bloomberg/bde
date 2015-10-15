@@ -1,0 +1,716 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_metricsample.h                                                -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_METRICSAMPLE
+#define INCLUDED_BALM_METRICSAMPLE
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for a sample of collected metric records.
+//
+//@CLASSES:
+// balm::MetricSampleGroup: a group of records describing the same time period
+//      balm::MetricSample: a sample of collected metric records
+//
+//@SEE_ALSO: balm_publisher, balm_metricrecord
+//
+//@DESCRIPTION: This component provides a container used to store a sample of
+// recorded metric information.  A &#39;balm::MetricSample&#39; contains a collection
+// of addresses to (external) &#39;balm::MetricRecord&#39; objects containing the
+// aggregated record values for a series of metrics.  The records in a sample
+// are broken into a series of groups, each group is represented by a
+// &#39;balm::MetricSampleGroup&#39; object.  Each &#39;balm::MetricSampleGroup&#39; contains
+// a sequence of records and an elapsed time value, indicating the time period
+// over which those records were collected.  Finally, a &#39;balm::MetricSample&#39;
+// object contains a timestamp value used to indicate when the sample was
+// taken.
+//
+///Thread Safety
+///-------------
+// &#39;balm::MetricSample&#39; and &#39;balm::MetricSampleGroup&#39; are both *const*
+// *thread-safe*, meaning that accessors may be invoked concurrently from
+// different threads, but it is not safe to access or modify an object in one
+// thread while another thread modifies the same object.
+//
+///Usage
+///-----
+// The following example demonstrates how to create and use a metric sample.
+// We start by initializing several &#39;balm::MetricRecord&#39; values, which we will
+// add to the sample.  Note that in this example we create the &#39;balm::MetricId&#39;
+// objects by hand; however, in practice ids should be obtained from a
+// &#39;balm::MetricRegistry&#39; object (such as the one owned by a
+// &#39;balm::MetricsManager&#39;).
+//..
+//  bslma::Allocator *allocator = bslma::Default::allocator(0);
+//
+//  balm::Category myCategory(&quot;MyCategory&quot;);
+//  balm::MetricDescription descA(&amp;myCategory, &quot;MetricA&quot;);
+//  balm::MetricDescription descB(&amp;myCategory, &quot;MetricB&quot;);
+//  balm::MetricDescription descC(&amp;myCategory, &quot;MetricC&quot;);
+//
+//  balm::MetricId metricA(&amp;descA);
+//  balm::MetricId metricB(&amp;descB);
+//  balm::MetricId metricC(&amp;descC);
+//
+//  const int TZ = 0;  // UTC time zone offset
+//
+//  bdlt::DatetimeTz timeStamp(bdlt::Datetime(2008, 3, 26, 13, 30, 0, 0), TZ);
+//  balm::MetricRecord recordA(metricA, 0, 0, 0, 0);
+//  balm::MetricRecord recordB(metricB, 1, 2, 3, 4);
+//  balm::MetricRecord recordC(metricC, 4, 3, 2, 1);
+//..
+// Now we create the two arrays of metric records whose addresses we will
+// later add to the metric sample:
+//..
+//  balm::MetricRecord              buffer1[] = { recordA, recordB };
+//  bsl::vector&lt;balm::MetricRecord&gt; buffer2(allocator);
+//  buffer2.push_back(recordC);
+//..
+// Next we create a &#39;balm::MetricSample&#39; object, &#39;sample&#39;, and set its
+// timestamp property.  Then we add two groups of records (containing the
+// addresses of our two record arrays) to the sample we have created.  Since
+// the records were not actually collected over a period of time, we supply an
+// arbitrary elapsed time value of 1 second and 2 seconds (respectively) for
+// the two groups added to the sample.  Note that these arrays must remain
+// valid for the lifetime of &#39;sample&#39;.
+//..
+//  balm::MetricSample sample(allocator);
+//  sample.setTimeStamp(timeStamp);
+//  sample.appendGroup(buffer1,
+//                     sizeof(buffer1) / sizeof(*buffer1),
+//                     bsls::TimeInterval(1.0));
+//  sample.appendGroup(buffer2.data(),
+//                     buffer2.size(),
+//                     bsls::TimeInterval(2.0));
+//..
+// We can verify the basic properties of our sample:
+//..
+//       assert(timeStamp             == sample.timeStamp());
+//       assert(2                     == sample.numGroups());
+//       assert(3                     == sample.numRecords());
+//       assert(bsls::TimeInterval(1) == sample.sampleGroup(0).elapsedTime());
+//       assert(buffer1               == sample.sampleGroup(0).records());
+//       assert(2                     == sample.sampleGroup(0).numRecords());
+//       assert(bsls::TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
+//       assert(buffer2.data()        == sample.sampleGroup(1).records());
+//       assert(1                     == sample.sampleGroup(1).numRecords());
+//..
+// Finally we can obtain an iterator over the sample&#39;s sequence of groups.  In
+// this simple example, we iterate over the groups of records in the sample
+// and, for each group, iterate over the records in that group, writing those
+// records to the console.
+//..
+//  balm::MetricSample::const_iterator sampleIt = sample.begin();
+//  for ( ; sampleIt != sample.end(); ++sampleIt) {
+//      balm::MetricSampleGroup::const_iterator groupIt = sampleIt-&gt;begin();
+//      for ( ; groupIt != sampleIt-&gt;end(); ++groupIt) {
+//          bsl::cout &lt;&lt; *groupIt &lt;&lt; bsl::endl;
+//      }
+//  }
+//..
+// The output will look like:
+//..
+//  [ MyCategory.MetricA: 0 0 0 0 ]
+//  [ MyCategory.MetricB: 1 2 3 4 ]
+//  [ MyCategory.MetricC: 4 3 2 1 ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICRECORD
+#include &lt;balm_metricrecord.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balm {
+                          // =======================
+                          // class MetricSampleGroup
+                          // =======================
+
+class MetricSampleGroup {
+    // This class provides an *in-core* value-semantic representation of a
+    // group of metric record values.  This class contains the address of an
+    // array of (externally managed) &#39;MetricRecord&#39; objects, the number of
+    // records in that array, and an elapsed time value (used to indicate the
+    // time span over which the metric values were aggregated).
+
+    // DATA
+    const MetricRecord *d_records_p;   // array of records (held, not
+                                       // owned)
+
+    int                 d_numRecords;  // number of records in array
+
+    bsls::TimeInterval  d_elapsedTime; // interval described by records
+
+  public:
+    // PUBLIC TYPES
+    typedef const MetricRecord *const_iterator;
+        // A &#39;const_iterator&#39; is an alias for an iterator over the
+        // non-modifiable records referenced in a &#39;MetricSampleGroup&#39;.
+
+    // CREATORS
+    MetricSampleGroup();
+        // Create an empty sample group.  By default, the &#39;records()&#39; address
+        // is 0, &#39;numRecords()&#39; is 0, and the &#39;elapsedTime()&#39; is the default-
+        // constructed &#39;bsls::TimeInterval&#39;.
+
+    MetricSampleGroup(const MetricRecord             *records,
+                           int                        numRecords,
+                           const bsls::TimeInterval&amp;  elapsedTime);
+        // Create a sample group containing the specified sequence of
+        // &#39;records&#39; of specified length &#39;numRecords&#39;, recorded over a period
+        // whose duration is the specified &#39;elapsedTime&#39;.  The behavior is
+        // undefined unless &#39;0 &lt;= numRecords&#39; and &#39;records&#39; points to a
+        // contiguous sequence of (at least) &#39;numRecords&#39; metric records.  Note
+        // that the contents of &#39;records&#39; is *not* copied and the supplied
+        // array must remain valid for the productive lifetime of this object
+        // or until the records are set to a different sequence by calling the
+        // &#39;setRecords&#39; manipulator.
+
+    MetricSampleGroup(const MetricSampleGroup&amp; original);
+        // Create a sample group having the same (in-core) value as the
+        // specified &#39;original&#39; sample group.
+
+    // ~MetricSampleGroup();
+        // Destroy this sample group.  Note that this trivial destructor is
+        // generated by the compiler.
+
+    // MANIPULATORS
+    MetricSampleGroup&amp; operator=(const MetricSampleGroup&amp; rhs);
+        // Assign to this sample group the value of the specified &#39;rhs&#39; sample
+        // group, and return a reference to this modifiable sample group.
+        // Note that only the pointer to the &#39;MetricRecord&#39; array and the
+        // length are copied, and not the records themselves.
+
+    void setElapsedTime(const bsls::TimeInterval&amp; elapsedTime);
+        // Set the elapsed time (used to indicate the time span over which
+        // this object&#39;s metric records were aggregated) to the specified
+        // &#39;elapsedTime&#39;.
+
+    void setRecords(const MetricRecord *records, int numRecords);
+        // Set the sequence of records referred to by this sample group to the
+        // specified sequence of &#39;records&#39; of specified length &#39;numRecords&#39;.
+        // The behavior is undefined unless &#39;0 &lt;= numRecords&#39;, and &#39;records&#39;
+        // refers to a contiguous sequence of (at least) &#39;numRecords&#39;.  Note
+        // that the contents of &#39;records&#39; is *not* copied and the supplied
+        // array must remain valid for the productive lifetime of this object
+        // or until the records are set to a different sequence by calling the
+        // &#39;setRecords&#39; manipulator.
+
+    // ACCESSORS
+    const MetricRecord *records() const;
+        // Return the address of the contiguous sequence of non-modifiable
+        // records of length &#39;numRecords()&#39;.
+
+    int numRecords() const;
+        // Return the number of records (referenced to by &#39;records()&#39;) in this
+        // object.
+
+    const bsls::TimeInterval&amp; elapsedTime() const;
+        // Return a reference to the non-modifiable elapsed time interval over
+        // which this object&#39;s metric records were aggregated.
+
+    const_iterator begin() const;
+        // Return an iterator positioned at the beginning of the sequence of
+        // &#39;MetricRecord&#39; objects referenced by this object.
+
+    const_iterator end() const;
+        // Return an iterator positioned one past the final &#39;MetricRecord&#39;
+        // object in the sequence of records referenced by this object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bool operator==(const MetricSampleGroup&amp; lhs,
+                const MetricSampleGroup&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; sample groups have the
+    // same value, and &#39;false&#39; otherwise.  Two sample groups have the same
+    // value if the respective record sequence-addresses, number of records,
+    // and elapsed time are the same.
+
+bool operator!=(const MetricSampleGroup&amp; lhs,
+                const MetricSampleGroup&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; sample groups do not
+    // have the same value, and &#39;false&#39; otherwise.  Two sample groups do not
+    // have the same value if any of the respective record-sequence addresses,
+    // number of records, or elapsed time, are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;            stream,
+                         const MetricSampleGroup&amp; rhs);
+    // Write a formatted description of the specified &#39;rhs&#39; to the specified
+    // &#39;stream&#39; and return a reference to the modifiable &#39;stream&#39;.
+
+                             // ==================
+                             // class MetricSample
+                             // ==================
+
+class MetricSample {
+    // This class provides an *in-core* value-semantic representation of a
+    // sample of metric values.  The class contains a collection of addresses
+    // to (external) &#39;MetricRecord&#39; objects holding the values for their
+    // respective metrics (aggregated over some period of time).  The metric
+    // records contained by a sample are broken into a series of groups, which
+    // are represented by &#39;MetricSampleGroup&#39; objects.  Each group contains a
+    // sequence of records and an elapsed time value, indicating the period of
+    // time over which those records were taken.  This class also provides a
+    // timestamp value, used to indicate when the sample was collected.  The
+    // class provides a method, &#39;appendGroups&#39;, that appends a group of metric
+    // records to the sample.  Arrays supplied using &#39;appendGroups&#39; must be
+    // valid for the productive lifetime of the &#39;MetricSample&#39; object or until
+    // they are removed by calling &#39;removeAllRecords&#39;.
+
+    // PRIVATE TYPES
+    typedef MetricSampleGroup SampleGroup;
+
+    // DATA
+    bdlt::DatetimeTz           d_timeStamp;   // time the records were
+                                             // collected
+
+    bsl::vector&lt;SampleGroup&gt;  d_records;     // vector of groups of records
+
+    int                       d_numRecords;  // total number of records
+
+    // FRIENDS
+    friend bool operator==(const MetricSample&amp; lhs,
+                           const MetricSample&amp; rhs);
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::vector&lt;MetricSampleGroup&gt;::const_iterator const_iterator;
+        // A &#39;const_iterator&#39; is an alias for an iterator over the
+        // non-modifiable sample groups contained in a &#39;MetricSample&#39;.
+
+    // PUBLIC TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(MetricSample, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    MetricSample(bslma::Allocator *basicAllocator = 0);
+        // Create an empty metric sample.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    MetricSample(const MetricSample&amp;  original,
+                 bslma::Allocator    *basicAllocator = 0);
+        // Create a metric sample containing the same value as the specified
+        // &#39;original&#39; sample.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.  Note that copying the contained
+        // &#39;MetricSampleGroup&#39; objects copies only the pointers to their
+        // respective &#39;MetricRecord&#39; arrays, and does not copy the records
+        // themselves; hence, these record arrays must remain valid for the
+        // productive lifetimes of all copied objects or until the records are
+        // removed by calling &#39;removeAllRecords&#39;.
+
+    ~MetricSample();
+        // Destroy this metric sample.
+
+    // MANIPULATORS
+    MetricSample&amp; operator=(const MetricSample&amp; rhs);
+        // Assign to this sample the value of the specified &#39;rhs&#39; sample and
+        // return a reference to this modifiable sample.  Note that copying
+        // the &#39;MetricSampleGroup&#39; objects contained in &#39;rhs&#39; copies only the
+        // pointers to their respective &#39;MetricRecord&#39; arrays, and does not
+        // copy records themselves; hence, these record arrays must remain
+        // valid for the productive lifetimes of all copied objects or until
+        // records are removed by calling &#39;removeAllRecords&#39;.
+
+    void setTimeStamp(const bdlt::DatetimeTz&amp; timeStamp);
+        // Set the timestamp (used to indicate when the sample was taken) to
+        // the specified &#39;timeStamp&#39;.
+
+    void appendGroup(const MetricSampleGroup&amp; group);
+        // Append the specified &#39;group&#39; of records to the sequence of groups
+        // maintained by this sample.  If &#39;group.numRecords()&#39; is 0 this method
+        // has no effect.  The behavior is undefined unless
+        // &#39;group.elapsedTime() &gt; bsls::TimeInterval(0, 0)&#39;.  Note that the
+        // &#39;MetricRecord&#39; objects referred to by &#39;records&#39; are *not* copied:
+        // hence, the supplied array must remain valid for the productive
+        // lifetime of this object or until the group is removed by calling
+        // &#39;removeAllRecords()&#39;.
+
+    void appendGroup(const MetricRecord        *records,
+                     int                        numRecords,
+                     const bsls::TimeInterval&amp;  elapsedTime);
+        // Append to the sequence of groups maintained by this sample a new
+        // group containing the specified sequence of &#39;records&#39; of specified
+        // length &#39;numRecords&#39; measuring the specified &#39;elapsedTime&#39;.  The
+        // behavior is undefined unless &#39;0 &lt;= numRecords&#39;, &#39;records&#39; refers to
+        // a contiguous sequence of size (at least) &#39;numRecords&#39;, and
+        // &#39;elapsedTime &gt; bsls::TimeInterval(0, 0)&#39;.  Note that &#39;records&#39; is
+        // *not* copied: hence, the supplied array must remain valid for the
+        // lifetime of this object or until the records are removed by calling
+        // &#39;removeAllRecords()&#39;.  This method is functionally equivalent to:
+        //..
+        //  appendGroup(MetricSampleGroup(records, numRecords, elapsedTime));
+        //..
+
+    void removeAllRecords();
+        // Remove all metric records from this sample.
+
+    // ACCESSORS
+    const MetricSampleGroup&amp; sampleGroup(int index) const;
+        // Return a reference to the non-modifiable &#39;MetricSampleGroup&#39; object
+        // at the specified &#39;index&#39; in this sample.  The behavior is undefined
+        // unless &#39;0 &lt;= index &lt; numGroups()&#39;.  Note that the returned
+        // reference will remain valid until this sample is modified by
+        // invoking &#39;appendGroup&#39; or &#39;removeAllRecords()&#39;.
+
+    const bdlt::DatetimeTz&amp; timeStamp() const;
+        // Return a reference to the non-modifiable timestamp for this sample.
+
+    const_iterator begin() const;
+        // Return an iterator positioned at the beginning of the sequence of
+        // &#39;MetricSampleGroup&#39; objects contained by this object.  Note that the
+        // iterator will remain valid until this sample is modified by invoking
+        // either &#39;appendGroups&#39; or &#39;removeAllRecords()&#39;.
+
+    const_iterator end() const;
+        // Return an iterator positioned one one past the final
+        // &#39;MetricSampleGroup&#39; object in the sequence of sample groups
+        // contained by this object.  Note that the iterator will remain valid
+        // until this sample is modified by invoking &#39;appendGroup&#39; or
+        // &#39;removeAllRecords()&#39;.
+
+    int numGroups() const;
+        // Return the number of record groups (i.e., &#39;MetricSampleGroup&#39;
+        // objects) that are contained in this object.
+
+    int numRecords() const;
+        // Return the total number of records in this sample (i.e., the sum of
+        // the lengths of all the appended record groups).
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bool operator==(const MetricSample&amp; lhs, const MetricSample&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; samples have the same
+    // value, and &#39;false&#39; otherwise.  Two samples have the same value if they
+    // have the same timestamp value, contain the same number of record
+    // groups, and if the respective groups of records at each index position
+    // have the same value.
+
+bool operator!=(const MetricSample&amp; lhs, const MetricSample&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; samples do not have the
+    // same value, and &#39;false&#39; otherwise.  Two samples do not have the same
+    // value if they have different values for their timestamps, or number of
+    // record groups, or if any of the groups of records at corresponding
+    // indices have different values.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const MetricSample&amp; rhs);
+    // Write a formatted description of the specified &#39;rhs&#39; to the specified
+    // &#39;stream&#39; and return a reference to the modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                          // -----------------------
+                          // class MetricSampleGroup
+                          // -----------------------
+
+// CREATORS
+inline
+MetricSampleGroup::MetricSampleGroup()
+: d_records_p(0)
+, d_numRecords(0)
+, d_elapsedTime()
+{
+}
+
+inline
+MetricSampleGroup::MetricSampleGroup(const MetricRecord        *records,
+                                     int                        numRecords,
+                                     const bsls::TimeInterval&amp;  elapsedTime)
+: d_records_p(records)
+, d_numRecords(numRecords)
+, d_elapsedTime(elapsedTime)
+{
+}
+
+inline
+MetricSampleGroup::MetricSampleGroup(const MetricSampleGroup&amp; original)
+: d_records_p(original.d_records_p)
+, d_numRecords(original.d_numRecords)
+, d_elapsedTime(original.d_elapsedTime)
+{
+}
+
+// MANIPULATORS
+inline
+MetricSampleGroup&amp; MetricSampleGroup::operator=(const MetricSampleGroup&amp; rhs)
+{
+    d_records_p   = rhs.d_records_p;
+    d_numRecords  = rhs.d_numRecords;
+    d_elapsedTime = rhs.d_elapsedTime;
+    return *this;
+}
+
+inline
+void MetricSampleGroup::setElapsedTime(const bsls::TimeInterval&amp; elapsedTime)
+{
+    d_elapsedTime = elapsedTime;
+}
+
+inline
+void MetricSampleGroup::setRecords(const MetricRecord *records,
+                                   int                 numRecords)
+{
+    d_records_p  = records;
+    d_numRecords = numRecords;
+}
+
+// ACCESSORS
+inline
+const MetricRecord *MetricSampleGroup::records() const
+{
+    return d_records_p;
+}
+
+inline
+int MetricSampleGroup::numRecords() const
+{
+    return d_numRecords;
+}
+
+inline
+const bsls::TimeInterval&amp; MetricSampleGroup::elapsedTime() const
+{
+    return d_elapsedTime;
+}
+
+inline
+MetricSampleGroup::const_iterator MetricSampleGroup::begin() const
+{
+    return d_records_p;
+}
+
+inline
+MetricSampleGroup::const_iterator MetricSampleGroup::end() const
+{
+    return d_records_p + d_numRecords;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const MetricSampleGroup&amp; lhs,
+                      const MetricSampleGroup&amp; rhs)
+{
+    return lhs.records()     == rhs.records()
+        &amp;&amp; lhs.numRecords()  == rhs.numRecords()
+        &amp;&amp; lhs.elapsedTime() == rhs.elapsedTime();
+}
+
+inline
+bool balm::operator!=(const MetricSampleGroup&amp; lhs,
+                      const MetricSampleGroup&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp;            stream,
+                               const MetricSampleGroup&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+namespace balm {
+                             // ------------------
+                             // class MetricSample
+                             // ------------------
+
+// CREATORS
+inline
+MetricSample::MetricSample(bslma::Allocator *basicAllocator)
+: d_timeStamp()
+, d_records(basicAllocator)
+, d_numRecords(0)
+{
+}
+
+inline
+MetricSample::~MetricSample()
+{
+}
+
+// MANIPULATORS
+inline
+void MetricSample::setTimeStamp(const bdlt::DatetimeTz&amp; timeStamp)
+{
+    d_timeStamp = timeStamp;
+}
+
+inline
+void MetricSample::appendGroup(const MetricSampleGroup&amp; group)
+{
+    if (0 &lt; group.numRecords()) {
+        d_records.push_back(group);
+        d_numRecords += group.numRecords();
+    }
+}
+
+inline
+void MetricSample::appendGroup(const MetricRecord        *records,
+                               int                        numRecords,
+                               const bsls::TimeInterval&amp;  elapsedTime)
+{
+    if (0 &lt; numRecords) {
+        d_records.push_back(SampleGroup(records, numRecords, elapsedTime));
+        d_numRecords += numRecords;
+    }
+}
+
+inline
+void MetricSample::removeAllRecords()
+{
+    d_records.clear();
+    d_numRecords = 0;
+}
+
+// ACCESSORS
+inline
+const MetricSampleGroup&amp; MetricSample::sampleGroup(int index) const
+{
+    return d_records[index];
+}
+
+inline
+const bdlt::DatetimeTz&amp; MetricSample::timeStamp() const
+{
+    return d_timeStamp;
+}
+
+inline
+MetricSample::const_iterator MetricSample::begin() const
+{
+    return d_records.begin();
+}
+
+inline
+MetricSample::const_iterator MetricSample::end() const
+{
+    return d_records.end();
+}
+
+inline
+int MetricSample::numGroups() const
+{
+    return static_cast&lt;int&gt;(d_records.size());
+}
+
+inline
+int MetricSample::numRecords() const
+{
+    return d_numRecords;
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool balm::operator==(const MetricSample&amp; lhs, const MetricSample&amp; rhs)
+{
+    return lhs.d_timeStamp == rhs.d_timeStamp
+        &amp;&amp; lhs.d_records   == rhs.d_records;
+}
+
+inline
+bool balm::operator!=(const MetricSample&amp; lhs, const MetricSample&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp; stream, const MetricSample&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

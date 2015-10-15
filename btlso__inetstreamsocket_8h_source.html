@@ -1,0 +1,1208 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_inetstreamsocket.h                                           -*-C++-*-
+#ifndef INCLUDED_BTLSO_INETSTREAMSOCKET
+#define INCLUDED_BTLSO_INETSTREAMSOCKET
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Implementation for TCP based stream sockets.
+//
+//@CLASSES:
+//  btlso::InetStreamSocket: implementation of TCP-based stream-sockets
+//  btlso::InetStreamSocketCloseGuard: proctor for managing stream-sockets
+//
+//@SEE_ALSO: btlso_streamsocket, btlso_ipv4address, btlsos_tcpconnector
+//
+//@DESCRIPTION: This component implements TCP-based stream sockets of type
+// &#39;btlso::InetStreamSocket&lt;ADDRESS&gt;&#39; conforming to the
+// &#39;btlso::StreamSocket&lt;ADDRESS&gt;&#39; protocol.  The classes are templatized to
+// provide type-safe address class specialization.  The only address type
+// currently supported is IPv4 (as provided by &#39;btlso_ipv4address&#39; component).
+// Therefore, the template parameter will always be &#39;btlso::IPv4Address&#39;.
+//
+///Thread Safety
+///-------------
+// The classes provided by this component depend on a &#39;bslma::Allocator&#39;
+// instance to supply memory.  If the allocator is not thread enabled then the
+// instances of this component that use the same allocator instance will
+// consequently not be thread safe.  Otherwise, this component provides the
+// following guarantees:
+//
+// The &#39;btlso::InetStreamSocket&#39; is not *thread-enabled* (it is not safe to
+// invoke methods from different threads on the same instance).
+// &#39;btlso::InetStreamSocket&#39; is *thread-safe*, meaning that distinct threads
+// can access distinct instances simultaneously without any side-effects (which
+// usually means that there is no &#39;static&#39; data).  The classes provided by this
+// component are not *async-safe*, meaning that one or more functions cannot be
+// invoked safely from a signal handler.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Exchanging Data Using a Stream Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we will show how to create two stream sockets, establish a
+// connection, and then exchange data between them.
+//
+// First, we will open a pair of socket handles.
+//..
+//  btlso::SocketHandle::Handle clientHandle, serverHandle;
+//
+//  int rc = btlso::SocketImpUtil::open&lt;btlso::IPv4Address&gt;(
+//                                      &amp;clientHandle,
+//                                      btlso::SocketImpUtil::k_SOCKET_STREAM);
+//  assert(0 == rc);
+//
+//  rc = btlso::SocketImpUtil::open&lt;btlso::IPv4Address&gt;(
+//                                      &amp;serverHandle,
+//                                      btlso::SocketImpUtil::k_SOCKET_STREAM);
+//  assert(0 == rc);
+//..
+// Then, we will construct the server and client stream socket objects,
+// &#39;serverSocket&#39; and &#39;clientSocket&#39; respectively.
+//..
+//  btlso::InetStreamSocket&lt;btlso::IPv4Address&gt; serverSocket(serverHandle);
+//  btlso::InetStreamSocket&lt;btlso::IPv4Address&gt; clientSocket(clientHandle);
+//..
+// Next, we will bind &#39;serverSocket&#39; to a local address and start listening on
+// it.
+//..
+//  btlso::IPv4Address localAddress;
+//  localAddress.setIpAddress(&quot;127.0.0.1&quot;);
+//  localAddress.setPortNumber(0);
+//
+//  rc = serverSocket.bind(localAddress);
+//  assert(0 == rc);
+//
+//  btlso::IPv4Address serverAddress;
+//  rc = serverSocket.localAddress(&amp;serverAddress);
+//  assert(0 == rc);
+//
+//  rc = serverSocket.listen(10);
+//  assert(0 == rc);
+//..
+// Then, we will connect &#39;clientSocket&#39; to &#39;localAddress&#39;.
+//..
+//  rc = clientSocket.connect(serverAddress);
+//  assert(0 == rc);
+//..
+// Next, we will create a new stream socket, &#39;acceptSocket&#39;, after accepting
+// the new connection.
+//..
+//  btlso::StreamSocket&lt;btlso::IPv4Address&gt; *acceptSocket;
+//  btlso::IPv4Address clientAddress;
+//
+//  rc = serverSocket.accept(&amp;acceptSocket);
+//  assert(0 == rc);
+//..
+// Then, we will confirm that both sockets are connected.
+//..
+//  rc = clientSocket.connectionStatus();
+//  assert(0 == rc);
+//
+//  rc = acceptSocket-&gt;connectionStatus();
+//  assert(0 == rc);
+//..
+// Next, we will write a message through &#39;clientSocket&#39;.
+//..
+//  char      *writeBuffer    = &quot;Hello World!&quot;;
+//  const int  writeBufferLen = bsl::strlen(writeBuffer);
+//
+//  rc = clientSocket.write(writeBuffer, writeBufferLen);
+//  assert(rc == writeBufferLen);
+//..
+// Now, we will read the written message through &#39;acceptSocket&#39;.
+//..
+//  const int  BUFSIZE = 64;
+//  char       readBuffer[BUFSIZE];
+//
+//  rc = acceptSocket-&gt;read(readBuffer, BUFSIZE);
+//  assert(rc == writeBufferLen);
+//..
+// Finally, we will close all the sockets.
+//..
+//  btlso::SocketImpUtil::close(clientHandle);
+//  btlso::SocketImpUtil::close(acceptSocket-&gt;handle());
+//  btlso::SocketImpUtil::close(serverHandle);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_STREAMSOCKET
+#include &lt;btlso_streamsocket.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETIMPUTIL
+#include &lt;btlso_socketimputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IOUTIL
+#include &lt;btlso_ioutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_CURRENTTIME
+#include &lt;bdlt_currenttime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+    #ifndef INCLUDED_BSL_C_SYS_TIME
+    #include &lt;bsl_c_sys_time.h&gt;
+    #endif
+
+    #ifndef INCLUDED_SYS_POLL
+    #include &lt;sys/poll.h&gt;
+    #define INCLUDED_SYS_POLL
+    #endif
+
+    #ifndef INCLUDED_SYS_TYPES
+    #include &lt;sys/types.h&gt;
+    #define INCLUDED_SYS_TYPES
+    #endif
+
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                        // ======================
+                        // class InetStreamSocket
+                        // ======================
+
+template &lt;class ADDRESS&gt;
+class InetStreamSocket : public StreamSocket&lt;ADDRESS&gt; {
+    // This class implements the &#39;StreamSocket&lt;ADDRESS&gt;&#39; protocol to provide
+    // stream-based socket communications.  The class is templatized to provide
+    // a family of type-safe address specializations (e.g., &quot;IPv4&quot;, &quot;IPv6&quot;).
+    // Various socket-related operations, including accepting and initiating
+    // connections and blocking/non-blocking I/O operations, are provided.
+    // Vector I/O operations are also supported.
+
+    // DATA
+    SocketHandle::Handle  d_handle;
+
+    bslma::Allocator     *d_allocator_p; // held, not owned
+
+  private:
+    // NOT IMPLEMENTED
+    InetStreamSocket(const InetStreamSocket&lt;ADDRESS&gt;&amp;);
+    InetStreamSocket&lt;ADDRESS&gt;&amp; operator=(const InetStreamSocket&lt;ADDRESS&gt;&amp;);
+
+  public:
+    // CREATORS
+    InetStreamSocket(SocketHandle::Handle  handle,
+                     bslma::Allocator     *basicAllocator = 0);
+        // Create a stream socket attached to the specified socket &#39;handle&#39;
+        // that uses the specified &#39;allocator&#39; to supply memory.  If
+        // &#39;allocator&#39; is 0, the currently installed default allocator is used.
+        // The behavior is undefined unless socket &#39;handle&#39; refers to a valid
+        // system socket.
+
+    virtual ~InetStreamSocket&lt;ADDRESS&gt;();
+        // Destroy this &#39;StreamSocket&#39; object.
+
+    // MANIPULATORS
+    virtual int accept(StreamSocket&lt;ADDRESS&gt; **socket);
+        // Accept an incoming connection request and load the address of a new
+        // stream socket of type &#39;InetStreamSocket&lt;ADDRESS&gt;&#39; into the specified
+        // &#39;socket&#39;.  Return 0 on success, and a non-zero value otherwise.  If
+        // this socket is in blocking mode, this function waits until a
+        // connection request is received or an error occurs.  If this socket
+        // is in non-blocking mode and there is no pending connection request,
+        // this call returns immediately with an error status of
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;.  Note that this socket must be
+        // listening for connections (&#39;listen&#39;).
+
+    virtual int accept(StreamSocket&lt;ADDRESS&gt; **socket, ADDRESS *peerAddress);
+        // Accept an incoming connection request, load the address of a new
+        // stream socket of type &#39;InetStreamSocket&lt;ADDRESS&gt;&#39; into the specified
+        // &#39;socket&#39;, and load the address of the peer into the specified
+        // &#39;peerAddress&#39;.  Return 0 on success, and a non-zero value otherwise.
+        // If this socket is in blocking mode, this function waits until a
+        // connection request is received or an error occurs.  If this socket
+        // is in non-blocking mode and there is no pending connection request,
+        // this call returns immediately with an error status of
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;.  Note that this socket must be
+        // listening for connections (&#39;listen&#39;).
+
+    virtual int bind(const ADDRESS&amp; address);
+        // Associate the specified &#39;address&#39; with this socket.  Return 0 on
+        // success, and a non-zero value otherwise.  Note that in order to
+        // receive connections on a socket, it must have an address associated
+        // with it.
+
+    virtual int connect(const ADDRESS&amp; address);
+        // Initiate a connection to a peer process at the specified &#39;address&#39;.
+        // Return 0 on success, and a non-zero value otherwise.  If this socket
+        // is in blocking mode, the call waits until a connection is
+        // established or an error occurs.  If this socket is in non-blocking
+        // mode and the connection cannot be established immediately
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; is returned.  The
+        // &#39;waitForConnect&#39; method may then be used to determine when the
+        // connection request has completed.
+
+    virtual int listen(int backlog);
+        // Register this socket for accepting up to the specified &#39;backlog&#39;
+        // simultaneous connection requests.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined unless
+        // &#39;0 &lt; backlog&#39;.
+
+    virtual int read(char *buffer, int length);
+        // Read up to the specified &#39;length&#39; bytes from this socket into the
+        // specified &#39;buffer&#39;; return the non-negative number of bytes read, or
+        // a negative value on error.  If this socket is in blocking mode, if
+        // there are less than &#39;length&#39; bytes of data available, the call waits
+        // for data to arrive.  If this socket is in non-blocking mode, the
+        // function reads as many bytes as possible without blocking, and
+        // returns the number of bytes read, or
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; if zero bytes were immediately
+        // available.  If the connection has been closed and there is no data
+        // available, &#39;SocketHandle::e_ERROR_EOF&#39; is returned.  If the call is
+        // interrupted before data is available,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; length&#39; and &#39;buffer&#39; refers to at least
+        // &#39;length&#39; writable bytes.
+
+    virtual int readv(const btls::Iovec *buffers, int numBuffers);
+        // Read from this socket into the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39; the respective numbers of
+        // bytes as defined by the &#39;length&#39; methods of each &#39;btls::Iovec&#39;
+        // structure.  Return the non-negative total number of bytes read, or a
+        // negative value on error.  If this socket is in blocking mode, if
+        // there are less than &#39;length&#39; bytes of data available, the call waits
+        // for data to arrive.  If this socket is in non-blocking mode, the
+        // function reads as many bytes as possible without blocking, and
+        // returns the number of bytes read or
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; if zero bytes were immediately
+        // available.  If the connection has been closed, and there is no data
+        // available, &#39;SocketHandle::e_ERROR_EOF&#39; is returned.  If the call is
+        // interrupted before data is available,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; numBuffers&#39;.
+
+    virtual int write(const char *buffer, int length);
+        // Write up to the specified &#39;length&#39; bytes to this socket from the
+        // specified &#39;buffer&#39;; return the non-negative number of bytes written,
+        // or a negative value on error.  If this socket is in blocking mode
+        // the call blocks until the data is fully written.  If this socket is
+        // in non-blocking mode, the function writes as many bytes as possible
+        // without blocking, and returns the number of bytes written, or
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39; if no bytes were written.  If the
+        // connection has been closed, &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is
+        // returned.  If the call is interrupted before any data is written,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; length&#39;.  Note that a successful call to this
+        // function does not guarantee that the data has been transmitted
+        // successfully, but simply that the data was written successfully to
+        // the underlying socket&#39;s transmit buffers.
+
+    virtual int writev(const btls::Iovec *buffers, int numBuffers);
+    virtual int writev(const btls::Ovec  *buffers, int numBuffers);
+        // Write to this socket from the specified sequence of &#39;buffers&#39; of
+        // specified sequence length &#39;numBuffers&#39; the respective numbers of
+        // bytes as reported by the &#39;length&#39; methods of each &#39;btls::Ovec&#39;
+        // structure; return the non-negative total number of bytes written, or
+        // a negative value on error.  If this socket is in blocking mode the
+        // call blocks until the data is fully written.  If this socket is in
+        // non-blocking mode, the function writes as many bytes as possible
+        // without blocking, and returns the number of bytes written, or
+        // &#39;SocketHandle::e_ERROR_WOULDBLOCK&#39;, if no bytes were written.  If
+        // the connection has been closed, &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is
+        // returned.  If the call is interrupted before any data is written,
+        // &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.  The behavior is
+        // undefined unless &#39;0 &lt; numBuffers&#39;.  Note that a successful call to
+        // this function does not guarantee that the data has been transmitted
+        // successfully, but simply that the data was successfully written to
+        // the underlying socket&#39;s transmit buffers.
+
+    virtual int setBlockingMode(btlso::Flag::BlockingMode mode);
+        // Set the current blocking mode of this socket to the specified
+        // &#39;mode&#39;.  Return 0 on success, an a non-zero value otherwise.
+
+    virtual int shutdown(btlso::Flag::ShutdownType streamOption);
+        // Shut down the input and/or output stream(s) indicated by the
+        // specified &#39;streamOption&#39; of the full-duplexed connection associated
+        // with this socket.  Return 0 on success, and a non-zero value
+        // otherwise.  Specifying &#39;SHUTDOWN_RECEIVE&#39; or &#39;SHUTDOWN_SEND&#39; closes
+        // the input or output streams, respectively, leaving the other stream
+        // unaffected.  Specifying &#39;SHUTDOWN_BOTH&#39; closes both streams.  Once
+        // the input(output) stream has been closed, any attempted read(write)
+        // operations will fail.  Any data received after successfully shutting
+        // down the input stream will be acknowledged but silently discarded.
+        // Note that this function is typically used to transmit an EOF
+        // indication to the peer.
+
+    virtual int waitForConnect(const bsls::TimeInterval&amp; timeout);
+        // Wait until a pending outgoing connection request completes or until
+        // the specified absolute &#39;timeout&#39; is reached, whichever occurs first.
+        // Return 0 if the connection request has completed, and a non-zero
+        // value otherwise.  Note that the completion of a connection request
+        // does not imply that a connection has been successfully established;
+        // a call to &#39;connectionStatus&#39; should be made to determine if the
+        // connection request completed successfully.
+
+    virtual int waitForAccept(const bsls::TimeInterval&amp; timeout);
+        // Wait for an incoming connection request on this socket or until the
+        // specified absolute &#39;timeout&#39; is reached, whichever occurs first.
+        // Return 0 if a connection request has been received, and a non-zero
+        // value otherwise.  Note that once a connection request has been
+        // received, a call to &#39;accept&#39; can be made to establish the
+        // connection.
+
+    virtual int waitForIO(btlso::Flag::IOWaitType   type,
+                          const bsls::TimeInterval&amp; timeout);
+        // Wait for an I/O of the specified &#39;type&#39; to occur or until the
+        // specified absolute &#39;timeout&#39; is reached, whichever occurs first.
+        // Return IO_READ, IO_WRITE or IO_RW if the corresponding event
+        // occurred, and a non-zero value otherwise.  If a timeout occurred, a
+        // value of &#39;SocketHandle::e_ERROR_TIMEDOUT&#39; is returned.  If this call
+        // is interrupted, &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is returned.
+
+    virtual int waitForIO(btlso::Flag::IOWaitType type);
+        // Wait for an I/O of the specified &#39;type&#39; to occur.  Return &#39;type&#39; if
+        // the corresponding event occurred, and a negative value otherwise.
+        // If this call is interrupted, &#39;SocketHandle::e_ERROR_INTERRUPTED&#39; is
+        // returned.
+
+    virtual int setLingerOption(const SocketOptUtil::LingerData&amp; options);
+        // Set the current linger options of this socket to the specified
+        // &#39;options&#39;.  Return 0 on success, and a non-zero value otherwise.
+
+    virtual int setOption(int level, int option, int value);
+        // Set the specified socket &#39;option&#39; (of the specified &#39;level&#39;) on this
+        // socket to the specified &#39;value&#39;.  Return 0 on success and a non-zero
+        // value otherwise.  See &#39;btlso_socketoptutil&#39; for the list of commonly
+        // supported options.
+
+    // ACCESSORS
+    virtual int blockingMode(btlso::Flag::BlockingMode *result) const;
+        // Load into the specified &#39;result&#39; the current blocking mode of this
+        // socket.  Return 0 on success, and a non-zero value without affecting
+        // &#39;result&#39; otherwise.
+
+    virtual int localAddress(ADDRESS *result) const;
+        // Load into the specified &#39;result&#39; the local address of this socket.
+        // Return 0 on success, and a non-zero value without affecting &#39;result&#39;
+        // otherwise.
+
+    virtual int peerAddress(ADDRESS *result) const;
+        // Load into the specified &#39;result&#39; the address of the peer connected
+        // to this socket.  Return 0 on success, and a non-zero value without
+        // affecting &#39;result&#39; otherwise.
+
+    virtual SocketHandle::Handle handle() const;
+        // Return the OS handle associated with this socket.  Note that direct
+        // manipulation of the underlying stream may result in undefined
+        // behavior.
+
+    virtual int connectionStatus() const;
+        // Test the connection status of this socket.  Return 0 if this socket
+        // has an established connection, and a non-zero value otherwise.  If
+        // there is no established or pending connection, a value of
+        // &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is returned.  A value of
+        // &#39;SocketHandle::e_ERROR_CONNDEAD&#39; is also returned if a non-blocking
+        // connection request fails.  Note that this method is typically used
+        // to determine the result of a non-blocking connection request.
+
+    virtual int lingerOption(SocketOptUtil::LingerData *result) const;
+        // Load into the specified &#39;result&#39; the value of this socket&#39;s current
+        // linger options.  The behavior is undefined if &#39;result&#39; is 0.
+
+    virtual int socketOption(int *result, int level, int option) const;
+        // Load int the specified &#39;result&#39; the value of the specified socket
+        // &#39;option&#39; of the specified &#39;level&#39; socket option on this socket.
+        // Return 0 on success and a non-zero value otherwise.
+};
+
+                // ================================
+                // class InetStreamSocketCloseGuard
+                // ================================
+
+class InetStreamSocketCloseGuard {
+    // This class implements a proctor that automatically closes the managed
+    // socket at destruction unless its &#39;release&#39; method is invoked.
+
+    // DATA
+    SocketHandle::Handle d_socketHandle;   // managed socket handle
+    int                  d_valid;          // true until &#39;release&#39; called
+
+  private:
+    // NOT IMPLEMENTED
+    InetStreamSocketCloseGuard(const InetStreamSocketCloseGuard&amp;);
+    InetStreamSocketCloseGuard&amp; operator=(const InetStreamSocketCloseGuard&amp;);
+  public:
+    // CREATORS
+    explicit InetStreamSocketCloseGuard(SocketHandle::Handle socketHandle);
+        // Create a proctor object to manage socket having the specified
+        // &#39;socketHandle&#39;.
+
+    ~InetStreamSocketCloseGuard();
+        // Destroy this proctor object and, unless the &#39;release&#39; method has
+        // been previously called, close the managed socket.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the socket currently managed by this
+        // proctor.  If no socket is currently being managed, this operation
+        // has no effect.
+};
+
+// ============================================================================
+//                      TEMPLATE FUNCTION DEFINITIONS
+// ============================================================================
+
+                     // ----------------------
+                     // class InetStreamSocket
+                     // ----------------------
+
+// CREATORS
+template &lt;class ADDRESS&gt;
+InetStreamSocket&lt;ADDRESS&gt;::InetStreamSocket(
+                                          SocketHandle::Handle  handle,
+                                          bslma::Allocator     *basicAllocator)
+: d_handle(handle)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+template &lt;class ADDRESS&gt;
+InetStreamSocket&lt;ADDRESS&gt;::~InetStreamSocket()
+{
+}
+
+// MANIPULATORS
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::accept(StreamSocket&lt;ADDRESS&gt; **socket)
+{
+    SocketHandle::Handle newHandle;
+
+    int ret = SocketImpUtil::accept&lt;ADDRESS&gt;(&amp;newHandle, d_handle);
+    if (ret != 0) {
+        return ret;                                                   // RETURN
+    }
+
+    InetStreamSocketCloseGuard autoDeallocate(newHandle);
+
+    *socket = new (*d_allocator_p) InetStreamSocket&lt;ADDRESS&gt;(newHandle,
+                                                             d_allocator_p);
+
+    autoDeallocate.release();
+
+    return 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::accept(StreamSocket&lt;ADDRESS&gt;  **socket,
+                                      ADDRESS                 *peerAddress)
+{
+    SocketHandle::Handle newHandle;
+
+    int ret = SocketImpUtil::accept&lt;ADDRESS&gt;(&amp;newHandle,
+                                             peerAddress,
+                                             d_handle);
+
+    if (ret != 0) {
+        return ret;                                                   // RETURN
+    }
+
+    *socket = new (*d_allocator_p) InetStreamSocket&lt;ADDRESS&gt;(newHandle,
+                                                             d_allocator_p);
+    return 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::bind(const ADDRESS&amp; address)
+{
+    int ret = SocketImpUtil::bind&lt;ADDRESS&gt;(d_handle, address);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::connect(const ADDRESS&amp; address)
+{
+    int ret = SocketImpUtil::connect&lt;ADDRESS&gt;(d_handle, address);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::listen(int backlog)
+{
+    int ret = SocketImpUtil::listen(d_handle, backlog);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::read(char *buffer, int length)
+{
+    int ret = SocketImpUtil::read(buffer, d_handle, length);
+
+    if (length &gt; 0 &amp;&amp; ret == 0) {
+        ret = SocketHandle::e_ERROR_EOF;
+    }
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::readv(const btls::Iovec *buffers,
+                                     int                numBuffers)
+{
+    int ret = SocketImpUtil::readv(buffers, d_handle, numBuffers);
+
+    if (ret == 0) {
+        // readv returns 0 if either the number of bytes to read was zero or if
+        // an EOF occurred.
+
+        int i;
+        for (i = 0; i &lt; numBuffers; ++i) {
+            if (buffers[i].length()) {
+                return SocketHandle::e_ERROR_EOF;                     // RETURN
+            }
+        }
+    }
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::write(const char *buffer, int length)
+{
+    int ret = SocketImpUtil::write(d_handle, buffer, length);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::writev(const btls::Iovec *buffers,
+                                      int                numBuffers)
+{
+    int ret = SocketImpUtil::writev(
+                                 d_handle,
+                                 reinterpret_cast&lt;const btls::Ovec *&gt;(buffers),
+                                 numBuffers);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::writev(const btls::Ovec *buffers,
+                                      int               numBuffers)
+{
+    return SocketImpUtil::writev(d_handle, buffers, numBuffers);
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::setBlockingMode(btlso::Flag::BlockingMode mode)
+{
+    return IoUtil::setBlockingMode(d_handle,
+                                   btlso::Flag::e_BLOCKING_MODE == mode
+                                   ? IoUtil::e_BLOCKING
+                                   : IoUtil::e_NONBLOCKING);
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::setLingerOption(
+                                      const SocketOptUtil::LingerData&amp; options)
+{
+    const int rc = SocketOptUtil::setOption(handle(),
+                                            SocketOptUtil::k_SOCKETLEVEL,
+                                            SocketOptUtil::k_LINGER,
+                                            options);
+
+    return rc ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::setOption(int level, int option, int value)
+{
+    const int rc = SocketOptUtil::setOption(handle(),
+                                            level,
+                                            option,
+                                            value);
+
+    return rc ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::shutdown(btlso::Flag::ShutdownType value)
+{
+    static enum SocketImpUtil::ShutDownType shutDownTypeMapping[] = {
+        SocketImpUtil::e_SHUTDOWN_RECEIVE,
+        SocketImpUtil::e_SHUTDOWN_SEND,
+        SocketImpUtil::e_SHUTDOWN_BOTH
+    };
+
+    BSLMF_ASSERT(0 == btlso::Flag::e_SHUTDOWN_RECEIVE
+              &amp;&amp; 1 == btlso::Flag::e_SHUTDOWN_SEND
+              &amp;&amp; 2 == btlso::Flag::e_SHUTDOWN_BOTH);
+
+    int ret = SocketImpUtil::shutDown(d_handle, shutDownTypeMapping[value]);
+
+    return ret;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::waitForConnect(
+                                             const bsls::TimeInterval&amp; timeout)
+{
+    bsls::TimeInterval interval     = timeout - bdlt::CurrentTime::now();
+    int                seconds      = static_cast&lt;int&gt;(interval.seconds());
+    int                microseconds = (interval.nanoseconds() + 999) / 1000;
+
+    if (seconds &lt; 0 || microseconds &lt; 0) {
+        seconds = 0;
+        microseconds = 0;
+    }
+
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    struct pollfd fds;
+    fds.fd = d_handle;
+    fds.events = POLLOUT;
+    fds.revents = 0;
+
+    int milliseconds = seconds * 1000 + (microseconds + 999) / 1000;
+
+    int ret = ::poll(&amp;fds, 1, milliseconds);
+
+    if (ret &gt; 0) {
+        rc = 0;
+    }
+    else if (0 == ret) {
+        rc = SocketHandle::e_ERROR_TIMEDOUT;
+    }
+    else if (EINTR == errno) {
+        rc = SocketHandle::e_ERROR_INTERRUPTED;
+    }
+    else {
+        rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+    }
+#else
+    fd_set writeset;
+    fd_set excset;
+    FD_ZERO(&amp;writeset);
+    FD_ZERO(&amp;excset);
+    FD_SET(d_handle, &amp;writeset);
+    FD_SET(d_handle, &amp;excset);
+
+    struct timeval tv;
+    tv.tv_sec = seconds;
+    tv.tv_usec = microseconds;
+
+    int ret = ::select(d_handle + 1, 0, &amp;writeset, &amp;excset, &amp;tv);
+
+    if (ret &gt; 0) {
+        rc = 0;
+    }
+    else if (0 == ret) {
+        rc = SocketHandle::e_ERROR_TIMEDOUT;
+    }
+    else if (WSAEINTR == WSAGetLastError()) {
+        rc = SocketHandle::e_ERROR_INTERRUPTED;
+    }
+    else {
+        rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+    }
+#endif
+
+    return rc;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::waitForAccept(const bsls::TimeInterval&amp; timeout)
+{
+    return InetStreamSocket&lt;ADDRESS&gt;::waitForIO(Flag::e_IO_READ, timeout);
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::waitForIO(btlso::Flag::IOWaitType   type,
+                                         const bsls::TimeInterval&amp; timeout)
+{
+    bsls::TimeInterval interval     = timeout - bdlt::CurrentTime::now();
+    int                seconds      = static_cast&lt;int&gt;(interval.seconds());
+    int                microseconds = (interval.nanoseconds() + 999) / 1000;
+
+    if (seconds &lt; 0 || microseconds &lt; 0) {
+        seconds = 0;
+        microseconds = 0;
+    }
+
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+
+    switch (type) {
+      case btlso::Flag::e_IO_READ: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLIN;
+        fds.revents = 0;
+
+        int milliseconds = seconds * 1000 + (microseconds + 999) / 1000;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_READ;
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set readset;
+        FD_ZERO(&amp;readset);
+        FD_SET(d_handle, &amp;readset);
+
+        struct timeval tv;
+        tv.tv_sec = seconds;
+        tv.tv_usec = microseconds;
+
+        int ret = ::select(d_handle + 1, &amp;readset, 0, 0, &amp;tv);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_READ;
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+      case btlso::Flag::e_IO_WRITE: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLOUT;
+        fds.revents = 0;
+
+        int milliseconds = seconds * 1000 + (microseconds + 999) / 1000;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_WRITE;
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set writeset;
+        FD_ZERO(&amp;writeset);
+        FD_SET(d_handle, &amp;writeset);
+
+        struct timeval tv;
+        tv.tv_sec = seconds;
+        tv.tv_usec = microseconds;
+
+        int ret = ::select(d_handle + 1, 0, &amp;writeset, 0, &amp;tv);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_WRITE;
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+      case btlso::Flag::e_IO_RW: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLIN | POLLOUT;
+        fds.revents = 0;
+
+        int milliseconds = seconds * 1000 + (microseconds + 999) / 1000;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            if (fds.revents &amp; POLLIN) {
+                if (fds.revents &amp; POLLOUT) {
+                    rc = btlso::Flag::e_IO_RW;
+                } else {
+                    rc = btlso::Flag::e_IO_READ;
+                    }
+            } else {
+                rc = btlso::Flag::e_IO_WRITE;
+            }
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set readset;
+        fd_set writeset;
+        FD_ZERO(&amp;readset);
+        FD_ZERO(&amp;writeset);
+        FD_SET(d_handle, &amp;readset);
+        FD_SET(d_handle, &amp;writeset);
+
+        struct timeval tv;
+        tv.tv_sec = seconds;
+        tv.tv_usec = microseconds;
+
+        int ret = ::select(d_handle + 1, &amp;readset, &amp;writeset, 0, &amp;tv);
+
+        if (ret &gt; 0) {
+            if (FD_ISSET(d_handle, &amp;readset)) {
+                if (FD_ISSET(d_handle, &amp;writeset)) {
+                    rc = btlso::Flag::e_IO_RW;
+                } else {
+                    rc = btlso::Flag::e_IO_READ;
+                }
+            } else {
+                rc = btlso::Flag::e_IO_WRITE;
+            }
+        }
+        else if (0 == ret) {
+            rc = SocketHandle::e_ERROR_TIMEDOUT;
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+    }
+
+    return rc;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::waitForIO(btlso::Flag::IOWaitType type)
+{
+    int rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+
+    switch (type) {
+      case btlso::Flag::e_IO_READ: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLIN;
+        fds.revents = 0;
+
+        int milliseconds = -1;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_READ;
+        }
+        else if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set readset;
+        FD_ZERO(&amp;readset);
+        FD_SET(d_handle, &amp;readset);
+
+        int ret = ::select(d_handle + 1, &amp;readset, 0, 0, 0);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_READ;
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+      case btlso::Flag::e_IO_WRITE: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLOUT;
+        fds.revents = 0;
+
+        int milliseconds = -1;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_WRITE;
+        }
+        else if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set writeset;
+        FD_ZERO(&amp;writeset);
+        FD_SET(d_handle, &amp;writeset);
+
+        int ret = ::select(d_handle + 1, 0, &amp;writeset, 0, 0);
+
+        if (ret &gt; 0) {
+            rc = btlso::Flag::e_IO_WRITE;
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+      case btlso::Flag::e_IO_RW: {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        struct pollfd fds;
+        fds.fd = d_handle;
+        fds.events = POLLIN | POLLOUT;
+        fds.revents = 0;
+
+        int milliseconds = -1;
+
+        int ret = ::poll(&amp;fds, 1, milliseconds);
+
+        if (ret &gt; 0) {
+            if (fds.revents &amp; POLLIN) {
+                if (fds.revents &amp; POLLOUT) {
+                    rc = btlso::Flag::e_IO_RW;
+                } else {
+                    rc = btlso::Flag::e_IO_READ;
+                }
+            } else {
+                rc = btlso::Flag::e_IO_WRITE;
+            }
+        }
+        if (EINTR == errno) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#else
+        fd_set readset;
+        fd_set writeset;
+        FD_ZERO(&amp;readset);
+        FD_ZERO(&amp;writeset);
+        FD_SET(d_handle, &amp;readset);
+        FD_SET(d_handle, &amp;writeset);
+
+        int ret = ::select(d_handle + 1, &amp;readset, &amp;writeset, 0, 0);
+
+        if (ret &gt; 0) {
+            if (FD_ISSET(d_handle, &amp;readset)) {
+                if (FD_ISSET(d_handle, &amp;writeset)) {
+                    rc = btlso::Flag::e_IO_RW;
+                } else {
+                    rc = btlso::Flag::e_IO_READ;
+                }
+            } else {
+                rc = btlso::Flag::e_IO_WRITE;
+            }
+        }
+        else if (WSAEINTR == WSAGetLastError()) {
+            rc = SocketHandle::e_ERROR_INTERRUPTED;
+        } else {
+            rc = SocketHandle::e_ERROR_UNCLASSIFIED;
+        }
+#endif
+      } break;
+    }
+
+    return rc;
+}
+
+// ACCESSORS
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::blockingMode(
+                                       btlso::Flag::BlockingMode *result) const
+{
+    IoUtil::BlockingMode mode;
+    int                  rc = IoUtil::getBlockingMode(&amp;mode, d_handle);
+
+    if (0 == rc) {
+        *result = mode == IoUtil::e_BLOCKING
+                  ? btlso::Flag::e_BLOCKING_MODE
+                  : btlso::Flag::e_NONBLOCKING_MODE;
+    }
+
+    return rc;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::connectionStatus() const
+{
+    // Determine if the connection succeeded.
+    //
+    // The socket may be in one of the following states: 1) The connection is
+    // open.  Return 0.  2) The earlier connection on this socket has been
+    // terminated but the socket is still open.  Return ERROR_CONNDEAD 3) The
+    // connection request has failed.  Return ERROR_CONNDEAD
+    //
+    // This operation is not valid when no connection has been attempted or the
+    // connection request is still pending.
+
+    ADDRESS peerAddr;
+    int     result = peerAddress(&amp;peerAddr);
+
+    if (0 == result) {
+        // The connection is open.
+
+        return 0;                                                     // RETURN
+    }
+
+    return SocketHandle::e_ERROR_CONNDEAD;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::lingerOption(
+                                       SocketOptUtil::LingerData *result) const
+{
+    const int rc = SocketOptUtil::getOption(result,
+                                            handle(),
+                                            SocketOptUtil::k_SOCKETLEVEL,
+                                            SocketOptUtil::k_LINGER);
+
+    return rc ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::socketOption(int *result,
+                                            int  level,
+                                            int  option) const
+{
+    const int rc = SocketOptUtil::getOption(result, handle(), level, option);
+
+    return rc ? SocketHandle::e_ERROR_UNCLASSIFIED : 0;
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::localAddress(ADDRESS *result) const
+{
+    return SocketImpUtil::getLocalAddress&lt;ADDRESS&gt;(result, d_handle);
+}
+
+template &lt;class ADDRESS&gt;
+int InetStreamSocket&lt;ADDRESS&gt;::peerAddress(ADDRESS *result) const
+{
+    return SocketImpUtil::getPeerAddress&lt;ADDRESS&gt;(result, d_handle);
+}
+
+template &lt;class ADDRESS&gt;
+SocketHandle::Handle InetStreamSocket&lt;ADDRESS&gt;::handle() const
+{
+    return d_handle;
+}
+
+                // --------------------------------
+                // class InetStreamSocketCloseGuard
+                // --------------------------------
+
+// CREATORS
+inline
+InetStreamSocketCloseGuard::
+InetStreamSocketCloseGuard(SocketHandle::Handle socketHandle)
+: d_socketHandle(socketHandle)
+, d_valid(1)
+{
+}
+
+inline
+InetStreamSocketCloseGuard::~InetStreamSocketCloseGuard()
+{
+    if (d_valid) {
+        SocketImpUtil::close(d_socketHandle);
+    }
+}
+
+// MANIPULATORS
+inline
+void InetStreamSocketCloseGuard::release()
+{
+    d_valid = 0;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

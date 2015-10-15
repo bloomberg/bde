@@ -1,0 +1,494 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_decoderoptions.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_DECODEROPTIONS
+#define INCLUDED_BALXML_DECODEROPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT_RCSID(baexml_decoderoptions_h,&quot;$Id$ $CSID$ $CCId$&quot;)
+BSLS_IDENT_PRAGMA_ONCE
+
+//@PURPOSE: Provide value-semantic attribute classes
+//
+//@DESCRIPTION:
+// Options for controlling the XML decoding process.
+//
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
+#include &lt;bdlat_attributeinfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_SELECTIONINFO
+#include &lt;bdlat_selectioninfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#include &lt;bdlat_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include &lt;bsls_objectbuffer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#define INCLUDED_BSL_IOSFWD
+#endif
+
+namespace BloombergLP {
+
+namespace balxml {
+
+                            // ====================
+                            // class DecoderOptions
+                            // ====================
+
+class DecoderOptions {
+    // Options for controlling the XML decoding process.
+
+    // INSTANCE DATA
+    int   d_maxDepth;
+        // maximum recursion depth
+    int   d_formattingMode;
+        // Formatting mode
+    bool  d_skipUnknownElements;
+        // Option to skip unknown elements
+
+  public:
+    // TYPES
+    enum {
+        e_ATTRIBUTE_ID_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_ID_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = 2
+    };
+
+    enum {
+        k_NUM_ATTRIBUTES = 3
+    };
+
+    enum {
+        e_ATTRIBUTE_INDEX_MAX_DEPTH             = 0
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE       = 1
+      , e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = 2
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const int DEFAULT_INITIALIZER_MAX_DEPTH;
+
+    static const int DEFAULT_INITIALIZER_FORMATTING_MODE;
+
+    static const bool DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
+
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified &#39;id&#39; if the attribute exists, and 0 otherwise.
+
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified &#39;name&#39; of the specified &#39;nameLength&#39; if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    DecoderOptions();
+        // Create an object of type &#39;DecoderOptions&#39; having the default value.
+
+    DecoderOptions(const DecoderOptions&amp; original);
+        // Create an object of type &#39;DecoderOptions&#39; having the value of the
+        // specified &#39;original&#39; object.
+
+    ~DecoderOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    DecoderOptions&amp; operator=(const DecoderOptions&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttributes(MANIPULATOR&amp; manipulator);
+        // Invoke the specified &#39;manipulator&#39; sequentially on the address of
+        // each (modifiable) attribute of this object, supplying &#39;manipulator&#39;
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of &#39;manipulator&#39; (i.e., the invocation that
+        // terminated the sequence).
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttribute(MANIPULATOR&amp; manipulator, int id);
+        // Invoke the specified &#39;manipulator&#39; on the address of
+        // the (modifiable) attribute indicated by the specified &#39;id&#39;,
+        // supplying &#39;manipulator&#39; with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of &#39;manipulator&#39; if &#39;id&#39; identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttribute(MANIPULATOR&amp;  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified &#39;manipulator&#39; on the address of
+        // the (modifiable) attribute indicated by the specified &#39;name&#39; of the
+        // specified &#39;nameLength&#39;, supplying &#39;manipulator&#39; with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of &#39;manipulator&#39; if &#39;name&#39; identifies
+        // an attribute of this class, and -1 otherwise.
+
+    void setMaxDepth(int value);
+        // Set the &quot;MaxDepth&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setFormattingMode(int value);
+        // Set the &quot;FormattingMode&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setSkipUnknownElements(bool value);
+        // Set the &quot;SkipUnknownElements&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    // ACCESSORS
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttributes(ACCESSOR&amp; accessor) const;
+        // Invoke the specified &#39;accessor&#39; sequentially on each
+        // (non-modifiable) attribute of this object, supplying &#39;accessor&#39;
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of &#39;accessor&#39; (i.e., the invocation that terminated
+        // the sequence).
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttribute(ACCESSOR&amp; accessor, int id) const;
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute
+        // of this object indicated by the specified &#39;id&#39;, supplying &#39;accessor&#39;
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of &#39;accessor&#39; if &#39;id&#39; identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttribute(ACCESSOR&amp;   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute
+        // of this object indicated by the specified &#39;name&#39; of the specified
+        // &#39;nameLength&#39;, supplying &#39;accessor&#39; with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of &#39;accessor&#39; if &#39;name&#39; identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const int&amp; maxDepth() const;
+        // Return a reference to the non-modifiable &quot;MaxDepth&quot; attribute of
+        // this object.
+
+    const int&amp; formattingMode() const;
+        // Return a reference to the non-modifiable &quot;FormattingMode&quot; attribute
+        // of this object.
+
+    const bool&amp; skipUnknownElements() const;
+        // Return a reference to the non-modifiable &quot;SkipUnknownElements&quot;
+        // attribute of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects have
+    // the same value, and &#39;false&#39; otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const DecoderOptions&amp; lhs, const DecoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects do not
+    // have the same value, and &#39;false&#39; otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const DecoderOptions&amp; rhs);
+    // Format the specified &#39;rhs&#39; to the specified output &#39;stream&#39; and
+    // return a reference to the modifiable &#39;stream&#39;.
+
+
+// TRAITS
+
+}  // close package namespace
+
+BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balxml::DecoderOptions)
+
+namespace balxml {
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+
+                            // --------------------
+                            // class DecoderOptions
+                            // --------------------
+
+// MANIPULATORS
+template &lt;class MANIPULATOR&gt;
+int DecoderOptions::manipulateAttributes(MANIPULATOR&amp; manipulator)
+{
+    int ret;
+
+    ret = manipulator(&amp;d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template &lt;class MANIPULATOR&gt;
+int DecoderOptions::manipulateAttribute(MANIPULATOR&amp; manipulator, int id)
+{
+    enum { k_NOT_FOUND = -1 };
+
+    switch (id) {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return manipulator(&amp;d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&amp;d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return manipulator(&amp;d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                                                                      // RETURN
+      } break;
+      default:
+        return k_NOT_FOUND;                                           // RETURN
+    }
+}
+
+template &lt;class MANIPULATOR&gt;
+int DecoderOptions::manipulateAttribute(
+        MANIPULATOR&amp;  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { k_NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return k_NOT_FOUND;                                            // RETURN
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo-&gt;d_id);
+}
+
+inline
+void DecoderOptions::setMaxDepth(int value)
+{
+    d_maxDepth = value;
+}
+
+inline
+void DecoderOptions::setFormattingMode(int value)
+{
+    d_formattingMode = value;
+}
+
+inline
+void DecoderOptions::setSkipUnknownElements(bool value)
+{
+    d_skipUnknownElements = value;
+}
+
+// ACCESSORS
+template &lt;class ACCESSOR&gt;
+int DecoderOptions::accessAttributes(ACCESSOR&amp; accessor) const
+{
+    int ret;
+
+    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template &lt;class ACCESSOR&gt;
+int DecoderOptions::accessAttribute(ACCESSOR&amp; accessor, int id) const
+{
+    enum { k_NOT_FOUND = -1 };
+
+    switch (id) {
+      case e_ATTRIBUTE_ID_MAX_DEPTH: {
+        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
+        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+                                                                      // RETURN
+      } break;
+      default:
+        return k_NOT_FOUND;                                           // RETURN
+    }
+}
+
+template &lt;class ACCESSOR&gt;
+int DecoderOptions::accessAttribute(
+        ACCESSOR&amp;   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { k_NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return k_NOT_FOUND;                                            // RETURN
+    }
+
+    return accessAttribute(accessor, attributeInfo-&gt;d_id);
+}
+
+inline
+const int&amp; DecoderOptions::maxDepth() const
+{
+    return d_maxDepth;
+}
+
+inline
+const int&amp; DecoderOptions::formattingMode() const
+{
+    return d_formattingMode;
+}
+
+inline
+const bool&amp; DecoderOptions::skipUnknownElements() const
+{
+    return d_skipUnknownElements;
+}
+}  // close package namespace
+
+
+// FREE FUNCTIONS
+
+inline
+bool balxml::operator==(
+        const DecoderOptions&amp; lhs,
+        const DecoderOptions&amp; rhs)
+{
+    return  lhs.maxDepth() == rhs.maxDepth()
+         &amp;&amp; lhs.formattingMode() == rhs.formattingMode()
+         &amp;&amp; lhs.skipUnknownElements() == rhs.skipUnknownElements();
+}
+
+inline
+bool balxml::operator!=(
+        const DecoderOptions&amp; lhs,
+        const DecoderOptions&amp; rhs)
+{
+    return  lhs.maxDepth() != rhs.maxDepth()
+         || lhs.formattingMode() != rhs.formattingMode()
+         || lhs.skipUnknownElements() != rhs.skipUnknownElements();
+}
+
+inline
+bsl::ostream&amp; balxml::operator&lt;&lt;(
+        bsl::ostream&amp; stream,
+        const DecoderOptions&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

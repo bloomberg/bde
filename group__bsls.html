@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls Package</title>
+<title>BDE 3.0: bsls Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -288,6 +288,11 @@ Components</h2></td></tr>
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a macro to increment preprocessor numbers. </p>
 </td></tr>
 </p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__macrorepeat.html">Component bsls_macrorepeat</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">repreat a macro invocation with different numeric arguments </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__nativestd.html">Component bsls_nativestd</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Define the namespace <code>native_std</code> as an alias for <code>::std</code>. </p>
@@ -316,6 +321,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__protocoltest.html">Component bsls_protocoltest</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide classes and macros for testing abstract protocols. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__spinlock.html">Component bsls_spinlock</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a spin lock. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bsls__stopwatch.html">Component bsls_stopwatch</a></td></tr>
@@ -473,7 +483,7 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 58 components having 14 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bsls</code> package currently has 60 components having 14 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  14. bsls_byteorder
 
@@ -495,6 +505,7 @@ A timer component, and access to system time facilities.  </li>
    9. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_spinlock
 
    8. bsls_assert
       bsls_atomic
@@ -542,6 +553,7 @@ A timer component, and access to system time facilities.  </li>
    2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
+      bsls_macrorepeat
       bsls_platform
       bsls_protocoltest
 
@@ -641,6 +653,8 @@ A timer component, and access to system time facilities.  </li>
  Provide a namespace for low-level logging functions.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_macroincrement</code>: <br/>
  Provide a macro to increment preprocessor numbers.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_macrorepeat</code>: <br/>
+ repreat a macro invocation with different numeric arguments</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_nativestd</code>: <br/>
  Define the namespace <code>native_std</code> as an alias for <code>::std</code>.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_nullptr</code>: <br/>
@@ -653,6 +667,8 @@ A timer component, and access to system time facilities.  </li>
  Provide compile-time support for platform/attribute identification.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_protocoltest</code>: <br/>
  Provide classes and macros for testing abstract protocols.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_spinlock</code>: <br/>
+ Provide a spin lock.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_stopwatch</code>: <br/>
  Provide access to user, system, and wall times of current process.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bsls_systemclocktype</code>: <br/>
@@ -673,7 +689,7 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_overview"></a> <a class="anchor" id="description.component_overview"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Component Overview: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This section summarizes the components that are available in <code>bsls</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section provides a brief introduction to some of the components in the <code>bsls</code> package. See the documentation in each component for full details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_alignedbuffer"></a> <a class="anchor" id="component_overview.bsls_alignedbuffer"></a> <a class="anchor" id="description.component_overview.bsls_alignedbuffer"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_alignedbuffer: </b></dt><dd></dd></dl>
@@ -801,9 +817,9 @@ A timer component, and access to system time facilities.  </li>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bsls_util"></a> <a class="anchor" id="component_overview.bsls_util"></a> <a class="anchor" id="description.component_overview.bsls_util"></a> <a class="anchor" id="3.3.32"></a> </dd></dl>
 <dl class="user"><dt><b>bsls_util: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__util.html" class="el"><code>bsls_util</code></a> component provides pure functions that supply essential low-level support for implementing portable generic facilities such as might be found the the C++ standard library. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bsls__util.html" class="el"><code>bsls_util</code></a> component provides pure functions that supply essential low-level support for implementing portable generic facilities such as might be found in the C++ standard library. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_dequeiterator.h                                             -*-C++-*-
@@ -374,9 +374,9 @@ class DequeIterator&lt;VALUE_TYPE, 1&gt; {
     VALUE_TYPE *valuePtr() const;
 };
 
-// ===========================================================================
+// ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // -------------------
                          // class DequeIterator
@@ -839,13 +839,13 @@ bool bslalg::operator&lt;(const DequeIterator&lt;VALUE_TYPE, 1&gt;&amp; lhs,
 
 }  // close enterprise namespace
 
-// ===========================================================================
+// ============================================================================
 //                                TYPE TRAITS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl {
 
-template &lt;typename VALUE_TYPE, int BLOCK_LENGTH&gt;
+template &lt;class VALUE_TYPE, int BLOCK_LENGTH&gt;
 struct is_trivially_copyable&lt;BloombergLP::bslalg::DequeIterator&lt;VALUE_TYPE,
                                                                 BLOCK_LENGTH&gt; &gt;
     : true_type

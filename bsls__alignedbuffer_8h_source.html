@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_alignedbuffer.h                                               -*-C++-*-
@@ -32,7 +32,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // a union.  It is a convenient way to create a small heap from which one or
 // more objects are allocated at run-time.
 //
-///Single-object buffers
+///Single-Object Buffers
 ///---------------------
 // Although, for a given type &#39;T&#39;,
 // &#39;bsls::AlignedBuffer&lt;sizeof(T), bsls::AlignmentFromType&lt;T&gt;::VALUE&gt;&#39; will
@@ -227,9 +227,9 @@ class AlignedBuffer {
         // &#39;const char*&#39; pointer.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // MANIPULATORS
 template &lt;int SIZE, int ALIGNMENT&gt;

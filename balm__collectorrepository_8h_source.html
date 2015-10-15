@@ -1,0 +1,456 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_collectorrepository.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
+#define INCLUDED_BALM_COLLECTORREPOSITORY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a repository for collectors.
+//
+//@CLASSES:
+//   balm::CollectorRepository: a repository for collectors
+//
+//@SEE_ALSO: balm_collector, balm_integercollector, balm_metricsmanager
+//
+//@DESCRIPTION: This component defines a class, &#39;balm::CollectorRepository&#39;,
+// that serves as a repository for &#39;balm::Collector&#39; and
+// &#39;balm::IntegerCollector&#39; objects.  The collector repository supports
+// operations to create and lookup collectors, as well as an operation to
+// collect metric records from the collectors in the repository.  Collectors
+// are identified by a metric id, which uniquely identifies the metric for
+// which they collect values.  The &#39;getDefaultCollector&#39; (and
+// &#39;getDefaultIntegerCollector&#39;) operations return the default collector (or
+// integer collector) for the supplied metric.  The &#39;addCollector&#39; (and
+// &#39;addIntegerCollector&#39;) operations create and return a new collector (or
+// integer collector) for the specified metric.  Each collector instance can
+// can safely collect values from multiple threads, however, the collector does
+// use a mutex: Applications anticipating high contention for that lock can use
+// &#39;addCollector&#39; (and &#39;addIntegerCollector&#39;) to obtain multiple collectors and
+// thereby reduce contention.  Finally, the &#39;collectAndReset&#39; operation
+// collects and returns metric records from each of the collectors in the
+// repository.
+//
+///Thread Safety
+///-------------
+// &#39;balm::CollectorRepository&#39; is fully *thread-safe*, meaning that all
+// non-creator operations on a given instance can be safely invoked
+// simultaneously from multiple threads.
+//
+///Usage
+///-----
+// The following example illustrates creating a &#39;balm::CollectorRepository&#39;,
+// then looking up collectors in that repository, and finally collecting values
+// from the repository.  We start by creating a repository and looking up 2
+// collectors and 2 integer collectors:
+//..
+//  bslma::Allocator *allocator = bslma::Default::allocator(0);
+//  balm::MetricRegistry  metricRegistry(allocator);
+//  balm::CollectorRepository repository(&amp;metricRegistry, allocator);
+//
+//  balm::Collector *collector1 = repository.getDefaultCollector(&quot;Test&quot;, &quot;C1&quot;);
+//  balm::Collector *collector2 = repository.getDefaultCollector(&quot;Test&quot;, &quot;C2&quot;);
+//  balm::IntegerCollector *intCollector1 =
+//                         repository.getDefaultIntegerCollector(&quot;Test&quot;, &quot;C3&quot;);
+//  balm::IntegerCollector *intCollector2 =
+//                         repository.getDefaultIntegerCollector(&quot;Test&quot;, &quot;C4&quot;);
+//
+//      assert(collector1    != collector2);
+//      assert(collector1    == repository.getDefaultCollector(&quot;Test&quot;, &quot;C1&quot;));
+//      assert(intCollector1 != intCollector2);
+//      assert(intCollector1 ==
+//             repository.getDefaultIntegerCollector(&quot;Test&quot;, &quot;C3&quot;));
+//..
+// We now update the values in those collectors:
+//..
+//  collector1-&gt;update(1.0);
+//  collector1-&gt;update(2.0);
+//  collector2-&gt;update(4.0);
+//
+//  intCollector1-&gt;update(5);
+//  intCollector2-&gt;update(6);
+//..
+// We can use the repository to collect recorded values from the collectors it
+// manages.  Since there are collectors for four metrics, there should be four
+// recorded values.  Note the order in which the records are returned is
+// undefined.
+//..
+//  bsl::vector&lt;balm::MetricRecord&gt; records(allocator);
+//  repository.collectAndReset(&amp;records, metricRegistry.getCategory(&quot;Test&quot;));
+//      assert(4 == records.size());
+//..
+// Finally we write the recorded values to the console:
+//..
+//  bsl::vector&lt;balm::MetricRecord&gt;::const_iterator it;
+//  for (it = records.begin(); it != records.end(); ++it) {
+//       bsl::cout &lt;&lt; *it &lt;&lt; bsl::endl;
+//  }
+//..
+// The output of the for-loop should be:
+//..
+//  [ Test.C1: 2 3 1 2 ]
+//  [ Test.C2: 1 4 4 4 ]
+//  [ Test.C3: 1 5 5 5 ]
+//  [ Test.C4: 1 6 6 6 ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_COLLECTOR
+#include &lt;balm_collector.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_INTEGERCOLLECTOR
+#include &lt;balm_integercollector.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICID
+#include &lt;balm_metricid.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICRECORD
+#include &lt;balm_metricrecord.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_METRICREGISTRY
+#include &lt;balm_metricregistry.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include &lt;bslmt_rwmutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace balm {class Category;
+
+class CollectorRepository_MetricCollectors;  // defined in implementation
+
+                         // =========================
+                         // class CollectorRepository
+                         // =========================
+
+class CollectorRepository {
+    // This class defines a fully thread-safe repository mechanism for
+    // &#39;Collector&#39; and &#39;IntegerCollector&#39; objects.  Collectors are identified
+    // in the repository by a &#39;MetricId&#39; object and also grouped together
+    // according to the category of the metric.  This repository supports
+    // operations to create, find, and collect metric records from the
+    // collectors in the repository.
+
+    // PRIVATE TYPES
+    typedef CollectorRepository_MetricCollectors     MetricCollectors;
+        // &#39;MetricCollectors&#39; is an alias for the (private) implementation type
+        // that contains the collectors and integer collectors for a single
+        // metric id.
+
+    typedef bsl::shared_ptr&lt;MetricCollectors&gt;             MetricCollectorsSPtr;
+        // &#39;MetricCollectorsPtr&#39; is an alias for a shared pointer to a
+        // &#39;MetricRepository_MetricCollectors&#39; object.
+
+    typedef bsl::map&lt;MetricId, MetricCollectorsSPtr&gt; Collectors;
+        // &#39;Collectors&#39; is an alias for a map from a &#39;MetricId&#39; object to the
+        // collectors and integer collectors for that metric.
+
+    typedef bsl::map&lt;const Category *,
+                     bsl::vector&lt;MetricCollectors *&gt; &gt;  CategorizedCollectors;
+        // &#39;CategorizedCollectors&#39; is an alias for a map from a category to
+        // the list of metric collectors belonging to that category.  Note
+        // that each &#39;MetricCollectors&#39; instance contains all the collectors
+        // for a single metric.
+
+    // DATA
+    MetricRegistry         *d_registry_p;  // registry of ids (held, not owned)
+    Collectors              d_collectors;  // collectors (owned)
+    CategorizedCollectors   d_categories;  // map of category =&gt; collectors
+    mutable bslmt::RWMutex  d_rwMutex;     // data lock
+    bslma::Allocator       *d_allocator_p; // allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    CollectorRepository(const CollectorRepository&amp; );
+    CollectorRepository&amp; operator=(const CollectorRepository&amp; );
+
+  private:
+    // PRIVATE MANIPULATORS
+    MetricCollectors&amp; getMetricCollectors(const MetricId&amp; metricId);
+        // Return a reference to the modifiable collectors associated with the
+        // specified &#39;metricId&#39;.  If a collection of collectors for the
+        // &#39;metricId&#39; does not already exist, create one and add it to the map
+        // of &#39;Collectors&#39; (&#39;d_collectors&#39;) and also the map of
+        // &#39;CategorizedCollectors&#39; (&#39;d_categories&#39;).  The behavior is undefined
+        // unless the calling thread has a *write* *lock* to &#39;d_rwMutex&#39; and
+        // &#39;metricId&#39; is valid.
+
+  public:
+    // PUBLIC TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CollectorRepository,
+                                                    bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    CollectorRepository(MetricRegistry        *registry,
+                        bslma::Allocator      *basicAllocator = 0);
+        // Create an empty collector repository that will use the specified
+        // &#39;registry&#39; to identify the metrics for which it manages collectors.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined if &#39;registry&#39; is 0.
+
+    ~CollectorRepository();
+        // Free all the collectors in this repository and destroy this object.
+
+    // MANIPULATORS
+    void collectAndReset(bsl::vector&lt;MetricRecord&gt; *records,
+                         const Category            *category);
+        // Append to the specified &#39;records&#39; the collected metric record
+        // values from the collectors in this repository belonging to the
+        // specified &#39;category&#39;; then reset those collectors to their default
+        // values.
+
+    void collect(bsl::vector&lt;MetricRecord&gt; *records,
+                 const Category            *category);
+        // Append to the specified &#39;records&#39; the collected metric record
+        // values from the collectors in this repository belonging to the
+        // specified &#39;category&#39;.  Note that this operation does not reset the
+        // managed collectors, so subsequent collection operations will
+        // effectively re-collect the current values.
+
+    Collector *getDefaultCollector(const char *category,
+                                   const char *metricName);
+        // Return the address of the modifiable default collector identified by
+        // the specified null-terminated strings &#39;category&#39; and &#39;metricName&#39;.
+        // If a collector for the identified metric does not already exist in
+        // the repository, create one, add it to the repository, and return its
+        // address.  In addition, if the identified metric has not already been
+        // registered, add the identified metric to the &#39;metricRegistry&#39;
+        // supplied at construction.  Note that this operation is logically
+        // equivalent to:
+        //..
+        //  getDefaultCollector(registry().getId(category, metricName))
+        //..
+
+    Collector *getDefaultCollector(const MetricId&amp; metricId);
+        // Return the address of the modifiable default collector identified by
+        // the specified &#39;metricId&#39;.  If a default collector for the identified
+        // metric does not already exist in the repository, create one, add it
+        // to the repository, and return its address.
+
+    IntegerCollector *getDefaultIntegerCollector(const char *category,
+                                                 const char *metricName);
+        // Return the address of the modifiable default integer collector
+        // identified by the specified &#39;category&#39; and &#39;metricName&#39;.  If a
+        // default integer collector for the identified metric does not
+        // already exist in the repository, create one, add it to the
+        // repository, and return its address.  In addition, if the identified
+        // metric has not already been registered, add the identified metric
+        // to the &#39;metricRegistry&#39; supplied at construction.  The behavior is
+        // undefined unless &#39;category&#39; and &#39;metricName&#39; are null-terminated.
+        // Note that this operation is logically equivalent to:
+        //..
+        //  getDefaultIntegerCollector(registry().getId(category, metricName))
+        //..
+
+    IntegerCollector *getDefaultIntegerCollector(const MetricId&amp; metricId);
+        // Return the address of the modifiable default integer collector
+        // identified by the specified &#39;metricId&#39;.  If a default integer
+        // collector for the identified metric does not already exist in the
+        // repository, create one, add it to the repository, and return its
+        // address.
+
+    bsl::shared_ptr&lt;Collector&gt; addCollector(const char *category,
+                                            const char *metricName);
+        // Return a shared pointer to a newly-created modifiable collector
+        // identified by the specified null-terminated strings &#39;category&#39; and
+        // &#39;metricName&#39;, and add that collector to the repository.  If is not
+        // already registered, also add the identified metric to the
+        // &#39;metricRegistry&#39; supplied at construction.  Note that this operation
+        // is logically equivalent to:
+        //..
+        //  addCollector(registry().getId(category, metricName))
+        //..
+
+    bsl::shared_ptr&lt;Collector&gt; addCollector(const MetricId&amp; metricId);
+        // Return a shared pointer to a newly-created modifiable collector
+        // identified by the specified &#39;metricId&#39; and add that collector to the
+        // repository.  The behavior is undefined unless &#39;metricId&#39; is a valid
+        // id returned by the &#39;MetricRepository&#39; supplied at construction.
+
+    bsl::shared_ptr&lt;IntegerCollector&gt; addIntegerCollector(
+                                                       const char *category,
+                                                       const char *metricName);
+        // Return a shared pointer to a newly created modifiable integer
+        // collector identified by the specified &#39;category&#39; and &#39;metricName&#39;
+        // and add that collector to the repository.  If is not already
+        // registered, also add the identified metric to the &#39;metricRegistry&#39;
+        // supplied at construction.  The behavior is undefined unless
+        // &#39;category&#39; and &#39;metricName&#39; are null-terminated.  Note that this
+        // operation is logically equivalent to:
+        //..
+        //  addIntegerCollector(registry().getId(category, metricName))
+        //..
+
+    bsl::shared_ptr&lt;IntegerCollector&gt; addIntegerCollector(
+                                                     const MetricId&amp; metricId);
+        // Return a shared pointer to a newly-created modifiable collector
+        // identified by the specified &#39;metricId&#39; and add that collector to the
+        // repository.  The behavior is undefined unless &#39;metricId&#39; is a valid
+        // id returned by the &#39;MetricRepository&#39; supplied at construction.
+
+    int getAddedCollectors(
+               bsl::vector&lt;bsl::shared_ptr&lt;Collector&gt; &gt;         *collectors,
+               bsl::vector&lt;bsl::shared_ptr&lt;IntegerCollector&gt; &gt;  *intCollectors,
+               const MetricId&amp;                                   metricId);
+        // Append to the specified &#39;collectors&#39; and &#39;intCollectors&#39; shared
+        // pointers to any collectors, and integer collectors, collecting
+        // values for the metrics identified by the specified &#39;metricId&#39; that
+        // were added using the &#39;addCollector&#39; or &#39;addIntegerCollector&#39;
+        // methods, and return the combined total number of collectors and
+        // integer collectors that were found.  This method does *not* count
+        // or return the default collectors for &#39;metricId&#39;.  The behavior is
+        // undefined unless &#39;metricId&#39; is a valid id returned by the
+        // &#39;MetricRepository&#39; supplied at construction.
+
+    MetricRegistry&amp; registry();
+        // Return a reference to the modifiable registry of metrics used by
+        // this collector repository.
+
+    // ACCESSORS
+    const MetricRegistry&amp; registry() const;
+        // Return a reference to the non-modifiable registry of metrics used by
+        // this collector repository.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                         // -------------------------
+                         // class CollectorRepository
+                         // -------------------------
+
+// CREATORS
+inline
+CollectorRepository::CollectorRepository(MetricRegistry   *registry,
+                                         bslma::Allocator *basicAllocator)
+: d_registry_p(registry)
+, d_collectors(basicAllocator)
+, d_categories(basicAllocator)
+, d_rwMutex()
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+CollectorRepository::~CollectorRepository()
+{
+}
+
+// MANIPULATORS
+inline
+Collector *CollectorRepository::getDefaultCollector(const char *category,
+                                                    const char *metricName)
+{
+    return getDefaultCollector(d_registry_p-&gt;getId(category, metricName));
+}
+
+inline
+IntegerCollector *CollectorRepository::getDefaultIntegerCollector(
+                                                        const char *category,
+                                                        const char *metricName)
+{
+    return getDefaultIntegerCollector(d_registry_p-&gt;getId(category,
+                                                          metricName));
+}
+
+inline
+bsl::shared_ptr&lt;Collector&gt; CollectorRepository::addCollector(
+                                                        const char *category,
+                                                        const char *metricName)
+{
+    return addCollector(d_registry_p-&gt;getId(category, metricName));
+}
+
+inline
+bsl::shared_ptr&lt;IntegerCollector&gt;
+CollectorRepository::addIntegerCollector(const char *category,
+                                         const char *metricName)
+{
+    return addIntegerCollector(d_registry_p-&gt;getId(category, metricName));
+}
+
+inline
+MetricRegistry&amp; CollectorRepository::registry()
+{
+    return *d_registry_p;
+}
+
+// ACCESSORS
+inline
+const MetricRegistry&amp; CollectorRepository::registry() const
+{
+    return *d_registry_p;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

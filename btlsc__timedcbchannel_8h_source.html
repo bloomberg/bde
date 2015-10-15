@@ -1,0 +1,1317 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlsc_timedcbchannel.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSC_TIMEDCBCHANNEL
+#define INCLUDED_BTLSC_TIMEDCBCHANNEL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide protocol for stream-based data communication with timeout.
+//
+//@CLASSES:
+//  btlsc::TimedCbChannel: non-blocking stream-based channel protocol w/timeout
+//
+//@SEE_ALSO: btlsc_timedchannel
+//
+//@DESCRIPTION: This component provides a class, &#39;btlsc::TimedCbChannel&#39;, that
+// defines an abstract interface for an end-point of a bi-directional
+// (full-duplex) non-blocking stream-based communication channel with timeout
+// capability.  The protocol supports efficient &quot;buffered&quot; transport and the
+// syntax to enable efficient vector I/O operations (i.e., Unix-style
+// scatter/gather &#39;readv&#39; and &#39;writev&#39;).  Various forms of &quot;partial
+// transmission&quot; authorizations (i.e., &quot;raw&quot; OS-level atomic operations and
+// interruptions due to a user-specified &quot;timeout&quot; and &quot;asynchronous events&quot;)
+// are also supported for each method as appropriate.
+//
+// Read and write operations are enqueued separately (facilitating full-duplex
+// operation) and executed in order within each queue.  In contrast, the
+// relative sequence in which the &quot;read&quot; and &quot;write&quot; queues are serviced is
+// implementation dependent.
+//
+// Users can cancel enqueued operations via the &#39;cancelRead&#39;, &#39;cancelWrite, and
+// &#39;cancelAll&#39; methods.  Also, if a read (write) operation returns with a
+// partial result (see below), all pending read (write) operations will be
+// dequeued; the callback status will reflect the reason for the incomplete
+// result.  Such dequeued operations may be re-submitted (presumably after
+// inspection of the callback status) at the user&#39;s discretion.
+//
+// Finally, users can invalidate the read and write portions of a channel
+// separately, or the entire channel at once.
+//
+///Protocol Hierarchy
+///------------------
+// The interface hierarchy (defined by direct public inheritance) of the
+// &#39;btlsc::TimedCbChannel&#39; protocol is as follows:
+//..
+//                        ,---------------------.
+//                       ( btlsc::TimedCbChannel )
+//                        `---------------------&#39;
+//                                   |
+//                                   V
+//                           ,----------------.
+//                          ( btlsc::CbChannel )
+//                           `----------------&#39;
+//..
+// &#39;btlsc::TimedCbChannel&#39; adds a &quot;timeout&quot; capability for read and write
+// methods.
+//
+///Non-Blocking Stream-Based Transport
+///-----------------------------------
+// This interface establishes methods for non-blocking stream-based transport.
+// A method call registers the I/O request and a user-supplied callback
+// function object (functor), and returns immediately with a status indicating
+// the success or failure of the registration.  After successful registration,
+// the channel eventually services the enqueued I/O operation and invokes the
+// callback function, which in turn conveys the status of the transmission.
+// Note that if the initial registration is not successful, the callback
+// function will *not* be invoked.  Also note that whether the callback is
+// invoked before or after the registering method returns is not specified; in
+// either case, if the registration was successful, then the return value will
+// reflect success.
+//
+// Enqueued read and write operations proceed asynchronously to one of four
+// possible results: (1) &quot;success&quot; -- the specified number of bytes was
+// transmitted, (2) &quot;partial transmission&quot; -- the operation was interrupted
+// (e.g., via a timeout), (3) &quot;canceled transmission&quot; -- the request was
+// dequeued (either by the user or by the channel), or (4) &quot;error&quot; -- an
+// implementation-dependent error occurred.  In all cases, status information
+// and any appropriately available data are communicated to the user via the
+// registered callback function, including status information to distinguish
+// among various reasons for incomplete transmissions (see below).  The user
+// may retry incomplete operations (with method arguments suitably adjusted),
+// with a reasonable expectation of success.
+//
+// Finally, concrete non-blocking stream-based channels do a &quot;best effort&quot; in
+// sending and receiving the specified data, but need not guarantee successful
+// transmission.
+//
+///Callback Functor Registration
+///- - - - - - - - - - - - - - -
+// Once an operation is successfully initiated, a (reference-counted) copy of
+// the (&#39;bdlf&#39;) callback functor is retained by the concrete channel until the
+// callback is executed.  Therefore, the user need not be concerned with
+// preserving the resources explicitly used by the &#39;bdlf&#39; functor.
+//
+///Buffered Transport
+///------------------
+// Most (but not all) I/O operations support a &quot;buffered&quot; variant that may be
+// more efficient in some situations.  For such operations, the prefix
+// &quot;buffered&quot; (or infix &quot;Buffered&quot;) appears before the basic operation name in
+// the full method name (e.g., &#39;bufferedRead&#39;, &#39;timedBufferedWrite&#39;).
+//
+// The &quot;buffered&quot; read operations optimize throughput (as opposed to latency)
+// for relatively small transmissions under high-volume conditions.  The
+// specific buffered-read method signatures enable the concrete transport to
+// read as much as it efficiently can (i.e., without blocking) and buffer that
+// information for current and future use.  In the buffered variant, the caller
+// does not provide a buffer, but rather receives direct (non-modifiable)
+// access to the implementation&#39;s buffered data.  In the event of a partial
+// read (see below), the data remains buffered and subsequent reads will behave
+// as if the buffered operation had never occurred.  Once a buffered read
+// operation succeeds (i.e., receives the requested number of bytes) the
+// buffered contents will become invalid after the callback function returns.
+// Note that &quot;buffered&quot; and &quot;vector&quot; (&#39;readv&#39;, see below) are incompatible read
+// options.
+//
+// The &quot;buffered&quot; write operations relieve the caller from having to preserve
+// an input buffer during processing.  A &quot;buffered write&quot; operation transmits
+// as much data as possible without blocking, and then copies any remaining
+// data to a buffer owned by the channel for eventual transmission.  Note that
+// the callback function is not invoked until the I/O operation terminates
+// (successfully or otherwise, see above).  Also note that &quot;buffered&quot; and &quot;raw&quot;
+// (see below) are incompatible write options.
+//
+///Incomplete Transmissions: &quot;Partial&quot; and &quot;Canceled&quot;
+///--------------------------------------------------
+// The &quot;simple&quot; results of read and write operations are &quot;success&quot; (with a
+// status equal to the requested number of bytes) and &quot;error&quot; (with a negative
+// status).  More complex behavior is also supported, some of which is at the
+// option of the user.  Specifically, the caller may authorize the possibility
+// of another outcome via combinations of the following three mechanisms: (1) a
+// user-requested timeout, (2) an interruption due to an asynchronous event,
+// and (3) a &quot;raw&quot; operation, i.e., accepting the results of a single low-level
+// (implementation dependent) atomic read/write operation.  These three
+// mechanisms (discussed in more detail below) may each result in a &quot;partial
+// transmission&quot;, characterized by a non-negative status that is less than the
+// requested number of bytes.  Note that timeouts and asynchronous events, but
+// *not* raw operations, may result in a return status of zero bytes.
+//
+// A return status of exactly zero bytes may also occur via a fourth mechanism.
+// As discussed above, an enqueued operation may be dequeued due to the
+// partial-transmission status of a prior operation.  Also, the &#39;cancelRead&#39;,
+// &#39;cancelWrite&#39;, and &#39;cancelAll&#39; methods may be used to dequeue all enqueued
+// requests from the read queue, the write queue, and both queues,
+// respectively.  All such dequeued operations result in &quot;canceled
+// transmissions&quot;.
+//
+// &quot;Partial&quot; and &quot;canceled&quot; transmissions share some common characteristics,
+// and so are collectively referred to as &quot;incomplete transmissions&quot;.  The
+// specific cause of an incomplete transmission (as deduced from &quot;status&quot;) can
+// in turn be determined by examining a second status value, called the
+// &quot;augStatus&quot;, described in detail below.  All incomplete transmissions may be
+// re-submitted with a reasonable expectation of success.
+//
+///Asynchronous Events
+///- - - - - - - - - -
+// Methods in this protocol anticipate the possible occurrence of an
+// &quot;asynchronous event&quot; (AE) during execution.  This interface cannot specify
+// what an AE is, but a common example of an AE is a Unix signal.  Note,
+// however, that a Unix signal need not be an AE, and an AE certainly need not
+// be a signal.  It is up to the concrete implementation to define what is and
+// is not an AE.
+//
+// Since the specific nature of an AE is not defined here, method behavior
+// resulting from an AE likewise cannot be fully specified.  Rather, certain
+// restrictions are imposed.  By default, AEs are either ignored or, if that is
+// not possible, cause an error.  The user may, however, choose to authorize
+// (when a method is invoked) that an AE causes a concrete implementation to
+// return, if possible, a &quot;partial transmission&quot; (which may be resumed -- see
+// above).  This authorization is made by incorporating (i.e., bitwise OR-ing)
+// the &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39; value into an optional (trailing)
+// integer &#39;flags&#39; argument to the method call.
+//
+///Timeouts
+/// - - - -
+// A timeout is registered by the caller, when a method is invoked, as a
+// &#39;bsls::TimeInterval&#39; value indicating the absolute *system* time after which
+// the operation should be interrupted.  A timeout expiration will result in a
+// &quot;partial transmission&quot; (see above).  Information regarding the nature of a
+// partial result is provided via the callback as an &quot;augStatus&quot; argument (see
+// below).
+//
+// The concrete channel will make a &quot;best effort&quot; to honor the timeout request
+// promptly, but no guarantee can be made as to the maximum duration of any
+// particular I/O attempt.  Any implementation of this interface will support a
+// timeout granularity of ten milliseconds (0.01s) or less.  The timeout is
+// guaranteed *not* to occur before the specified time has passed.  If a
+// timeout is specified with a time that has already passed, the I/O operation
+// will be attempted, but will not block.  Note that since respective read and
+// write operations are enqueued separately, a long-running read (write)
+// operation will not impact the behavior of a concurrent write (read)
+// operation, but *can* affect subsequent read (write) operations.
+//
+///Raw Transmissions
+///- - - - - - - - -
+// All read and unbuffered write operations support a &quot;raw&quot; variant in which
+// the function is allowed to return with a &quot;partial transmission&quot; if (1) *at*
+// *least* *one* *byte* has been transmitted and (2) no additional bytes are
+// *immediately* transmittable.  The &quot;raw&quot; mode is particularly useful to
+// callers waiting for some read activity, who will then follow up with
+// additional read requests after observing the initial transmission.  Raw
+// transmissions are authorized by methods whose names end in the suffix &#39;Raw&#39;.
+// Note that the &quot;raw&quot; mode is not supported (and nonsensical) for
+// buffered-write operations.
+//
+///&#39;augStatus&#39;
+///- - - - - -
+// Since any enqueued I/O request can be dequeued (canceled) by the channel or
+// the user, and the user can authorize various modes supporting &quot;partial
+// transmission&quot;, the caller may wish to know the cause of an incomplete
+// transmission.  Callback functions therefore take a second &#39;int&#39; status
+// value, &#39;augStatus&#39; (&quot;augmented status&quot;).  This value will be 0 if the
+// operation timed out, a positive value if the interruption was due to an
+// &quot;asynchronous event&quot;, and a negative value if the request was dequeued by
+// the channel or the user.
+//
+///Scatter/Gather (&#39;readv&#39;/&#39;writev&#39;)
+///---------------------------------
+// This interface supports &quot;vector I/O&quot; -- the simultaneous reading from or
+// writing to multiple buffers -- via Unix-style &#39;readv&#39; and &#39;writev&#39; variants
+// of the normal single-buffer methods.  These vector methods rely on two
+// auxiliary data structures defined in the &#39;btls_iovec&#39; component.
+//
+// The &#39;btls::Iovec&#39; structure will be familiar to most Unix systems
+// programmers.  The &#39;Ovec&#39; variant enables read operations to avoid having to
+// cast away &#39;const&#39; in order to hold the address of non-modifiable data to be
+// written.  In either structure, the total number of bytes to be read or
+// written is determined by the sum of the non-negative &#39;length&#39; method values
+// in the contiguous sequence of structures supplied to the method along with a
+// *positive* sequence length (note that at least one of the &#39;length&#39; values
+// must be positive).  The following simple example shows how to create and
+// populate an &#39;Ovec&#39; structure array in preparation for a &#39;bufferedWritev&#39;
+// operation:
+//..
+//      static void myPrintWriteStatus(int status, int augStatus, int numBytes)
+//          // Print to the user console the result of attempting to write the
+//          // specified &#39;numBytes&#39; based on the specified write &#39;status&#39; and
+//          // the auxiliary &#39;augStatus&#39; (discussed below).  The behavior is
+//          // undefined unless &#39;0 &lt; numBytes&#39; and &#39;status &lt;= numBytes&#39;.  Note
+//          // that &#39;augStatus&#39; is ignored unless &#39;0 &lt;= status &lt; numBytes&#39;.
+//     {
+//         assert(0 &lt; numBytes);
+//         assert(status &lt;= numBytes);
+//
+//         if (status == numBytes) {
+//             bsl::cout &lt;&lt; &quot;All requested bytes written successfully.&quot;
+//                       &lt;&lt; bsl::endl;
+//         }
+//         else if (0 &lt;= status) { // PARTIAL RESULTS ARE NOT AUTHORIZED BELOW
+//
+//             if (0 &lt; augStatus) {
+//                 bsl::cout &lt;&lt; &quot;Write interrupted (not by time out) after &quot;
+//                           &lt;&lt; &quot;writing &quot; &lt;&lt; status &lt;&lt; &quot; of &quot; &lt;&lt; numBytes
+//                           &lt;&lt; &quot; bytes.&quot; &lt;&lt; bsl::endl;
+//             }
+//             else (0 == augStatus) {
+//                 bsl::cout &lt;&lt; &quot;Write timed out after writing &quot; &lt;&lt;
+//                           &lt;&lt; status &lt;&lt; &quot; of &quot; &lt;&lt; numBytes &lt;&lt; &quot; bytes.&quot;
+//                           &lt;&lt; bsl::endl;
+//             }
+//             else {
+//                 assert(augStatus &lt; 0);
+//                 if (0 == status) {
+//                     bsl::cout
+//                             &lt;&lt; &quot;Write operation dequeued due to partial &quot;
+//                             &lt;&lt; &quot;write in some preceding enqueued operation.&quot;
+//                             &lt;&lt; bsl::endl;
+//                 }
+//                 else {
+//                     assert(status &gt; 0);
+//                     bsl::cout &lt;&lt; &quot;Write (efficiently) transmitted &quot;
+//                               &lt;&lt; status
+//                               &lt;&lt; &quot; of &quot; &lt;&lt; numBytes &lt;&lt; bytes.&quot; &lt;&lt; bsl::endl;
+//                 }
+//             }
+//         }
+//         else if (-1 == status) {
+//             bsl::cout &lt;&lt; &quot;Write failed: connection was closed by peer.&quot;
+//                       &lt;&lt; bsl::endl;
+//         }
+//         else {
+//             assert(status &lt; -1);
+//             bsl::cout &lt;&lt; &quot;Write failed: the reason is unknown.&quot;
+//                       &lt;&lt; bsl::endl;
+//         }
+//     }
+//
+//     void myWritevAndPrintStatusWhenAvailable(btlsc::TimedCbChannel *channel)
+//         // Write the integer representation of the length of a character
+//         // string followed by the (non-terminated) string data itself to
+//         // the specified &#39;channel&#39;; upon completion, report the status
+//         // of the &quot;write&quot; operation to &#39;cout&#39;.
+//     {
+//         const char *const MESSAGE     = &quot;Hello World!&quot;;
+//         const int         HEADER      = strlen(MESSAGE);
+//         const int         NUM_BUFFERS = 2;
+//
+//         btls::Ovec buffers[NUM_BUFFERS];
+//
+//         buffers[0].setBuffer(&amp;HEADER, sizeof HEADER);
+//         buffers[1].setBuffer(MESSAGE, HEADER);
+//
+//         const int TOTAL_NUM_BYTES = buffers[0].length()
+//                                   + buffers[1].length());
+//
+//         // Create a functor.
+//
+//         using namespace bdlf::PlaceHolders;
+//         btlsc::TimedCbChannel::WriteCallback functor(
+//                      bdlf::BindUtil::bind(
+//                             &amp;myPrintWriteStatus,
+//                             _1, _2,
+//                             TOTAL_NUM_BYTES));        // extra user argument
+//
+//         if (0 != channel-&gt;bufferedWritev(buffers, NUM_BUFFERS)) {
+//             bsl::cout &lt;&lt; &quot;Buffered write operation failed immediately!&quot;
+//                       &lt;&lt; bsl::endl;
+//         }
+//
+//         // Notice that the &#39;bufferedWritev&#39; operation above does not
+//         // authorize any partial write operations whatsoever.  When
+//         // invoked, the &quot;status&quot; passed to the callback will be either
+//         // &#39;TOTAL_NUM_BYTES&#39; for *success* or negative for *error*
+//         // (baring some other pending &quot;write&quot; operation on this channel
+//         // that explicitly enabled a partial result).
+//    }
+//..
+// Note that once the &#39;bufferedWritev&#39; operation returns, there is no need to
+// preserve either the output buffers or the array of &#39;Ovec&#39; (or &#39;Iovec&#39;)
+// structures used to identify them (they would potentially be needed only to
+// continue after a partial write, say, due to an interruption if such were
+// authorized).  By contrast, both the output buffers and the array of &#39;Ovec&#39;
+// (or &#39;Iovec&#39;) structures must remain valid until an *unbuffered* &#39;writev&#39;
+// operation completes and its corresponding &#39;WriteCallback&#39; is invoked.  Since
+// all &#39;readv&#39; operations are necessarily unbuffered, both the array of &#39;Iovec&#39;
+// structures and each input buffer must remain valid until the &#39;readv&#39;
+// operation completes and its &#39;ReadCallback&#39; is invoked.  Note that &quot;vectored&quot;
+// and &quot;buffered&quot; reads are inherently incompatible.
+//
+///Synopsis
+///--------
+// The following chart summarizes the set of 20 transmission methods that are
+// available to read and write data from and to a &#39;btlsc::TimedCbChannel&#39;; note
+// that, for efficiency reasons, only three vector operations, &#39;readvRaw&#39;,
+// &#39;writevRaw&#39;, and &#39;bufferedWritev&#39; (and their &quot;timed&quot; counterparts) are
+// provided.  Also, the &quot;buffered write raw&quot; operations are not supported by
+// this protocol:
+//..
+//    Buffered  Re/Wr  Vec  Raw  Untimed Method Name  Timed Method Name
+//    --------  -----  ---  ---  -------------------  -----------------
+//              READ             read                 timedRead
+//              READ        RAW  readRaw              timedReadRaw
+//
+//              READ   VEC  RAW  readvRaw             timedReadvRaw
+//
+//    BUFFERED  READ             bufferedRead         timedBufferedRead
+//    BUFFERED  READ        RAW  bufferedReadRaw      timedBufferedReadRaw
+//
+//              WRITE            write                timedWrite
+//              WRITE       RAW  writeRaw             timedWriteRaw
+//
+//              WRITE  VEC  RAW  writevRaw            timedWritevRaw
+//
+//    BUFFERED  WRITE            bufferedWrite        timedBufferedWrite
+//    BUFFERED  WRITE  VEC       bufferedWritev       timedBufferedWritev
+//..
+// Each of these methods supports the specification of a flag value:
+//..
+//  btlsc::Flag::k_ASYNC_INTERRUPT
+//..
+// supplied in an optional trailing integer to enable interruptions due to
+// &quot;asynchronous events&quot; to result in partial transmissions; by default,
+// asynchronous events are ignored.
+//
+// The following summarizes the return status values for a request to transmit
+// &#39;N&#39; bytes.
+//..
+//   &#39;status&#39;     &#39;augStatus&#39;    meaning
+//  ----------    ----------    --------------------------------------------
+//      N             x         Success
+//  [0..(N-1)]     positive     Interruption by an &quot;asynchronous event&quot;
+//  [0..(N-1)]        0         Interruption by a user-requested timeout
+//  [1..(N-1)]        x         Raw operation could not complete w/o blocking
+//      0          negative     Pending operation dequeued before execution
+//  negative          x         Error
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSC_CBCHANNEL
+#include &lt;btlsc_cbchannel.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bsls { class TimeInterval; }
+
+namespace btlsc {
+                            // ====================
+                            // class TimedCbChannel
+                            // ====================
+
+class TimedCbChannel : public CbChannel {
+    // This class represents a protocol (pure abstract interface) for a
+    // communications channel that supports timed (non-blocking) buffered read
+    // and write operations on a byte stream.  In general, a non-negative
+    // status indicates the number of bytes read or written, while a negative
+    // status implies an unspecified error.  Note that an error status of -1
+    // indicates that the connection is *known* to have been closed by the
+    // peer.  The converse -- that -1 will be returned if/when a peer drops a
+    // connection -- cannot be guaranteed by implementations of this interface
+    // and must not be relied upon by users.
+
+  private:
+    // NOT IMPLEMENTED
+    TimedCbChannel&amp; operator=(const TimedCbChannel&amp;);
+
+  public:
+    // CREATORS
+    virtual ~TimedCbChannel();
+        // Destroy this object.
+
+    // TYPES
+    typedef bsl::function&lt;void(int, int)&gt; ReadCallback;
+        // Invoked as a result of any non-buffered read method, &#39;ReadCallback&#39;
+        // is an alias for a callback function object (functor) that returns
+        // &#39;void&#39; and takes as arguments an integer &quot;status&quot; indicating
+        // *success*, an *incomplete* *read*, or an *error*, and a second
+        // integer &quot;augStatus&quot;.  Together, the two status values indicate four
+        // possible reasons for any incomplete result: (1) interruption by a
+        // timeout, (2) a (caller-authorized) interruption by an asynchronous
+        // event, (3) a (caller-authorized) implementation-dependent,
+        // data-driven optimization, or (4) an operation dequeued (canceled)
+        // by the implementation or the user.
+
+    typedef bsl::function&lt;void(const char *, int, int)&gt; BufferedReadCallback;
+        // Invoked as a result of any buffered read method,
+        // &#39;BufferedReadCallback&#39; is an alias for a callback function object
+        // (functor) that returns &#39;void&#39; and takes as arguments the (potential)
+        // address of a non-modifiable character &quot;buffer&quot;; an integer &quot;status&quot;
+        // indicating *success*, an *incomplete* *read*, or an *error*, and a
+        // second integer &quot;augStatus&quot;.  Together, the two status values
+        // indicate four possible reasons for any incomplete result: (1)
+        // interruption by a timeout, (2) a (caller-authorized) interruption by
+        // an asynchronous event, (3) a (caller-authorized)
+        // implementation-dependent, data-driven optimization, or (4) an
+        // operation dequeued (canceled) by the implementation or the user.
+
+    typedef bsl::function&lt;void(int, int)&gt; WriteCallback;
+        // Invoked as a result of any write method, &#39;WriteCallback&#39; is an alias
+        // for a callback function object (functor) that returns &#39;void&#39; and
+        // takes as arguments an integer &quot;status&quot; indicating *success*, an
+        // *incomplete* *write*, or an *error*, and a second integer
+        // &quot;augStatus&quot;.  Together, the two status values indicate four possible
+        // reasons for any incomplete result: (1) interruption by a timeout,
+        // (2) a (caller-authorized) interruption by an asynchronous event, (3)
+        // a (caller-authorized) implementation-dependent, data-driven
+        // optimization, or (4) an operation dequeued (canceled) by the
+        // implementation or the user.
+
+    // MANIPULATORS
+    virtual int read(char                *buffer,
+                     int                  numBytes,
+                     const ReadCallback&amp;  readCallback,
+                     int                  flags = 0) = 0;
+        // Initiate a non-blocking operation to read the specified &#39;numBytes&#39;
+        // from this channel into the specified &#39;buffer&#39;; execute the specified
+        // &#39;readCallback&#39; functor after this read operation terminates.  If the
+        // optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;readCallback&#39; will not be invoked).
+        //
+        // When invoked, the &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and &#39;buffer&#39; is loaded with &#39;numBytes&#39; of
+        // incoming data.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // read), it indicates the number of bytes read into &#39;buffer&#39; in which
+        // case &quot;augStatus&quot; will be positive if the operation was interrupted
+        // due to an asynchronous event, and negative (&quot;status&quot; identically 0)
+        // if this operation was canceled.  If the transmission is incomplete,
+        // the channel itself potentially remains valid; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffer&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffer&#39; has sufficient capacity to hold the requested data
+        // and remains valid until the (non-null) &#39;readCallback&#39; completes, and
+        // &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedRead(char                      *buffer,
+                          int                        numBytes,
+                          const bsls::TimeInterval&amp;  timeout,
+                          const ReadCallback&amp;        readCallback,
+                          int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to read the specified &#39;numBytes&#39;
+        // from this channel into the specified &#39;buffer&#39; or interrupt after the
+        // specified absolute &#39;timeout&#39; time is reached; execute the specified
+        // &#39;readCallback&#39; functor after this read operation terminates.  If the
+        // optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;readCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and &#39;buffer&#39; is loaded with &#39;numBytes&#39; of
+        // incoming data.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // read), it indicates the number of bytes read into &#39;buffer&#39; in which
+        // case &quot;augStatus&quot; will be 0 if the interrupt was caused by the
+        // caller-requested timeout event, positive if the operation was
+        // interrupted due to an asynchronous event, and negative (&quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is incomplete, the channel itself potentially remains valid; hence,
+        // this (or another) operation may be retried (with arguments suitably
+        // adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error (leaving the contents
+        // of &#39;buffer&#39; undefined); -1 implies that the connection was closed by
+        // the peer (but the converse is not guaranteed).  The behavior is
+        // undefined unless &#39;buffer&#39; has sufficient capacity to hold the
+        // requested data and remains valid until the (non-null) &#39;readCallback&#39;
+        // completes, and &#39;0 &lt; numBytes&#39;.  Note that if the &#39;timeout&#39; value has
+        // already passed, the &quot;read&quot; operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    virtual int readRaw(char                *buffer,
+                        int                  numBytes,
+                        const ReadCallback&amp;  readCallback,
+                        int                  flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read *up* *to* the
+        // specified &#39;numBytes&#39; from this channel into the specified &#39;buffer&#39;;
+        // execute the specified &#39;readCallback&#39; functor after this read
+        // operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;readCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the
+        // number of bytes read into &#39;buffer&#39;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) read operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic read operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, and negative if the operation was
+        // canceled.  If the transmission was interrupted, the channel itself
+        // potentially remains valid; hence, this (or another) operation may be
+        // retried (with arguments suitably adjusted) with some reasonable hope
+        // of success.  A negative &quot;status&quot;, however, indicates a permanent
+        // error: -1 implies that the connection was closed by the peer (but
+        // the converse is not guaranteed).  The behavior is undefined unless
+        // &#39;buffer&#39; has sufficient capacity to hold the requested data and
+        // remains valid until the (non-null) &#39;readCallback&#39; completes, and
+        // &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedReadRaw(char                      *buffer,
+                             int                        numBytes,
+                             const bsls::TimeInterval&amp;  timeout,
+                             const ReadCallback&amp;        readCallback,
+                             int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read *up* *to* the
+        // specified &#39;numBytes&#39; from this channel into the specified &#39;buffer&#39;
+        // or interrupt after the specified absolute &#39;timeout&#39; time is reached;
+        // execute the specified &#39;readCallback&#39; functor after this read
+        // operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;readCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the
+        // number of bytes read into &#39;buffer&#39;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) read operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic read operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, zero if the operation timed out,
+        // and negative if the operation was canceled.  If the transmission
+        // was interrupted, the channel itself potentially remains valid;
+        // hence, this (or another) operation may be retried (with arguments
+        // suitably adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error (leaving the contents
+        // of &#39;buffer&#39; undefined); -1 implies that the connection was closed by
+        // the peer (but the converse is not guaranteed).  The behavior is
+        // undefined unless &#39;buffer&#39; has sufficient capacity to hold the
+        // requested data and remains valid until the (non-null) &#39;readCallback&#39;
+        // completes, and &#39;0 &lt; numBytes&#39;.  Note that if the &#39;timeout&#39; value has
+        // already passed, the &quot;read&quot; operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
+
+    virtual int readvRaw(const btls::Iovec   *buffers,
+                         int                  numBuffers,
+                         const ReadCallback&amp;  readCallback,
+                         int                  flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read from this
+        // channel into the specified sequence of &#39;buffers&#39; of the specified
+        // sequence length &#39;numBuffers&#39; *up* *to* the respective number of
+        // bytes as defined by the &#39;length&#39; method of each &#39;Iovec&#39; structure;
+        // execute the specified &#39;readCallback&#39; functor after this read
+        // operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;readCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes read into &#39;buffers&#39;.  If &quot;status&quot; is positive, the
+        // atomic (&quot;raw&quot;) vector-read operation completed; &quot;status&quot; equals the
+        // requested number of bytes (i.e., the sum of the lengths of the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) upon success.  In either case, &quot;augStatus&quot;
+        // has no meaning.  If &quot;status&quot; is zero, the atomic read operation did
+        // not complete, in which case &quot;augStatus&quot; is positive if an
+        // &quot;asynchronous event&quot; interrupted the operation, and negative if the
+        // operation was canceled.  A negative &quot;status&quot;, however, indicates a
+        // permanent error (leaving the contents of &#39;buffers&#39; undefined); -1
+        // implies that the connection was closed by the peer (but the converse
+        // is not guaranteed).  The behavior is undefined unless &#39;buffers&#39; has
+        // sufficient capacity to hold the requested data and remains valid
+        // until the (non-null) &#39;readCallback&#39; completes, and &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedReadvRaw(const btls::Iovec         *buffers,
+                              int                        numBuffers,
+                              const bsls::TimeInterval&amp;  timeout,
+                              const ReadCallback&amp;        readCallback,
+                              int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read from this
+        // channel into the specified sequence of &#39;buffers&#39; of the specified
+        // sequence length &#39;numBuffers&#39; *up* *to* the respective number of
+        // bytes as defined by the &#39;length&#39; method of each &#39;Iovec&#39; structure
+        // or interrupt after the specified absolute &#39;timeout&#39; time is reached;
+        // execute the specified &#39;readCallback&#39; functor after this read
+        // operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;readCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;readCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes read into &#39;buffers&#39;.  If &quot;status&quot; is positive, the
+        // atomic (&quot;raw&quot;) vector-read operation completed; &quot;status&quot; equals the
+        // requested number of bytes (i.e., the sum of the lengths of the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) upon success.  In either case, &quot;augStatus&quot;
+        // has no meaning.  If &quot;status&quot; is zero, the atomic read operation did
+        // not complete, in which case &quot;augStatus&quot; is positive if an
+        // &quot;asynchronous event&quot; interrupted the operation, zero if the
+        // operation timed out, and negative if the operation was canceled.  A
+        // negative &quot;status&quot;, however, indicates a permanent error (leaving the
+        // contents of &#39;buffers&#39; undefined); -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;buffers&#39; has sufficient capacity to
+        // hold the requested data and remains valid until the (non-null)
+        // &#39;readCallback&#39; completes, and &#39;0 &lt; numBytes&#39;.  Note that if the
+        // &#39;timeout&#39; value has already passed, the &quot;read&quot; operation will still
+        // be attempted, but the attempt, once initiated, will not be permitted
+        // to block.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    virtual int bufferedRead(int                         numBytes,
+                             const BufferedReadCallback&amp; bufferedReadCallback,
+                             int                         flags = 0) = 0;
+        // Initiate a non-blocking operation to read the specified &#39;numBytes&#39;
+        // from this channel into a channel-supplied buffer; execute the
+        // specified &#39;bufferedReadCallback&#39; functor after this read operation
+        // terminates.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;bufferedReadCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;bufferedReadCallback&#39; is passed the address of a
+        // non-modifiable character &quot;buffer&quot;, an integer &quot;status&quot;, and a second
+        // integer &quot;augStatus&quot; (which is meaningful only upon an incomplete
+        // transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the operation
+        // was successful and &quot;buffer&quot; contains &#39;numBytes&#39; of incoming data
+        // (which will remain valid only until the callback completes).
+        // Otherwise, if &quot;status&quot; is non-negative (incomplete read), it
+        // indicates the number of (accessible) bytes in &quot;buffer&quot;, in which
+        // case &quot;augStatus&quot; will be positive if the operation was interrupted
+        // due to an asynchronous event, and negative (&quot;status&quot; identically 0)
+        // if this operation was canceled.  If the transmission is partial,
+        // the data is retained in the channel&#39;s buffer and the channel itself
+        // potentially remains valid; hence, this (or another) operation may be
+        // retried (with arguments suitably adjusted) with some reasonable hope
+        // of success.  A negative &quot;status&quot;, however, indicates a permanent
+        // error (leaving the contents of &quot;buffer&quot; undefined); -1 implies that
+        // the connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;0 &lt; numBytes&#39; and
+        // &#39;bufferedReadCallback&#39; is non-null.
+
+    virtual int timedBufferedRead(
+                              int                         numBytes,
+                              const bsls::TimeInterval&amp;   timeout,
+                              const BufferedReadCallback&amp; bufferedReadCallback,
+                              int                         flags = 0) = 0;
+        // Initiate a non-blocking operation to read the specified &#39;numBytes&#39;
+        // from this channel into a channel-supplied buffer or interrupt after
+        // the specified absolute &#39;timeout&#39; time is reached; execute the
+        // specified &#39;bufferedReadCallback&#39; functor after this read operation
+        // terminates.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;bufferedReadCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;bufferedReadCallback&#39; is passed the address of a
+        // non-modifiable character &quot;buffer&quot;, an integer &quot;status&quot;, and a second
+        // integer &quot;augStatus&quot; (which is meaningful only upon an incomplete
+        // transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the operation
+        // was successful and &quot;buffer&quot; contains &#39;numBytes&#39; of newly read data
+        // (which will remain valid only until the callback completes).
+        // Otherwise, if &quot;status&quot; is non-negative (incomplete read), it
+        // indicates the number of (accessible) bytes in &quot;buffer&quot;, in which
+        // case &quot;augStatus&quot; will be 0 if the interrupt was caused by the
+        // caller-requested timeout event, positive if the operation was
+        // interrupted due to an asynchronous event, and negative (&quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is partial, the data is retained in the channel&#39;s buffer and the
+        // channel itself potentially remains valid; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &quot;buffer&quot;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;0 &lt; numBytes&#39; and &#39;bufferedReadCallback&#39; is non-null.  Note
+        // that if the &#39;timeout&#39; value has already passed, the &quot;read&quot; operation
+        // will still be attempted, but the attempt, once initiated, will not
+        // be permitted to block.
+
+    virtual int bufferedReadRaw(
+                              int                         numBytes,
+                              const BufferedReadCallback&amp; bufferedReadCallback,
+                              int                         flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read *up* *to* the
+        // specified &#39;numBytes&#39; from this channel into a channel-supplied
+        // buffer; execute the specified &#39;bufferedReadCallback&#39; functor after
+        // this read operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;bufferedReadCallback&#39; will
+        // not be invoked).
+        //
+        // When invoked, &#39;bufferedReadCallback&#39; is passed the address of a
+        // non-modifiable character &quot;buffer&quot;, an integer &quot;status&quot;, and a second
+        // integer &quot;augStatus&quot; (which is meaningful for this method only when
+        // &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes read into &quot;buffer&quot;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) read operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic read operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, and negative if the operation was
+        // canceled.  If the transmission is incomplete (i.e., &quot;status&quot; less
+        // than &#39;numBytes&#39;) the data is retained in the channel&#39;s buffer and
+        // the channel itself potentially remains valid; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &quot;buffer&quot;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;0 &lt; numBytes&#39; and &#39;bufferedReadCallback&#39; is non-null.
+
+    virtual int
+    timedBufferedReadRaw(int                         numBytes,
+                         const bsls::TimeInterval&amp;   timeout,
+                         const BufferedReadCallback&amp; bufferedReadCallback,
+                         int                         flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* read *up* *to* the
+        // specified &#39;numBytes&#39; from this channel into a channel-supplied
+        // buffer or interrupt after the specified absolute &#39;timeout&#39; time is
+        // reached; execute the specified &#39;bufferedReadCallback&#39; functor after
+        // this read operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;bufferedReadCallback&#39; will
+        // not be invoked).
+        //
+        // When invoked, &#39;bufferedReadCallback&#39; is passed the address of a
+        // non-modifiable character &quot;buffer&quot;, an integer &quot;status&quot;, and a second
+        // integer &quot;augStatus&quot; (which is meaningful for this method only when
+        // &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes read into &quot;buffer&quot;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) read operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic read operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, zero if the operation timed out,
+        // and negative if the operation was canceled.  If the transmission is
+        // incomplete (i.e., &quot;status&quot; less than &#39;numBytes&#39;) the data is
+        // retained in the channel&#39;s buffer and the channel itself potentially
+        // remains valid; hence, this (or another) operation may be retried
+        // (with arguments suitably adjusted) with some reasonable hope of
+        // success.  A negative &quot;status&quot;, however, indicates a permanent error
+        // (leaving the contents of &quot;buffer&quot; undefined); -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;0 &lt; numBytes&#39; and
+        // &#39;bufferedReadCallback&#39; is non-null.  Note that if the &#39;timeout&#39;
+        // value has already passed, the &quot;read&quot; operation will still be
+        // attempted, but the attempt, once initiated, will not be permitted to
+        // block.
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+    virtual int write(const char           *buffer,
+                      int                   numBytes,
+                      const WriteCallback&amp;  writeCallback,
+                      int                   flags = 0) = 0;
+        // Initiate a non-blocking operation to write the specified &#39;numBytes&#39;
+        // from the specified &#39;buffer&#39; to this channel; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and all &#39;numBytes&#39; of data were transmitted
+        // to the channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // write), it indicates the number of bytes written from &#39;buffer&#39;, in
+        // which case &quot;augStatus&quot; will be positive if the operation was
+        // interrupted due to an asynchronous event, and negative (&quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is incomplete, the channel itself potentially remains valid; hence,
+        // this (or another) operation may be retried (with arguments suitably
+        // adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error; -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;buffer&#39; remains
+        // valid until the (non-null) &#39;writeCallback&#39; completes and
+        // &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedWrite(const char                *buffer,
+                           int                        numBytes,
+                           const bsls::TimeInterval&amp;  timeout,
+                           const WriteCallback&amp;       writeCallback,
+                           int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to write the specified &#39;numBytes&#39;
+        // from the specified &#39;buffer&#39; to this channel or interrupt after the
+        // specified absolute &#39;timeout&#39; time is reached; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and all &#39;numBytes&#39; of data were transmitted
+        // to the channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // write), it indicates the number of bytes written from &#39;buffer&#39;, in
+        // which case &quot;augStatus&quot; will be 0 if the interrupt was caused by the
+        // caller-requested timeout event, positive if the operation was
+        // interrupted due to an asynchronous event, and negative (&quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is incomplete, the channel itself potentially remains valid; hence,
+        // this (or another) operation may be retried (with arguments suitably
+        // adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error; -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;buffer&#39; remains
+        // valid until the (non-null) &#39;writeCallback&#39; completes and
+        // &#39;0 &lt; numBytes&#39;.  Note that if the &#39;timeout&#39; value has already
+        // passed, the &quot;write&quot; operation will still be attempted, but the
+        // attempt, once initiated, will not be permitted to block.
+
+    virtual int writeRaw(const char           *buffer,
+                         int                   numBytes,
+                         const WriteCallback&amp;  writeCallback,
+                         int                   flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* write *up* *to*
+        // the specified &#39;numBytes&#39; from the specified &#39;buffer&#39; to this
+        // channel; execute the specified &#39;writeCallback&#39; functor after this
+        // write operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;writeCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the
+        // number of bytes written from &#39;buffer&#39;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) write operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic write operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, and negative if the operation was
+        // canceled.  If the transmission was interrupted, the channel itself
+        // potentially remains valid; hence, this (or another) operation may be
+        // retried (with arguments suitably adjusted) with some reasonable hope
+        // of success.  A negative &quot;status&quot;, however, indicates a permanent
+        // error; -1 implies that the connection was closed by the peer (but
+        // the converse is not guaranteed).  The behavior is undefined unless
+        // &#39;buffer&#39; remains valid until the (non-null) &#39;writeCallback&#39;
+        // completes and &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedWriteRaw(const char                *buffer,
+                              int                        numBytes,
+                              const bsls::TimeInterval&amp;  timeout,
+                              const WriteCallback&amp;       writeCallback,
+                              int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* write *up* *to*
+        // the specified &#39;numBytes&#39; from the specified &#39;buffer&#39; to this channel
+        // or interrupt after the specified absolute &#39;timeout&#39; time is reached;
+        // execute the specified &#39;writeCallback&#39; functor after this write
+        // operation terminates.  If the optionally specified &#39;flags&#39;
+        // incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return 0 on successful initiation, and a
+        // non-zero value otherwise (in which case &#39;writeCallback&#39; will not be
+        // invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the
+        // number of bytes written from &#39;buffer&#39;.  If &quot;status&quot; is positive, the
+        // atomic OS-level (&quot;raw&quot;) write operation completed; &quot;status&quot; equals
+        // &#39;numBytes&#39; upon success.  In either case, &quot;augStatus&quot; has no
+        // meaning.  If &quot;status&quot; is zero, the atomic write operation did not
+        // complete, in which case &quot;augStatus&quot; is positive if an &quot;asynchronous
+        // event&quot; interrupted the operation, zero if the operation timed out,
+        // and negative if the operation was canceled.  If the transmission
+        // was interrupted, the channel itself potentially remains valid;
+        // hence, this (or another) operation may be retried (with arguments
+        // suitably adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error; -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless &#39;buffer&#39; remains
+        // valid until the (non-null) &#39;writeCallback&#39; completes and
+        // &#39;0 &lt; numBytes&#39;.  Note that if the &#39;timeout&#39; value has already
+        // passed, the &quot;write&quot; operation will still be attempted, but the
+        // attempt, once initiated, will not be permitted to block.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    virtual int writevRaw(const btls::Iovec    *buffers,
+                          int                   numBuffers,
+                          const WriteCallback&amp;  writeCallback,
+                          int                   flags = 0) = 0;
+    virtual int writevRaw(const btls::Ovec     *buffers,
+                          int                   numBuffers,
+                          const WriteCallback&amp;  writeCallback,
+                          int                   flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* write *up* *to*
+        // the total number of bytes indicated by the specified sequence of
+        // &#39;buffers&#39; of the specified sequence length &#39;numBuffers&#39; the
+        // respective number of bytes as defined by the &#39;length&#39; method of
+        // each &#39;Ovec&#39; (or &#39;Iovec&#39;) structure; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes written from &#39;buffers&#39;.  If &quot;status&quot; is positive,
+        // the atomic (&quot;raw&quot;) vector-write operation completed; &quot;status&quot; equals
+        // the requested number of bytes (i.e., the sum of the lengths of the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) upon success.  In either case, &quot;augStatus&quot;
+        // has no meaning.  If &quot;status&quot; is zero, the atomic write operation did
+        // not complete, in which case &quot;augStatus&quot; is positive if an
+        // &quot;asynchronous event&quot; interrupted the operation, and negative if the
+        // operation was canceled.  If the transmission is incomplete, the
+        // channel itself potentially remains valid; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless the total number of bytes to be written
+        // is *positive* and &#39;buffers&#39; (and the data to which it refers)
+        // remains valid until the (non-null) &#39;writeCallback&#39; completes.
+
+    virtual int timedWritevRaw(const btls::Iovec         *buffers,
+                               int                        numBuffers,
+                               const bsls::TimeInterval&amp;  timeout,
+                               const WriteCallback&amp;       writeCallback,
+                               int                        flags = 0) = 0;
+    virtual int timedWritevRaw(const btls::Ovec          *buffers,
+                               int                        numBuffers,
+                               const bsls::TimeInterval&amp;  timeout,
+                               const WriteCallback&amp;       writeCallback,
+                               int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to *atomically* write *up* *to*
+        // the total number of bytes indicated by the specified sequence of
+        // &#39;buffers&#39; of the specified sequence length &#39;numBuffers&#39; the
+        // respective number of bytes as defined by the &#39;length&#39; method of
+        // each &#39;Ovec&#39; (or &#39;Iovec&#39;) structure or interrupt after the specified
+        // absolute &#39;timeout&#39; time is reached; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful for this method only
+        // when &quot;status&quot; is zero).  A non-negative &quot;status&quot; indicates the total
+        // number of bytes written from &#39;buffers&#39;.  If &quot;status&quot; is positive,
+        // the atomic (&quot;raw&quot;) vector-write operation completed; &quot;status&quot; equals
+        // the requested number of bytes (i.e., the sum of the lengths of the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) upon success.  In either case, &quot;augStatus&quot;
+        // has no meaning.  If &quot;status&quot; is zero, the atomic write operation did
+        // not complete, in which case &quot;augStatus&quot; is positive if an
+        // &quot;asynchronous event&quot; interrupted the operation, zero if the
+        // operation timed out, and negative if the operation was canceled.  If
+        // the transmission is incomplete, the channel itself potentially
+        // remains valid; hence, this (or another) operation may be retried
+        // (with arguments suitably adjusted) with some reasonable hope of
+        // success.  A negative &quot;status&quot;, however, indicates a permanent error;
+        // -1 implies that the connection was closed by the peer (but the
+        // converse is not guaranteed).  The behavior is undefined unless the
+        // total number of bytes to be written is *positive* and &#39;buffers&#39; (and
+        // the data to which it refers) remains valid until the (non-null)
+        // &#39;writeCallback&#39; completes.  Note that if the &#39;timeout&#39; value has
+        // already passed, the &quot;write&quot; operation will still be attempted, but
+        // the attempt, once initiated, will not be permitted to block.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    virtual int bufferedWrite(const char           *buffer,
+                              int                   numBytes,
+                              const WriteCallback&amp;  writeCallback,
+                              int                   flags = 0) = 0;
+        // Initiate a non-blocking operation to write the specified &#39;numBytes&#39;
+        // from the specified &#39;buffer&#39; to this channel; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).  Note
+        // that the contents of &#39;buffer&#39; need not be preserved after this
+        // method returns (except for the purpose of initiating a retry in the
+        // event that this operation results in a partial write).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and all &#39;numBytes&#39; of data were transmitted
+        // to the channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // write), it indicates the number of bytes written from &#39;buffer&#39;, in
+        // which case &quot;augStatus&quot; will be positive if the operation was
+        // interrupted due to an asynchronous event and negative (with &quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is incomplete, the remaining buffered data is discarded, but the
+        // channel itself potentially remains valid; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    virtual int timedBufferedWrite(const char                *buffer,
+                                   int                        numBytes,
+                                   const bsls::TimeInterval&amp;  timeout,
+                                   const WriteCallback&amp;       writeCallback,
+                                   int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to write the specified &#39;numBytes&#39;
+        // from the specified &#39;buffer&#39; to this channel or interrupt after the
+        // specified absolute &#39;timeout&#39; time is reached; execute the specified
+        // &#39;writeCallback&#39; functor after this write operation terminates.  If
+        // the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).  Note
+        // that the contents of &#39;buffer&#39; need not be preserved after this
+        // method returns (except for the purpose of initiating a retry in the
+        // event that this operation results in a partial write).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to &#39;numBytes&#39;, the
+        // operation was successful and all &#39;numBytes&#39; of data were transmitted
+        // to the channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete
+        // write), it indicates the number of bytes written from &#39;buffer&#39;, in
+        // which case &quot;augStatus&quot; will be 0 if the interrupt was caused by the
+        // caller-requested timeout event, positive if the operation was
+        // interrupted due to an asynchronous event, and negative (&quot;status&quot;
+        // identically 0) if this operation was canceled.  If the transmission
+        // is incomplete, the remaining buffered data is discarded, but the
+        // channel itself potentially remains valid; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.  Note that if the
+        // &#39;timeout&#39; value has already passed, the &quot;write&quot; operation will still
+        // be attempted, but the attempt, once initiated, will not be permitted
+        // to block.
+
+    virtual int bufferedWritev(const btls::Iovec    *buffers,
+                               int                   numBuffers,
+                               const WriteCallback&amp;  writeCallback,
+                               int                   flags = 0) = 0;
+    virtual int bufferedWritev(const btls::Ovec     *buffers,
+                               int                   numBuffers,
+                               const WriteCallback&amp;  writeCallback,
+                               int                   flags = 0) = 0;
+        // Initiate a non-blocking operation to write to this channel from the
+        // specified sequence of &#39;buffers&#39; of the specified sequence length
+        // &#39;numBuffers&#39; the respective number of bytes as defined by the
+        // &#39;length&#39; method of each &#39;Ovec&#39; (or &#39;Iovec&#39;) structure; execute the
+        // specified &#39;writeCallback&#39; functor after this write operation
+        // terminates.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to the total number
+        // bytes to be written (i.e., the sum of calls to &#39;length&#39; on the
+        // &#39;numBuffers&#39; &#39;buffers&#39;), all indicated data was transmitted to the
+        // channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete write),
+        // it indicates the number of bytes written in sequence from the
+        // indicated buffers, in which case &quot;augStatus&quot; will be positive if the
+        // operation was interrupted due to an asynchronous event, and negative
+        // (&quot;status&quot; identically 0) if this operation was canceled.  If the
+        // transmission is incomplete, the remaining buffered data is
+        // discarded, but the channel itself potentially remains valid; hence,
+        // this (or another) operation may be retried (with arguments suitably
+        // adjusted) with some reasonable hope of success.  A negative
+        // &quot;status&quot;, however, indicates a permanent error; -1 implies that the
+        // connection was closed by the peer (but the converse is not
+        // guaranteed).  The behavior is undefined unless the total number of
+        // bytes to be written is *positive*.  Note that neither &#39;buffers&#39; nor
+        // the data to which it refers need be preserved after this method
+        // returns (except for the purpose of initiating a retry in the event
+        // that this operation results in a partial write).
+
+    virtual int timedBufferedWritev(const btls::Iovec         *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&amp;  timeout,
+                                    const WriteCallback&amp;       writeCallback,
+                                    int                        flags = 0) = 0;
+    virtual int timedBufferedWritev(const btls::Ovec          *buffers,
+                                    int                        numBuffers,
+                                    const bsls::TimeInterval&amp;  timeout,
+                                    const WriteCallback&amp;       writeCallback,
+                                    int                        flags = 0) = 0;
+        // Initiate a non-blocking operation to write to this channel from the
+        // specified sequence of &#39;buffers&#39; of the specified sequence length
+        // &#39;numBuffers&#39; the respective number of bytes as defined by the
+        // &#39;length&#39; method of each &#39;Ovec&#39; (or &#39;Iovec&#39;) structure or interrupt
+        // after the specified absolute &#39;timeout&#39; time is reached; execute the
+        // specified &#39;writeCallback&#39; functor after this write operation
+        // terminates.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Return 0 on successful initiation, and a non-zero value
+        // otherwise (in which case &#39;writeCallback&#39; will not be invoked).
+        //
+        // When invoked, &#39;writeCallback&#39; is passed an integer &quot;status&quot; and a
+        // second integer &quot;augStatus&quot; (which is meaningful only upon an
+        // incomplete transmission).  If &quot;status&quot; is equal to the total number
+        // bytes to be written (i.e., the sum of calls to &#39;length&#39; on the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) all indicated data was transmitted to the
+        // channel.  Otherwise, if &quot;status&quot; is non-negative (incomplete write),
+        // it indicates the number of bytes written in sequence from the
+        // indicated buffers, in which case &quot;augStatus&quot; will be 0 if the
+        // interrupt was caused by the caller-requested timeout event,
+        // positive if the operation was interrupted due to an asynchronous
+        // event, and negative (&quot;status&quot; identically 0) if this operation was
+        // canceled.  If the transmission is incomplete, the remaining
+        // buffered data is discarded, but the channel itself potentially
+        // remains valid; hence, this (or another) operation may be retried
+        // (with arguments suitably adjusted) with some reasonable hope of
+        // success.  A negative &quot;status&quot;, however, indicates a permanent error;
+        // -1 implies that the connection was closed by the peer (but the
+        // converse is not guaranteed).  The behavior is undefined unless the
+        // total number of bytes to be written is *positive*.  Note that if the
+        // &#39;timeout&#39; value has already passed, the &quot;write&quot; operation will still
+        // be attempted, but the attempt, once initiated, will not be permitted
+        // to block.  Also note that neither &#39;buffers&#39; nor the data to which it
+        // refers need be preserved after this method returns (except for the
+        // purpose of initiating a retry in the event that this operation
+        // results in a partial write).
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+    virtual void cancelAll() = 0;
+        // Remove all enqueued operations from both the read queue and the
+        // write queue of this channel, and, in turn, invoke each callback with
+        // a 0 &quot;status&quot; and a negative &quot;augStatus&quot;.  Note that the validity of
+        // this channel is not altered by this operation.
+
+    virtual void cancelRead() = 0;
+        // Remove all enqueued read operations from this channel, and, in turn,
+        // invoke each read callback with a 0 &quot;status&quot; and a negative
+        // &quot;augStatus&quot;.  Note that the validity of this channel is not altered
+        // by this operation.
+
+    virtual void cancelWrite() = 0;
+        // Remove all enqueued write operations from this channel, and, in
+        // turn, invoke each write callback with a 0 &quot;status&quot; and a negative
+        // &quot;augStatus&quot;.  Note that the validity of this channel is not altered
+        // by this operation.
+
+    virtual void invalidate() = 0;
+        // Make this channel invalid; no new operations can be initiated
+        // successfully.  Pending operations are not affected.
+
+    virtual void invalidateRead() = 0;
+        // Invalidate the read portion of this channel; no new read operations
+        // can be initiated successfully.  Pending operations are not affected.
+
+    virtual void invalidateWrite() = 0;
+        // Invalidate the write portion of this channel; no new write
+        // operations can be initiated successfully.  Pending operations are
+        // not affected.
+
+    // ACCESSORS
+    virtual int isInvalidRead() const = 0;
+        // Return 1 if the read portion of this (full-duplex) channel is
+        // invalid (e.g., due to a read error or an explicit call to
+        // &#39;invalidateRead&#39;), and 0 otherwise.  Once the read portion of a
+        // channel is invalid, no new read operations can be initiated
+        // successfully.  Note that a 0 return value cannot be relied upon to
+        // indicate that the read portion of this channel *is* valid.
+
+    virtual int isInvalidWrite() const = 0;
+        // Return 1 if the write portion of this (full-duplex) channel is
+        // invalid (e.g., due to a write error or an explicit call to
+        // &#39;invalidateWrite&#39;), and 0 otherwise.  Once the write portion of a
+        // channel is invalid, no new write operations can be initiated
+        // successfully.  Note that a 0 return value cannot be relied upon to
+        // indicate that the write portion of this channel *is* valid.
+
+    virtual int numPendingReadOperations() const = 0;
+        // Return the total number of pending read operations for this channel.
+
+    virtual int numPendingWriteOperations() const = 0;
+        // Return the total number of pending write operations for this
+        // channel.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

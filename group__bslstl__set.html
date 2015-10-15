@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_set Component</title>
+<title>BDE 3.0: bslstl_set Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -227,7 +227,7 @@ const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class=
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>set</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that set type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a set accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it will be used to supply memory for the set throughout its lifetime; otherwise, the set will use the default allocator installed at the time of the set's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a set supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>KEY</code> with the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code>set</code> instantiation' is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that set type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a set accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it is used to supply memory for the set throughout its lifetime; otherwise, the set will use the default allocator installed at the time of the set's construction (see <code>bslma_default</code>). In addition to directly allocating memory from the indicated <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>, a set supplies that allocator's address to the constructors of contained objects of the (template parameter) type <code>KEY</code> with the <code><a class="el" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a></code> trait. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="operations"></a> <a class="anchor" id="description.operations"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Operations: </b></dt><dd></dd></dl>
@@ -332,6 +332,7 @@ const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class=
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this section we show intended use of this component. </dd></dl>
@@ -459,7 +460,7 @@ const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class=
  Next, we define <code>HolidayCalendar</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>HolidayCalendar {
-      <span class="comment">// This class provides a value semantic-type that allows clients to</span>
+      <span class="comment">// This class provides a value-semantic type that allows clients to</span>
       <span class="comment">// modify and query a set of dates considered to be holidays.</span>
 </pre></div><br/>
 <br/>
@@ -602,7 +603,7 @@ const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class=
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef KEY <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::key_type<code> [inherited]</code></td>
@@ -617,7 +618,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef KEY <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::value_type<code> [inherited]</code></td>
@@ -632,7 +633,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef COMPARATOR <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::key_compare<code> [inherited]</code></td>
@@ -647,7 +648,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef COMPARATOR <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::value_compare<code> [inherited]</code></td>
@@ -662,7 +663,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef ALLOCATOR <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::allocator_type<code> [inherited]</code></td>
@@ -677,7 +678,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef value_type&amp; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::reference<code> [inherited]</code></td>
@@ -692,7 +693,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef const value_type&amp; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::const_reference<code> [inherited]</code></td>
@@ -707,7 +708,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef AllocatorTraits::size_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::size_type<code> [inherited]</code></td>
@@ -722,7 +723,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef AllocatorTraits::difference_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::difference_type<code> [inherited]</code></td>
@@ -737,7 +738,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef AllocatorTraits::pointer <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::pointer<code> [inherited]</code></td>
@@ -752,7 +753,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef AllocatorTraits::const_pointer <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::const_pointer<code> [inherited]</code></td>
@@ -767,7 +768,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef BloombergLP::bslstl::TreeIterator&lt;const value_type, Node, difference_type&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::iterator<code> [inherited]</code></td>
@@ -782,7 +783,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef BloombergLP::bslstl::TreeIterator&lt;const value_type, Node, difference_type&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::const_iterator<code> [inherited]</code></td>
@@ -797,7 +798,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef bsl::reverse_iterator&lt;iterator&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::reverse_iterator<code> [inherited]</code></td>
@@ -812,7 +813,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">typedef bsl::reverse_iterator&lt;const_iterator&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::const_reverse_iterator<code> [inherited]</code></td>
@@ -828,7 +829,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::DataWrapper::DataWrapper </td>
@@ -858,7 +859,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::set </td>
@@ -882,7 +883,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty set. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>basicAllocator</em>&nbsp;</td><td>Construct an empty set. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. </td></tr>
   </table>
   </dd>
 </dl>
@@ -893,7 +894,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::set </td>
@@ -906,7 +907,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Construct an empty set that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
+<p>Construct an empty set that will use the specified <code>basicAllocator</code> to supply memory. Use a default-constructed object of the (template parameter) type <code>COMPARATOR</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. </p>
 
 </div>
 </div>
@@ -914,7 +915,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::set </td>
@@ -927,7 +928,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set having the same value as the specified <code>original</code>. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the (template parameter) type <code>ALLOCATOR</code> is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator will be used to supply memory. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set having the same value as the specified <code>original</code>. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. Use the allocator returned by 'bslallocator_traits&lt;ALLOCATOR&gt;:: select_on_container_copy_construction(original.allocator())' to allocate memory. If the (template parameter) type <code>ALLOCATOR</code> is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), the currently installed default allocator is used to supply memory. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -935,7 +936,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::set </td>
@@ -957,7 +958,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set having the same value as that of the specified <code>original</code> that will use the specified <code>basicAllocator</code> to supply memory. Use a copy of <code>original.key_comp()</code> to order the keys contained in this set. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code> shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -965,7 +966,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITERATOR &gt; </div>
       <table class="memname">
@@ -1001,7 +1002,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default) then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator will be used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code> then this operation will have O[N] complexity, where N is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation will have O[N * log(N)] complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Construct a set, and insert each <code>value_type</code> object in the sequence starting at the specified <code>first</code> element, and ending immediately before the specified <code>last</code> element, ignoring those keys that appears earlier in the sequence. Optionally specify a <code>comparator</code> used to order keys contained in this object. If <code>comparator</code> is not supplied, a default-constructed object of the (template parameter) type <code>COMPARATOR</code> is used. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not supplied, a default-constructed object of the (template parameter) type <code>ALLOCATOR</code> is used. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> (the default), then <code>basicAllocator</code>, if supplied, shall be convertible to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *</code>. If the template parameter <code>ALLOCATOR</code> argument is of type <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code> and <code>basicAllocator</code> is not supplied, the currently installed default allocator is used to supply memory. If the sequence <code>first</code> and <code>last</code> is ordered according to the identified <code>comparator</code>, then this operation has <code>O[N]</code> complexity, where <code>N</code> is the number of elements between <code>first</code> and <code>last</code>, otherwise this operation has <code>O[N * log(N)]</code> complexity. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1009,7 +1010,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::~set </td>
@@ -1029,7 +1030,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">set&amp; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::operator= </td>
@@ -1042,7 +1043,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this object the value and comparator of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. This method requires that the (template parameter) type <code>KEY</code> type be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Assign to this object the value and comparator of the specified <code>rhs</code> object, propagate to this object the allocator of <code>rhs</code> if the <code>ALLOCATOR</code> type has trait <code>propagate_on_container_copy_assignment</code>, and return a reference providing modifiable access to this object. Note that this method requires that the (template parameter) type <code>KEY</code> type be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1050,7 +1051,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::begin </td>
@@ -1070,7 +1071,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::end </td>
@@ -1090,7 +1091,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::rbegin </td>
@@ -1110,7 +1111,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::rend </td>
@@ -1130,7 +1131,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">pair&lt;iterator, bool&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::insert </td>
@@ -1143,7 +1144,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this set if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object the same as <code>value</code> already exists in this set, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose value is as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert the specified <code>value</code> into this set if the key (the <code>first</code> element) of the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object the same as <code>value</code> already exists in this set, this method has no effect. Return a pair whose <code>first</code> member is an iterator referring to the (possibly newly inserted) <code>value_type</code> object in this set whose value is as that of <code>value</code>, and whose <code>second</code> member is <code>true</code> if a new value was inserted, and <code>false</code> if the value was already present. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1151,7 +1152,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::insert </td>
@@ -1173,7 +1174,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the specified <code>value</code> into this set (in amortized constant time if the specified <code>hint</code> is a valid immediate successor to <code>value</code>), if the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object the same as <code>value</code> already exists in this set, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object that is the same as <code>value</code>. If <code>hint</code> is not a valid immediate successor to <code>value</code>, this operation will have O[log(N)] complexity, where <code>N</code> is the size of this set. The behavior is undefined unless <code>hint</code> is a valid iterator into this set. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert the specified <code>value</code> into this set (in amortized constant time if the specified <code>hint</code> is a valid immediate successor to <code>value</code>), if the <code>value</code> does not already exist in this set; otherwise, if a <code>value_type</code> object the same as <code>value</code> already exists in this set, this method has no effect. Return an iterator referring to the (possibly newly inserted) <code>value_type</code> object that is the same as <code>value</code>. If <code>hint</code> is not a valid immediate successor to <code>value</code>, this operation has <code>O[log(N)]</code> complexity, where <code>N</code> is the size of this set. The behavior is undefined unless <code>hint</code> is a valid iterator into this set. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1181,7 +1182,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITERATOR &gt; </div>
       <table class="memname">
@@ -1205,7 +1206,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert into this set the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this set. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Insert into this set the value of each <code>value_type</code> object in the range starting at the specified <code>first</code> iterator and ending immediately before the specified <code>last</code> iterator, whose key is not already contained in this set. The (template parameter) type <code>INPUT_ITERATOR</code> shall meet the requirements of an input iterator defined in the C++11 standard [24.2.3] providing access to values of a type convertible to <code>value_type</code>. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.copy-constructible" class="glossary">copy-constructible</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1213,7 +1214,7 @@ template&lt;class INPUT_ITERATOR &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::erase </td>
@@ -1234,7 +1235,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::erase </td>
@@ -1255,7 +1256,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::erase </td>
@@ -1285,7 +1286,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::swap </td>
@@ -1298,7 +1299,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
       </table>
 </div>
 <div class="memdoc">
-<p>Exchange the value of this object as well as its comparator with those of the specified <code>other</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Exchange the value of this object as well as its comparator with those of the specified <code>other</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of this object with that of the <code>other</code> object, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
@@ -1306,7 +1307,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::clear </td>
@@ -1326,7 +1327,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::find </td>
@@ -1347,7 +1348,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::lower_bound </td>
@@ -1368,7 +1369,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::upper_bound </td>
@@ -1389,7 +1390,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">pair&lt;iterator, iterator&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::equal_range </td>
@@ -1410,7 +1411,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">allocator_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::get_allocator </td>
@@ -1430,7 +1431,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::begin </td>
@@ -1450,7 +1451,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::end </td>
@@ -1470,7 +1471,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::rbegin </td>
@@ -1490,7 +1491,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::rend </td>
@@ -1510,7 +1511,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::cbegin </td>
@@ -1530,7 +1531,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::cend </td>
@@ -1550,7 +1551,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::crbegin </td>
@@ -1570,7 +1571,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::crend </td>
@@ -1590,7 +1591,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::empty </td>
@@ -1610,7 +1611,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::size </td>
@@ -1630,7 +1631,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::max_size </td>
@@ -1650,7 +1651,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">key_compare <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::key_comp </td>
@@ -1670,7 +1671,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">value_compare <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::value_comp </td>
@@ -1690,7 +1691,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::find </td>
@@ -1711,7 +1712,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::count </td>
@@ -1732,7 +1733,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::lower_bound </td>
@@ -1753,7 +1754,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::upper_bound </td>
@@ -1774,7 +1775,7 @@ template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATO
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class KEY , class COMPARATOR  = std::less&lt;KEY&gt;, class ALLOCATOR  = allocator&lt;KEY&gt;&gt; </div>
+template&lt;class KEY, class COMPARATOR = std::less&lt;KEY&gt;, class ALLOCATOR = allocator&lt;KEY&gt;&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">pair&lt;const_iterator, const_iterator&gt; <a class="el" href="classbsl_1_1set.html">bsl::set</a>&lt; KEY, COMPARATOR, ALLOCATOR &gt;::equal_range </td>
@@ -1817,7 +1818,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code>set</code> objects have the same value if they have the same number of keys, and each key that is contained in one of the objects is also contained in the other object. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects have the same value, and <code>false</code> otherwise. Two <code>set</code> objects have the same value if they have the same number of keys, and each key that is contained in one of the objects is also contained in the other object. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1847,7 +1848,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code>set</code> objects do not have the same value if they do not have the same number of keys, or some keys that is contained in one of the objects is not also contained in the other object. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> objects do not have the same value, and <code>false</code> otherwise. Two <code>set</code> objects do not have the same value if they do not have the same number of keys, or some keys that is contained in one of the objects is not also contained in the other object. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.equality-comparable" class="glossary">equality-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1877,7 +1878,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is less than the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is less than that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is less than the <code>rhs</code> key, or, if all their corresponding keys compare equal, <code>lhs</code> has fewer keys than <code>rhs</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is less than the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is less than that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is less than the <code>rhs</code> key, or, if all their corresponding keys compare equal, <code>lhs</code> has fewer keys than <code>rhs</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1907,7 +1908,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is greater than the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is greater than that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is greater than the <code>rhs</code> key, or, if all their keys compare equal, <code>lhs</code> has more keys than <code>rhs</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is greater than the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is greater than that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is greater than the <code>rhs</code> key, or, if all their keys compare equal, <code>lhs</code> has more keys than <code>rhs</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1937,7 +1938,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is less-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is less-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is less than the <code>rhs</code> key, or, if all of their corresponding keys compare equal, <code>lhs</code> has less-than or equal number of keys as <code>rhs</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is less-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is less-than or equal-to that of <code>rhs</code>, if, for the first non-equal corresponding key in their respective sequences, the <code>lhs</code> key is less than the <code>rhs</code> key, or, if all of their corresponding keys compare equal, <code>lhs</code> has less-than or equal number of keys as <code>rhs</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1967,7 +1968,7 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> value is greater-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is greater-than or equal-to that of <code>rhs</code>, if, for the first corresponding key in their respective sequences, the <code>lhs</code> key is greater than the <code>rhs</code> key, or, if all of their corresponding keys compare equal, <code>lhs</code> has greater-than or equal number of keys <code>rhs</code>. This method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> value is greater-than or equal-to the specified <code>rhs</code> value, and <code>false</code> otherwise. A set, <code>lhs</code>, has a value that is greater-than or equal-to that of <code>rhs</code>, if, for the first corresponding key in their respective sequences, the <code>lhs</code> key is greater than the <code>rhs</code> key, or, if all of their corresponding keys compare equal, <code>lhs</code> has greater-than or equal number of keys <code>rhs</code>. Note that this method requires that the (template parameter) type <code>KEY</code> be <a href="group__bslstl__set.html#requirements_on_key.less-than-comparable" class="glossary">less-than-comparable</a> (see <a href="group__bslstl__set.html#requirements_on_key" class="el">Requirements on <code>KEY</code></a>). </p>
 
 </div>
 </div>
@@ -1997,12 +1998,12 @@ template&lt;class KEY , class COMPARATOR , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code> then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees O[1] complexity. The behavior is undefined is unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
+<p>Swap both the value and the comparator of the specified <code>a</code> object with the value and comparator of the specified <code>b</code> object. Additionally, if <code>bslstl::AllocatorTraits&lt;ALLOCATOR&gt;propagate_on_container_swap</code> is <code>true</code>, then exchange the allocator of <code>a</code> with that of <code>b</code>, and do not modify either allocator otherwise. This method provides the no-throw exception-safety guarantee and guarantees <code>O[1]</code> complexity. The behavior is undefined unless either this object was created with the same allocator as <code>other</code> or <code>propagate_on_container_swap</code> is <code>true</code>. </p>
 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:56 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

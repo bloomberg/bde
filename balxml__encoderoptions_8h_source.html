@@ -1,0 +1,1030 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balxml_encoderoptions.h-- GENERATED FILE - DO NOT EDIT ---*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALXML_ENCODEROPTIONS
+#define INCLUDED_BALXML_ENCODEROPTIONS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT_RCSID(baexml_encoderoptions_h,&quot;$Id$ $CSID$&quot;)
+BSLS_IDENT_PRAGMA_ONCE
+
+//@PURPOSE: Provide value-semantic attribute classes
+//
+//@DESCRIPTION:  Options for performing XML encodings.  Encoding style is
+// either COMPACT or PRETTY.  If encoding style is COMPACT, no whitespace will
+// be added between elements.  If encoding style is &#39;PRETTY&#39;, then the
+// &#39;InitialIndentLevel&#39;, &#39;SpacesPerLevel&#39;, and &#39;WrapColumn&#39; parameters are used
+// to specify the formatting of the output.  Note that &#39;InitialIndentLevel&#39;,
+// &#39;SpacesPerLevel&#39;, and &#39;WrapColumn&#39; are ignored when &#39;EncodingStyle&#39; is
+// COMPACT (this is the default).
+//
+// This class was initially generated using baexml_generateoptions.pl
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
+#include &lt;bdlat_attributeinfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_SELECTIONINFO
+#include &lt;bdlat_selectioninfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#include &lt;bdlat_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include &lt;bsls_objectbuffer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BALXML_ENCODINGSTYLE
+#include &lt;balxml_encodingstyle.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_NULLABLEVALUE
+#include &lt;bdlb_nullablevalue.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balxml {
+
+                            // ====================
+                            // class EncoderOptions
+                            // ====================
+
+class EncoderOptions {
+    // Options for performing XML encodings.  Encoding style is either COMPACT
+    // or PRETTY.  If encoding style is COMPACT, no whitespace will be added
+    // between elements.  If encoding style is &#39;PRETTY&#39;, then the
+    // &#39;InitialIndentLevel&#39;, &#39;SpacesPerLevel&#39;, and &#39;WrapColumn&#39; parameters are
+    // used to specify the formatting of the output.  Note that
+    // &#39;InitialIndentLevel&#39;, &#39;SpacesPerLevel&#39;, and &#39;WrapColumn&#39; are ignored
+    // when &#39;EncodingStyle&#39; is COMPACT (this is the default).
+    // This class is generated using baexml_generateoptions.pl
+
+    // INSTANCE DATA
+    bsl::string                      d_objectNamespace;
+        // namespace where object is defined
+    bsl::string                      d_schemaLocation;
+        // location of the schema
+    bsl::string                      d_tag;
+        // tag for top level
+    int                              d_formattingMode;
+        // Formatting mode
+    int                              d_initialIndentLevel;
+        // initial indentation level
+    int                              d_spacesPerLevel;
+        // spaces per level of indentation
+    int                              d_wrapColumn;
+        // number of characters to wrap text
+    bdlb::NullableValue&lt;int&gt;         d_maxDecimalTotalDigits;
+        // Maximum total digits of the decimal value that should be displayed
+    bdlb::NullableValue&lt;int&gt;         d_maxDecimalFractionDigits;
+        // Maximum fractional digits of the decimal value that should be
+        // displayed
+    bdlb::NullableValue&lt;int&gt;         d_significantDoubleDigits;
+        // The number of significant digits that must be displayed for the
+        // double value.
+    EncodingStyle::Value  d_encodingStyle;
+        // encoding style (see component-level doc)
+    bool                             d_allowControlCharacters;
+        // Allow control characters to be encoded.
+    bool                             d_outputXMLHeader;
+        // This option controls if the baexml encoder should output the XML
+        // header.
+    bool                             d_outputXSIAlias;
+        // This option controls if the baexml encoder should output the XSI
+        // alias with the top-level element.
+
+  public:
+    // TYPES
+    enum {
+        e_ATTRIBUTE_ID_OBJECT_NAMESPACE            = 0
+      , e_ATTRIBUTE_ID_SCHEMA_LOCATION             = 1
+      , e_ATTRIBUTE_ID_TAG                         = 2
+      , e_ATTRIBUTE_ID_FORMATTING_MODE             = 3
+      , e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL        = 4
+      , e_ATTRIBUTE_ID_SPACES_PER_LEVEL            = 5
+      , e_ATTRIBUTE_ID_WRAP_COLUMN                 = 6
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS    = 7
+      , e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS = 8
+      , e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS   = 9
+      , e_ATTRIBUTE_ID_ENCODING_STYLE              = 10
+      , e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS    = 11
+      , e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
+      , e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
+    };
+
+    enum {
+        k_NUM_ATTRIBUTES = 14
+    };
+
+    enum {
+        e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE            = 0
+      , e_ATTRIBUTE_INDEX_SCHEMA_LOCATION             = 1
+      , e_ATTRIBUTE_INDEX_TAG                         = 2
+      , e_ATTRIBUTE_INDEX_FORMATTING_MODE             = 3
+      , e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL        = 4
+      , e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL            = 5
+      , e_ATTRIBUTE_INDEX_WRAP_COLUMN                 = 6
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS    = 7
+      , e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS = 8
+      , e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS   = 9
+      , e_ATTRIBUTE_INDEX_ENCODING_STYLE              = 10
+      , e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS    = 11
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
+      , e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const int DEFAULT_INITIALIZER_FORMATTING_MODE;
+
+    static const int DEFAULT_INITIALIZER_INITIAL_INDENT_LEVEL;
+
+    static const int DEFAULT_INITIALIZER_SPACES_PER_LEVEL;
+
+    static const int DEFAULT_INITIALIZER_WRAP_COLUMN;
+
+    static const EncodingStyle::Value DEFAULT_INITIALIZER_ENCODING_STYLE;
+
+    static const bool DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
+
+    static const bool DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER;
+
+    static const bool DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS;
+
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified &#39;id&#39; if the attribute exists, and 0 otherwise.
+
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified &#39;name&#39; of the specified &#39;nameLength&#39; if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit EncoderOptions(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type &#39;EncoderOptions&#39; having the
+        // default value.  Use the optionally specified &#39;basicAllocator&#39; to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.
+
+    EncoderOptions(const EncoderOptions&amp; original,
+                              bslma::Allocator *basicAllocator = 0);
+        // Create an object of type &#39;EncoderOptions&#39; having the
+        // value of the specified &#39;original&#39; object.  Use the optionally
+        // specified &#39;basicAllocator&#39; to supply memory.  If &#39;basicAllocator&#39; is
+        // 0, the currently installed default allocator is used.
+
+    ~EncoderOptions();
+        // Destroy this object.
+
+    // MANIPULATORS
+    EncoderOptions&amp; operator=(const EncoderOptions&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttributes(MANIPULATOR&amp; manipulator);
+        // Invoke the specified &#39;manipulator&#39; sequentially on the address of
+        // each (modifiable) attribute of this object, supplying &#39;manipulator&#39;
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of &#39;manipulator&#39; (i.e., the invocation that
+        // terminated the sequence).
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttribute(MANIPULATOR&amp; manipulator, int id);
+        // Invoke the specified &#39;manipulator&#39; on the address of
+        // the (modifiable) attribute indicated by the specified &#39;id&#39;,
+        // supplying &#39;manipulator&#39; with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of &#39;manipulator&#39; if &#39;id&#39; identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template&lt;class MANIPULATOR&gt;
+    int manipulateAttribute(MANIPULATOR&amp;  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified &#39;manipulator&#39; on the address of
+        // the (modifiable) attribute indicated by the specified &#39;name&#39; of the
+        // specified &#39;nameLength&#39;, supplying &#39;manipulator&#39; with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of &#39;manipulator&#39; if &#39;name&#39; identifies
+        // an attribute of this class, and -1 otherwise.
+
+    void setObjectNamespace(const bsl::string&amp; value);
+        // Set the &quot;ObjectNamespace&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setSchemaLocation(const bsl::string&amp; value);
+        // Set the &quot;SchemaLocation&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setTag(const bsl::string&amp; value);
+        // Set the &quot;Tag&quot; attribute of this object to the specified &#39;value&#39;.
+
+    void setFormattingMode(int value);
+        // Set the &quot;FormattingMode&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setInitialIndentLevel(int value);
+        // Set the &quot;InitialIndentLevel&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setSpacesPerLevel(int value);
+        // Set the &quot;SpacesPerLevel&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setWrapColumn(int value);
+        // Set the &quot;WrapColumn&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setMaxDecimalTotalDigits(const bdlb::NullableValue&lt;int&gt;&amp; value);
+        // Set the &quot;MaxDecimalTotalDigits&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setMaxDecimalFractionDigits(const bdlb::NullableValue&lt;int&gt;&amp; value);
+        // Set the &quot;MaxDecimalFractionDigits&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setSignificantDoubleDigits(const bdlb::NullableValue&lt;int&gt;&amp; value);
+        // Set the &quot;SignificantDoubleDigits&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setEncodingStyle(EncodingStyle::Value value);
+        // Set the &quot;EncodingStyle&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setAllowControlCharacters(bool value);
+        // Set the &quot;AllowControlCharacters&quot; attribute of this object to the
+        // specified &#39;value&#39;.
+
+    void setOutputXMLHeader(bool value);
+        // Set the &quot;OutputXMLHeader&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    void setOutputXSIAlias(bool value);
+        // Set the &quot;OutputXSIAlias&quot; attribute of this object to the specified
+        // &#39;value&#39;.
+
+    // ACCESSORS
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of &#39;level * spacesPerLevel&#39;.  If &#39;level&#39; is
+        // negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttributes(ACCESSOR&amp; accessor) const;
+        // Invoke the specified &#39;accessor&#39; sequentially on each
+        // (non-modifiable) attribute of this object, supplying &#39;accessor&#39;
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of &#39;accessor&#39; (i.e., the invocation that terminated
+        // the sequence).
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttribute(ACCESSOR&amp; accessor, int id) const;
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute
+        // of this object indicated by the specified &#39;id&#39;, supplying &#39;accessor&#39;
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of &#39;accessor&#39; if &#39;id&#39; identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template&lt;class ACCESSOR&gt;
+    int accessAttribute(ACCESSOR&amp;   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified &#39;accessor&#39; on the (non-modifiable) attribute
+        // of this object indicated by the specified &#39;name&#39; of the specified
+        // &#39;nameLength&#39;, supplying &#39;accessor&#39; with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of &#39;accessor&#39; if &#39;name&#39; identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const bsl::string&amp; objectNamespace() const;
+        // Return a reference to the non-modifiable &quot;ObjectNamespace&quot; attribute
+        // of this object.
+
+    const bsl::string&amp; schemaLocation() const;
+        // Return a reference to the non-modifiable &quot;SchemaLocation&quot; attribute
+        // of this object.
+
+    const bsl::string&amp; tag() const;
+        // Return a reference to the non-modifiable &quot;Tag&quot; attribute of this
+        // object.
+
+    int formattingMode() const;
+        // Return a reference to the non-modifiable &quot;FormattingMode&quot; attribute
+        // of this object.
+
+    int initialIndentLevel() const;
+        // Return a reference to the non-modifiable &quot;InitialIndentLevel&quot;
+        // attribute of this object.
+
+    int spacesPerLevel() const;
+        // Return a reference to the non-modifiable &quot;SpacesPerLevel&quot; attribute
+        // of this object.
+
+    int wrapColumn() const;
+        // Return a reference to the non-modifiable &quot;WrapColumn&quot; attribute of
+        // this object.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; maxDecimalTotalDigits() const;
+        // Return a reference to the non-modifiable &quot;MaxDecimalTotalDigits&quot;
+        // attribute of this object.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; maxDecimalFractionDigits() const;
+        // Return a reference to the non-modifiable &quot;MaxDecimalFractionDigits&quot;
+        // attribute of this object.
+
+    const bdlb::NullableValue&lt;int&gt;&amp; significantDoubleDigits() const;
+        // Return a reference to the non-modifiable &quot;SignificantDoubleDigits&quot;
+        // attribute of this object.
+
+    EncodingStyle::Value encodingStyle() const;
+        // Return a reference to the non-modifiable &quot;EncodingStyle&quot; attribute
+        // of this object.
+
+    bool allowControlCharacters() const;
+        // Return a reference to the non-modifiable &quot;AllowControlCharacters&quot;
+        // attribute of this object.
+
+    bool outputXMLHeader() const;
+        // Return a reference to the non-modifiable &quot;OutputXMLHeader&quot; attribute
+        // of this object.
+
+    bool outputXSIAlias() const;
+        // Return a reference to the non-modifiable &quot;OutputXSIAlias&quot; attribute
+        // of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects have
+    // the same value, and &#39;false&#39; otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const EncoderOptions&amp; lhs, const EncoderOptions&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; attribute objects do not
+    // have the same value, and &#39;false&#39; otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const EncoderOptions&amp; rhs);
+    // Format the specified &#39;rhs&#39; to the specified output &#39;stream&#39; and
+    // return a reference to the modifiable &#39;stream&#39;.
+
+
+// TRAITS
+
+}  // close package namespace
+
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(balxml::EncoderOptions)
+
+namespace balxml {
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+
+                            // --------------------
+                            // class EncoderOptions
+                            // --------------------
+
+// MANIPULATORS
+template &lt;class MANIPULATOR&gt;
+int EncoderOptions::manipulateAttributes(MANIPULATOR&amp; manipulator)
+{
+    int ret;
+
+    ret = manipulator(&amp;d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(&amp;d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template &lt;class MANIPULATOR&gt;
+int EncoderOptions::manipulateAttribute(MANIPULATOR&amp; manipulator, int id)
+{
+    enum { k_NOT_FOUND = -1 };
+
+    switch (id) {
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return manipulator(&amp;d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return manipulator(&amp;d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_TAG: {
+        return manipulator(&amp;d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return manipulator(&amp;d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return manipulator(&amp;d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return manipulator(&amp;d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return manipulator(&amp;d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return manipulator(&amp;d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return manipulator(&amp;d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return manipulator(&amp;d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return manipulator(&amp;d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return manipulator(&amp;d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return manipulator(&amp;d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return manipulator(&amp;d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+                                                                      // RETURN
+      } break;
+      default:
+        return k_NOT_FOUND;                                           // RETURN
+    }
+}
+
+template &lt;class MANIPULATOR&gt;
+int EncoderOptions::manipulateAttribute(
+        MANIPULATOR&amp;  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { k_NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return k_NOT_FOUND;                                           // RETURN
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo-&gt;d_id);
+}
+
+inline
+void EncoderOptions::setObjectNamespace(const bsl::string&amp; value)
+{
+    d_objectNamespace = value;
+}
+
+inline
+void EncoderOptions::setSchemaLocation(const bsl::string&amp; value)
+{
+    d_schemaLocation = value;
+}
+
+inline
+void EncoderOptions::setTag(const bsl::string&amp; value)
+{
+    d_tag = value;
+}
+
+inline
+void EncoderOptions::setFormattingMode(int value)
+{
+    d_formattingMode = value;
+}
+
+inline
+void EncoderOptions::setInitialIndentLevel(int value)
+{
+    d_initialIndentLevel = value;
+}
+
+inline
+void EncoderOptions::setSpacesPerLevel(int value)
+{
+    d_spacesPerLevel = value;
+}
+
+inline
+void EncoderOptions::setWrapColumn(int value)
+{
+    d_wrapColumn = value;
+}
+
+inline
+void EncoderOptions::setMaxDecimalTotalDigits(const bdlb::NullableValue&lt;int&gt;&amp; value)
+{
+    d_maxDecimalTotalDigits = value;
+}
+
+inline
+void EncoderOptions::setMaxDecimalFractionDigits(const bdlb::NullableValue&lt;int&gt;&amp; value)
+{
+    d_maxDecimalFractionDigits = value;
+}
+
+inline
+void EncoderOptions::setSignificantDoubleDigits(const bdlb::NullableValue&lt;int&gt;&amp; value)
+{
+    d_significantDoubleDigits = value;
+}
+
+inline
+void EncoderOptions::setEncodingStyle(EncodingStyle::Value value)
+{
+    d_encodingStyle = value;
+}
+
+inline
+void EncoderOptions::setAllowControlCharacters(bool value)
+{
+    d_allowControlCharacters = value;
+}
+
+inline
+void EncoderOptions::setOutputXMLHeader(bool value)
+{
+    d_outputXMLHeader = value;
+}
+
+inline
+void EncoderOptions::setOutputXSIAlias(bool value)
+{
+    d_outputXSIAlias = value;
+}
+
+// ACCESSORS
+template &lt;class ACCESSOR&gt;
+int EncoderOptions::accessAttributes(ACCESSOR&amp; accessor) const
+{
+    int ret;
+
+    ret = accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    return ret;
+}
+
+template &lt;class ACCESSOR&gt;
+int EncoderOptions::accessAttribute(ACCESSOR&amp; accessor, int id) const
+{
+    enum { k_NOT_FOUND = -1 };
+
+    switch (id) {
+      case e_ATTRIBUTE_ID_OBJECT_NAMESPACE: {
+        return accessor(d_objectNamespace, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OBJECT_NAMESPACE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SCHEMA_LOCATION: {
+        return accessor(d_schemaLocation, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SCHEMA_LOCATION]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_TAG: {
+        return accessor(d_tag, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TAG]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_FORMATTING_MODE: {
+        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_INITIAL_INDENT_LEVEL: {
+        return accessor(d_initialIndentLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_INITIAL_INDENT_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SPACES_PER_LEVEL: {
+        return accessor(d_spacesPerLevel, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SPACES_PER_LEVEL]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_WRAP_COLUMN: {
+        return accessor(d_wrapColumn, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_WRAP_COLUMN]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_TOTAL_DIGITS: {
+        return accessor(d_maxDecimalTotalDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_TOTAL_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_MAX_DECIMAL_FRACTION_DIGITS: {
+        return accessor(d_maxDecimalFractionDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DECIMAL_FRACTION_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS: {
+        return accessor(d_significantDoubleDigits, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ENCODING_STYLE: {
+        return accessor(d_encodingStyle, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ENCODING_STYLE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
+        return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+                                                                      // RETURN
+      } break;
+      default:
+        return k_NOT_FOUND;                                           // RETURN
+    }
+}
+
+template &lt;class ACCESSOR&gt;
+int EncoderOptions::accessAttribute(
+        ACCESSOR&amp;   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { k_NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return k_NOT_FOUND;                                            // RETURN
+    }
+
+    return accessAttribute(accessor, attributeInfo-&gt;d_id);
+}
+
+inline
+const bsl::string&amp; EncoderOptions::objectNamespace() const
+{
+    return d_objectNamespace;
+}
+
+inline
+const bsl::string&amp; EncoderOptions::schemaLocation() const
+{
+    return d_schemaLocation;
+}
+
+inline
+const bsl::string&amp; EncoderOptions::tag() const
+{
+    return d_tag;
+}
+
+inline
+int EncoderOptions::formattingMode() const
+{
+    return d_formattingMode;
+}
+
+inline
+int EncoderOptions::initialIndentLevel() const
+{
+    return d_initialIndentLevel;
+}
+
+inline
+int EncoderOptions::spacesPerLevel() const
+{
+    return d_spacesPerLevel;
+}
+
+inline
+int EncoderOptions::wrapColumn() const
+{
+    return d_wrapColumn;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; EncoderOptions::maxDecimalTotalDigits() const
+{
+    return d_maxDecimalTotalDigits;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; EncoderOptions::maxDecimalFractionDigits() const
+{
+    return d_maxDecimalFractionDigits;
+}
+
+inline
+const bdlb::NullableValue&lt;int&gt;&amp; EncoderOptions::significantDoubleDigits() const
+{
+    return d_significantDoubleDigits;
+}
+
+inline
+EncodingStyle::Value EncoderOptions::encodingStyle() const
+{
+    return d_encodingStyle;
+}
+
+inline
+bool EncoderOptions::allowControlCharacters() const
+{
+    return d_allowControlCharacters;
+}
+
+inline
+bool EncoderOptions::outputXMLHeader() const
+{
+    return d_outputXMLHeader;
+}
+
+inline
+bool EncoderOptions::outputXSIAlias() const
+{
+    return d_outputXSIAlias;
+}
+}  // close package namespace
+
+
+// FREE FUNCTIONS
+
+inline
+bool balxml::operator==(
+        const EncoderOptions&amp; lhs,
+        const EncoderOptions&amp; rhs)
+{
+    return  lhs.objectNamespace() == rhs.objectNamespace()
+         &amp;&amp; lhs.schemaLocation() == rhs.schemaLocation()
+         &amp;&amp; lhs.tag() == rhs.tag()
+         &amp;&amp; lhs.formattingMode() == rhs.formattingMode()
+         &amp;&amp; lhs.initialIndentLevel() == rhs.initialIndentLevel()
+         &amp;&amp; lhs.spacesPerLevel() == rhs.spacesPerLevel()
+         &amp;&amp; lhs.wrapColumn() == rhs.wrapColumn()
+         &amp;&amp; lhs.maxDecimalTotalDigits() == rhs.maxDecimalTotalDigits()
+         &amp;&amp; lhs.maxDecimalFractionDigits() == rhs.maxDecimalFractionDigits()
+         &amp;&amp; lhs.significantDoubleDigits() == rhs.significantDoubleDigits()
+         &amp;&amp; lhs.encodingStyle() == rhs.encodingStyle()
+         &amp;&amp; lhs.allowControlCharacters() == rhs.allowControlCharacters()
+         &amp;&amp; lhs.outputXMLHeader() == rhs.outputXMLHeader()
+         &amp;&amp; lhs.outputXSIAlias() == rhs.outputXSIAlias();
+}
+
+inline
+bool balxml::operator!=(
+        const EncoderOptions&amp; lhs,
+        const EncoderOptions&amp; rhs)
+{
+    return  lhs.objectNamespace() != rhs.objectNamespace()
+         || lhs.schemaLocation() != rhs.schemaLocation()
+         || lhs.tag() != rhs.tag()
+         || lhs.formattingMode() != rhs.formattingMode()
+         || lhs.initialIndentLevel() != rhs.initialIndentLevel()
+         || lhs.spacesPerLevel() != rhs.spacesPerLevel()
+         || lhs.wrapColumn() != rhs.wrapColumn()
+         || lhs.maxDecimalTotalDigits() != rhs.maxDecimalTotalDigits()
+         || lhs.maxDecimalFractionDigits() != rhs.maxDecimalFractionDigits()
+         || lhs.significantDoubleDigits() != rhs.significantDoubleDigits()
+         || lhs.encodingStyle() != rhs.encodingStyle()
+         || lhs.allowControlCharacters() != rhs.allowControlCharacters()
+         || lhs.outputXMLHeader() != rhs.outputXMLHeader()
+         || lhs.outputXSIAlias() != rhs.outputXSIAlias();
+}
+
+inline
+bsl::ostream&amp; balxml::operator&lt;&lt;(
+        bsl::ostream&amp; stream,
+        const EncoderOptions&amp; rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

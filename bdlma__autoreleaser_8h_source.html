@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlma_autoreleaser.h                                               -*-C++-*-
@@ -19,21 +19,23 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@SEE_ALSO: bslma_deallocatorproctor, bdlma_managedallocator
 //
-//@DESCRIPTION: This component provides a proctor object to manage memory
-// allocated from a managed allocator or pool.  The proctor&#39;s destructor
-// invokes the &#39;release&#39; method of its managed allocator or pool unless the
-// proctor&#39;s own &#39;release&#39; method has been called.  Note that after a proctor
-// releases management of its managed allocator or pool, the proctor can be
-// reused by invoking its &#39;reset&#39; method with another allocator or pool object
-// (of the same (template parameter) type &#39;ALLOCATOR&#39;).
+//@DESCRIPTION: This component provides a proctor object,
+// &#39;bdlma::AutoReleaser&#39;, to manage memory allocated from a managed allocator
+// or pool.  The proctor&#39;s destructor invokes the &#39;release&#39; method of its
+// managed allocator or pool unless the proctor&#39;s own &#39;release&#39; method has been
+// called.  Note that after a proctor releases management of its managed
+// allocator or pool, the proctor can be reused by invoking its &#39;reset&#39; method
+// with another allocator or pool object (of the same (template parameter) type
+// &#39;ALLOCATOR&#39;).
 //
-///REQUIREMENTS
+///Requirements
 ///------------
 // The object of the (template parameter) type &#39;ALLOCATOR&#39; must provide a
 // method having the following signature:
 //..
 //  void release();
 //..
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -57,8 +59,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 // First, we define the interface of our &#39;my_FastStrArray&#39; class:
 //..
-//  // my_fastcstrarray.h
-//
 //  class my_FastCstrArray {
 //      // This class implements an array of C string elements.  Each C string
 //      // is allocated using the &#39;my_StrPool&#39; member for fast memory
@@ -75,6 +75,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      // PRIVATE MANIPULATORS
 //      void increaseSize();
 //
+//      // Not implemented:
+//      my_FastCstrArray(const my_FastCstrArray&amp;);
+//
 //    public:
 //      // CREATORS
 //      my_FastCstrArray(bslma::Allocator *basicAllocator = 0);
@@ -89,16 +92,86 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      int length() const { return d_length; }
 //  };
 //
-//  // ...
+//  // FREE OPERATORS
+//  ostream&amp; operator&lt;&lt;(ostream&amp; stream, const my_FastCstrArray&amp; array);
+//
 //..
-// Finally, we implement &#39;my_FastCstrArray::operator=&#39; using a
+// Then, we implement the methods:
+//..
+//  enum {
+//      k_MY_INITIAL_SIZE = 1, // initial physical capacity
+//      k_MY_GROW_FACTOR  = 2  // factor by which to grow &#39;d_capacity&#39;
+//  };
+//
+//  static inline
+//  int nextSize(int size)
+//      // Return the specified &#39;size&#39; multiplied by &#39;k_MY_GROW_FACTOR&#39;.
+//  {
+//      return size * k_MY_GROW_FACTOR;
+//  }
+//
+//  static inline
+//  void reallocate(char             ***array,
+//                  int                *size,
+//                  int                 newSize,
+//                  int                 length,
+//                  bslma::Allocator   *allocator)
+//      // Reallocate memory in the specified &#39;array&#39; and update the specified
+//      // &#39;size&#39; to the specified &#39;newSize&#39;, using the specified &#39;allocator&#39;
+//      // to supply memory.  The specified &#39;length&#39; number of leading elements
+//      // are preserved.  If &#39;allocate&#39; should throw an exception, this
+//      // function has no effect.  The behavior is undefined unless
+//      // &#39;1 &lt;= newSize&#39;, &#39;0 &lt;= length&#39;, and &#39;length &lt;= newSize&#39;.
+//  {
+//      ASSERT(array);
+//      ASSERT(*array);
+//      ASSERT(size);
+//      ASSERT(1 &lt;= newSize);
+//      ASSERT(0 &lt;= length);
+//      ASSERT(length &lt;= *size);    // sanity check
+//      ASSERT(length &lt;= newSize);  // ensure class invariant
+//
+//      char **tmp = *array;
+//
+//      *array = (char **)allocator-&gt;allocate(newSize * sizeof **array);
+//
+//      // commit
+//      bsl::memcpy(*array, tmp, length * sizeof **array);
+//      *size = newSize;
+//      allocator-&gt;deallocate(tmp);
+//  }
+//
+//  void my_FastCstrArray::increaseSize()
+//  {
+//      reallocate(&amp;d_array_p,
+//                 &amp;d_capacity,
+//                 nextSize(d_capacity),
+//                 d_length,
+//                 d_allocator_p);
+//  }
+//
+//  // CREATORS
+//  my_FastCstrArray::my_FastCstrArray(bslma::Allocator *basicAllocator)
+//  : d_capacity(k_MY_INITIAL_SIZE)
+//  , d_length(0)
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      d_array_p = (char **)d_allocator_p-&gt;allocate(
+//                                             d_capacity * sizeof *d_array_p);
+//  }
+//
+//  my_FastCstrArray::~my_FastCstrArray()
+//  {
+//      ASSERT(1        &lt;= d_capacity);
+//      ASSERT(0        &lt;= d_length);
+//      ASSERT(d_length &lt;= d_capacity);
+//
+//      d_allocator_p-&gt;deallocate(d_array_p);
+//  }
+//..
+// Now, we implement &#39;my_FastCstrArray::operator=&#39; using a
 // &#39;bdlma::AutoReleaser&#39; proctor to preserve exception neutrality:
 //..
-//  // my_fastcstrarray.cpp
-//  #include &lt;my_fastcstrarray.h&gt;
-//
-//  // ...
-//
 //  // MANIPULATORS
 //  my_FastCstrArray&amp;
 //  my_FastCstrArray::operator=(const my_FastCstrArray&amp; rhs)
@@ -118,7 +191,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          bdlma::AutoReleaser&lt;my_StrPool&gt; autoReleaser(&amp;d_strPool);
 //
 //          for (int i = 0; i &lt; rhs.d_length; ++i) {
-//              const int size = bsl::strlen(rhs.d_array_p[i]) + 1;
+//              const int size =
+//                         static_cast&lt;int&gt;(bsl::strlen(rhs.d_array_p[i])) + 1;
 //              d_array_p[i] = (char *)d_strPool.allocate(size);
 //              bsl::memcpy(d_array_p[i], rhs.d_array_p[i], size);
 //          }
@@ -129,14 +203,37 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //      return *this;
 //  }
-//
-//  // ...
 //..
 // Note that a &#39;bdlma::AutoReleaser&#39; proctor is used to manage the array&#39;s C
 // string memory pool while allocating memory for the individual elements.  If
 // an exception is thrown during the &#39;for&#39; loop, the proctor&#39;s destructor
 // releases memory for all elements allocated through the pool, thus ensuring
 // that no memory is leaked.
+//
+// Finally, we complete the implementation:
+//..
+//  void my_FastCstrArray::append(const char *item)
+//  {
+//      if (d_length &gt;= d_capacity) {
+//          this-&gt;increaseSize();
+//      }
+//      const int sSize = static_cast&lt;int&gt;(bsl::strlen(item)) + 1;
+//      char *elem = (char *)d_strPool.allocate(sSize);
+//      bsl::memcpy(elem, item, sSize * sizeof *item);
+//      d_array_p[d_length] = elem;
+//      ++d_length;
+//  }
+//
+//  // FREE OPERATORS
+//  ostream&amp; operator&lt;&lt;(ostream&amp; stream, const my_FastCstrArray&amp; array)
+//  {
+//      stream &lt;&lt; &quot;[ &quot;;
+//      for (int i = 0; i &lt; array.length(); ++i) {
+//          stream &lt;&lt; &#39;&quot;&#39; &lt;&lt; array[i] &lt;&lt; &quot;\&quot; &quot;;
+//      }
+//      return stream &lt;&lt; &#39;]&#39; &lt;&lt; flush;
+//  }
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include &lt;bdlscm_version.h&gt;
@@ -145,9 +242,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 namespace BloombergLP {
 namespace bdlma {
 
-                        // ==================
-                        // class AutoReleaser
-                        // ==================
+                            // ==================
+                            // class AutoReleaser
+                            // ==================
 
 template &lt;class ALLOCATOR&gt;
 class AutoReleaser {
@@ -191,12 +288,12 @@ class AutoReleaser {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------------
-                        // class AutoReleaser
-                        // ------------------
+                            // ------------------
+                            // class AutoReleaser
+                            // ------------------
 
 // CREATORS
 template &lt;class ALLOCATOR&gt;
@@ -236,7 +333,7 @@ void AutoReleaser&lt;ALLOCATOR&gt;::reset(ALLOCATOR *newAllocator)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
 // you may not use this file except in compliance with the License.

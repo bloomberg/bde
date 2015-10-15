@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_string Component</title>
+<title>BDE 3.0: bslstl_string Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -60,7 +60,8 @@
 <a href="#enum-members">Enumerations</a> &#124;
 <a href="#enumval-members">Enumerator</a> &#124;
 <a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#var-members">Variables</a> &#124;
+<a href="#friend-members">Friends</a>  </div>
   <div class="headertitle">
 <h1>Component bslstl_string<br/>
 <small>
@@ -81,6 +82,8 @@ Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga126b87a50a82be88e9132b4c32bf4a3f">BSLSTL_CHAR_TRAITS</a>&nbsp;&nbsp;&nbsp;CHAR_TRAITS</td></tr>
 <tr><td colspan="2"><h2><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; char &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab67de1ebe0184939129507efe5c86bb1">bsl::string</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; wchar_t &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab3b4e0ebb1e917062e2cc0a71d69fa81">bsl::wstring</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef CHAR_TRAITS::char_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaf975fd039e41c7e772d392872496b82f">bsl::basic_string::value_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef ALLOCATOR&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac39ab7e8873845c0b12c1a81b7293d80">bsl::basic_string::allocator_type</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef ALLOCATOR::size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gae80612f2bd647c7b123866246775c502">bsl::basic_string::size_type</a></td></tr>
@@ -95,12 +98,21 @@ Typedefs</h2></td></tr>
 &lt; iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga0222d501ce939e1ea6577bd757683c05">bsl::basic_string::reverse_iterator</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef bsl::reverse_iterator<br class="typebreak"/>
 &lt; const_iterator &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gadb446f8b83a7f1ebe053e7cb6726e4ed">bsl::basic_string::const_reverse_iterator</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; char &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab67de1ebe0184939129507efe5c86bb1">bsl::string</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef basic_string&lt; wchar_t &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab3b4e0ebb1e917062e2cc0a71d69fa81">bsl::wstring</a></td></tr>
 <tr><td colspan="2"><h2><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga9878e9f0e10750669118fa4929fbdd29">bsl::String_Imp::ConfigurableParameters</a> { <a class="el" href="group__bslstl__string.html#gga9878e9f0e10750669118fa4929fbdd29a20d9b2a976ecad64c5e6a04e45bcaabc">bsl::String_Imp::BASIC_STRING_DEALLOCATE_IN_CLEAR</a> =  false, 
 <a class="el" href="group__bslstl__string.html#gga9878e9f0e10750669118fa4929fbdd29a5007d36656baaef1224ceef93b5fe316">bsl::String_Imp::BASIC_STRING_HONOR_SHRINK_REQUEST</a> =  false
+ }</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaef611bddffc03eb3b52c57ffaa780662">bsl::MaxDecimalStringLengths</a> { <br/>
+&nbsp;&nbsp;<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a9ecea6b21648c172f194d3c86417d19e">bsl::e_MAX_SHORT_STRLEN10</a> =  2 + sizeof(short) * 3, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a6d6978188c8444b7e62a3e4e5d94879a">bsl::e_MAX_INT_STRLEN10</a> =  2 + sizeof(int) * 3, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662aa121a27205ae17ad8a99feb705516979">bsl::e_MAX_INT64_STRLEN10</a> =  26, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662aae8e584e57a0cf01fd1cda3dae28663a">bsl::e_MAX_FLOAT_STRLEN10</a> =  48, 
+<br/>
+&nbsp;&nbsp;<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662ae5d35cabdddc6fce086d2b6cf9cb5d62">bsl::e_MAX_DOUBLE_STRLEN10</a> =  318, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662a4953cf120543c8f55d67a002d4dc6676">bsl::e_MAX_LONGDOUBLE_STRLEN10</a> =  318, 
+<a class="el" href="group__bslstl__string.html#ggaef611bddffc03eb3b52c57ffaa780662ae92fad6094aaee12545dae9926049328">bsl::e_MAX_SCALAR_STRLEN10</a> =  e_MAX_INT64_STRLEN10
+<br/>
  }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -339,6 +351,32 @@ CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><
 <tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">std::basic_istream&lt; CHAR_TYPE, <br class="typebreak"/>
 CHAR_TRAITS &gt; &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3950d8911fd8b8b58fbee74bb76dda0f">bsl::getline</a> (std::basic_istream&lt; CHAR_TYPE, CHAR_TRAITS &gt; &amp;is, basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &amp;str)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3077399ad479cdd99e019952bff52d5c">bsl::stoi</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga1c806df13cef80e557e67c9fb81e7584">bsl::stol</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga017076c1385a354b3ec07b13329a5bef">bsl::stoul</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3b7919aec24aa17d15b0c95b7a2efcea">bsl::stoll</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga15fdd28d0b31f2aef03232c5adf69c1f">bsl::stoull</a> (const string &amp;str, std::size_t *pos=0, int base=10)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">float&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga308af944ea4ad09d95f842a0e977c2c1">bsl::stof</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga974d5193cce5be4030e024d1fabe8f9e">bsl::stod</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">long double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gad03a41be5c1e91bc85b0ce6d71fae0d3">bsl::stold</a> (const string &amp;str, std::size_t *pos=0)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga9d6e332df6fdad6887e8978cca90bd53">bsl::to_string</a> (int value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac1dc65359eaba7e85db44dbf3f307b83">bsl::to_string</a> (long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga80a9fc78f62b245982bce536f52edbac">bsl::to_string</a> (long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga59793d4b1890b9f056359dabb3bb0abc">bsl::to_string</a> (unsigned value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gac0eae9aa22cd9c20021c7955d447b222">bsl::to_string</a> (unsigned long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3bdfdf8c732ed0cd929c64bd68a363dc">bsl::to_string</a> (unsigned long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga86213338e0ca489dfaaeb944c53d0cda">bsl::to_string</a> (float value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga93ed7741b6b168c5af47b85310e48fe8">bsl::to_string</a> (double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaef063f65c5428b7264625515ee8df91d">bsl::to_string</a> (long double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6bf247b4e139b65f1fe8a6540924e9ee">bsl::to_wstring</a> (int value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6488bcb6abbe84aec6f5a8708bc71ce8">bsl::to_wstring</a> (long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3ae643872ee3867228be2a14b3e8f052">bsl::to_wstring</a> (long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaeff31d022b3aba42f50c58f25f18fb4c">bsl::to_wstring</a> (unsigned value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga6a91e80ab18cfae0b26eafcdcc85d4a0">bsl::to_wstring</a> (unsigned long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga2309169225fa7d82f8011aa29f8d603e">bsl::to_wstring</a> (unsigned long long value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga3df1db09a5c6cada159908a20560a04a">bsl::to_wstring</a> (float value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga8dca184138f505db2b0c83679f1ec044">bsl::to_wstring</a> (double value)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">wstring&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaa26a1d8a3eef81bc0c657f55ef133d7c">bsl::to_wstring</a> (long double value)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class HASHALG , class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga121160f409beb7dd37c2f94730f95f35">bsl::hashAppend</a> (HASHALG &amp;hashAlg, const basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &amp;input)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </td></tr>
@@ -357,6 +395,14 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <tr><td class="memItemLeft" align="right" valign="top">SIZE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga1de95b9d967e4faedc6796cb6e05ae90">bsl::String_Imp::d_length</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">SIZE_TYPE&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaaae930e07f058fc30aa7bc8af3cf9f81">bsl::String_Imp::d_capacity</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static const size_type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gaf79bc85dc723320ef0f88c6c86946d3c">bsl::basic_string::npos</a> = ~size_type(0)</td></tr>
+<tr><td colspan="2"><h2><a name="friend-members"></a>
+Friends</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gabd917c8caa6f02b3e1556896a64f0dfa">bsl::basic_string::to_string</a> (int)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga04cccf97e398e11807bb37d6131f8505">bsl::basic_string::to_string</a> (long)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga877151c379b618e34d205236b8c3003c">bsl::basic_string::to_string</a> (long long)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gabad026aba892e1efc1aa356893c8f90b">bsl::basic_string::to_string</a> (unsigned)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#gab907a581198875da669119b74dd3d16d">bsl::basic_string::to_string</a> (unsigned long)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">string&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__string.html#ga9ddef982d36bcdea154f3620ea76f0fe">bsl::basic_string::to_string</a> (unsigned long long)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <dl class="user"><dt><b>Outline</b></dt><dd><ul>
@@ -381,9 +427,9 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <li>
 <a href="#3.4.1">Example 1: Basic Syntax</a> </li>
 <li>
-<a href="#3.4.2">Example 2: <code>string</code> as a data member</a> </li>
+<a href="#3.4.2">Example 2: <code>string</code> as a Data Member</a> </li>
 <li>
-<a href="#3.4.3">Example 3: A stream text replacement filter</a> </li>
+<a href="#3.4.3">Example 3: A Stream Text Replacement Filter</a> </li>
 </ul>
 </li>
 </ul>
@@ -413,7 +459,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component defines a single class template <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code>, implementing standard containers, <code>std::string</code> and <code>std::wstring</code>, that hold a sequence of characters. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>An instantiation of <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> is an allocator-aware, value-semantic type whose salient attributes are its size (number of characters) and the sequence of characters that the string contains. The <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> <code>class</code> is parameterized by the character type, <code>CHAR_TYPE</code>, that character type's traits, <code>CHAR_TRAITS</code>, and an allocator, <code>ALLOCATOR</code>. The traits for each character type provide functions that assign, compare, and copy a sequence of those characters. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> meets the requirements of a sequential container with random access iterators as specified in the [basic.string] section of the C++ standard [21.4]. The <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> implemented here adheres to the C++11 standard, except that it does not have interfaces that take rvalue references or <code>initializer_lists</code>, the <code>shrink_to_fit</code> method, functions that support numeric conversions, such as <code>stoi</code>, <code>to_string</code>, and <code>to_wstring</code>, and template specializations <code>std::u16string</code> and <code>std::u32string</code>. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>A <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> meets the requirements of a sequential container with random access iterators as specified in the [basic.string] section of the C++ standard [21.4]. The <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> implemented here adheres to the C++11 standard, except that it does not have interfaces that take rvalue references or <code>initializer_lists</code>, the <code>shrink_to_fit</code> method,and template specializations <code>std::u16string</code> and <code>std::u32string</code>. Note that excluded C++11 features are those that require (or are greatly simplified by) C++11 compiler support. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="memory_allocation"></a> <a class="anchor" id="description.memory_allocation"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Memory Allocation: </b></dt><dd></dd></dl>
@@ -421,7 +467,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma-style_allocators"></a> <a class="anchor" id="memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="description.memory_allocation.bslma-style_allocators"></a> <a class="anchor" id="3.1.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma-Style Allocators: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> instantiation is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it will be used to supply memory for the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> throughout its lifetime; otherwise, the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> will use the default allocator installed at the time of the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code>'s construction (see <code>bslma_default</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If the (template parameter) type <code>ALLOCATOR</code> of an <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> instantiation is <code><a class="el" href="classbsl_1_1allocator.html">bsl::allocator</a></code>, then objects of that <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> type will conform to the standard behavior of a <code>bslma</code>-allocator-enabled type. Such a <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> accepts an optional <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument at construction. If the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object is explicitly supplied at construction, it is used to supply memory for the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> throughout its lifetime; otherwise, the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> will use the default allocator installed at the time of the <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code>'s construction (see <code>bslma_default</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="lexicographical_comparisons"></a> <a class="anchor" id="description.lexicographical_comparisons"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Lexicographical Comparisons: </b></dt><dd></dd></dl>
@@ -619,7 +665,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_string_as_a_data_member"></a> <a class="anchor" id="usage.example_2~3A_string_as_a_data_member"></a> <a class="anchor" id="description.usage.example_2~3A_string_as_a_data_member"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.4.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: string as a data member: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: string as a Data Member: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The most common use of <code>string</code> objects are as data members in user-defined classes. In this example, we will show how <code>string</code> objects can be used as data members. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we begin to define a <code>class</code>, <code>Employee</code>, that represents the data corresponding to an employee of a company: <br/>
 <br/>
@@ -841,7 +887,7 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_a_stream_text_replacement_filter"></a> <a class="anchor" id="usage.example_3~3A_a_stream_text_replacement_filter"></a> <a class="anchor" id="description.usage.example_3~3A_a_stream_text_replacement_filter"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.4.3"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3: A stream text replacement filter: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 3: A Stream Text Replacement Filter: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In this example, we will utilize the <code>string</code> type and its associated utility functions to define a function that reads data from an input stream, replaces all occurrences of a specified text fragment with another text fragment, and writes the resulting text to an output stream. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define the signature of the function, <code>replace</code>: <br/>
 <br/>
@@ -916,186 +962,6 @@ BloombergLP::bsls::AlignmentFromType<br class="typebreak"/>
 </div>
 </div>
 <hr/><h2>Typedef Documentation</h2>
-<a class="anchor" id="gaf975fd039e41c7e772d392872496b82f"></a><!-- doxytag: member="bsl::basic_string::value_type" ref="gaf975fd039e41c7e772d392872496b82f" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef CHAR_TRAITS::char_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::value_type<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gac39ab7e8873845c0b12c1a81b7293d80"></a><!-- doxytag: member="bsl::basic_string::allocator_type" ref="gac39ab7e8873845c0b12c1a81b7293d80" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::allocator_type<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gae80612f2bd647c7b123866246775c502"></a><!-- doxytag: member="bsl::basic_string::size_type" ref="gae80612f2bd647c7b123866246775c502" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size_type<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gaaaaf7ca1bfdac673b4e38e75f87b9098"></a><!-- doxytag: member="bsl::basic_string::difference_type" ref="gaaaaf7ca1bfdac673b4e38e75f87b9098" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::difference_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::difference_type<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga82e5bc8d9dfd8dbca6b982d0e2ff30c3"></a><!-- doxytag: member="bsl::basic_string::reference" ref="ga82e5bc8d9dfd8dbca6b982d0e2ff30c3" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reference<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga2326616f652478f89571fe7bf8169e36"></a><!-- doxytag: member="bsl::basic_string::const_reference" ref="ga2326616f652478f89571fe7bf8169e36" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_reference<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga2148c96ab93d1821f8d93d013a385f47"></a><!-- doxytag: member="bsl::basic_string::pointer" ref="ga2148c96ab93d1821f8d93d013a385f47" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::pointer<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga7bcefeea4235523662dfc939280390ac"></a><!-- doxytag: member="bsl::basic_string::const_pointer" ref="ga7bcefeea4235523662dfc939280390ac" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef ALLOCATOR::const_pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_pointer<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga821d2877e9e7ce1a92705ba4e1eea65b"></a><!-- doxytag: member="bsl::basic_string::iterator" ref="ga821d2877e9e7ce1a92705ba4e1eea65b" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef CHAR_TYPE* <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::iterator<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gad4457314bf933929ad631ec608a4af36"></a><!-- doxytag: member="bsl::basic_string::const_iterator" ref="gad4457314bf933929ad631ec608a4af36" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef const CHAR_TYPE* <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_iterator<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ga0222d501ce939e1ea6577bd757683c05"></a><!-- doxytag: member="bsl::basic_string::reverse_iterator" ref="ga0222d501ce939e1ea6577bd757683c05" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef bsl::reverse_iterator&lt;iterator&gt; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reverse_iterator<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="gadb446f8b83a7f1ebe053e7cb6726e4ed"></a><!-- doxytag: member="bsl::basic_string::const_reverse_iterator" ref="gadb446f8b83a7f1ebe053e7cb6726e4ed" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef bsl::reverse_iterator&lt;const_iterator&gt; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_reverse_iterator<code> [inherited]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="gab67de1ebe0184939129507efe5c86bb1"></a><!-- doxytag: member="bsl::string" ref="gab67de1ebe0184939129507efe5c86bb1" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -1122,6 +988,186 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 
 </div>
 </div>
+<a class="anchor" id="gaf975fd039e41c7e772d392872496b82f"></a><!-- doxytag: member="bsl::basic_string::value_type" ref="gaf975fd039e41c7e772d392872496b82f" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef CHAR_TRAITS::char_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::value_type<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gac39ab7e8873845c0b12c1a81b7293d80"></a><!-- doxytag: member="bsl::basic_string::allocator_type" ref="gac39ab7e8873845c0b12c1a81b7293d80" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::allocator_type<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gae80612f2bd647c7b123866246775c502"></a><!-- doxytag: member="bsl::basic_string::size_type" ref="gae80612f2bd647c7b123866246775c502" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size_type<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gaaaaf7ca1bfdac673b4e38e75f87b9098"></a><!-- doxytag: member="bsl::basic_string::difference_type" ref="gaaaaf7ca1bfdac673b4e38e75f87b9098" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::difference_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::difference_type<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga82e5bc8d9dfd8dbca6b982d0e2ff30c3"></a><!-- doxytag: member="bsl::basic_string::reference" ref="ga82e5bc8d9dfd8dbca6b982d0e2ff30c3" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reference<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga2326616f652478f89571fe7bf8169e36"></a><!-- doxytag: member="bsl::basic_string::const_reference" ref="ga2326616f652478f89571fe7bf8169e36" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_reference<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga2148c96ab93d1821f8d93d013a385f47"></a><!-- doxytag: member="bsl::basic_string::pointer" ref="ga2148c96ab93d1821f8d93d013a385f47" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::pointer<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga7bcefeea4235523662dfc939280390ac"></a><!-- doxytag: member="bsl::basic_string::const_pointer" ref="ga7bcefeea4235523662dfc939280390ac" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef ALLOCATOR::const_pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_pointer<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga821d2877e9e7ce1a92705ba4e1eea65b"></a><!-- doxytag: member="bsl::basic_string::iterator" ref="ga821d2877e9e7ce1a92705ba4e1eea65b" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef CHAR_TYPE* <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::iterator<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gad4457314bf933929ad631ec608a4af36"></a><!-- doxytag: member="bsl::basic_string::const_iterator" ref="gad4457314bf933929ad631ec608a4af36" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef const CHAR_TYPE* <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_iterator<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga0222d501ce939e1ea6577bd757683c05"></a><!-- doxytag: member="bsl::basic_string::reverse_iterator" ref="ga0222d501ce939e1ea6577bd757683c05" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef bsl::reverse_iterator&lt;iterator&gt; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reverse_iterator<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gadb446f8b83a7f1ebe053e7cb6726e4ed"></a><!-- doxytag: member="bsl::basic_string::const_reverse_iterator" ref="gadb446f8b83a7f1ebe053e7cb6726e4ed" args="" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef bsl::reverse_iterator&lt;const_iterator&gt; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::const_reverse_iterator<code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <hr/><h2>Enumeration Type Documentation</h2>
 <a class="anchor" id="ga9878e9f0e10750669118fa4929fbdd29"></a><!-- doxytag: member="bsl::String_Imp::ConfigurableParameters" ref="ga9878e9f0e10750669118fa4929fbdd29" args="" -->
 <div class="memitem">
@@ -1140,6 +1186,37 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <tr><td valign="top"><em><a class="anchor" id="gga9878e9f0e10750669118fa4929fbdd29a20d9b2a976ecad64c5e6a04e45bcaabc"></a><!-- doxytag: member="BASIC_STRING_DEALLOCATE_IN_CLEAR" ref="gga9878e9f0e10750669118fa4929fbdd29a20d9b2a976ecad64c5e6a04e45bcaabc" args="" -->BASIC_STRING_DEALLOCATE_IN_CLEAR</em>&nbsp;</td><td>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="gga9878e9f0e10750669118fa4929fbdd29a5007d36656baaef1224ceef93b5fe316"></a><!-- doxytag: member="BASIC_STRING_HONOR_SHRINK_REQUEST" ref="gga9878e9f0e10750669118fa4929fbdd29a5007d36656baaef1224ceef93b5fe316" args="" -->BASIC_STRING_HONOR_SHRINK_REQUEST</em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="gaef611bddffc03eb3b52c57ffaa780662"></a><!-- doxytag: member="bsl::MaxDecimalStringLengths" ref="gaef611bddffc03eb3b52c57ffaa780662" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__bslstl__string.html#gaef611bddffc03eb3b52c57ffaa780662">bsl::MaxDecimalStringLengths</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662a9ecea6b21648c172f194d3c86417d19e"></a><!-- doxytag: member="e_MAX_SHORT_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662a9ecea6b21648c172f194d3c86417d19e" args="" -->e_MAX_SHORT_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662a6d6978188c8444b7e62a3e4e5d94879a"></a><!-- doxytag: member="e_MAX_INT_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662a6d6978188c8444b7e62a3e4e5d94879a" args="" -->e_MAX_INT_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662aa121a27205ae17ad8a99feb705516979"></a><!-- doxytag: member="e_MAX_INT64_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662aa121a27205ae17ad8a99feb705516979" args="" -->e_MAX_INT64_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662aae8e584e57a0cf01fd1cda3dae28663a"></a><!-- doxytag: member="e_MAX_FLOAT_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662aae8e584e57a0cf01fd1cda3dae28663a" args="" -->e_MAX_FLOAT_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662ae5d35cabdddc6fce086d2b6cf9cb5d62"></a><!-- doxytag: member="e_MAX_DOUBLE_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662ae5d35cabdddc6fce086d2b6cf9cb5d62" args="" -->e_MAX_DOUBLE_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662a4953cf120543c8f55d67a002d4dc6676"></a><!-- doxytag: member="e_MAX_LONGDOUBLE_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662a4953cf120543c8f55d67a002d4dc6676" args="" -->e_MAX_LONGDOUBLE_STRLEN10</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ggaef611bddffc03eb3b52c57ffaa780662ae92fad6094aaee12545dae9926049328"></a><!-- doxytag: member="e_MAX_SCALAR_STRLEN10" ref="ggaef611bddffc03eb3b52c57ffaa780662ae92fad6094aaee12545dae9926049328" args="" -->e_MAX_SCALAR_STRLEN10</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -1280,7 +1357,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a <code><a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a></code> object and initialize the <code>d_length</code> and <code>d_capacity</code> attributes with the specified <code>length</code> and specified <code>capacity</code>, respectively. If <code>capacity</code> is less then <code>SHORT_BUFFER_CAPACITY</code> then d_capacity is set to <code>SHORT_BUFFER_CAPACITY</code>. The value of the <code>d_short</code> and <code>d_start_p</code> fields are left uninitialized. <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> is required to assign either d_short or d_start_p to a proper value before using any methods of this class. </p>
+<p>Create a <code><a class="el" href="classbsl_1_1String__Imp.html">String_Imp</a></code> object and initialize the <code>d_length</code> and <code>d_capacity</code> attributes with the specified <code>length</code> and specified <code>capacity</code>, respectively. If <code>capacity</code> is less than <code>SHORT_BUFFER_CAPACITY</code>, then d_capacity is set to <code>SHORT_BUFFER_CAPACITY</code>. The value of the <code>d_short</code> and <code>d_start_p</code> fields are left uninitialized. <code><a class="el" href="classbsl_1_1basic__string.html">basic_string</a></code> is required to assign either d_short or d_start_p to a proper value before using any methods of this class. </p>
 
 </div>
 </div>
@@ -1451,7 +1528,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1472,7 +1549,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1492,7 +1569,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1529,7 +1606,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1571,7 +1648,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1601,7 +1678,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1637,7 +1714,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1673,7 +1750,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITER &gt; </div>
       <table class="memname">
@@ -1703,7 +1780,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Create a string from the characters in the range starting at the specified <code>first</code> and ending at the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. The behavior is undefined unless <code>[first, last)</code> is a valid iterator range. </p>
+<p>Create a string from the characters in the range starting at the specified <code>first</code> and ending at the specified <code>last</code> iterators of the parameterized <code>INPUT_ITER</code> type. Optionally specify the <code>basicAllocator</code> used to supply memory. If <code>basicAllocator</code> is not specified, a default-constructed allocator is used. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -1711,7 +1788,7 @@ template&lt;class INPUT_ITER &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class ALLOC2 &gt; </div>
       <table class="memname">
@@ -1743,7 +1820,7 @@ template&lt;class ALLOC2 &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::basic_string </td>
@@ -1773,7 +1850,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::~basic_string </td>
@@ -1793,7 +1870,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator= </td>
@@ -1814,7 +1891,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator= </td>
@@ -1835,7 +1912,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator= </td>
@@ -1856,7 +1933,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::resize </td>
@@ -1886,7 +1963,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::resize </td>
@@ -1907,7 +1984,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::reserve </td>
@@ -1928,7 +2005,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::clear </td>
@@ -1948,7 +2025,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::begin </td>
@@ -1970,7 +2047,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::end </td>
@@ -1990,7 +2067,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rbegin </td>
@@ -2010,7 +2087,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rend </td>
@@ -2030,7 +2107,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator[] </td>
@@ -2051,7 +2128,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::at </td>
@@ -2072,7 +2149,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::front </td>
@@ -2092,7 +2169,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::back </td>
@@ -2112,7 +2189,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class ALLOC2 &gt; </div>
       <table class="memname">
@@ -2134,7 +2211,7 @@ template&lt;class ALLOC2 &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator+= </td>
@@ -2154,7 +2231,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator+= </td>
@@ -2175,7 +2252,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator+= </td>
@@ -2196,7 +2273,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator+= </td>
@@ -2217,7 +2294,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append </td>
@@ -2239,7 +2316,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append </td>
@@ -2275,7 +2352,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append </td>
@@ -2305,7 +2382,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append </td>
@@ -2326,7 +2403,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::append </td>
@@ -2356,7 +2433,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITER &gt; </div>
       <table class="memname">
@@ -2380,7 +2457,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Append to the end of this string a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators of the <code>iterator</code>, <code>const_iterator</code> or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>[first, last)</code> is a valid iterator range. </p>
+<p>Append to the end of this string a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators of the <code>iterator</code>, <code>const_iterator</code> or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -2388,7 +2465,7 @@ template&lt;class INPUT_ITER &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::push_back </td>
@@ -2411,7 +2488,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2432,7 +2509,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2468,7 +2545,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2489,7 +2566,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2519,7 +2596,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2540,7 +2617,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::assign </td>
@@ -2570,7 +2647,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITER &gt; </div>
       <table class="memname">
@@ -2594,7 +2671,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Assign to this string the value of a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators of the <code>iterator</code>, <code>const_iterator</code> or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>[first, last)</code> is a valid iterator range. </p>
+<p>Assign to this string the value of a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators of the <code>iterator</code>, <code>const_iterator</code> or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -2602,7 +2679,7 @@ template&lt;class INPUT_ITER &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2632,7 +2709,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2674,7 +2751,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2710,7 +2787,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2740,7 +2817,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2776,7 +2853,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2806,7 +2883,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::insert </td>
@@ -2842,7 +2919,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITER &gt; </div>
       <table class="memname">
@@ -2872,7 +2949,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Insert at the specified <code>position</code> in this string a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators, and return an iterator providing modifiable access to the first inserted character, or a non-const copy of the <code>position</code> iterator, if <code>first == last</code>. The behavior is undefined unless <code>position</code> is a valid iterator on this string and <code>[first, last)</code> is a valid iterator range. </p>
+<p>Insert at the specified <code>position</code> in this string a string built from the characters in the range starting at the specified <code>first</code> and ending before the specified <code>last</code> iterators, and return an iterator providing modifiable access to the first inserted character, or a non-const copy of the <code>position</code> iterator, if <code>first == last</code>. The behavior is undefined unless <code>position</code> is a valid iterator on this string, and <code>first</code> and <code>last</code> refer to a sequence of valid values where <code>first</code> is at a position at or before <code>last</code>. </p>
 
 </div>
 </div>
@@ -2880,7 +2957,7 @@ template&lt;class INPUT_ITER &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase </td>
@@ -2902,7 +2979,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Erase from this string the substring of length the optionally specified <code>numChars</code> or <code>original.length() - position</code>, whichever is smaller, starting at the optionally specified <code>position</code>. If <code>position</code> is not specified, the first position is used (i.e., <code>position</code> is set to 0). Return a reference providing modifiable access to this string. Note that if <code>numChars</code> equals <code>npos</code>, then the remaining length of the string is erased (i.e., <code>numChars</code> is set to <code>length() - position</code>). Throw <code>out_of_range</code> if <code>position &gt; length()</code>. </p>
+<p>Erase from this string the substring of length the optionally specified <code>numChars</code> or <code>original.length() - position</code>, whichever is smaller, starting at the optionally specified <code>position</code>. If <code>position</code> is not specified, the first position is used (i.e., <code>position</code> is set to 0). Return a reference providing modifiable access to this string. If <code>numChars</code> equals <code>npos</code>, then the remaining length of the string is erased (i.e., <code>numChars</code> is set to <code>length() - position</code>). Throw <code>out_of_range</code> if <code>position &gt; length()</code>. </p>
 
 </div>
 </div>
@@ -2910,7 +2987,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase </td>
@@ -2923,7 +3000,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Erase a character at the specified <code>position</code> from this string, and return an iterator providing modifiable access to the character at <code>position</code> prior to erasing. If no such character exists, return <code>end()</code>. The behavior is undefined unless <code>position</code> belongs to the half-open range <code>[cbegin(), cend())</code>. </p>
+<p>Erase a character at the specified <code>position</code> from this string, and return an iterator providing modifiable access to the character at <code>position</code> prior to erasing. If no such character exists, return <code>end()</code>. The behavior is undefined unless <code>position</code> is within the half-open range <code>[cbegin() .. cend())</code>. </p>
 
 </div>
 </div>
@@ -2931,7 +3008,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::erase </td>
@@ -2953,7 +3030,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Erase from this string a substring defined by the pair of <code>first</code> and <code>last</code> iterators within this string. Return an iterator providing modifiable access to the the character at the <code>last</code> position prior to erasing. If no such character exists, return <code>end()</code>. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to <code>[cbegin(), cend()]</code> and <code>first &lt;= last</code>. Note that this call invalidates existing iterators pointing to <code>first</code> or a subsequent position. </p>
+<p>Erase from this string a substring defined by the pair of <code>first</code> and <code>last</code> iterators within this string. Return an iterator providing modifiable access to the the character at the <code>last</code> position prior to erasing. If no such character exists, return <code>end()</code>. This method invalidates existing iterators pointing to <code>first</code> or a subsequent position. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code> and <code>first &lt;= last</code>. </p>
 
 </div>
 </div>
@@ -2961,7 +3038,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::pop_back </td>
@@ -2981,7 +3058,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3017,7 +3094,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3065,7 +3142,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3107,7 +3184,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3143,7 +3220,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3185,7 +3262,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3213,7 +3290,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by the specified <code>replacement</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to <code>[cbegin(), cend()]</code> and <code>first &lt;= last</code>. </p>
+<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by the specified <code>replacement</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code> and <code>first &lt;= last</code>. </p>
 
 </div>
 </div>
@@ -3221,7 +3298,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3255,7 +3332,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a copy of the string constructed from the specified <code>numChars</code> characters in the array starting at the specified <code>characterString</code> address. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to <code>[cbegin(), cend()]</code> and <code>first &lt;= last</code>. </p>
+<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a copy of the string constructed from the specified <code>numChars</code> characters in the array starting at the specified <code>characterString</code> address. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code> and <code>first &lt;= last</code>. </p>
 
 </div>
 </div>
@@ -3263,7 +3340,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3291,7 +3368,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by the null-terminated specified <code>characterString</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to the range <code>[cbegin(), cend()]</code> and <code>first &lt;= last</code>. </p>
+<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by the null-terminated specified <code>characterString</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code> and <code>first &lt;= last</code>. </p>
 
 </div>
 </div>
@@ -3299,7 +3376,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string&amp; <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::replace </td>
@@ -3333,7 +3410,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a number equal to the specified <code>numChars</code> of copies of the specified <code>character</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to the range <code>[cbegin(), cend()]</code> and <code>first &lt;= last</code>. </p>
+<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a number equal to the specified <code>numChars</code> of copies of the specified <code>character</code>. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code> and <code>first &lt;= last</code>. </p>
 
 </div>
 </div>
@@ -3341,7 +3418,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
 <div class="memtemplate">
 template&lt;class INPUT_ITER &gt; </div>
       <table class="memname">
@@ -3377,7 +3454,7 @@ template&lt;class INPUT_ITER &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a string built from the characters in the range starting at the specified <code>stringFirst</code> and ending before the specified <code>stringLast</code> iterators of the <code>iterator</code>, <code>const_iterator</code>, or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> both belong to the range <code>[cbegin(), cend()]</code>, <code>first &lt;= last</code> and <code>[stringFirst, stringLast)</code> is a valid iterator range. </p>
+<p>Replace the substring in the range starting at the specified <code>first</code> position and ending right before the specified <code>last</code> position, by a string built from the characters in the range starting at the specified <code>stringFirst</code> and ending before the specified <code>stringLast</code> iterators of the <code>iterator</code>, <code>const_iterator</code>, or parameterized <code>INPUT_ITER</code> type, respectively. Return a reference providing modifiable access to this string. The behavior is undefined unless <code>first</code> and <code>last</code> are both within the range <code>[cbegin() .. cend()]</code>, <code>first &lt;= last</code>, and <code>[stringFirst .. stringLast)</code> is a valid iterator range. </p>
 
 </div>
 </div>
@@ -3385,7 +3462,7 @@ template&lt;class INPUT_ITER &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::swap </td>
@@ -3406,7 +3483,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::begin </td>
@@ -3425,7 +3502,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::cbegin </td>
@@ -3445,7 +3522,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::end </td>
@@ -3464,7 +3541,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::cend </td>
@@ -3484,7 +3561,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rbegin </td>
@@ -3503,7 +3580,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::crbegin </td>
@@ -3523,7 +3600,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rend </td>
@@ -3542,7 +3619,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reverse_iterator <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::crend </td>
@@ -3562,7 +3639,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::length </td>
@@ -3582,7 +3659,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::size </td>
@@ -3604,7 +3681,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::max_size </td>
@@ -3616,7 +3693,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Return the maximal possible length of this string. Note that requests to create a string longer than this number of characters is guaranteed to raise a <code>length_error</code> exception. </p>
+<p>Return the maximal possible length of this string. Note that requests to create a string longer than this number of characters are guaranteed to raise a <code>length_error</code> exception. </p>
 
 </div>
 </div>
@@ -3624,7 +3701,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::capacity </td>
@@ -3644,7 +3721,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">bool <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::empty </td>
@@ -3664,7 +3741,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::operator[] </td>
@@ -3685,7 +3762,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::at </td>
@@ -3706,7 +3783,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::front </td>
@@ -3726,7 +3803,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_reference <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::back </td>
@@ -3746,7 +3823,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::copy </td>
@@ -3782,7 +3859,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::c_str </td>
@@ -3802,7 +3879,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const_pointer <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::data </td>
@@ -3824,7 +3901,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">allocator_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::get_allocator </td>
@@ -3844,7 +3921,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find </td>
@@ -3874,7 +3951,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find </td>
@@ -3909,7 +3986,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find </td>
@@ -3939,7 +4016,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find </td>
@@ -3969,7 +4046,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind </td>
@@ -3999,7 +4076,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind </td>
@@ -4034,7 +4111,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind </td>
@@ -4064,7 +4141,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::rfind </td>
@@ -4094,7 +4171,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of </td>
@@ -4124,7 +4201,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of </td>
@@ -4159,7 +4236,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of </td>
@@ -4189,7 +4266,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_of </td>
@@ -4219,7 +4296,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of </td>
@@ -4249,7 +4326,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of </td>
@@ -4284,7 +4361,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of </td>
@@ -4314,7 +4391,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_of </td>
@@ -4344,7 +4421,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of </td>
@@ -4374,7 +4451,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of </td>
@@ -4409,7 +4486,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of </td>
@@ -4439,7 +4516,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_first_not_of </td>
@@ -4469,7 +4546,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of </td>
@@ -4499,7 +4576,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of </td>
@@ -4534,7 +4611,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of </td>
@@ -4564,7 +4641,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::find_last_not_of </td>
@@ -4594,7 +4671,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">basic_string <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::substr </td>
@@ -4616,7 +4693,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Return a string whose value is the substring of length the optionally specified <code>numChars</code> or <code>length() - position</code>, whichever is smaller, starting at the optionally specified <code>position</code> in this string. If <code>position</code> is not specified, 0 is used (i.e., the substring is from the beginning of this string). If <code>numChars</code> is not specified, <code>npos</code> is used (i.e., the entire suffix from <code>position</code> to the end of the string is returned). </p>
+<p>Return a string whose value is the substring starting at the optionally specified <code>position</code> in this string, of length the optionally specified <code>numChars</code> or <code>length() - position</code>, whichever is smaller. If <code>position</code> is not specified, 0 is used (i.e., the substring is from the beginning of this string). If <code>numChars</code> is not specified, <code>npos</code> is used (i.e., the entire suffix from <code>position</code> to the end of the string is returned). </p>
 
 </div>
 </div>
@@ -4624,7 +4701,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -4645,7 +4722,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -4681,7 +4758,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -4729,7 +4806,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -4750,7 +4827,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -4792,7 +4869,7 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">int <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::compare </td>
@@ -6060,6 +6137,594 @@ template&lt;class CHAR_TYPE , class CHAR_TRAITS , class ALLOCATOR &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="ga3077399ad479cdd99e019952bff52d5c"></a><!-- doxytag: member="bsl::stoi" ref="ga3077399ad479cdd99e019952bff52d5c" args="(const string &amp;str, std::size_t *pos=0, int base=10)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int bsl::stoi </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>base</em> = <code>10</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga1c806df13cef80e557e67c9fb81e7584"></a><!-- doxytag: member="bsl::stol" ref="ga1c806df13cef80e557e67c9fb81e7584" args="(const string &amp;str, std::size_t *pos=0, int base=10)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long bsl::stol </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>base</em> = <code>10</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga017076c1385a354b3ec07b13329a5bef"></a><!-- doxytag: member="bsl::stoul" ref="ga017076c1385a354b3ec07b13329a5bef" args="(const string &amp;str, std::size_t *pos=0, int base=10)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long bsl::stoul </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>base</em> = <code>10</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga3b7919aec24aa17d15b0c95b7a2efcea"></a><!-- doxytag: member="bsl::stoll" ref="ga3b7919aec24aa17d15b0c95b7a2efcea" args="(const string &amp;str, std::size_t *pos=0, int base=10)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long long bsl::stoll </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>base</em> = <code>10</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga15fdd28d0b31f2aef03232c5adf69c1f"></a><!-- doxytag: member="bsl::stoull" ref="ga15fdd28d0b31f2aef03232c5adf69c1f" args="(const string &amp;str, std::size_t *pos=0, int base=10)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long long bsl::stoull </td>
+          <td>(</td>
+          <td class="paramtype">const wstring &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>base</em> = <code>10</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Parses <code>str</code> interpreting its content as an integral number. Optionally specify <code>pos</code> whose value is set to the position of the next character after the numerical value. Optionally specify <code>base</code> used to change the interpretation of <code>str</code> to a integral number written in the specified <code>base</code>. Valid bases are in the range of [0,35] where base 0 automatically determines the base of the string; The base will be 16 if the number is prefixed with <code>0x</code> or <code>0X</code>, base 8 if the number is prefixed with a <code>0</code> and base 10 otherwise. The function ignores leading white space characters and interprets as many characters possible to form a valid base n integral number. If no conversion could be performed, then an invalid_argument exception is thrown. If the value read is out of range of the return type, then an out_of_range exception is thrown. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga308af944ea4ad09d95f842a0e977c2c1"></a><!-- doxytag: member="bsl::stof" ref="ga308af944ea4ad09d95f842a0e977c2c1" args="(const string &amp;str, std::size_t *pos=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float bsl::stof </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga974d5193cce5be4030e024d1fabe8f9e"></a><!-- doxytag: member="bsl::stod" ref="ga974d5193cce5be4030e024d1fabe8f9e" args="(const string &amp;str, std::size_t *pos=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double bsl::stod </td>
+          <td>(</td>
+          <td class="paramtype">const string &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="gad03a41be5c1e91bc85b0ce6d71fae0d3"></a><!-- doxytag: member="bsl::stold" ref="gad03a41be5c1e91bc85b0ce6d71fae0d3" args="(const string &amp;str, std::size_t *pos=0)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">long double bsl::stold </td>
+          <td>(</td>
+          <td class="paramtype">const wstring &amp;&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::size_t *&nbsp;</td>
+          <td class="paramname"> <em>pos</em> = <code>0</code></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Parses <code>str</code> interpreting its contents as a floating point number. In C++11 if the number in <code>str</code> is prefixed with <code>0x</code> or <code>0X</code> the string will be interpreted as a hex number. If there is no leading 0x or 0X the string will be interpreted as a decimal number. Optionally specify <code>pos</code> whose value is set to the position of the next character after the numerical value. The function ignores leading white space characters and interprets as many characters possible to form a valid floating point number. If no conversion could be performed, then an <code>invalid_argument</code> exception is thrown. If the value read is out of range of the return type, then an out_of_range exception is thrown. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga9d6e332df6fdad6887e8978cca90bd53"></a><!-- doxytag: member="bsl::to_string" ref="ga9d6e332df6fdad6887e8978cca90bd53" args="(int value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%d", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gac1dc65359eaba7e85db44dbf3f307b83"></a><!-- doxytag: member="bsl::to_string" ref="gac1dc65359eaba7e85db44dbf3f307b83" args="(long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%ld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga80a9fc78f62b245982bce536f52edbac"></a><!-- doxytag: member="bsl::to_string" ref="ga80a9fc78f62b245982bce536f52edbac" args="(long long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">long long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%lld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga59793d4b1890b9f056359dabb3bb0abc"></a><!-- doxytag: member="bsl::to_string" ref="ga59793d4b1890b9f056359dabb3bb0abc" args="(unsigned value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%u", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gac0eae9aa22cd9c20021c7955d447b222"></a><!-- doxytag: member="bsl::to_string" ref="gac0eae9aa22cd9c20021c7955d447b222" args="(unsigned long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%lu", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga3bdfdf8c732ed0cd929c64bd68a363dc"></a><!-- doxytag: member="bsl::to_string" ref="ga3bdfdf8c732ed0cd929c64bd68a363dc" args="(unsigned long long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned long long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%llu", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga86213338e0ca489dfaaeb944c53d0cda"></a><!-- doxytag: member="bsl::to_string" ref="ga86213338e0ca489dfaaeb944c53d0cda" args="(float value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">float&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga93ed7741b6b168c5af47b85310e48fe8"></a><!-- doxytag: member="bsl::to_string" ref="ga93ed7741b6b168c5af47b85310e48fe8" args="(double value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">double&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>converts a floating point value to a string with the same contents as what <code>std::sprintf(buf, "%f", value)</code> would produce for a suficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaef063f65c5428b7264625515ee8df91d"></a><!-- doxytag: member="bsl::to_string" ref="gaef063f65c5428b7264625515ee8df91d" args="(long double value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string bsl::to_string </td>
+          <td>(</td>
+          <td class="paramtype">long double&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>converts a floating point value to a string with the same contents as what <code>std::sprintf(buf, "%Lf", value)</code> would produce for a suficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga6bf247b4e139b65f1fe8a6540924e9ee"></a><!-- doxytag: member="bsl::to_wstring" ref="ga6bf247b4e139b65f1fe8a6540924e9ee" args="(int value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%d", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga6488bcb6abbe84aec6f5a8708bc71ce8"></a><!-- doxytag: member="bsl::to_wstring" ref="ga6488bcb6abbe84aec6f5a8708bc71ce8" args="(long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%ld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga3ae643872ee3867228be2a14b3e8f052"></a><!-- doxytag: member="bsl::to_wstring" ref="ga3ae643872ee3867228be2a14b3e8f052" args="(long long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">long long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%lld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaeff31d022b3aba42f50c58f25f18fb4c"></a><!-- doxytag: member="bsl::to_wstring" ref="gaeff31d022b3aba42f50c58f25f18fb4c" args="(unsigned value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%u", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga6a91e80ab18cfae0b26eafcdcc85d4a0"></a><!-- doxytag: member="bsl::to_wstring" ref="ga6a91e80ab18cfae0b26eafcdcc85d4a0" args="(unsigned long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">unsigned long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%lu", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga2309169225fa7d82f8011aa29f8d603e"></a><!-- doxytag: member="bsl::to_wstring" ref="ga2309169225fa7d82f8011aa29f8d603e" args="(unsigned long long value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">unsigned long long&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::swprintf(buf,L"%llu", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga3df1db09a5c6cada159908a20560a04a"></a><!-- doxytag: member="bsl::to_wstring" ref="ga3df1db09a5c6cada159908a20560a04a" args="(float value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">float&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="ga8dca184138f505db2b0c83679f1ec044"></a><!-- doxytag: member="bsl::to_wstring" ref="ga8dca184138f505db2b0c83679f1ec044" args="(double value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">double&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>converts a floating point value to a string with the same contents as what <code>std::sprintf(buf, sz, L"%f", value)</code> would produce for a suficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gaa26a1d8a3eef81bc0c657f55ef133d7c"></a><!-- doxytag: member="bsl::to_wstring" ref="gaa26a1d8a3eef81bc0c657f55ef133d7c" args="(long double value)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">wstring bsl::to_wstring </td>
+          <td>(</td>
+          <td class="paramtype">long double&nbsp;</td>
+          <td class="paramname"> <em>value</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>converts a floating point value to a string with the same contents as <code>what std::sprintf(buf, sz, L"%Lf", value)</code> would produce for a suficiently large buffer. </p>
+
+</div>
+</div>
 <a class="anchor" id="ga121160f409beb7dd37c2f94730f95f35"></a><!-- doxytag: member="bsl::hashAppend" ref="ga121160f409beb7dd37c2f94730f95f35" args="(HASHALG &amp;hashAlg, const basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &amp;input)" -->
 <div class="memitem">
 <div class="memproto">
@@ -6147,7 +6812,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga7a10c2f00791f78a8a61038adafcca91"></a><!-- doxytag: member="bsl::String_Imp::@174::d_start_p" ref="ga7a10c2f00791f78a8a61038adafcca91" args="" -->
+<a class="anchor" id="gad8937418876cedf438a2d187a3fb64b2"></a><!-- doxytag: member="bsl::String_Imp::@397::d_start_p" ref="gad8937418876cedf438a2d187a3fb64b2" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6161,7 +6826,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="gae55e038c0184ed9221ae00529a55b888"></a><!-- doxytag: member="bsl::String_Imp::@175" ref="gae55e038c0184ed9221ae00529a55b888" args="" -->
+<a class="anchor" id="gac8ec60a44059f841290115c98f474877"></a><!-- doxytag: member="bsl::String_Imp::@398" ref="gac8ec60a44059f841290115c98f474877" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6175,7 +6840,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="ga33527027a9bea763b482b4cab4857cce"></a><!-- doxytag: member="bsl::String_Imp::@174::d_short" ref="ga33527027a9bea763b482b4cab4857cce" args="" -->
+<a class="anchor" id="ga1203e47314e97df5d59f63eb4e92ebcb"></a><!-- doxytag: member="bsl::String_Imp::@397::d_short" ref="ga1203e47314e97df5d59f63eb4e92ebcb" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -6225,7 +6890,7 @@ template&lt;class CHAR_TYPE, class SIZE_TYPE&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, class ALLOCATOR = allocator&lt;CHAR_TYPE&gt;&gt; </div>
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">const size_type <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt;::npos = ~size_type(0)<code> [static, inherited]</code></td>
@@ -6233,12 +6898,140 @@ template&lt;class CHAR_TYPE, class CHAR_TRAITS = char_traits&lt;CHAR_TYPE&gt;, c
       </table>
 </div>
 <div class="memdoc">
-<p>Value used to denote "not-a-position", guaranteed to be outside the range <code>[ 0, max_size() ]</code>. </p>
+<p>Value used to denote "not-a-position", guaranteed to be outside the range <code>[0 .. max_size()]</code>. </p>
+
+</div>
+</div>
+<hr/><h2>Friends</h2>
+<a class="anchor" id="gabd917c8caa6f02b3e1556896a64f0dfa"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="gabd917c8caa6f02b3e1556896a64f0dfa" args="(int)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%d", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga04cccf97e398e11807bb37d6131f8505"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="ga04cccf97e398e11807bb37d6131f8505" args="(long)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">long&nbsp;</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%ld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga877151c379b618e34d205236b8c3003c"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="ga877151c379b618e34d205236b8c3003c" args="(long long)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">long&nbsp;</td>
+          <td class="paramname"> <em>long</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%ld", value)</code> would produce with a sufficiently large buffer.</p>
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%lld", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gabad026aba892e1efc1aa356893c8f90b"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="gabad026aba892e1efc1aa356893c8f90b" args="(unsigned)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&nbsp;</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%u", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="gab907a581198875da669119b74dd3d16d"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="gab907a581198875da669119b74dd3d16d" args="(unsigned long)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned&nbsp;</td>
+          <td class="paramname"> <em>long</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%lu", value)</code> would produce with a sufficiently large buffer. </p>
+
+</div>
+</div>
+<a class="anchor" id="ga9ddef982d36bcdea154f3620ea76f0fe"></a><!-- doxytag: member="bsl::basic_string::to_string" ref="ga9ddef982d36bcdea154f3620ea76f0fe" args="(unsigned long long)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">string to_string </td>
+          <td>(</td>
+          <td class="paramtype">unsigned long&nbsp;</td>
+          <td class="paramname"> <em>long</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [friend, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Constructs a string with contents equal to the specified <code>value</code>. The contents of the string will be the same as what <code>std::sprintf(buf,"%llu", value)</code> would produce with a sufficiently large buffer. </p>
 
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:58 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

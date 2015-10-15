@@ -1,0 +1,412 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_record.h                                                      -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_RECORD
+#define INCLUDED_BALL_RECORD
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for all fields of a log record.
+//
+//@CLASSES:
+//  ball::Record: container for fixed and user-defined log record fields
+//
+//@SEE_ALSO: ball_recordattributes, ball_logger
+//
+//@DESCRIPTION: This component defines a container, &#39;ball::Record&#39;, that
+// aggregates a set of fixed fields and a set of user-defined fields into one
+// record type, useful for transmitting a customized log record as a single
+// instance rather than passing around individual attributes separately.  Note
+// that this class is a pure attribute class with no constraints, other than
+// the total memory required for the class.  Also note that this class is not
+// thread-safe.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;ball::Record&#39;
+/// - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates how to create and set the properties of
+// a &#39;ball::Record&#39;.  Note that users of the &#39;ball&#39; logging subsystem are not
+// expected to create records directly.
+//
+// First we default create a &#39;ball::Record&#39;, &#39;record&#39;, and verify it has a
+// default set of attributes:
+//..
+//  ball::Record record;
+//
+//  ASSERT(ball::RecordAttributes() == record.fixedFields());
+//  ASSERT(0                        == record.userFields().length());
+//..
+// Then, we set the fixed fields of the record to contain a simple message:
+//..
+//  int                 processId = bdlsu::ProcessUtil::getProcessId();
+//  bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
+//
+//  ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
+//                                    processId,                // process id
+//                                    threadId,                 // thread id
+//                                    __FILE__,                 // filename
+//                                    __LINE__,                 // line number
+//                                    &quot;ExampleCategory&quot;,        // category
+//                                    ball::Severity::e_WARN,   // severity
+//                                    &quot;Simple Test Message&quot;);   // message
+//  record.setFixedFields(attributes);
+//
+//  ASSERT(attributes == record.fixedFields());
+//..
+// Finally, we write the record to a stream:
+//..
+//  bsl::ostringstream output;
+//  output &lt;&lt; record &lt;&lt; bsl::endl;
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_COUNTINGALLOCATOR
+#include &lt;ball_countingallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RECORDATTRIBUTES
+#include &lt;ball_recordattributes.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_USERFIELDS
+#include &lt;ball_userfields.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include &lt;bslalg_typetraits.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include &lt;bslmf_nestedtraitdeclaration.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ALIGNMENT
+#include &lt;bsls_alignment.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                           // ============
+                           // class Record
+                           // ============
+
+class Record {
+    // This class provides a container for a set of fields that are appropriate
+    // for a user-configurable log record.  The class contains a
+    // &#39;RecordAttributes&#39; object that in turn holds a fixed set of fields, and
+    // a &#39;ball::UserFields&#39; object that holds a set of optional, user-defined
+    // fields.  For each of these two sub-containers there is an accessor for
+    // obtaining the container value and a manipulator for changing that value.
+    //
+    // Additionally, this class supports a complete set of *value* *semantic*
+    // operations, including copy construction, assignment and equality
+    // comparison, and &#39;ostream&#39; printing.  A precise operational definition of
+    // when two instances have the same value can be found in the description
+    // of &#39;operator==&#39; for the class.  This class is *exception* *neutral* with
+    // no guarantee of rollback: If an exception is thrown during the
+    // invocation of a method on a pre-existing instance, the object is left in
+    // a valid state, but its value is undefined.  In no event is memory
+    // leaked.  Finally, *aliasing* (e.g., using all or part of an object as
+    // both source and destination) is supported in all cases.
+
+    // DATA
+    CountingAllocator  d_allocator;    // memory allocator
+
+    RecordAttributes   d_fixedFields;  // bytes used by fixed fields
+
+    ball::UserFields   d_userFields;   // bytes used by user fields
+
+    bslma::Allocator  *d_allocator_p;  // allocator used to supply memory;
+                                       // held but not own
+
+    // FRIENDS
+    friend bool operator==(const Record&amp;, const Record&amp;);
+
+  public:
+
+    // CLASS METHODS
+    static void deleteObject(const Record *object);
+        // Destroy the specified &#39;*object&#39; and use the allocator held by
+        // &#39;*object&#39; to deallocate its memory footprint.  The behavior is
+        // undefined unless &#39;object&#39; is the address of a valid log record.
+
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Record, bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit Record(bslma::Allocator *basicAllocator = 0);
+        // Create a log record having default values for its fixed fields and
+        // its user-defined fields.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    Record(const RecordAttributes&amp;  fixedFields,
+           const ball::UserFields&amp;  userFields,
+           bslma::Allocator        *basicAllocator = 0);
+        // Create a log record with fixed fields having the value of the
+        // specified &#39;fixedFields&#39; and user-defined fields having the value of
+        // the specified &#39;userFields&#39;.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    Record(const Record&amp;     original,
+           bslma::Allocator *basicAllocator = 0);
+        // Create a log record having the value of the specified &#39;original&#39;
+        // log record.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory.  If &#39;basicAllocator&#39; is 0, the currently installed default
+        // allocator is used.
+
+    ~Record();
+        // Destroy this log record.
+
+    // MANIPULATORS
+    Record&amp; operator=(const Record&amp; rhs);
+        // Assign to this log record the value of the specified &#39;rhs&#39; log
+        // record and return the reference to this modifiable record.
+
+    RecordAttributes&amp; fixedFields();
+        // Return the modifiable fixed fields of this log record.
+
+    void setFixedFields(const RecordAttributes&amp; fixedFields);
+        // Set the fixed fields of this log record to the value of the
+        // specified &#39;fixedFields&#39;.
+
+    void setUserFields(const ball::UserFields&amp; userFields);
+        // Set the user-defined fields of this log record to the value of the
+        // specified &#39;userFields&#39;.
+
+    ball::UserFields&amp; userFields();
+        // Return the modifiable user-defined fields of this log record.
+
+    // ACCESSORS
+    const RecordAttributes&amp; fixedFields() const;
+        // Return the non-modifiable fixed fields of this log record.
+
+    const ball::UserFields&amp; userFields() const;
+        // Return the non-modifiable user-defined fields of this log record.
+
+    int numAllocatedBytes() const;
+        // Return the total number of bytes of dynamic memory allocated by
+        // this log record object.  Note that this value does not include
+        // &#39;sizeof *this&#39;.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the
+        // optionally specified indentation &#39;level&#39; and return a reference to
+        // the modifiable &#39;stream&#39;.  If &#39;level&#39; is specified, optionally
+        // specify &#39;spacesPerLevel&#39;, the number of spaces per indentation
+        // level for this and all of its nested objects.  Each line is
+        // indented by the absolute value of &#39;level * spacesPerLevel&#39;.  If
+        // &#39;level&#39; is negative, suppress indentation of the first line.  If
+        // &#39;spacesPerLevel&#39; is negative, suppress line breaks and format the
+        // entire output on one line.  If &#39;stream&#39; is initially invalid, this
+        // operation has no effect.
+
+};
+
+// FREE OPERATORS
+bool operator==(const Record&amp; lhs, const Record&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; log records have the same
+    // value, and &#39;false&#39; otherwise.  Two log records have the same value if
+    // the respective fixed fields have the same value and the respective
+    // user-defined fields have the same value.
+
+bool operator!=(const Record&amp; lhs, const Record&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; log records do not have
+    // the same value, and &#39;false&#39; otherwise.  Two log records do not have the
+    // same value if either the respective fixed fields or user-defined fields
+    // do not have the same value.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Record&amp; record);
+    // Format the members of the specified &#39;record&#39; to the specified output
+    // &#39;stream&#39; and return a reference to the modifiable &#39;stream&#39;.
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                           // ------------
+                           // class Record
+                           // ------------
+
+// CLASS METHODS
+inline
+void Record::deleteObject(const Record *object)
+{
+    object-&gt;d_allocator_p-&gt;deleteObjectRaw(object);
+}
+
+// CREATORS
+inline
+Record::Record(bslma::Allocator *basicAllocator)
+: d_allocator(basicAllocator)
+, d_fixedFields(&amp;d_allocator)
+, d_userFields(&amp;d_allocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+Record::Record(const RecordAttributes&amp;  fixedFields,
+               const ball::UserFields&amp;  userFields,
+               bslma::Allocator        *basicAllocator)
+: d_allocator(basicAllocator)
+, d_fixedFields(fixedFields, &amp;d_allocator)
+, d_userFields(userFields, &amp;d_allocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+Record::Record(const Record&amp;     original,
+               bslma::Allocator *basicAllocator)
+: d_allocator(basicAllocator)
+, d_fixedFields(original.d_fixedFields, &amp;d_allocator)
+, d_userFields(original.d_userFields, &amp;d_allocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+Record::~Record()
+{
+}
+
+// MANIPULATORS
+inline
+Record&amp; Record::operator=(const Record&amp; rhs)
+{
+    if (this != &amp;rhs) {
+        d_fixedFields = rhs.d_fixedFields;
+        d_userFields  = rhs.d_userFields;
+    }
+    return *this;
+}
+
+inline
+RecordAttributes&amp; Record::fixedFields()
+{
+    return d_fixedFields;
+}
+
+inline
+void Record::setFixedFields(const RecordAttributes&amp; fixedFields)
+{
+    d_fixedFields = fixedFields;
+}
+
+inline
+void Record::setUserFields(const ball::UserFields&amp; userFields)
+{
+    d_userFields = userFields;
+}
+
+inline
+ball::UserFields&amp; Record::userFields()
+{
+    return d_userFields;
+}
+
+// ACCESSORS
+inline
+const RecordAttributes&amp; Record::fixedFields() const
+{
+    return d_fixedFields;
+}
+
+inline
+const ball::UserFields&amp; Record::userFields() const
+{
+    return d_userFields;
+}
+
+inline
+int Record::numAllocatedBytes() const
+{
+    return d_allocator.numBytesTotal();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool ball::operator==(const Record&amp; lhs, const Record&amp; rhs)
+{
+    return lhs.d_fixedFields == rhs.d_fixedFields
+        &amp;&amp; lhs.d_userFields  == rhs.d_userFields;
+}
+
+inline
+bool ball::operator!=(const Record&amp; lhs, const Record&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp; stream, const Record&amp; record)
+{
+    return record.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

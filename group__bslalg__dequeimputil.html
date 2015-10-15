@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg_dequeimputil Component</title>
+<title>BDE 3.0: bslalg_dequeimputil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -103,7 +103,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides primitive data structures for implementing a deque knowing only its value type and the number of objects in a block. Conceptually, a deque is an array of blocks pointers, each block capable of containing a fixed number of objects. An element in the deque is identified by an iterator which consists of a pointer to the block pointer array, and a pointer to a value. A deque implementation is parameterized by the <code>VALUE_TYPE</code> and a <code>BLOCK_LENGTH</code> (fixed number of objects in a block). <code><a class="el" href="structbslalg_1_1DequeImpUtil.html">bslalg::DequeImpUtil</a></code> provides a namespace for the following types and constants: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Type                   Short description
+<div class="fragment"><pre class="fragment">  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                   Short description
   ----                   -----------------
   ValueType              An alias <span class="keywordflow">for</span> the templatized <span class="stringliteral">&#39;VALUE_TYPE&#39;</span>
   Block                  An array (of length <span class="stringliteral">&#39;BLOCK_LENGTH&#39;</span>) of <span class="stringliteral">&#39;ValueType&#39;</span>
@@ -128,15 +128,15 @@ Namespaces</h2></td></tr>
                  |     |     |        +---+---+---+---+---+---+---+---+
                  |     |     |                      Block
                  |     |     |  +---+---+---+---+---+---+---+---+
-                 |     |     `--| N | O | P | Q | R | S | T | U |
+                 |     |     `--| N | O | <a class="code" href="bdlf__bind__test_8h.html#a6dce1d51457f0415ec5302d3c05cded5">P</a> | Q | R | S | T | U |
                  |     |        +---+---+---+---+---+---+---+---+
                  |     |                      Block
                  |     |  +---+---+---+---+---+---+---+---+
-                 |     `--| F | G | H | I | J | K | L | M |
+                 |     `--| <a class="code" href="bdlf__bind__test_8h.html#a668ca44fb0cff177991f91ee5d5c1068">F</a> | G | H | I | J | K | L | M |
                  |        +---+---+---+---+---+---+---+---+
                  |                      Block
                  |  +---+---+---+---+---+---+---+---+
-                 `--|   |   |   | A | B | C | D | E |
+                 `--|   |   |   | <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> | B | C | D | E |
                     +---+---+---+---+---+---+---+---+
 </pre></div><br/>
 <br/>
@@ -146,7 +146,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component is for use by the <code>bslalg</code> package. Other clients should use the STL deque (in header <code>&lt;deque&gt;</code>). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

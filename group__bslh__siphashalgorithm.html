@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslh_siphashalgorithm Component</title>
+<title>BDE 3.0: bslh_siphashalgorithm Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -100,7 +100,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.6">Changes</a> </li>
 <li>
-<a href="#3.7">Third Party Doc</a> </li>
+<a href="#3.7">Third-Party Documentation</a> </li>
 </ul>
 </li>
 </ul>
@@ -145,7 +145,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hash_consistency"></a> <a class="anchor" id="description.hash_consistency"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Hash Consistency: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-specific. The algorithm will run on big- and little-endian machines and the above guarantees apply on both architectures, however, the hashes produced will be different. Therefor it is not recommended to send hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> over a network. It is also not recommended to write hashes from <code><a class="el" href="classbslh_1_1SipHashAlgorithm.html">bslh::SipHashAlgorithm</a></code> to any memory accessible by multiple machines. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This hash algorithm is endian-independent. The hashes produced for a given 16-byte key sequence and given data will be the same on big-endian and little-endian platforms. (In the literature the key is sometimes presented as a large integer or sequence of integers, such as <code>0xDEADBEEF, 0xCAFEBABE, 0x8BADF00D, 0x1BADB002</code>, in which case care must be taken to supply the individual key bytes in the same order on both platforms if the same hash results are desired.) However, if the "given data" is not just a character string but has internal structure, such as being integral or floating-point, it is likely ordered in different ways depending on the platform, and thus will not hash to the same value. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.5"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -263,7 +263,7 @@ Namespaces</h2></td></tr>
           <span class="keywordflow">return</span> &amp;d_callYear;
       }
 
-      <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
+      <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Future&amp; other) <span class="keyword">const</span>
           <span class="comment">// Compare this to the specified &#39;other&#39; object and return true if</span>
           <span class="comment">// they are equal</span>
       {
@@ -273,7 +273,7 @@ Namespaces</h2></td></tr>
       }
   };
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> Future&amp; lhs, <span class="keyword">const</span> Future&amp; rhs)
       <span class="comment">// Compare compare the specified &#39;lhs&#39; and &#39;rhs&#39; objects and return</span>
       <span class="comment">// true if they are not equal</span>
   {
@@ -367,8 +367,8 @@ Included headers and added <code>include</code> guards  </li>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> 10 Changed variables to use <code>size_t</code> rather than <code>unsigned int</code></div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="third_party_doc"></a> <a class="anchor" id="description.third_party_doc"></a> <a class="anchor" id="3.7"></a> </dd></dl>
-<dl class="user"><dt><b>Third Party Doc: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="third-party_documentation"></a> <a class="anchor" id="description.third-party_documentation"></a> <a class="anchor" id="3.7"></a> </dd></dl>
+<dl class="user"><dt><b>Third-Party Documentation: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>------------------------------- siphash.h ----------------------------------- </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This software is in the public domain. The only restriction on its use is that no one can remove it from the public domain by claiming ownership of it, including the original authors. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There is no warranty of correctness on the software contained herein. Use at your own risk. </dd></dl>
@@ -379,7 +379,7 @@ Included headers and added <code>include</code> guards  </li>
 <dl class="user"><dt><b></b></dt><dd>You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see &lt;<a href="http://creativecommons.org/publicdomain/zero/1.0/">http://creativecommons.org/publicdomain/zero/1.0/</a>&gt;. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>----------------------------------------------------------------------------- </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

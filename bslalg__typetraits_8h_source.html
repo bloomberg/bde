@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_typetraits.h                                                -*-C++-*-
@@ -82,7 +82,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &#39;bslalg_constructorproxy&#39; and &#39;bslalg_scalarprimitives&#39; components.  The
 // interested reader should refer to the documentation of those components.
 //
-///A generic container
+///A Generic Container
 ///- - - - - - - - - -
 // Suppose we want to implement a generic container of a parameterized &#39;TYPE&#39;,
 // which may or may not follow the &#39;bslma&#39; allocator model.  If it does, our
@@ -149,7 +149,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      const TYPE&amp; object() const;
 //  };
 //..
-///Using the type traits
+//
+///Using the Type Traits
 ///- - - - - - - - - - -
 // The challenge in the implementation lays in using the traits of the
 // contained &#39;TYPE&#39; to determine whether to pass the allocator argument to its
@@ -216,8 +217,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  };
 //..
-///Generic container implementation
-///- - - - - - - - - - - - - - - -
+//
+///Generic Container Implementation
+/// - - - - - - - - - - - - - - - -
 // With these utilities, we can now implement &#39;MyGenericContainer&#39;.
 //..
 //  // CREATORS
@@ -265,8 +267,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      return d_object.object();
 //  }
 //..
-///Usage verification
-///- - - - - - - - -
+//
+///Usage Verification
+/// - - - - - - - - -
 // We can check that our container actually forwards the correct allocator to
 // its contained objects with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that

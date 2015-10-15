@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslalg_scalarprimitives.h                                          -*-C++-*-
@@ -33,7 +33,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  copyConstruct       Copy constructor, with or without allocator,
 //                        or bitwise copy if appropriate
 //
-//  destructiveMove     Copy construction followed by destruction of the
+//  moveConstruct       Move constructor, with or without allocator,
+//                        or bitwise copy if appropriate.  In C++03 mode,
+//                        behavior is the same as &#39;copyConstruct&#39;.
+//
+//  destructiveMove     Move construction followed by destruction of the
 //                        original, with or without allocator,
 //                        or bitwise copy if appropriate
 //
@@ -70,6 +74,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  bslmf::IsPair                                 &quot;TYPE has the pair trait&quot;
 //                                                or &quot;TYPE is a pair&quot;
 //..
+//
 ///Usage
 ///-----
 // This component is for use primarily by the &#39;bslstl&#39; package.  Other clients
@@ -115,6 +120,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_istriviallydefaultconstructible.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include &lt;bslmf_movableref.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include &lt;bslmf_removecvq.h&gt;
 #endif
@@ -142,6 +151,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define INCLUDED_NEW
 #endif
 
+#ifndef INCLUDED_UTILITY
+#include &lt;utility&gt;
+#define INCLUDED_UTILITY
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -165,10 +179,10 @@ struct ScalarPrimitives {
 
   public:
     // CLASS METHODS
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(TARGET_TYPE      *address,
                                  bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(TARGET_TYPE *address,
                                  void        *allocator);
         // Build a default-initialized object of the parameterized
@@ -182,11 +196,11 @@ struct ScalarPrimitives {
         // memory with 0 if &#39;TARGET_TYPE&#39; has the trivial default constructor
         // trait and does not use &#39;bslma::Allocator&#39;.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&amp;  original,
                               bslma::Allocator   *allocator);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&amp;  original,
                               void               *allocator);
@@ -200,79 +214,104 @@ struct ScalarPrimitives {
         // uninitialized state.  Note that bit-wise copy will be used if
         // &#39;TARGET_TYPE&#39; has the bit-wise copyable trait.
 
-    template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(TARGET_TYPE        *address,
+                              TARGET_TYPE&amp;        original,
+                              bslma::Allocator   *allocator);
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(TARGET_TYPE        *address,
+                              TARGET_TYPE&amp;        original,
+                              void               *allocator);
+        // Build an object of the parameterized &#39;TARGET_TYPE&#39; from the
+        // specified &#39;original&#39; object of the same &#39;TARGET_TYPE&#39; in the
+        // uninitialized memory at the specified &#39;address&#39;, as if by using the
+        // move constructor of &#39;TARGET_TYPE&#39;.  If the specified &#39;allocator&#39; is
+        // based on &#39;bslma::Allocator&#39; and &#39;TARGET_TYPE&#39; takes an allocator
+        // constructor argument, then &#39;allocator&#39; is passed to the move
+        // constructor.  If the constructor throws, the &#39;address&#39; is left in
+        // an uninitialized state.  Note that bit-wise copy will be used if
+        // &#39;TARGET_TYPE&#39; has the bit-wise copyable trait (not the bit-wise
+        // moveable trait, which indicates a destructive bit-wise move).  In
+        // C++03 mode, &#39;moveConstruct&#39; has the same effect as &#39;copyConstruct&#39;.
+
+    template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
     static void destructiveMove(TARGET_TYPE *address,
                                 TARGET_TYPE *original,
                                 ALLOCATOR   *allocator);
         // Move the state of the object of the parameterized &#39;TARGET_TYPE&#39; from
         // the object at the specified &#39;original&#39; address to the uninitialized
-        // memory at the specified &#39;address&#39;, as if by constructing a copy and
+        // memory at the specified &#39;address&#39;, as if by move constructing and
         // then destroying the original.  If the parameterized &#39;ALLOCATOR&#39; is
         // based on &#39;bslma::Allocator&#39; and &#39;TARGET_TYPE&#39; takes an allocator
         // constructor argument, then the moved object uses the specified
         // &#39;allocator&#39; to supply memory.  If the move constructor throws, the
-        // &#39;address&#39; is left in an uninitialized state.  The behavior is
-        // undefined unless the &#39;original&#39; object also uses the &#39;allocator&#39;.
-        // Note that bit-wise copy will be used if TARGET_TYPE&#39; has the
-        // bit-wise moveable trait.
+        // &#39;address&#39; is left in an uninitialized state and the &#39;original&#39; is
+        // left unchanged.  The behavior is undefined unless the &#39;original&#39;
+        // object also uses the &#39;allocator&#39;.  Note that bit-wise copy will be
+        // used and &#39;allocator&#39; will be ignored if TARGET_TYPE&#39; has the
+        // bit-wise moveable trait.  Note that, if &#39;ALLOCATOR&#39; is not based on
+        // &#39;bslma::Allocator&#39;, then the &#39;allocator&#39; argument is ignored; the
+        // allocator used by the the resulting object at &#39;address&#39; might or
+        // might not be the same as the allocator used by &#39;original&#39;, depending
+        // on whether &#39;TARGET_TYPE&#39; has a move constructor (C++11).
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void construct(TARGET_TYPE      *address,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void construct(TARGET_TYPE *address,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+    template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+    template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
                           const ARG3&amp;       a3,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
                           const ARG3&amp;  a3,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
                           const ARG3&amp;       a3,
                           const ARG4&amp;       a4,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
                           const ARG3&amp;  a3,
                           const ARG4&amp;  a4,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -280,9 +319,9 @@ struct ScalarPrimitives {
                           const ARG4&amp;       a4,
                           const ARG5&amp;       a5,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
@@ -290,9 +329,9 @@ struct ScalarPrimitives {
                           const ARG4&amp;  a4,
                           const ARG5&amp;  a5,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -301,9 +340,9 @@ struct ScalarPrimitives {
                           const ARG5&amp;       a5,
                           const ARG6&amp;       a6,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
@@ -312,9 +351,9 @@ struct ScalarPrimitives {
                           const ARG5&amp;  a5,
                           const ARG6&amp;  a6,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -324,9 +363,9 @@ struct ScalarPrimitives {
                           const ARG6&amp;       a6,
                           const ARG7&amp;       a7,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
@@ -336,9 +375,9 @@ struct ScalarPrimitives {
                           const ARG6&amp;  a6,
                           const ARG7&amp;  a7,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -349,9 +388,9 @@ struct ScalarPrimitives {
                           const ARG7&amp;       a7,
                           const ARG8&amp;       a8,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
@@ -362,10 +401,10 @@ struct ScalarPrimitives {
                           const ARG7&amp;  a7,
                           const ARG8&amp;  a8,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -377,10 +416,10 @@ struct ScalarPrimitives {
                           const ARG8&amp;       a8,
                           const ARG9&amp;       a9,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9&gt;
     static void construct(TARGET_TYPE *address,
                           const ARG1&amp;  a1,
                           const ARG2&amp;  a2,
@@ -392,10 +431,10 @@ struct ScalarPrimitives {
                           const ARG8&amp;  a8,
                           const ARG9&amp;  a9,
                           void        *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9, class ARG10&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -408,10 +447,10 @@ struct ScalarPrimitives {
                           const ARG9&amp;       a9,
                           const ARG10&amp;      a10,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7, class ARG8,
+              class ARG9, class ARG10&gt;
     static void construct(TARGET_TYPE  *address,
                           const ARG1&amp;   a1,
                           const ARG2&amp;   a2,
@@ -424,10 +463,10 @@ struct ScalarPrimitives {
                           const ARG9&amp;   a9,
                           const ARG10&amp;  a10,
                           void         *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -441,10 +480,10 @@ struct ScalarPrimitives {
                           const ARG10&amp;      a10,
                           const ARG11&amp;      a11,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11&gt;
     static void construct(TARGET_TYPE  *address,
                           const ARG1&amp;   a1,
                           const ARG2&amp;   a2,
@@ -458,10 +497,10 @@ struct ScalarPrimitives {
                           const ARG10&amp;  a10,
                           const ARG11&amp;  a11,
                           void         *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -476,10 +515,10 @@ struct ScalarPrimitives {
                           const ARG11&amp;      a11,
                           const ARG12&amp;      a12,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12&gt;
     static void construct(TARGET_TYPE  *address,
                           const ARG1&amp;   a1,
                           const ARG2&amp;   a2,
@@ -494,11 +533,11 @@ struct ScalarPrimitives {
                           const ARG11&amp;  a11,
                           const ARG12&amp;  a12,
                           void         *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -514,11 +553,11 @@ struct ScalarPrimitives {
                           const ARG12&amp;      a12,
                           const ARG13&amp;      a13,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13&gt;
     static void construct(TARGET_TYPE  *address,
                           const ARG1&amp;   a1,
                           const ARG2&amp;   a2,
@@ -534,11 +573,11 @@ struct ScalarPrimitives {
                           const ARG12&amp;  a12,
                           const ARG13&amp;  a13,
                           void         *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1,  typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5,  typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9,  typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13, typename ARG14&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1,  class ARG2,  class ARG3,  class ARG4,
+              class ARG5,  class ARG6,  class ARG7,  class ARG8,
+              class ARG9,  class ARG10, class ARG11, class ARG12,
+              class ARG13, class ARG14&gt;
     static void construct(TARGET_TYPE      *address,
                           const ARG1&amp;       a1,
                           const ARG2&amp;       a2,
@@ -555,11 +594,11 @@ struct ScalarPrimitives {
                           const ARG13&amp;      a13,
                           const ARG14&amp;      a14,
                           bslma::Allocator *allocator);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1,  typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5,  typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9,  typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13, typename ARG14&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1,  class ARG2,  class ARG3,  class ARG4,
+              class ARG5,  class ARG6,  class ARG7,  class ARG8,
+              class ARG9,  class ARG10, class ARG11, class ARG12,
+              class ARG13, class ARG14&gt;
     static void construct(TARGET_TYPE  *address,
                           const ARG1&amp;   a1,
                           const ARG2&amp;   a2,
@@ -586,7 +625,7 @@ struct ScalarPrimitives {
         // constructor in the last position.
 
 
-    template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
     static void swap(LHS_TYPE&amp; lhs, RHS_TYPE&amp; rhs);
         // Swap the contents of the specified &#39;lhs&#39; modifiable reference of the
         // parameterized &#39;LHS_TYPE&#39; with those of the specified &#39;rhs&#39;
@@ -622,27 +661,27 @@ struct ScalarPrimitives_Imp {
     };
 
     // CLASS METHODS
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static TARGET_TYPE *unconst(const TARGET_TYPE *pointer);
         // Return the &#39;const&#39;-unqualified value of the specified &#39;pointer&#39;.
         // This function resolves into a &#39;const_cast&#39; and therefore has no
         // runtime cost, it exists only for template argument deduction.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(
                         TARGET_TYPE                                 *address,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(
                     TARGET_TYPE                                     *address,
                     bslma::Allocator                                *allocator,
                     bslmf::MetaInt&lt;HAS_TRIVIAL_DEFAULT_CTOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(TARGET_TYPE                 *address,
                                  bslma::Allocator            *allocator,
                                  bslmf::MetaInt&lt;PAIR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(TARGET_TYPE                *address,
                                  bslma::Allocator           *allocator,
                                  bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
@@ -654,11 +693,11 @@ struct ScalarPrimitives_Imp {
         // argument is for traits overloading resolution only and its value is
         // ignored.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(
                       TARGET_TYPE                                     *address,
                       bslmf::MetaInt&lt;HAS_TRIVIAL_DEFAULT_CTOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void defaultConstruct(TARGET_TYPE                *address,
                                  bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
         // Build a &#39;TARGET_TYPE&#39; object in a default state in the uninitialized
@@ -667,24 +706,24 @@ struct ScalarPrimitives_Imp {
         // has a trivial default constructor.  The last argument is for traits
         // overloading resolution only and its value is ignored.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(
                         TARGET_TYPE                                 *address,
                         const TARGET_TYPE&amp;                           original,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(TARGET_TYPE                 *address,
                               const TARGET_TYPE&amp;           original,
                               bslma::Allocator            *allocator,
                               bslmf::MetaInt&lt;PAIR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(
                             TARGET_TYPE                             *address,
                             const TARGET_TYPE&amp;                       original,
                             bslma::Allocator                        *allocator,
                             bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(TARGET_TYPE                *address,
                               const TARGET_TYPE&amp;          original,
                               bslma::Allocator           *allocator,
@@ -698,12 +737,12 @@ struct ScalarPrimitives_Imp {
         // resolution only and its value is ignored.  Note that a bit-wise copy
         // is only appropriate if &#39;TARGET_TYPE&#39; does not take allocators.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(
                              TARGET_TYPE                             *address,
                              const TARGET_TYPE&amp;                       original,
                              bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void copyConstruct(TARGET_TYPE                *address,
                               const TARGET_TYPE&amp;          original,
                               bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
@@ -716,13 +755,66 @@ struct ScalarPrimitives_Imp {
         // that a bit-wise copy is only appropriate if &#39;TARGET_TYPE&#39; does not
         // take allocators.
 
-    template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(
+                        TARGET_TYPE                                 *address,
+                        TARGET_TYPE&amp;                                 original,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(TARGET_TYPE                 *address,
+                              TARGET_TYPE&amp;                 original,
+                              bslma::Allocator            *allocator,
+                              bslmf::MetaInt&lt;PAIR_TRAITS&gt; *);
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(
+                            TARGET_TYPE                             *address,
+                            TARGET_TYPE&amp;                             original,
+                            bslma::Allocator                        *allocator,
+                            bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(TARGET_TYPE                *address,
+                              TARGET_TYPE&amp;                original,
+                              bslma::Allocator           *allocator,
+                              bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+        // Build in the uninitialized memory at the specified &#39;address&#39; an
+        // object of the parameterized &#39;TARGET_TYPE&#39; that is a move of the
+        // specified &#39;original&#39; object of the same &#39;TARGET_TYPE&#39;, using the
+        // specified &#39;allocator&#39; to supply memory.  Use the move constructor
+        // of the &#39;TARGET_TYPE&#39;, or a bit-wise copy if &#39;TARGET_TYPE&#39; is a
+        // bit-wise copyable type (not a bit-wise moveable type, which
+        // indicates a destructive bit-wise move).  The last argument is for
+        // traits overloading resolution only and its value is ignored.  Note
+        // that a bit-wise copy is used only if &#39;TARGET_TYPE&#39; does not take
+        // allocators.  In C++03 mode, &#39;moveConstruct&#39; has the same effect as
+        // &#39;copyConstruct&#39;.
+
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&amp;                             original,
+                             bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *);
+    template &lt;class TARGET_TYPE&gt;
+    static void moveConstruct(TARGET_TYPE                *address,
+                              TARGET_TYPE&amp;                original,
+                              bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
+        // Build in the uninitialized memory at the specified &#39;address&#39; an
+        // object of the parameterized &#39;TARGET_TYPE&#39; that is a move of the
+        // specified &#39;original&#39; object of the same &#39;TARGET_TYPE&#39;.  Use the move
+        // constructor of the &#39;TARGET_TYPE&#39;, or a bit-wise copy if
+        // &#39;TARGET_TYPE&#39; is a bit-wise copyable type (bit-wise copyable, NOT
+        // bit-wise moveable, which relates to destructive bit-wise move).  The
+        // last argument is for traits overloading resolution only and its
+        // value is ignored.  In C++03 mode, &#39;moveConstruct&#39; has the same
+        // effect as &#39;copyConstruct&#39;.
+
+    template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
     static void destructiveMove(
                             TARGET_TYPE                             *address,
                             TARGET_TYPE                             *original,
                             ALLOCATOR                               *allocator,
                             bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+    template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
     static void destructiveMove(TARGET_TYPE                *address,
                                 TARGET_TYPE                *original,
                                 ALLOCATOR                  *allocator,
@@ -734,7 +826,7 @@ struct ScalarPrimitives_Imp {
         // destroy the &#39;original&#39;.  The last argument is for traits overloading
         // resolution only and its value is ignored.
 
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(TARGET_TYPE                             *address,
                           const ARG1&amp;                              a1,
                           bslma::Allocator                        *allocator,
@@ -744,14 +836,15 @@ struct ScalarPrimitives_Imp {
         // Use the parameterized &#39;TARGET_TYPE&#39; constructor with the signature
         // &#39;TARGET_TYPE(ARG1 const&amp;)&#39; or bitwise copy for non-fundamental
         // types.  The traits argument is for overloading resolution only and
-        // is ignored.
+        // is ignored.  Note that this function is called only when &#39;ARG1&#39; is
+        // the same as &#39;TARGET_TYPE&#39;.
 
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(TARGET_TYPE                 *address,
                           const ARG1&amp;                  a1,
                           bslma::Allocator            *allocator,
                           bslmf::MetaInt&lt;PAIR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+    template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
     static void construct(TARGET_TYPE                 *address,
                           const ARG1&amp;                  a1,
                           const ARG2&amp;                  a2,
@@ -765,26 +858,26 @@ struct ScalarPrimitives_Imp {
         // traits argument is for overloading resolution only and is ignored.
         // Note that because pair types have at most two constructor arguments,
         // only two versions of this function are needed.
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+    template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
                         const ARG2&amp;                                  a2,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -792,8 +885,8 @@ struct ScalarPrimitives_Imp {
                         const ARG3&amp;                                  a3,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -802,9 +895,9 @@ struct ScalarPrimitives_Imp {
                         const ARG4&amp;                                  a4,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -814,9 +907,9 @@ struct ScalarPrimitives_Imp {
                         const ARG5&amp;                                  a5,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -827,9 +920,9 @@ struct ScalarPrimitives_Imp {
                         const ARG6&amp;                                  a6,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -841,9 +934,9 @@ struct ScalarPrimitives_Imp {
                         const ARG7&amp;                                  a7,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -856,10 +949,10 @@ struct ScalarPrimitives_Imp {
                         const ARG8&amp;                                  a8,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -873,10 +966,10 @@ struct ScalarPrimitives_Imp {
                         const ARG9&amp;                                  a9,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -891,10 +984,10 @@ struct ScalarPrimitives_Imp {
                         const ARG10&amp;                                 a10,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -910,10 +1003,10 @@ struct ScalarPrimitives_Imp {
                         const ARG11&amp;                                 a11,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -930,11 +1023,11 @@ struct ScalarPrimitives_Imp {
                         const ARG12&amp;                                 a12,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -952,11 +1045,11 @@ struct ScalarPrimitives_Imp {
                         const ARG13&amp;                                 a13,
                         bslma::Allocator                            *allocator,
                         bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1,  typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5,  typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9,  typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13, typename ARG14&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1,  class ARG2,  class ARG3,  class ARG4,
+              class ARG5,  class ARG6,  class ARG7,  class ARG8,
+              class ARG9,  class ARG10, class ARG11, class ARG12,
+              class ARG13, class ARG14&gt;
     static void construct(
                         TARGET_TYPE                                 *address,
                         const ARG1&amp;                                  a1,
@@ -984,31 +1077,31 @@ struct ScalarPrimitives_Imp {
         // specified &#39;allocator&#39; in the last position.  The last argument is
         // for overloading resolution only and its value is ignored.
 
-    template &lt;typename TARGET_TYPE&gt;
+    template &lt;class TARGET_TYPE&gt;
     static void construct(TARGET_TYPE                *address,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ARG1&gt;
+    template &lt;class TARGET_TYPE, class ARG1&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+    template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
                           const ARG3&amp;                 a3,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1016,9 +1109,9 @@ struct ScalarPrimitives_Imp {
                           const ARG4&amp;                 a4,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1027,9 +1120,9 @@ struct ScalarPrimitives_Imp {
                           const ARG5&amp;                 a5,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1039,9 +1132,9 @@ struct ScalarPrimitives_Imp {
                           const ARG6&amp;                 a6,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2, typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6, typename ARG7&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2, class ARG3, class ARG4,
+              class ARG5, class ARG6, class ARG7&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1052,9 +1145,9 @@ struct ScalarPrimitives_Imp {
                           const ARG7&amp;                 a7,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1066,10 +1159,10 @@ struct ScalarPrimitives_Imp {
                           const ARG8&amp;                 a8,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1082,10 +1175,10 @@ struct ScalarPrimitives_Imp {
                           const ARG9&amp;                 a9,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1099,10 +1192,10 @@ struct ScalarPrimitives_Imp {
                           const ARG10&amp;                a10,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3, typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7, typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3, class ARG4,
+              class ARG5, class ARG6,  class ARG7, class ARG8,
+              class ARG9, class ARG10, class ARG11&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1117,10 +1210,10 @@ struct ScalarPrimitives_Imp {
                           const ARG11&amp;                a11,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1136,11 +1229,11 @@ struct ScalarPrimitives_Imp {
                           const ARG12&amp;                a12,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1, typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5, typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9, typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1, class ARG2,  class ARG3,  class ARG4,
+              class ARG5, class ARG6,  class ARG7,  class ARG8,
+              class ARG9, class ARG10, class ARG11, class ARG12,
+              class ARG13&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1157,11 +1250,11 @@ struct ScalarPrimitives_Imp {
                           const ARG13&amp;                a13,
                           bslma::Allocator           *allocator,
                           bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
-    template &lt;typename TARGET_TYPE,
-              typename ARG1,  typename ARG2,  typename ARG3,  typename ARG4,
-              typename ARG5,  typename ARG6,  typename ARG7,  typename ARG8,
-              typename ARG9,  typename ARG10, typename ARG11, typename ARG12,
-              typename ARG13, typename ARG14&gt;
+    template &lt;class TARGET_TYPE,
+              class ARG1,  class ARG2,  class ARG3,  class ARG4,
+              class ARG5,  class ARG6,  class ARG7,  class ARG8,
+              class ARG9,  class ARG10, class ARG11, class ARG12,
+              class ARG13, class ARG14&gt;
     static void construct(TARGET_TYPE                *address,
                           const ARG1&amp;                 a1,
                           const ARG2&amp;                 a2,
@@ -1188,11 +1281,11 @@ struct ScalarPrimitives_Imp {
         // constructor.  The last argument is for overloading resolution only
         // and is ignored.
 
-    template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
     static void swap(LHS_TYPE&amp;                                lhs,
                      RHS_TYPE&amp;                                rhs,
                      bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *);
-    template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+    template &lt;class LHS_TYPE, class RHS_TYPE&gt;
     static void swap(LHS_TYPE&amp;                   lhs,
                      RHS_TYPE&amp;                   rhs,
                      bslmf::MetaInt&lt;NIL_TRAITS&gt; *);
@@ -1205,9 +1298,9 @@ struct ScalarPrimitives_Imp {
         // ignored.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 
 // Workaround for optimization issue in xlC that mishandles pointer aliasing.
@@ -1231,7 +1324,7 @@ struct ScalarPrimitives_Imp {
 
                     // *** defaultConstruct overloads: ***
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::defaultConstruct(TARGET_TYPE      *address,
@@ -1251,7 +1344,7 @@ ScalarPrimitives::defaultConstruct(TARGET_TYPE      *address,
     Imp::defaultConstruct(address, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::defaultConstruct(TARGET_TYPE *address,
@@ -1269,7 +1362,7 @@ ScalarPrimitives::defaultConstruct(TARGET_TYPE *address,
 
                       // *** copyConstruct overloads: ***
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
@@ -1291,7 +1384,7 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
                        (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
@@ -1308,9 +1401,79 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
     Imp::copyConstruct(address, original, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
+                      // *** moveConstruct overloads: ***
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&amp;        original,
+                                bslma::Allocator   *allocator)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    enum {
+        VALUE = bslma::UsesBslmaAllocator&lt;TARGET_TYPE&gt;::value
+              ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
+              : bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::value
+                  ? Imp::BITWISE_COPYABLE_TRAITS
+                  : bslmf::IsPair&lt;TARGET_TYPE&gt;::value
+                      ? Imp::PAIR_TRAITS
+                      : Imp::NIL_TRAITS
+    };
+    Imp::moveConstruct(address, original, allocator,
+                       (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&amp;        original,
+                                void               *)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    enum {
+        VALUE = bsl::is_trivially_copyable&lt;TARGET_TYPE&gt;::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : Imp::NIL_TRAITS
+    };
+    Imp::moveConstruct(address, original, (bslmf::MetaInt&lt;VALUE&gt;*)0);
+}
+
+#else // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&amp;        original,
+                                bslma::Allocator   *allocator)
+{
+    // In C++03 mode, use copy construction instead of move construction.
+    copyConstruct(address, original, allocator);
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&amp;        original,
+                                void               *vp)
+{
+    // In C++03 mode, use copy construction instead of move construction.
+    copyConstruct(address, original, vp);
+}
+
+#endif  // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+
                      // *** destructiveMove overloads: ***
 
-template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
 inline
 void
 ScalarPrimitives::destructiveMove(TARGET_TYPE *address,
@@ -1333,7 +1496,7 @@ ScalarPrimitives::destructiveMove(TARGET_TYPE *address,
 
                        // *** construct overloads: ****
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1349,7 +1512,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     Imp::construct(address, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1361,7 +1524,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1383,7 +1546,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     Imp::construct(address, a1, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1396,7 +1559,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1416,7 +1579,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     Imp::construct(address, a1, a2, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1430,7 +1593,7 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1449,7 +1612,7 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
     Imp::construct(address, a1, a2, a3, allocator, (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1464,8 +1627,8 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1488,8 +1651,8 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1505,8 +1668,8 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1530,8 +1693,8 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1548,8 +1711,8 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1574,8 +1737,8 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1593,8 +1756,8 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6, typename ARG7&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1620,8 +1783,8 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6, typename ARG7&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1640,9 +1803,9 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1669,9 +1832,9 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1691,9 +1854,9 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1721,9 +1884,9 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE *address,
@@ -1744,9 +1907,9 @@ ScalarPrimitives::construct(TARGET_TYPE *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1775,9 +1938,9 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE  *address,
@@ -1799,9 +1962,9 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1831,9 +1994,9 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE  *address,
@@ -1856,10 +2019,10 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11,
+          class ARG12&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1890,10 +2053,10 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11,
+          class ARG12&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE  *address,
@@ -1918,10 +2081,10 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13&gt;
+template &lt;class TARGET_TYPE,  class ARG1, class ARG2,  class ARG3,
+          class ARG4,  class ARG5, class ARG6,  class ARG7,
+          class ARG8,  class ARG9, class ARG10, class ARG11,
+          class ARG12, class ARG13&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -1953,10 +2116,10 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13&gt;
+template &lt;class TARGET_TYPE,  class ARG1, class ARG2,  class ARG3,
+          class ARG4,  class ARG5, class ARG6,  class ARG7,
+          class ARG8,  class ARG9, class ARG10, class ARG11,
+          class ARG12, class ARG13&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE  *address,
@@ -1982,10 +2145,10 @@ ScalarPrimitives::construct(TARGET_TYPE  *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1,  typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5,  typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9,  typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13, typename ARG14&gt;
+template &lt;class TARGET_TYPE,  class ARG1,  class ARG2,  class ARG3,
+          class ARG4,  class ARG5,  class ARG6,  class ARG7,
+          class ARG8,  class ARG9,  class ARG10, class ARG11,
+          class ARG12, class ARG13, class ARG14&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE      *address,
@@ -2018,10 +2181,10 @@ ScalarPrimitives::construct(TARGET_TYPE      *address,
                    (bslmf::MetaInt&lt;VALUE&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1,  typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5,  typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9,  typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13, typename ARG14&gt;
+template &lt;class TARGET_TYPE,  class ARG1,  class ARG2,  class ARG3,
+          class ARG4,  class ARG5,  class ARG6,  class ARG7,
+          class ARG8,  class ARG9,  class ARG10, class ARG11,
+          class ARG12, class ARG13, class ARG14&gt;
 inline
 void
 ScalarPrimitives::construct(TARGET_TYPE  *address,
@@ -2057,7 +2220,7 @@ namespace bslalg {
 
                           // *** swap overloads: ***
 
-template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
 void ScalarPrimitives::swap(LHS_TYPE&amp; lhs, RHS_TYPE&amp; rhs)
 {
     enum {
@@ -2074,7 +2237,7 @@ void ScalarPrimitives::swap(LHS_TYPE&amp; lhs, RHS_TYPE&amp; rhs)
                      // ---------------------------
 
 // CLASS METHODS
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 TARGET_TYPE *ScalarPrimitives_Imp::unconst(const TARGET_TYPE *pointer)
 {
@@ -2083,7 +2246,7 @@ TARGET_TYPE *ScalarPrimitives_Imp::unconst(const TARGET_TYPE *pointer)
 
                     // *** defaultConstruct overloads: ***
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(
@@ -2095,7 +2258,7 @@ ScalarPrimitives_Imp::defaultConstruct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(
@@ -2107,7 +2270,7 @@ ScalarPrimitives_Imp::defaultConstruct(
                      (bslmf::MetaInt&lt;HAS_TRIVIAL_DEFAULT_CTOR_TRAITS&gt;*)0);
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                 *address,
@@ -2126,7 +2289,7 @@ ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                 *address,
     guard.release();
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
@@ -2137,7 +2300,7 @@ ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(
@@ -2157,7 +2320,7 @@ ScalarPrimitives_Imp::defaultConstruct(
     }
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
@@ -2169,7 +2332,7 @@ ScalarPrimitives_Imp::defaultConstruct(TARGET_TYPE                *address,
 
                       // *** copyConstruct overloads: ***
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(
@@ -2182,7 +2345,7 @@ ScalarPrimitives_Imp::copyConstruct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                 *address,
@@ -2204,7 +2367,7 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                 *address,
     guard.release();
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(
@@ -2228,7 +2391,7 @@ ScalarPrimitives_Imp::copyConstruct(
     }
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
@@ -2240,7 +2403,7 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(
@@ -2263,7 +2426,7 @@ ScalarPrimitives_Imp::copyConstruct(
     }
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
@@ -2274,9 +2437,116 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
+                      // *** moveConstruct overloads: ***
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                        TARGET_TYPE                                 *address,
+                        TARGET_TYPE&amp;                                 original,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt&lt;USES_BSLMA_ALLOCATOR_TRAITS&gt; *)
+{
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original),
+                                allocator);
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                 *address,
+                                    TARGET_TYPE&amp;                 original,
+                                    bslma::Allocator            *allocator,
+                                    bslmf::MetaInt&lt;PAIR_TRAITS&gt; *)
+{
+    ScalarPrimitives::moveConstruct(
+                                  unconst(BSLS_UTIL_ADDRESSOF(address-&gt;first)),
+                                  original.first,
+                                  allocator);
+    AutoScalarDestructor&lt;typename bslmf::RemoveCvq&lt;
+                                typename TARGET_TYPE::first_type&gt;::Type&gt;
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address-&gt;first)));
+    ScalarPrimitives::moveConstruct(
+                                 unconst(BSLS_UTIL_ADDRESSOF(address-&gt;second)),
+                                 original.second,
+                                 allocator);
+    guard.release();
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&amp;                             original,
+                             bslma::Allocator                        *,
+                             bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    if (bslmf::IsFundamental&lt;TARGET_TYPE&gt;::value
+     || bslmf::IsPointer&lt;TARGET_TYPE&gt;::value) {
+        // Detectable at compile-time, this condition ensures that we don&#39;t
+        // call library functions for fundamental or pointer types.  Note that
+        // copy-constructor can&#39;t throw, and that assignment (although would
+        // likely produce equivalent code) can&#39;t be used, in case &#39;TARGET_TYPE&#39;
+        // is &#39;const&#39;-qualified.
+
+        ::new (address) TARGET_TYPE(original);
+    } else {
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+    }
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
+                                    TARGET_TYPE&amp;                original,
+                                    bslma::Allocator           *,
+                                    bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original));
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&amp;                             original,
+                             bslmf::MetaInt&lt;BITWISE_COPYABLE_TRAITS&gt; *)
+{
+    if (bslmf::IsFundamental&lt;TARGET_TYPE&gt;::value
+     || bslmf::IsPointer&lt;TARGET_TYPE&gt;::value) {
+        // Detectable at compile-time, this condition ensures that we don&#39;t
+        // call library functions for fundamental or pointer types.  Note that
+        // move-constructor can&#39;t throw, and that assignment (although would
+        // likely produce equivalent code) can&#39;t be used, in case &#39;TARGET_TYPE&#39;
+        // is &#39;const&#39;-qualified.
+
+        ::new (address) TARGET_TYPE(original);
+    } else {
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+    }
+}
+
+template &lt;typename TARGET_TYPE&gt;
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
+                                    TARGET_TYPE&amp;                original,
+                                    bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
+{
+    ::new (address) TARGET_TYPE(bslmf::MovableRefUtil::move(original));
+}
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
                      // *** destructiveMove overloads: ***
 
-template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
 inline
 void
 ScalarPrimitives_Imp::destructiveMove(
@@ -2300,7 +2570,7 @@ ScalarPrimitives_Imp::destructiveMove(
     }
 }
 
-template &lt;typename TARGET_TYPE, typename ALLOCATOR&gt;
+template &lt;class TARGET_TYPE, class ALLOCATOR&gt;
 inline
 void
 ScalarPrimitives_Imp::destructiveMove(TARGET_TYPE                *address,
@@ -2308,13 +2578,13 @@ ScalarPrimitives_Imp::destructiveMove(TARGET_TYPE                *address,
                                       ALLOCATOR                  *allocator,
                                       bslmf::MetaInt&lt;NIL_TRAITS&gt; *)
 {
-    ScalarPrimitives::copyConstruct(address, *original, allocator);
+    ScalarPrimitives::moveConstruct(address, *original, allocator);
     ScalarDestructionPrimitives::destroy(original);
 }
 
                         // *** construct overloads: ***
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2339,7 +2609,7 @@ ScalarPrimitives_Imp::construct(
     }
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                 *address,
@@ -2359,7 +2629,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                 *address,
     guard.release();
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                 *address,
@@ -2380,7 +2650,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                 *address,
     guard.release();
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2392,7 +2662,7 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE&gt;
+template &lt;class TARGET_TYPE&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2403,7 +2673,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2416,7 +2686,7 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1&gt;
+template &lt;class TARGET_TYPE, class ARG1&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2428,7 +2698,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2442,7 +2712,7 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2455,7 +2725,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2470,7 +2740,7 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2484,8 +2754,8 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2501,8 +2771,8 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2517,8 +2787,8 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2535,8 +2805,8 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2552,8 +2822,8 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2571,8 +2841,8 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2589,8 +2859,8 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6, typename ARG7&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2609,8 +2879,8 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2, typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6, typename ARG7&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2, class ARG3,
+          class ARG4, class ARG5, class ARG6, class ARG7&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2628,9 +2898,9 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2650,9 +2920,9 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2671,9 +2941,9 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2694,9 +2964,9 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2716,9 +2986,9 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2741,9 +3011,9 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2764,9 +3034,9 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2790,9 +3060,9 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2814,10 +3084,10 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11,
+          class ARG12&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2843,10 +3113,10 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE, typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4, typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8, typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12&gt;
+template &lt;class TARGET_TYPE, class ARG1, class ARG2,  class ARG3,
+          class ARG4, class ARG5, class ARG6,  class ARG7,
+          class ARG8, class ARG9, class ARG10, class ARG11,
+          class ARG12&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2870,10 +3140,10 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13&gt;
+template &lt;class TARGET_TYPE,  class ARG1, class ARG2,  class ARG3,
+          class ARG4,  class ARG5, class ARG6,  class ARG7,
+          class ARG8,  class ARG9, class ARG10, class ARG11,
+          class ARG12, class ARG13&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2900,10 +3170,10 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1, typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5, typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9, typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13&gt;
+template &lt;class TARGET_TYPE,  class ARG1, class ARG2,  class ARG3,
+          class ARG4,  class ARG5, class ARG6,  class ARG7,
+          class ARG8,  class ARG9, class ARG10, class ARG11,
+          class ARG12, class ARG13&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2928,10 +3198,10 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1,  typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5,  typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9,  typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13, typename ARG14&gt;
+template &lt;class TARGET_TYPE,  class ARG1,  class ARG2,  class ARG3,
+          class ARG4,  class ARG5,  class ARG6,  class ARG7,
+          class ARG8,  class ARG9,  class ARG10, class ARG11,
+          class ARG12, class ARG13, class ARG14&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(
@@ -2959,10 +3229,10 @@ ScalarPrimitives_Imp::construct(
     BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
 }
 
-template &lt;typename TARGET_TYPE,  typename ARG1,  typename ARG2,  typename ARG3,
-          typename ARG4,  typename ARG5,  typename ARG6,  typename ARG7,
-          typename ARG8,  typename ARG9,  typename ARG10, typename ARG11,
-          typename ARG12, typename ARG13, typename ARG14&gt;
+template &lt;class TARGET_TYPE,  class ARG1,  class ARG2,  class ARG3,
+          class ARG4,  class ARG5,  class ARG6,  class ARG7,
+          class ARG8,  class ARG9,  class ARG10, class ARG11,
+          class ARG12, class ARG13, class ARG14&gt;
 inline
 void
 ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
@@ -2990,7 +3260,7 @@ ScalarPrimitives_Imp::construct(TARGET_TYPE                *address,
 
                           // *** swap overloads: ***
 
-template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
 void ScalarPrimitives_Imp::swap(LHS_TYPE&amp;                                lhs,
                                 RHS_TYPE&amp;                                rhs,
                                 bslmf::MetaInt&lt;BITWISE_MOVEABLE_TRAITS&gt; *)
@@ -3018,7 +3288,7 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&amp;                                lhs
     }
 }
 
-template &lt;typename LHS_TYPE, typename RHS_TYPE&gt;
+template &lt;class LHS_TYPE, class RHS_TYPE&gt;
 void ScalarPrimitives_Imp::swap(LHS_TYPE&amp;                   lhs,
                                 RHS_TYPE&amp;                   rhs,
                                 bslmf::MetaInt&lt;NIL_TRAITS&gt; *)

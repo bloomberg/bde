@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bdlt::Date</title>
+<title>BDE 3.0: Class bdlt::Date</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -76,6 +76,15 @@
 <div class="contents">
 <!-- doxytag: class="bdlt::Date" -->
 <p><code>#include &lt;<a class="el" href="bdlt__date_8h_source.html">bdlt_date.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for bdlt::Date:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classbdlt_1_1Date.png" usemap="#bdlt::Date_map" alt=""/>
+  <map id="bdlt::Date_map" name="bdlt::Date_map">
+<area href="classbdlt_1_1PackedCalendar__DateRef.html" alt="bdlt::PackedCalendar_DateRef" shape="rect" coords="0,56,184,80"/>
+</map>
+</div>
 
 <p><a href="classbdlt_1_1Date-members.html">List of all members.</a></p>
 <table class="memberdecls">
@@ -126,6 +135,8 @@ Friends</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdlt_1_1Date.html">Date</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Date.html#ae335ddfa9a0d106859f07bb3d68ee688">operator+</a> (int, const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbdlt_1_1Date.html">Date</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Date.html#a0c63a7c917ee8feab1d83c5b22879a4b">operator-</a> (const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;, int)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Date.html#a1fe1c8f9582dbfe2ee08ed2066ebca74">operator-</a> (const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;, const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class HASHALG &gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbdlt_1_1Date.html#a3bbb23b2b9dadfa67a419b05343973c7">hashAppend</a> (HASHALG &amp;hashAlg, const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class implements a complex-constrained, value-semantic type for representing dates according to the proleptic Gregorian calendar. Each object of this class <em>always</em> represents a <em>valid</em> date value in the range <code>[0001JAN01 .. 9999DEC31]</code> inclusive. The interface of this class supports <code><a class="el" href="classbdlt_1_1Date.html">Date</a></code> values expressed in terms of either year/month/day (the canonical representation) or year/day-of-year (an alternate representation). See <a href="group__bdlt__date.html#valid_date_values_and_their_representations" class="el">Valid Date Values and Their Representations</a> for details. </p>
@@ -1109,11 +1120,41 @@ template&lt;class STREAM &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a3bbb23b2b9dadfa67a419b05343973c7"></a><!-- doxytag: member="bdlt::Date::hashAppend" ref="a3bbb23b2b9dadfa67a419b05343973c7" args="(HASHALG &amp;hashAlg, const Date &amp;)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class HASHALG &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void hashAppend </td>
+          <td>(</td>
+          <td class="paramtype">HASHALG &amp;&nbsp;</td>
+          <td class="paramname"> <em>hashAlg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classbdlt_1_1Date.html">Date</a> &amp;&nbsp;</td>
+          <td class="paramname"></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [friend]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Pass the specified <code>date</code> to the specified <code>hashAlg</code>. Note that this function is intended to integrate with the <code>bslh</code> modular hashing system, and effectively provides a <code><a class="el" href="structbsl_1_1hash.html">bsl::hash</a></code> specialization for <code>date</code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bdlt__date_8h_source.html">bdlt_date.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

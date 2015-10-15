@@ -1,0 +1,553 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_socketoptutil.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_SOCKETOPTUTIL
+#define INCLUDED_BTLSO_SOCKETOPTUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide operations to manipulate socket options.
+//
+//@CLASSES:
+//   btlso::SocketOptUtil: namespace for socket options utilities
+//
+//@SEE_ALSO: btlso_socketimputil btlso_ioutil
+//
+//@DESCRIPTION: This component provides a namespace for a collection of pure
+// procedures to manipulate options on sockets.  These options are enumerated
+// for non-platform-specific option classifications.  These options can exist
+// at multiple levels such as &#39;SOL_SOCKET&#39;, &#39;IPPROTO_TCP&#39; and &#39;IPPROTO_IP&#39;.
+// The supported levels include &#39;SOL_SOCKET&#39; and &#39;IPPROTO_TCP&#39;.  This component
+// acts as a pass-through between the system and the application.
+// Particularly, the option name and option level are passed directly (i.e.,
+// without any modification) into system calls.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Setting &#39;k_REUSEADDRESS&#39; Option on a Socket
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to set &#39;k_REUSEADDRESS&#39; flag
+// on a socket.  Note that we assume that a socket of type &#39;SOCK_STREAM&#39; is
+// already created and socket allocation &#39;btlso_socketimputil&#39; can be used.
+//..
+//  int result;
+//  int addropt = 1;
+//  result = btlso::SocketOptUtil::setOption(
+//                                        sockethandle,
+//                                        btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                        btlso::SocketOptUtil::k_REUSEADDRESS,
+//                                        addropt);
+//
+//  assert(0 == result);
+//..
+// Now we will verify that the address option was set correctly:
+//..
+//  addropt = 0;
+//  result = btlso::SocketOptUtil::getOption(
+//                                       &amp;addropt,
+//                                       sockethandle,
+//                                       btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                       btlso::SocketOptUtil::k_REUSEADDRESS);
+//
+//  assert(0 == result);
+//  assert(0 != addropt);
+//..
+// Next use &#39;getOption&#39; to verify the type of the socket (&#39;SOCK_STREAM&#39;):
+//..
+//  int sockettype = 0;
+//  result = btlso::SocketOptUtil::getOption(
+//                                         &amp;sockettype,
+//                                         sockethandle,
+//                                         btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                         btlso::SocketOptUtil::k_TYPE);
+//
+//  assert(0 == result);
+//  assert(SOCK_STREAM == sockettype);
+//..
+//
+///Example 2: Setting Linger Options
+///- - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to set and get linger data
+// option values for a socket.  First set the linger interval to 2 seconds:
+//..
+//  int                              errorcode = 0;
+//  btlso::SocketOptUtil::LingerData ld;
+//
+//  ld.l_onoff  = 1;   // Enable lingering for
+//  ld.l_linger = 2;   // 2 seconds
+//
+//  result = btlso::SocketOptUtil::setOption(
+//                                          sockethandle,
+//                                          btlso::SocketOptUtil::k_SOCKETLEVEL
+//                                          btlso::SocketOptUtil::k_LINGER,
+//                                          ld,
+//                                          &amp;errorcode);
+//  assert(0 == result);
+//  assert(0 == errorcode);
+//..
+// Now query that the option was actually set:
+//..
+//  btlso::SocketOptUtil::LingerData ld2
+//  result = btlso::SocketOptUtil::getOption(
+//                                         &amp;ld2,
+//                                         sockethandle,
+//                                         btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                         btlso::SocketOptUtil::k_LINGER,
+//                                         &amp;errorcode);
+//
+//  assert(0 == result);
+//  assert(0 == errorcode);
+//..
+//
+///Example 3: Illustrating Pass-Through Ability
+/// - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate the pass-through ability.
+//..
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//
+//  WSAPROTOCOL_INFO protoInfo;
+//  memset(&amp;ProtoInfo, 0, sizeof(ProtoInfo));
+//  result = btlso::SocketOptUtil::getOption(
+//                                         &amp;protoInfo,
+//                                         sockethandle,
+//                                         btlso::SocketOptUtil::k_SOCKETLEVEL,
+//                                         SO_PROTOCOL_INFO,
+//                                         &amp;errorcode);
+//
+//  assert(0 == result);
+//  assert(0 == errorcode);
+//  assert(SOCK_STREAM == ProtoInfo.iAddressFamily);
+//  assert(ProtocolInformation == ProtoInfo.iProtocol);
+//  assert(ProtocolVersion == ProtoInfo.iVersion);
+//  assert(SocketType == ProtoInfo.iSocketType);
+//
+//  #endif
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_PLATFORM
+#include &lt;btlso_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+    #ifdef BSLS_PLATFORM_OS_AIX
+        #ifndef INCLUDED_SYS_MACHINE
+        #include &lt;sys/machine.h&gt;       // Defines &quot;endianness&quot; of the platform.
+        #define INCLUDED_SYS_MACHINE
+        #endif
+    #endif
+
+    #ifndef INCLUDED_SYS_TYPES
+    #include &lt;sys/types.h&gt;
+    #define INCLUDED_SYS_TYPES
+    #endif
+
+    #ifndef INCLUDED_BSL_C_ERRNO
+    #include &lt;bsl_c_errno.h&gt;
+    #endif
+
+    #ifndef INCLUDED_SYS_SOCKET
+    #include &lt;sys/socket.h&gt;
+    #define INCLUDED_SYS_SOCKET
+    #endif
+
+    #ifndef INCLUDED_NETINET_TCP
+    #include &lt;netinet/tcp.h&gt;
+    #define INCLUDED_NETINET_TCP
+    #endif
+
+    #ifndef INCLUDED_NETINET_IN
+    #include &lt;netinet/in.h&gt;
+    #define INCLUDED_NETINET_IN
+    #endif
+
+#endif
+
+#ifdef BTLSO_PLATFORM_WIN_SOCKETS
+    #ifndef INCLUDED_WINSOCK2
+    #include &lt;winsock2.h&gt;
+    #define INCLUDED_WINSOCK2
+    #endif
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+class SocketOptions;
+
+                        // ====================
+                        // struct SocketOptUtil
+                        // ====================
+
+struct SocketOptUtil {
+    // This class provides a namespace for platform independent pure procedures
+    // to set and get options for operating-system-level sockets.  These
+    // procedures take an &#39;errorCode&#39; as an optional parameter, which is loaded
+    // with platform-specific error number if an error occurs during the
+    // operation.  All functions return O on success and a negative value on
+    // error.
+
+#if defined(BSLS_PLATFORM_OS_UNIX) &amp;&amp; !defined(BSLS_PLATFORM_OS_CYGWIN)
+    struct LingerData {
+        // The linger structure maintains information about a specific socket
+        // that specifies how that socket should behave when data is queued to
+        // be sent and the socket is being closed.
+
+        int  l_onoff;   // Indicate whether to linger or not.  (on = 1/off = 0)
+                        // If it is set to a non zero value then &#39;l_linger&#39;
+                        // contains the time in seconds.
+
+        int  l_linger;  // How long to linger for.  If &#39;l_onoff&#39; is set to
+                        // zero then the process returns immediately.
+    };
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+    struct LingerData {
+        // The linger structure maintains information about a specific socket
+        // that specifies how that socket should behave when data is queued to
+        // be sent and the socket is being closed.  Note that &#39;l_linger&#39; is a
+        // unsigned short value (max: 65536 seconds).
+
+        u_short  l_onoff;   // On Windows platform &#39;l_onoff&#39; is defined as
+                            // unsigned short.
+
+        u_short  l_linger;  // Enabling SO_LINGER also disables
+                            // &#39;SO_DONTBTESO_LINGER&#39;, and vice versa.  Note
+                            // that if &#39;SO_DONTBTESO_LINGER&#39; is disabled (that
+                            // is, &#39;SO_LINGER&#39; is enabled) then no time-out
+                            // value is specified.  In this case, the time-out
+                            // used is implementation dependent.
+    };
+#endif
+
+    enum {
+        // When manipulating options, the level at which the option resides
+        // and the name of the option must be specified.
+
+        k_SOCKETLEVEL     = SOL_SOCKET,     // System socket level
+        k_TCPLEVEL        = IPPROTO_TCP     // Protocol level (TCP)
+
+
+    };
+
+    // For level = k_SOCKETLEVEL
+    // The socket options map directly onto the native option values.
+
+    enum {
+        k_DEBUGINFO      = SO_DEBUG,      // enable/disable recording of
+                                          // debugging information
+
+        k_REUSEADDRESS   = SO_REUSEADDR,  // enable/disable local address reuse
+
+        k_KEEPALIVE      = SO_KEEPALIVE,  // enable/disable keep connections
+                                          // alive
+
+        k_DONTROUTE      = SO_DONTROUTE,  // enable/disable routing bypass for
+                                          // outgoing messages
+
+        k_LINGER         = SO_LINGER,     // linger on close if data is present
+
+        k_BROADCAST      = SO_BROADCAST,  // enable/disable permission to
+                                          // transmit broadcast messages
+
+        k_OOBINLINE      = SO_OOBINLINE,  // enable/disable reception of
+                                          // out-of-band data in band
+
+        k_SENDBUFFER     = SO_SNDBUF,     // set buffer size for output
+
+        k_RECEIVEBUFFER  = SO_RCVBUF,     // set buffer size for input
+
+        k_SENDLOWATER    = SO_SNDLOWAT,   // set minimum count for output
+
+        k_RECEIVELOWATER = SO_RCVLOWAT,   // set minimum count for input
+
+        k_SENDTIMEOUT    = SO_SNDTIMEO,   // set timeout value for output
+
+        k_RECEIVETIMEOUT = SO_RCVTIMEO,   // set timeout value for output
+
+        k_TYPE           = SO_TYPE,       // get the type of the socket (get
+                                          // only)
+
+        k_SOCKETERROR    = SO_ERROR       // get and clear error on the socket
+                                          // (get only)
+    };
+
+    // For level = k_TCPLEVEL
+    enum {
+        k_TCPNODELAY = TCP_NODELAY  // Specifies whether TCP should follow the
+                                    // Nagle algorithm for deciding when to
+                                    // send data.  By default, TCP will follow
+                                    // the Nagle algorithm.  To disable this
+                                    // behavior, applications can enable
+                                    // TCP_NODELAY to force TCP to always send
+                                    // data immediately.
+
+
+    };
+
+    template &lt;class T&gt;
+    static int setOption(SocketHandle::Handle handle,
+                         int                  level,
+                         int                  option,
+                         const T&amp;             value);
+        // Set the option of the system socket having the specified &#39;handle&#39; to
+        // the specified &#39;value&#39; for the specified &#39;level&#39;.  Return 0, with no
+        // effect on &#39;errorCode&#39;, on success.  Otherwise it returns a negative
+        // value.
+
+    template &lt;class T&gt;
+    static int setOption(SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option,
+                         const T&amp;              Value,
+                         int                  *errorCode);
+        // Set the option of the system socket having the specified &#39;handle&#39; to
+        // the specified &#39;value&#39; for the specified &#39;level&#39; and load into the
+        // specified &#39;errorCode&#39; the native error code of the operation, if
+        // any.  Return 0, with no effect on &#39;errorCode&#39;, on success.
+        // Otherwise it returns a negative value.  The behavior is undefined if
+        // the specified &#39;errorCode&#39; is 0.
+
+    template &lt;class T&gt;
+    static int getOption(T                    *result,
+                         SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option);
+        // Load into the specified &#39;result&#39; the value of the specified socket
+        // &#39;option&#39;, of the specified &#39;level&#39;, for the socket identified by the
+        // specified &#39;handle&#39;.  Return 0, with no effect on &#39;errorCode&#39;, on
+        // success and return a negative value otherwise.  The behavior is
+        // undefined if the specified &#39;result&#39; is 0.
+
+    template &lt;class T&gt;
+    static int getOption(T                    *result,
+                         SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option,
+                         int                  *errorCode);
+        // Load into the specified &#39;result&#39; the value of the specified socket
+        // &#39;option&#39;, of the specified &#39;level&#39;, for the socket identified by the
+        // specified &#39;handle&#39;.  Return 0, with no effect on &#39;errorCode&#39;, on
+        // success.  Otherwise return a negative value and load into the
+        // specified &#39;errorCode&#39; the native error code of the operation.  The
+        // behavior is undefined if the specified &#39;result&#39; is 0.
+
+    static int setSocketOptions(SocketHandle::Handle handle,
+                                const SocketOptions&amp; options);
+        // Set the specified socket &#39;options&#39; on the specified &#39;handle&#39;.
+        // Return 0 on success and a non-zero value otherwise.
+};
+
+// ============================================================================
+//                     INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // --------------------
+                        // struct SocketOptUtil
+                        // --------------------
+
+template &lt;class T&gt;
+inline int
+SocketOptUtil::setOption(SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option,
+                         const T&amp;              value,
+                         int                  *errorCode)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    if (0 == setsockopt(handle,
+                        level,
+                        option,
+                        reinterpret_cast&lt;char *&gt;(const_cast&lt;T *&gt;(&amp;value)),
+                        sizeof value)) {
+        return 0;                                                     // RETURN
+    }
+    else {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+#else
+    if (0 == setsockopt(handle,
+                        level,
+                        option,
+                        static_cast&lt;const void *&gt;(&amp;value),
+                        sizeof value)) {
+        return 0;                                                     // RETURN
+    }
+    else {
+        if (errorCode) {
+            *errorCode = errno;
+        }
+        return -1;                                                    // RETURN
+    }
+#endif
+}
+
+template &lt;class T&gt;
+inline int
+SocketOptUtil::getOption(T                    *result,
+                         SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option,
+                         int                  *errorCode)
+
+{
+#if defined (BSLS_PLATFORM_OS_AIX)     ||   \
+    defined (BSLS_PLATFORM_OS_LINUX)   ||   \
+    defined (BSLS_PLATFORM_OS_FREEBSD) ||   \
+    defined (BSLS_PLATFORM_OS_CYGWIN)  ||   \
+    defined (BSLS_PLATFORM_OS_DARWIN)  ||   \
+    defined (BSLS_PLATFORM_OS_SOLARIS)
+
+    socklen_t optsize;
+#else
+    int optsize;
+#endif
+
+    optsize = sizeof *result;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    if (0 == getsockopt(handle,
+                        level,
+                        option,
+                        static_cast&lt;char *&gt;(const_cast&lt;void *&gt;(
+                                            static_cast&lt;const void *&gt;(result))),
+                        &amp;optsize)) {
+        return 0;                                                     // RETURN
+    }
+    else {
+        if (errorCode) {
+            *errorCode = WSAGetLastError();
+        }
+        return -1;                                                    // RETURN
+    }
+#else
+    if (0 == getsockopt(handle,
+                        level,
+                        option,
+                        static_cast&lt;void *&gt;(result),
+                        &amp;optsize)) {
+        return 0;                                                     // RETURN
+    }
+    else {
+        if (errorCode) {
+            *errorCode = errno;
+        }
+        return -1;                                                    // RETURN
+    }
+#endif
+}
+
+template &lt;class T&gt;
+inline int
+SocketOptUtil::setOption(SocketHandle::Handle handle,
+                         int                  level,
+                         int                  option,
+                         const T&amp;             value)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return setsockopt(handle,
+                      level,
+                      option,
+                      (const char*)&amp;value,
+                      sizeof value );
+#else
+    return setsockopt(handle,
+                      level,
+                      option,
+                      (const void*)&amp;value,
+                      sizeof value );
+#endif
+}
+
+template &lt;class T&gt;
+inline int
+SocketOptUtil::getOption(T                    *result,
+                         SocketHandle::Handle  handle,
+                         int                   level,
+                         int                   option)
+{
+#if defined (BSLS_PLATFORM_OS_AIX)     ||    \
+    defined (BSLS_PLATFORM_OS_LINUX)   ||    \
+    defined (BSLS_PLATFORM_OS_FREEBSD) ||    \
+    defined (BSLS_PLATFORM_OS_CYGWIN)  ||    \
+    defined (BSLS_PLATFORM_OS_DARWIN)  ||    \
+    defined (BSLS_PLATFORM_OS_SOLARIS)
+
+    socklen_t optsize;
+#else
+    int optsize;
+#endif
+    optsize = sizeof *result;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return getsockopt(handle,
+                      level,
+                      option,
+                      reinterpret_cast&lt;char *&gt;(result),
+                      &amp;optsize);
+#else
+    return getsockopt(handle,
+                      level,
+                      option,
+                      static_cast&lt;void *&gt;(result),
+                      &amp;optsize);
+#endif
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

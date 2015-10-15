@@ -1,0 +1,57 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balb.txt
+
+@PURPOSE: Provide common application-level facilities.
+
+@MNEMONIC: Basic Application Environment Application services (balb)
+
+@SEE_ALSO: baem
+
+@DESCRIPTION: The &#39;balb&#39; package provides support for an assortment of common
+ application-level services (e.g., command-line processing).  In particular,
+ &#39;balb&#39; includes the following:
+
+: o A mechanism for monitoring and reporting the observable performance of a
+:   process.
+:
+: o Classes for (1) defining commands (as short strings), (2) passing these
+:   commands through a pipe-channel to a running process, and (3) registering
+:   callback functions to be invoked upon reception of such commands.
+:
+: o A multi-process performance reporting mechanism and a value-semantic type
+:   to represent metrics.  Note that the entire {&#39;baem&#39;} package is dedicated
+:   to metrics gathering.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balb&#39; package currently has 4 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. balb_controlmanager
+     balb_performancemonitor
+     balb_pipecontrolchannel
+     balb_testmessages
+..
+
+/Component Synopsis
+/------------------
+: &#39;balb_controlmanager&#39;:
+:      Provide a mechanism for mapping control messages to callbacks.
+:
+: &#39;balb_performancemonitor&#39;:
+:      Provide a mechanism to collect process performance measures.
+:
+: &#39;balb_pipecontrolchannel&#39;:
+:      Provide a mechanism for reading control messages from a named pipe.
+:
+: &#39;balb_testmessages&#39;:
+:      Provide value-semantic attribute classes
+</pre>
+</body>
+</html>

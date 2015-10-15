@@ -1,0 +1,179 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_streampublisher.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_STREAMPUBLISHER
+#define INCLUDED_BALM_STREAMPUBLISHER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a &#39;balm::Publisher&#39; implementation that writes to a stream.
+//
+//@CLASSES:
+//  balm::StreamPublisher: publishes collected metric samples to a stream
+//
+//@SEE_ALSO: balm_publisher, balm_metricrecord, balm_metricsmanager
+//
+//@DESCRIPTION: This component defines a concrete class
+// &#39;balm::StreamPublisher&#39; that implements the &#39;balm::Publisher&#39; protocol for
+// publishing metric records:
+//..
+//               ( balm::StreamPublisher )
+//                           |              ctor
+//                           |
+//                           V
+//                   ( balm::Publisher )
+//                                          dtor
+//                                          publish
+//..
+// This implementation of the publisher protocol publishes records to an output
+// stream that is supplied at construction.
+//
+///Usage
+///-----
+// In the following example we illustrate how to create and publish records
+// with a &#39;balm::StreamPublisher&#39;.  First we define a couple of metric ids.
+// Note that we create the &#39;balm::MetricId&#39; objects by hand, but in practice an
+// id should be obtained from a &#39;balm::MetricRegistry&#39; object (such as the one
+// owned by a &#39;balm::MetricsManager&#39;).
+//..
+//  balm::Category myCategory(&quot;MyCategory&quot;);
+//  balm::MetricDescription descA(&amp;myCategory, &quot;MetricA&quot;);
+//  balm::MetricDescription descB(&amp;myCategory, &quot;MetricB&quot;);
+//
+//  balm::MetricId metricA(&amp;descA);
+//  balm::MetricId metricB(&amp;descB);
+//..
+// Now we create a &#39;balm::StreamPublisher&#39; object, supplying it the &#39;stdout&#39;
+// stream:
+//..
+//  balm::StreamPublisher myPublisher(bsl::cout);
+//..
+// Next we create a metric sample containing some records and pass it to the
+// &#39;balm::StreamPublisher&#39; we created.  Note that because we are not actually
+// collecting the metrics we set the elapsed time of the sample to an
+// arbitrary 5s interval.
+//..
+//  bslma::Allocator *allocator = bslma::Default::allocator(0);
+//  bsl::vector&lt;balm::MetricRecord&gt; records(allocator);
+//
+//  records.push_back(balm::MetricRecord(metricA, 5, 25.0, 6.0, 25.0));
+//  records.push_back(balm::MetricRecord(metricB, 2,  7.0, 3.0, 11.0));
+//
+//  balm::MetricSample sample(allocator);
+//
+//  sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
+//  sample.appendGroup(records.data(), records.size(),
+//                     bsls::TimeInterval(5, 0));
+//
+//  myPublisher.publish(sample);
+//..
+// The output of this example would look similar to:
+//..
+// 05FEB2009_19:52:11.723+0000 2 Records
+//     Elapsed Time: 5s
+//         MyCategory.MetricA [ count = 5, total = 25, min = 6, max = 25 ]
+//         MyCategory.MetricB [ count = 2, total = 7, min = 3, max = 11 ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALM_PUBLISHER
+#include &lt;balm_publisher.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace balm {
+
+class MetricSample;
+
+                           // =====================
+                           // class StreamPublisher
+                           // =====================
+
+class StreamPublisher : public Publisher {
+    // This class provides an implementation of the &#39;Publisher&#39; protocol.
+    // This stream publisher publishes recorded metric values to an output
+    // stream specified at construction.
+
+    // DATA
+    bsl::ostream&amp; d_stream;   // stream to which to write data
+
+    // NOT IMPLEMENTED
+    StreamPublisher(const StreamPublisher&amp; );
+    StreamPublisher&amp; operator=(const StreamPublisher&amp; );
+
+  public:
+    // CREATORS
+    StreamPublisher(bsl::ostream&amp; stream);
+        // Create a streampublisher and initialize it to publish metrics to
+        // the specified &#39;stream&#39;.
+
+    virtual ~StreamPublisher();
+        // Destroy this stream publisher.
+
+    // MANIPULATORS
+    virtual void publish(const MetricSample&amp; metricValues);
+        // Publish the specified &#39;metricValues&#39; to the output stream specified
+        // at construction.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ---------------------
+                           // class StreamPublisher
+                           // ---------------------
+
+// CREATORS
+inline
+StreamPublisher::StreamPublisher(bsl::ostream&amp; stream)
+: d_stream(stream)
+{
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

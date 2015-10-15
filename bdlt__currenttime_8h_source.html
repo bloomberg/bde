@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bdlt_currenttime.h                                                 -*-C++-*-
@@ -147,6 +147,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bdlt_datetime.h&gt;
 #endif
 
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
 #ifndef INCLUDED_BDLT_EPOCHUTIL
 #include &lt;bdlt_epochutil.h&gt;
 #endif
@@ -213,6 +217,9 @@ struct CurrentTime {
         // Return the &#39;Datetime&#39; value representing the current date/time in
         // Coordinated Universal Time (UTC) as provided by the installed
         // callback function.
+
+    static DatetimeTz asDatetimeTz();
+        // Return the &#39;DatetimeTz&#39; value representing the current time.
 
                         // ** callback functions **
 

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bsls::TimeInterval</title>
+<title>BDE 3.0: Class bsls::TimeInterval</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -119,8 +119,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1TimeInterval.html#a649cad30ff67b82ca51f650254218ece">totalSecondsAsDouble</a> () const </td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsls_1_1TimeInterval.html#a1784cbd033bfd32cd8856d5ec0874eed">bdexStreamOut</a> (STREAM &amp;stream, int version) const </td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classbsls_1_1TimeInterval.html#a4f76fce3eea53f8efaa45179d1e530f4">print</a> (STREAM &amp;stream, int level=0, int spacesPerLevel=4) const </td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">native_std::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1TimeInterval.html#a2205e84d0bdee06bffb6c7a526035c0f">print</a> (native_std::ostream &amp;stream, int level=0, int spacesPerLevel=4) const </td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbsls_1_1TimeInterval.html#ace251427848689c83d8bbf69d683a347">isValid</a> (<a class="el" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> seconds, int nanoseconds)</td></tr>
@@ -733,6 +732,8 @@ template&lt;class STREAM &gt; </div>
 <div class="memdoc">
 <p>Return the nanoseconds field in the canonical representation of the value of this time interval. </p>
 
+<p>Referenced by <a class="el" href="classbtlso_1_1InetStreamSocket.html#aff89e88e24f5699423e1deb0f3801fa8">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForConnect()</a>, and <a class="el" href="classbtlso_1_1InetStreamSocket.html#a7181910a2b326f204730d9b251be308d">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForIO()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="aff5c7e04f8c57985059393dc5e1ed638"></a><!-- doxytag: member="bsls::TimeInterval::seconds" ref="aff5c7e04f8c57985059393dc5e1ed638" args="() const " -->
@@ -750,6 +751,8 @@ template&lt;class STREAM &gt; </div>
 </div>
 <div class="memdoc">
 <p>Return the seconds field in the canonical representation of the value of this time interval. </p>
+
+<p>Referenced by <a class="el" href="classbtlso_1_1InetStreamSocket.html#aff89e88e24f5699423e1deb0f3801fa8">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForConnect()</a>, and <a class="el" href="classbtlso_1_1InetStreamSocket.html#a7181910a2b326f204730d9b251be308d">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForIO()</a>.</p>
 
 </div>
 </div>
@@ -927,16 +930,14 @@ template&lt;class STREAM &gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a4f76fce3eea53f8efaa45179d1e530f4"></a><!-- doxytag: member="bsls::TimeInterval::print" ref="a4f76fce3eea53f8efaa45179d1e530f4" args="(STREAM &amp;stream, int level=0, int spacesPerLevel=4) const " -->
+<a class="anchor" id="a2205e84d0bdee06bffb6c7a526035c0f"></a><!-- doxytag: member="bsls::TimeInterval::print" ref="a2205e84d0bdee06bffb6c7a526035c0f" args="(native_std::ostream &amp;stream, int level=0, int spacesPerLevel=4) const " -->
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;class STREAM &gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">STREAM&amp; bsls::TimeInterval::print </td>
+          <td class="memname">native_std::ostream&amp; bsls::TimeInterval::print </td>
           <td>(</td>
-          <td class="paramtype">STREAM &amp;&nbsp;</td>
+          <td class="paramtype">native_std::ostream &amp;&nbsp;</td>
           <td class="paramname"> <em>stream</em>, </td>
         </tr>
         <tr>
@@ -967,7 +968,7 @@ template&lt;class STREAM &gt; </div>
 <li><a class="el" href="bsls__timeinterval_8h_source.html">bsls_timeinterval.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:44 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:11 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

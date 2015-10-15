@@ -1,0 +1,452 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlsos_tcptimedconnector.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSOS_TCPTIMEDCONNECTOR
+#define INCLUDED_BTLSOS_TCPTIMEDCONNECTOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a synchronous connector (with timeout) to TCP servers.
+//
+//@CLASSES:
+//  btlsos::TcpTimedConnector: blocking &#39;btesc&#39;-style timed channel allocator.
+//
+//@SEE_ALSO: btlsos_tcptimedacceptor btlsos_tcptimedchannel
+//
+//@DESCRIPTION: This component provides a synchronous connector to TCP-based
+// servers, &#39;btlsos::TcpTimedConnector&#39;, that adheres to
+// &#39;btlsc::TimedChannelAllocator&#39; protocol.  Both timed and non-timed
+// (synchronous) channels can be allocated in a timed and non-timed fashion as
+// indicated by the following table:
+//..
+//       +=============================================================+
+//       |  Result/Operation |        Timed         |    Non-Timed     |
+//       +-------------------------------------------------------------+
+//       |      Timed        | &#39;timedAllocateTimed&#39; | &#39;allocateTimed&#39;  |
+//       +-------------------------------------------------------------+
+//       |    Non-Timed      |    &#39;timedAllocate&#39;   |    &#39;allocate&#39;    |
+//       +=============================================================+
+//..
+// The connector has the flexibility of changing the address of the peer server
+// at run-time (and producing channels connected to this end-point) without any
+// effects on the state of managed channels.
+//
+///Thread Safety
+///-------------
+// The connector is *thread safe*, meaning that any operation can be called on
+// *distinct instances* from different threads without any side-effect (which,
+// generally speaking, means that there is no &#39;static&#39; data), but not *thread
+// enabled* (i.e., two threads cannot safely call methods on the *same
+// instance* without external synchronization).  Connector is not *async-safe*,
+// meaning that one or more functions cannot be invoked safely from a signal
+// handler.
+//
+///Performance
+///-----------
+// Connector is optimized for operations with the timeout.  Non-timed
+// operations will have worse performance than their respective counterparts in
+// the non-timed version of the connector (i.e., &#39;btlsos_tcpconnector&#39;).  If
+// timed allocations are not required, &#39;btlsos::TcpConnector&#39; should be used
+// instead.
+//
+///Usage
+///-----
+// The following usage example shows a possible implementation of an echo
+// client (see &#39;btlsos_tcptimedacceptor&#39; for an echo server).  An echo server
+// accepts a connection and sends any received data back to the client (until
+// the connection is terminated).  The echo client demonstrated in this usage
+// example creates a packet with a pre-determined data pattern, sends it to the
+// server, waits for a response and then verifies that the received data is the
+// same (as was send).  The operation will be repeated for a certain number of
+// packets and then exit.  Without going into details of a pattern, let&#39;s
+// suppose that there is a function that generates the pattern into a buffer:
+//..
+//  void generatePattern(char *buffer, int length)
+//      // Load into the specified &#39;buffer&#39; a generated data pattern of the
+//      // specified &#39;length&#39;.
+//  {
+//      if (buffer) {
+//          #ifdef BSLS_PLATFORM_OS_UNIX
+//              snprintf(buffer, length, &quot;%d&quot;, length);
+//          #else
+//              _snprintf(buffer, length, &quot;%d&quot;, length);
+//          #endif
+//      }
+//      return;
+//  }
+//..
+// First, create a concrete socket factory that is used to manage stream
+// sockets:
+//..
+//  btlso::InetStreamSocketFactory&lt;btlso::IPv4Address&gt; factory;
+//..
+// Second, define configuration parameters for the connector:
+//..
+//  enum { k_ECHO_PORT = 1888 };
+//  enum {
+//      k_NUM_PACKETS =  5,
+//      k_PACKET_SIZE = 10
+//  }; // TCP/IP over Ethernet
+//
+//  const char *SERVER_IP = &quot;127.0.0.1&quot;;  // assume local host
+//  btlso::IPv4Address serverAddress(SERVER_IP, k_ECHO_PORT);
+//
+//  bsls::TimeInterval connectTimeout(120, 0);  // 2 minutes
+//..
+// Now, create a connector and set the configuration parameters:
+//..
+//  btlsos::TcpTimedConnector connector(&amp;factory);  // Use default allocator
+//  assert(0 == connector.isInvalid());
+//  connector.setPeer(serverAddress);
+//  assert(0 == connector.isInvalid());  // &#39;serverAddress&#39; is valid
+//..
+// Set communication parameters for the channel:
+//..
+//  bsls::TimeInterval readTimeout(1.0);    // 1 second
+//  bsls::TimeInterval writeTimeout(30.0);  // 30 seconds
+//..
+// Prepare the &quot;input&quot; packet that will be sent on every iteration, and save it
+// as a &quot;control&quot; packet:
+//..
+//  char controlPacket[k_PACKET_SIZE];
+//  char inputPacket[k_PACKET_SIZE];
+//  generatePattern(inputPacket, k_PACKET_SIZE);
+//  memcpy(controlPacket, inputPacket, k_PACKET_SIZE);
+//..
+// Establish a connection with the echo server:
+//..
+//  int status;
+//  btlsc::TimedChannel *channel =
+//                  connector.timedAllocateTimed(
+//                                  &amp;status,
+//                                  bdlt::CurrentTime::now() + connectTimeout);
+//  if (!channel) {
+//      assert(0 &gt;= status);  // Asynchronous interrupts are *not* enabled.
+//      if (status) {
+//          bsl::cout &lt;&lt; &quot;Failed to connect to the peer.&quot;
+//                    &lt;&lt; bsl::endl;
+//      }
+//      else {
+//          bsl::cout &lt;&lt; &quot;Connection attempt has timed out.&quot;
+//                    &lt;&lt; bsl::endl;
+//      }
+//      // In any case, invalidate the allocator, and exit.
+//      connector.invalidate();
+//      return -1;                                                    // RETURN
+//  }
+//..
+// Send &#39;k_NUM_PACKETS&#39; packets to the server, wait for the response for each,
+// and verify that the received packet is correct:
+//..
+//  assert(0 == channel-&gt;isInvalid());
+//  char receivedPacket[k_PACKET_SIZE];
+//  for (int i = 0; i &lt; k_NUM_PACKETS; ++i) {
+//      // Request/response mechanism
+//      int writeStatus = channel-&gt;timedWrite(
+//                                    inputPacket,
+//                                    k_PACKET_SIZE,
+//                                    bdlt::CurrentTime::now() + writeTimeout);
+//      if (k_PACKET_SIZE != writeStatus) {
+//          bsl::cout &lt;&lt; &quot;Failed to send data.&quot; &lt;&lt; bsl::endl;
+//          break;
+//      }
+//      int readStatus = channel-&gt;timedRead(
+//                                     receivedPacket,
+//                                     k_PACKET_SIZE,
+//                                     bdlt::CurrentTime::now() + readTimeout);
+//      if (k_PACKET_SIZE != readStatus) {
+//          cout &lt;&lt; &quot;Failed to read data&quot; &lt;&lt; bsl::endl;
+//          break;
+//      }
+//      assert(0 == memcmp(receivedPacket,
+//                         controlPacket,
+//                         k_PACKET_SIZE));
+//  }
+//
+//  // Perform proper shut down procedure
+//  channel-&gt;invalidate();
+//  connector.deallocate(channel);
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_IPV4ADDRESS
+#include &lt;btlso_ipv4address.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSC_TIMEDCHANNELALLOCATOR
+#include &lt;btlsc_timedchannelallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_POOL
+#include &lt;bdlma_pool.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace btlsc { class TimedChannel; }
+namespace btlsc { class Channel; }
+namespace btlso { template&lt;class ADDRESS&gt; class StreamSocketFactory; }
+namespace btlso { template&lt;class ADDRESS&gt; class StreamSocket; }
+namespace btlsos {
+
+                         // =======================
+                         // class TcpTimedConnector
+                         // =======================
+
+class TcpTimedConnector : public btlsc::TimedChannelAllocator {
+    // This class implements a &#39;btesc&#39;-style timed channel allocator for
+    // client-side (i.e., &quot;connected&quot;) sockets.  The allocations can be timed
+    // or not-timed and produce either timed or non-timed channels.  The return
+    // status for any operation mandated by &#39;btlsc::TimedChannelAllocator&#39;
+    // protocol is negative for a failure, 0 on timeout, and positive for a
+    // (restartable) interrupt on an underlying system call.  This connector
+    // provides the ability to change the end-points at run-time without any
+    // effect on the state of any channels currently managed by this connector.
+
+    bdlma::Pool                                    d_pool;
+        // memory pool for channels
+
+    bsl::vector&lt;btlsc::Channel*&gt;                   d_channels;
+        // managed channels
+
+    btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *d_factory_p;
+        // factory used to supply sockets
+
+    btlso::IPv4Address                             d_peerAddress;
+        // current address of the server
+
+    int                                           d_isInvalidFlag;
+        // a flag to be set if this acceptor is invalid
+
+  private:
+    // Not implemented:
+    TcpTimedConnector(const TcpTimedConnector&amp;);
+    TcpTimedConnector&amp; operator=(const TcpTimedConnector&amp;);
+
+  public:
+    // CREATORS
+    TcpTimedConnector(
+           btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *factory,
+           bslma::Allocator                               *basicAllocator = 0);
+        // Create a timed connector that uses the specified &#39;factory&#39; to create
+        // stream sockets.  Optionally specify a &#39;basicAllocator&#39; used to
+        // supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed
+        // default allocator is used.  The behavior is undefined if &#39;factory&#39;
+        // is 0.  Note that connector is created NOT in an invalid state (as
+        // reported by &#39;isInvalid&#39; method), though subsequent allocations will
+        // *fail* until the peer address is specified (using &#39;setPeer&#39;).
+
+    TcpTimedConnector(
+           btlso::StreamSocketFactory&lt;btlso::IPv4Address&gt; *factory,
+           int                                             numElements,
+           bslma::Allocator                               *basicAllocator = 0);
+        // Create a timed connector that uses the specified &#39;factory&#39; to create
+        // stream sockets with enough internal capacity to accommodate up to
+        // the specified &#39;numElements&#39; channels without reallocation.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined if &#39;factory&#39; is 0 or
+        // &#39;0 &gt;= numElements&#39;.  Note that connector is created NOT in an
+        // invalid state (as reported by the &#39;isInvalid&#39; method), though
+        // subsequent allocations will *fail* until the peer is specified
+        // (using &#39;setPeer&#39;).
+
+    ~TcpTimedConnector();
+        // Destroy this connector.  The behavior is undefined if there are any
+        // channels being managed.
+
+    // MANIPULATORS
+    btlsc::Channel *allocate(int *status, int flags = 0);
+        // Allocate a stream-based channel.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a channel on success, and
+        // 0 otherwise.  On an unsuccessful allocation, load the specified
+        // &#39;status&#39; with a positive value if an asynchronous event interrupted
+        // the allocation, and a negative value (indicating an error)
+        // otherwise; &#39;status&#39; is not modified on success.  A non-null channel
+        // address will remain valid until deallocated explicitly (see
+        // &#39;deallocate&#39;).  An allocation that fails with a positive status is
+        // likely to succeed if retried.  An allocation error does not
+        // *necessarily* invalidate this allocator, and so subsequent
+        // allocations *may* succeed.  Use the &#39;isInvalid&#39; method for more
+        // information on the state of this allocator.  Note -2 is loaded into
+        // &#39;status&#39; if the peer is not set (see &#39;setPeer&#39;).
+
+    btlsc::TimedChannel *allocateTimed(int *status, int flags = 0);
+        // Allocate a stream-based timed channel.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a timed channel on
+        // success, and 0 otherwise.  On an unsuccessful allocation, load the
+        // specified &#39;status&#39; with a positive value if an asynchronous event
+        // interrupted the allocation, and a negative value (indicating an
+        // error) otherwise; &#39;status&#39; is not modified on success.  A non-null
+        // channel address will remain valid until deallocated explicitly (see
+        // &#39;deallocate&#39;).  An allocation that fails with a positive status is
+        // likely to succeed if retried.  An allocation error does not
+        // *necessarily* invalidate this allocator, and so subsequent
+        // allocations *may* succeed.  Use the &#39;isInvalid&#39; method for more
+        // information on the state of this allocator.  Note -2 is loaded into
+        // &#39;status&#39; if the peer is not set (see &#39;setPeer&#39;).
+
+    void deallocate(btlsc::Channel *channel);
+        // Reclaim all afforded services for the specified &#39;channel&#39;.  The
+        // behavior is undefined unless &#39;channel&#39; is currently allocated from
+        // this allocator, (i.e., was previously obtained from this instance
+        // and has not subsequently been deallocated).
+
+    void invalidate();
+        // Place this allocator in a permanently invalid state.  No subsequent
+        // allocations will succeed.  Note that invalidating the allocator has
+        // no effect on the state of any channel managed by it.
+
+    void setPeer(const btlso::IPv4Address&amp; endpoint);
+        // Set the address of the peer server with which this connector is
+        // associated to the specified &#39;endpoint&#39;.
+
+    btlsc::Channel *timedAllocate(int                       *status,
+                                  const bsls::TimeInterval&amp;  timeout,
+                                  int                        flags = 0);
+        // Allocate a stream-based channel or interrupt after the specified
+        // absolute &#39;timeout&#39; time is reached.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Return the address of a channel on success, and
+        // 0 otherwise.  On an unsuccessful allocation, load the specified
+        // &#39;status&#39; with 0 if &#39;timeout&#39; interrupted this operation, a positive
+        // value if the interruption was due to an asynchronous event, and a
+        // negative value (indicating an error) otherwise; &#39;status&#39; is not
+        // modified on success.  A non-null channel address will remain valid
+        // until deallocated explicitly (see &#39;deallocate&#39;).  An allocation that
+        // fails with a non-negative status is likely to succeed if retried.
+        // An allocation error does not *necessarily* invalidate this
+        // allocator, and so subsequent allocations *may* succeed.  Use the
+        // &#39;isInvalid&#39; method for more information on the state of this
+        // allocator.  Note that if the &#39;timeout&#39; value has already passed, the
+        // allocation will still be attempted, but the attempt will not block.
+        // Note that -2 is loaded into &#39;status&#39; if the peer is not set (see
+        // &#39;setPeer&#39;).
+
+    btlsc::TimedChannel *timedAllocateTimed(
+                                         int                       *status,
+                                         const bsls::TimeInterval&amp;  timeout,
+                                         int                        flags = 0);
+        // Allocate a stream-based timed channel or interrupt after the
+        // specified absolute &#39;timeout&#39; time is reached.  If the optionally
+        // specified &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Return the address of a timed
+        // channel on success, and 0 otherwise.  On an unsuccessful allocation,
+        // load the specified &#39;status&#39; with 0 if &#39;timeout&#39; interrupted this
+        // operation, a positive value if the interruption was due to an
+        // asynchronous event, and a negative value (indicating an error)
+        // otherwise; &#39;status&#39; is not modified on success.  A non-null channel
+        // address will remain valid until deallocated explicitly (see
+        // &#39;deallocate&#39;).  An allocation that fails with a non-negative status
+        // is likely to succeed if retried.  An allocation error does not
+        // *necessarily* invalidate this allocator, and so subsequent
+        // allocations *may* succeed.  Use the &#39;isInvalid&#39; method for more
+        // information on the state of this allocator.  Note that if the
+        // &#39;timeout&#39; value has already passed, the allocation will still be
+        // attempted, but the attempt will not block.  Note that -2 is loaded
+        // into &#39;status&#39; if the peer is not set (see &#39;setPeer&#39;).
+
+    // ACCESSORS
+    const btlso::IPv4Address&amp; peer() const;
+        // Return the (fully qualified) address of the peer server associated
+        // with this connector, or an invalid address of (ANY_ADDRESS,
+        // ANY_PORT) if no such server exists (see &#39;bteso::IPv4address&#39;).
+
+    int isInvalid() const;
+        // Return a non-zero value if this channel allocator is *permanently*
+        // invalid (i.e., no subsequent allocation requests will succeed), and
+        // 0 otherwise.
+
+    int numChannels() const;
+        // Return the number of channels currently allocated from this
+        // connector.
+
+};
+
+// ----------------------------------------------------------------------------
+//                             INLINE DEFINITIONS
+// ----------------------------------------------------------------------------
+
+inline
+void TcpTimedConnector::setPeer(const btlso::IPv4Address&amp; endpoint)
+{
+    d_peerAddress = endpoint;
+}
+
+inline
+void TcpTimedConnector::invalidate()
+{
+    d_isInvalidFlag = 1;
+}
+
+inline
+const btlso::IPv4Address&amp; TcpTimedConnector::peer() const
+{
+    return d_peerAddress;
+}
+
+inline
+int TcpTimedConnector::numChannels() const
+{
+    return static_cast&lt;int&gt;(d_channels.size());
+}
+
+inline
+int TcpTimedConnector::isInvalid() const
+{
+    return d_isInvalidFlag;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

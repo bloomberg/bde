@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_assert Component</title>
+<title>BDE 3.0: bsls_assert Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -109,21 +109,21 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.6">Conditional Compilation: <code>BDE_BUILD_TARGET_SAFE_2</code> and Assertion Predicates</a> </li>
 <li>
-<a href="#4.7">Usage Examples</a> <ul>
+<a href="#4.7">Usage</a> <ul>
 <li>
-<a href="#4.7.1">1. Using <code>BSLS_ASSERT</code>, <code>BSLS_ASSERT_SAFE</code>, and <code>BSLS_ASSERT_OPT</code></a> </li>
+<a href="#4.7.1">Example 1: Using <code>BSLS_ASSERT</code>, <code>BSLS_ASSERT_SAFE</code>, and <code>BSLS_ASSERT_OPT</code></a> </li>
 <li>
-<a href="#4.7.2">2. When and How to Call the <code>invokeHandler</code> Method Directly</a> </li>
+<a href="#4.7.2">Example 2: When and How to Call the <code>invokeHandler</code> Method Directly</a> </li>
 <li>
-<a href="#4.7.3">3. Runtime Configuration of the <code>bsls::Assert</code> Facility</a> </li>
+<a href="#4.7.3">Example 3: Runtime Configuration of the <code>bsls::Assert</code> Facility</a> </li>
 <li>
-<a href="#4.7.4">4. Creating a Custom Assertion Handler</a> </li>
+<a href="#4.7.4">Example 4: Creating a Custom Assertion Handler</a> </li>
 <li>
-<a href="#4.7.5">5. Using the <code>bsls::AssertFailureHandlerGuard</code></a> </li>
+<a href="#4.7.5">Example 5: Using the <code>bsls::AssertFailureHandlerGuard</code></a> </li>
 <li>
-<a href="#4.7.6">6. Using (BSLS) "ASSERT" Macros in Conjunction w/ <code>BDE_BUILD_TARGET_SAFE_2</code></a> </li>
+<a href="#4.7.6">Example 6: Using (BSLS) "ASSERT" Macros Along With <code>BDE_BUILD_TARGET_SAFE_2</code></a> </li>
 <li>
-<a href="#4.7.7">7. Conditional Compilation Associated with Enabled Assertion Levels</a> </li>
+<a href="#4.7.7">Example 7: Conditional Compilation Associated with Enabled Assertion Levels</a> </li>
 </ul>
 </li>
 </ul>
@@ -171,8 +171,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="assertion_semantics"></a> <a class="anchor" id="description.assertion_semantics"></a> <a class="anchor" id="4.2"></a> </dd></dl>
 <dl class="user"><dt><b>Assertion Semantics: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There are three important aspects of assertions: (1) <b>Every</b> <b>assertion</b> <b>is</b> <b>redundant</b>; it is essential that if all assertions are compiled out of a program that is defect-free, apart from improved runtime performance, the program behaves identically. Hence, (2) <b>each</b> <b>boolean-valued</b> <b>assert</b> <b>argument</b> <b>must</b> <b>have</b> <b>no</b> <b>side-effects</b>. Finally, (3) <b>assertions</b> <b>do</b> <b>not</b> <b>affect</b> <b>binary</b> <b>compatibility</b>; hence, translation units with different assertion levels (but not necessarily build targets) can safely be combined into a single program (see "Build Modes" and "Assertions in Header
- Files" below). Note that the build target <code>BDE_BUILD_TARGET_SAFE_2</code> does permit binary incompatibility for conditionally compiled source code, but there is no corresponding <code>BSLS_ASSERT_SAFE_2</code> assertion macro (see "Usage
- Examples" below). </dd></dl>
+ Files" below). Note that the build target <code>BDE_BUILD_TARGET_SAFE_2</code> does permit binary incompatibility for conditionally compiled source code, but there is no corresponding <code>BSLS_ASSERT_SAFE_2</code> assertion macro (see <a href="group__bsls__assert.html#usage" class="el">Usage</a> below). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="detailed_behavior"></a> <a class="anchor" id="assertion_semantics.detailed_behavior"></a> <a class="anchor" id="description.assertion_semantics.detailed_behavior"></a> <a class="anchor" id="4.2.1"></a> </dd></dl>
 <dl class="user"><dt><b>Detailed Behavior: </b></dt><dd></dd></dl>
@@ -207,7 +206,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">        (BDE) Build Targets
       -----------------------
-  (A) BDE_BUILD_TARGET_SAFE_2
+  (<a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>) BDE_BUILD_TARGET_SAFE_2
   (B) BDE_BUILD_TARGET_SAFE
   (C) BDE_BUILD_TARGET_OPT
 </pre></div><br/>
@@ -274,12 +273,12 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="runtime-configurable_assertion-failure_behavior"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior"></a> <a class="anchor" id="4.4"></a> </dd></dl>
 <dl class="user"><dt><b>Runtime-Configurable Assertion-Failure Behavior: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In addition to the three (BSLS) "ASSERT" macros, <code>BSLS_ASSERT</code>, <code>BSLS_ASSERT_SAFE</code>, and <code>BSLS_ASSERT_OPT</code>, this component provides (1) an <code>invokeHandler</code> method used (primarily) to implement these three "ASSERT" macros and enable their runtime configuration, (2) administration methods to configure, at runtime, the behavior resulting from an assertion failure (i.e., by installing an appropriate assertion-failure handler function), and (3) a suite of standard ("off-the-shelf") assertion-failure handler functions, to be installed via the administrative methods (if desired), and invoked by the <code>invokeHandler</code> method on an assertion failure. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>When an assertion fails, the currently installed <em>failure</em> <em>handler</em> ("callback") function is invoked. The default handler is the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code> method; a user may replace this default handler by using the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a858135de85382a93ab42d8ef24b114cb">bsls::Assert::setFailureHandler</a></code> administrative method and passing it (the address of) a function whose signature conforms to the <code><a class="el" href="classbsls_1_1Assert.html#af88d17790bace0f850ae6f48faf63b02">bsls::Assert::Handler</a></code> <code>typedef</code>. This handler may be one of the other handler methods provided in <code><a class="el" href="classbsls_1_1Assert.html">bsls::Assert</a></code>, or a new "custom" function, written by the user (see "Usage Examples" below). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>When an assertion fails, the currently installed <em>failure</em> <em>handler</em> ("callback") function is invoked. The default handler is the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code> method; a user may replace this default handler by using the (<code>static</code>) <code><a class="el" href="classbsls_1_1Assert.html#a858135de85382a93ab42d8ef24b114cb">bsls::Assert::setFailureHandler</a></code> administrative method and passing it (the address of) a function whose signature conforms to the <code><a class="el" href="classbsls_1_1Assert.html#af88d17790bace0f850ae6f48faf63b02">bsls::Assert::Handler</a></code> <code>typedef</code>. This handler may be one of the other handler methods provided in <code><a class="el" href="classbsls_1_1Assert.html">bsls::Assert</a></code>, or a new "custom" function, written by the user (see <a href="group__bsls__assert.html#usage" class="el">Usage</a> below). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="description.runtime-configurable_assertion-failure_behavior.exception-throwing_failure_handlers_and_bsls"></a> <a class="anchor" id="4.4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Exception-Throwing Failure Handlers and bsls::AssertFailureHandlerGuard: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Among the failure handlers provided is <code><a class="el" href="classbsls_1_1Assert.html#af7b3b9be1016c988537502f0b0a4e658">bsls::Assert::failThrow</a></code>, which throws an <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code> object. Throwing an exception, however, is not safe in all environments and deliberately aborting is more useful in a debugging context than throwing an unhandled exception. Hence, in order for an <code><a class="el" href="classbsls_1_1AssertTestException.html">bsls::AssertTestException</a></code> object to be thrown on an assertion failure, the user must first install the <code><a class="el" href="classbsls_1_1Assert.html#af7b3b9be1016c988537502f0b0a4e658">bsls::Assert::failThrow</a></code> handler (or another exception-throwing handler) explicitly. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Note that an object of type <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> can be used to temporarily set an exception-throwing handler within a <code>try</code> block, automatically restoring the previous handler when the <code>try</code> block exits (see "Usage Examples" below). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Note that an object of type <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> can be used to temporarily set an exception-throwing handler within a <code>try</code> block, automatically restoring the previous handler when the <code>try</code> block exits (see <a href="group__bsls__assert.html#usage" class="el">Usage</a> below). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="assertions_in_header_files_(mixing_build_options_across_translation_units)"></a> <a class="anchor" id="description.assertions_in_header_files_(mixing_build_options_across_translation_units)"></a> <a class="anchor" id="4.5"></a> </dd></dl>
 <dl class="user"><dt><b>Assertions in Header Files (Mixing Build Options Across Translation Units): </b></dt><dd></dd></dl>
@@ -394,14 +393,14 @@ that are derived from the various combinations of the external inputs, and indic
 <span class="preprocessor">  #endif</span>
 </pre></div><br/>
 <br/>
- See "Usage Examples" 6 &amp; 7, respectively, for how <code>BDE_BUILD_TARGET_SAFE_2</code> and intermediate assertion predicate macros, such as <code>BSLS_ASSERT_SAFE_IS_ACTIVE</code> (and even <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>), can be used profitably in practice. </dd></dl>
+ See <a href="group__bsls__assert.html#example_6" class="el">Example 6</a> and {Example 7}, respectively, for how <code>BDE_BUILD_TARGET_SAFE_2</code> and intermediate assertion predicate macros, such as <code>BSLS_ASSERT_SAFE_IS_ACTIVE</code> (and even <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>), can be used profitably in practice. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_examples"></a> <a class="anchor" id="description.usage_examples"></a> <a class="anchor" id="4.7"></a> </dd></dl>
-<dl class="user"><dt><b>Usage Examples: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.7"></a> </dd></dl>
+<dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following examples illustrate (1) when to use each of the three kinds of (BSLS) "ASSERT" macros, (2) when and how to call the <code>invokeHandler</code> method directly, (3) how to configure, at runtime, the behavior resulting from an assertion failure using "off-the-shelf" handler methods, (4) how to create your own custom assertion-failure handler function, (5) proper use of <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> to install, temporarily, an exception-producing assert handler, (6) how "ASSERT" macros would be used in conjunction with portions of the source code (affecting binary compatibility) that are incorporated only when <code>BDE_BUILD_TARGET_SAFE_2</code> is defined, and (7) how assertion predicates (e.g., <code>BSLS_ASSERT_SAFE_IS_ACTIVE</code>) are used to conditionally compile additional (redundant) defensive source code (not affecting binary compatibility) precisely when the corresponding (BSLS) "ASSERT" macro (e.g., <code>BSLS_ASSERT_SAFE</code>) is active. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="1._using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="usage_examples.1._using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="description.usage_examples.1._using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="4.7.1"></a> </dd></dl>
-<dl class="user"><dt><b>1. Using BSLS_ASSERT, BSLS_ASSERT_SAFE, and BSLS_ASSERT_OPT: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="usage.example_1~3A_using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="description.usage.example_1~3A_using_bsls_assert,_bsls_assert_safe,_and_bsls_assert_opt"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="4.7.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Using BSLS_ASSERT, BSLS_ASSERT_SAFE, and BSLS_ASSERT_OPT: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This component provides three different variants of (BSLS) "ASSERT" macros. This first usage example illustrates how one might select each of the particular variants, based on the runtime cost of the defensive check relative to that of the useful work being done. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Use of the <code>BSLS_ASSERT_SAFE</code> macro is often appropriate when the defensive check occurs within the body of an <code>inline</code> function. The <code>BSLS_ASSERT_SAFE</code> macro minimizes the impact on runtime performance as it is instantiated only when requested (i.e., by building in "safe mode"). For example, consider a light-weight point class <code>Kpoint</code> that maintains <code>x</code> and <code>y</code> coordinates in the range <code>[ -1000 .. 1000 ]</code>: <br/>
 <br/>
@@ -446,7 +445,7 @@ that are derived from the various combinations of the external inputs, and indic
     <span class="keyword">public</span>:
       <span class="comment">// ...</span>
 
-      <span class="keywordtype">void</span> resize(<span class="keywordtype">double</span> loadFactor);
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">resize</a>(<span class="keywordtype">double</span> loadFactor);
           <span class="comment">// Adjust the size of the underlying hash table to be</span>
           <span class="comment">// approximately the current number of elements divided</span>
           <span class="comment">// by the specified &#39;loadFactor&#39;.  The behavior is undefined</span>
@@ -459,7 +458,7 @@ that are derived from the various combinations of the external inputs, and indic
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_hashtable.cpp</span>
   <span class="comment">// ...</span>
 
-  <span class="keywordtype">void</span> HashTable::resize(<span class="keywordtype">double</span> loadFactor)
+  <span class="keywordtype">void</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">HashTable::resize</a>(<span class="keywordtype">double</span> loadFactor)
   {
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(0 &lt; loadFactor);
 
@@ -504,8 +503,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  Notice that in each case, the choice of which of the three (BSLS) "ASSERT" macros to use is governed primarily by the relative runtime cost compared with that of the useful work being done (and only secondarily by the potential consequences of continuing execution in an undefined state). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="2._when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="usage_examples.2._when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="description.usage_examples.2._when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="4.7.2"></a> </dd></dl>
-<dl class="user"><dt><b>2. When and How to Call the invokeHandler Method Directly: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="usage.example_2~3A_when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="description.usage.example_2~3A_when_and_how_to_call_the_invokehandler_method_directly"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="4.7.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: When and How to Call the invokeHandler Method Directly: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>There <em>may</em> be times (but this is yet to be demonstrated) when we might reasonably choose to invoke the currently installed assertion-failure handler directly -- i.e., instead of via one of the three (BSLS) "ASSERT" macros provided in this component. Suppose that we are currently in the body of some function <code>someFunc</code> and, for whatever reason, feel compelled to invoke the currently installed assertion-failure handler based on some criteria other than the current build mode. The call might look as follows: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> someFunc(<span class="keywordtype">bool</span> a, <span class="keywordtype">bool</span> b, <span class="keywordtype">bool</span> c)
@@ -526,8 +525,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="description.usage_examples.3._runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="usage_examples.3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="description.usage_examples.3._runtime_configuration_of_the_bsls"></a> <a class="anchor" id="4.7.3"></a> </dd></dl>
-<dl class="user"><dt><b>3. Runtime Configuration of the bsls::Assert Facility: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="usage.example_3~3A_runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="description.usage.example_3~3A_runtime_configuration_of_the_bsls~3A~3Aassert_facility"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="4.7.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Runtime Configuration of the bsls::Assert Facility: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>By default, any assertion failure will result in the invocation of the <code><a class="el" href="classbsls_1_1Assert.html#a330f1589f484ad67d234454c1bc53966">bsls::Assert::failAbort</a></code> handler function. We can replace this behavior with that of one of the other static failure handler methods supplied in <code><a class="el" href="classbsls_1_1Assert.html">bsls::Assert</a></code> as follows. Let's assume we are at the top of our application called <code>myMain</code> (which would typically be <code>main</code>): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> myMain()
@@ -572,8 +571,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="4._creating_a_custom_assertion_handler"></a> <a class="anchor" id="usage_examples.4._creating_a_custom_assertion_handler"></a> <a class="anchor" id="description.usage_examples.4._creating_a_custom_assertion_handler"></a> <a class="anchor" id="4.7.4"></a> </dd></dl>
-<dl class="user"><dt><b>4. Creating a Custom Assertion Handler: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_4~3A_creating_a_custom_assertion_handler"></a> <a class="anchor" id="usage.example_4~3A_creating_a_custom_assertion_handler"></a> <a class="anchor" id="description.usage.example_4~3A_creating_a_custom_assertion_handler"></a> <a class="anchor" id="example_4"></a> <a class="anchor" id="usage.example_4"></a> <a class="anchor" id="description.usage.example_4"></a> <a class="anchor" id="4.7.4"></a> </dd></dl>
+<dl class="user"><dt><b>Example 4: Creating a Custom Assertion Handler: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Sometimes, especially during testing, we may need to write our own custom assertion-failure handler function. The only requirements are that the function have the same prototype (i.e., the same respective parameter and return types) as the <code>bsls::Assert::Handle</code> <code>typedef</code>, and that the function should not return (i.e., it must <code>abort</code>, <code>exit</code>, <code>terminate</code>, <code>throw</code>, or hang). To illustrate, we will create a <code>static</code> method at file scope that conforms to the required structure (notice the explicit use of <code>std::printf</code> from <code>&lt;cstdio&gt;</code> instead of <code>std::cout</code> from <code>&lt;iostream&gt;</code> to avoid interaction with the C++ memory allocation layer): <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">static</span> <span class="keywordtype">bool</span> globalEnableOurPrintingFlag = <span class="keyword">true</span>;
@@ -629,8 +628,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.usage_examples.5._using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="5._using_the_bsls"></a> <a class="anchor" id="usage_examples.5._using_the_bsls"></a> <a class="anchor" id="description.usage_examples.5._using_the_bsls"></a> <a class="anchor" id="4.7.5"></a> </dd></dl>
-<dl class="user"><dt><b>5. Using the bsls::AssertFailureHandlerGuard: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_5~3A_using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="usage.example_5~3A_using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="description.usage.example_5~3A_using_the_bsls~3A~3Aassertfailurehandlerguard"></a> <a class="anchor" id="example_5"></a> <a class="anchor" id="usage.example_5"></a> <a class="anchor" id="description.usage.example_5"></a> <a class="anchor" id="4.7.5"></a> </dd></dl>
+<dl class="user"><dt><b>Example 5: Using the bsls::AssertFailureHandlerGuard: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Sometimes we may want to replace, temporarily (i.e., within some local lexical scope), the currently installed assertion-failure handler function. In particular, we sometimes use the <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> class to replace the current handler with one that throws an exception (because we know that such an exception is safe in the local context). Let's start with the simple factorial function below, which validates, in "debug mode" (or "safe mode"), that its input is non-negative: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">double</span> fact(<span class="keywordtype">int</span> n)
@@ -700,8 +699,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  Finally note that the <code><a class="el" href="classbsls_1_1AssertFailureHandlerGuard.html">bsls::AssertFailureHandlerGuard</a></code> is not thread-aware. In particular, a guard that is created in one thread will also affect the failure handlers that are used in other threads. Care should be taken when using this guard when more than a single thread is executing. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="6._using_(bsls)_~22assert~22_macros_in_conjunction_w~2F_bde_build_target_safe_2"></a> <a class="anchor" id="usage_examples.6._using_(bsls)_~22assert~22_macros_in_conjunction_w~2F_bde_build_target_safe_2"></a> <a class="anchor" id="description.usage_examples.6._using_(bsls)_~22assert~22_macros_in_conjunction_w~2F_bde_build_target_safe_2"></a> <a class="anchor" id="4.7.6"></a> </dd></dl>
-<dl class="user"><dt><b>6. Using (BSLS) "ASSERT" Macros in Conjunction w/ BDE_BUILD_TARGET_SAFE_2: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_6~3A_using_(bsls)_~22assert~22_macros_along_with_bde_build_target_safe_2"></a> <a class="anchor" id="usage.example_6~3A_using_(bsls)_~22assert~22_macros_along_with_bde_build_target_safe_2"></a> <a class="anchor" id="description.usage.example_6~3A_using_(bsls)_~22assert~22_macros_along_with_bde_build_target_safe_2"></a> <a class="anchor" id="example_6"></a> <a class="anchor" id="usage.example_6"></a> <a class="anchor" id="description.usage.example_6"></a> <a class="anchor" id="4.7.6"></a> </dd></dl>
+<dl class="user"><dt><b>Example 6: Using (BSLS) "ASSERT" Macros Along With BDE_BUILD_TARGET_SAFE_2: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Recall that assertions do not affect binary compatibility; however, software built with <code>BDE_BUILD_TARGET_SAFE_2</code> defined need not be binary compatible with software built otherwise. In this example, we look at how we might use the (BSLS) "ASSERT" family of macros in conjunction with code that is incorporated (at compile time) only when <code>BDE_BUILD_TARGET_SAFE_2</code> is defined. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>As a simple example, let's consider an elided implementation of a singly-linked integer list and its iterator. Whenever <code>BDE_BUILD_TARGET_SAFE_2</code> is defined, we want to defend against the possibility that a client mistakenly passes a <code>ListIter</code> object into a <code>List</code> object method (e.g., <code>List::insert</code>) where that <code>ListIter</code> object did not originate from the same <code>List</code> object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We'll start by defining a local helper <code>List_Link</code> <code>struct</code> as follows: <br/>
@@ -723,7 +722,7 @@ that are derived from the various combinations of the external inputs, and indic
 <span class="preprocessor">  #endif</span>
 <span class="preprocessor"></span>      List_Link **d_current_p;
       <span class="keyword">friend</span> <span class="keyword">class </span>List;
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> ListIter&amp;, <span class="keyword">const</span> ListIter&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> ListIter&amp;, <span class="keyword">const</span> ListIter&amp;);
     <span class="keyword">private</span>:
       ListIter(List_Link **current,
                List *
@@ -737,11 +736,11 @@ that are derived from the various combinations of the external inputs, and indic
   #endif
       { }
     <span class="keyword">public</span>:
-      ListIter&amp; <a class="code" href="namespacebdlc.html#a046295dee9bb6aa815b626402d2910cd">operator++</a>() { <span class="comment">/* ... */</span> <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+      ListIter&amp; <a class="code" href="namespacebdlb.html#a699612d059aa6db974f220f6823e4c0d">operator++</a>() { <span class="comment">/* ... */</span> <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
       <span class="comment">// ...</span>
   };
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
 </pre></div><br/>
 <br/>
  Finally we define the <code>List</code> class itself with most of the operations elided; the methods of particular interest here are <code>begin</code> and <code>insert</code>: <br/>
@@ -782,7 +781,7 @@ that are derived from the various combinations of the external inputs, and indic
       <span class="comment">//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::</span>
 
       <span class="comment">// ACCESSORS</span>
-      <span class="keywordtype">void</span> print(std::ostream&amp; stream)<span class="keyword"> const</span>
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(std::ostream&amp; stream)<span class="keyword"> const</span>
 <span class="keyword">      </span>{
           stream &lt;&lt; <span class="charliteral">&#39;[&#39;</span>;
           <span class="keywordflow">for</span> (List_Link *p = d_head_p; p; p = p-&gt;d_next_p) {
@@ -836,8 +835,8 @@ that are derived from the various combinations of the external inputs, and indic
 <br/>
  thereby quickly exposing the misuse by the client. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="7._conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="usage_examples.7._conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="description.usage_examples.7._conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="4.7.7"></a> </dd></dl>
-<dl class="user"><dt><b>7. Conditional Compilation Associated with Enabled Assertion Levels: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_7~3A_conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="usage.example_7~3A_conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="description.usage.example_7~3A_conditional_compilation_associated_with_enabled_assertion_levels"></a> <a class="anchor" id="example_7"></a> <a class="anchor" id="usage.example_7"></a> <a class="anchor" id="description.usage.example_7"></a> <a class="anchor" id="4.7.7"></a> </dd></dl>
+<dl class="user"><dt><b>Example 7: Conditional Compilation Associated with Enabled Assertion Levels: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In cases where we want to tie code, other than just an assertion, to a specific level of enabled assertions, we will want to use the corresponding intermediate predicate that enables that level of assertions: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><ul>
 <li>
@@ -944,7 +943,7 @@ For <code>BSLS_ASSERT_OPT</code>, use <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>.  <
       <span class="comment">// ACCESSORS</span>
       <span class="comment">// ...</span>
 
-      std::ostream&amp; print(std::ostream&amp; stream, ...) <span class="keyword">const</span>;
+      std::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">print</a>(std::ostream&amp; stream, ...) <span class="keyword">const</span>;
           <span class="comment">// Write the value of this object to the specified output &#39;stream&#39;</span>
           <span class="comment">// in some human-readable format, and return a reference to</span>
           <span class="comment">// &#39;stream&#39;.  Optionally specify ...</span>
@@ -966,7 +965,7 @@ For <code>BSLS_ASSERT_OPT</code>, use <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>.  <
 <span class="preprocessor">  #include &lt;xyza_mydateimputil.h&gt;</span>
   <span class="comment">// ...</span>
 
-  std::ostream&amp; MyDate::print(std::ostream&amp; stream, ...)<span class="keyword"> const</span>
+  std::ostream&amp; <a class="code" href="namespacebdlb_1_1PrintMethods.html#a26513ec0b5c4fa7a532923b7bc41ce0b">MyDate::print</a>(std::ostream&amp; stream, ...)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <a class="code" href="bsls__assert_8h.html#a1d80716f3bc5018941bcaf0856d93a1b">BSLS_ASSERT</a>(<span class="comment">/* any *argument* preconditions for this function */</span>);
 
@@ -1016,7 +1015,7 @@ For <code>BSLS_ASSERT_OPT</code>, use <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>.  <
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

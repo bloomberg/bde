@@ -1,0 +1,239 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_observeradapter.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_OBSERVERADAPTER
+#define INCLUDED_BALL_OBSERVERADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a helper for implementing the &#39;ball::Observer&#39; protocol.
+//
+//@CLASSES:
+//  ball::ObserverAdapter: a helper for implementing &#39;ball::Observer&#39;
+//
+//@SEE_ALSO: ball_observer, ball_record, ball_context
+//
+//@DESCRIPTION: This component provides a single class &#39;ball::ObserverAdapter&#39;
+// that aids in the implementation of the &#39;ball::Observer&#39; protocol by allowing
+// clients to implement that protocol by implementing a single method
+// signature: &#39;publish(const ball::Record&amp;, const ball::Context&amp;)&#39;.  A primary
+// goal of this component is to simplify the transition for older
+// implementations of the &#39;ball::Observer&#39; protocol (that accept
+// const-references to &#39;ball::Record&#39; objects) to the updated protocol (that
+// accepts shared-pointers to &#39;ball::Record&#39; objects).  &#39;ball::ObserverAdapter&#39;
+// inherits from &#39;ball::Observer&#39;, and implements the (newer) overload of the
+// &#39;publish&#39; method in (accepting a shared-pointer to a record) by calling the
+// overload of the &#39;publish&#39; method (accepting a reference to a record).
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Concrete Observer Derived From &#39;ball::ObserverAdapter&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following code fragments illustrate the essentials of defining and using
+// a concrete observer inherited from &#39;ball::ObserverAdapter&#39;.
+//
+// First define a concrete observer &#39;MyOstreamObserver&#39; derived from
+// &#39;ball::ObserverAdapter&#39; that declares a single publish method accepting a
+// const-reference to a &#39;ball::Record&#39; object:
+//..
+//  class MyOstreamObserver : public ball::ObserverAdapter {
+//    bsl::ostream  *d_stream;
+//
+//  public:
+//    explicit MyOstreamObserver(bsl::ostream *stream) : d_stream(stream) { }
+//    virtual ~MyOstreamObserver();
+//    virtual void publish(const ball::Record&amp;  record,
+//                         const ball::Context&amp; context);
+//  };
+//..
+// Then, we implement the public methods of &#39;MyOstreamObserver&#39;, including the
+// &#39;publish&#39; method.  This implementation of &#39;publish&#39; simply prints out the
+// content of the record it receives to the stream supplied at construction.
+//..
+//  MyOstreamObserver::~MyOstreamObserver()
+//  {
+//  }
+//
+//  void MyOstreamObserver::publish(const ball::Record&amp;  record,
+//                                  const ball::Context&amp; context)
+//  {
+//      const ball::RecordAttributes&amp; fixedFields = record.fixedFields();
+//
+//      *d_stream &lt;&lt; fixedFields.timestamp()               &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.processID()               &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.threadID()                &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.fileName()                &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.lineNumber()              &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.category()                &lt;&lt; &#39; &#39;
+//                &lt;&lt; fixedFields.message()                 &lt;&lt; &#39; &#39;;
+//
+//      const ball::UserFields&amp; userFields = record.userFields();
+//      const int numUserFields = userFields.length();
+//      for (int i = 0; i &lt; numUserFields; ++i) {
+//          *d_stream &lt;&lt; userFields[i] &lt;&lt; &#39; &#39;;
+//      }
+//
+//      *d_stream &lt;&lt; &#39;\n&#39; &lt;&lt; bsl::flush;
+//  }
+//..
+// Now, we defined a function &#39;main&#39; in which we create a &#39;MyOstreamObserver&#39;
+// object and assign the address of this object to a &#39;ball::ObserverAdapter&#39;
+// pointer:
+//..
+//  int main(bool verbose)
+//  {
+//      bsl::ostringstream     out;
+//      MyOstreamObserver      myObserver(&amp;out);
+//      ball::ObserverAdapter *adapter = &amp;myObserver;
+//..
+// Finally, publish three messages by calling &#39;publish&#39; method accepting a
+// shared-pointer, provided by &#39;ball::ObserverAdapter&#39;, that in turn will call
+// the &#39;publish&#39; method defined in &#39;MyOstreamObserver&#39;:
+//..
+//      bdlt::Datetime         now;
+//      ball::RecordAttributes fixedFields;
+//      ball::UserFields       userFields;
+//
+//      const int NUM_MESSAGES = 3;
+//      for (int n = 0; n &lt; NUM_MESSAGES; ++n) {
+//          fixedFields.setTimestamp(bdlt::CurrentTime::utc());
+//
+//          bsl::shared_ptr&lt;const ball::Record&gt; handle;
+//          handle.createInplace(bslma::Default::allocator(),
+//                               fixedFields,
+//                               userFields);
+//          adapter-&gt;publish(handle,
+//                           ball::Context(ball::Transmission::e_TRIGGER,
+//                                         n,
+//                                         NUM_MESSAGES));
+//      }
+//      if (verbose) {
+//          bsl::cout &lt;&lt; out.str() &lt;&lt; bsl::endl;
+//      }
+//      return 0;
+//  }
+//..
+// The above code fragments print to &#39;stdout&#39; like this:
+//..
+//  Publish a sequence of three messages.
+//  22FEB2012_00:12:12.000 201 31  0
+//  22FEB2012_00:12:12.000 202 32  0
+//  22FEB2012_00:12:12.000 203 33  0
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_OBSERVER
+#include &lt;ball_observer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace ball {
+
+class Record;
+class Context;
+
+                        // =====================
+                        // class ObserverAdapter
+                        // =====================
+
+class ObserverAdapter : public Observer {
+    // This class aids in the implementation of the &#39;Observer&#39; protocol
+    // by allowing clients to implement that protocol by implementing a single
+    // method signature: &#39;publish(const Record&amp;, const Context&amp;)&#39;.
+
+  public:
+    // CREATORS
+    virtual ~ObserverAdapter();
+        // Destroy this observer.
+
+    // MANIPULATORS
+    virtual void publish(const Record&amp;  record, const Context&amp; context) = 0;
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39;.
+
+    virtual void publish(const bsl::shared_ptr&lt;const Record&gt;&amp; record,
+                         const Context&amp;                       context);
+        // Process the record referred by the specified log shared pointer
+        // &#39;record&#39;.  Note that classes that derive from &#39;ObserverAdapter&#39;
+        // should *not* implement this method.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a &#39;Record&#39; object that was supplied
+        // to the &#39;publish&#39; method and is held by this observer.  Note that
+        // classes that derive from &#39;ObserverAdapter&#39; should *not* implement
+        // this method.  Also note that this operation should be called if
+        // resources underlying the previously provided shared-pointers must be
+        // released.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                          // ---------------------
+                          // class ObserverAdapter
+                          // ---------------------
+
+// MANIPULATORS
+inline
+void ObserverAdapter::publish(
+                            const bsl::shared_ptr&lt;const Record&gt;&amp; record,
+                            const Context&amp;                       context)
+{
+    publish(*record, context);
+}
+
+inline
+void ObserverAdapter::releaseRecords()
+{
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

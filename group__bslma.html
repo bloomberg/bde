@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslma Package</title>
+<title>BDE 3.0: bslma Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -71,6 +71,11 @@ Components</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslma__allocator.html">Component bslma_allocator</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a pure abstract interface for memory-allocation mechanisms. </p>
+</td></tr>
+</p>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslma__allocatoradaptor.html">Component bslma_allocatoradaptor</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide a polymorphic adaptor for STL-style allocators. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslma__autodeallocator.html">Component bslma_autodeallocator</a></td></tr>
@@ -155,7 +160,7 @@ Components</h2></td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslma__managedptrdeleter.html">Component bslma_managedptrdeleter</a></td></tr>
 
-<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an in-core value semantic class to call a delete function. </p>
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p style="margin-top: 0; margin-bottom: 0;">Provide an in-core value-semantic class to call a delete function. </p>
 </td></tr>
 </p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslma__newdeleteallocator.html">Component bslma_newdeleteallocator</a></td></tr>
@@ -264,7 +269,7 @@ Components</h2></td></tr>
 <li>
 <a href="#3.4">Why Use Allocators?</a> </li>
 <li>
-<a href="#3.5">Rationale for the BDE allocator model</a> </li>
+<a href="#3.5">Rationale for the BDE Allocator Model</a> </li>
 <li>
 <a href="#3.6">Allocators and Other Memory-Dispensing Mechanisms</a> </li>
 <li>
@@ -311,7 +316,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 28 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 29 components having 9 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  9. bslma_managedptr
 
@@ -325,7 +330,8 @@ Components</h2></td></tr>
      bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  5. bslma_autodeallocator
+  5. bslma_allocatoradaptor
+     bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
      bslma_deallocatorproctor
@@ -358,6 +364,8 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_allocator</code>: <br/>
  Provide a pure abstract interface for memory-allocation mechanisms.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_allocatoradaptor</code>: <br/>
+ Provide a polymorphic adaptor for STL-style allocators</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_autodeallocator</code>: <br/>
  Provide a range proctor to managed a block of memory.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_autodestructor</code>: <br/>
@@ -391,7 +399,7 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr_pairproxy</code>: <b>PRIVATE</b> <br/>
  Provide the internal state of a managed pointer class.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptrdeleter</code>: <br/>
- Provide an in-core value semantic class to call a delete function.</div></dd></dl>
+ Provide an in-core value-semantic class to call a delete function.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_newdeleteallocator</code>: <br/>
  Provide singleton new/delete adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_rawdeleterguard</code>: <br/>
@@ -416,87 +424,86 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="component_overview"></a> <a class="anchor" id="description.component_overview"></a> <a class="anchor" id="3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Component Overview: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This section summarizes the components that are available in <code>bslma</code>. Subsequent sections provide more detail on component selection, performance, and usage. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This section provides a brief introduction to some of the components of the <code>bslma</code> package. See the documentation in each component for full details. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_allocator"></a> <a class="anchor" id="component_overview.bslma_allocator"></a> <a class="anchor" id="description.component_overview.bslma_allocator"></a> <a class="anchor" id="3.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_allocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_allocator</code> defines a protocol (i.e., an abstract base class) requiring the following interface: <code>allocate</code> for memory allocation, and <code>deallocate</code>, for allocation and deallocation of individual memory blocks. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__allocator.html" class="el"><code>bslma_allocator</code></a> component defines a protocol (i.e., an abstract base class) requiring the following interface: <code>allocate</code> for memory allocation, and <code>deallocate</code>, for allocation and deallocation of individual memory blocks. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_autodeallocator"></a> <a class="anchor" id="component_overview.bslma_autodeallocator"></a> <a class="anchor" id="description.component_overview.bslma_autodeallocator"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_autodeallocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_autodeallocator</code> provides a range proctor class to manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed memory blocks are deallocated automatically when the range proctor goes out of scope by freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__autodeallocator.html" class="el"><code>bslma_autodeallocator</code></a> component provides a range proctor class to manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed memory blocks are deallocated automatically when the range proctor goes out of scope by freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_autodestructor"></a> <a class="anchor" id="component_overview.bslma_autodestructor"></a> <a class="anchor" id="description.component_overview.bslma_autodestructor"></a> <a class="anchor" id="3.3.3"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_autodestructor: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_autodestructor</code> provides a range proctor class to manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed memory blocks are destroyed automatically when the range proctor goes out of scope by calling each (managed) object's destructor. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__autodestructor.html" class="el"><code>bslma_autodestructor</code></a> component provides a range proctor class to manage a sequence of blocks of (otherwise-unmanaged) memory of a parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed memory blocks are destroyed automatically when the range proctor goes out of scope by calling each (managed) object's destructor. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_autorawdeleter"></a> <a class="anchor" id="component_overview.bslma_autorawdeleter"></a> <a class="anchor" id="description.component_overview.bslma_autorawdeleter"></a> <a class="anchor" id="3.3.4"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_autorawdeleter: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_autorawdeleter</code> provides a range proctor class template to manage a sequence of (otherwise-unmanaged) objects of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed objects are deleted automatically when the range proctor goes out of scope by iterating over each object, first calling the (managed) object's destructor, and then freeing its memory footprint by invoking the <code>deallocate</code> method of an allocator (or pool) of parameterized <code>ALLOCATOR</code> type also supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__autorawdeleter.html" class="el"><code>bslma_autorawdeleter</code></a> component provides a range proctor class template to manage a sequence of (otherwise-unmanaged) objects of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the sequence of managed objects are deleted automatically when the range proctor goes out of scope by iterating over each object, first calling the (managed) object's destructor, and then freeing its memory footprint by invoking the <code>deallocate</code> method of an allocator (or pool) of parameterized <code>ALLOCATOR</code> type also supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_deallocatorguard"></a> <a class="anchor" id="component_overview.bslma_deallocatorguard"></a> <a class="anchor" id="description.component_overview.bslma_deallocatorguard"></a> <a class="anchor" id="3.3.5"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_deallocatorguard: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_deallocatorguard</code> provides a guard class template to <em>unconditionally</em> manage a block of (otherwise-unmanaged) memory. The managed memory is deallocated automatically when the guard object goes out of scope using the <code>deallocate</code> method of the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__deallocatorguard.html" class="el"><code>bslma_deallocatorguard</code></a> component provides a guard class template to <em>unconditionally</em> manage a block of (otherwise-unmanaged) memory. The managed memory is deallocated automatically when the guard object goes out of scope using the <code>deallocate</code> method of the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_deallocatorproctor"></a> <a class="anchor" id="component_overview.bslma_deallocatorproctor"></a> <a class="anchor" id="description.component_overview.bslma_deallocatorproctor"></a> <a class="anchor" id="3.3.6"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_deallocatorproctor: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_deallocatorproctor</code> provides a proctor class template to <em>conditionally</em> manage a block of (otherwise-unmanaged) memory. If not explicitly released, the managed memory is deallocated automatically when the proctor object goes out of scope by freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__deallocatorproctor.html" class="el"><code>bslma_deallocatorproctor</code></a> component provides a proctor class template to <em>conditionally</em> manage a block of (otherwise-unmanaged) memory. If not explicitly released, the managed memory is deallocated automatically when the proctor object goes out of scope by freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_default"></a> <a class="anchor" id="component_overview.bslma_default"></a> <a class="anchor" id="description.component_overview.bslma_default"></a> <a class="anchor" id="3.3.7"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_default: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_default</code> provides a namespace for a set of utility functions that manage the addresses of two static (global) memory allocator instances: the <em>default</em> allocator and the <em>global</em> allocator. The default allocator is the allocator used by default by all BDE components. The global allocator is the allocator used by default to construct global singleton objects. Each of these allocators are of type derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__default.html" class="el"><code>bslma_default</code></a> component provides a namespace for a set of utility functions that manage the addresses of two static (global) memory allocator instances: the <em>default</em> allocator and the <em>global</em> allocator. The default allocator is the allocator used by default by all BDE components. The global allocator is the allocator used by default to construct global singleton objects. Each of these allocators are of type derived from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_defaultallocatorguard"></a> <a class="anchor" id="component_overview.bslma_defaultallocatorguard"></a> <a class="anchor" id="description.component_overview.bslma_defaultallocatorguard"></a> <a class="anchor" id="3.3.8"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_defaultallocatorguard: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_defaultallocatorguard</code> provides a mechanism that serves as a "scoped
- guard" to enable the temporary replacement of the process-wide default allocator. This functionality is intended for <em>testing</em> only, and in no event should this component be used except at the very beginning of <code>main</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__defaultallocatorguard.html" class="el"><code>bslma_defaultallocatorguard</code></a> component provides a mechanism that serves as a "scoped guard" to enable the temporary replacement of the process-wide default allocator. This functionality is intended for <em>testing</em> only, and in no event should this component be used except at the very beginning of <code>main</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_deleterhelper"></a> <a class="anchor" id="component_overview.bslma_deleterhelper"></a> <a class="anchor" id="description.component_overview.bslma_deleterhelper"></a> <a class="anchor" id="3.3.9"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_deleterhelper: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_deleterhelper</code> provides non-primitive procedures used to delete objects of parameterized <code>TYPE</code> by first calling the destructor of the object, and then freeing the memory footprint of the object using a parameterized <code>ALLOCATOR</code> (allocator or pool) provided as a second argument. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__deleterhelper.html" class="el"><code>bslma_deleterhelper</code></a> component provides non-primitive procedures used to delete objects of parameterized <code>TYPE</code> by first calling the destructor of the object, and then freeing the memory footprint of the object using a parameterized <code>ALLOCATOR</code> (allocator or pool) provided as a second argument. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_destructorguard"></a> <a class="anchor" id="component_overview.bslma_destructorguard"></a> <a class="anchor" id="description.component_overview.bslma_destructorguard"></a> <a class="anchor" id="3.3.10"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_destructorguard: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_destructorguard</code> provides a guard class template to <em>unconditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. The managed object is destroyed automatically when the guard object goes out of scope by calling the (managed) object's destructor. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__destructorguard.html" class="el"><code>bslma_destructorguard</code></a> component provides a guard class template to <em>unconditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. The managed object is destroyed automatically when the guard object goes out of scope by calling the (managed) object's destructor. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_destructorproctor"></a> <a class="anchor" id="component_overview.bslma_destructorproctor"></a> <a class="anchor" id="description.component_overview.bslma_destructorproctor"></a> <a class="anchor" id="3.3.11"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_destructorproctor: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_destructorproctor</code> provides a proctor class template to <em>conditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the managed object is destroyed automatically when the proctor object goes out of scope by calling the object's destructor. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__destructorproctor.html" class="el"><code>bslma_destructorproctor</code></a> component provides a proctor class template to <em>conditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the managed object is destroyed automatically when the proctor object goes out of scope by calling the object's destructor. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_mallocfreeallocator"></a> <a class="anchor" id="component_overview.bslma_mallocfreeallocator"></a> <a class="anchor" id="description.component_overview.bslma_mallocfreeallocator"></a> <a class="anchor" id="3.3.12"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_mallocfreeallocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_mallocfreeallocator</code> provides a wrapper around <code>std::malloc</code> and <code>std::free</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides <code>allocate</code> and <code>deallocate</code> functions). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__mallocfreeallocator.html" class="el"><code>bslma_mallocfreeallocator</code></a> component provides a wrapper around <code>std::malloc</code> and <code>std::free</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides <code>allocate</code> and <code>deallocate</code> functions). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_newdeleteallocator"></a> <a class="anchor" id="component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="description.component_overview.bslma_newdeleteallocator"></a> <a class="anchor" id="3.3.13"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_newdeleteallocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_newdeleteallocator</code> provides a wrapper around <code>operator new</code> and <code>operator delete</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides an <code>allocate</code> function and a <code>deallocate</code> function). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__newdeleteallocator.html" class="el"><code>bslma_newdeleteallocator</code></a> component provides a wrapper around <code>operator new</code> and <code>operator delete</code> that adheres to the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol (i.e., provides an <code>allocate</code> function and a <code>deallocate</code> function). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterguard"></a> <a class="anchor" id="component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterguard"></a> <a class="anchor" id="3.3.14"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_rawdeleterguard: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_rawdeleterguard</code> provides a guard class template to <em>unconditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. The managed object is deleted automatically when the guard object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__rawdeleterguard.html" class="el"><code>bslma_rawdeleterguard</code></a> component provides a guard class template to <em>unconditionally</em> manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. The managed object is deleted automatically when the guard object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This guard mechanism is useful in ensuring that a dynamically allocated raw memory resource is safely deallocated in the presense of multiple return satements or exceptions. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_rawdeleterproctor"></a> <a class="anchor" id="component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="description.component_overview.bslma_rawdeleterproctor"></a> <a class="anchor" id="3.3.15"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_rawdeleterproctor: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_rawdeleterproctor</code> provides a proctor class template to conditionally manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the managed object is deleted automatically when the proctor object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__rawdeleterproctor.html" class="el"><code>bslma_rawdeleterproctor</code></a> component provides a proctor class template to conditionally manage an (otherwise-unmanaged) object of parameterized <code>TYPE</code> supplied at construction. If not explicitly released, the managed object is deleted automatically when the proctor object goes out of scope by first calling the (managed) object's destructor, and then freeing the memory using the parameterized <code>ALLOCATOR</code> (allocator or pool) also supplied at construction. This proctor mechanism is useful in guarding against memory leaks, e.g., when additional allocations may throw an exception. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocator"></a> <a class="anchor" id="component_overview.bslma_testallocator"></a> <a class="anchor" id="description.component_overview.bslma_testallocator"></a> <a class="anchor" id="3.3.16"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_testallocator</code> provides an instrumented allocator that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol and can be used to track various aspects of memory allocated from it. This allocator memory allocator uses global functions <code>std::malloc</code> and <code>std::free</code> for allocations and deallocations. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__testallocator.html" class="el"><code>bslma_testallocator</code></a> component provides an instrumented allocator that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol and can be used to track various aspects of memory allocated from it. This allocator memory allocator uses global functions <code>std::malloc</code> and <code>std::free</code> for allocations and deallocations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatorexception"></a> <a class="anchor" id="component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="description.component_overview.bslma_testallocatorexception"></a> <a class="anchor" id="3.3.17"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocatorexception: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_testallocatorexception</code> defines an exception object for use in testing exceptions during memory allocations. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__testallocatorexception.html" class="el"><code>bslma_testallocatorexception</code></a> component defines an exception object for use in testing exceptions during memory allocations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="bslma_testallocatormonitor"></a> <a class="anchor" id="component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="description.component_overview.bslma_testallocatormonitor"></a> <a class="anchor" id="3.3.18"></a> </dd></dl>
 <dl class="user"><dt><b>bslma_testallocatormonitor: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><code>bslma_testallocatormonitor</code> provides a "monitor", a mechanism class, that allows concise tests of state change (or lack of change) in the test allocator provided at the monitor's construction. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <a href="group__bslma__testallocatormonitor.html" class="el"><code>bslma_testallocatormonitor</code></a> component provides a "monitor", a mechanism class, that allows concise tests of state change (or lack of change) in the test allocator provided at the monitor's construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="why_use_allocators~3F"></a> <a class="anchor" id="description.why_use_allocators~3F"></a> <a class="anchor" id="3.4"></a> </dd></dl>
 <dl class="user"><dt><b>Why Use Allocators?: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Allocators were originally introduced into STL to provide containers an abstraction for the different pointer types on the Intel architecture (such as near and far pointers). After the C++ standard (section 20.1.5 of the 1998 standard) specified the requirements on an allocator type (<code>std::allocator</code>) that use was rendered obsolete. But the standard also specified that all standard containers be parameterized on an allocator type that provides users greater control over the memory usage of individual objects and allows an application to control from where that memory comes (for example: stack, heap, shared memory etc) and how it is distributed. By using allocators, an application can ensure efficient memory usage by reducing the number of distinct calls to global operators <code>new</code> and <code>delete</code> (and functions <code>std::malloc</code> and <code>std::free</code>). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Allocators were originally introduced into STL to provide containers an abstraction for the different pointer types on the Intel architecture (such as near and far pointers). After the C++ standard (section 20.1.5 of the 1998 standard) specified the requirements on an allocator type (<code>std::allocator</code>) that use was rendered obsolete. But the standard also specified that all standard containers be parameterized on an allocator type that provides users greater control over the memory usage of individual objects and allows an application to control from where that memory comes (e.g., stack, heap, shared memory) and how it is distributed. By using allocators, an application can ensure efficient memory usage by reducing the number of distinct calls to global operators <code>new</code> and <code>delete</code> (and functions <code>std::malloc</code> and <code>std::free</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="rationale_for_the_bde_allocator_model"></a> <a class="anchor" id="description.rationale_for_the_bde_allocator_model"></a> <a class="anchor" id="3.5"></a> </dd></dl>
-<dl class="user"><dt><b>Rationale for the BDE allocator model: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Rationale for the BDE Allocator Model: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Although C++ standard allocators (<code>std::allocator</code>) provide users great control on how containers can allocate memory having a templated allocator argument introduces other problems. Two containers instantiated with different allocator types refer to different types making interoperability between them difficult and limiting the allocator type to a per-class (as opposed to a per-instance) basis. The standard's requirement of a templated allocator type is limited to containers and does not address other user-defined types that allocate memory. Although users can augment their types to take a templated allocator type such use is likely to be tedious and to result in significant object code increase. Finally, the standard is unclear with regards to the copy semantics of stateful allocators. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The BDE allocator model provides a solution to these issues. BDE provides an allocator protocol and concrete allocator implementations that can be passed as constructor arguments (not as template parameters) to all objects that allocate memory. The type of an object is unaffected by the passed-in allocator and the user has full control over the scope of an allocator instance. As the model specifies a protocol it is easier to create concrete implementations and use them. The allocator model requires all elements (data members) of a container (object) to use the same allocator as the container (object). Also the allocator is not transferred on copy construction. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -518,7 +525,7 @@ Whether or not the allocator supports multi-threading.  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>All <code>bslma</code> allocators (except <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code>) are fully thread-safe but not thread-enabled (see the <code><a class="el" href="bsldoc__glossary_8h.html" title="Provide definitions for terms used throughout BDE documentation.">bsldoc_glossary.h</a></code> for terminology). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The BDE allocators have two more differentiating properties. First, whether the allocator is intended to be part of a chain (or other grouping) of allocators, or is an "end-point" allocator. The former kind support the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol. "End-point" allocators, such as a memory pool, are general-purpose mechamisms designed to minimize the runtime overhead of allocation and deallocation on a call-by-call basis and therefore do not derive from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. The <code>bslma</code> package does not provide any end-point allocators although such implementations may be provided in higher-level libraries. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The BDE allocators have two more differentiating properties. First, whether the allocator is intended to be part of a chain (or other grouping) of allocators, or is an "end-point" allocator. The former kind support the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol. "End-point" allocators, such as a memory pool, are general-purpose mechanisms designed to minimize the runtime overhead of allocation and deallocation on a call-by-call basis and therefore do not derive from <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code>. The <code>bslma</code> package does not provide any end-point allocators although such implementations may be provided in higher-level libraries. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Supporting a common protocol (the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol) allows passing conformant allocators to BDE (and other) objects requiring an allocator at construction. Support of this common protocol also facilitates grouping the memory used by an object into one allocator. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The BDE libraries use allocators with all classes requiring dynamic memory allocation, allowing clients to fine-tune memory-related performance characteristics by replacing the established defaults with client-chosen alternatives. Because the protocol is public, clients can even write their own, customized implementations, and use those. But none of these actions are required. BDE components all work with a (preset) default allocator, and clients without special requirements need never concern themselves with allocators. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -539,12 +546,12 @@ Proctors or Guards: The object managers can be divided into guards that <em>unco
 <dl class="user"><dt><b></b></dt><dd>The following table categorizes the various components along these dimensions: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
-<div class="fragment"><pre class="fragment">                Deallocation          Destruction          Deletion
-            +--------------------+-------------------+-------------------+
- Proctor    | DeallocatorProctor | DestructorProctor | RawDeleterProctor |
-            +--------------------+-------------------+-------------------+
- Guard      | DeallocatorGuard   | DestructorGuard   | RawDeleterGuard   |
-            +--------------------+-------------------+-------------------+
+<div class="fragment"><pre class="fragment">                 Deallocation          Destruction          Deletion
+             +--------------------+-------------------+-------------------+
+  Proctor    | DeallocatorProctor | DestructorProctor | RawDeleterProctor |
+             +--------------------+-------------------+-------------------+
+  Guard      | DeallocatorGuard   | DestructorGuard   | RawDeleterGuard   |
+             +--------------------+-------------------+-------------------+
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -572,36 +579,36 @@ Proctors or Guards: The object managers can be divided into guards that <em>unco
 <dl class="user"><dt><b></b></dt><dd>Different components manage memory in different ways, but they necessarily <em>obtain</em> the memory that they manage from one of the two usual sources: the heap or the stack. The <code><a class="el" href="classbslma_1_1NewDeleteAllocator.html">bslma::NewDeleteAllocator</a></code> is hard-coded to obtain memory from the heap -- its underlying source is <code>operator new</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The managers in the <code>bslma</code> package are compared in the following tables: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">                              PERFORMANCE CHARACTERISTICS
+<div class="fragment"><pre class="fragment">                                PERFORMANCE CHARACTERISTICS
 
-               Memory Source     Allocation   Alignment     Out-of-memory
-                                 Cost OVER                     Handling
-                                 Underlying
-                                  Source
-            +-----------------+--------------+---------+----------------------+
-NewDelete   | <span class="stringliteral">&#39;operator new&#39;</span>  | 0 <span class="keywordflow">if</span> inlined,|MAXIMAL  | Return value 0       |
-Allocator   |                 |<span class="keywordflow">else</span> vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
-MallocFree  | <span class="stringliteral">&#39;std::malloc&#39;</span>   | 0 <span class="keywordflow">if</span> inlined,|MAXIMAL  | Return value 0       |
-Allocator   |                 |<span class="keywordflow">else</span> vfn call+|         |                      |
-            +-----------------+--------------+---------+----------------------+
-Test        | <span class="stringliteral">&#39;malloc&#39;</span>        |     N/A      |   None  | Return value 0       |
-Allocator   |                 |              |         |                      |
-            +-----------------+--------------+---------+----------------------+
+                 Memory Source     Allocation   Alignment     Out-of-memory
+                                   Cost OVER                     Handling
+                                   Underlying
+                                    Source
+              +-----------------+--------------+---------+--------------------+
+  NewDelete   | <span class="stringliteral">&#39;operator new&#39;</span>  | 0 <span class="keywordflow">if</span> inlined,|MAXIMAL  | Return value 0     |
+  Allocator   |                 |<span class="keywordflow">else</span> vfn call+|         |                    |
+              +-----------------+--------------+---------+--------------------+
+  MallocFree  | <span class="stringliteral">&#39;std::malloc&#39;</span>   | 0 <span class="keywordflow">if</span> inlined,|MAXIMAL  | Return value 0     |
+  Allocator   |                 |<span class="keywordflow">else</span> vfn call+|         |                    |
+              +-----------------+--------------+---------+--------------------+
+  Test        | <span class="stringliteral">&#39;malloc&#39;</span>        |     N/<a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>      |   None  | Return value 0     |
+  Allocator   |                 |              |         |                    |
+              +-----------------+--------------+---------+--------------------+
 
-                                     SEMANTICS
+                                       SEMANTICS
 
-                      Deallocation             Storage Facility
-                  +-----------------------+-------------------------+
-Newdelete         | Single items only     | Untyped, varying sizes  |
-Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
-MallocFree        | Single items only     | Untyped, varying sizes  |
-Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
-Test              | Single items only     | Untyped, varying sizes  |
-Allocator         |                       |                         |
-                  +-----------------------+-------------------------+
+                        Deallocation             Storage Facility
+                    +-----------------------+-------------------------+
+  Newdelete         | Single items only     | Untyped, varying sizes  |
+  Allocator         |                       |                         |
+                    +-----------------------+-------------------------+
+  MallocFree        | Single items only     | Untyped, varying sizes  |
+  Allocator         |                       |                         |
+                    +-----------------------+-------------------------+
+  Test              | Single items only     | Untyped, varying sizes  |
+  Allocator         |                       |                         |
+                    +-----------------------+-------------------------+
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -620,433 +627,406 @@ Allocator         |                       |                         |
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_creating_a_type_that_uses_bslma~3A~3Aallocator"></a> <a class="anchor" id="usage.example_1~3A_creating_a_type_that_uses_bslma~3A~3Aallocator"></a> <a class="anchor" id="description.usage.example_1~3A_creating_a_type_that_uses_bslma~3A~3Aallocator"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.14.1"></a> </dd></dl>
 <dl class="user"><dt><b>Example 1: Creating a type that uses bslma::Allocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If objects of a class allocate memory (or contain data members that do) then having all constructors of that class accept the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object as an argument allows its clients to control how those objects allocate memory. An example of this is provided by showing the creators of a <code>Customer</code> <code>class</code> that stores the first and last names of a customer as <code>bsl::string</code> objects and the various account numbers of that customer using a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code>. For simplicity part of the interface is elided. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><br/>
+<dl class="user"><dt><b></b></dt><dd>If objects of a class allocate memory (or contain data members that do) then having all constructors of that class accept the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> object as an argument allows its clients to control how those objects allocate memory. An example of this is provided by showing the creators of a <code>Customer</code> <code>class</code> that stores the first and last names of a customer as <code>bsl::string</code> objects and the various account numbers of that customer using a <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code>. For simplicity part of the interface is elided. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">                        <span class="comment">// ==============</span>
-                        <span class="comment">// class Customer</span>
-                        <span class="comment">// ==============</span>
+<div class="fragment"><pre class="fragment">                          <span class="comment">// ==============</span>
+                          <span class="comment">// class Customer</span>
+                          <span class="comment">// ==============</span>
 
-<span class="keyword">class </span>Customer {
-    <span class="comment">// This simply constrained (value-semantic) attribute class represents the</span>
-    <span class="comment">// information about a bank&#39;s customer.  A customer&#39;s first and last name</span>
-    <span class="comment">// are represented as &#39;bsl::string&#39; objects, the associated accounts are</span>
-    <span class="comment">// stored in a &#39;bsl::vector&lt;int&gt;&#39;, and the employee identification number</span>
-    <span class="comment">// is represented by an &#39;int&#39;.  Note that the class invariants are</span>
-    <span class="comment">// identically the constraints on the individual attributes.</span>
-    <span class="comment">//</span>
-    <span class="comment">// This class:</span>
-    <span class="comment">//: o supports a complete set of *value-semantic* operations</span>
-    <span class="comment">//:   o except for &#39;bslx&#39; serialization</span>
-    <span class="comment">//: o is *exception-neutral* (agnostic)</span>
-    <span class="comment">//: o is *alias-safe*</span>
-    <span class="comment">//: o is &#39;const&#39; *thread-safe*</span>
+  <span class="keyword">class </span>Customer {
+      <span class="comment">// This simply constrained (value-semantic) attribute class represents</span>
+      <span class="comment">// the information about a bank&#39;s customer.  A customer&#39;s first and last</span>
+      <span class="comment">// name are represented as &#39;bsl::string&#39; objects, the associated accounts</span>
+      <span class="comment">// are stored in a &#39;bsl::vector&lt;int&gt;&#39;, and the employee identification</span>
+      <span class="comment">// number is represented by an &#39;int&#39;.  Note that the class invariants are</span>
+      <span class="comment">// identically the constraints on the individual attributes.</span>
+      <span class="comment">//</span>
+      <span class="comment">// This class:</span>
+      <span class="comment">//: o supports a complete set of *value-semantic* operations</span>
+      <span class="comment">//:   o except for &#39;bslx&#39; serialization</span>
+      <span class="comment">//: o is *exception-neutral* (agnostic)</span>
+      <span class="comment">//: o is *alias-safe*</span>
+      <span class="comment">//: o is &#39;const&#39; *thread-safe*</span>
 
-    <span class="comment">// DATA</span>
-    <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>      d_firstName;       <span class="comment">// first name</span>
-    <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>      d_lastName;        <span class="comment">// last name</span>
-    <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a> d_accounts;        <span class="comment">// account numbers</span>
-    <span class="keywordtype">int</span>              d_id;              <span class="comment">// customer identification number</span>
+      <span class="comment">// DATA</span>
+      <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>      d_firstName;       <span class="comment">// first name</span>
+      <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>      d_lastName;        <span class="comment">// last name</span>
+      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a> d_accounts;        <span class="comment">// account numbers</span>
+      <span class="keywordtype">int</span>              d_id;              <span class="comment">// customer identification number</span>
 
-  <span class="keyword">public</span>:
+    <span class="keyword">public</span>:
 </pre></div><br/>
 <br/>
  Note that the constructor declarations below all accept the address of a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> argument. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">    <span class="comment">// CREATORS</span>
-    Customer(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
-        <span class="comment">// Create a &#39;Customer&#39; object having the (default) attribute values:</span>
-        <span class="comment">//..</span>
-        <span class="comment">//  firstName() == &quot;&quot;</span>
-        <span class="comment">//  lastName()  == &quot;&quot;</span>
-        <span class="comment">//  accounts()  == 0</span>
-        <span class="comment">//  id()        == 0</span>
-        <span class="comment">//..</span>
-        <span class="comment">// Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If</span>
-        <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator is</span>
-        <span class="comment">// used.</span>
+<div class="fragment"><pre class="fragment">      <span class="comment">// CREATORS</span>
+      Customer(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
+          <span class="comment">// Create a &#39;Customer&#39; object having the (default) attribute values:</span>
+          <span class="comment">//..</span>
+          <span class="comment">//  firstName() == &quot;&quot;</span>
+          <span class="comment">//  lastName()  == &quot;&quot;</span>
+          <span class="comment">//  accounts()  == 0</span>
+          <span class="comment">//  id()        == 0</span>
+          <span class="comment">//..</span>
+          <span class="comment">// Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If</span>
+          <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator</span>
+          <span class="comment">// is used.</span>
 
-    Customer(<span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  firstName,
-             <span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  lastName,
-             <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a>&amp;   accounts,
-             <span class="keywordtype">int</span>                       <span class="keywordtype">id</span>,
-             <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>         *basicAllocator = 0);
-        <span class="comment">// Create a &#39;Customer&#39; object having the specified &#39;firstName&#39;,</span>
-        <span class="comment">// &#39;lastName&#39;, &#39;accounts&#39;, and &#39;id&#39;&#39; attribute values.  Optionally</span>
-        <span class="comment">// specify a &#39;basicAllocator&#39; used to supply memory.  If</span>
-        <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator is</span>
-        <span class="comment">// used.</span>
+      Customer(<span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  firstName,
+               <span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  lastName,
+               <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a>&amp;   accounts,
+               <span class="keywordtype">int</span>                       <span class="keywordtype">id</span>,
+               <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>         *basicAllocator = 0);
+          <span class="comment">// Create a &#39;Customer&#39; object having the specified &#39;firstName&#39;,</span>
+          <span class="comment">// &#39;lastName&#39;, &#39;accounts&#39;, and &#39;id&#39;&#39; attribute values.  Optionally</span>
+          <span class="comment">// specify a &#39;basicAllocator&#39; used to supply memory.  If</span>
+          <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator</span>
+          <span class="comment">// is used.</span>
 
-    Customer(<span class="keyword">const</span> Customer&amp; original, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
-        <span class="comment">// Create a &#39;Customer&#39; object having the same value as the specified</span>
-        <span class="comment">// &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to</span>
-        <span class="comment">// supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed</span>
-        <span class="comment">// default allocator is used.</span>
+      Customer(<span class="keyword">const</span> Customer&amp; original, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
+          <span class="comment">// Create a &#39;Customer&#39; object having the same value as the specified</span>
+          <span class="comment">// &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39; used to</span>
+          <span class="comment">// supply memory.  If &#39;basicAllocator&#39; is 0, the currently installed</span>
+          <span class="comment">// default allocator is used.</span>
 
-        <span class="comment">// Destroy this object.</span>
+          <span class="comment">// Destroy this object.</span>
 
-                                  <span class="comment">// Aspects</span>
+                                    <span class="comment">// Aspects</span>
 
-    <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator() <span class="keyword">const</span>;
-        <span class="comment">// Return the allocator used by this object to supply memory.  Note</span>
-        <span class="comment">// that if no allocator was supplied at construction the currently</span>
-        <span class="comment">// installed default allocator is used.</span>
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocator() <span class="keyword">const</span>;
+          <span class="comment">// Return the allocator used by this object to supply memory.  Note</span>
+          <span class="comment">// that if no allocator was supplied at construction the currently</span>
+          <span class="comment">// installed default allocator is used.</span>
 
-    ...
-};
+      ...
+  };
 </pre></div><br/>
 <br/>
  Since the <code>Customer</code> <code>class</code> contains members that allocate memory it can associate the <code>UsesBslmaAllocator</code> trait defined in the <code>bslma</code> package to programmatically inform templated code that it uses an allocator. <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// TRAITS</span>
-<span class="keyword">namespace </span>BloombergLP{
-<span class="keyword">namespace </span>bslma {
+<div class="fragment"><pre class="fragment">  <span class="comment">// TRAITS</span>
+  <span class="keyword">namespace </span>BloombergLP{
+  <span class="keyword">namespace </span>bslma {
 
-<span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UsesBslmaAllocator&lt;Customer&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {};
+  <span class="keyword">template</span> &lt;&gt; <span class="keyword">struct </span>UsesBslmaAllocator&lt;Customer&gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {};
 
-}
-}
+  }
+  }
 
-<span class="comment">// ============================================================================</span>
-<span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
-<span class="comment">// ============================================================================</span>
+  <span class="comment">// ==========================================================================</span>
+  <span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
+  <span class="comment">// ==========================================================================</span>
 
-                        <span class="comment">// --------------</span>
-                        <span class="comment">// class Customer</span>
-                        <span class="comment">// --------------</span>
+                          <span class="comment">// --------------</span>
+                          <span class="comment">// class Customer</span>
+                          <span class="comment">// --------------</span>
 </pre></div><br/>
 <br/>
  The constructor implementations of <code>Customer</code> can simply forward the basicAllocator argument to its data members. All BSL containers, including <code>bsl::string</code> and <code><a class="el" href="classbsl_1_1vector.html">bsl::vector</a></code>, accept a <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> constructor argument: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// CREATORS</span>
-<span class="keyword">inline</span>
-Customer::Customer(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_firstName(basicAllocator)
+<div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
+  <span class="keyword">inline</span>
+  Customer::Customer(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+  : d_firstName(basicAllocator)
+  , d_lastName(basicAllocator)
+  , d_accounts(basicAllocator)
+  , d_id(0)
+  {
+  }
 
- \par
- &lt;/div&gt;
-, d_lastName(basicAllocator)
-, d_accounts(basicAllocator)
-, d_id(0)
-{
-}
+  <span class="keyword">inline</span>
+  Customer::Customer(<span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  firstName,
+                     <span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  lastName,
+                     <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a>&amp;   accounts,
+                     <span class="keywordtype">int</span>                       <span class="keywordtype">id</span>,
+                     <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>         *basicAllocator)
+  : d_firstName(firstName.begin(), firstName.end(), basicAllocator)
+  , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
+  , d_accounts(accounts, basicAllocator)
+  , d_id(id)
+  {
+      <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(!firstName.<a class="code" href="classbslstl_1_1StringRefImp.html#a25d7089cf4040c8e0c52c37ed035de38">isEmpty</a>());
+      <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(!lastName.<a class="code" href="classbslstl_1_1StringRefImp.html#a25d7089cf4040c8e0c52c37ed035de38">isEmpty</a>());
+  }
 
-<span class="keyword">inline</span>
-Customer::Customer(<span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  firstName,
-                   <span class="keyword">const</span> <a class="code" href="classbslstl_1_1StringRefImp.html">bslstl::StringRef</a>&amp;  lastName,
-                   <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a>&amp;   accounts,
-                   <span class="keywordtype">int</span>                       <span class="keywordtype">id</span>,
-                   <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>         *basicAllocator)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_firstName(firstName.begin(), firstName.end(), basicAllocator)
+  <span class="keyword">inline</span>
+  Customer::Customer(<span class="keyword">const</span> Customer&amp;   original,
+                     <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+  : d_firstName(original.d_firstName, basicAllocator)
+  , d_lastName(original.d_lastName, basicAllocator)
+  , d_accounts(original.d_accounts, basicAllocator)
+  , d_id(original.d_id)
+  {
+  }
 
- \par
- &lt;/div&gt;
-, d_lastName(lastName.begin(), lastName.end(), basicAllocator)
-, d_accounts(accounts, basicAllocator)
-, d_id(<span class="keywordtype">id</span>)
-{
-    <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(!firstName.isEmpty());
-    <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(!lastName.isEmpty());
-}
+  <span class="comment">// MANIPULATORS</span>
+  <span class="keyword">inline</span>
+  Customer&amp; Customer::operator=(<span class="keyword">const</span> Customer&amp; rhs)
+  {
+      d_firstName = rhs.d_firstName;
+      d_lastName  = rhs.d_lastName;
+      d_accounts  = rhs.d_accounts;
+      d_id        = rhs.d_id;
+      <span class="keywordflow">return</span> *<span class="keyword">this</span>;
+  }
 
-<span class="keyword">inline</span>
-Customer::Customer(<span class="keyword">const</span> Customer&amp; original, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_firstName(original.d_firstName, basicAllocator)
+                                    <span class="comment">// Aspects</span>
 
- \par
- &lt;/div&gt;
-, d_lastName(original.d_lastName, basicAllocator)
-, d_accounts(original.d_accounts, basicAllocator)
-, d_id(original.d_id)
-{
-}
-
-<span class="comment">// MANIPULATORS</span>
-<span class="keyword">inline</span>
-Customer&amp; Customer::operator=(<span class="keyword">const</span> Customer&amp; rhs)
-{
-    d_firstName = rhs.d_firstName;
-    d_lastName  = rhs.d_lastName;
-    d_accounts  = rhs.d_accounts;
-    d_id        = rhs.d_id;
-    <span class="keywordflow">return</span> *<span class="keyword">this</span>;
-}
-
-                                  <span class="comment">// Aspects</span>
-
-<span class="keyword">inline</span>
-<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *Customer::allocator()<span class="keyword"> const</span>
-<span class="keyword"></span>{
-    <span class="keywordflow">return</span> d_firstName.get_allocator().mechanism();
-}
+  <span class="keyword">inline</span>
+  <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *Customer::allocator()<span class="keyword"> const</span>
+<span class="keyword">  </span>{
+      <span class="keywordflow">return</span> d_firstName.get_allocator().mechanism();
+  }
 </pre></div><br/>
 <br/>
  Again for simplicity the rest of the implementation is not provided. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_implementing_templates_that_may_be_supplied_allocating_types"></a> <a class="anchor" id="usage.example_2~3A_implementing_templates_that_may_be_supplied_allocating_types"></a> <a class="anchor" id="description.usage.example_2~3A_implementing_templates_that_may_be_supplied_allocating_types"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.14.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Implementing Templates That May Be Supplied Allocating Types: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>When writing templatized code that may be parameterized on types that allocate memory it is often necessary to decide whether to pass through the user-supplied allocator to individual objects. Such code (and containers) can use the UsesBslmaAllocator trait defined in the bslma package to decide whether to pass the allocator to an object's constructor. An example of using this trait is provided below by showing a simplified parameterized object pool <code>class</code>: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
-<div class="fragment"><pre class="fragment">                        <span class="comment">// ================</span>
-                        <span class="comment">// class ObjectPool</span>
-                        <span class="comment">// ================</span>
+<div class="fragment"><pre class="fragment">                          <span class="comment">// ================</span>
+                          <span class="comment">// class ObjectPool</span>
+                          <span class="comment">// ================</span>
 
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-<span class="keyword">class </span>ObjectPool {
-    <span class="comment">// This &#39;class&#39; provides a pool of reusable objects of the parameterized</span>
-    <span class="comment">// &#39;TYPE&#39; and assumes that the parameterized &#39;TYPE&#39; provides a default</span>
-    <span class="comment">// constructor, a destructor, and a &#39;reset&#39; method.</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  <span class="keyword">class </span>ObjectPool {
+      <span class="comment">// This &#39;class&#39; provides a pool of reusable objects of the parameterized</span>
+      <span class="comment">// &#39;TYPE&#39; and assumes that the parameterized &#39;TYPE&#39; provides a default</span>
+      <span class="comment">// constructor, a destructor, and a &#39;reset&#39; method.</span>
 
-    <span class="comment">// DATA</span>
-    <a class="code" href="classbsl_1_1list.html">bsl::list&lt;TYPE *&gt;</a>  d_objects;      <span class="comment">// list of managed objects</span>
-    <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>  *d_allocator_p;  <span class="comment">// memory allocator (held, not owned)</span>
+      <span class="comment">// DATA</span>
+      <a class="code" href="classbsl_1_1list.html">bsl::list&lt;TYPE *&gt;</a>  d_objects;      <span class="comment">// list of managed objects</span>
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>  *d_allocator_p;  <span class="comment">// memory allocator (held, not owned)</span>
 
-    <span class="comment">// PRIVATE CLASS METHODS</span>
-    TYPE *createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::false_type</a>);
-        <span class="comment">// Construct an object of the specified &#39;TYPE&#39; that *does not*</span>
-        <span class="comment">// require an allocator to be passed to its constructor.</span>
+      <span class="comment">// PRIVATE CLASS METHODS</span>
+      TYPE *createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::false_type</a>);
+          <span class="comment">// Construct an object of the specified &#39;TYPE&#39; that *does not*</span>
+          <span class="comment">// require an allocator to be passed to its constructor.</span>
 
-    TYPE *createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::true_type</a>);
-        <span class="comment">// Construct an object of the specified &#39;TYPE&#39; that *requires* an</span>
-        <span class="comment">// allocator to be passed to its constructor.</span>
+      TYPE *createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::true_type</a>);
+          <span class="comment">// Construct an object of the specified &#39;TYPE&#39; that *requires* an</span>
+          <span class="comment">// allocator to be passed to its constructor.</span>
 
-  <span class="keyword">public</span>:
-    <span class="comment">// CREATORS</span>
-    ObjectPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
-        <span class="comment">// Create an object pool that invokes the default constructor of the</span>
-        <span class="comment">// the parameterized &#39;TYPE&#39; to construct objects.  The optionally</span>
-        <span class="comment">// specified &#39;basicAllocator&#39; is used to supply memory.  If</span>
-        <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator is</span>
-        <span class="comment">// used.</span>
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      ObjectPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
+          <span class="comment">// Create an object pool that invokes the default constructor of the</span>
+          <span class="comment">// parameterized &#39;TYPE&#39; to construct objects.  The optionally</span>
+          <span class="comment">// specified &#39;basicAllocator&#39; is used to supply memory.  If</span>
+          <span class="comment">// &#39;basicAllocator&#39; is 0, the currently installed default allocator</span>
+          <span class="comment">// is used.</span>
 
-    ~ObjectPool();
-        <span class="comment">// Destroy this object pool.  All objects created by this pool are</span>
-        <span class="comment">// destroyed (even if some of them are still in use) and memory is</span>
-        <span class="comment">// reclaimed.</span>
+      ~ObjectPool();
+          <span class="comment">// Destroy this object pool.  All objects created by this pool are</span>
+          <span class="comment">// destroyed (even if some of them are still in use) and memory is</span>
+          <span class="comment">// reclaimed.</span>
 
-    <span class="comment">// MANIPULATORS</span>
-    TYPE* getObject();
-        <span class="comment">// Return an address providing modifiable access to a</span>
-        <span class="comment">// default-constructed object of the parameterized &#39;TYPE&#39;.  If this</span>
-        <span class="comment">// pool does not have any free objects then a default-constructed</span>
-        <span class="comment">// object is allocated and returned.</span>
+      <span class="comment">// MANIPULATORS</span>
+      TYPE* getObject();
+          <span class="comment">// Return an address providing modifiable access to a</span>
+          <span class="comment">// default-constructed object of the parameterized &#39;TYPE&#39;.  If this</span>
+          <span class="comment">// pool does not have any free objects then a default-constructed</span>
+          <span class="comment">// object is allocated and returned.</span>
 
-    <span class="keywordtype">void</span> releaseObject(TYPE *<span class="keywordtype">object</span>);
-        <span class="comment">// Return the specified &#39;object&#39; back to this object pool.  Invoke the</span>
-        <span class="comment">// &#39;reset&#39; method on &#39;object&#39;.</span>
+      <span class="keywordtype">void</span> releaseObject(TYPE *<span class="keywordtype">object</span>);
+          <span class="comment">// Return the specified &#39;object&#39; back to this object pool.  Invoke</span>
+          <span class="comment">// the &#39;reset&#39; method on &#39;object&#39;.</span>
 
-    <span class="comment">// The rest of the interface is elided for brevity.</span>
-};
+      <span class="comment">// The rest of the interface is elided for brevity.</span>
+  };
 
-<span class="comment">// ============================================================================</span>
-<span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
-<span class="comment">// ============================================================================</span>
+  <span class="comment">// ==========================================================================</span>
+  <span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
+  <span class="comment">// ==========================================================================</span>
 
-                        <span class="comment">// ----------------</span>
-                        <span class="comment">// class ObjectPool</span>
-                        <span class="comment">// ----------------</span>
+                          <span class="comment">// ----------------</span>
+                          <span class="comment">// class ObjectPool</span>
+                          <span class="comment">// ----------------</span>
 </pre></div><br/>
 <br/>
  The <code>createObject</code> private methods below allow an object to be created by specifying an allocator only if it has the <code>UsesBslmaAllocator</code> trait. <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// PRIVATE CLASS METHODS</span>
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-<span class="keyword">inline</span>
-TYPE *ObjectPool&lt;TYPE&gt;::createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::false_type</a>)
-{
-    <span class="keywordflow">return</span> <span class="keyword">new</span> (*d_allocator_p) TYPE();
-}
+<div class="fragment"><pre class="fragment">  <span class="comment">// PRIVATE CLASS METHODS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  <span class="keyword">inline</span>
+  TYPE *ObjectPool&lt;TYPE&gt;::createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::false_type</a>)
+  {
+      <span class="keywordflow">return</span> <span class="keyword">new</span> (*d_allocator_p) TYPE();
+  }
 
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-<span class="keyword">inline</span>
-TYPE *ObjectPool&lt;TYPE&gt;::createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::true_type</a>)
-{
-    <span class="keywordflow">return</span> <span class="keyword">new</span> (*d_allocator_p) TYPE(d_allocator_p);
-}
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  <span class="keyword">inline</span>
+  TYPE *ObjectPool&lt;TYPE&gt;::createObject(<a class="code" href="structbsl_1_1integral__constant.html">bsl::true_type</a>)
+  {
+      <span class="keywordflow">return</span> <span class="keyword">new</span> (*d_allocator_p) TYPE(d_allocator_p);
+  }
 
-<span class="comment">// CREATORS</span>
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-<span class="keyword">inline</span>
-ObjectPool&lt;TYPE&gt;::ObjectPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_objects(basicAllocator)
+  <span class="comment">// CREATORS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  <span class="keyword">inline</span>
+  ObjectPool&lt;TYPE&gt;::ObjectPool(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+  : d_objects(basicAllocator)
+  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+  {
+  }
 
- \par
- &lt;/div&gt;
-, d_allocator_p(<a class="code" href="structbslma_1_1Default.html#a418cbb340801caa455fd33177d1ff8d5">bslma::Default::allocator</a>(basicAllocator))
-{
-}
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  ObjectPool&lt;TYPE&gt;::~ObjectPool()
+  {
+      <span class="keywordflow">for</span> (<a class="code" href="classbsl_1_1List__Iterator.html">bsl::list&lt;TYPE *&gt;::iterator</a> iter = d_objects.begin();
+           iter != d_objects.end();
+           ++iter) {
+          d_allocator_p-&gt;deleteObject(*iter);
+      }
+      d_objects.clear();
+  }
 
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-ObjectPool&lt;TYPE&gt;::~ObjectPool()
-{
-    <span class="keywordflow">for</span> (<a class="code" href="classbsl_1_1List__Iterator.html">bsl::list&lt;TYPE *&gt;::iterator</a> iter = d_objects.begin();
-         iter != d_objects.end();
-         ++iter) {
-        d_allocator_p-&gt;deleteObject(*iter);
-    }
-    d_objects.clear();
-}
+  <span class="comment">// MANIPULATORS</span>
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  TYPE *ObjectPool&lt;TYPE&gt;::getObject()
+  {
+      <span class="keywordflow">if</span> (d_objects.size()) {
+          TYPE *<span class="keywordtype">object</span> = d_objects.back();
+          d_objects.pop_back();
+          <span class="keywordflow">return</span> object;                                              <span class="comment">// RETURN</span>
+      }
 
-<span class="comment">// MANIPULATORS</span>
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-TYPE *ObjectPool&lt;TYPE&gt;::getObject()
-{
-    <span class="keywordflow">if</span> (d_objects.size()) {
-        TYPE *<span class="keywordtype">object</span> = d_objects.back();
-        d_objects.pop_back();
-        <span class="keywordflow">return</span> object;                                                <span class="comment">// RETURN</span>
-    }
+      <span class="keywordflow">return</span> createObject(<a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator&lt;TYPE&gt;</a>());
+  }
 
-    <span class="keywordflow">return</span> createObject(<a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator&lt;TYPE&gt;</a>());
-}
-
-<span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
-<span class="keyword">inline</span>
-<span class="keywordtype">void</span> ObjectPool&lt;TYPE&gt;::releaseObject(TYPE *<span class="keywordtype">object</span>)
-{
-    <span class="keywordtype">object</span>-&gt;reset();
-    d_objects.push_back(<span class="keywordtype">object</span>);
-}
+  <span class="keyword">template</span> &lt;<span class="keyword">typename</span> TYPE&gt;
+  <span class="keyword">inline</span>
+  <span class="keywordtype">void</span> ObjectPool&lt;TYPE&gt;::releaseObject(TYPE *<span class="keywordtype">object</span>)
+  {
+      <span class="keywordtype">object</span>-&gt;reset();
+      d_objects.push_back(<span class="keywordtype">object</span>);
+  }
 </pre></div><br/>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_implementing_a_customized_allocator"></a> <a class="anchor" id="usage.example_3~3A_implementing_a_customized_allocator"></a> <a class="anchor" id="description.usage.example_3~3A_implementing_a_customized_allocator"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.14.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Implementing a Customized Allocator: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Since <a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a> is a protocol, users can create their own concrete implementations for object-specific situations. A complete example of a concrete implementation that allocates memory from a user-supplied static buffer and reverts to an allocator specified at construction if that buffer is exhausted is provided below: </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Since <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> is a protocol, users can create their own concrete implementations for object-specific situations. A complete example of a concrete implementation that allocates memory from a user-supplied static buffer and reverts to an allocator specified at construction if that buffer is exhausted is provided below: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><br/>
 <br/>
-<div class="fragment"><pre class="fragment">                        <span class="comment">// =====================</span>
-                        <span class="comment">// class BufferAllocator</span>
-                        <span class="comment">// =====================</span>
+<div class="fragment"><pre class="fragment">                          <span class="comment">// =====================</span>
+                          <span class="comment">// class BufferAllocator</span>
+                          <span class="comment">// =====================</span>
 
-<span class="keyword">using namespace </span>BloombergLP;
+  <span class="keyword">using namespace </span>BloombergLP;
 
-<span class="keyword">class </span>BufferAllocator : <span class="keyword">public</span> bslma::Allocator {
-    <span class="comment">// This &#39;class&#39; provides a concrete buffer allocator that implements the</span>
-    <span class="comment">// &#39;bslma::Allocator&#39; interface, allocating memory blocks from a fixed-size</span>
-    <span class="comment">// buffer that is supplied by the user at construction, or from an</span>
-    <span class="comment">// optionally-specified allocator once that buffer is exhausted.</span>
+  <span class="keyword">class </span>BufferAllocator : <span class="keyword">public</span> bslma::Allocator {
+      <span class="comment">// This &#39;class&#39; provides a concrete buffer allocator that implements the</span>
+      <span class="comment">// &#39;bslma::Allocator&#39; interface, allocating memory blocks from a</span>
+      <span class="comment">// fixed-size buffer that is supplied by the user at construction, or</span>
+      <span class="comment">// from an optionally-specified allocator once that buffer is exhausted.</span>
 
-    <span class="comment">// DATA</span>
-    <span class="keywordtype">char</span>             *d_buffer_p;      <span class="comment">// buffer to use for memory allocations</span>
-                                       <span class="comment">// (held, not owned)</span>
-    <span class="keywordtype">int</span>               d_bufferSize;    <span class="comment">// initial buffer size</span>
-    <span class="keywordtype">int</span>               d_cursor;        <span class="comment">// current cursor</span>
-    <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;   <span class="comment">// memory allocator to use once</span>
-                                       <span class="comment">// &#39;d_buffer_p&#39; is exhausted (held, not</span>
-                                       <span class="comment">// owned)</span>
+      <span class="comment">// DATA</span>
+      <span class="keywordtype">char</span>             *d_buffer_p;      <span class="comment">// buffer to use for memory</span>
+                                         <span class="comment">// allocations (held, not owned)</span>
+      <span class="keywordtype">int</span>               d_bufferSize;    <span class="comment">// initial buffer size</span>
+      <span class="keywordtype">int</span>               d_cursor;        <span class="comment">// current cursor</span>
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;   <span class="comment">// memory allocator to use once</span>
+                                         <span class="comment">// &#39;d_buffer_p&#39; is exhausted (held,</span>
+                                         <span class="comment">// not owned)</span>
 
-    <span class="comment">// NOT IMPLEMENTED</span>
-    BufferAllocator(<span class="keyword">const</span> BufferAllocator&amp;);
-    BufferAllocator&amp; operator=(<span class="keyword">const</span> BufferAllocator&amp;);
+      <span class="comment">// NOT IMPLEMENTED</span>
+      BufferAllocator(<span class="keyword">const</span> BufferAllocator&amp;);
+      BufferAllocator&amp; operator=(<span class="keyword">const</span> BufferAllocator&amp;);
 
-  <span class="keyword">public</span>:
-    <span class="comment">// CREATORS</span>
-    BufferAllocator(<span class="keywordtype">char</span>             *buffer,
-                    <span class="keywordtype">int</span>               bufferSize,
-                    <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
-        <span class="comment">// Create a buffer allocator for allocating memory blocks from the</span>
-        <span class="comment">// specified &#39;buffer&#39; of the specified &#39;bufferSize&#39;.  Optionally</span>
-        <span class="comment">// specify a &#39;basicAllocator&#39; used to supply memory after that &#39;buffer&#39;</span>
-        <span class="comment">// is exhausted.  If &#39;basicAllocator&#39; is 0, the currently installed</span>
-        <span class="comment">// default allocator is used.</span>
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      BufferAllocator(<span class="keywordtype">char</span>             *buffer,
+                      <span class="keywordtype">int</span>               bufferSize,
+                      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator = 0);
+          <span class="comment">// Create a buffer allocator for allocating memory blocks from the</span>
+          <span class="comment">// specified &#39;buffer&#39; of the specified &#39;bufferSize&#39;.  Optionally</span>
+          <span class="comment">// specify a &#39;basicAllocator&#39; used to supply memory after that</span>
+          <span class="comment">// &#39;buffer&#39; is exhausted.  If &#39;basicAllocator&#39; is 0, the currently</span>
+          <span class="comment">// installed default allocator is used.</span>
 
-    <span class="keyword">virtual</span> ~BufferAllocator();
-        <span class="comment">// Destroy this buffer allocator.</span>
+      <span class="keyword">virtual</span> ~BufferAllocator();
+          <span class="comment">// Destroy this buffer allocator.</span>
 
-    <span class="comment">// MANIPULATORS</span>
-    <span class="keyword">virtual</span> <span class="keywordtype">void</span> *allocate(bsls_Types::size_type size);
-        <span class="comment">// Return the address of a contiguous block of maximally-aligned memory</span>
-        <span class="comment">// of the specified &#39;size&#39; (in bytes).  If &#39;size&#39; is 0 no memory is</span>
-        <span class="comment">// allocated and 0 is returned.  If the allocation request exceeds the</span>
-        <span class="comment">// remaining free memory space in the external buffer supplied at</span>
-        <span class="comment">// construction, the allocator specified at construction is used.  The</span>
-        <span class="comment">// behavior is undefined unless &#39;0 &lt;= size&#39;.</span>
+      <span class="comment">// MANIPULATORS</span>
+      <span class="keyword">virtual</span> <span class="keywordtype">void</span> *allocate(bsls_Types::size_type <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>);
+          <span class="comment">// Return the address of a contiguous block of maximally-aligned</span>
+          <span class="comment">// memory of the specified &#39;size&#39; (in bytes).  If &#39;size&#39; is 0 no</span>
+          <span class="comment">// memory is allocated and 0 is returned.  If the allocation request</span>
+          <span class="comment">// exceeds the remaining free memory space in the external buffer</span>
+          <span class="comment">// supplied at construction, the allocator specified at construction</span>
+          <span class="comment">// is used.  The behavior is undefined unless &#39;0 &lt;= size&#39;.</span>
 
-    <span class="keyword">virtual</span> <span class="keywordtype">void</span> deallocate(<span class="keywordtype">void</span> *address);
-        <span class="comment">// Deallocate the specified &#39;address&#39; if it did not come from the</span>
-        <span class="comment">// external buffer specified at construction and do nothing otherwise.</span>
-        <span class="comment">// Note that if the buffer specified at construction was not exhausted</span>
-        <span class="comment">// then no deallocation overhead is incurred.</span>
-};
+      <span class="keyword">virtual</span> <span class="keywordtype">void</span> deallocate(<span class="keywordtype">void</span> *address);
+          <span class="comment">// Deallocate the specified &#39;address&#39; if it did not come from the</span>
+          <span class="comment">// external buffer specified at construction and do nothing</span>
+          <span class="comment">// otherwise.  Note that if the buffer specified at construction was</span>
+          <span class="comment">// not exhausted then no deallocation overhead is incurred.</span>
+  };
 
-<span class="comment">// ============================================================================</span>
-<span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
-<span class="comment">// ============================================================================</span>
+  <span class="comment">// ==========================================================================</span>
+  <span class="comment">//                      INLINE FUNCTION DEFINITIONS</span>
+  <span class="comment">// ==========================================================================</span>
 
-                        <span class="comment">// ---------------------</span>
-                        <span class="comment">// class BufferAllocator</span>
-                        <span class="comment">// ---------------------</span>
+                          <span class="comment">// ---------------------</span>
+                          <span class="comment">// class BufferAllocator</span>
+                          <span class="comment">// ---------------------</span>
 
-<span class="comment">// CREATORS</span>
-<span class="keyword">inline</span>
-BufferAllocator::BufferAllocator(<span class="keywordtype">char</span>             *buffer,
-                                 <span class="keywordtype">int</span>               bufferSize,
-                                 <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
- &lt;div <span class="keyword">class</span>=<span class="stringliteral">&quot;hanging&quot;</span>&gt;
- \par
-  d_buffer_p(buffer)
+  <span class="comment">// CREATORS</span>
+  <span class="keyword">inline</span>
+  BufferAllocator::BufferAllocator(<span class="keywordtype">char</span>             *buffer,
+                                   <span class="keywordtype">int</span>               bufferSize,
+                                   <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+  : d_buffer_p(buffer)
+  , d_bufferSize(bufferSize)
+  , d_cursor(0)
+  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+  {
+  }
 
- \par
- &lt;/div&gt;
-, d_bufferSize(bufferSize)
-, d_cursor(0)
-, d_allocator_p(<a class="code" href="structbslma_1_1Default.html#a418cbb340801caa455fd33177d1ff8d5">bslma::Default::allocator</a>(basicAllocator))
-{
-}
-
-<span class="keyword">inline</span>
-BufferAllocator::~BufferAllocator()
-{
-}
+  <span class="keyword">inline</span>
+  BufferAllocator::~BufferAllocator()
+  {
+  }
 </pre></div><br/>
 <br/>
  The function definitions for the <code>BufferAllocator</code> <code>class</code> are provided below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment"><span class="comment">// MANIPULATORS</span>
-<span class="keywordtype">void</span> *BufferAllocator::allocate(bsls_Types::size_type size)
-{
-    <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(0 &lt;= size);
+<div class="fragment"><pre class="fragment">  <span class="comment">// MANIPULATORS</span>
+  <span class="keywordtype">void</span> *BufferAllocator::allocate(bsls_Types::size_type <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>)
+  {
+      <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(0 &lt;= size);
 
-    <span class="comment">// Calculate the appropriate aligned offset</span>
+      <span class="comment">// Calculate the appropriate aligned offset</span>
 
-    <span class="keyword">const</span> <span class="keywordtype">int</span> offset = bsls_AlignmentUtil::calculateAlignmentOffset(
-                                  d_buffer_p + d_cursor,
-                                      <a class="code" href="structbsls_1_1AlignmentUtil.html#aab13e853fd9dea2815d49d227ff9c502a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a>);
+      <span class="keyword">const</span> <span class="keywordtype">int</span> offset = bsls_AlignmentUtil::calculateAlignmentOffset(
+                                      d_buffer_p + d_cursor,
+                                      <a class="code" href="structbsls_1_1AlignmentUtil.html#a6b75b476a8862e9508d03ed9c217bb69a74bef72781f251014a813e406edabedb">bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT</a>);
 
-    <span class="keywordflow">if</span> (d_cursor + offset + size &gt; d_bufferSize) {
-        <span class="keywordflow">return</span> d_allocator_p-&gt;allocate(size);                         <span class="comment">// RETURN</span>
-    }
+      <span class="keywordflow">if</span> (d_cursor + offset + size &gt; d_bufferSize) {
+          <span class="keywordflow">return</span> d_allocator_p-&gt;allocate(size);                       <span class="comment">// RETURN</span>
+      }
 
-    <span class="keywordtype">void</span> *result = <span class="keyword">static_cast&lt;</span><span class="keywordtype">void</span> *<span class="keyword">&gt;</span>(&amp;d_buffer_p[d_cursor + offset]);
-    d_cursor += offset + size;
+      <span class="keywordtype">void</span> *result = <span class="keyword">static_cast&lt;</span><span class="keywordtype">void</span> *<span class="keyword">&gt;</span>(&amp;d_buffer_p[d_cursor + offset]);
+      d_cursor += offset + size;
 
-    <span class="keywordflow">return</span> result;
-}
+      <span class="keywordflow">return</span> result;
+  }
 
-<span class="keywordtype">void</span> BufferAllocator::deallocate(<span class="keywordtype">void</span> *address)
-{
-    <span class="keywordflow">if</span> (!(d_buffer_p &lt;= address &amp;&amp; address &lt; d_buffer_p + d_bufferSize)) {
-        d_allocator_p-&gt;deallocate(address);
-    }
-}
+  <span class="keywordtype">void</span> BufferAllocator::deallocate(<span class="keywordtype">void</span> *address)
+  {
+      <span class="keywordflow">if</span> (!(d_buffer_p &lt;= address &amp;&amp; address &lt; d_buffer_p + d_bufferSize)) {
+          d_allocator_p-&gt;deallocate(address);
+      }
+  }
 </pre></div><br/>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:50 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

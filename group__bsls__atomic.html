@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_atomic Component</title>
+<title>BDE 3.0: bsls_atomic Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -91,19 +91,19 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#3.2.1">Example 1: Usage Statistics on a Thread Pool</a> </li>
 <li>
-<a href="#3.2.2">Example 2: Thread-safe Counted Handle</a> <ul>
+<a href="#3.2.2">Example 2: Thread-Safe Counted Handle</a> </li>
 <li>
-<a href="#3.2.2.1">Class <code>my_CountedHandleRep</code></a> </li>
+<a href="#3.2.3">Class <code>my_CountedHandleRep</code></a> <ul>
 <li>
-<a href="#3.2.2.2">Class <code>my_CountedHandle</code></a> </li>
+<a href="#3.2.3.1">Class <code>my_CountedHandle</code></a> </li>
 <li>
-<a href="#3.2.2.3">Function Definitions for <code>my_CountedHandleRep</code></a> </li>
+<a href="#3.2.3.2">Function Definitions for <code>my_CountedHandleRep</code></a> </li>
 <li>
-<a href="#3.2.2.4">Function Definitions for <code>my_CountedHandle</code></a> </li>
+<a href="#3.2.3.3">Function Definitions for <code>my_CountedHandle</code></a> </li>
 </ul>
 </li>
 <li>
-<a href="#3.2.3">Example 3: Thread-Safe Lock-Free Singly-Linked List</a> </li>
+<a href="#3.2.4">Example 3: Thread-Safe Lock-Free Singly-Linked List</a> </li>
 </ul>
 </li>
 </ul>
@@ -231,12 +231,12 @@ sequential consistency - the operation has both acquire and release guarantees, 
  Note that functions <code>createWorkerThread</code> and <code>waitAllThreads</code> can be implemented using any thread-support package. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="usage.example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="description.usage.example_2~3A_thread-safe_counted_handle"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.2.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2: Thread-safe Counted Handle: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 2: Thread-Safe Counted Handle: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following example demonstrates the use of atomic integer operations to implement a thread-safe ref-counted handle similar to a shared pointer. Each handle (of type <code>my_CountedHandle</code>) maintains a pointer to a representation object, <code>my_CountedHandleRep</code>, which in turn, stores both a pointer to the managed object and a reference counter. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Both the handle class and the representation class are template classes with two template parameters. The template parameter, <code>INSTANCE</code>, represents the type of the "instance", or managed object. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>A representation object can be shared by several handle objects. When a handle object is assigned to a second handle object, the address of the representation is copied to the second handle, and the reference count on the representation is atomically incremented. When a handle releases its reference to the representation, it atomically decrements the reference count. If the resulting reference count becomes 0 (and there are no more references to the object), the handle deletes the representation object and the representation object, in turn, deletes the managed object (<code>INSTANCE</code>). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="class_my_countedhandlerep"></a> <a class="anchor" id="example_2.class_my_countedhandlerep"></a> <a class="anchor" id="usage.example_2.class_my_countedhandlerep"></a> <a class="anchor" id="description.usage.example_2.class_my_countedhandlerep"></a> <a class="anchor" id="3.2.2.1"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="class_my_countedhandlerep"></a> <a class="anchor" id="usage.class_my_countedhandlerep"></a> <a class="anchor" id="description.usage.class_my_countedhandlerep"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
 <dl class="user"><dt><b>Class my_CountedHandleRep: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we define class <code>my_CountedHandleRep</code>. This class manages a single <code>INSTANCE</code> object on behalf of multiple "handle" objects; since different "handle" objects may be active in different threads, class <code>my_CountedHandleRep</code> must be (fully) thread-safe. Specifically, methods <code>increment</code> and <code>decrement</code> must work atomically. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The class declaration for <code>my_CountedHandleRep</code> is identical to the same class in component <code>bsls_atomicoperations</code>, with a single exception: member <code>d_count</code> is of type <code><a class="el" href="classbsls_1_1AtomicInt.html">bsls::AtomicInt</a></code>, rather than <code>bsls::AtomicOperations::Int</code>. Whereas <code>bsls::AtomicOperations::Int</code> is merely a <code>typedef</code> for a platform-specific data type to be used in atomic integer operations, <code><a class="el" href="classbsls_1_1AtomicInt.html">bsls::AtomicInt</a></code> encapsulates those atomic operations as member functions and operator overloads. Class <code>my_CountedHandleRep</code> will benefit from this encapsulation: Its method implementations will be able to operate on <code>d_count</code> as if it were a standard integer. </dd></dl>
@@ -279,7 +279,8 @@ sequential consistency - the operation has both acquire and release guarantees, 
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="class_my_countedhandle"></a> <a class="anchor" id="example_2.class_my_countedhandle"></a> <a class="anchor" id="usage.example_2.class_my_countedhandle"></a> <a class="anchor" id="description.usage.example_2.class_my_countedhandle"></a> <a class="anchor" id="3.2.2.2"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="class_my_countedhandle"></a> <a class="anchor" id="class_my_countedhandlerep.class_my_countedhandle"></a> <a class="anchor" id="usage.class_my_countedhandlerep.class_my_countedhandle"></a> <a class="anchor" id="description.usage.class_my_countedhandlerep.class_my_countedhandle"></a> <a class="anchor" id="3.2.3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Class my_CountedHandle: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Then, we create class <code>my_CountedHandle</code> that provides an individual handle to the shared, reference-counted object. Each <code>my_CountedHandle</code> object acts as a smart pointer, supplying an overloaded <code>operator-&gt;</code> that provides access to the underlying <code>INSTANCE</code> object via pointer semantics. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>my_CountedHandle</code> can also be copied freely; the copy constructor will use the <code>increment</code> method from <code>my_CountedHandleRep</code> to note the extra copy. Similarly, the destructor will call <code>my_CountedHandleRep::decrement</code> to note that there is one fewer handle the underlying <code>INSTANCE</code> has, and delete the "rep" object when its reference count is reduced to zero. </dd></dl>
@@ -311,7 +312,8 @@ sequential consistency - the operation has both acquire and release guarantees, 
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="example_2.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="usage.example_2.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="description.usage.example_2.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="3.2.2.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="class_my_countedhandlerep.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="usage.class_my_countedhandlerep.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="description.usage.class_my_countedhandlerep.function_definitions_for_my_countedhandlerep"></a> <a class="anchor" id="3.2.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Function Definitions for my_CountedHandleRep: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Next, we provide a definition for the <code>static</code> <code>deleteObject</code> method, which is called by the destructor for class <code>my_CountedHandle</code> for the last instance of <code>my_CountedHandle</code> using the given "rep" object: <br/>
 <br/>
@@ -369,7 +371,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  This method atomically decrements the number of references to this <code>my_CountedHandleRep</code> and, once again, atomicity is guaranteed by the underlying type of <code>d_count</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="function_definitions_for_my_countedhandle"></a> <a class="anchor" id="example_2.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="usage.example_2.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="description.usage.example_2.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="3.2.2.4"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="function_definitions_for_my_countedhandle"></a> <a class="anchor" id="class_my_countedhandlerep.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="usage.class_my_countedhandlerep.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="description.usage.class_my_countedhandlerep.function_definitions_for_my_countedhandle"></a> <a class="anchor" id="3.2.3.3"></a> </dd></dl>
 <dl class="user"><dt><b>Function Definitions for my_CountedHandle: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Next, we define the first constructor for <code>my_CountedHandle</code>, which is used when creating a handle for a new <code>INSTANCE</code>; note that the <code>INSTANCE</code> is constructed separately, and a pointer to that object is passed as the first argument (<code>object</code>): <br/>
 <br/>
@@ -435,7 +437,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Note that, while class <code>my_CountedHandleRep</code> is itself fully thread-safe, it does not guarantee thread safety for the <code>INSTANCE</code> object. In order to provide thread safety for the <code>INSTANCE</code> in the general case, the "rep" would need to use a more general concurrency mechanism such as a mutex. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="description.usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="description.usage.example_3~3A_thread-safe_lock-free_singly-linked_list"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.4"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Thread-Safe Lock-Free Singly-Linked List: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example demonstrates the use of atomic pointers to implement a fast and thread-aware, singly-linked list. The example class, <code>my_PtrStack</code>, is a templatized pointer stack, supporting <code>push</code> and <code>pop</code> methods. The class is implemented using a single-linked list. Nodes in the list are linked together using atomic operations. Instance of this structure are allocated using the provided allocator. When nodes are freed, they are cached on a free list. This free list is also implemented as a single-linked list, using atomic pointer operations. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example parallels the third usage example given for component <code>bsls_atomicoperations</code>, presenting a different implementation of <code>my_PtrStack&lt;T&gt;</code>, with an identical public interface. Note that, where the <code>bsls_atomicoperations</code> example uses the basic data type <code>bsls::AtomicOperations::AtomicTypes::Pointer</code> for members <code>d_list</code> and <code>d_freeList</code>, this implementation uses instead the higher-level type <code><a class="el" href="classbsls_1_1AtomicPointer.html">bsls::AtomicPointer</a>&lt;T&gt;</code>. </dd></dl>
@@ -621,7 +623,7 @@ sequential consistency - the operation has both acquire and release guarantees, 
 <br/>
  Notice that if the stack was empty, a NULL pointer is returned. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:53 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

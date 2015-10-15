@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_randomaccessiterator.h                                      -*-C++-*-
@@ -235,7 +235,7 @@ namespace bslstl {
                         // class RandomAccessIterator
                         //===========================
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE =
+template &lt;class T, class ITER_IMP, class TAG_TYPE =
                                                std::random_access_iterator_tag&gt;
 class RandomAccessIterator
     : public BidirectionalIterator&lt;T,ITER_IMP, TAG_TYPE&gt; {
@@ -340,7 +340,7 @@ class RandomAccessIterator
 };
 
 // FREE OPERATORS
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator==(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator has the same value as the
@@ -349,7 +349,7 @@ bool operator==(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // end value for the underlying sequence.  The behavior is undefined unless
     // both iterators refer to the same underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator!=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator does not have the same
@@ -359,21 +359,21 @@ bool operator!=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // for the underlying sequence.  The behavior is undefined unless both
     // iterators refer to the same underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator++(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // Increment the specified &#39;iter&#39; to next element.  Return the previous
     // value of &#39;iter&#39;.  The behavior is undefined if, on entry, &#39;iter&#39; has the
     // past-the-end value for an iterator of the underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator--(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int);
     // Decrement the specified &#39;iter&#39; to previous element.  Return the previous
     // value of &#39;iter&#39;.  The behavior is undefined if, on entry, &#39;iter&#39; has the
     // same value as an iterator to the start of the underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator+(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
           std::ptrdiff_t                                   rhs);
@@ -381,7 +381,7 @@ operator+(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // the specified &#39;lhs&#39;.  The behavior is undefined unless &#39;lhs&#39;, after
     // incrementing by &#39;rhs&#39;, is within the bounds of the underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator+(std::ptrdiff_t                                   lhs,
           const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
@@ -389,7 +389,7 @@ operator+(std::ptrdiff_t                                   lhs,
     // the specified &#39;rhs&#39;.  The behavior is undefined unless &#39;rhs&#39;, after
     // incrementing by &#39;lhs&#39;, is within the bounds of the underlying sequence.
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 operator-(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
           std::ptrdiff_t                                   rhs);
@@ -401,7 +401,7 @@ operator-(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     //  iter + (-rhs)
     //..
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 std::ptrdiff_t
 operator-(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
           const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
@@ -410,7 +410,7 @@ operator-(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
     // iterators into the same underlying sequence.  Note that the result might
     // be negative.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator&lt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if (1) the specified &#39;lhs&#39; iterator refers to an element
@@ -419,7 +419,7 @@ bool operator&lt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lh
     // this sequence, and &#39;false&#39; otherwise.  The behavior is undefined unless
     // &#39;lhs&#39; and &#39;rhs&#39; are iterators into the same underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator&gt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if (1) the specified &#39;lhs&#39; iterator refers to an element
@@ -428,7 +428,7 @@ bool operator&gt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lh
     // this sequence, and &#39;false&#39; otherwise.  The behavior is undefined unless
     // &#39;lhs&#39; and &#39;rhs&#39; are iterators into the same underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator&lt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if (1) the specified &#39;lhs&#39; iterator has the same value as
@@ -438,7 +438,7 @@ bool operator&lt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; l
     // is undefined unless &#39;lhs&#39; and &#39;rhs&#39; are iterators into the same
     // underlying sequence.
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 bool operator&gt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                 const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs);
     // Return &#39;true&#39; if (1) the specified &#39;lhs&#39; iterator has the same value as
@@ -448,22 +448,22 @@ bool operator&gt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; l
     // behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39; are iterators into the same
     // underlying sequence.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                     //----------------------------------
                     // class RandomAccessIterator
                     //----------------------------------
 
 // CREATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::RandomAccessIterator()
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::
 RandomAccessIterator(const ITER_IMP&amp; implementation)
@@ -471,7 +471,7 @@ RandomAccessIterator(const ITER_IMP&amp; implementation)
 {
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::
 RandomAccessIterator(
@@ -481,7 +481,7 @@ RandomAccessIterator(
 }
 
 // MANIPULATORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
@@ -490,7 +490,7 @@ RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator++()
     return *this;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator--()
@@ -499,7 +499,7 @@ RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator--()
     return *this;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator+=(difference_type offset)
@@ -508,7 +508,7 @@ RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator+=(difference_type offs
     return *this;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp;
 RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator-=(difference_type offset)
@@ -518,7 +518,7 @@ RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator-=(difference_type offs
 }
 
 // ACCESSORS
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 T&amp; RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator[](
                                                    difference_type index) const
@@ -531,7 +531,7 @@ T&amp; RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;::operator[](
 }  // close package namespace
 
 // FREE OPERATORS
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator==(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -539,7 +539,7 @@ bool bslstl::operator==(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&a
     return lhs.imp() == rhs.imp();
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator!=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -547,7 +547,7 @@ bool bslstl::operator!=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&a
     return !(lhs == rhs);
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator++(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)
@@ -557,7 +557,7 @@ bslstl::operator++(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, in
     return tmp;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator--(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, int)
@@ -567,7 +567,7 @@ bslstl::operator--(RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; iter, in
     return tmp;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator+(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
@@ -578,7 +578,7 @@ bslstl::operator+(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs
     return result;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator+(std::ptrdiff_t                                   lhs,
@@ -587,7 +587,7 @@ bslstl::operator+(std::ptrdiff_t                                   lhs,
     return rhs + lhs;
 }
 
-template &lt;typename T, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bslstl::RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;
 bslstl::operator-(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
@@ -596,7 +596,7 @@ bslstl::operator-(const RandomAccessIterator&lt;T,ITER_IMP,TAG_TYPE&gt;&amp; lhs
     return lhs + -rhs;
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 std::ptrdiff_t bslstl::operator-(
                          const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
@@ -605,7 +605,7 @@ std::ptrdiff_t bslstl::operator-(
     return lhs.imp() - rhs.imp();
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator&lt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                        const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -613,7 +613,7 @@ bool bslstl::operator&lt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;
     return lhs.imp() &lt; rhs.imp();
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator&gt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                        const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -621,7 +621,7 @@ bool bslstl::operator&gt;(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;
     return rhs &lt; lhs;
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator&lt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)
@@ -629,7 +629,7 @@ bool bslstl::operator&lt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt
     return !(rhs &lt; lhs);
 }
 
-template &lt;typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE&gt;
+template &lt;class T1, class T2, class ITER_IMP, class TAG_TYPE&gt;
 inline
 bool bslstl::operator&gt;=(const RandomAccessIterator&lt;T1,ITER_IMP,TAG_TYPE&gt;&amp; lhs,
                         const RandomAccessIterator&lt;T2,ITER_IMP,TAG_TYPE&gt;&amp; rhs)

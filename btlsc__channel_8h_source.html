@@ -1,0 +1,706 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlsc_channel.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSC_CHANNEL
+#define INCLUDED_BTLSC_CHANNEL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for synchronous stream-based communication.
+//
+//@CLASSES:
+//  btlsc::Channel: a synchronous stream-based channel protocol
+//
+//@SEE_ALSO: btlsc_timedchannel, btlsc_cbchannel, btlsc_channelallocator
+//
+//@DESCRIPTION: This component provides a class, &#39;btlsc::Channel&#39;, that defines
+// an abstract interface for an end-point of a bi-directional synchronous
+// (i.e., blocking) stream-based communication channel.  The &#39;btlsc::Channel&#39;
+// protocol supports efficient &quot;buffered&quot; transport and the syntax to enable
+// efficient vector I/O operations (i.e., Unix-style scatter/gather &#39;readv&#39; and
+// &#39;writev&#39;).  Various forms of &quot;partial transmission&quot; authorizations (i.e.,
+// &quot;raw&quot; OS-level atomic operations and interruptions due to an &quot;asynchronous
+// event&quot;) are also supported as appropriate.
+//
+///Protocol Hierarchy
+///------------------
+// &#39;btlsc::Channel&#39; forms the base of an interface hierarchy; other interfaces
+// may be defined by direct public inheritance:
+//..
+//                           ,--------------.
+//                          ( btlsc::Channel )
+//                           `--------------&#39;
+//..
+//
+///Synchronous Stream-Based Transport
+///----------------------------------
+// This interface establishes methods for synchronous stream-based transport.
+// Each read or write method will block until one of three possible outcomes
+// is reached: (1) &quot;success&quot; -- the specified number of bytes was transmitted,
+// (2) &quot;partial result&quot; -- the operation was interrupted (e.g., via an
+// asynchronous event), or (3) &quot;error&quot; -- an implementation-dependent error
+// occurred.  In all cases, a &quot;status&quot; value is returned; an optional leading
+// (&#39;int *&#39;) &#39;augStatus&#39; argument may be provided to enable the caller to
+// distinguish among various reasons for a partial result (see below).  The
+// user may retry a partial-result operation (with method arguments suitably
+// adjusted), with a reasonable expectation of success.  Finally, concrete
+// synchronous stream-based channels do a &quot;best effort&quot; in sending and
+// receiving the specified data, but need not guarantee successful
+// transmission.
+//
+///Buffered Transport
+///------------------
+// Non-vector read operations support a &quot;buffered&quot; variant that may be more
+// efficient in some situations.  For such operations, the prefix &quot;buffered&quot;
+// appears before the basic operation name in the full method name (e.g.,
+// &#39;bufferedRead&#39;).  Note that, for blocking channels, there is no need for
+// buffered write operations.
+//
+// In buffered operations, the caller does not provide a buffer, but rather
+// receives direct (non-modifiable) access to the implementation&#39;s buffer.  In
+// the event of a partial read (see below), the data remains buffered and
+// subsequent reads will behave as if the buffered operation had never
+// occurred.  Once a buffered read operation succeeds (i.e., receives the
+// requested number of bytes) the buffered contents will remain valid only as
+// long as the channel is not modified.  Note that &quot;buffered&quot; and &quot;vector&quot;
+// (&#39;readv&#39;, see below) are incompatible read options.
+//
+///Partial Results
+///---------------
+// The &quot;simple&quot; results of read and write operations are &quot;success&quot; (with a
+// status equal to the requested number of bytes) and &quot;error&quot; (with a negative
+// status).  More complex behavior is also supported, some of which is at the
+// option of the user.  Specifically, the caller may authorize the possibility
+// of another outcome via combinations of the following two mechanisms: (1) an
+// interruption due to an asynchronous event and (2) a &quot;raw&quot; operation, i.e.,
+// accepting the results of a single low-level (implementation dependent)
+// atomic I/O operation (without retrying).  These two mechanisms (discussed
+// in more detail below) may each return with a &quot;partial result&quot;, indicated by
+// a non-negative status that is less than the requested number of bytes.  Note
+// that asynchronous events, but *not* raw operations, may result in a return
+// status of zero bytes.
+//
+///Asynchronous Events
+///- - - - - - - - - -
+// Methods in this protocol anticipate the possible occurrence of an
+// &quot;asynchronous event&quot; (AE) during execution.  A common example of an AE is a
+// Unix signal, but note that a specific Unix signal, if not detected or
+// implemented, *may* not result in an AE.
+//
+// This interface cannot fully specify either the nature of or the behavior
+// resulting from an AE, but certain restrictions can be imposed.  By default,
+// AEs are either ignored or, if that is not possible, cause an error.  At the
+// user&#39;s option, however, a concrete implementation can be authorized to
+// return, if such occurrence is detected, a &quot;partial result&quot; upon occurrence
+// of an AE.  Such authorizations are made explicitly by incorporating into the
+// optional (trailing) integer &#39;flags&#39; argument to a method call the
+// &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39; value.
+//
+///Raw Transmissions
+///- - - - - - - - -
+// All read and unbuffered write methods support a &quot;raw&quot; variant in which the
+// operation is allowed to return with a &quot;partial result&quot; if (1) *at* *least*
+// *one* *byte* has been transmitted and (2) no additional bytes are
+// *immediately* transmittable.  The &quot;raw&quot; mode is particularly useful to
+// callers waiting for some read activity, who will then follow up with
+// additional read requests after observing the initial transmission.  Raw
+// transmissions are authorized by methods whose names end in the suffix &#39;Raw&#39;.
+// Note that the &quot;raw&quot; mode is not supported for buffered-write operations.
+//
+///&#39;augStatus&#39;
+///- - - - - -
+// Since there are several possible reasons for a &quot;partial result&quot;, the caller
+// may wish to know the specific cause.  A second status value, &#39;augStatus&#39;
+// (&quot;augmented status&quot;) may be requested as an optional *initial* (&#39;int *&#39;)
+// argument to each transmission function.  If specified, &#39;augStatus&#39; will be
+// set to a positive value if the interruption was due to an &quot;asynchronous
+// event&quot; and to a negative value if a &quot;raw&quot; operation could not complete.
+// Note that &#39;augStatus&#39; will not be modified on success or error, but only on
+// a partial result.  Also note that a raw operation cannot terminate normally
+// with less than 1 byte transmitted.  Finally, note that an &#39;augStatus&#39; of
+// zero is not possible for this protocol; the zero value is reserved for
+// protocols supporting timeouts.
+//
+///Scatter/Gather (&#39;readv&#39;/&#39;writev&#39;)
+///---------------------------------
+// This interface supports &quot;vector I/O&quot; -- the simultaneous reading from or
+// writing to multiple buffers -- via Unix-style &#39;readv&#39; and &#39;writev&#39; variants
+// of the normal single-buffer methods.  Scatter/Gather operations use either
+// the &#39;btls::Iovec&#39; or &#39;btls::Ovec&#39; objects which use a &#39;iovec&#39; &#39;struct&#39; on
+// Unix platforms or a &#39;WSABUF&#39; &#39;struct&#39; on Windows.  In either structure, the
+// total number of bytes to be read or written is determined by the sum of each
+// buffer of the non-negative &#39;numBuffers&#39;.  Note that the &#39;btls::Ovec&#39; variant
+// enables write operations to avoid having to cast away &#39;const&#39; in order to
+// hold the address of non-modifiable data to be written.  The following
+// simple example shows how to create and populate an &#39;btls::Ovec&#39; array in
+// preparation for a &#39;writev&#39; operation:
+//..
+//     void myWritevAndPrintStatusWhenAvailable(btlsc::Channel *channel)
+//         // Write the integer representation of the length of a character
+//         // string followed by the (null-terminated) string data itself to
+//         // the specified &#39;channel&#39;; upon completion, report the status
+//         // of the &quot;write&quot; operation to &#39;cout&#39;.
+//     {
+//         const char *const MESSAGE = &quot;Hello World!&quot;;
+//         const int         HEADER  = strlen(MESSAGE);
+//         enum { NUM_BUFFERS = 2 };
+//
+//         btls::Ovec buffers[NUM_BUFFERS];
+//
+//         // Set each buffer&#39;s data and corresponding length.
+//
+//         buffer[0].setBuffer(&amp;HEADER, sizeof HEADER);
+//         buffer[1].setBuffer(MESSAGE, HEADER);
+//
+//         if (channel-&gt;writev(buffers, NUM_BUFFERS) &lt; 0) {
+//             bsl::cout &lt;&lt; &quot;Buffered write operation failed!&quot; &lt;&lt; bsl::endl;
+//         }
+//
+//         // Notice that the &#39;writev&#39; operation above does not
+//         // authorize any partial write operations whatsoever.
+//     }
+//..
+//
+///Synopsis
+///--------
+// The following chart summarizes the set of 20 transmission methods that are
+// available to read and write data from and to a &#39;btlsc::Channel&#39;; note that
+// &quot;buffered readv&quot; and all &quot;buffered write (and writev)&quot; operations are
+// nonsensical and, therefore, omitted from the protocol:
+//..
+//    Buffered    Re/Wr    Vec    Raw    Method Name
+//    --------    -----    ---    ---    --------------
+//                READ                   read
+//                READ            RAW    readRaw
+//
+//                READ     VEC           readv
+//                READ     VEC    RAW    readvRaw
+//
+//    BUFFERED    READ                   bufferedRead
+//    BUFFERED    READ            RAW    bufferedReadRaw
+//
+//                WRITE                  write
+//                WRITE           RAW    writeRaw
+//
+//                WRITE    VEC           writev
+//                WRITE    VEC    RAW    writevRaw
+//..
+// Each of these methods supports the specification of a flag value:
+//..
+//  btlsc::Flag::k_ASYNC_INTERRUPT
+//..
+// supplied in an optional trailing integer to enable &quot;asynchronous events&quot; to
+// cause partial results; by default, such events are ignored.
+//
+// Each of these methods is overloaded to allow the caller to optionally
+// specify the address of an &#39;augStatus&#39;, which will then be modified in the
+// event of a partial result.
+//
+///Usage
+///-----
+// The &#39;btlsc&#39; style of channel interface is used to transmit sequences of
+// specified size across some concrete channel implementation.  In this example
+// we demonstrate how to implement a remote procedure call (RPC) to a factorial
+// function taking an &#39;int&#39; and returning a &#39;double&#39;.  For simplicity, we will
+// assume that both the &#39;int&#39; and &#39;double&#39; formats are binary compatible across
+// client and server platforms:
+//..
+//  double factorial(int number)
+//      // Return the factorial of the specified integral &#39;number&#39; as a value
+//      // of type &#39;double&#39;.  The behavior is undefined unless &#39;0 &lt;= number&#39;.
+//      // Note that this helper function is provided for the server to
+//      // calculate the factorial value.
+//  {
+//      if (0 == number) {
+//          return 1;                                                 // RETURN
+//      }
+//      else {
+//          return number * factorial(number - 1);                    // RETURN
+//      }
+//  }
+//
+//  int factorialClient(double *result, int input, btlsc::Channel *channel)
+//      // Load into the specified &#39;result&#39; the factorial of the specified
+//      // &#39;input&#39; using the specified &#39;channel&#39; (which is assumed to be
+//      // connected to an appropriate factorial service).  Return 0 on
+//      // success, and -1, with no effect on &#39;result&#39;, on error.  The
+//      // behavior is undefined unless &#39;0 &lt;= input&#39;.
+//  {
+//      assert(0 &lt;= input);
+//
+//      enum {
+//          ERROR_STATUS   = -1,
+//          SUCCESS_STATUS = 0
+//      };
+//      int numBytes = sizeof input;
+//      int writeStatus = channel-&gt;write((const char *)&amp;input, numBytes);
+//      assert(0 != writeStatus);
+//
+//      if (writeStatus != numBytes) {
+//          return ERROR_STATUS;                                      // RETURN
+//      }
+//
+//      int readStatus = channel-&gt;read((char *)result, sizeof *result);
+//      if (readStatus != sizeof *result) {
+//          return ERROR_STATUS;                                      // RETURN
+//      }
+//
+//      return SUCCESS_STATUS;                                        // RETURN
+//  }
+//
+//  int factorialServer(btlsc::Channel *channel)
+//      // Repeatedly read integer sequences from the specified &#39;channel&#39;.
+//      // When a read succeeds, interpret the byte sequence as an integer
+//      // value in host-byte order.  Return -1 if that value is negative.
+//      // Otherwise, calculate the factorial of the (non-negative) integer and
+//      // write back the result to &#39;channel&#39; as a sequence of bytes
+//      // representing a &#39;double&#39; in the host&#39;s native format.  Return a
+//      // negative value if any write operation doesn&#39;t succeed (refer to the
+//      // following &#39;enum&#39; values for specific errors).  Note that this
+//      // implementation is just to show how a channel could be used; there is
+//      // much room to improve.
+//  {
+//      enum {
+//          SUCCESS            =  0,
+//          INVALID_INPUT      = -1,
+//          ERROR_READ         = -2,
+//          ERROR_WRITE        = -3,
+//          ERROR_INTERRUPTED  = -4,
+//          ERROR_UNCLASSIFIED = -5
+//      };
+//
+//      while (1) {
+//          int input, augStatus;
+//          int readStatus = channel-&gt;read(&amp;augStatus,
+//                                         (char *)&amp;input,
+//                                         sizeof input);
+//          if (readStatus &lt; 0) {
+//              return ERROR_READ;                                    // RETURN
+//          }
+//          else if (readStatus != sizeof input) {
+//              if (augStatus &gt; 0) {
+//                  return ERROR_INTERRUPTED;                         // RETURN
+//              }
+//              return ERROR_UNCLASSIFIED;                            // RETURN
+//          }
+//
+//          if (input &lt; 0) {
+//              return INVALID_INPUT;                                 // RETURN
+//          }
+//
+//          double result = factorial(input);
+//          augStatus = 0;
+//          int writeStatus = channel-&gt;write(&amp;augStatus,
+//                                           (const char *)&amp;result,
+//                                           sizeof result);
+//
+//          if (writeStatus &lt; 0) {
+//              return ERROR_WRITE;                                   // RETURN
+//          }
+//          else if (writeStatus != sizeof input){
+//              if (augStatus &gt; 0) {
+//                  return ERROR_INTERRUPTED;                         // RETURN
+//              }
+//              return ERROR_UNCLASSIFIED;                            // RETURN
+//          }
+//      }
+//  }
+//..
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS_IOVEC
+#include &lt;btls_iovec.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace btlsc {
+
+                            // =============
+                            // class Channel
+                            // =============
+
+class Channel {
+    // This class defines a protocol (pure abstract interface) for a
+    // synchronous communications channel that supports blocking read, write,
+    // and buffered read operations on a byte stream.  In general, a
+    // non-negative status indicates the number of bytes read or written,
+    // while a negative status implies an unspecified error.  Note that an
+    // error status of -1 indicates that the connection is *known* to have
+    // been closed by the peer.  The reverse, however, is not true.
+
+  public:
+    // CREATORS
+    virtual ~Channel();
+        // Destroy this object.
+
+    // MANIPULATORS
+    virtual int read(char *buffer,
+                     int   numBytes,
+                     int   flags = 0) = 0;
+
+    virtual int read(int  *augStatus,
+                     char *buffer,
+                     int   numBytes,
+                     int   flags = 0) = 0;
+        // Read from this channel into the specified &#39;buffer&#39; the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffer&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffer&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffer&#39; has sufficient capacity to hold the requested data
+        // and &#39;0 &lt; numBytes&#39;.
+
+    virtual int readv(const btls::Iovec *buffers,
+                      int                numBuffers,
+                      int                flags = 0) = 0;
+
+    virtual int readv(int               *augStatus,
+                      const btls::Iovec *buffers,
+                      int                numBuffers,
+                      int                flags = 0) = 0;
+        // Read from this channel into the specified sequence of &#39;buffers&#39; of
+        // the specified sequence length &#39;numBuffers&#39; the respective number of
+        // bytes as specified in each &#39;btls::Iovec&#39; buffer.  If the optionally
+        // specified &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // partial result.  Return &#39;numBytes&#39; (i.e., the sum of calls to
+        // &#39;length&#39; on the &#39;numBuffers&#39; &#39;buffers&#39;) on success, a negative value
+        // on error, and the number of bytes newly read into &#39;buffers&#39;
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value, indicating that an
+        // asynchronous event caused the interruption; otherwise, &#39;augStatus&#39;
+        // is unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted) with some reasonable hope of success.
+        // A negative &quot;status&quot;, however, indicates a permanent error (leaving
+        // the contents of &#39;buffers&#39; undefined); -1 implies that the connection
+        // was closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;buffers&#39; have sufficient capacity to
+        // hold the requested data and &#39;0 &lt; numBytes&#39;.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    virtual int readRaw(char *buffer,
+                        int   numBytes,
+                        int   flags = 0) = 0;
+
+    virtual int readRaw(int  *augStatus,
+                        char *buffer,
+                        int   numBytes,
+                        int   flags = 0) = 0;
+        // *Atomically* read from this channel into the specified &#39;buffer&#39; *at*
+        // *most* the specified &#39;numBytes&#39;.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // &quot;partial result&quot;.  Return &#39;numBytes&#39; on success, a negative value on
+        // error, and the number of bytes newly read into &#39;buffer&#39; (indicating
+        // a partial result) otherwise.  On a partial result, load &#39;augStatus&#39;,
+        // if supplied, with a positive value if an asynchronous event
+        // interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error (leaving the contents of &#39;buffer&#39;
+        // undefined); -1 implies that the connection was closed by the peer
+        // (but the converse is not guaranteed).  The behavior is undefined
+        // unless &#39;buffer&#39; has sufficient capacity to hold the requested data
+        // and &#39;0 &lt; numBytes&#39;.
+
+    virtual int readvRaw(const btls::Iovec *buffers,
+                         int                numBuffers,
+                         int                flags = 0) = 0;
+
+    virtual int readvRaw(int               *augStatus,
+                         const btls::Iovec *buffers,
+                         int                numBuffers,
+                         int                flags = 0) = 0;
+        // *Atomically* read from this channel into the specified sequence of
+        // &#39;buffers&#39; of the specified sequence length &#39;numBuffers&#39; *at* *most*
+        // the number of bytes as the sum of length in each &#39;btls::Iovec&#39;
+        // buffer.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // (i.e., the sum of calls to &#39;length&#39; on the &#39;numBuffers&#39; &#39;buffers&#39;)
+        // on success, a negative value on error, and the number of bytes newly
+        // read into &#39;buffers&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive value
+        // if an asynchronous event interrupted this operation and a negative
+        // value if the atomic OS-level operation transmitted at least one
+        // byte, but less than &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is
+        // unmodified.  A partial result typically does not invalidate this
+        // channel; hence, this (or another) operation may be retried (with
+        // arguments suitably adjusted) with some reasonable hope of success.
+        // A negative &quot;status&quot;, however, indicates a permanent error (leaving
+        // the contents of &#39;buffers&#39; undefined); -1 implies that the connection
+        // was closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;buffers&#39; have sufficient capacity to
+        // hold the requested data and &#39;0 &lt; numBytes&#39;.
+
+    virtual int bufferedRead(const char **buffer,
+                             int          numBytes,
+                             int          flags = 0) = 0;
+
+    virtual int bufferedRead(int         *augStatus,
+                             const char **buffer,
+                             int          numBytes,
+                             int          flags = 0) = 0;
+        // Read from this channel into a channel-supplied buffer, identified
+        // via the specified &#39;buffer&#39;, the specified &#39;numBytes&#39;.  If the
+        // optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes
+        // (indicating a partial result) otherwise.  Any positive return value
+        // guarantees that &#39;buffer&#39; will remain valid until this channel is
+        // modified.  On a partial result, load &#39;augStatus&#39;, if supplied, with
+        // a positive value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried with some reasonable hope of
+        // success -- buffered data from a partial result remains available
+        // until consumed by subsequent read operations.  A negative &quot;status&quot;,
+        // however, indicates a permanent error (leaving &#39;buffer&#39; undefined);
+        // -1 implies that the connection was closed by the peer (but the
+        // converse is not guaranteed).  The behavior is undefined unless
+        // &#39;0 &lt; numBytes&#39;.
+
+    virtual int bufferedReadRaw(const char **buffer,
+                                int          numBytes,
+                                int          flags = 0) = 0;
+
+    virtual int bufferedReadRaw(int         *augStatus,
+                                const char **buffer,
+                                int          numBytes,
+                                int          flags = 0) = 0;
+        // *Atomically* read from this channel into a channel-supplied buffer,
+        // identified via the specified &#39;buffer&#39;, *at* *most* the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes
+        // (indicating a partial result) otherwise.  Any positive return value
+        // guarantees that &#39;buffer&#39; will remain valid until this channel is
+        // modified.  On a partial result, load &#39;augStatus&#39;, if supplied, with
+        // a positive value if an asynchronous event interrupted this
+        // operation, or a negative value if the atomic OS-level operation
+        // transmitted at least one but less than &#39;numBytes&#39;; otherwise,
+        // &#39;augStatus&#39; is unmodified.  A partial result typically does not
+        // invalidate this channel; hence, this (or another) operation may be
+        // retried with some reasonable hope of success -- buffered data from a
+        // partial result remains available until consumed by subsequent read
+        // operations.  A negative &quot;status&quot;, however, indicates a permanent
+        // error (leaving &#39;buffer&#39; unset); -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+    virtual int write(const char *buffer,
+                      int         numBytes,
+                      int         flags = 0) = 0;
+
+    virtual int write(int        *augStatus,
+                      const char *buffer,
+                      int         numBytes,
+                      int         flags = 0) = 0;
+        // Write to this channel from the specified &#39;buffer&#39; the specified
+        // &#39;numBytes&#39;.  If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a &quot;partial result&quot;.  Return &#39;numBytes&#39;
+        // on success, a negative value on error, and the number of bytes newly
+        // written from &#39;buffer&#39; (indicating a partial result) otherwise.  On a
+        // partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    virtual int writeRaw(const char *buffer,
+                         int         numBytes,
+                         int         flags = 0) = 0;
+
+    virtual int writeRaw(int        *augStatus,
+                         const char *buffer,
+                         int         numBytes,
+                         int         flags = 0) = 0;
+        // *Atomically* write to this channel from the specified &#39;buffer&#39; *at*
+        // *most* the specified &#39;numBytes&#39;.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;,
+        // &quot;asynchronous events&quot; are permitted to interrupt this operation; by
+        // default, such events are ignored.  Optionally specify (as a
+        // *leading* argument) &#39;augStatus&#39; to receive status specific to a
+        // &quot;partial result&quot;.  Return &#39;numBytes&#39; on success, a negative value on
+        // error, and the number of bytes newly written from &#39;buffer&#39;
+        // (indicating a partial result) otherwise.  On a partial result, load
+        // &#39;augStatus&#39;, if supplied, with a positive value if an asynchronous
+        // event interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    virtual int writev(const btls::Ovec *buffers,
+                       int               numBuffers,
+                       int               flags = 0) = 0;
+
+    virtual int writev(const btls::Iovec *buffers,
+                       int                numBuffers,
+                       int                flags = 0) = 0;
+
+    virtual int writev(int              *augStatus,
+                       const btls::Ovec *buffers,
+                       int               numBuffers,
+                       int               flags = 0) = 0;
+
+    virtual int writev(int               *augStatus,
+                       const btls::Iovec *buffers,
+                       int                numBuffers,
+                       int                flags = 0) = 0;
+        // Write to this channel from the specified sequence of &#39;buffers&#39; of
+        // the specified sequence length &#39;numBuffers&#39; the respective number of
+        // bytes as specified in each &#39;btls::Ovec&#39; (or &#39;btls::Iovec&#39;) buffer.
+        // If the optionally specified &#39;flags&#39; incorporates
+        // &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous events&quot; are
+        // permitted to interrupt this operation; by default, such events are
+        // ignored.  Optionally specify (as a *leading* argument) &#39;augStatus&#39;
+        // to receive status specific to a partial result.  Return &#39;numBytes&#39;
+        // (i.e., the sum of calls to &#39;length&#39; on the &#39;numBuffers&#39; &#39;buffers&#39;)
+        // on success, a negative value on error, and the number of bytes newly
+        // written from &#39;buffers&#39; (indicating a partial result) otherwise.  On
+        // a partial result, load &#39;augStatus&#39;, if supplied, with a positive
+        // value, indicating that an asynchronous event caused the
+        // interruption; otherwise, &#39;augStatus&#39; is unmodified.  A partial
+        // result typically does not invalidate this channel; hence, this (or
+        // another) operation may be retried (with arguments suitably adjusted)
+        // with some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    virtual int writevRaw(const btls::Ovec *buffers,
+                          int               numBuffers,
+                          int               flags = 0) = 0;
+
+    virtual int writevRaw(const btls::Iovec *buffers,
+                          int                numBuffers,
+                          int                flags = 0) = 0;
+
+    virtual int writevRaw(int              *augStatus,
+                          const btls::Ovec *buffers,
+                          int               numBuffers,
+                          int               flags = 0) = 0;
+
+    virtual int writevRaw(int               *augStatus,
+                          const btls::Iovec *buffers,
+                          int                numBuffers,
+                          int                flags = 0) = 0;
+        // *Atomically* write to this channel, from the specified sequence of
+        // &#39;buffers&#39; of the specified sequence length &#39;numBuffers&#39;, *at* *most*
+        // the number of bytes as the sum of the specified length in each
+        // &#39;btls::Ovec&#39; (or &#39;btls::Iovec&#39;) buffer.  If the optionally specified
+        // &#39;flags&#39; incorporates &#39;btlsc::Flag::k_ASYNC_INTERRUPT&#39;, &quot;asynchronous
+        // events&quot; are permitted to interrupt this operation; by default, such
+        // events are ignored.  Optionally specify (as a *leading* argument)
+        // &#39;augStatus&#39; to receive status specific to a &quot;partial result&quot;.
+        // Return &#39;numBytes&#39; (i.e., the sum of calls to &#39;length&#39; on the
+        // &#39;numBuffers&#39; &#39;buffers&#39;) on success, a negative value on error, and
+        // the number of bytes newly written from &#39;buffers&#39; (indicating a
+        // partial result) otherwise.  On a partial result, load &#39;augStatus&#39;,
+        // if supplied, with a positive value if an asynchronous event
+        // interrupted this operation and a negative value if the atomic
+        // OS-level operation transmitted at least one byte, but less than
+        // &#39;numBytes&#39;; otherwise, &#39;augStatus&#39; is unmodified.  A partial result
+        // typically does not invalidate this channel; hence, this (or another)
+        // operation may be retried (with arguments suitably adjusted) with
+        // some reasonable hope of success.  A negative &quot;status&quot;, however,
+        // indicates a permanent error; -1 implies that the connection was
+        // closed by the peer (but the converse is not guaranteed).  The
+        // behavior is undefined unless &#39;0 &lt; numBytes&#39;.
+
+    virtual void invalidate() = 0;
+        // Make this channel invalid; no subsequent operations can be completed
+        // successfully.
+
+    // ACCESSORS
+    virtual int isInvalid() const = 0;
+        // Return 1 if this channel is invalid, and 0 otherwise.  Note that
+        // once a channel is invalid, no operations can be completed
+        // successfully.  Also note that a 0 return value does NOT guarantee
+        // that a subsequent I/O operation would not fail.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

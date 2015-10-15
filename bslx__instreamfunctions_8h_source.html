@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslx_instreamfunctions.h                                           -*-C++-*-
@@ -69,7 +69,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // package-level documentation for a full specification of the BDEX contract.
 //
 ///Implementing BDEX Streaming in Value-Semantic Template Classes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The author of a non-template value-semantic type has full knowledge of the
 // details of the &quot;value&quot; of that type, and may choose to use the appropriate
 // input stream &#39;get&#39; methods directly when implementing the required
@@ -105,7 +105,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // This section illustrates intended use of this component.
 //
 ///Example 1: Using &#39;bslx::InStreamFunctions&#39; to Unexternalize Data
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit three separate example
@@ -958,7 +958,7 @@ namespace InStreamFunctions {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-}  // close InStreamFunctions namespace
+}  // close namespace InStreamFunctions
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -1011,7 +1011,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp; stream, TYPE&amp; variab
         stream.getVersion(version);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
     }
 
@@ -1187,7 +1187,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                   stream
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1206,7 +1206,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1225,7 +1225,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1243,7 +1243,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                    strea
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1262,7 +1262,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1280,7 +1280,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                  stream,
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1299,7 +1299,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1318,7 +1318,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1337,7 +1337,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1355,7 +1355,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                    strea
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1373,7 +1373,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                     stre
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1390,7 +1390,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                   stream
     stream.getVersion(version);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     return bdexStreamIn(stream, variable, version);
@@ -1407,7 +1407,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                   stream
     stream.getLength(length);
 
     if (!stream) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     variable.resize(length);
@@ -1417,7 +1417,7 @@ STREAM&amp; InStreamFunctions::bdexStreamIn(STREAM&amp;                   stream
         bdexStreamIn(stream, *it, version);
 
         if (!stream) {
-            return stream;
+            return stream;                                            // RETURN
         }
     }
 

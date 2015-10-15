@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_assert.h                                                      -*-C++-*-
@@ -68,8 +68,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // combined into a single program (see &quot;Build Modes&quot; and &quot;Assertions in Header
 // Files&quot; below).  Note that the build target &#39;BDE_BUILD_TARGET_SAFE_2&#39; does
 // permit binary incompatibility for conditionally compiled source code, but
-// there is no corresponding &#39;BSLS_ASSERT_SAFE_2&#39; assertion macro (see &quot;Usage
-// Examples&quot; below).
+// there is no corresponding &#39;BSLS_ASSERT_SAFE_2&#39; assertion macro (see {Usage}
+// below).
 //
 ///Detailed Behavior
 ///- - - - - - - - -
@@ -186,7 +186,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // &quot;Runtime-Configurable Assertion-Failure Behavior&quot; below).
 //
 ///Build Targets Only
-///- - - - - - - - -
+/// - - - - - - - - -
 // If no assertion-level flags are defined (see &quot;Assertion-Level Flags&quot; below),
 // the presence or absence of the definitions of the three relevant build
 // targets control the build mode, and, therefore, which of the (BSLS) &quot;ASSERT&quot;
@@ -272,10 +272,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // and passing it (the address of) a function whose signature conforms to the
 // &#39;bsls::Assert::Handler&#39; &#39;typedef&#39;.  This handler may be one of the other
 // handler methods provided in &#39;bsls::Assert&#39;, or a new &quot;custom&quot; function,
-// written by the user (see &quot;Usage Examples&quot; below).
+// written by the user (see {Usage} below).
 //
 ///Exception-Throwing Failure Handlers and &#39;bsls::AssertFailureHandlerGuard&#39;
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Among the failure handlers provided is &#39;bsls::Assert::failThrow&#39;, which
 // throws an &#39;bsls::AssertTestException&#39; object.  Throwing an exception,
 // however, is not safe in all environments and deliberately aborting is more
@@ -287,7 +287,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Note that an object of type &#39;bsls::AssertFailureHandlerGuard&#39; can be used to
 // temporarily set an exception-throwing handler within a &#39;try&#39; block,
 // automatically restoring the previous handler when the &#39;try&#39; block exits (see
-// &quot;Usage Examples&quot; below).
+// {Usage} below).
 //
 ///Assertions in Header Files (Mixing Build Options Across Translation Units)
 ///--------------------------------------------------------------------------
@@ -438,13 +438,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  #endif
 //..
-// See &quot;Usage Examples&quot; 6 &amp; 7, respectively, for how &#39;BDE_BUILD_TARGET_SAFE_2&#39;
-// and intermediate assertion predicate macros, such as
-// &#39;BSLS_ASSERT_SAFE_IS_ACTIVE&#39; (and even &#39;BSLS_ASSERT_OPT_IS_ACTIVE&#39;), can be
-// used profitably in practice.
+// See {Example 6} and {Example 7}, respectively, for how
+// &#39;BDE_BUILD_TARGET_SAFE_2&#39; and intermediate assertion predicate macros, such
+// as &#39;BSLS_ASSERT_SAFE_IS_ACTIVE&#39; (and even &#39;BSLS_ASSERT_OPT_IS_ACTIVE&#39;), can
+// be used profitably in practice.
 //
-///Usage Examples
-///--------------
+///Usage
+///-----
 // The following examples illustrate (1) when to use each of the three kinds of
 // (BSLS) &quot;ASSERT&quot; macros, (2) when and how to call the &#39;invokeHandler&#39; method
 // directly, (3) how to configure, at runtime, the behavior resulting from an
@@ -460,8 +460,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // precisely when the corresponding (BSLS) &quot;ASSERT&quot; macro (e.g.,
 // &#39;BSLS_ASSERT_SAFE&#39;) is active.
 //
-///1. Using &#39;BSLS_ASSERT&#39;, &#39;BSLS_ASSERT_SAFE&#39;, and &#39;BSLS_ASSERT_OPT&#39;
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Using &#39;BSLS_ASSERT&#39;, &#39;BSLS_ASSERT_SAFE&#39;, and &#39;BSLS_ASSERT_OPT&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component provides three different variants of (BSLS) &quot;ASSERT&quot; macros.
 // This first usage example illustrates how one might select each of the
 // particular variants, based on the runtime cost of the defensive check
@@ -589,8 +589,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // with that of the useful work being done (and only secondarily by the
 // potential consequences of continuing execution in an undefined state).
 //
-///2. When and How to Call the &#39;invokeHandler&#39; Method Directly
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: When and How to Call the &#39;invokeHandler&#39; Method Directly
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There *may* be times (but this is yet to be demonstrated) when we might
 // reasonably choose to invoke the currently installed assertion-failure
 // handler directly -- i.e., instead of via one of the three (BSLS) &quot;ASSERT&quot;
@@ -615,8 +615,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  Abort (core dumped)
 //..
 //
-///3. Runtime Configuration of the &#39;bsls::Assert&#39; Facility
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 3: Runtime Configuration of the &#39;bsls::Assert&#39; Facility
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
 // &#39;bsls::Assert::failAbort&#39; handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
@@ -670,8 +670,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //..
 //
-///4. Creating a Custom Assertion Handler
-///- - - - - - - - - - - - - - - - - - -
+///Example 4: Creating a Custom Assertion Handler
+/// - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes, especially during testing, we may need to write our own custom
 // assertion-failure handler function.  The only requirements are that the
 // function have the same prototype (i.e., the same respective parameter and
@@ -729,8 +729,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  Abort (core dumped)
 //..
 //
-///5. Using the &#39;bsls::AssertFailureHandlerGuard&#39;
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Example 5: Using the &#39;bsls::AssertFailureHandlerGuard&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes we may want to replace, temporarily (i.e., within some local
 // lexical scope), the currently installed assertion-failure handler function.
 // In particular, we sometimes use the &#39;bsls::AssertFailureHandlerGuard&#39; class
@@ -817,8 +817,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // failure handlers that are used in other threads.  Care should be taken when
 // using this guard when more than a single thread is executing.
 //
-///6. Using (BSLS) &quot;ASSERT&quot; Macros in Conjunction w/ &#39;BDE_BUILD_TARGET_SAFE_2&#39;
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 6: Using (BSLS) &quot;ASSERT&quot; Macros Along With &#39;BDE_BUILD_TARGET_SAFE_2&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Recall that assertions do not affect binary compatibility; however, software
 // built with &#39;BDE_BUILD_TARGET_SAFE_2&#39; defined need not be binary compatible
 // with software built otherwise.  In this example, we look at how we might use
@@ -971,8 +971,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // thereby quickly exposing the misuse by the client.
 //
-///7. Conditional Compilation Associated with Enabled Assertion Levels
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 7: Conditional Compilation Associated with Enabled Assertion Levels
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In cases where we want to tie code, other than just an assertion, to a
 // specific level of enabled assertions, we will want to use the corresponding
 // intermediate predicate that enables that level of assertions:
@@ -1467,22 +1467,22 @@ class AssertFailureHandlerGuard {
 }  // close package namespace
 
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 }  // close enterprise namespace
 
 #endif // deeper include guard
 
-// ========================================================
+// ============================================================================
 // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
 // ========================================================
 
 #undef BSLS_ASSERT_NORETURN
 #undef BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED
 
-// =========================================
+// ============================================================================
 // IMPLEMENTATION USING THE C++ PREPROCESSOR
 // =========================================
 // At most one of the following build options may be set during the compilation

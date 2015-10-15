@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_referencewrapper.h                                          -*-C++-*-
@@ -116,7 +116,7 @@ namespace bsl {
                     // class reference_wrapper
                     // =======================
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 class reference_wrapper {
     // This class is a wrapper that encapsulates an object reference, enabling
     // operations not possible on actual references, including assignment,
@@ -157,21 +157,21 @@ class reference_wrapper {
 };
 
 // FREE FUNCTIONS
-template &lt;typename T&gt;
+template &lt;class T&gt;
 reference_wrapper&lt;const T&gt; cref(const T&amp; object);
     // Return a reference wrapper representing a &#39;const&#39; view of the specified
     // &#39;object&#39;.
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 reference_wrapper&lt;const T&gt; cref(reference_wrapper&lt;T&gt; original);
     // Return a reference wrapper representing a &#39;const&#39; view of the same
     // object as the specified &#39;original&#39;.
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 reference_wrapper&lt;T&gt; ref(T&amp; object);
     // Return a reference wrapper that represents the specified &#39;object&#39;.
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 reference_wrapper&lt;T&gt; ref(reference_wrapper&lt;T&gt; original);
     // Return a reference wrapper that represents the same object as the
     // specified &#39;original&#39;.
@@ -187,7 +187,7 @@ reference_wrapper&lt;T&gt; ref(reference_wrapper&lt;T&gt; original);
                     // -----------------------
 
 // CREATORS
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;T&gt;::reference_wrapper(T&amp; object)
   : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
@@ -195,14 +195,14 @@ bsl::reference_wrapper&lt;T&gt;::reference_wrapper(T&amp; object)
 }
 
 // ACCESSORS
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 T&amp; bsl::reference_wrapper&lt;T&gt;::get() const
 {
     return *d_represented_p;
 }
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;T&gt;::operator T&amp;() const
 {
@@ -210,28 +210,28 @@ bsl::reference_wrapper&lt;T&gt;::operator T&amp;() const
 }
 
 // FREE FUNCTIONS
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;const T&gt; bsl::cref(const T&amp; object)
 {
     return reference_wrapper&lt;const T&gt;(object);
 }
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;const T&gt; bsl::cref(bsl::reference_wrapper&lt;T&gt; original)
 {
     return cref(original.get());
 }
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;T&gt; bsl::ref(T&amp; object)
 {
     return reference_wrapper&lt;T&gt;(object);
 }
 
-template &lt;typename T&gt;
+template &lt;class T&gt;
 inline
 bsl::reference_wrapper&lt;T&gt; bsl::ref(bsl::reference_wrapper&lt;T&gt; original)
 {

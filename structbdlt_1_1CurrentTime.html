@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Struct bdlt::CurrentTime</title>
+<title>BDE 3.0: Struct bdlt::CurrentTime</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -86,6 +86,7 @@ Static Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbdlt_1_1Datetime.html">Datetime</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#a119532c9c2fd76afd6f690d94f6a4ea7">local</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#af4a53b1fb4f2fdfa249d57980e6d02de">now</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbdlt_1_1Datetime.html">Datetime</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#a42d082242c48b7445d21cabbaec1b50b">utc</a> ()</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbdlt_1_1DatetimeTz.html">DatetimeTz</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#a2a844de281a13e265cda21ca346b3410">asDatetimeTz</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdlt_1_1CurrentTime.html#ab17d674c16817cc071f51516e4fae5bd">CurrentTimeCallback</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#a51c863d693adda65241b86fec59f0c39">currentTimeCallback</a> ()</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbdlt_1_1CurrentTime.html#ab17d674c16817cc071f51516e4fae5bd">CurrentTimeCallback</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#abbab668e852c89843eb17a6d1ffa4427">setCurrentTimeCallback</a> (<a class="el" href="structbdlt_1_1CurrentTime.html#ab17d674c16817cc071f51516e4fae5bd">CurrentTimeCallback</a> callback)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classbsls_1_1TimeInterval.html">bsls::TimeInterval</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbdlt_1_1CurrentTime.html#a52799562a228ac45921c80a77b4b2596">currentTimeDefault</a> ()</td></tr>
@@ -142,6 +143,8 @@ Static Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <p>Return the <code>TimeInterval</code> value between <code><a class="el" href="structbdlt_1_1EpochUtil.html#ae2e0d2e91687e5f6eb75921dfb64a785">EpochUtil::epoch()</a></code> and the current date/time as provided by the installed callback function. Note that this value is independent of time zone. </p>
 
+<p>Referenced by <a class="el" href="classbtlso_1_1InetStreamSocket.html#aff89e88e24f5699423e1deb0f3801fa8">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForConnect()</a>, and <a class="el" href="classbtlso_1_1InetStreamSocket.html#a7181910a2b326f204730d9b251be308d">btlso::InetStreamSocket&lt; ADDRESS &gt;::waitForIO()</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a42d082242c48b7445d21cabbaec1b50b"></a><!-- doxytag: member="bdlt::CurrentTime::utc" ref="a42d082242c48b7445d21cabbaec1b50b" args="()" -->
@@ -159,6 +162,24 @@ Static Public Member Functions</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Return the <code><a class="el" href="classbdlt_1_1Datetime.html">Datetime</a></code> value representing the current date/time in Coordinated Universal <a class="el" href="classbdlt_1_1Time.html">Time</a> (UTC) as provided by the installed callback function. </p>
+
+</div>
+</div>
+<a class="anchor" id="a2a844de281a13e265cda21ca346b3410"></a><!-- doxytag: member="bdlt::CurrentTime::asDatetimeTz" ref="a2a844de281a13e265cda21ca346b3410" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classbdlt_1_1DatetimeTz.html">DatetimeTz</a> bdlt::CurrentTime::asDatetimeTz </td>
+          <td>(</td>
+          <td class="paramname"></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Return the <code><a class="el" href="classbdlt_1_1DatetimeTz.html">DatetimeTz</a></code> value representing the current time. </p>
 
 </div>
 </div>
@@ -221,7 +242,7 @@ Static Public Member Functions</h2></td></tr>
 <li><a class="el" href="bdlt__currenttime_8h_source.html">bdlt_currenttime.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:26 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:34:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

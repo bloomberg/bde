@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdlt_datetime Component</title>
+<title>BDE 3.0: bdlt_datetime Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -116,16 +116,14 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="valid_bdlt~3A~3Adatetime_values_and_their_representations"></a> <a class="anchor" id="description.valid_bdlt~3A~3Adatetime_values_and_their_representations"></a> <a class="anchor" id="valid_bdlt"></a> <a class="anchor" id="description.valid_bdlt"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Valid bdlt::Datetime Values and Their Representations: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The "date" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> value has a range of validity identical to a <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object -- i.e., valid dates (according to the proleptic Gregorian calendar) having years in the range <code>[1 .. 9999]</code>. The set of valid "time" values for a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object is, similarly, the same as the valid values for <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>, namely <code>[00:00:00.000 .. 23:59:59.999]</code>. Note that the supported range of time does <em>not</em> allow for the injection of leap seconds. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Additionally, the "time" part may have the value "24:00:00.000" (the default constructed value of <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>), but only if the "date" part has the value "0001/01/01" (the default constructed value of <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code>). The (combined) value "0001/01/01_24:00:00.000" is the default constructed value of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Although the interface of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> accepts "24:00:00.000" wherever a <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> is expected, and accepts 24 for all <code>int hour</code> arguments, the implementation ensures that the "time" part is set to "00:00:00.000" rather than "24:00:00.000", where necessary, to prevent "24:00:00.000" from ever being paired with any other <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> value besides "0001/01/01". This automatic compensation for the "24:00:00.000" time value applies to the two- and seven-argument value constructors, and all of the "set" manipulators (<code>setDatetime</code>, <code>setDate</code>, <code>setTime</code>, etc.). See the function-level documentation for details. Note that the default <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> value is propagated by copy construction, copy assignment, and BDEX streaming, as would be expected. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Furthermore, consistent with the <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> type, the default value "0001/01/01_24:00:00.000" behaves the same as "0001/01/01_00:00:00.000" with respect to the other manipulators and free operators, but results in undefined behavior for all relational comparison operators. In particular, the default constructed value must not be used as a key for the standard associative containers, as it does not have defined behavior for <code>operator&lt;</code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The "date" part of a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> value has a range of validity identical to a <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> object -- i.e., valid dates (according to the proleptic Gregorian calendar) having years in the range <code>[1 .. 9999]</code>. The set of valid "time" values for a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object is, similarly, the same as the valid values for <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>, namely <code>[00:00:00.000 .. 23:59:59.999]</code>, as well as 24:00:00.000 (the default constructed value for <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>). Note that the supported range of time does <em>not</em> allow for the injection of leap seconds. The (combined) value "0001/01/01_24:00:00.000" is the default constructed value of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Furthermore, consistent with the <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> type, a <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object whose "time" part has the default value (24:00:00.000) behaves the same, with respect to manipulators and (most) free operators, as if the "time" part had the value 00:00:00.000. As for <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>, the behavior of all <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> relational comparison operators is undefined if the "time" part of either operand is 24:00:00.000. Consequently, <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> objects whose "time" part has the default constructed value must <em>not</em> be used as keys for the standard associative containers, since <code>operator&lt;</code> is not defined for such objects. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="attributes"></a> <a class="anchor" id="description.attributes"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Attributes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Conceptually, the two primary attributes of <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> are the constituent <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> and <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code> values. These attributes are given the special designation "part" in this component (i.e., the "time" part and the "date" part, respectively) to distinguish them from the many other attributes (see below) that derive from these two main parts. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Name  Type        Default       Range
+<div class="fragment"><pre class="fragment">  Name  <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>        Default       Range
   ----  ----------  ------------  ------------------------------
   date  <a class="code" href="classbdlt_1_1Date.html">bdlt::Date</a>  0001/01/01    [0001/01/01   ..   9999/12/31]
   time  <a class="code" href="classbdlt_1_1Time.html">bdlt::Time</a>  24:00:00.000  [00:00:00.000 .. 23:59:59.999]
@@ -133,22 +131,20 @@ Namespaces</h2></td></tr>
 <br/>
  A <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> object can be used in terms of its "date" and "time" parts or, if appropriate to an application, the object can be viewed as a single, integrated type having the combined individual attributes of <code><a class="el" href="classbdlt_1_1Date.html">bdlt::Date</a></code> and <code><a class="el" href="classbdlt_1_1Time.html">bdlt::Time</a></code>. Accessors and manipulators are provided for each of these seven (derived) attributes: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Name         Type  Default  Range        Constraint
+<div class="fragment"><pre class="fragment">  Name         <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>  Default  Range        Constraint
   -----------  ----  -------  -----------  -----------------------------
   year         <span class="keywordtype">int</span>    1       [1 .. 9999]  none
   month        <span class="keywordtype">int</span>    1       [1 ..   12]  none
   day          <span class="keywordtype">int</span>    1       [1 ..   31]  must exist <span class="keywordflow">for</span> year and month
-  hour         <span class="keywordtype">int</span>   24       [0 ..   23]  none, except <span class="keywordflow">for</span> 24[*]
+  hour         <span class="keywordtype">int</span>   24       [0 ..   24]  none
   minute       <span class="keywordtype">int</span>    0       [0 ..   59]  must be 0 <span class="keywordflow">if</span> <span class="stringliteral">&#39;24 == hour&#39;</span>
   second       <span class="keywordtype">int</span>    0       [0 ..   59]  must be 0 <span class="keywordflow">if</span> <span class="stringliteral">&#39;24 == hour&#39;</span>
   millisecond  <span class="keywordtype">int</span>    0       [0 ..  999]  must be 0 <span class="keywordflow">if</span> <span class="stringliteral">&#39;24 == hour&#39;</span>
-
-  [*] <span class="stringliteral">&#39;24 == hour&#39;</span> only <span class="keywordflow">for</span> the <span class="keywordflow">default</span> value <span class="stringliteral">&quot;0001/01/01_24:00:00.000&quot;</span>.
 </pre></div><br/>
 <br/>
  There are two additional "date" part attributes to <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  Name      Type                  Default Range        Constraint
+<div class="fragment"><pre class="fragment">  Name      <a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>                  Default Range        Constraint
   --------- --------------------- ------- ------------ ----------------------
   dayOfYear <span class="keywordtype">int</span>                   1       [  1 .. 366] 366 only on leap years
   dayOfWeek <a class="code" href="structbdlt_1_1DayOfWeek.html#a09b33959b12014fe88ddd8d0d692f573" title="Enumerated day-of-week values.">bdlt::DayOfWeek::Enum</a> SAT     [SUN .. SAT] tied to calendar day
@@ -242,7 +238,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_creating_a_schedule_of_equal_time_intervals"></a> <a class="anchor" id="usage.example_2~3A_creating_a_schedule_of_equal_time_intervals"></a> <a class="anchor" id="description.usage.example_2~3A_creating_a_schedule_of_equal_time_intervals"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Example 2: Creating a Schedule of Equal Time Intervals: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Calculations involving date and time values are difficult to get correct manually; consequently, people tend to schedule events on natural time boundaries (e.g., on the hour) even if that is sub-optimal. Having a class such as <code><a class="el" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a></code> makes doing date and time calculations trivial. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose one wants to divide into an arbitrary interval such as the time between sunset and sunset into an arbitrary number (say 7) of equal intervals (perhaps to use as a duty roster for teams making astronomical observations). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Suppose one wants to divide into an arbitrary interval such as the time between sunset and sunrise into an arbitrary number (say 7) of equal intervals (perhaps to use as a duty roster for teams making astronomical observations). </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>First, we create objects containing values for the start and end of the time interval: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbdlt_1_1Datetime.html">bdlt::Datetime</a>  sunset(2014, 6, 26, 20, 31, 23); <span class="comment">// New York City</span>
@@ -280,7 +276,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice how our objects (since they manage both "date" and "time of day" parts of each point in time) seamlessly handle the transition between the two days. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:47 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

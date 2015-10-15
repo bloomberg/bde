@@ -1,0 +1,183 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_objectfileformat.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
+#define INCLUDED_BALST_OBJECTFILEFORMAT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide platform-dependent object file format trait definitions.
+//
+//@CLASSES:
+//   balst::ObjectFileFormat: namespace for object file format traits
+//
+//@SEE_ALSO:
+//
+//@DESCRIPTION: This component defines a set of traits that identify and
+// describe a platform&#39;s object file format properties.  For example, the
+// &#39;balst::ObjectFileFormat::ResolverPolicy&#39; trait is ascribed a &quot;value&quot; (i.e.,
+// &#39;Elf&#39; or &#39;Xcoff&#39;) appropriate for each supported platform.  The various
+// stack trace traits are actually types declared in the
+// &#39;bdescu_ObjectFileFormat&#39; &#39;struct&#39;.  These types are intended to be used in
+// specializing template implementations or to enable function overloading
+// based on the prevalent system&#39;s characteristics.  #defines are also
+// provided by this component to facilitate conditional compilation depending
+// upon object file formats.
+//
+///Usage
+///-----
+// In this section we show the intended usage of this component.
+//
+///Example 1: Accessing &#39;balst::ObjectFileFormat&#39; Information at Run Time
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The templated (specialized) &#39;typeTest&#39; function returns a unique, non-zero
+// value when passed an object of types
+// &#39;balst::ObjectFileFormat::{Elf,Xcoff,Windows}&#39;, and 0 otherwise.
+//..
+//  template &lt;typename TYPE&gt;
+//  int typeTest(const TYPE &amp;)
+//  {
+//      return 0;
+//  }
+//
+//  int typeTest(const balst::ObjectFileFormat::Elf &amp;)
+//  {
+//      return 1;
+//  }
+//
+//  int typeTest(const balst::ObjectFileFormat::Xcoff &amp;)
+//  {
+//      return 2;
+//  }
+//
+//  int typeTest(const balst::ObjectFileFormat::Windows &amp;)
+//  {
+//      return 3;
+//  }
+//
+//  int main() ...
+//..
+// We define an object &#39;policy&#39; of type &#39;balst::ObjectFileFormat::Policy&#39;,
+// which will be of type &#39;...::Elf&#39;, &#39;...::Xcoff&#39;, or &#39;...::Windows&#39;
+// appropriate for the platform.
+//..
+//      balst::ObjectFileFormat::Policy policy;
+//..
+// We now test it using &#39;typeTest&#39;:
+//..
+//      assert(typeTest(policy) &gt; 0);
+//
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
+//      assert(1 == typeTest(policy));
+//  #endif
+//
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+//      assert(2 == typeTest(policy));
+//  #endif
+//
+//  #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+//      assert(3 == typeTest(policy));
+//  #endif
+//  }
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balst {
+                           // ======================
+                           // class ObjectFileFormat
+                           // ======================
+
+struct ObjectFileFormat {
+    // This &#39;struct&#39; is named &#39;ObjectFileFormat&#39; for historical reasons, what
+    // it really determines is resolving strategy.  Linux, for example, can be
+    // resolved using either the &#39;Elf&#39; or &#39;Dladdr&#39; policies.  We choose &#39;Elf&#39;
+    // for linux because that mode of resolving yields more information.
+
+    struct Elf {};        // resolve as elf object
+
+    struct Xcoff {};      // resolve as xcoff object
+
+    struct Windows {};    // format used on Microsoft Windows platform
+
+    struct Dladdr {};     // resulve using the &#39;dladdr&#39; call
+
+    struct Dummy {};
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || \
+    defined(BSLS_PLATFORM_OS_LINUX)   || \
+    defined(BSLS_PLATFORM_OS_HPUX)
+
+    typedef Elf Policy;
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
+
+#elif defined(BSLS_PLATFORM_OS_AIX)
+
+    typedef Xcoff Policy;
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+    typedef Windows Policy;
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
+
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+    typedef Dladdr Policy;
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR 1
+
+#else
+
+    typedef Dummy Policy;
+#   error unrecognized platform
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED 1
+
+#endif
+
+};
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

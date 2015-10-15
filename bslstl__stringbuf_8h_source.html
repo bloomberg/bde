@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_stringbuf.h                                                 -*-C++-*-
@@ -1055,13 +1055,13 @@ typename basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt;::StringType
 namespace BloombergLP {
 namespace bslma {
 
-template &lt;typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR&gt;
+template &lt;class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR&gt;
 struct UsesBslmaAllocator&lt;
         bsl::basic_stringbuf&lt;CHAR_TYPE, CHAR_TRAITS, ALLOCATOR&gt; &gt;
     : bsl::true_type
 {};
 
-}  // close package namespace
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif

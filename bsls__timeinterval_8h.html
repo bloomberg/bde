@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bsls_timeinterval.h Reference</title>
+<title>BDE 3.0: bsls_timeinterval.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -82,6 +82,7 @@ Namespaces</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">namespace &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html">bsls</a></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__timeinterval_8h.html#a7d5e03983913485e29a6df813b5a3ee0">INCLUDED_IOSFWD</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bsls__timeinterval_8h.html#a796596c203f00b19f2c07e8823a47533">INCLUDED_LIMITS_H</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -110,11 +111,23 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a1f844071f3156d606a528a77b71b6668">bsls::operator&gt;=</a> (const TimeInterval &amp;lhs, const TimeInterval &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#ad4e7386be74933b8ab91e5cd6ff69bb9">bsls::operator&gt;=</a> (const TimeInterval &amp;lhs, double rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a68ce5fe949655b0020ba3b22cb16d1e7">bsls::operator&gt;=</a> (double lhs, const TimeInterval &amp;rhs)</td></tr>
-<tr><td class="memTemplParams" colspan="2">template&lt;class STREAM &gt; </td></tr>
-<tr><td class="memTemplItemLeft" align="right" valign="top">STREAM &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebsls.html#add0ccaf2bbfca9cbb2d0e663145bd8a2">bsls::operator&lt;&lt;</a> (STREAM &amp;stream, const TimeInterval &amp;timeInterval)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">native_std::ostream &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebsls.html#a917609f4d482ae649e1bf7cdff4454b4">bsls::operator&lt;&lt;</a> (native_std::ostream &amp;stream, const TimeInterval &amp;timeInterval)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <hr/><h2>Define Documentation</h2>
+<a class="anchor" id="a7d5e03983913485e29a6df813b5a3ee0"></a><!-- doxytag: member="bsls_timeinterval.h::INCLUDED_IOSFWD" ref="a7d5e03983913485e29a6df813b5a3ee0" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define INCLUDED_IOSFWD</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
 <a class="anchor" id="a796596c203f00b19f2c07e8823a47533"></a><!-- doxytag: member="bsls_timeinterval.h::INCLUDED_LIMITS_H" ref="a796596c203f00b19f2c07e8823a47533" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -129,7 +142,7 @@ Functions</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:18 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:28 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

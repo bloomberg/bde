@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_istriviallycopyable.h                                        -*-C++-*-
@@ -136,6 +136,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslmf_removecv.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_TIMEINTERVAL
+#include &lt;bsls_timeinterval.h&gt;
+#endif
+
+
 namespace bsl {
 
 template &lt;class TYPE&gt;
@@ -190,6 +195,23 @@ struct is_trivially_copyable
     // other types defaults to &#39;false&#39;).  To support other trivially copyable
     // types, this template must be specialized to inherit from
     // &#39;bsl::true_type&#39; for them.
+};
+
+
+// IMPLEMENTATION NOTE: We specialize &#39;is_trivially_copyable&#39; for
+// &#39;bsls::TimeInterval&#39; here because &#39;bsls&#39; is levelized below &#39;bslmf&#39;.
+// Previously &#39;bsls_timeinterval.h&#39; had forward declared the
+// &#39;is_trivially_copyable&#39; template and provided a specialization for
+// &#39;TimeInterval&#39; (see BDE 2.24.0 tag), but the foward declaration caused
+// compilation errors with the Sun CC 5.13 compiler.
+//
+// This trait declaration is not needed once we migrate to a C++11 definition
+// for &#39;is_trivially_copyable&#39;.
+
+template &lt;&gt;
+struct is_trivially_copyable&lt;BloombergLP::bsls::TimeInterval&gt; : bsl::true_type{
+    // This template specialization for &#39;is_trivially_copyable&#39; indicates that
+    // &#39;Date&#39; is a trivially copyable type.
 };
 
 }  // close namespace bsl

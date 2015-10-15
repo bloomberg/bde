@@ -1,0 +1,753 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktracetestallocator.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACETESTALLOCATOR
+#define INCLUDED_BALST_STACKTRACETESTALLOCATOR
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a test allocator that reports the call stack for leaks.
+//
+//@CLASSES:
+//  balst::StackTraceTestAllocator: allocator that reports call stack for leaks
+//
+//@DESCRIPTION: This component provides an instrumented allocator,
+// &#39;balst::StackTraceTestAllocator&#39;, that implements the
+// &#39;bdlma::ManagedAllocator&#39; protocol.  An object of this type records the call
+// stack for each allocation performed, and can report, either using the
+// &#39;reportBlocksInUse&#39; method or implicitly at destruction, the call stack
+// associated with every allocated block that has not (yet) been freed.  It is
+// optionally supplied a &#39;bslma::Allocator&#39; at construction that it uses to
+// allocate memory.
+//..
+//                    ,------------------------------.
+//                   ( balst::StackTraceTestAllocator  )
+//                    `------------------------------&#39;
+//                                    |    ctor/dtor
+//                                    |    numBlocksInUse
+//                                    |    reportBlocksInUse
+//                                    |    setFailureHandler
+//                                    V
+//                         ,----------------------.
+//                        ( bdlma::ManagedAllocator)
+//                         `----------------------&#39;
+//                                    |    release
+//                                    V
+//                             ,----------------.
+//                            ( bslma::Allocator )
+//                             `----------------&#39;
+//                                         allocate
+//                                         deallocate
+//..
+// Note that allocation using a &#39;balst::StackTraceTestAllocator&#39; is
+// deliberately incompatible with the default global &#39;new&#39;, &#39;malloc&#39;, &#39;delete&#39;,
+// and &#39;free&#39;.  Using &#39;delete&#39; or &#39;free&#39; to free memory supplied by this
+// allocator will corrupt the dynamic memory manager and also cause a memory
+// leak (and will be reported by purify as freeing mismatched memory, freeing
+// unallocated memory, or as a memory leak).  Using &#39;deallocate&#39; to free memory
+// supplied by global &#39;new&#39; or &#39;malloc&#39; will immediately cause an error to be
+// reported to the associated &#39;ostream&#39; and the abort handler (which can be
+// configured to be a no-op) called.
+//
+///Overhead / Efficiency
+///---------------------
+// There is some overhead to using this allocator.  It&#39;s is slower than
+// &#39;bslma::NewDeleteAllocator&#39; and uses more memory.  It is, however,
+// comparable in speed and memory usage to &#39;bslma::TestAllocator&#39;.  The stack
+// trace stored for each allocation is stack pointers only, which are compact
+// and quick to obtain.  Actual resolving of the stack pointer to subroutine
+// names and, on some platforms, source file names and line numbers, is
+// expensive but doesn&#39;t happen during allocation or deallocation and is put
+// off until a memory leak report is being generated.
+//
+// Note that the overhead increases and efficiency decreases as the
+// &#39;numRecordedFrames&#39; argument to the constructor is increased.
+//
+///Failure Handler
+///---------------
+// An object of type &#39;balst::StackTraceTestAllocator&#39; always has a failure
+// handler associated with it.  This a a configurable &#39;bdef::Functton&#39; object
+// that will be called if any error condition is detected, after the error
+// condition is reported.  By default, it is set to
+// &#39;balst::StackTraceTestAllocator::failAbort&#39; which calls &#39;abort&#39;, but it may
+// be set by &#39;setFailureHandler&#39; to another routine.  If the client does not
+// want a core dump to occur, it is recommended they do:
+//..
+//    stackTraceTestAllocator.setFailurehandler(
+//                                  &amp;balst::StackTraceTestAllocator::failNoop);
+//..
+// The stack trace test allocator is prepared for the failure handler to
+// return, throw (provided the client will catch the exception) or longjmp
+// without undefined behavior.
+//
+// If a memory is found to be outstanding during destruction, that is
+// considered a memory leak and a report is written.  After the report, the
+// failure handler is called, and if the failure handler returns, the leaked
+// memory is then released.  This means that if the failure handler throws or
+// longjmps in this case, the leaked memory will not be freed, and there will
+// be no way to release it afterward since the allocator will no longer exist.
+//
+///Usage
+///-----
+// In this example, we will define a class &#39;ShipsCrew&#39; that does something,
+// but leaks memory, and then we will demonstrate the use of the stack trace
+// test allocator to locate the leak.
+//
+// First, we define &#39;ShipsCrew&#39;, a class that will read the names of a ship&#39;s
+// crew from a file at construction, and make the results available through
+// accessors:
+//..
+//  struct ShipsCrew {
+//      // This struct will, at construction, read and parse a file describing
+//      // the names of the crew of a ship.
+//
+//    private:
+//      // PRIVATE TYPES
+//      struct CharStrLess {
+//          // Functor to compare two &#39;const char *&#39;s in alphabetical order.
+//
+//          bool operator()(const char *a, const char *b) const
+//          {
+//              return bsl::strcmp(a, b) &lt; 0;
+//          }
+//      };
+//
+//      typedef bsl::set&lt;const char *, CharStrLess&gt; NameSet;
+//
+//      // DATA
+//      const char       *d_captain;
+//      const char       *d_firstMate;
+//      const char       *d_cook;
+//      NameSet           d_sailors;
+//      bslma::Allocator *d_allocator_p;
+//
+//    private:
+//      // PRIVATE MANIPULATORS
+//      void addSailor(const bsl::string&amp; name);
+//          // Add the specified &#39;name&#39; to the set of sailor&#39;s names.
+//          // Redundant names are ignored.
+//
+//      const char *copy(const bsl::string&amp; str);
+//          // Allocate memory for a copy of the specified &#39;str&#39; as a char
+//          // array, copy the contents of &#39;str&#39; into it, and return a pointer
+//          // to the new copy.
+//
+//      void free(const char **str);
+//          // If &#39;0 != str&#39;, deallocate &#39;*str&#39; using the allocator associated
+//          // with this object and set &#39;*str&#39; to 0, otherwise do nothing.  The
+//          // behavior is undefined if &#39;0 == str&#39;.
+//
+//      void setCaptain(const bsl::string&amp; name);
+//          // Set the name of the ship&#39;s captain to the specified &#39;name&#39;.
+//
+//      void setCook(const bsl::string&amp; name);
+//          // Set the name of the ship&#39;s cook to the specified &#39;name&#39;.
+//
+//      void setFirstMate(const bsl::string&amp; name);
+//          // Set the name of the ship&#39;s first mate to the specified &#39;name&#39;.
+//
+//    public:
+//      // CREATORS
+//      explicit
+//      ShipsCrew(const char        *crewFileName,
+//                bslma::Allocator *basicAllocator = 0);
+//          // Read the names of the ship&#39;s crew in from the file with the
+//          // specified name &#39;crewFileName&#39;.
+//
+//      ~ShipsCrew();
+//          // Destroy this object and free memory.
+//
+//      // ACCESSORS
+//      const char *captain();
+//          // Return the captain&#39;s name.
+//
+//      const char *cook();
+//          // Return the cook&#39;s name.
+//
+//      const char *firstMate();
+//          // Return the first mate&#39;s name.
+//
+//      const char *firstSailor();
+//          // Return the name of the sailor whose name is alphabetically the
+//          // first in the list.
+//
+//      const char *nextSailor(const char *currentSailor);
+//          // Return the next sailor alphabetically after the specified
+//          // &#39;currentSailor&#39;, or 0 if &#39;currentSailor&#39; is the last in the list
+//          // or not found.  The behavior is undefined if
+//          // &#39;0 == currentSailor&#39;.
+//  };
+//..
+// Then, we implement the private manipulators of the class:
+//..
+// PRIVATE MANIPULATORS
+//  void ShipsCrew::addSailor(const bsl::string&amp; name)
+//  {
+//      if (!d_sailors.count(name.c_str())) {
+//          d_sailors.insert(copy(name));
+//      }
+//  }
+//
+//  const char *ShipsCrew::copy(const bsl::string&amp; str)
+//  {
+//      char *result = (char *) d_allocator_p-&gt;allocate(str.length() + 1);
+//      bsl::strcpy(result, str.c_str());
+//      return result;
+//  }
+//
+//  void ShipsCrew::free(const char **str)
+//  {
+//      assert(str);
+//
+//      if (*str) {
+//          d_allocator_p-&gt;deallocate(const_cast&lt;char *&gt;(*str));
+//          *str = 0;
+//      }
+//  }
+//
+//  void ShipsCrew::setCaptain(const bsl::string&amp; name)
+//  {
+//      free(&amp;d_captain);
+//
+//      d_captain = copy(name);
+//  }
+//
+//  void ShipsCrew::setCook(const bsl::string&amp; name)
+//  {
+//      free(&amp;d_cook);
+//
+//      d_cook = copy(name);
+//  }
+//
+//  void ShipsCrew::setFirstMate(const bsl::string&amp; name)
+//  {
+//      free(&amp;d_firstMate);
+//
+//      d_firstMate = copy(name);
+//  }
+//..
+// Next, we implement the creators:
+//..
+//  // CREATORS
+//  ShipsCrew::ShipsCrew(const char       *crewFileName,
+//                       bslma::Allocator *basicAllocator)
+//  : d_captain(0)
+//  , d_firstMate(0)
+//  , d_cook(0)
+//  , d_sailors(    bslma::Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//  {
+//      bsl::ifstream input(crewFileName);
+//      BSLS_ASSERT(!input.eof() &amp;&amp; !input.bad());
+//
+//      bsl::string line(d_allocator_p);
+//
+//      while (!input.bad() &amp;&amp; !input.eof()) {
+//          bsl::getline(input, line);
+//
+//          bsl::size_t colon = line.find(&#39;:&#39;);
+//          if (bsl::string::npos != colon) {
+//              const bsl::string&amp; field = line.substr(0, colon);
+//              const bsl::string&amp; name  = line.substr(colon + 1);
+//
+//              if      (0 == bdlb::String::lowerCaseCmp(field, &quot;captain&quot;)) {
+//                  setCaptain(name);
+//              }
+//              else if (0 == bdlb::String::lowerCaseCmp(field, &quot;first mate&quot;)){
+//                  setFirstMate(name);
+//              }
+//              else if (0 == bdlb::String::lowerCaseCmp(field, &quot;cook&quot;)) {
+//                  setCook(name);
+//              }
+//              else if (0 == bdlb::String::lowerCaseCmp(field, &quot;sailor&quot;)) {
+//                  addSailor(name);
+//              }
+//              else {
+//                  cerr &lt;&lt; &quot;Unrecognized field &#39;&quot; &lt;&lt; field &lt;&lt; &quot;&#39; in line &#39;&quot; &lt;&lt;
+//                                                               line &lt;&lt; &quot;&#39;\n&quot;;
+//              }
+//          }
+//          else if (!line.empty()) {
+//              cerr &lt;&lt; &quot;Garbled line &#39;&quot; &lt;&lt; line &lt;&lt; &quot;&#39;\n&quot;;
+//          }
+//      }
+//  }
+//
+//  ShipsCrew::~ShipsCrew()
+//  {
+//      free(&amp;d_captain);
+//      free(&amp;d_firstMate);
+//
+//      // Note that deallocating the strings will invalidate &#39;d_sailors&#39; --
+//      // any manipulation of &#39;d_sailors&#39; other than destruction after this
+//      // would lead to undefined behavior.
+//
+//      const NameSet::iterator end = d_sailors.end();
+//      for (NameSet::iterator it = d_sailors.begin(); end != it; ++it) {
+//          d_allocator_p-&gt;deallocate(const_cast&lt;char *&gt;(*it));
+//      }
+//  }
+//..
+// Then, we implement the public accessors:
+//..
+// ACCESSORS
+//  const char *ShipsCrew::captain()
+//  {
+//      return d_captain ? d_captain : &quot;&quot;;
+//  }
+//
+//  const char *ShipsCrew::cook()
+//  {
+//      return d_cook ? d_cook : &quot;&quot;;
+//  }
+//
+//  const char *ShipsCrew::firstMate()
+//  {
+//      return d_firstMate ? d_firstMate : &quot;&quot;;
+//  }
+//
+//  const char *ShipsCrew::firstSailor()
+//  {
+//      NameSet::iterator it = d_sailors.begin();
+//      return d_sailors.end() == it ? 0 : *it;
+//  }
+//
+//  const char *ShipsCrew::nextSailor(const char *currentSailor)
+//  {
+//      assert(currentSailor);
+//      NameSet::iterator it = d_sailors.find(currentSailor);
+//      if (d_sailors.end() != it) {
+//          ++it;
+//      }
+//      return d_sailors.end() == it ? 0 : *it;
+//  }
+//..
+// Next, in &#39;main&#39;, we create our file &#39;./shipscrew.txt&#39; describing the crew of
+// the ship.  Note that the order of crew members is not important:
+//..
+//      {
+//          bsl::ofstream outFile(&quot;shipscrew.txt&quot;);
+//
+//          outFile &lt;&lt; &quot;sailor:Mitch Sandler\n&quot;
+//                  &lt;&lt; &quot;sailor:Ben Lampert\n&quot;
+//                  &lt;&lt; &quot;cook:Bob Jones\n&quot;
+//                  &lt;&lt; &quot;captain:Steve Miller\n&quot;
+//                  &lt;&lt; &quot;sailor:Daniel Smith\n&quot;
+//                  &lt;&lt; &quot;first mate:Sally Chandler\n&quot;
+//                  &lt;&lt; &quot;sailor:Joe Owens\n&quot;;
+//      }
+//..
+// Then, we set up a test case to test our &#39;ShipsCrew&#39; class.  We do not use
+// the stack trace test allocator yet, we just use a &#39;bslma::TestAllocator&#39; to
+// get memory usage statistics and determine whether any leakage occurred.
+//..
+//      {
+//          bslma::TestAllocator ta(&quot;Bslma Test Allocator&quot;);
+//          bslma::TestAllocatorMonitor tam(&amp;ta);
+//
+//          {
+//              ShipsCrew crew(&quot;shipscrew.txt&quot;, &amp;ta);
+//              assert(tam.isInUseUp());
+//              assert(tam.isTotalUp());
+//
+//              if (verbose) {
+//                  cout &lt;&lt; &quot;Captain: &quot;  &lt;&lt; crew.captain() &lt;&lt;
+//                      &quot;\nFirst Mate: &quot; &lt;&lt; crew.firstMate() &lt;&lt;
+//                      &quot;\nCook: &quot;       &lt;&lt; crew.cook() &lt;&lt; endl;
+//                  for (const char *sailor = crew.firstSailor(); sailor;
+//                                          sailor = crew.nextSailor(sailor)) {
+//                      cout &lt;&lt; &quot;Sailor: &quot; &lt;&lt; sailor &lt;&lt; endl;
+//                  }
+//              }
+//          }
+//
+//          int bytesLeaked = ta.numBytesInUse();
+//          if (bytesLeaked &gt; 0) {
+//              cout &lt;&lt; bytesLeaked &lt;&lt; &quot; bytes of memory were leaked!\n&quot;;
+//          }
+//      }
+//..
+// The program generates the following output in non-verbose mode, telling us
+// that one segment of 10 bytes was leaked:
+//..
+//  10 bytes of memory were leaked!
+//  MEMORY_LEAK from Bslma Test Allocator:
+//  Number of blocks in use = 1
+//  Number of bytes in use = 10
+//..
+// Next, we would like to use stack trace test allocator to tell us WHERE the
+// memory leak is, but we have a problem: our test case not only uses
+// &#39;bslma::TestAllocator&#39;, but it calls the &#39;numBytesInUse&#39; accessor, which is
+// not available from stack trace test allocator.  We are also using
+// &#39;bslma::TestAllocatorMonitor&#39;, which will only work with
+// &#39;bslma::TestAllocator&#39;.  So if we were to just substitute the stack trace
+// test allocator for the bslma test allocator, it would break our test case in
+// several ways.  To instrument our test with a minimal change to the code, we
+// create a stack test test allocator and feed that allocator to the
+// constructor to bslma test allocator.  The rest of our example will now work
+// without modification.  (Note that it is important to call
+// &#39;ta.setNoAbort(true)&#39; when we use this method, otherwise the bslma test
+// allocator will bomb out before the destructor for &#39;stta&#39; is able to generate
+// its report).
+//..
+//      {
+//          balst::StackTraceTestAllocator stta;
+//          stta.setName(&quot;stta&quot;);
+//          stta.setFailureHandler(&amp;stta.failNoop);
+//
+//          bslma::TestAllocator ta(&quot;Bslma Test Allocator&quot;, &amp;stta);
+//          ta.setNoAbort(true);
+//
+//          // the rest of the test case after this is totally unchanged
+//
+//          bslma::TestAllocatorMonitor tam(&amp;ta);
+//
+//          {
+//              ShipsCrew crew(&quot;shipscrew.txt&quot;, &amp;ta);
+//              assert(tam.isInUseUp());
+//              assert(tam.isTotalUp());
+//
+//              if (verbose) {
+//                  cout &lt;&lt; &quot;Captain: &quot;  &lt;&lt; crew.captain() &lt;&lt;
+//                      &quot;\nFirst Mate: &quot; &lt;&lt; crew.firstMate() &lt;&lt;
+//                      &quot;\nCook: &quot;       &lt;&lt; crew.cook() &lt;&lt; endl;
+//                  for (const char *sailor = crew.firstSailor(); sailor;
+//                                          sailor = crew.nextSailor(sailor)) {
+//                      cout &lt;&lt; &quot;Sailor: &quot; &lt;&lt; sailor &lt;&lt; endl;
+//                  }
+//              }
+//          }
+//
+//          int bytesLeaked = ta.numBytesInUse();
+//          if (bytesLeaked &gt; 0) {
+//              cout &lt;&lt; bytesLeaked &lt;&lt; &quot; bytes of memory were leaked!\n&quot;;
+//          }
+//      }
+//..
+// Now, this generates the following report:
+//..
+//  10 bytes of memory were leaked!
+//  MEMORY_LEAK from Bslma Test Allocator:
+//    Number of blocks in use = 1
+//     Number of bytes in use = 10
+//  ===========================================================================
+//  Error: memory leaked:
+//  1 block(s) in allocator &#39;stta&#39; in use.
+//  Block(s) allocated from 1 trace(s).
+//  ---------------------------------------------------------------------------
+//  Allocation trace 1, 1 block(s) in use.
+//  Stack trace at allocation time:
+//  (0): BloombergLP::balst::StackTraceTestAllocator::allocate(int)+0x17d at 0x
+//  805e741 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (1): BloombergLP::bslma::TestAllocator::allocate(int)+0x12c at 0x8077398 in
+//   balst_stacktracetestallocator.t.dbg_exc_mt
+//  (2): ShipsCrew::copy(bsl::basic_string&lt;char, std::char_traits&lt;char&gt;, bsl::a
+//  llocator&lt;char&gt; &gt; const&amp;)+0x31 at 0x804c3db in balst_stacktracetestallocator
+//  .t.dbg_exc_mt
+//  (3): ShipsCrew::setCook(bsl::basic_string&lt;char, std::char_traits&lt;char&gt;, bsl
+//  ::allocator&lt;char&gt; &gt; const&amp;)+0x2d at 0x804c4c1 in balst_stacktracetestalloca
+//  tor.t.dbg_exc_mt
+//  (4): ShipsCrew::ShipsCrew(char const*, BloombergLP::bslma::Allocator*)+0x23
+//  4 at 0x804c738 in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (5): main+0x53c at 0x804d55e in balst_stacktracetestallocator.t.dbg_exc_mt
+//  (6): __libc_start_main+0xdc at 0x182e9c in /lib/libc.so.6
+//  (7): --unknown-- at 0x804c1d1 in balst_stacktracetestallocator.t.dbg_exc_mt
+//..
+// Finally, Inspection shows that frame (3) of the stack trace from the
+// allocation of the leaked segment was from &#39;ShipsCrew::setCook&#39;.  Inspection
+// of the code shows that we neglected to free &#39;d_cook&#39; in the destructor and
+// we can now easily fix our leak.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
+#include &lt;bdlma_managedallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_FUNCTIONAL
+#include &lt;bsl_functional.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balst {
+                       // =============================
+                       // class StackTraceTestAllocator
+                       // =============================
+
+class StackTraceTestAllocator : public bdlma::ManagedAllocator {
+    // This class defines a concrete &quot;test&quot; allocator mechanism that implements
+    // the &#39;bdlma::ManagedAllocator&#39; protocol, and provides instrumentation to
+    // track the set of all blocks allocated by this allocator that have yet to
+    // be freed.  At any time it can produce a report about such blocks,
+    // listing for each place that any unfreed blocks were allocated
+    //: o the number of unfreed blocks allocated at that place
+    //: o the stack trace at that place
+    // The allocator will also detect redundant frees of the same block, and
+    // frees by the wrong allocator.  The client can choose whether such
+    // violations are handled by a core dump, or merely a report being written.
+    //
+    // Note that, unlike many other allocators, this allocator does DOES NOT
+    // rely on the currently installed default allocator (see &#39;bslma_default&#39;)
+    // at all, but instead -- by default -- uses &#39;MallocFreeAllocator&#39;
+    // singleton, which in turn calls the C Standard Library functions &#39;malloc&#39;
+    // and &#39;free&#39; as needed.  Clients may, however, override this allocator by
+    // supplying (at construction) any other allocator implementing the
+    // &#39;bslma::Allocator&#39; protocol.
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::function&lt;void()&gt; FailureHandler;
+                // Type of functor called by this object to handle failures.
+                // Note that this can be set and accessed using th
+                // &#39;setFailureHandler&#39; and &#39;failureHandler&#39; methods
+                // respectively.
+
+  private:
+    // PRIVATE TYPES
+    enum AllocatorMagic { k_STACK_TRACE_TEST_ALLOCATOR_MAGIC = 1335775331 };
+
+    struct BlockHeader;                            // information stored in
+                                                   // each block (defined in
+                                                   // .cpp)
+
+    // DATA
+    AllocatorMagic            d_magic;             // magic # to identify type
+                                                   // of memory allocator
+
+    volatile int              d_numBlocksInUse;    // number of allocated
+                                                   // blocks currently unfreed
+
+    BlockHeader              *d_blocks;            // list of allocated,
+                                                   // unfreed blocks
+
+    mutable bslmt::Mutex      d_mutex;             // mutex used to synchronize
+                                                   // access to this object
+
+    const char               *d_name;              // name of this allocator
+
+    FailureHandler            d_failureHandler;    // function we are to call
+                                                   // on errors.  The default
+                                                   // handler will call
+                                                   // &#39;abort&#39;.
+
+    const int                 d_maxRecordedFrames; // max number of stack trace
+                                                   // frames to store in each
+                                                   // block; may be larger than
+                                                   // the number of frames
+                                                   // requested to the ctor due
+                                                   // to ignored frames
+
+    const int                 d_traceBufferLength; // length, in pointers, of
+                                                   // area for storing stack
+                                                   // traces; may be larger
+                                                   // than
+                                                   // &#39;d_maxRecordedFrames&#39; due
+                                                   // to alignment
+                                                   // considerations
+
+    bsl::ostream             *d_ostream;           // stream to which
+                                                   // diagnostics are to be
+                                                   // written; held, not owned
+
+    bool                      d_demangleFlag;      // if &#39;true&#39;, demangling of
+                                                   // symbol names is attempted
+
+    bslma::Allocator         *d_allocator_p;       // held, not owned
+
+  private:
+    // NOT IMPLEMENTED
+    StackTraceTestAllocator(const StackTraceTestAllocator&amp;);
+    StackTraceTestAllocator&amp; operator=(
+                                         const StackTraceTestAllocator&amp;);
+
+  private:
+    // PRIVATE ACCESSORS
+    int checkBlockHeader(const BlockHeader *blockHdr) const;
+        // Return 0 if the block specified by &#39;blockHdr&#39; was allocated with
+        // this allocator, is not corrupted, and has not yet been freed; report
+        // diagnostics to &#39;*d_ostream&#39; and return a non-zero value otherwise.
+
+  public:
+    // CLASS METHODS
+    static void failAbort();
+        // Calls &#39;bsl::abort()&#39;, &#39;d_failureHandler&#39; is initialized to this
+        // value by all constructors.  Note that in ALL failure situations,
+        // errors or warnings will be written to the &#39;ostream&#39; associated with
+        // this object prior to the failure handler call.
+
+    static void failNoop();
+        // Does nothing.  &#39;setFailureHandler&#39; may be called with this function,
+        // in which case this allocator object, when a failure occurs, will
+        // recover rather than abort.  Note that in ALL failure situations,
+        // errors or warnings will be written to the &#39;ostream&#39; associated with
+        // this object prior to the failure handler call.
+
+    // CREATORS
+    explicit
+    StackTraceTestAllocator(bslma::Allocator *basicAllocator = 0);
+    explicit
+    StackTraceTestAllocator(int               numRecordedFrames,
+                                  bslma::Allocator *basicAllocator = 0);
+        // Create a test allocator.  Optionally specify &#39;numRecordedFrames&#39;,
+        // the number of stack trace frame pointers to be saved for every
+        // allocation.  Specifying a larger value of &#39;numRecordedFrames&#39; means
+        // that stack traces, when given, will be more complete, but will also
+        // mean that both more CPU time and more memory per allocation will be
+        // consumed.  If &#39;numRecordedFrames&#39; is not specified, a value of &#39;12&#39;
+        // will be assumed.  Optionally specify &#39;basicAllocator&#39;, the allocator
+        // from which memory will be provided.  If &#39;basicAllocator&#39; is 0, the
+        // &#39;MallocFreeAllocator&#39; singleton is used.  Associate &#39;bsl::cerr&#39; with
+        // this object for error diagnostic output, which may be changed by
+        // calling the &#39;setOstream&#39; manipulator.  Set the
+        // &#39;demanglingPreferringFlag&#39; attribute to &#39;true&#39;, which may be changed
+        // using the &#39;setDemanglingPreferredFlag&#39; manipulator.  The behavior is
+        // undefined if &#39;numRecordedFrames &lt; 2&#39;.
+
+    virtual ~StackTraceTestAllocator();
+        // Destroy this allocator.  Report any memory leaks to the &#39;ostream&#39;
+        // that was supplied at construction.  If no memory leaks are observed,
+        // nothing is written to the output &#39;ostream&#39;.  Call the failure
+        // handler if &#39;numBlocksInUse() &gt; 0&#39;.  Note that a report of
+        // outstanding memory blocks is written to &#39;ostream&#39; before the failure
+        // handler is called, and if the failure handler returns, all
+        // outstanding memory blocks will be released.
+
+    // MANIPULATORS
+    virtual void *allocate(size_type size);
+        // Return a newly allocated block of memory of the specified positive
+        // &#39;size&#39; (in bytes).  If &#39;size&#39; is 0, a null pointer is returned with
+        // no other other effect.  Otherwise, invoke the &#39;allocate&#39; method of
+        // the allocator supplied at construction and record the returned block
+        // in order to be able to report leaked blocks upon destruction.
+
+    virtual void deallocate(void *address);
+        // Return the memory block at the specified &#39;address&#39; back to this
+        // allocator.  If &#39;address&#39; is 0, this function has no effect.
+        // Otherwise, if the memory at &#39;address&#39; is consistent with being
+        // allocated from this test allocator, deallocate it using the
+        // underlying allocator and delete it from the data structures keeping
+        // track of blocks in use&#39;.  If &#39;address&#39; is not zero and is not the
+        // address of a block allocated with this allocator (or if it is being
+        // deallocated a second time), write an error message and call the
+        // failure handler.
+
+    virtual void release();
+        // Deallocate all memory held by this allocator.
+
+    void setDemanglingPreferredFlag(bool value);
+        // Set the &#39;demanglingPreferredFlag&#39; attribute, which is used to
+        // determine whether demangling of symbols is to be attempted when
+        // generating diagnostics, to the specified &#39;value&#39;.  The default value
+        // of the flag is &#39;true&#39;.  However the flag is ignored on some
+        // platforms; demangling never happens on some platforms and always
+        // happens on others.
+
+    void setFailureHandler(const FailureHandler&amp; func);
+        // Set the failure handler associated with this allocator object to the
+        // specified &#39;func&#39;.  Upon construction, the function &#39;failAbort&#39; is
+        // associated with this object by default.  Note that &#39;func&#39; will be
+        // called by this object&#39;s destructor if memory is leaked, so it is
+        // important that it not throw.  Note that in ALL failure situations,
+        // errors or warnings will be written to the &#39;ostream&#39; associated with
+        // this object prior to the call to the failure handler.
+
+    void setName(const char * name);
+        // Set the name of this allocator to the specified &#39;name&#39;.  If
+        // &#39;setName&#39; is never called, the name of the allocator is &quot;&lt;unnamed&gt;&quot;.
+        // Note that the lifetime of &#39;name&#39; must exceed the lifetime of this
+        // object.
+
+    void setOstream(bsl::ostream *ostream);
+        // Set the stream to which diagnostics will be written to the specified
+        // &#39;ostream&#39;.  If &#39;setOstream&#39; is never called, diagnostics will be
+        // written to &#39;bsl::cerr&#39;.
+
+    // ACCESSORS
+    const FailureHandler&amp; failureHandler() const;
+        // Return a reference to the function that will be called when a
+        // failure is observered.
+
+    bsl::size_t numBlocksInUse() const;
+        // Return the number of blocks currently allocated from this object.
+
+    void reportBlocksInUse(bsl::ostream *ostream = 0) const;
+        // Write a report to the specified &#39;ostream&#39;, reporting the unique
+        // call-stacks for each block that has been allocated and has not yet
+        // been freed.  If &#39;ostream&#39; is not specified, the value of &#39;ostream&#39;
+        // passed to the last call to &#39;setOstream&#39; will be used.  If
+        // &#39;setOstream&#39; was never called, &#39;bsl::cerr&#39; will be used.
+};
+
+                       // -----------------------------
+                       // class StackTraceTestAllocator
+                       // -----------------------------
+
+inline
+const StackTraceTestAllocator::FailureHandler&amp;
+StackTraceTestAllocator::failureHandler() const
+{
+    return d_failureHandler;
+}
+
+inline
+bsl::size_t StackTraceTestAllocator::numBlocksInUse() const
+{
+    return d_numBlocksInUse;
+}
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

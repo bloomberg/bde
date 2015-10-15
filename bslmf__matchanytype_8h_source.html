@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslmf_matchanytype.h                                               -*-C++-*-
@@ -31,8 +31,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // create a reference to the type.  Note that the &#39;rep&#39; function in
 // &#39;bslmf::TypeRep&#39; is not implemented, it must never be called at run time.
 //
-///Usage Example 1: &#39;bslmf::MatchAnyType&#39;
-///--------------------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: &#39;bslmf::MatchAnyType&#39;
+/// - - - - - - - - - - - - - - - -
 //..
 //  struct X { };
 //  struct Y { };
@@ -56,8 +60,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  assert(  isY(y));
 //  assert(  isY(z));
 //..
-///Usage Example 2: &#39;bslmf::TypeRep&#39;
-///--------------------------------
+//
+///Example 2: &#39;bslmf::TypeRep&#39;
+///- - - - - - - - - - - - - -
 //..
 //  struct X {};
 //  struct Y {};

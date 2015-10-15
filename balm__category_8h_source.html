@@ -1,0 +1,380 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balm_category.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALM_CATEGORY
+#define INCLUDED_BALM_CATEGORY
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $&quot;)
+
+//@PURPOSE: Provide a representation of a metric category.
+//
+//@CLASSES:
+//    balm::Category: a representation of a metric category
+//
+//@SEE_ALSO: balm_metricregistry, balm_metricid, balm_metricdescription
+//
+//@DESCRIPTION: This component provides a class, &#39;balm::Category&#39;, whose values
+// are used to categorize collected metrics.  A metric &quot;category&quot; is an
+// identifier (chosen by the application) that groups together one or more
+// metrics.  A &#39;balm::Category&#39; object contains the address of a string holding
+// the name of the category and a boolean value indicating whether the
+// category is currently enabled.  The &#39;balm::Category&#39; class suppresses copy
+// construction and assignment, and does not provide equality operators;
+// applications should use a *single* &#39;balm::Category&#39; object instance per
+// category (such as one provided by the *&#39;balm::MetricRegistry&#39;* component).
+//
+// IMPORTANT: The category name, whose type is &#39;const char *&#39;, must remain
+// constant and valid throughout the lifetime of the &#39;balm::Category&#39; object.
+//
+///Thread Safety
+///-------------
+// &#39;balm::Category&#39; is generally *const* *thread-safe*, meaning that accessors
+// may be invoked concurrently from different threads, but it is not safe to
+// access or modify a &#39;balm::Category&#39; in one thread while another thread
+// modifies the same object.  However, it is safe to *access* the &#39;enabled&#39;
+// property on one (or more) thread(s) while the object is being modified on
+// another thread.
+//
+///Usage
+///-----
+// The following example demonstrates how to create, access, and modify a
+// &#39;balm::Category&#39; object.  We start by creating three category objects with
+// different names:
+//..
+//  balm::Category categoryA(&quot;A&quot;, true);
+//  balm::Category categoryB(&quot;B&quot;, false);
+//  balm::Category categoryC(&quot;C&quot;);
+//..
+// Once the category objects have been created, we can use the &#39;name&#39; and
+// &#39;enabled&#39; methods to access their values:
+//..
+//  assert(0 == bsl::strcmp(&quot;A&quot;, categoryA.name()));
+//  assert(0 == bsl::strcmp(&quot;B&quot;, categoryB.name()));
+//  assert(0 == bsl::strcmp(&quot;C&quot;, categoryC.name()));
+//
+//  assert( categoryA.enabled());
+//  assert(!categoryB.enabled());
+//  assert( categoryC.enabled());
+//..
+// Finally, we modify the enablement status of one of the categories, and then
+// write all three categories to the console:
+//..
+//  categoryC.setEnabled(false);
+//
+//  bsl::cout &lt;&lt; &quot;categoryA: &quot; &lt;&lt; categoryA &lt;&lt; bsl::endl
+//            &lt;&lt; &quot;categoryB: &quot; &lt;&lt; categoryB &lt;&lt; bsl::endl
+//            &lt;&lt; &quot;categoryC: &quot; &lt;&lt; categoryC &lt;&lt; bsl::endl;
+//..
+// With the resulting console output:
+//..
+//  categoryA: [ A ENABLED ]
+//  categoryB: [ B DISABLED ]
+//  categoryC: [ C DISABLED ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ATOMIC
+#include &lt;bsls_atomic.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace balm {
+
+class CategoryHolder;
+
+                               // ==============
+                               // class Category
+                               // ==============
+
+class Category {
+    // This class provides a mechanism for representing a category.  A category
+    // is an identifier used to group related metrics.  A &#39;Category&#39; object
+    // contains the address of a null-terminated string, &#39;name&#39;, holding the
+    // name of the category and a boolean value, &#39;enabled&#39;, indicating whether
+    // the category is currently enabled.
+
+    // DATA
+    const char     *d_name_p;     // name of the category (held, not owned)
+
+    bsls::AtomicInt d_enabled;    // whether the category is enabled
+
+    CategoryHolder *d_holders_p;  // linked list of holders of this category
+
+    // NOT IMPLEMENTED
+    Category(const Category&amp; );
+    Category&amp; operator=(const Category&amp; );
+
+  public:
+    // CREATORS
+    explicit Category(const char *name, bool enabledFlag = true);
+        // Create a category having the specified &#39;name&#39; address.  Optionally
+        // specify &#39;enabledFlag&#39;, the enabled status of the category; if
+        // &#39;enabledFlag&#39; is not specified, the &#39;enabled&#39; status is &#39;true&#39;.  The
+        // behavior is undefined unless &#39;name&#39; remains valid and unmodified for
+        // the lifetime of this object.
+
+    ~Category();
+        // Destroy this category object.
+
+    // MANIPULATORS
+    void setName(const char *name);
+        // Set the name of this metric to the specified &#39;name&#39; address.  The
+        // behavior is undefined unless &#39;name&#39; remains valid and unmodified
+        // for the lifetime of this object.
+
+    void setEnabled(bool enabledFlag);
+        // Set the &#39;enabled&#39; state of this category to the value of the
+        // specified &#39;enabledFlag&#39; and update any &#39;CategoryHolder&#39; objects
+        // registered with this category.  Note that this operation is *not*
+        // atomic, and other threads may simultaneously access the current
+        // enabled value while this operation is performed.  Also note that
+        // this operation has *linear* performance with respect to the number
+        // of registered category holders for &#39;category&#39;.
+
+    void registerCategoryHolder(CategoryHolder *holder);
+        // Load into the specified &#39;holder&#39; the address of this category, its
+        // &#39;enabled()&#39; status, and the address of the next holder in the
+        // linked list of category holders maintained by this object
+        // (prepending &#39;holder&#39; to this category&#39;s linked list of category
+        // holders).  This category will update &#39;holder-&gt;enabled()&#39; when its
+        // enabled state changes, and will reset &#39;holder&#39; (i.e.,
+        // &#39;holder-&gt;reset()&#39;) when this category is destroyed.  The behavior
+        // is undefined unless &#39;holder&#39; remains valid and *unmodified* (by the
+        // client) for the lifetime of this object and is *not* registered
+        // again with any category (including this one).
+
+    // ACCESSORS
+    const char *name() const;
+        // Return the address of the non-modifiable null-terminated string
+        // containing the name of this category.
+
+    bool enabled() const;
+        // Report whether this category is enabled. This function is fully
+        // thread-safe.
+
+    const bsls::AtomicInt&amp; isEnabledRaw() const;
+        // Return a *reference* to a const value indicating the enabled status
+        // of this category, allowing downstream uses to minimize latency by
+        // avoiding indirection through abstracted interfaces, albeit at some
+        // risk of object-lifetime violations.  The returned reference must not
+        // be allowed to outlive this category object.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream) const;
+        // Print this category to the specified output &#39;stream&#39; in some human
+        // readable form, and return the modifiable &#39;stream&#39;.
+};
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp; stream, const Category&amp; rhs);
+    // Output a formatted description of the specified &#39;rhs&#39; category to the
+    // specified &#39;stream&#39;, and return the modifiable &#39;stream&#39;.
+
+                            // ====================
+                            // class CategoryHolder
+                            // ====================
+
+class CategoryHolder {
+    // This class, informally referred to as a &quot;category holder&quot; (or simply
+    // &quot;holder&quot;), holds a category, an enabled value, and a pointer to a
+    // &quot;next&quot; holder.  Both the category and next pointer may be null.  The
+    // intended use is as follows: (1) instances of this class are (only)
+    // declared in contexts where collecting a metric occurs; (2) if the
+    // enabled value is true, the category contains the address of a valid,
+    // enabled, category; (3) if the next pointer is non-null, then the holder
+    // pointed to holds the same category and threshold.  Instances of this
+    // class must be *statically* initializable.  Hence, the data members are
+    // &#39;public&#39;, and no constructors or destructor are defined.
+    //
+    // This class should *not* be used directly by client code.  It is an
+    // implementation detail of the &#39;balm&#39; metric collection system.
+
+    // NOT IMPLEMENTED
+    CategoryHolder&amp; operator=(const CategoryHolder&amp; rhs);
+
+  public:
+
+    // PUBLIC DATA MEMBERS
+    bool            d_enabled;     // whether the category is enabled
+    const Category *d_category_p;  // held category (not owned)
+    CategoryHolder *d_next_p;      // next category holder in linked list
+
+    // CREATORS
+
+    // No constructors or destructors are declared in order to allow for static
+    // initialization of instances of this class.
+
+    // MANIPULATORS
+    void reset();
+        // Reset this object to its default value.  The default value is:
+        //..
+        //   { false, 0, 0 }
+        //..
+
+    void setCategory(const Category *category);
+        // Set the address of the category held by this holder to the specified
+        // &#39;category&#39;.
+
+    void setEnabled(bool enabledFlag);
+        // Set the &#39;enabled&#39; state of this category to the value of the
+        // specified &#39;enabledFlag&#39;.
+
+    void setNext(CategoryHolder *holder);
+        // Set this holder to point to the specified &#39;holder&#39;.
+
+    // ACCESSORS
+    const Category *category() const;
+        // Return the address of the non-modifiable category held by this
+        // holder.
+
+    bool enabled() const;
+        // Return &#39;true&#39; if &#39;category&#39; is valid (i.e., non-null) and enabled,
+        // and &#39;false&#39; otherwise.
+
+    CategoryHolder *next() const;
+        // Return the address of the modifiable holder pointed to by this
+        // holder.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                               // --------------
+                               // class Category
+                               // --------------
+
+// CREATORS
+inline
+Category::Category(const char *name, bool enabledFlag)
+: d_name_p(name)
+, d_enabled(enabledFlag)
+, d_holders_p(0)
+{
+}
+
+// MANIPULATORS
+inline
+void Category::setName(const char *name)
+{
+    d_name_p = name;
+}
+
+// ACCESSORS
+inline
+const char *Category::name() const
+{
+    return d_name_p;
+}
+
+inline
+bool Category::enabled() const
+{
+    return d_enabled;
+}
+
+inline
+const bsls::AtomicInt&amp; Category::isEnabledRaw() const
+{
+    return d_enabled;
+}
+
+                            // --------------------
+                            // class CategoryHolder
+                            // --------------------
+
+// MANIPULATORS
+inline
+void CategoryHolder::setCategory(const Category *category)
+{
+    d_category_p = category;
+}
+
+inline
+void CategoryHolder::setEnabled(bool enabledFlag)
+{
+    d_enabled = enabledFlag;
+}
+
+inline
+void CategoryHolder::setNext(CategoryHolder *holder)
+{
+    d_next_p = holder;
+}
+
+// ACCESSORS
+inline
+const Category *CategoryHolder::category() const
+{
+    return d_category_p;
+}
+
+inline
+bool CategoryHolder::enabled() const
+{
+    return d_enabled;
+}
+
+inline
+CategoryHolder *CategoryHolder::next() const
+{
+    return d_next_p;
+}
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; balm::operator&lt;&lt;(bsl::ostream&amp; stream, const Category&amp; rhs)
+{
+    return rhs.print(stream);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

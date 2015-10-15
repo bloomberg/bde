@@ -1,0 +1,686 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_zoneinfobinaryheader.h                                      -*-C++-*-
+#ifndef INCLUDED_BALTZO_ZONEINFOBINARYHEADER
+#define INCLUDED_BALTZO_ZONEINFOBINARYHEADER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data.
+//
+//@CLASSES:
+//   baltzo::ZoneinfoBinaryHeader: attribute class for Zoneinfo header data
+//
+//@SEE_ALSO: baltzo_zoneinfobinaryreader
+//
+//@DESCRIPTION: This component provides a simply constrained attribute class,
+// &#39;baltzo::ZoneinfoBinaryHeader&#39;, representing the header data of a Zoneinfo
+// binary data file.
+//
+///Attributes
+///----------
+//..
+//  Name               Type  Default  Simple Constraints
+//  -----------------  ----  -------  ------------------
+//  version            char  &#39;\0&#39;     == &#39;\0&#39; || == &#39;2&#39;
+//  numIsGmt           int    0       &gt;= 0
+//  numIsStd           int    0       &gt;= 0
+//  numLeaps           int    0       == 0
+//  numTransitions     int    0       &gt;= 0
+//  numLocalTimeTypes  int    1       &gt;= 1
+//  abbrevDataSize     int    1       &gt;= 1
+//..
+//: o &#39;version&#39;: Zoneinfo file format version, as of 2011, either &#39;\0&#39; or &#39;2&#39;.
+//:
+//: o &#39;numIsGmt&#39;: number of encoded UTC/local indicators in the file,
+//:   indicating whether a transition time was originally specified as UTC in
+//:   the rule file.
+//:
+//: o &#39;numIsStd&#39;: number of encoded standard/wall indicators in the file,
+//:   indicating whether a transition time was originally specified as standard
+//:   time in the rule file.
+//:
+//: o &#39;numLeaps&#39;: number of leap corrections stored in the file.
+//:
+//: o &#39;numTransitions&#39;: number of local-time type transitions stored in the
+//:   file.
+//:
+//: o &#39;numLocalTimeTypes&#39;: number of local-time types stored in the file.
+//:
+//: o &#39;abbrevDataSize&#39;: length of the sequence of characters containing the
+//:   (&#39;\0&#39;-separated) abbreviation strings in the file.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a &#39;baltzo::ZoneinfoBinaryHeader&#39; from User Input
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We define the &#39;getNextZoneinfoBinaryHeader&#39; helper function, reads data from
+// a stream, validates the data, and constructs a
+// &#39;baltzo::ZoneinfoBinaryHeader&#39; object.
+//..
+//  int getNextZoneinfoBinaryHeader(baltzo::ZoneinfoBinaryHeader *object,
+//                                  bsl::istream&amp;                stream)
+//      // Set to the specified &#39;object&#39; the value extracted from the
+//      // specified &#39;stream&#39;.  Return 0 on success, and a non-zero value
+//      // otherwise, with no change to &#39;object&#39;.  The &#39;stream&#39; contains
+//      // white-space separated decimal representations of the attributes
+//      // of &#39;baltzo::ZoneinfoBinaryHeader&#39; in the following order: &#39;version&#39;,
+//      // &#39;numIsGmt&#39;, &#39;numIsStd&#39;, &#39;numLeaps&#39;, &#39;numTransitions&#39;,
+//      // &#39;numLocalTimeTypes&#39;, and &#39;abbrevDataSize&#39;.
+//  {
+//      int version;  // not &#39;char&#39;
+//      int numIsGmt;
+//      int numIsStd;
+//      int numLeaps;
+//      int numTransitions;
+//      int numLocalTimeTypes;
+//      int abbrevDataSize;
+//
+//      if (!(stream &gt;&gt; version
+//         &amp;&amp; stream &gt;&gt; numIsGmt
+//         &amp;&amp; stream &gt;&gt; numIsStd
+//         &amp;&amp; stream &gt;&gt; numLeaps
+//         &amp;&amp; stream &gt;&gt; numTransitions
+//         &amp;&amp; stream &gt;&gt; numLocalTimeTypes
+//         &amp;&amp; stream &gt;&gt; abbrevDataSize)) {
+//          return 1;                                                 // RETURN
+//      }
+//
+//      if (!(baltzo::ZoneinfoBinaryHeader::isValidVersion(version)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(numIsGmt)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(numIsStd)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(numLeaps)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(
+//                                                              numTransitions)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(
+//                                                           numLocalTimeTypes)
+//         &amp;&amp; baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(
+//                                                          abbrevDataSize))) {
+//          return 2;                                                 // RETURN
+//      }
+//
+//      object-&gt;setVersion(version);
+//      object-&gt;setNumIsGmt(numIsGmt);
+//      object-&gt;setNumIsStd(numIsStd);
+//      object-&gt;setNumLeaps(numLeaps);
+//      object-&gt;setNumTransitions(numTransitions);
+//      object-&gt;setNumLocalTimeTypes(numLocalTimeTypes);
+//      object-&gt;setAbbrevDataSize(abbrevDataSize);
+//
+//      return 0;
+//  }
+//..
+// To use our helper function, we supply it with a stream of (decimal,
+// whitespace-separated values).  The resulting object has the expected value.
+//..
+//  bsl::stringstream           input(&quot;50 1 2 0 3 4 5&quot;);
+//  baltzo::ZoneinfoBinaryHeader header;
+//  int rc;
+//
+//  rc = getNextZoneinfoBinaryHeader(&amp;header, input);
+//
+//  assert( 0  == rc);
+//  assert(&#39;2&#39; == header.version());
+//  assert( 1  == header.numIsGmt());
+//  assert( 2  == header.numIsStd());
+//  assert( 0  == header.numLeaps());
+//  assert( 3  == header.numTransitions());
+//  assert( 4  == header.numLocalTimeTypes());
+//  assert( 5  == header.abbrevDataSize());
+//..
+// Since all of the data in the stream has now been consumed, another call to
+// the function returns an error and leaves the object unchanged.
+//..
+//  header.setVersion(0);
+//  header.setNumIsGmt(10);
+//  header.setNumIsStd(20);
+//  header.setNumLeaps(0);
+//  header.setNumTransitions(30);
+//  header.setNumLocalTimeTypes(40);
+//  header.setAbbrevDataSize(50);
+//
+//  rc = getNextZoneinfoBinaryHeader(&amp;header, input);
+//
+//  assert(  0  != rc);
+//  assert(&#39;\0&#39; == header.version());
+//  assert( 10  == header.numIsGmt());
+//  assert( 20  == header.numIsStd());
+//  assert(  0  == header.numLeaps());
+//  assert( 30  == header.numTransitions());
+//  assert( 40  == header.numLocalTimeTypes());
+//  assert( 50  == header.abbrevDataSize());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include &lt;bsl_algorithm.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+                         // ==========================
+                         // class ZoneinfoBinaryHeader
+                         // ==========================
+
+class ZoneinfoBinaryHeader {
+    // This simply constrained (value-semantic) attribute class represents the
+    // header information found at the start of a Zoneinfo (binary) database
+    // file, which describes the contents of the file.
+    //
+    // See the Attributes section under @DESCRIPTION in the component-level
+    // documentation.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
+    //
+    // This class:
+    //: o supports a complete set of *value* *semantic* operations
+    //:   o except for &#39;bdex&#39; serialization
+    //: o is *exception-neutral*
+    //: o is *alias-safe*
+    //: o is &#39;const&#39; *thread-safe*
+    // For terminology see &#39;bsldoc_glossary&#39;.
+
+    // DATA
+    char d_version;            // file format version of the Zoneinfo, as of
+                               // 2011, it can be either &#39;\0&#39; or &#39;2&#39;.
+
+    int  d_numIsGmt;           // number of encoded UTC/local indicators in the
+                               // file, indicating whether a transition time
+                               // was originally specified as UTC in the rule
+                               // file.
+
+    int  d_numIsStd;           // number of encoded standard/wall indicators in
+                               // the file, indicating whether a transition
+                               // time was originally specified as standard the
+                               // in the rule file.
+
+    int  d_numLeaps;           // number of leap corrections stored in the file
+
+    int  d_numTransitions;     // number of local-time type transitions stored
+                               // in the file
+
+    int  d_numLocalTimeTypes;  // number of local-time types stored in the file
+
+    int  d_abbrevDataSize;     // length of the sequence of characters
+                               // containing the (&#39;\0&#39; separated) abbreviation
+                               // strings in the file
+
+  public:
+    // CLASS METHODS
+    static bool isValidVersion(char value);
+        // Return &#39;true&#39; if the specified value equals &#39;\0&#39; or &#39;2&#39;, and &#39;false&#39;
+        // otherwise.
+
+    static bool isValidNumIsGmt(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is greater than or equal to
+        // 0, and &#39;false&#39; otherwise&#39;.
+
+    static bool isValidNumIsStd(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is greater than or equal to
+        // 0, and &#39;false&#39; otherwise&#39;.
+
+    static bool isValidNumLeaps(int value);
+        // Return &#39;true&#39; if the specified value equals 0, and &#39;false&#39;
+        // otherwise&#39;.
+
+    static bool isValidNumTransitions(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is greater than or equal to
+        // 0, and &#39;false&#39; otherwise&#39;.
+
+    static bool isValidNumLocalTimeTypes(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is greater than or equal to
+        // 1, and &#39;false&#39; otherwise&#39;.
+
+    static bool isValidAbbrevDataSize(int value);
+        // Return &#39;true&#39; if the specified &#39;value&#39; is greater than or equal to
+        // 1, and &#39;false&#39; otherwise&#39;.
+
+    // CREATORS
+    ZoneinfoBinaryHeader();
+        // Create a &#39;ZoneinfoBinaryHeader&#39; object having the (default)
+        // attribute values:
+        //..
+        //  version()           == 0
+        //  numIsGmt()          == 0
+        //  numIsStd()          == 0
+        //  numLeaps()          == 0
+        //  numTransitions()    == 0
+        //  numLocalTimeTypes() == 1
+        //  abbrevDataSize()    == 1
+        //..
+
+    ZoneinfoBinaryHeader(char version,
+                         int  numIsGmt,
+                         int  numIsStd,
+                         int  numLeaps,
+                         int  numTransitions,
+                         int  numLocalTimeTypes,
+                         int  abbrevDataSize);
+        // Create a &#39;ZoneinfoBinaryHeader&#39; having the specified &#39;version&#39;,
+        // &#39;numIsGmt&#39;, &#39;numIsStd&#39;, &#39;numLeaps&#39;, &#39;numTransitions&#39;,
+        // &#39;numLocalTimeTypes&#39;, and &#39;abbrevDataSize&#39; values.  The behavior is
+        // undefined unless &#39;0 == version || 50 == version&#39;, &#39;0 &lt;= numIsGmt&#39;,
+        // &#39;0 &lt;= numIsStd&#39;, &#39;0 == numLeaps&#39;, &#39;0 &lt;= numTransitions&#39;,
+        // &#39;1 &lt;= numLocalTimeTypes&#39;, and &#39;1 &lt;= abbrevDataSize&#39;.  Note that 50
+        // is the value of ascii character &#39;2&#39;.
+
+    ~ZoneinfoBinaryHeader();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ZoneinfoBinaryHeader&amp; operator=(const ZoneinfoBinaryHeader&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    void setVersion(char value);
+        // Set the &#39;version&#39; attribute of this object to the specified &#39;value&#39;.
+        // The behavior is undefined unless &#39;0 == value || 50 == value&#39;.  Note
+        // that 50 is the value of ascii character &#39;2&#39;.
+
+    void setNumIsGmt(int value);
+        // Set the &#39;numIsGmt&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setNumIsStd(int value);
+        // Set the &#39;numIsStd&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setNumLeaps(int value);
+        // Set the &#39;numLeaps&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 == value&#39;.
+
+    void setNumTransitions(int value);
+        // Set the &#39;numTransitions&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;0 &lt;= value&#39;.
+
+    void setNumLocalTimeTypes(int value);
+        // Set the &#39;numLocalTimeTypes&#39; attribute of this object to the
+        // specified &#39;value&#39;.  The behavior is undefined unless &#39;1 &lt;= value&#39;.
+
+    void setAbbrevDataSize(int value);
+        // Set the &#39;abbrevDataSize&#39; attribute of this object to the specified
+        // &#39;value&#39;.  The behavior is undefined unless &#39;1 &lt;= value&#39;.
+
+    void swap(ZoneinfoBinaryHeader&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.
+
+    // ACCESSORS
+    char version() const;
+        // Return the value of the &#39;version&#39; attribute of this object.
+
+    int numIsGmt() const;
+        // Return the value of the &#39;numIsGmt&#39; attribute of this object.
+
+    int numIsStd() const;
+        // Return the value of the &#39;numIsStd&#39; attribute of this object.
+
+    int numLeaps() const;
+        // Return the value of the &#39;numLeaps&#39; attribute of this object.
+
+    int numTransitions() const;
+        // Return the value of the &#39;numTransitions&#39; attribute of this object.
+
+    int numLocalTimeTypes() const;
+        // Return the value of the &#39;numLocalTimeTypes&#39; attribute of this
+        // object.
+
+    int abbrevDataSize() const;
+        // Return the value of the &#39;abbrevDataSize&#39; attribute of this object.
+
+                        // Aspects
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const ZoneinfoBinaryHeader&amp; lhs,
+                const ZoneinfoBinaryHeader&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;ZoneinfoBinaryHeader&#39; objects have
+    // the same value if the corresponding values of their &#39;version&#39;,
+    // &#39;numIsGmt&#39;, &#39;numIsStd&#39;, &#39;numLeaps&#39;, &#39;numTransitions&#39;,
+    // &#39;numLocalTimeTypes&#39;, and &#39;abbrevDataSize&#39; attributes are the same.
+
+bool operator!=(const ZoneinfoBinaryHeader&amp; lhs,
+                const ZoneinfoBinaryHeader&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;ZoneinfoBinaryHeader&#39; objects do not
+    // have the same value if the corresponding values of their &#39;version&#39;,
+    // &#39;numIsGmt&#39;, &#39;numIsStd&#39;, &#39;numLeaps&#39;, &#39;numTransitions&#39;,
+    // &#39;numLocalTimeTypes&#39;, or &#39;abbrevDataSize&#39; attributes are not the same.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;               stream,
+                         const ZoneinfoBinaryHeader&amp; object);
+    // Write the value of the specified &#39;object&#39; to the specified output
+    // &#39;stream&#39; in a single-line format, and return a reference to &#39;stream&#39;.
+    // If &#39;stream&#39; is not valid on entry, this operation has no effect.  Note
+    // that this human-readable format is not fully specified and can change
+    // without notice.  Also note that this method has the same behavior as
+    // &#39;object.print(stream, 0, -1)&#39;.
+
+// FREE FUNCTIONS
+void swap(baltzo::ZoneinfoBinaryHeader&amp; a, baltzo::ZoneinfoBinaryHeader&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.
+
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                         // --------------------------
+                         // class ZoneinfoBinaryHeader
+                         // --------------------------
+
+// CLASS METHODS
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidVersion(char value)
+{
+    return &#39;\0&#39; == value || &#39;2&#39; == value;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(int value)
+{
+    return value &gt;= 0;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(int value)
+{
+    return value &gt;= 0;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(int value)
+{
+    return value == 0;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(int value)
+{
+    return value &gt;= 0;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(int value)
+{
+    return value &gt;= 1;
+}
+
+inline
+bool baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(int value)
+{
+    return value &gt;= 1;
+}
+
+// CREATORS
+inline
+baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
+: d_version(0)
+, d_numIsGmt(0)
+, d_numIsStd(0)
+, d_numLeaps(0)
+, d_numTransitions(0)
+, d_numLocalTimeTypes(1)
+, d_abbrevDataSize(1)
+{
+}
+
+inline
+baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
+                                                   int  numIsGmt,
+                                                   int  numIsStd,
+                                                   int  numLeaps,
+                                                   int  numTransitions,
+                                                   int  numLocalTimeTypes,
+                                                   int  abbrevDataSize)
+: d_version(version)
+, d_numIsGmt(numIsGmt)
+, d_numIsStd(numIsStd)
+, d_numLeaps(numLeaps)
+, d_numTransitions(numTransitions)
+, d_numLocalTimeTypes(numLocalTimeTypes)
+, d_abbrevDataSize(abbrevDataSize)
+{
+    BSLS_ASSERT_SAFE(isValidVersion(version));
+    BSLS_ASSERT_SAFE(isValidNumIsGmt(numIsGmt));
+    BSLS_ASSERT_SAFE(isValidNumIsStd(numIsStd));
+    BSLS_ASSERT_SAFE(isValidNumLeaps(numLeaps));
+    BSLS_ASSERT_SAFE(isValidNumTransitions(numTransitions));
+    BSLS_ASSERT_SAFE(isValidNumLocalTimeTypes(numLocalTimeTypes));
+    BSLS_ASSERT_SAFE(isValidAbbrevDataSize(abbrevDataSize));
+}
+
+inline
+baltzo::ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
+{
+    BSLS_ASSERT_SAFE(isValidVersion(d_version));
+    BSLS_ASSERT_SAFE(isValidNumIsGmt(d_numIsGmt));
+    BSLS_ASSERT_SAFE(isValidNumIsStd(d_numIsStd));
+    BSLS_ASSERT_SAFE(isValidNumLeaps(d_numLeaps));
+    BSLS_ASSERT_SAFE(isValidNumTransitions(d_numTransitions));
+    BSLS_ASSERT_SAFE(isValidNumLocalTimeTypes(d_numLocalTimeTypes));
+    BSLS_ASSERT_SAFE(isValidAbbrevDataSize(d_abbrevDataSize));
+}
+
+// MANIPULATORS
+inline
+baltzo::ZoneinfoBinaryHeader&amp; baltzo::ZoneinfoBinaryHeader::operator=(
+                                               const ZoneinfoBinaryHeader&amp; rhs)
+{
+    d_version           = rhs.d_version;
+    d_numIsGmt          = rhs.d_numIsGmt;
+    d_numIsStd          = rhs.d_numIsStd;
+    d_numLeaps          = rhs.d_numLeaps;
+    d_numTransitions    = rhs.d_numTransitions;
+    d_numLocalTimeTypes = rhs.d_numLocalTimeTypes;
+    d_abbrevDataSize    = rhs.d_abbrevDataSize;
+    return *this;
+}
+inline
+void baltzo::ZoneinfoBinaryHeader::setVersion(char value)
+{
+    BSLS_ASSERT_SAFE(isValidVersion(value));
+
+    d_version = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setNumIsGmt(int value)
+{
+    BSLS_ASSERT_SAFE(isValidNumIsGmt(value));
+
+    d_numIsGmt = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setNumIsStd(int value)
+{
+    BSLS_ASSERT_SAFE(isValidNumIsStd(value));
+
+    d_numIsStd = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setNumLeaps(int value)
+{
+    BSLS_ASSERT_SAFE(isValidNumLeaps(value));
+
+    d_numLeaps = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setNumTransitions(int value)
+{
+    BSLS_ASSERT_SAFE(isValidNumTransitions(value));
+
+    d_numTransitions = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
+{
+    BSLS_ASSERT_SAFE(isValidNumLocalTimeTypes(value));
+
+    d_numLocalTimeTypes = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
+{
+    BSLS_ASSERT_SAFE(isValidAbbrevDataSize(value));
+
+    d_abbrevDataSize = value;
+}
+
+inline
+void baltzo::ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader&amp; other)
+{
+    bsl::swap(d_version,           other.d_version);
+    bsl::swap(d_numIsGmt,          other.d_numIsGmt);
+    bsl::swap(d_numIsStd,          other.d_numIsStd);
+    bsl::swap(d_numLeaps,          other.d_numLeaps);
+    bsl::swap(d_numTransitions,    other.d_numTransitions);
+    bsl::swap(d_numLocalTimeTypes, other.d_numLocalTimeTypes);
+    bsl::swap(d_abbrevDataSize,    other.d_abbrevDataSize);
+}
+
+// ACCESSORS
+inline
+char baltzo::ZoneinfoBinaryHeader::version() const
+{
+    return d_version;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::numIsGmt() const
+{
+    return d_numIsGmt;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::numIsStd() const
+{
+    return d_numIsStd;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::numLeaps() const
+{
+    return d_numLeaps;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::numTransitions() const
+{
+    return d_numTransitions;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::numLocalTimeTypes() const
+{
+    return d_numLocalTimeTypes;
+}
+
+inline
+int baltzo::ZoneinfoBinaryHeader::abbrevDataSize() const
+{
+    return d_abbrevDataSize;
+}
+
+// FREE OPERATORS
+inline
+bool baltzo::operator==(const ZoneinfoBinaryHeader&amp; lhs,
+                        const ZoneinfoBinaryHeader&amp; rhs)
+{
+    return lhs.version()           == rhs.version()
+        &amp;&amp; lhs.numIsGmt()          == rhs.numIsGmt()
+        &amp;&amp; lhs.numIsStd()          == rhs.numIsStd()
+        &amp;&amp; lhs.numLeaps()          == rhs.numLeaps()
+        &amp;&amp; lhs.numTransitions()    == rhs.numTransitions()
+        &amp;&amp; lhs.numLocalTimeTypes() == rhs.numLocalTimeTypes()
+        &amp;&amp; lhs.abbrevDataSize()    == rhs.abbrevDataSize();
+}
+
+inline
+bool baltzo::operator!=(const ZoneinfoBinaryHeader&amp; lhs,
+                        const ZoneinfoBinaryHeader&amp; rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream&amp; baltzo::operator&lt;&lt;(bsl::ostream&amp;               stream,
+                                 const ZoneinfoBinaryHeader&amp; object)
+    // Write a single line description of the specified &#39;description&#39; to the
+    // specified &#39;stream&#39; and a reference to the modifiable &#39;stream&#39;.
+{
+    return object.print(stream, 0, -1);
+}
+
+// FREE FUNCTIONS
+inline
+void baltzo::swap(ZoneinfoBinaryHeader&amp; a, ZoneinfoBinaryHeader&amp; b)
+{
+    a.swap(b);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

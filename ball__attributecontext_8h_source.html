@@ -1,0 +1,824 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_attributecontext.h                                            -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
+#define INCLUDED_BALL_ATTRIBUTECONTEXT
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a container for storing attributes and caching results.
+//
+//@CLASSES:
+//         ball::AttributeContext: thread-local list of attribute containers
+//  ball::AttributeContextProctor: proctor for deleting and attribute context
+//
+//@SEE_ALSO: ball_attributeset
+//
+//@DESCRIPTION: This component provides a mechanism, &#39;ball::AttributeContext&#39;
+// to store attributes in thread local storage, and to evaluate rules
+// associated with a given category using those stored attributes.  The
+// &#39;ball::AttributeContext&#39; class is statically initialized (using the
+// &#39;initialize()&#39; method) with a &#39;ball::CategoryManager&#39; object containing a
+// &#39;ball::RuleSet&#39; the represents the currently installed (global) logging
+// rules for the process.
+//
+
+// Clients can obtain the context for the current thread by calling the static
+// &#39;getContext()&#39; method.  Attributes can be added or removed from an attribute
+// context using the &#39;addAttributes()&#39; and removeAttributes()&#39; methods.
+// Finally the &#39;ball::AttributeContext&#39; provides methods (used primarily by
+// other components in the &#39;ball&#39; package&#39;) to determine the effect of the
+// current logging rules on the logging thresholds of a category.
+//
+///Active Rules
+///------------
+// The &#39;hasRelevantActiveRules()&#39; method, returns &#39;true&#39; if there is at least
+// on relevant and active rule (in the global set of rules) that might modify
+// the logging thresholds of the supplied &#39;category&#39;.  A rule is &quot;relevant&quot; if
+// the rule&#39;s pattern matches the category&#39;s name, and a rule is &quot;active&quot; if
+// all the predicates defined for that rule are satisfied by the current
+// thread&#39;s attributes (i.e., &#39;ball::Rule::evaluate()&#39; returns &#39;true&#39; for the
+// collection of attributes maintained for the current thread by the thread&#39;s
+// &#39;ball::AttributeContext&#39; object).  The &#39;determineThresholdLevels()&#39; method
+// returns the logging threshold levels for a category, factoring in any active
+// rules that apply to the category that might override the category&#39;s
+// thresholds.  Note that, in practice, &#39;initialize()&#39; is called by the
+// singleton &#39;ball::LoggerManager&#39; object when the logger manager is
+// initialized.
+//
+///Usage
+///-----
+// This section illustrates the use of &#39;ball::AttributeContext&#39;.
+//
+///Managing Attributes
+///- - - - - - - - - -
+// First we will define a thread function that will create and install two
+// attributes.  Note that we will use the &#39;AttributeSet&#39; implementation of the
+// &#39;ball::AttributeContainer&#39; protocol defined in the component documentation
+// for &#39;ball_attributecontainer&#39;; the &#39;ball&#39; package provides a similar class
+// in the &#39;ball_defaultattributecontainer&#39; component.
+//..
+//  extern &quot;C&quot; void *thread1(void*)
+//  {
+//..
+// Inside this thread function, we create an attribute set to hold our
+// attribute values; then we create two &#39;ball::Attribute&#39; objects and add them
+// to that set:
+//..
+//      AttributeSet attributes;
+//      ball::Attribute a1(&quot;uuid&quot;, 4044457);
+//      ball::Attribute a2(&quot;name&quot;, &quot;Gang Chen&quot;);
+//      attributes.insert(a1);
+//      attributes.insert(a2);
+//..
+// Next we obtain a reference to the current threads attribute context using
+// the &#39;getContext()&#39; class method:
+//..
+//      ball::AttributeContext *context = ball::AttributeContext::getContext();
+//      assert(context);
+//      assert(context == ball::AttributeContext::lookupContext());
+//..
+// We can add our attribute container, &#39;attributes&#39;, to the current context
+// using the &#39;addAttributes()&#39; method.  We store the returned iterator so that
+// we can remove &#39;attributes&#39;  before it goes out of scope and is destroyed:
+//..
+//      ball::AttributeContext::iterator it =
+//                                         context-&gt;addAttributes(&amp;attributes);
+//      assert(context-&gt;hasAttribute(a1));
+//      assert(context-&gt;hasAttribute(a2));
+//..
+// We then call the &#39;removeAttributes()&#39; method to remove the attributes from
+// the attribute context:
+//..
+//      context-&gt;removeAttributes(it);
+//      assert(false == context-&gt;hasAttribute(a1));
+//      assert(false == context-&gt;hasAttribute(a2));
+//..
+// This completes the first thread function:
+//..
+//      return 0;
+//  }
+//..
+// The second thread function will simply verify that there is no currently
+// available attribute context.  Note that attribute contexts are created and
+// managed by individual threads using thread-specific storage, and that
+// attribute contexts created by one thread are not visible in any other
+// threads:
+//..
+//  extern &quot;C&quot; void *thread2(void*)
+//  {
+//      assert(0 == ball::AttributeContext::lookupContext());
+//      return 0;
+//  }
+//..
+//
+///Calling &#39;hasRelevantActiveRules&#39; and &#39;determineThresholdLevels&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to call the &#39;hasRelevantActiveRules()&#39;
+// and &#39;determineThresholdLevels()&#39; methods.  These methods are used (primarily
+// by other components in the &#39;ball&#39; package) to determine the effect of the
+// current logging rules on the logging thresholds of a category.  Note that a
+// rule is &quot;relevant&quot; if the rule&#39;s pattern matches the category&#39;s name, and a
+// rule is &quot;active&quot; if &#39;ball::Rule::evaluate()&#39; returns &#39;true&#39; for the
+// collection of attributes maintained for the current thread by the thread&#39;s
+// &#39;ball::AttributeContext&#39; object.
+//
+// We start by creating a &#39;ball::CategoryManager&#39; and use it to initialize the
+// static data members of &#39;ball::AttributeContext&#39;.  Note that, in practice,
+// this initialization *should* *not* be performed by clients of the &#39;ball&#39;
+// package&#39;:  The &#39;ball::LoggerManager&#39; singleton will initialize the
+// &#39;ball::AttributeContext&#39; with the when the singleton is created.
+//..
+//  ball::CategoryManager categoryManager;
+//  ball::AttributeContext::initialize(&amp;categoryManager);
+//                                                       // this is normally
+//                                                       // performed by the
+//                                                       // ball::LoggerManager
+//..
+// Next we add a category to the category manager.  Each created category has a
+// name and the logging threshold levels for that category.  The logging
+// threshold levels indicate the minimum severity for logged message that will
+// trigger the relevant action.  The four thresholds are the &quot;record level&quot;
+// (messages logged with a higher severity than this threshold should be added
+// to the current logger&#39;s record buffer), the &quot;passthrough level&quot; (messages
+// logged with a severity higher than this threshold should be published
+// immediately), the &quot;trigger level&quot; (messages logged with a higher severity
+// than this threshold should trigger the publication of the entire contents of
+// the current logger&#39;s record buffer), and the &quot;trigger-all level&quot; (messages
+// logged with a higher severity than this threshold should trigger the
+// publication of every logger&#39;s record buffer), respectively.  Note that,
+// clients are generally most interested in the &quot;passthrough&quot; threshold level.
+// Also note that a higher number indicates a lower severity.
+//..
+//  const ball::Category *cat1 =
+//             categoryManager.addCategory(&quot;MyCategory&quot;, 128, 96, 64, 32);
+//..
+// Next we obtain the context for the current thread.
+//..
+//  ball::AttributeContext *context = ball::AttributeContext::getContext();
+//..
+// We call &#39;hasRelevantActiveRules()&#39; on &#39;cat1&#39;.  This will be &#39;false&#39; because
+// we haven&#39;t supplied any rules.
+//..
+// assert(false == context-&gt;hasRelevantActiveRules(cat1));
+//..
+// We call &#39;determineThresholdLevels()&#39; on &#39;cat1&#39;.  This will simply return
+// the logging threshold levels we defined for &#39;cat1&#39; when it was created
+// because no rules have been defined that might modify those thresholds:
+//..
+//  ball::ThresholdAggregate cat1ThresholdLevels(0, 0, 0, 0);
+//  context-&gt;determineThresholdLevels(&amp;cat1ThresholdLevels, cat1);
+//  assert(128 == cat1ThresholdLevels.recordLevel());
+//  assert(96  == cat1ThresholdLevels.passLevel());
+//  assert(64  == cat1ThresholdLevels.triggerLevel());
+//  assert(32  == cat1ThresholdLevels.triggerAllLevel());
+//..
+// Next we create a rule that will apply to those categories whose names match
+// the pattern &quot;My*&quot;, where &#39;*&#39; is a wild-card value.  The rule defines a set
+// of thresholds levels that may override the threshold levels of those
+// categories whose name matches the rule&#39;s pattern:
+//..
+//  ball::Rule myRule(&quot;My*&quot;, 120, 110, 70, 40);
+//  categoryManager.addRule(myRule);
+//..
+// Now we call &#39;hasRelevantActiveRules()&#39; again for &#39;cat1&#39;, but this time the
+// method returns &#39;true&#39; because the rule we just added is both &quot;relevant&quot; to
+// &#39;cat1&#39;, and &quot;active&quot;.  &#39;myRule&#39; is &quot;relevant&quot; to &#39;cat1&#39;, because the name of
+// &#39;cat1&#39; (&quot;MyCategory&quot;) matches the pattern for &#39;myRule&#39; (&quot;My*&quot;) (i.e.,
+// &#39;myRule&#39; applies to &#39;cat1&#39;).  &#39;myRule&#39; is also &quot;active&quot; because all the
+// predicates defined for the rule are satisfied by the current thread (in
+// this case the rule has no predicates, so the rule is always &quot;active&quot;).
+// Note that, we will discuss the meaning of &quot;active&quot; and the use of
+// predicates later in this example.
+//..
+//  assert(true == context-&gt;hasRelevantActiveRules(cat1));
+//..
+// Next we call &#39;determineThresholdLevels()&#39; for &#39;cat1&#39;.  The
+// &#39;determineThresholdLevels()&#39; method compares the threshold levels defined
+// for category with those of any active rules that apply to that category,
+// and determines the minimum severity (i.e., the maximum numerical value),
+// for each respective threshold amongst those values.
+//..
+//  ball::ThresholdAggregate thresholdLevels(0, 0, 0, 0);
+//  context-&gt;determineThresholdLevels(&amp;thresholdLevels, cat1);
+//  assert(128 == thresholdLevels.recordLevel());
+//  assert(110 == thresholdLevels.passLevel());
+//  assert(70  == thresholdLevels.triggerLevel());
+//  assert(40  == thresholdLevels.triggerAllLevel());
+//..
+// In this case the &quot;passthrough&quot;, &quot;trigger&quot;, and &quot;trigger-all&quot; threshold
+// levels defined by &#39;myRule&#39; (110, 70, and 40) are greater (i.e., define a
+// lower severity) than those respective values defined for &#39;cat1&#39; (96, 64,
+// and 32), so those values override the values defined for &#39;cat1&#39;.  On the
+// other hand the &quot;record&quot; threshold level for &#39;cat1&#39; (128) is greater than
+// the value defined by &#39;myRule&#39; (120), so the threshold level for defined for
+// &#39;cat1&#39; is  returned.  In effect, &#39;myRule&#39; has lowered the severity at which
+// messages logged in the &quot;MyCategory&quot; category will be published immediately,
+// trigger the publication of the current logger&#39;s record buffer, and trigger
+// the publication of every logger&#39;s record buffer.
+//
+// Next we modify &#39;myRule&#39;, adding a predicate indicating that the rule should
+// only apply if the attribute context for the current thread contains the
+// attribute &#39;(&quot;uuid&quot;, 3938908)&#39;:
+//..
+//  categoryManager.removeRule(myRule);
+//  ball::Predicate predicate(&quot;uuid&quot;, 3938908);
+//  myRule.addPredicate(predicate);
+//  categorymanager.addRule(myRule);
+//..
+// When we again call &#39;hasRelevantActiveRules()&#39; for &#39;cat1&#39;, it now returns
+// &#39;false&#39;.  The rule, &#39;myRule&#39;, still applies to &#39;cat1&#39; (i.e., it is still
+// &quot;relevant&quot; to &#39;cat1&#39;) but the predicates defined by &#39;myRule&#39; are no longer
+// satisfied by the current thread, i.e., the current threads attribute
+// context does not contain an attribute matching &#39;(&quot;uuid&quot;, 3938908)&#39;.
+//..
+//  assert(false == context-&gt;hasRelevantActiveRules(cat1));
+//..
+// Next we call &#39;determineThresholdLevels()&#39; on &#39;cat1&#39; and find that it
+// returns the threshold levels we defined for &#39;cat1&#39; when we created it:
+//..
+//  context-&gt;determineThresholdLevels(&amp;thresholdLevels, cat1);
+//  assert(thresholdLevels  == cat1ThresholdLevels);
+//..
+// Finally, we add an attribute to the current thread&#39;s attribute context (as
+// we did in the first example, &quot;Managing Attributes&quot;).  Note that we keep an
+// iterator referring to the added attributes so that we can remove them before
+// &#39;attributest&#39; goes out of scope and is destroyed.  Also note that the class
+// &#39;AttributeSet&#39; is defined in the component documentation for
+// &#39;ball_attributecontainer&#39;.
+//..
+//  AttributeSet attributes;
+//  attributes.insert(ball::Attribute(&quot;uuid&quot;, 3938908));
+//  ball::AttributeContext::iterator it = context-&gt;addAttributes(&amp;attributes);
+//..
+// The following call to &#39;hasRelevantActive()&#39; will return &#39;true&#39; for &#39;cat1&#39;
+// because there is at least one rule, &#39;myRule&#39;, that is both &quot;relevant&quot;
+// (i.e., its pattern matches the category name of &#39;cat1&#39;) and &quot;active&quot; (i.e.,
+// all of the predicates defined for &#39;myRule&#39; are satisfied by the attributes
+// held by this thread&#39;s attribute context).
+//..
+//  assert(true == context-&gt;hasRelevantActiveRules(cat1));
+//..
+// Now when we call &#39;determineThresholdLevels()&#39;, it will again return the
+// maximum threshold level from &#39;cat1&#39; an &#39;myRule&#39;.
+//..
+//  context-&gt;determineThresholdLevels(&amp;thresholdLevels, cat1);
+//  assert(128 == thresholdLevels.recordLevel());
+//  assert(110 == thresholdLevels.passLevel());
+//  assert(70  == thresholdLevels.triggerLevel());
+//  assert(40  == thresholdLevels.triggerAllLevel());
+//..
+// We must be careful to remove &#39;attributes&#39; from the attribute context before
+// it goes out of scope and is destroyed.  Note that the &#39;ball&#39; package
+// supplies a component, &#39;ball_scopedattributes&#39; for adding, and automatically
+// removing, attributes from the current thread&#39;s attribute context.
+//..
+// context-&gt;removeAttributes(it);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
+#include &lt;ball_attributecontainerlist.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RULESET
+#include &lt;ball_ruleset.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_THREADUTIL
+#include &lt;bslmt_threadutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+
+
+namespace ball {class Category;
+class CategoryManager;
+
+             // ===============================================
+             // class AttributeContext_RuleEvaluationCache
+             // ===============================================
+
+class AttributeContext_RuleEvaluationCache {
+    // This is an implementation type of &#39;AttributeContext&#39; and should not be
+    // used by clients of this package.  A rule evaluation cache is a mechanism
+    // for evaluating and caching whether a rule is active.  A rule is
+    // considered active if all of its predicates are satisfied by the
+    // collection of attributes held in a &#39;AttributeContainerList&#39; object
+    // (i.e., &#39;Rule::evaluate()&#39; returns &#39;true&#39; for the
+    // &#39;AttributeContainerList&#39; object).  The rules this cache evaluates are
+    // contained in a &#39;RuleSet&#39; object.  The &#39;RuleSet::MaskType&#39; type is a
+    // bit-mask for a rule set, where each bit is a boolean value associated
+    // with the rule at the corresponding index in a rule set.  Clients can
+    // determine, using the &#39;isDataAvailable()&#39; method, if a particular set of
+    // rules (described using a bit mask) have already been evaluated; they can
+    // access the current cache of rule evaluations using the
+    // &#39;knownActiveRules()&#39; method; finally they can update the cache of rule
+    // evaluations using the &#39;update()&#39; method.  Note that clients should use
+    // the &#39;isDataAvailable()&#39; method prior to using &#39;knownActiveRules()&#39; in
+    // order to ensure the relevant rules have been evaluated and that those
+    // evaluations are up-to-date.
+
+    RuleSet::MaskType d_evalMask;       // set of bits, each of which
+                                        // indicates whether the corresponding
+                                        // rule has been evaluated and cached
+                                        // in &#39;d_resultMask&#39;.
+
+    RuleSet::MaskType d_resultMask;     // set of bits, each of which caches
+                                        // the result of previous evaluation of
+                                        // the corresponding rule, or is 0 if
+                                        // the rule has not been evaluated
+
+    int               d_sequenceNumber; // sequential index provided on the
+                                        // most recent call to &#39;update()&#39;; if
+                                        // the provided sequence number
+                                        // changes it indicates the cache is
+                                        // out of date
+
+    // NOT IMPLEMENTED
+    AttributeContext_RuleEvaluationCache(
+                             const AttributeContext_RuleEvaluationCache&amp;);
+    AttributeContext_RuleEvaluationCache&amp; operator=(
+                             const AttributeContext_RuleEvaluationCache&amp;);
+  public:
+
+    // CREATORS
+    AttributeContext_RuleEvaluationCache();
+        // Create an empty rule evaluation cache.
+
+    // ~AttributeContext_RuleEvaluationCache();
+        // Destroy this rule evaluation cache.  Note that this trivial
+        // destructor is generated by the compiler.
+
+    // MANIPULATORS
+    void clear();
+        // Clear any currently cached rule evaluation data.
+
+    RuleSet::MaskType update(int                           sequenceNumber,
+                             RuleSet::MaskType             relevantRuleMask,
+                             const RuleSet&amp;                rules,
+                             const AttributeContainerList&amp; attributes);
+        // Update, for the specified &#39;sequenceNumber&#39;, the cache for those
+        // rules indicated by the specified &#39;relevantRuleMask&#39; bit-mask in the
+        // specified set of &#39;rules&#39;, by evaluating those rules for the
+        // specified &#39;attributes&#39;; return the bit mask indicating those rules
+        // that are known to be active.  If a bit in the returned bit-mask
+        // value is set to 1, the rule at the corresponding index in &#39;rules&#39; is
+        // &quot;active&quot;, however if a bit is set to 0, the corresponding rule is
+        // either not active *or* has not been evaluated.  This operation does,
+        // however, guarantee that all the rules indicated by the
+        // &#39;relevantRuleMask&#39; *will* be evaluated.  A particular rule is
+        // considered &quot;active&quot; if all of it&#39;s predicates are satisfied by
+        // &#39;attributes&#39; (i.e., if &#39;Rule::evaluate()&#39; returns &#39;true&#39; for
+        // &#39;attributes&#39;).  The behavior is undefined unless &#39;rules&#39; is valid
+        // and unmodified during this operation (i.e., any lock associated with
+        // &#39;rules&#39; must be locked during this operation) and the supplied
+        // &#39;sequenceNumber&#39; value is associated with only one &#39;rules&#39; value.
+
+    // ACCESSORS
+    bool isDataAvailable(int               sequenceNumber,
+                         RuleSet::MaskType relevantRulesMask) const;
+        // Return true if this cache contains update-to-date cached rule
+        // evaluations with the specified &#39;sequenceNumber&#39; for the set of
+        // rules indicated by the specified &#39;relevantRuleMask&#39; bit mask, and
+        // &#39;false&#39; otherwise.
+
+    RuleSet::MaskType knownActiveRules() const;
+        // Return a bit mask indicating those rules, from the set of rules
+        // provided in the last call to &#39;update()&#39;, that are known to be
+        // active (as of that last call to &#39;update()&#39;).  If a bit in the
+        // returned value is set to 1, the rule at the corresponding index is
+        // active, however if a bit is set to 0, the corresponding rule is
+        // either not active *or* has not been evaluated.  Note that clients
+        // should call &#39;isDataAvailable()&#39; to test if this cache contains
+        // up-to-date evaluated rule information for the rules in which they
+        // are interested before using the result of this method.
+
+    RuleSet::MaskType evaluatedRules() const;
+        // Return a bit mask indicating those rules, from the set of rules
+        // provided in the last call to &#39;update()&#39;  that have been evaluated
+        // (as of that last call to &#39;update()&#39;).  If a bit in the returned
+        // value is set to 1, the rule at the corresponding index has been
+        // evaluated; if a bit is 0, the corresponding rule has not been
+        // evaluated.  Note that the sequence number for the rules may be out
+        // of date, and in general clients should call &#39;isDataAvailable()&#39; to
+        // test if this cache contains up-to-date rule information.
+
+    int sequenceNumber() const;
+        // Return the non-negative sequence number provided on the last
+        // invocation of &#39;update()&#39; or -1 if evaluate has not been called.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(
+                     bsl::ostream&amp;                               stream,
+                     const AttributeContext_RuleEvaluationCache&amp; cache);
+    // Write a description of the data members of the specified &#39;cache&#39; to the
+    // specified &#39;stream&#39; in some single-line human readable format, and return
+    // the modifiable &#39;stream&#39;.
+
+                        // ======================
+                        // class AttributeContext
+                        // ======================
+
+class AttributeContext {
+    // This class provides a mechanism for associating attributes with the
+    // current thread, and evaluating the logging rules associated with a
+    // category using those stored attributes.  The &#39;AttributeContext&#39; class is
+    // statically initialized (using the &#39;initialize()&#39; method) with a
+    // &#39;CategoryManager&#39; object containing a &#39;RuleSet&#39; the represents the
+    // currently installed logging rules for the process.  Clients can obtain
+    // the context for the current thread by calling this class&#39;s static
+    // &#39;getContext()&#39; method.  The &#39;addAttributes()&#39; and &#39;removeAttributes()&#39;
+    // methods are used to add and remove collections of attributes from the
+    // (thread-local) context object.  Finally the &#39;AttributeContext&#39; provides
+    // methods (used primarily by other components in the &#39;ball&#39; package&#39;) to
+    // determine the effect of the current logging rules on the logging
+    // thresholds of a category.  The &#39;hasRelevantActiveRules()&#39; method,
+    // returns &#39;true&#39; if there are any relevant and active rules that might
+    // modify the logging thresholds of the supplied category.  A rule is
+    // &quot;relevant&quot; if the rule&#39;s pattern matches the category&#39;s name, and a rule
+    // is &quot;active&quot; if all the predicates defined for the rule are satisfied by
+    // the current thread&#39;s attributes (i.e., &#39;Rule::evaluate()&#39; returns &#39;true&#39;
+    // for the collection of attributes maintained for the current thread by
+    // the thread&#39;s &#39;AttributeContext&#39; object).  The
+    // &#39;determineThresholdLevels()&#39; method returns the logging threshold levels
+    // for a category, factoring in any active rules that apply to the category
+    // that might override the category&#39;s thresholds.  The behavior for the
+    // &#39;hasRelevantActiveRules()&#39; and &#39;determineThresholdLevels()&#39; methods is
+    // undefined unless &#39;initialize()&#39; has already been called.  Note that, in
+    // practice, &#39;initialize()&#39; is called by the singleton &#39;LoggerManager&#39;
+    // object when the logger manager is initialized.
+
+
+    // PRIVATE TYPES
+    typedef AttributeContext_RuleEvaluationCache RuleEvaluationCache;
+
+    // CLASS DATA
+    static CategoryManager  *s_categoryManager_p;  // holds the rule set, rule
+                                                   // sequence number, and
+                                                   // rule set mutex
+
+    static bslma::Allocator *s_globalAllocator_p;  // an allocator for thread
+                                                   // local context objects
+
+    // DATA
+    AttributeContainerList   d_containerList;      // list of attribute
+                                                   // containers
+
+    mutable RuleEvaluationCache
+                             d_ruleCache_p;        // cache of rule
+                                                   // evaluations
+
+    bslma::Allocator        *d_allocator_p;        // allocator used to create
+                                                   // this object (held but not
+                                                   // owned)
+
+    // FRIENDS
+    friend class AttributeContextProctor;
+
+    // NOT IMPLEMENTED
+    AttributeContext(const AttributeContext&amp; );
+    AttributeContext&amp; operator=(const AttributeContext&amp; );
+
+    // PRIVATE CLASS METHODS
+    static const bslmt::ThreadUtil::Key&amp; contextKey();
+        // Return a reference to the non-modifiable singleton key for the
+        // thread local storage in which the &#39;AttributeContext&#39; objects are
+        // stored.  This method will create the key on the first invocation;
+        // all subsequent invocations will return the previously created key.
+        // Note that it is more efficient to cache the return value of this
+        // method, than to invoke it repeatedly.
+
+    static void removeContext(void *arg);
+        // Destroy the &#39;AttributeContext&#39; object pointed to by the specified
+        // &#39;arg&#39;.  Note that this function is designed to be called by the
+        // thread-specific storage facility when a thread exits (and thus
+        // should not be called in application code directly).
+
+    // PRIVATE CREATORS
+    AttributeContext(bslma::Allocator *globalAllocator = 0);
+        // Create a &#39;AttributeContext&#39; object initially having no attributes.
+        // Optionally specify a &#39;globalAllocator&#39; used to supply memory.  If
+        // &#39;globalAllocator&#39; is 0, the currently installed global allocator
+        // will be used.  Note that the static method &#39;getContext()&#39; should be
+        // used to obtain the address of the attribute context for the current
+        // thread.
+
+    ~AttributeContext();
+        // Destroy this object.
+
+  public:
+
+    // PUBLIC TYPES
+    typedef AttributeContainerList::iterator iterator;
+
+    // CLASS METHODS
+    static void initialize(CategoryManager  *categoryManager,
+                           bslma::Allocator *globalAllocator = 0);
+        // Initialize the static data members of &#39;AttributeContext&#39; using the
+        // specified &#39;categoryManager&#39;.  Optionally specify a &#39;globalAllocator&#39;
+        // used to supply memory.  If &#39;globalAllocator&#39; is 0, the currently
+        // installed global allocator is used.  Calling this method more than
+        // once will log an error message to &#39;stderr&#39;, but will have no other
+        // effect.  Note that in practice this method will be called
+        // *automatically* when the &#39;LoggerManager&#39; is initialized -- i.e., it
+        // is not intended to be called directly by clients of the &#39;ball&#39;
+        // package.
+
+    static AttributeContext *getContext();
+        // Return the address of the current thread&#39;s attribute context or, if
+        // no such context exists, create one and install it in thread-local
+        // storage, and return the address of the newly created context.  Note
+        // that this method can be invoked safely, even if
+        // &#39;AttributeContext::initialize()&#39; has not been called.
+
+    static AttributeContext *lookupContext();
+        // Return the address of the modifiable &#39;AttributeContext&#39; object
+        // installed in local storage for the current thread, or 0 if no
+        // attribute context has been created for this thread.  Note that this
+        // method can be invoked safely, even if
+        // &#39;AttributeContext::initialize()&#39; has not been called.
+
+    // MANIPULATORS
+    iterator addAttributes(const AttributeContainer *attributes);
+        // Add the specified &#39;attributes&#39; to the list of attribute containers
+        // maintained by this object.  If &#39;attributes&#39; is subsequently
+        // modified, prior to being removed, the &#39;clearCache()&#39; method must be
+        // invoked.  The behavior is undefined unless &#39;attributes&#39; remains
+        // valid *and* *unmodified* (unless &#39;clearCache() is called) until this
+        // object is destroyed or &#39;attributes&#39; is removed from this context.
+        // Note that this method can be invoked safely, even if
+        // &#39;AttributeContext::initialize()&#39; has not been called.
+
+    void clearCache();
+        // Clear this objects cache of evaluated rules.  Note that this method
+        // must be called if a &#39;AttributeContainer&#39; object supplied to
+        // &#39;addAttributes()&#39; is modified outside of this context.
+
+    void removeAttributes(iterator element);
+        // Remove the specified &#39;element&#39; from the list of attribute containers
+        // maintained by this object.  Note that this method can be invoked
+        // safely, even if &#39;AttributeContext::initialize()&#39; has not been
+        // called.
+
+    // ACCESSORS
+    bool hasRelevantActiveRules(const Category *category) const;
+        // Return &#39;true&#39; if there is at least one rule defined for this process
+        // that is both &quot;relevant&quot; to the specified &#39;category&#39; and &quot;active&quot;;
+        // return &#39;false&#39; otherwise.  A rule is &quot;relevant&quot; to &#39;category&#39; if the
+        // rule&#39;s pattern matches &#39;category-&gt;categoryName()&#39;, and a rule is
+        // &quot;active&quot; if all the predicates defined for that rule are satisfied
+        // by the current thread&#39;s attributes (i.e., &#39;Rule::evaluate()&#39; returns
+        // &#39;true&#39; for the collection of attributes maintained by this object).
+        // This method operates on the set of rules supplied to the
+        // &#39;initialize()&#39; class method (which, in practice, should be the
+        // global set of rules for the process).  The behavior is undefined
+        // unless &#39;AttributeContext::initialize()&#39; has previously been invoked.
+
+    void determineThresholdLevels(ThresholdAggregate *levels,
+                                  const Category     *category) const;
+        // Populate the specified &#39;levels&#39; with the threshold levels for the
+        // specified &#39;category&#39;.  This method compares the threshold levels
+        // defined by &#39;category&#39; with those of any active rules that apply to
+        // that category, and determines the minimum severity (i.e., the
+        // maximum numerical value) for each respective threshold amongst those
+        // values.  A rule applies to &#39;category&#39; if the rule&#39;s pattern matches
+        // &#39;category-&gt;categoryName()&#39;, and a rule is active if all the
+        // predicates defined for that rule are satisfied by the current
+        // thread&#39;s attributes (i.e., &#39;Rule::evaluate()&#39; returns &#39;true&#39; for the
+        // collection of attributes maintained by this object).  This method
+        // operates on the set of rules supplied to the &#39;initialize()&#39; class
+        // method (which, in practice, should be the global set of rules for
+        // the process).  The behavior is undefined unless
+        // &#39;AttributeContext::initialize()&#39; has previously been invoked.
+
+    bool hasAttribute(const Attribute&amp; value) const;
+        // Return &#39;true&#39; if an attribute having specified &#39;value&#39; exists in
+        // any of the attribute containers maintained by this object, and
+        // &#39;false&#39; otherwise.  Note that this method can be invoked safely
+        // even if &#39;AttributeContext::initialize()&#39; has not been called.
+
+    const AttributeContainerList&amp; containers() const;
+        // Return a reference to the non-modifiable list of attribute
+        // containers maintained by this object.  Note that this method can be
+        // invoked safely even if &#39;AttributeContext::initialize()&#39; has not been
+        // called.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output &#39;stream&#39; at the (absolute
+        // value of) the optionally specified indentation &#39;level&#39; and return a
+        // reference to &#39;stream&#39;.  If &#39;level&#39; is specified, optionally specify
+        // &#39;spacesPerLevel&#39;, the number of spaces per indentation level for
+        // this and all of its nested objects.  If &#39;level&#39; is negative,
+        // suppress indentation of the first line.  If &#39;spacesPerLevel&#39; is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is
+        // not valid on entry, this operation has no effect.
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;           stream,
+                         const AttributeContext&amp; context);
+    // Write a description of the data members of the specified &#39;context&#39; to
+    // the specified &#39;stream&#39; in a single-line human readable format, and
+    // return a reference to the modifiable &#39;stream&#39;.
+
+                     // =============================
+                     // class AttributeContextProctor
+                     // =============================
+
+class AttributeContextProctor {
+    // This class implements a proctor that, on its own destruction, will
+    // destroy the attribute context of the current thread.  Attribute contexts
+    // are stored in thread local memory.  On destruction, objects of this type
+    // will deallocate the current threads attribute context (if one has been
+    // created), and set the thread local storage pointer to 0.
+
+    // NOT IMPLEMENTED
+    AttributeContextProctor(const AttributeContextProctor&amp;);
+    AttributeContextProctor&amp; operator=(const AttributeContextProctor&amp;);
+  public:
+    // CREATORS
+    explicit AttributeContextProctor();
+        // Create a &#39;AttributeContextProctor&#39; object, which will destroy the
+        // current attribute context on destruction.
+
+    ~AttributeContextProctor();
+        // Destroy this object (as well as the current attribute context).
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+               // ------------------------------------------
+               // class AttributeContext_RuleEvaluationCache
+               // ------------------------------------------
+
+// CREATORS
+inline
+AttributeContext_RuleEvaluationCache::
+AttributeContext_RuleEvaluationCache()
+: d_evalMask(0)
+, d_resultMask(0)
+, d_sequenceNumber(-1)
+{
+}
+
+// MANIPULATORS
+inline
+void AttributeContext_RuleEvaluationCache::clear()
+{
+    d_evalMask       = 0;
+    d_resultMask     = 0;
+    d_sequenceNumber = -1;
+}
+
+// ACCESSORS
+inline
+bool AttributeContext_RuleEvaluationCache::isDataAvailable(
+                                    int               sequenceNumber,
+                                    RuleSet::MaskType relevantRulesMask) const
+{
+    return sequenceNumber    == d_sequenceNumber
+        &amp;&amp; relevantRulesMask == (relevantRulesMask &amp; d_evalMask);
+}
+
+inline
+RuleSet::MaskType
+AttributeContext_RuleEvaluationCache::knownActiveRules() const
+{
+    return d_resultMask;
+}
+
+                        // ----------------------
+                        // class AttributeContext
+                        // ----------------------
+
+// MANIPULATORS
+inline
+AttributeContext::iterator
+AttributeContext::addAttributes(const AttributeContainer *attributes)
+{
+    d_ruleCache_p.clear();
+    return d_containerList.pushFront(attributes);
+}
+
+inline
+void AttributeContext::clearCache()
+{
+    d_ruleCache_p.clear();
+}
+
+inline
+void AttributeContext::removeAttributes(iterator element)
+{
+    d_ruleCache_p.clear();
+    d_containerList.remove(element);
+}
+
+// ACCESSORS
+inline
+const AttributeContainerList&amp; AttributeContext::containers() const
+{
+    return d_containerList;
+}
+
+inline
+bool AttributeContext::hasAttribute(const Attribute&amp; value) const
+{
+    return d_containerList.hasValue(value);
+}
+
+                        // -----------------------------
+                        // class AttributeContextProctor
+                        // -----------------------------
+
+// CREATORS
+inline
+AttributeContextProctor::AttributeContextProctor()
+{
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(
+                            bsl::ostream&amp;                               stream,
+                            const AttributeContext_RuleEvaluationCache&amp; cache)
+{
+    return cache.print(stream, 0, -1);
+}
+
+
+inline
+bsl::ostream&amp; ball::operator&lt;&lt;(bsl::ostream&amp;           stream,
+                               const AttributeContext&amp; context)
+{
+    return context.print(stream, 0, -1);
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

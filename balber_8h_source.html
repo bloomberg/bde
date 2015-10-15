@@ -1,0 +1,62 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+ balber.txt
+
+@PURPOSE: Provide encoding/decoding of data per the (binary) BER rules.
+
+@MNEMONIC: Basic Application Library BER (balber)
+
+@DESCRIPTION: The &#39;balber&#39; (&quot;Basic Application BER&quot;) package defines classes
+ that can encode and decode data per the X.690 BER (Basic Encoding Rules)
+ specification.  These classes can be used only for types supported by the
+ &#39;bdlat&#39; framework.  Typical usage is illustrated in
+ {&#39;balber_berdecoder&#39;|Example 1: Decoding an Employee Record} and
+ {&#39;balber_berencoder&#39;|Example 1: Encoding an Employee Record}.
+
+/Hierarchical Synopsis
+/---------------------
+ The &#39;balber&#39; package currently has 7 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. balber_berdecoder
+
+  3. balber_berencoder
+
+  2. balber_beruniversaltagnumber
+     balber_berutil
+
+  1. balber_berconstants
+     balber_berdecoderoptions
+     balber_berencoderoptions
+..
+
+/Component Synopsis
+/------------------
+: &#39;balber_berconstants&#39;:
+:      Provide namespace for BER-related constants.
+:
+: &#39;balber_berdecoder&#39;:
+:      Provide a BER decoder class.
+:
+: &#39;balber_berdecoderoptions&#39;:
+:      Provide an attribute class for specifying BER decoding options.
+:
+: &#39;balber_berencoder&#39;:
+:      Provide a BER encoder class.
+:
+: &#39;balber_berencoderoptions&#39;:
+:      Provide value-semantic attribute classes
+:
+: &#39;balber_beruniversaltagnumber&#39;:
+:      Enumerate the set of BER universal tag numbers.
+:
+: &#39;balber_berutil&#39;:
+:      Provide functions to encode and decode simple types in BER format.
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslmf_enableif Component</title>
+<title>BDE 3.0: bslmf_enableif Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -207,7 +207,7 @@ Classes</h2></td></tr>
           <span class="comment">// element in this container.  The behavior is undefined if this</span>
           <span class="comment">// container is empty.</span>
 
-      <span class="keywordtype">size_t</span> size() <span class="keyword">const</span>;
+      <span class="keywordtype">size_t</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements held by this container.</span>
   };
 </pre></div><br/>
@@ -240,10 +240,10 @@ Classes</h2></td></tr>
 
   <span class="comment">// MANIPULATORS</span>
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">MyContainer&lt;TYPE&gt;::swap</a>(MyContainer&amp; other)
-  {<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df"></a>
-<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">      ::swap</a>(d_storage, other.d_storage);<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df"></a>
-<a class="code" href="namespacebdlc.html#a54ef1dc153396ce08b40de28aeec64df">      ::swap</a>(d_length,  other.d_length);
+  <span class="keywordtype">void</span> <a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">MyContainer&lt;TYPE&gt;::swap</a>(MyContainer&amp; other)
+  {<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec"></a>
+<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">      ::swap</a>(d_storage, other.d_storage);<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec"></a>
+<a class="code" href="namespaceball.html#a4f1ef43d8e35464e858a25f9cbe03dec">      ::swap</a>(d_length,  other.d_length);
   }
 
   <span class="comment">// ACCESSORS</span>
@@ -254,7 +254,7 @@ Classes</h2></td></tr>
   }
 
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">size_t</span> MyContainer&lt;TYPE&gt;::size()<span class="keyword"> const</span>
+  <span class="keywordtype">size_t</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">MyContainer&lt;TYPE&gt;::size</a>()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_length;
   }
@@ -312,11 +312,11 @@ Classes</h2></td></tr>
 <br/>
  Next, we define a small number of classes to demonstrate that this casting utility works correctly: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>A {
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span><a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> {
       <span class="comment">// Sample non-polymorphic type</span>
 
     <span class="keyword">public</span>:
-      ~A() {}
+      ~<a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>() {}
   };
 
   <span class="keyword">class </span>B {
@@ -333,7 +333,7 @@ Classes</h2></td></tr>
       <span class="keyword">virtual</span> ~C() {}
   };
 
-  <span class="keyword">class </span>ABC : <span class="keyword">public</span> A, <span class="keyword">public</span> B, <span class="keyword">public</span> C {
+  <span class="keyword">class </span>ABC : <span class="keyword">public</span> <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>, <span class="keyword">public</span> B, <span class="keyword">public</span> C {
       <span class="comment">// Most-derived example class using multiple bases in order to</span>
       <span class="comment">// demonstrate cross-casting.</span>
   };
@@ -345,11 +345,11 @@ Classes</h2></td></tr>
   {
       ABC object;
       ABC *pABC = &amp;object;
-      A   *pA   = &amp;object;
+      <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>   *pA   = &amp;object;
       B   *pB   = &amp;object;
       C   *pC   = &amp;object;
 
-      A *pA2 = smart_cast&lt;A&gt;(pABC);
+      <a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a> *pA2 = smart_cast&lt;<a class="code" href="bdlf__bind__test_8h.html#a2487e64b489c5eaa866ce223b64a6713">A</a>&gt;(pABC);
       B *pB2 = smart_cast&lt;B&gt;(pC);
       C *pC2 = smart_cast&lt;C&gt;(pB);
 
@@ -427,7 +427,7 @@ Classes</h2></td></tr>
           <span class="comment">// element held by this container at the specified &#39;index&#39;.  The</span>
           <span class="comment">// behavior is undefined unless &#39;index &lt; size()&#39;.</span>
 
-      <span class="keywordtype">size_t</span> size() <span class="keyword">const</span>;
+      <span class="keywordtype">size_t</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size</a>() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements held by this container.</span>
   };
 </pre></div><br/>
@@ -458,7 +458,7 @@ Classes</h2></td></tr>
   }
 
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
-  <span class="keywordtype">size_t</span> MyVector&lt;TYPE&gt;::size()<span class="keyword"> const</span>
+  <span class="keywordtype">size_t</span> <a class="code" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">MyVector&lt;TYPE&gt;::size</a>()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_length;
   }
@@ -487,7 +487,7 @@ Classes</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:21 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:52 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

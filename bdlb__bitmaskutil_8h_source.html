@@ -1,0 +1,438 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlb_bitmaskutil.h                                                 -*-C++-*-
+#ifndef INCLUDED_BDLB_BITMASKUTIL
+#define INCLUDED_BDLB_BITMASKUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide simple mask values of &#39;uint32_t&#39; and &#39;uint64_t&#39; types.
+//
+//@CLASSES:
+//  bdlb::BitMaskUtil: namespace for bit-level mask operations
+//
+//@DESCRIPTION: This component provides a utility &#39;struct&#39;,
+// &#39;bdlb::BitMaskUtil&#39;, that serves as a namespace for a collection of
+// functions that provide simple binary masks.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creation of Simple Bit Masks
+///- - - - - - - - - - - - - - - - - - - -
+// The following usage examples illustrate how some of the methods provided by
+// this component are used.  Note that, in all of these examples, the low-order
+// bit is considered bit 0 and resides on the right edge of the bit string.
+//
+// First, the &#39;ge&#39; function takes a single argument, &#39;index&#39;, and returns a bit
+// mask with all bits below the specified &#39;index&#39; cleared and all bits at or
+// above the &#39;index&#39; set:
+//..
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::ge(16)&#39; in binary:                                  |
+//  |                                                                         |
+//  | &#39;index&#39;: bit 16:                                      *                 |
+//  | All bits at and above bit 16 are set:  11111111111111110000000000000000 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expGe = 0xffff0000;
+//  assert(expGe == bdlb::BitMaskUtil::ge(16));
+//..
+// Next, the &#39;lt&#39; function returns a bit mask with all bits at or above the
+// specified &#39;index&#39; cleared, and all bits below &#39;index&#39; set.  &#39;lt&#39; and &#39;ge&#39;
+// return the complement of each other if passed the same &#39;index&#39;:
+//..
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::lt(16)&#39; in binary:                                  |
+//  |                                                                         |
+//  | &#39;index&#39;: bit 16:                                      *                 |
+//  | All bits below bit 16 are set:         00000000000000001111111111111111 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expLt = 0x0000ffff;
+//  assert(expLt == bdlb::BitMaskUtil::lt(16));
+//
+//  assert(expGe == ~expLt);
+//..
+// Then, the &#39;eq&#39; function returns a bit mask with only the bit at the
+// specified &#39;index&#39; set:
+//..
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::eq(23)&#39; in binary:                                  |
+//  |                                                                         |
+//  | &#39;index&#39;: bit 23:                               *                        |
+//  | Only bit 23 is set:                    00000000100000000000000000000000 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expEq = 0x00800000;
+//  assert(expEq == bdlb::BitMaskUtil::eq(23));
+//..
+// Now, the &#39;ne&#39; function returns a bit mask with only the bit at the specified
+// &#39;index&#39; cleared.  &#39;ne&#39; and &#39;eq&#39; return the complement of each other for a
+// given &#39;index&#39;:
+//..
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::ne(23)&#39; in binary:                                  |
+//  |                                                                         |
+//  | &#39;index&#39;: bit 23:                               *                        |
+//  | All bits other than bit 16 are set:    11111111011111111111111111111111 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expNe = 0xff7fffff;
+//  assert(expNe == bdlb::BitMaskUtil::ne(23));
+//
+//  assert(expEq == ~expNe);
+//..
+// Finally, &#39;one&#39; and &#39;zero&#39; return a bit mask with all bits within a specified
+// range starting from a specified &#39;index&#39; either set or cleared, respectively.
+// For the same arguments, &#39;one&#39; and &#39;zero&#39; return the complement of each
+// other:
+//..
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::one(16, 4)&#39; in binary:                              |
+//  |                                                                         |
+//  | bit 16:                                               *                 |
+//  | 4 bits starting at bit 16:                         ****                 |
+//  | Result: only those bits set:           00000000000011110000000000000000 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expOne = 0x000f0000;
+//  assert(expOne == bdlb::BitMaskUtil::one(16, 4));
+//
+//  +-------------------------------------------------------------------------+
+//  | &#39;bdlb::BitMaskUtil::zero(16, 4)&#39; in binary:                             |
+//  |                                                                         |
+//  | bit 16:                                               *                 |
+//  | 4 bits starting at bit 16:                         ****                 |
+//  | Result: only those bits cleared:       11111111111100001111111111111111 |
+//  +-------------------------------------------------------------------------+
+//
+//  const uint32_t expZero = 0xfff0ffff;
+//  assert(expZero == bdlb::BitMaskUtil::zero(16, 4));
+//
+//  assert(expZero == ~expOne);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_BITUTIL
+#include &lt;bdlb_bitutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include &lt;bsls_performancehint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlb {
+
+                               // ==================
+                               // struct BitMaskUtil
+                               // ==================
+
+struct BitMaskUtil {
+    // This utility &#39;struct&#39; provides a namespace for a set of bit-level,
+    // stateless functions that take one or two &#39;int&#39; arguments and return
+    // masks of the built-in 32- and 64-bit integer types &#39;uint32_t&#39; and
+    // &#39;uint64_t&#39;, respectively.
+
+    // PUBLIC TYPES
+    enum {
+        k_BITS_PER_UINT32 = 32,  // number of bits in type &#39;uint32_t&#39;
+
+        k_BITS_PER_UINT64 = 64   // number of bits in type &#39;uint64_t&#39;
+    };
+
+    // CLASS METHODS
+    static bsl::uint32_t eq(int   index);
+    static bsl::uint64_t eq64(int index);
+        // Return the unsigned integral value having the bit at the specified
+        // &#39;index&#39; position set to 1, and all other bits set to 0.  The
+        // behavior is undefined unless &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t ge(int   index);
+    static bsl::uint64_t ge64(int index);
+        // Return the unsigned integral value having all bits at positions
+        // greater than or equal to the specified &#39;index&#39; set to 1, and all
+        // other bits set to 0.  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t gt(int   index);
+    static bsl::uint64_t gt64(int index);
+        // Return the unsigned integral value having all bits at positions
+        // greater than the specified &#39;index&#39; set to 1, and all other bits set
+        // to 0.  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t le(int   index);
+    static bsl::uint64_t le64(int index);
+        // Return the unsigned integral value having all bits at positions less
+        // than or equal to the specified &#39;index&#39; set to 1, and all other bits
+        // set to 0.  The behavior is undefined unless
+        // &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t lt(int   index);
+    static bsl::uint64_t lt64(int index);
+        // Return the unsigned integral value having all bits at positions less
+        // than the specified &#39;index&#39; set to 1, and all other bits set to 0.
+        // The behavior is undefined unless
+        // &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t ne(int   index);
+    static bsl::uint64_t ne64(int index);
+        // Return the unsigned integral value having the bit at the specified
+        // &#39;index&#39; position set to 0, and all other bits set to 1.  The
+        // behavior is undefined unless &#39;0 &lt;= index &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t one(int   index, int numBits);
+    static bsl::uint64_t one64(int index, int numBits);
+        // Return the unsigned integral value having the specified &#39;numBits&#39;
+        // starting at the specified &#39;index&#39; set to 1, and all other bits set
+        // to 0.  The behavior is undefined unless &#39;0 &lt;= index&#39;,
+        // &#39;0 &lt;= numBits&#39;, and &#39;index + numBits &lt;= # of bits in result&#39;.
+
+    static bsl::uint32_t zero(int   index, int numBits);
+    static bsl::uint64_t zero64(int index, int numBits);
+        // Return the unsigned integral value having the specified &#39;numBits&#39;
+        // starting at the specified &#39;index&#39; set to 0, and all other bits set
+        // to 1.  The behavior is undefined unless &#39;0 &lt;= index&#39;,
+        // &#39;0 &lt;= numBits&#39;, and &#39;index + numBits &lt;= # of bits in result&#39;.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                               // ------------------
+                               // struct BitMaskUtil
+                               // ------------------
+
+// CLASS METHODS
+inline
+bsl::uint32_t BitMaskUtil::eq(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? 1 &lt;&lt; index
+           : 0;
+}
+
+inline
+bsl::uint64_t BitMaskUtil::eq64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? 1LL &lt;&lt; index
+           : 0;
+}
+
+inline
+bsl::uint32_t BitMaskUtil::ge(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? (~0 &lt;&lt; index)
+           : 0;
+}
+
+inline
+bsl::uint64_t BitMaskUtil::ge64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? (~0ULL &lt;&lt; index)
+           : 0;
+}
+
+inline
+bsl::uint32_t BitMaskUtil::gt(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    ++index;
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? ~((1 &lt;&lt; index) - 1)
+           : 0;
+}
+
+inline
+bsl::uint64_t BitMaskUtil::gt64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    ++index;
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? ~((1LL &lt;&lt; index) - 1)
+           : 0;
+}
+
+inline
+bsl::uint32_t BitMaskUtil::le(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    ++index;
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? (1 &lt;&lt; index) - 1
+           : -1;
+}
+
+inline
+bsl::uint64_t BitMaskUtil::le64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    ++index;
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                   index &lt; static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? (1LL &lt;&lt; index) - 1
+           : -1LL;
+}
+
+inline
+bsl::uint32_t BitMaskUtil::lt(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  index &gt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? -1
+           : (1 &lt;&lt; index) - 1;
+}
+
+inline
+bsl::uint64_t BitMaskUtil::lt64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  index &gt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? -1LL
+           : (1LL &lt;&lt; index) - 1;
+}
+
+inline
+bsl::uint32_t BitMaskUtil::ne(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  index &gt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32))
+           ? -1
+           : ~(1 &lt;&lt; index);
+}
+
+inline
+bsl::uint64_t BitMaskUtil::ne64(int index)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(     index &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                  index &gt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64))
+           ? -1LL
+           : ~(1LL &lt;&lt; index);
+}
+
+inline
+bsl::uint32_t BitMaskUtil::one(int index, int numBits)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(0 &lt;= numBits);
+    BSLS_ASSERT_SAFE(index + numBits &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return lt(index + numBits) &amp; ge(index);
+}
+
+inline
+bsl::uint64_t BitMaskUtil::one64(int index, int numBits)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(0 &lt;= numBits);
+    BSLS_ASSERT_SAFE(index + numBits &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return lt64(index + numBits) &amp; ge64(index);
+}
+
+inline
+bsl::uint32_t BitMaskUtil::zero(int index, int numBits)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(0 &lt;= numBits);
+    BSLS_ASSERT_SAFE(index + numBits &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT32));
+
+    return lt(index) | ge(index + numBits);
+}
+
+inline
+bsl::uint64_t BitMaskUtil::zero64(int index, int numBits)
+{
+    BSLS_ASSERT_SAFE(0 &lt;= index);
+    BSLS_ASSERT_SAFE(0 &lt;= numBits);
+    BSLS_ASSERT_SAFE(index + numBits &lt;= static_cast&lt;int&gt;(k_BITS_PER_UINT64));
+
+    return lt64(index) | ge64(index + numBits);
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

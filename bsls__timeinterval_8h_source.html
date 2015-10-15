@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bsls_timeinterval.h                                                -*-C++-*-
@@ -98,8 +98,17 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_assert.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include &lt;bsls_nativestd.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include &lt;bsls_types.h&gt;
+#endif
+
+#ifndef INCLUDED_IOSFWD
+#include &lt;iosfwd&gt;
+#define INCLUDED_IOSFWD
 #endif
 
 #ifndef INCLUDED_LIMITS_H
@@ -474,10 +483,9 @@ class TimeInterval {
         // information on BDEX streaming of value-semantic types and
         // containers.
 
-    template &lt;class STREAM&gt;
-    STREAM&amp; print(STREAM&amp; stream,
-                  int     level          = 0,
-                  int     spacesPerLevel = 4) const;
+    native_std::ostream&amp; print(native_std::ostream&amp; stream,
+                               int                  level          = 0,
+                               int                  spacesPerLevel = 4) const;
         // Write the value of this object to the specified output &#39;stream&#39; in a
         // human-readable format, and return a reference providing modifiable
         // access to &#39;stream&#39;.  Optionally specify an initial indentation
@@ -556,9 +564,8 @@ bool operator&gt;=(double lhs, const TimeInterval&amp; rhs);
     // is undefined unless operands of type &#39;double&#39; can be converted to valid
     // &#39;TimeInterval&#39; objects.
 
-template &lt;class STREAM&gt;
-STREAM&amp; operator&lt;&lt;(STREAM&amp;             stream,
-                   const TimeInterval&amp; timeInterval);
+native_std::ostream&amp; operator&lt;&lt;(native_std::ostream&amp; stream,
+                                const TimeInterval&amp;  timeInterval);
     // Write the value of the specified &#39;timeInterval&#39; to the specified output
     // &#39;stream&#39; in a single-line format, and return a reference providing
     // modifiable access to &#39;stream&#39;.  If &#39;stream&#39; is not valid on entry, this
@@ -902,36 +909,6 @@ STREAM&amp; TimeInterval::bdexStreamOut(STREAM&amp; stream, int version) const
     return stream;
 }
 
-template &lt;class STREAM&gt;
-STREAM&amp; TimeInterval::print(STREAM&amp; stream,
-                            int     level,
-                            int     spacesPerLevel) const
-{
-    if (level &gt; 0 &amp;&amp; spacesPerLevel != 0) {
-        // If &#39;level &lt;= 0&#39; the value will not be indented, otherwise the
-        // indentation is &#39;level * abs(spacesPerLevel)&#39;.
-
-        // Use &#39;unsigned&#39; to suppress gcc compiler warning.
-
-        unsigned int indentation = level *
-                      (spacesPerLevel &lt; 0 ? -spacesPerLevel : spacesPerLevel);
-        for (unsigned int i = 0; i &lt; indentation; ++i) {
-            stream &lt;&lt; &#39; &#39;;
-        }
-    }
-
-    stream &lt;&lt; &#39;(&#39; &lt;&lt; d_seconds     &lt;&lt; &quot;, &quot;
-                  &lt;&lt; d_nanoseconds &lt;&lt; &#39;)&#39;;
-
-    // We suppress the trailing end-of-line if &#39;spacesPerLevel &lt; 0&#39;.
-
-    if (spacesPerLevel &gt;= 0) {
-        stream &lt;&lt; &#39;\n&#39;;
-    }
-    return stream;
-}
-
-
 }  // close package namespace
 
 // FREE OPERATORS
@@ -1106,61 +1083,26 @@ bool bsls::operator&gt;=(double lhs, const TimeInterval&amp; rhs)
     return TimeInterval(lhs) &gt;= rhs;
 }
 
-template &lt;class STREAM&gt;
-inline
-STREAM&amp; bsls::operator&lt;&lt;(STREAM&amp;             stream,
-                         const TimeInterval&amp; timeInterval)
-{
-    return timeInterval.print(stream, 0, -1);
-}
-
 // BDE_VERIFY pragma: pop
+
+// IMPLEMENTATION NOTE: A &#39;is_trivially_copyable&#39; trait declaration has been
+// moved to &#39;bslmf_istriviallycopyable.h&#39; to work around issues on the Sun CC
+// 5.13 compiler.  We had previously forward declared
+// &#39;bsl::is_trivially_copyable&#39; and specialized it for &#39;TimeInterval&#39; here (see
+// the 2.24 release tags).
+//..
+//  namespace bsl {
+//  template &lt;&gt;
+//  struct is_trivially_copyable&lt;BloombergLP::bsls::TimeInterval&gt; :
+//                                                            bsl::true_type {
+//      // This template specialization for &#39;is_trivially_copyable&#39; indicates
+//      // that &#39;Date&#39; is a trivially copyable type.
+//  };
+//  }
+//..
 
 }  // close enterprise namespace
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -UC01
-// BDE_VERIFY pragma: -CD01
-// BDE_VERIFY pragma: -CB01
-// BDE_VERIFY pragma: -CP01
-// BDE_VERIFY pragma: -TR04
-
-namespace bsl {
-
-// IMPLEMENTATION NOTE: The following declaration of the
-// &#39;is_trivially_copyable&#39; meta-function (and &#39;integral_constant&#39;) is
-// unfortunate, but necessary as the &#39;is_trivially_copyable&#39; trait is defined
-// in &#39;bslmf&#39;.
-
-template &lt;class TYPE&gt;
-struct is_trivially_copyable;
-
-template &lt;class TYPE, TYPE VAL&gt;
-struct integral_constant;
-
-template &lt;&gt;
-struct is_trivially_copyable&lt;BloombergLP::bsls::TimeInterval&gt;  {
-    // This template specialization for &#39;is_trivially_copyable&#39; indicates that
-    // &#39;TimeInterval&#39; is a trivially copyable type.  Note that we replicate the
-    // properties of &#39;bsl::true_type&#39; to avoid a circular dependency.
-
-    // PUBLIC TYPES
-    typedef bool                          value_type;
-    typedef integral_constant&lt;bool, true&gt; type;
-
-    // PUBLIC CLASS DATA
-    static const bool value = true;
-
-    // ACCESSORS
-    operator value_type() const { return true; }
-        // Return &#39;true&#39;.
-
-    // COMPATIBILITY MEMBERS
-    static const bool VALUE = value;
-};
-// BDE_VERIFY pragma: pop
-
-}  // close namespace bsl
 
 #endif
 

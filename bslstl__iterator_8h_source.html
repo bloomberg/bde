@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_iterator.h                                                  -*-C++-*-
@@ -302,11 +302,11 @@ class reverse_iterator :
     // This class provides a template iterator adaptor that iterates from the
     // end of the sequence defined by the (template parameter) type &#39;ITER&#39; to
     // the beginning of that sequence.  The type &#39;ITER&#39; shall meet all the
-    // requirements of a bidirectional iterator [24.2.6]. The elements sequence
-    // generated in this reversed iteration is referred as
-    // &#39;reverse iteration sequence&#39; in the following class level documentation.
-    // The fundamental relation between a reverse iterator and its
-    // corresponding iterator &#39;i&#39; of type &#39;ITER&#39; is established by the identity
+    // requirements of a bidirectional iterator [24.2.6].  The element sequence
+    // generated in this reversed iteration is referred as &quot;reverse iteration
+    // sequence&quot; in the following class level documentation.  The fundamental
+    // relation between a reverse iterator and its corresponding iterator &#39;i&#39;
+    // of type &#39;ITER&#39; is established by the identity
     // &#39;&amp;*(reverse_iterator(i)) == &amp;*(i - 1)&#39;.  This template meets the
     // requirement of reverse iterator adaptor defined in C++11 standard
     // [24.5.1].
@@ -642,9 +642,9 @@ using native_std::distance;
 
 #endif
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------------
                         // class bsl::reverse_iterator

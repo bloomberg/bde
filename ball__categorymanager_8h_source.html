@@ -1,0 +1,585 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_categorymanager.h                                             -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_CATEGORYMANAGER
+#define INCLUDED_BALL_CATEGORYMANAGER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a manager of named categories each having &quot;thresholds&quot;.
+//
+//@CLASSES:
+//              ball::Category: container for name and threshold levels
+//        ball::CategoryHolder: holder of a category and its maximum level
+//       ball::CategoryManager: manager of category registry
+//
+// (*) Indicates that the class is deprecated.  See &quot;Deprecation Notice&quot; below.
+//
+//@SEE_ALSO: ball_loggermanager, ball_loggercategoryutil
+//
+//@DESCRIPTION: This component provides a registry for category information and
+// functions to manage the registry and its members.  By &quot;category&quot; we mean a
+// named entity that identifies a region or functional area of a program.  A
+// category name can be an arbitrary string, including the empty string.
+// Note that category names are case-sensitive.
+//
+// Associated with each category, besides its name, are four threshold levels
+// known as &quot;record&quot;, &quot;pass&quot;, &quot;trigger&quot;, and &quot;trigger-all&quot;.  Threshold
+// levels are values in the range &#39;[0 .. 255]&#39;.  (See the &#39;ball_loggermanager&#39;
+// component-level documentation for a typical interpretation of these four
+// thresholds.)
+//
+// A category is represented by a &#39;ball::Category&#39; object.  Instances of
+// &#39;ball::Category&#39; cannot be created directly; instead, they are created by
+// the &#39;ball::CategoryManager&#39; class.  &#39;ball::CategoryManager&#39; manages a registry
+// of categories and exposes methods to add new categories to the registry
+// (&#39;addCategory&#39;) and modify the threshold levels of existing categories
+// (&#39;setThresholdLevels&#39;).  &#39;ball::Category&#39; provides accessors for direct
+// access to the name and threshold levels of a given category, and a single
+// manipulator to set the four threshold levels levels.
+//
+// This component also provides an iterator (&#39;ball::CategoryManagerIter&#39;)
+// and a manipulator (&#39;ball::CategoryManagerManip&#39;) that give read-only and
+// modifiable access, respectively, to the categories in the registry
+// maintained by &#39;ball::CategoryManager&#39;.
+//
+///Deprecation Notice
+///------------------
+// The classes &#39;ball::CategoryManagerIter&#39; and &#39;ball::CategoryManagerManip&#39;
+// are deprecated in favor of indexed access to categories via the member
+// operation &#39;ball::CategoryManager::operator[]()&#39;.  Such iterator and
+// manipulator objects are uncooperative in a multi-threaded environment.  In
+// particular, the existence of either a &#39;ball::CategoryManagerIter&#39; or a
+// &#39;ball::CategoryManagerManip&#39; object requires that write access to the
+// associated category manager is blocked until the object is destroyed.
+// Otherwise, the object might become invalid if the category manager state
+// changes.  Indexed access to the category manager does not have this
+// constraint since each successful access returns an object reference that
+// is guaranteed to be valid for the lifetime of the category manager.
+//
+///Thread Safety
+///-------------
+// &#39;ball::Category&#39; and &#39;ball::CategoryManager&#39; are *thread-safe*, meaning
+// that any operation on the same instance can be safely invoked from any
+// thread concurrently with any other operation.
+//
+// &#39;ball::CategoryManagerIter&#39; and &#39;ball::CategoryManagerManip&#39; are const
+// thread-safe,  meaning that accessors may be invoked concurrently from
+// different threads, but it is not safe to access or modify an object in one
+// thread while another thread modifies the same object.
+//
+///Usage
+///-----
+// The code fragments in the following example illustrate some basic operations
+// of category management including (1) adding categories to the registry,
+// (2) accessing and modifying the threshold levels of existing categories,
+// and (3) iterating over the categories in the registry.
+//
+// First we define some hypothetical category names:
+//..
+//    const char *myCategories[] = {
+//        &quot;EQUITY.MARKET.NYSE&quot;,
+//        &quot;EQUITY.MARKET.NASDAQ&quot;,
+//        &quot;EQUITY.GRAPHICS.MATH.FACTORIAL&quot;,
+//        &quot;EQUITY.GRAPHICS.MATH.ACKERMANN&quot;
+//    };
+//..
+// Next we create a &#39;ball::CategoryManager&#39; named &#39;manager&#39; and use the
+// &#39;addCategory&#39; method to define a category for each of the names in
+// &#39;myCategories&#39;.  The threshold levels of each of the categories are set to
+// slightly different values to help distinguish them when they are displayed
+// later:
+//..
+//    ball::CategoryManager manager;
+//
+//    const int NUM_CATEGORIES = sizeof myCategories / sizeof *myCategories;
+//    for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//        manager.addCategory(myCategories[i],
+//                            192 + i, 96 + i, 64 + i, 32 + i);
+//    }
+//..
+// In the following, each of the new categories is accessed from the registry
+// and their names and threshold levels printed:
+//..
+//    for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//        const ball::Category *category =
+//                                     manager.lookupCategory(myCategories[i]);
+//        bsl::cout &lt;&lt; &quot;[ &quot; &lt;&lt; myCategories[i]
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;recordLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;passLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;triggerLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category-&gt;triggerAllLevel()
+//                  &lt;&lt; &quot; ]&quot; &lt;&lt; bsl::endl;
+//    }
+//..
+// The following is printed to &#39;stdout&#39;:
+//..
+//    [ EQUITY.MARKET.NYSE, 192, 96, 64, 32 ]
+//    [ EQUITY.MARKET.NASDAQ, 193, 97, 65, 33 ]
+//    [ EQUITY.GRAPHICS.MATH.FACTORIAL, 194, 98, 66, 34 ]
+//    [ EQUITY.GRAPHICS.MATH.ACKERMANN, 195, 99, 67, 35 ]
+//..
+// We next use the &#39;setLevels&#39; method of &#39;ball::Category&#39; to adjust the
+// threshold levels of our categories.  The following also demonstrates use
+// of the &#39;recordLevel&#39;, etc., accessors of &#39;ball::Category&#39;:
+//..
+//    for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//        ball::Category *category = manager.lookupCategory(myCategories[i]);
+//        category-&gt;setLevels(category-&gt;recordLevel() + 1,
+//                            category-&gt;passLevel() + 1,
+//                            category-&gt;triggerLevel() + 1,
+//                            category-&gt;triggerAllLevel() + 1);
+//    }
+//..
+// Repeating the second &#39;for&#39; loop from above generates the following output
+// on &#39;stdout&#39;:
+//..
+//    [ EQUITY.MARKET.NYSE, 193, 97, 65, 33 ]
+//    [ EQUITY.MARKET.NASDAQ, 194, 98, 66, 34 ]
+//    [ EQUITY.GRAPHICS.MATH.FACTORIAL, 195, 99, 67, 35 ]
+//    [ EQUITY.GRAPHICS.MATH.ACKERMANN, 196, 100, 68, 36 ]
+//..
+// Next we illustrate use of the index operator as a means of iterating over
+// the registry of categories.  In particular, we illustrate an alternate
+// approach to modifying the threshold levels of our categories by iterating
+// over the categories in the registry of &#39;manager&#39; to increment their
+// threshold levels a second time:
+//..
+//    for (int i = 0; i &lt; manager.length(); ++i) {
+//        ball::Category&amp; category = manager[i];
+//        category.setLevels(category.recordLevel() + 1,
+//                           category.passLevel() + 1,
+//                           category.triggerLevel() + 1,
+//                           category.triggerAllLevel() + 1);
+//    }
+//..
+// Finally, we iterate over the categories in the registry to print them out
+// one last time:
+//..
+//    for (int i = 0; i &lt; manager.length(); ++i) {
+//        const ball::Category&amp; category = manager[i];
+//        bsl::cout &lt;&lt; &quot;[ &quot; &lt;&lt; category.categoryName()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category.recordLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category.passLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category.triggerLevel()
+//                  &lt;&lt; &quot;, &quot; &lt;&lt; category.triggerAllLevel()
+//                  &lt;&lt; &quot; ]&quot; &lt;&lt; bsl::endl;
+//    }
+//..
+// This iteration produces the following output on &#39;stdout&#39;:
+//..
+//    [ EQUITY.MARKET.NYSE, 194, 98, 66, 34 ]
+//    [ EQUITY.MARKET.NASDAQ, 195, 99, 67, 35 ]
+//    [ EQUITY.GRAPHICS.MATH.FACTORIAL, 196, 100, 68, 36 ]
+//    [ EQUITY.GRAPHICS.MATH.ACKERMANN, 197, 101, 69, 37 ]
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_CATEGORY
+#include &lt;ball_category.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_RULESET
+#include &lt;ball_ruleset.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
+#include &lt;ball_thresholdaggregate.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEX
+#include &lt;bslmt_mutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include &lt;bslmt_readlockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_READERWRITERLOCK
+#include &lt;bslmt_readerwriterlock.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLB_CSTRINGLESS
+#include &lt;bdlb_cstringless.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include &lt;bslma_default.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include &lt;bsl_map.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_NEW
+#include &lt;bsl_new.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+                        // =====================
+                        // class CategoryManager
+                        // =====================
+
+class CategoryManager {
+    // This class manages a set (or &quot;registry&quot;) of categories.  Categories may
+    // be added to the registry, but they cannot be removed.  However, the
+    // threshold levels of existing categories may be accessed and modified
+    // directly.
+
+    // DATA
+    bsl::map&lt;const char *, int, bdlb::CStringLess&gt;
+                                    d_registry;      // mapping names to
+                                                     // indices in
+                                                     // &#39;d_categories&#39;
+
+    volatile int                    d_ruleSequenceNum;
+                                                     // sequence number
+                                                     // indicating the number
+                                                     // of rule changes
+
+    RuleSet                    d_ruleSet;       // rule set that contains
+                                                     // all registered rules
+
+    bslmt::Mutex                     d_ruleSetMutex;  // serialize access to
+                                                     // &#39;d_ruleset&#39;
+
+    bsl::vector&lt;Category *&gt;    d_categories;    // providing random-access
+                                                     // to categories
+
+    mutable bslmt::ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
+                                                     // category map
+
+    bslma::Allocator               *d_allocator_p;   // memory allocator (held,
+                                                     // not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    CategoryManager(const CategoryManager&amp;);
+    CategoryManager&amp; operator=(const CategoryManager&amp;);
+
+    // PRIVATE MANIPULATORS
+    Category *addNewCategory(const char *categoryName,
+                                  int         recordLevel,
+                                  int         passLevel,
+                                  int         triggerLevel,
+                                  int         triggerAllLevel);
+        // Add to the registry of this category manager a category having the
+        // specified &#39;categoryName&#39; and the specified &#39;recordLevel,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; threshold values,
+        // respectively.  Return the address of the newly-created, modifiable
+        // category.  The behavior is undefined unless &#39;categoryName&#39; is
+        // null-terminated, a category having &#39;categoryName&#39; does not already
+        // exist in the registry, and each of the specified threshold values is
+        // in the range &#39;[0 .. 255]&#39;.  Note that the category registry should
+        // be properly synchronized before calling this method.
+
+  public:
+    // CREATORS
+    CategoryManager(bslma::Allocator *basicAllocator = 0);
+        // Create a category manager.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    ~CategoryManager();
+        // Destroy this category manager.
+
+    // MANIPULATORS
+    Category&amp; operator[](int index);
+        // Return a reference to the modifiable category at the specified
+        // &#39;index&#39; in the registry of this category manager.  The behavior is
+        // undefined unless &#39;0 &lt;= index &lt; length()&#39;.
+
+    Category *addCategory(const char *categoryName,
+                          int         recordLevel,
+                          int         passLevel,
+                          int         triggerLevel,
+                          int         triggerAllLevel);
+        // Add to the registry of this category manager a category having the
+        // specified &#39;categoryName&#39; and the specified &#39;recordLevel,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; threshold values,
+        // respectively, if there is no category having &#39;categoryName&#39; and each
+        // of the specified threshold values is in the range &#39;[0 .. 255]&#39;.
+        // Return the address of the newly-created, modifiable category on
+        // success, and 0 otherwise.  The behavior is undefined unless
+        // &#39;categoryName&#39; is null-terminated.  Note that if a category having
+        // &#39;categoryName&#39; already exists in the registry, 0 is returned.
+
+    Category *addCategory(CategoryHolder *categoryHolder,
+                          const char     *categoryName,
+                          int             recordLevel,
+                          int             passLevel,
+                          int             triggerLevel,
+                          int             triggerAllLevel);
+        // Add to the registry of this category manager a category having the
+        // specified &#39;categoryName&#39; and the specified &#39;recordLevel,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; threshold values,
+        // respectively, if there is no category having &#39;categoryName&#39; and each
+        // of the specified threshold values is in the range &#39;[0 .. 255]&#39;.
+        // Return the address of the newly-created, modifiable category on
+        // success, and 0 otherwise.  If a newly-created category is returned
+        // and the specified &#39;categoryHolder&#39; is non-null, then also load into
+        // &#39;categoryHolder&#39; the returned category and its maximum level and
+        // link &#39;categoryHolder&#39; to the category.  The behavior is undefined
+        // unless &#39;categoryName&#39; is null-terminated.  Note that if a category
+        // having &#39;categoryName&#39; already exists in the registry, 0 is returned.
+
+    Category *lookupCategory(const char *categoryName);
+        // Return the address of the modifiable category having the specified
+        // &#39;categoryName&#39; in the registry of this category manager, or 0 if
+        // no such category exists.  The behavior is undefined unless
+        // &#39;categoryName&#39; is null-terminated.
+
+    Category *lookupCategory(CategoryHolder *categoryHolder,
+                                  const char          *categoryName);
+        // Return the address of the modifiable category having the specified
+        // &#39;categoryName&#39; in the registry of this category manager, or 0 if no
+        // such category exists.  If a category is returned and the specified
+        // &#39;categoryHolder&#39; is non-null, then also load into &#39;categoryHolder&#39;
+        // the returned category and its maximum level and link
+        // &#39;categoryHolder&#39; to the category if it has not yet been linked.  The
+        // behavior is undefined unless &#39;categoryName&#39; is null-terminated.
+
+    void resetCategoryHolders();
+        // Reset the category holders to which all categories in the registry
+        // of this category manager are linked to their default value.  See
+        // the function-level documentation of &#39;CategoryHolder::reset()&#39;
+        // for further information on the default value of category holders.
+
+    Category *setThresholdLevels(const char *categoryName,
+                                      int         recordLevel,
+                                      int         passLevel,
+                                      int         triggerLevel,
+                                      int         triggerAllLevel);
+        // Set the threshold levels of the category having the specified
+        // &#39;categoryName&#39; in the registry of this category manager to the
+        // specified &#39;recordLevel&#39;, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and
+        // &#39;triggerAllLevel&#39; values, respectively, if a category having
+        // &#39;categoryName&#39; exists and each of the specified threshold values is
+        // in the range &#39;[0 .. 255]&#39;.  Otherwise, add to the registry a
+        // category having the specified &#39;categoryName&#39; and the specified
+        // &#39;recordLevel, &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39;
+        // threshold values, respectively, if there is no category having
+        // &#39;categoryName&#39; and each of the specified threshold values is in the
+        // range &#39;[0 .. 255]&#39;.  Return the address of the (possibly
+        // newly-created) modifiable category on success, and 0 otherwise (with
+        // no effect on any category).  The behavior is undefined unless
+        // &#39;categoryName&#39; is null-terminated.
+
+    int addRule(const Rule&amp; rule);
+        // Add the specified &#39;rule&#39; to the set of (unique) rules maintained by
+        // this object.  Return the number of rules added (i.e., 1 on success
+        // and 0 if a rule with the same value is already present).
+
+    int addRules(const RuleSet&amp; ruleSet);
+        // Add each rule in the specified &#39;ruleSet&#39; to the set of
+        // (unique) rules maintained by this object.  Return the number of
+        // rules added.  Note that each rule having the same value as an
+        // existing rule will be ignored.
+
+    int removeRule(const Rule&amp; rule);
+        // Remove the specified &#39;rule&#39; from the set of (unique) rules
+        // maintained by this object.  Return the number of rules removed
+        // (i.e., 1 on success and 0 if no rule having the same value is
+        // found).
+
+    int removeRules(const RuleSet&amp; ruleSet);
+        // Remove each rule in the specified &#39;ruleSet&#39; from the set of
+        // rules maintained by this object.  Return the number of rules
+        // removed.
+
+    void removeAllRules();
+        // Remove every rule from the set of rules maintained by this object.
+
+    bslmt::Mutex&amp; rulesetMutex();
+        // Return a reference to the modifiable mutex that is used to guard
+        // against concurrent accesses to the rule set.  A lock to the
+        // returned mutex should be acquired before accessing the properties
+        // of &#39;ruleSet()&#39;.  The behavior is undefined if a lock is acquired
+        // and any of the rule methods on this object (other than &#39;ruleSet()&#39;)
+        // are called.
+
+    template &lt;class CATEGORY_VISITOR&gt;
+    void visitCategories(const CATEGORY_VISITOR&amp; visitor);
+        // Invoke the specified &#39;visitor&#39; functor on each category managed by
+        // this object, supplying that functor modifiable access to each
+        // category.  &#39;visitor&#39; must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(Category *);
+        //..
+
+    // ACCESSORS
+    int ruleSequenceNumber() const;
+        // Return the rule sequence number indicating the number of rule
+        // changes.
+
+    const Category&amp; operator[](int index) const;
+        // Return a reference to the non-modifiable category at the specified
+        // &#39;index&#39; in the registry of this category manager.  The behavior is
+        // undefined unless &#39;0 &lt;= index &lt; length()&#39;.
+
+    int length() const;
+        // Return the number of categories in the registry of this category
+        // manager.
+
+    const Category *lookupCategory(const char *categoryName) const;
+        // Return the address of the non-modifiable category having the
+        // specified &#39;categoryName&#39; in the registry of this category manager,
+        // or 0 if no such category exists.  The behavior is undefined unless
+        // &#39;categoryName&#39; is null-terminated.
+
+    const RuleSet&amp; ruleSet() const;
+        // Return a reference to the non-modifiable rule set maintained by
+        // this object.  Note that the &#39;rulesetMutex()&#39; should be locked prior
+        // to accessing this set.
+
+    template &lt;class CATEGORY_VISITOR&gt;
+    void visitCategories(const CATEGORY_VISITOR&amp; visitor) const;
+        // Invoke the specified &#39;visitor&#39; functor on each category managed by
+        // this object, supplying that functor non-modifiable access to each
+        // category.  &#39;visitor&#39; must be a functor that can be called as if it
+        // had the following signature:
+        //..
+        //  void operator()(const Category *);
+        //..
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                        // ---------------------
+                        // class CategoryManager
+                        // ---------------------
+
+// CREATORS
+inline
+CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
+: d_registry(bdlb::CStringLess(), basicAllocator)
+, d_ruleSet(bslma::Default::allocator(basicAllocator))
+, d_categories(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+// MANIPULATORS
+inline
+Category&amp; CategoryManager::operator[](int index)
+{
+    bslmt::ReadLockGuard&lt;bslmt::ReaderWriterLock&gt; guard(&amp;d_registryLock);
+    return *d_categories[index];
+}
+
+inline
+bslmt::Mutex&amp; CategoryManager::rulesetMutex()
+{
+    return d_ruleSetMutex;
+}
+
+template &lt;class CATEGORY_VISITOR&gt;
+void CategoryManager::visitCategories(const CATEGORY_VISITOR&amp; visitor)
+{
+    bslmt::ReadLockGuard&lt;bslmt::ReaderWriterLock&gt; guard(&amp;d_registryLock);
+    for (bsl::vector&lt;Category *&gt;::iterator it = d_categories.begin();
+         it != d_categories.end();
+         ++it) {
+        visitor(*it);
+    }
+}
+
+// ACCESSORS
+inline
+int CategoryManager::ruleSequenceNumber() const
+{
+    return d_ruleSequenceNum;
+}
+
+inline
+int CategoryManager::length() const
+{
+    bslmt::ReadLockGuard&lt;bslmt::ReaderWriterLock&gt; guard(&amp;d_registryLock);
+    const int length = static_cast&lt;int&gt;(d_categories.size());
+    return length;
+}
+
+inline
+const Category&amp; CategoryManager::operator[](int index) const
+{
+    bslmt::ReadLockGuard&lt;bslmt::ReaderWriterLock&gt; guard(&amp;d_registryLock);
+    const Category&amp; category = *d_categories[index];
+    return category;
+}
+
+inline
+const RuleSet&amp; CategoryManager::ruleSet() const
+{
+    return d_ruleSet;
+}
+
+template &lt;class CATEGORY_VISITOR&gt;
+void CategoryManager::visitCategories(const CATEGORY_VISITOR&amp; visitor) const
+{
+    bslmt::ReadLockGuard&lt;bslmt::ReaderWriterLock&gt; guard(&amp;d_registryLock);
+    for (bsl::vector&lt;Category *&gt;::const_iterator it = d_categories.begin();
+         it != d_categories.end();
+         ++it) {
+        visitor(*it);
+    }
+}
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

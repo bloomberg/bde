@@ -1,0 +1,126 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlma_deleter.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLMA_DELETER
+#define INCLUDED_BDLMA_DELETER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a protocol for deleting objects of parameterized type.
+//
+//@CLASSES:
+//   bdlma::Deleter: protocol class for deleting objects
+//
+//@SEE_ALSO: bslma_allocator
+//
+//@DESCRIPTION: This component defines the base-level protocol,
+// &#39;bdlma::Deleter&#39;, for a thread-safe and type-safe deleter of objects of
+// arbitrary type.  This class is extremely useful for transferring the
+// ownership of objects between different entities.  The following usage
+// example demonstrates this point.
+//
+///Usage
+///-----
+// Suppose that we would like to transfer ownership of an object between
+// threads using &#39;bsl::shared_ptr&#39;.  For the sake of discussion, the type of
+// this object is &#39;my_Obj&#39;, we will suppose that it is created using a given
+// &#39;basicAllocator&#39;, and that a concrete implementation of &#39;bdlma::Deleter&#39;,
+// say &#39;my_Deleter&#39;, is to be used.  Note that we assume that &#39;my_Obj&#39; does not
+// require an allocator for any of its members:
+//..
+//  bslma::NewDeleteAllocator basicAllocator;
+//  my_Obj *object = new(basicAllocator) my_Obj;
+//..
+// Next, create a concrete deleter for &#39;object&#39; using the same allocator as was
+// used to allocate its footprint:
+//..
+//  my_Deleter deleter(&amp;basicAllocator);
+//..
+// Finally, create a shared pointer passing to it &#39;object&#39; and the address of
+// &#39;deleter&#39;:
+//..
+//  bsl::shared_ptr&lt;my_Obj&gt; handle(object, &amp;deleter, &amp;basicAllocator);
+//..
+// Now the &#39;handle&#39; can be passed to another thread or enqueued efficiently.
+// When the reference count of &#39;handle&#39; goes to 0, &#39;object&#39; is automatically
+// deleted via the &#39;deleteObject&#39; method of &#39;deleter&#39;, which in turn will
+// invoke the destructor of &#39;object&#39;.  Note that since the type of the deleter
+// used to instantiate &#39;handle&#39; is &#39;bdlma::Deleter&lt;my_Obj&gt;&#39;, any kind of
+// deleter that implements this protocol can be passed.  Also note, on the
+// downside, that the lifetime of &#39;deleter&#39; must be longer than the lifetime of
+// all associated instances.
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlma {
+
+                              // =============
+                              // class Deleter
+                              // =============
+
+template &lt;class TYPE&gt;
+class Deleter {
+    // Provide a protocol (or pure interface) for a thread-safe object deleter.
+
+  public:
+    // CREATORS
+    virtual ~Deleter();
+        // Destroy this object deleter.
+
+    // MANIPULATORS
+    virtual void deleteObject(TYPE *instance) = 0;
+        // Destroy the specified &#39;instance&#39; based on its static type and return
+        // its memory footprint to the appropriate memory manager.  Note that a
+        // particular implementation is allowed to destroy this deleter itself.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+// CREATORS
+template &lt;class TYPE&gt;
+Deleter&lt;TYPE&gt;::~Deleter()
+{
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

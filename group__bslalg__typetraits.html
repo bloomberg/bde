@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslalg_typetraits Component</title>
+<title>BDE 3.0: bslalg_typetraits Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -87,13 +87,13 @@ Defines</h2></td></tr>
 <li>
 <a href="#4.1">Usage</a> <ul>
 <li>
-<a href="#4.1.1">A generic container</a> </li>
+<a href="#4.1.1">A Generic Container</a> </li>
 <li>
-<a href="#4.1.2">Using the type traits</a> </li>
+<a href="#4.1.2">Using the Type Traits</a> </li>
 <li>
-<a href="#4.1.3">Generic container implementation</a> </li>
+<a href="#4.1.3">Generic Container Implementation</a> </li>
 <li>
-<a href="#4.1.4">Usage verification</a> </li>
+<a href="#4.1.4">Usage Verification</a> </li>
 </ul>
 </li>
 </ul>
@@ -105,7 +105,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b>Purpose: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Provide compile-time traits that can be associated with types. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>See <code>bslmf_nestedtraitdeclaration</code>. </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000007">Deprecated:</a></b></dt><dd>See <code>bslmf_nestedtraitdeclaration</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="classes"></a> <a class="anchor" id="2"></a> </dd></dl>
 <dl class="user"><dt><b>Classes: </b></dt><dd></dd></dl>
@@ -186,7 +186,7 @@ Defines</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>In this usage example, we show how to enable the <code>bslma</code> allocator model for generic containers, by implementing simplified versions of the <code>bslalg_constructorproxy</code> and <code>bslalg_scalarprimitives</code> components. The interested reader should refer to the documentation of those components. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="a_generic_container"></a> <a class="anchor" id="usage.a_generic_container"></a> <a class="anchor" id="description.usage.a_generic_container"></a> <a class="anchor" id="4.1.1"></a> </dd></dl>
-<dl class="user"><dt><b>A generic container: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>A Generic Container: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose we want to implement a generic container of a parameterized <code>TYPE</code>, which may or may not follow the <code>bslma</code> allocator model. If it does, our container should pass an extra <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a>*</code> argument to copy construct a value; but if it does not, then passing this extra argument is going to generate a compile-time error. It thus appears we need two implementations of our container. This can be done more succinctly by encapsulating into the constructor some utilities which will, through a single interface, determine whether <code>TYPE</code> has the trait <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> and copy-construct it accordingly. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The container contains a single data member of the parameterized <code>TYPE</code>. Since we are going to initialize this data member manually, we do not want it to be automatically constructed by the compiler. For this reason, we encapsulate it in a <code><a class="el" href="unionbsls_1_1ObjectBuffer.html">bsls::ObjectBuffer</a></code>. <br/>
 <br/>
@@ -241,8 +241,9 @@ Defines</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="using_the_type_traits"></a> <a class="anchor" id="usage.using_the_type_traits"></a> <a class="anchor" id="description.usage.using_the_type_traits"></a> <a class="anchor" id="4.1.2"></a> </dd></dl>
-<dl class="user"><dt><b>Using the type traits: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Using the Type Traits: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The challenge in the implementation lays in using the traits of the contained <code>TYPE</code> to determine whether to pass the allocator argument to its copy constructor. We rely here on a property of templates that templates are not compiled (and thus will not generate compilation errors) until they are instantiated. Hence, we can use two function templates, and let the overloading resolution (based on the nested traits) decide which to instantiate. The generic way to create an object, passing through all arguments (value and allocator) is as follows. For brevity and to avoid breaking the flow of this example, we have embedded the function definition into the class. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// my_genericcontainer.cpp          -*-C++-*-</span>
@@ -292,15 +293,16 @@ Defines</h2></td></tr>
               <span class="keyword">typename</span> <a class="code" href="structbslmf_1_1If.html">bslmf::If</a>&lt;HasTrait&lt;TYPE,
                             <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>&gt;::VALUE,
                         <a class="code" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a>,
-                        <a class="code" href="structbslalg_1_1TypeTraitNil.html">bslalg::TypeTraitNil</a>&gt;::Type());
+                        <a class="code" href="structbslalg_1_1TypeTraitNil.html">bslalg::TypeTraitNil</a>&gt;::<a class="code" href="classBind__ImplSelector_1_1Type.html">Type</a>());
       }
 
   };
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="generic_container_implementation"></a> <a class="anchor" id="usage.generic_container_implementation"></a> <a class="anchor" id="description.usage.generic_container_implementation"></a> <a class="anchor" id="4.1.3"></a> </dd></dl>
-<dl class="user"><dt><b>Generic container implementation: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Generic Container Implementation: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>With these utilities, we can now implement <code>MyGenericContainer</code>. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
@@ -351,8 +353,9 @@ Defines</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage_verification"></a> <a class="anchor" id="usage.usage_verification"></a> <a class="anchor" id="description.usage.usage_verification"></a> <a class="anchor" id="4.1.4"></a> </dd></dl>
-<dl class="user"><dt><b>Usage verification: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Usage Verification: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We can check that our container actually forwards the correct allocator to its contained objects with a very simple test apparatus, consisting of two classes which have exactly the same signature and implementation except that one has the <code><a class="el" href="structbslalg_1_1TypeTraitUsesBslmaAllocator.html">bslalg::TypeTraitUsesBslmaAllocator</a></code> trait and the other has not: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *allocSlot;
@@ -645,7 +648,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:20 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:48 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

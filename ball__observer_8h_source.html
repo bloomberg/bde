@@ -1,0 +1,267 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_observer.h                                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_OBSERVER
+#define INCLUDED_BALL_OBSERVER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Define a protocol for receiving and processing log records.
+//
+//@CLASSES:
+//  ball::Observer: protocol class for receiving and processing log records
+//
+//@SEE_ALSO: ball_record, ball_loggermanager
+//
+//@DESCRIPTION: This component defines the base-level protocol,
+// &#39;ball::Observer&#39;, for receiving and processing log records.  Concrete types
+// derived from this protocol, receive log records, and process them in a
+// manner defined by the derived class author.
+//
+///Usage
+///-----
+// This example shows the definition and use of a simple concrete observer that
+// writes three of the log record&#39;s fields, timestamp, process ID, and thread
+// ID, to an &#39;ostream&#39; that is provided to the observer at construction.  This
+// (trivial) functionality suffices to demonstrate the requisite steps for
+// having a working observer:
+//
+//: 1 Define a concrete class derived from &#39;ball::Observer&#39;.
+//: 2 Implement the pure virtual &#39;publish&#39; method.
+//: 3 Instantiate and use an object of the concrete type.
+//
+// Note that the &quot;publish attributes&quot; object provided to the &#39;publish&#39; method
+// indicates, among other properties, whether the log record to be published is
+// a &quot;solo&quot; message or whether it is one of a sequence.  In general, a useful
+// observer object should incorporate the attributes information as part of
+// the &quot;publication&quot; of the log record.  In this example, the attributes
+// information is used to generate an appropriate heading for each log record
+// that is printed to the observer&#39;s &#39;ostream&#39;.
+//
+// We first define the (derived) &#39;my_OstreamObserver&#39; class and implement its
+// simple constructor inline (for convenience, directly within the
+// derived-class definition):
+//..
+//     // my_ostreamobserver.h
+//
+//     class my_OstreamObserver : public ball::Observer {
+//         ostream&amp; d_stream;
+//
+//       public:
+//         my_OstreamObserver(ostream&amp; stream) : d_stream(stream) { }
+//         virtual ~my_OstreamObserver();
+//         virtual void publish(const ball::Record&amp;  record,
+//                              const ball::Context&amp; context);
+//     };
+//..
+// Note, however, that we always implement a virtual destructor (non-inline)
+// in the .cpp file (to indicate the *unique* location of the class&#39;s virtual
+// table):
+//..
+//     // my_ostreamobserver.cpp
+//
+//     // ...
+//
+//     my_OstreamObserver::~my_OstreamObserver() { }
+//..
+// We next implement the (virtual) &#39;publish&#39; method, which incorporates the
+// &quot;policy&quot; of what it means for this observer to &quot;publish&quot; a log record.  In
+// this example, the policy is that three log record fields are written to an
+// &#39;ostream&#39;, along with an appropriate heading, and the rest of the log record
+// is ignored.  Note that, in this implementation, the zero-based &#39;index&#39;
+// attribute is incremented by one before it is written, which produces a more
+// natural record count:
+//..
+//     // my_ostreamobserver.cpp
+//
+//     // ...
+//
+//     my_OstreamObserver::~my_OstreamObserver() { }
+//
+//     void my_OstreamObserver::publish(const ball::Record&amp;  record,
+//                                      const ball::Context&amp; context)
+//     {
+//         using namespace std;
+//
+//         d_stream &lt;&lt; endl;  // skip a line
+//
+//         switch (context.transmissionCause()) {
+//           case ball::Transmission::PASSTHROUGH: {
+//             d_stream &lt;&lt; &quot;Single Pass-through Message:&quot; &lt;&lt; endl;
+//           } break;
+//           case ball::Transmission::TRIGGER_ALL: {
+//             d_stream &lt;&lt; &quot;Remotely &quot;;      // no &#39;break&#39;; concatenated output
+//           }
+//           case ball::Transmission::TRIGGER: {
+//             d_stream &lt;&lt; &quot;Triggered Publication Sequence: Message &quot;
+//                      &lt;&lt; context.recordIndex() + 1  // Account for 0-based
+//                                                    // index.
+//                      &lt;&lt; &quot; of &quot; &lt;&lt; context.sequenceLength()
+//                      &lt;&lt; &#39;:&#39; &lt;&lt; endl;
+//           } break;
+//           default: {
+//             d_stream &lt;&lt; &quot;***ERROR*** Unknown Message Cause:&quot; &lt;&lt; endl;
+//             return;
+//           } break;
+//         }
+//
+//         d_stream &lt;&lt; &quot;\tTimestamp:  &quot; &lt;&lt; record.fixedFields().timestamp()
+//                  &lt;&lt; endl;
+//         d_stream &lt;&lt; &quot;\tProcess ID: &quot; &lt;&lt; record.fixedFields().processID()
+//                  &lt;&lt; endl;
+//         d_stream &lt;&lt; &quot;\tThread ID:  &quot; &lt;&lt; record.fixedFields().threadID()
+//                  &lt;&lt; endl;
+//     }
+//..
+// We now want to use the &#39;my_OstreamObserver&#39; object and its &#39;publish&#39; method;
+// we illustrate this use in the body of the otherwise-unrealistic function
+// &#39;recordPublisher&#39;, which generates the relevant fields of four dummy
+// records.  The first record is published singly (i.e., as a &quot;Pass-through&quot;
+// record).  Note that we call the observer&#39;s &#39;publish&#39; method with a
+// &#39;ball::Context&#39; object appropriately initialized for a &quot;Pass-through&quot;.  The
+// last three records are published as a sequence of &quot;Triggered&quot; records.  Note
+// that, in the sequenced output, the &#39;publish&#39; method is called with a
+// zero-based &#39;index&#39; attribute; in this example, the &#39;publish&#39; implementation
+// will print a natural-number message count equal to index + 1:
+//..
+//     void recordPublisher()
+//     {
+//         my_OstreamObserver     myObserver(bsl::cout);
+//         bdlt::Datetime         now;
+//         ball::RecordAttributes fixed;
+//         ball::UserFields       emptyList;
+//
+//         bdlt::EpochUtil::convertFromTimeT(&amp;now, time(0));
+//         fixed.setTimestamp(now);
+//         fixed.setProcessID(100);
+//         fixed.setThreadID(0);
+//         myObserver.publish(ball::Record(fixed, emptyList),
+//                            ball::Context(ball::Transmission::PASSTHROUGH,
+//                                         0,
+//                                         1));
+//
+//         const int NUM_MESSAGES = 3;
+//         for (int n = 0; n &lt; NUM_MESSAGES; ++n) {
+//             bdlt::EpochUtil::convertFromTimeT(&amp;now, time(0));
+//             fixed.setTimestamp(now);
+//             fixed.setProcessID(201 + n);
+//             fixed.setThreadID(31 + n);
+//             myObserver.publish(ball::Record(fixed, emptyList),
+//                                ball::Context(ball::Transmission::TRIGGER,
+//                                             n,
+//                                             NUM_MESSAGES));
+//         }
+//     }
+//..
+// &#39;recordPublisher&#39;, when invoked, prints the following to &#39;stdout&#39;:
+//..
+//     Single Pass-through Message:
+//             Timestamp:  15JAN2004_23:12:59.000
+//             Process ID: 100
+//             Thread ID:  0
+//
+//     Triggered Publication Sequence: Message 1 of 3:
+//             Timestamp:  15JAN2004_23:12:59.000
+//             Process ID: 201
+//             Thread ID:  31
+//
+//     Triggered Publication Sequence: Message 2 of 3:
+//             Timestamp:  15JAN2004_23:12:59.000
+//             Process ID: 202
+//             Thread ID:  32
+//
+//     Triggered Publication Sequence: Message 3 of 3:
+//             Timestamp:  15JAN2004_23:12:59.000
+//             Process ID: 203
+//             Thread ID:  33
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class Record;
+class Context;
+
+                           // ==============
+                           // class Observer
+                           // ==============
+
+class Observer {
+    // This class provides a protocol for receiving and processing log record
+    // output.
+
+  public:
+    // CREATORS
+    virtual ~Observer();
+        // Destroy this observer.
+
+    // MANIPULATORS
+    virtual void publish(const Record&amp;  record,
+                         const Context&amp; context);
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39;.
+        //
+        // DEPRECATED: use the alternative &#39;publish&#39; overload instead.
+
+    virtual void publish(const bsl::shared_ptr&lt;const Record&gt;&amp; record,
+                         const Context&amp;                       context);
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39;.  The exact definition of publish depends on the
+        // implementing class, though the intention is that the log &#39;record&#39;
+        // (whose publication has occurred according to &#39;context&#39;) be
+        // distributed in a human or machine readable form.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a &#39;Record&#39; object that was supplied
+        // to the &#39;publish&#39; method, and is held by this observer.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

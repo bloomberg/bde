@@ -1,0 +1,281 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// baltzo_timezoneutilimp.h                                           -*-C++-*-
+#ifndef INCLUDED_BALTZO_TIMEZONEUTILIMP
+#define INCLUDED_BALTZO_TIMEZONEUTILIMP
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Implement utilities for converting times between time zones.
+//
+//@CLASSES:
+//  baltzo::TimeZoneUtilImp: implementation utilities for converting times
+//
+//@SEE_ALSO: baltzo_localdatetime, baltzo_zoneinfo,
+//           baltzo_defaultzoneinfocache
+//
+//@DESCRIPTION: This component provides a namespace, &#39;baltzo::TimeZoneUtilImp&#39;,
+// containing a set of utility functions for converting time values to and
+// from, their corresponding local time representations in (possibly) different
+// time zones.  The primary methods provided include: &#39;convertUtcToLocalTime&#39;
+// for converting time values to their corresponding local-time values in some
+// time zone; &#39;convertLocalToUtc&#39;, for converting a local-time value into the
+// corresponding UTC time value; and &#39;initLocalTime&#39; for initializing a
+// local-time value.  Additionally the &#39;loadLocalTimeForUtc&#39; method enable
+// clients to obtain information about a time value, such as whether the
+// provided time is a daylight-saving time value.
+//
+///Usage
+///-----
+// The following examples demonstrate how to use a &#39;baltzo::TimeZoneUtilImp&#39; to
+// perform common operations on time values:
+//
+///Prologue: Initializing an Example &#39;baltzo::ZoneinfoCache&#39; Object
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Before using the methods provided by &#39;baltzo::TimeZoneUtilImp&#39; we must first
+// define a &#39;baltzo::ZoneinfoCache&#39; object containing information about various
+// time zones.  For the purposes of this example, we will define a sample cache
+// containing only data for New York loaded through a &#39;baltzo::TestLoader&#39;
+// object.  Note that, in general, clients should use data from an external
+// data source (see &#39;baltzo_datafileloader&#39;).
+//
+// First, we create a Zoneinfo object for New York, and populate &#39;newYork&#39; with
+// a correct time zone identifier:
+//..
+//  baltzo::Zoneinfo newYork;
+//  newYork.setIdentifier(&quot;America/New_York&quot;);
+//..
+// Next, we create two local-time descriptors, one for standard time and one
+// for daylight-saving time:
+//..
+//  baltzo::LocalTimeDescriptor est(-18000, false, &quot;EST&quot;);
+//  baltzo::LocalTimeDescriptor edt(-14400, true,  &quot;EDT&quot;);
+//..
+// Then, we set the initial descriptor for &#39;newYork&#39; to Eastern Standard Time.
+// Note that such an initial transition is required for a &#39;baltzo::Zoneinfo&#39;
+// object to be considered Well-Defined (see &#39;baltzo_zoneinfoutil&#39;)
+//..
+//  const bsls::Epoch::TimeT64 firstTransitionTime =
+//                  bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
+//
+//  newYork.addTransition(firstTransitionTime, est);
+//..
+// Next, we create a series of transitions between these local-time descriptors
+// for the years 2007-2011.  Note that the United States transitions to
+// daylight saving time on the second Sunday in March, at 2am local time (07:00
+// UTC), and transitions back to standard time on the first Sunday in November
+// at 2am local time (06:00 UTC), resulting in an even number of transitions:
+//..
+//  static const bdlt::Datetime TRANSITION_TIMES[] = {
+//      bdlt::Datetime(2007,  3, 11, 7),
+//      bdlt::Datetime(2007, 11,  4, 6),
+//      bdlt::Datetime(2008,  3,  9, 7),
+//      bdlt::Datetime(2008, 11,  2, 6),
+//      bdlt::Datetime(2009,  3,  8, 7),
+//      bdlt::Datetime(2009, 11,  1, 6),
+//      bdlt::Datetime(2010,  3, 14, 7),
+//      bdlt::Datetime(2010, 11,  7, 6),
+//      bdlt::Datetime(2011,  3, 13, 7),
+//      bdlt::Datetime(2011, 11,  6, 6),
+//  };
+//  const int NUM_TRANSITION_TIMES =
+//                          sizeof TRANSITION_TIMES / sizeof *TRANSITION_TIMES;
+//  assert(0 == NUM_TRANSITION_TIMES % 2);
+//
+//  for (int i = 0; i &lt; NUM_TRANSITION_TIMES; i += 2) {
+//
+//      const bsls::Epoch::TimeT64 edtTransitionTime =
+//                      bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i]);
+//      newYork.addTransition(edtTransitionTime, edt);
+//
+//      const bsls::Epoch::TimeT64 estTransitionTime =
+//                  bdlt::EpochUtil::convertToTimeT64(TRANSITION_TIMES[i + 1]);
+//      newYork.addTransition(estTransitionTime, est);
+//  }
+//..
+// Next, we verify that the time zone information we have created is considered
+// well-defined (as discussed above):
+//..
+//  assert(true == baltzo::ZoneinfoUtil::isWellFormed(newYork));
+//..
+// Finally, we create a &#39;baltzo::TestLoader&#39; object, provide it the description
+// of &#39;newYork&#39;, and use it to initialize a &#39;baltzo::ZoneinfoCache&#39; object:
+//..
+//  baltzo::TestLoader loader;
+//  loader.setTimeZone(newYork);
+//  baltzo::ZoneinfoCache cache(&amp;loader);
+//..
+//
+///Example 1: Converting from a UTC Time to a Local Time
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to convert a UTC time to the
+// corresponding local time using the &#39;convertUtcToLocalTime&#39; class method.
+//
+// We start by creating a &#39;bdlt::Datetime&#39; representing the UTC time &quot;Dec 12,
+// 2010 15:00&quot;:
+//..
+//  bdlt::Datetime utcTime(2010, 12, 12, 15, 0, 0);
+//..
+// Now, we call &#39;convertUtcToLocalTime&#39; and supply as input &#39;utcTime&#39;, the time
+// zone identifier for New York (&quot;America/New_York&quot;), and the cache of time
+// zone information created in the prologue:
+//..
+//  bdlt::DatetimeTz localNYTime;
+//  baltzo::TimeZoneUtilImp::convertUtcToLocalTime(&amp;localNYTime,
+//                                                &quot;America/New_York&quot;,
+//                                                utcTime,
+//                                                &amp;cache);
+//..
+// Finally we verify that &#39;localNYTime&#39; is &quot;Dec 12, 2010 10:00+5:00&quot;, the time
+// in New York corresponding to the UTC time &quot;Dec 12, 2010 15:00&quot;.
+//..
+//  assert(utcTime                         == localNYTime.utcDatetime());
+//  assert(bdlt::Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
+//  assert(-5 * 60                         == localNYTime.offset());
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_DSTPOLICY
+#include &lt;baltzo_dstpolicy.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_LOCALTIMEVALIDITY
+#include &lt;baltzo_localtimevalidity.h&gt;
+#endif
+
+#ifndef INCLUDED_BALTZO_ZONEINFO
+#include &lt;baltzo_zoneinfo.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIME
+#include &lt;bdlt_datetime.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATETIMETZ
+#include &lt;bdlt_datetimetz.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace baltzo {
+
+class LocalTimePeriod;
+class ZoneinfoCache;
+
+                           // =====================
+                           // class TimeZoneUtilImp
+                           // =====================
+
+struct TimeZoneUtilImp {
+    // This &#39;struct&#39; provides a namespace for utility functions that convert
+    // time values to, and from, local time.
+
+    // CLASS METHODS
+    static int convertUtcToLocalTime(bdlt::DatetimeTz      *result,
+                                     const char            *resultTimeZoneId,
+                                     const bdlt::Datetime&amp;  utcTime,
+                                     ZoneinfoCache         *cache);
+        // Load, into the specified &#39;result&#39;, the local date-time value, in the
+        // time zone indicated by the specified &#39;resultTimeZoneId&#39;,
+        // corresponding to the specified &#39;utcTime&#39;, using time zone
+        // information supplied by the specified &#39;cache&#39;.  Return 0 on success,
+        // and a non-zero value otherwise.  A return status of
+        // &#39;ErrorCode::k_UNSUPPORTED_ID&#39; indicates that &#39;resultTimeZoneId&#39; is
+        // not recognized.
+
+    static void createLocalTimePeriod(
+                          LocalTimePeriod                          *result,
+                          const Zoneinfo::TransitionConstIterator&amp;  transition,
+                          const Zoneinfo&amp;                           timeZone);
+        // Load, into the specified &#39;result&#39;, attributes characterizing local
+        // time indicated by the specified &#39;transition&#39; in the specified
+        // &#39;timeZone&#39;.  The behavior is undefined unless
+        // &#39;ZoneinfoUtil::isWellFormed(timeZone)&#39; is &#39;true&#39; and &#39;transition&#39; is
+        // a valid, non-ending, iterator into the sequence of transitions
+        // described by &#39;timeZone&#39;.
+
+    static int initLocalTime(bdlt::DatetimeTz         *result,
+                             LocalTimeValidity::Enum  *resultValidity,
+                             const bdlt::Datetime&amp;     localTime,
+                             const char               *timeZoneId,
+                             DstPolicy::Enum           dstPolicy,
+                             ZoneinfoCache            *cache);
+        // Load, into the specified &#39;result&#39;, the local date-time value --
+        // including the local date, time, and resolved UTC offset -- indicated
+        // by the specified &#39;localTime&#39; in the time zone indicated by the
+        // specified &#39;timeZoneId&#39;, using the specified &#39;dstPolicy&#39; to interpret
+        // whether or not &#39;localTime&#39; represents a daylight-saving time value,
+        // and using time zone information supplied by the specified &#39;cache&#39;.
+        // Load, into the specified &#39;resultValidity&#39; the value indicating the
+        // whether &#39;localTime&#39; is unique, ambiguous but valid, or invalid.
+        // Return 0 on success, and a non-zero value otherwise.  A return
+        // status of &#39;ErrorCode::k_UNSUPPORTED_ID&#39; indicates that &#39;timeZoneId&#39;
+        // is not recognized.
+
+    static int loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
+                                         const char            *timeZoneId,
+                                         const bdlt::Datetime&amp;  utcTime,
+                                         ZoneinfoCache         *cache);
+        // Load, into the specified &#39;result&#39;, attributes characterizing local
+        // time at the specified &#39;utcTime&#39; in the time zone indicated by the
+        // specified &#39;timeZoneId&#39; (e.g., the offset from UTC, whether it is
+        // daylight-saving time), as well as the time interval over which those
+        // attributes apply, using time zone information supplied by the
+        // specified &#39;cache&#39;.  Return 0 on success, and a non-zero value
+        // otherwise.  A return status of &#39;ErrorCode::k_UNSUPPORTED_ID&#39;
+        // indicates that &#39;timeZoneId&#39; is not recognized.
+
+    static void resolveLocalTime(
+                             bdlt::DatetimeTz                  *result,
+                             LocalTimeValidity::Enum           *resultValidity,
+                             Zoneinfo::TransitionConstIterator *transitionIter,
+                             const bdlt::Datetime&amp;              localTime,
+                             DstPolicy::Enum                    dstPolicy,
+                             const Zoneinfo&amp;                    timeZone);
+        // Load, into the specified &#39;result&#39;, the local time and UTC offset of
+        // the specified &#39;localTime&#39; in the specified &#39;timeZone&#39;, using the
+        // specified &#39;dstPolicy&#39; to interpret whether or not &#39;localTime&#39;
+        // represents a daylight-saving time value; load into the specified
+        // &#39;resultValidity&#39; a indication of whether &#39;localTime&#39; is valid and
+        // unique, valid but ambiguous, or invalid; load into the specified
+        // &#39;transitionIter&#39; an iterator pointing to the transition that
+        // characterizes the attributes of &#39;localTime&#39;.  The behavior is
+        // undefined unless &#39;ZoneinfoUtil::isWellFormed(timeZone)&#39; is &#39;true&#39;.
+
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_unorderedmapkeyconfiguration Component</title>
+<title>BDE 3.0: bslstl_unorderedmapkeyconfiguration Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -105,7 +105,7 @@ Namespaces</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>This component will, given an object of a value type consisting of a key type and some other information, return a const reference to only the key type within that object. The object passed will be of parametrized type <code>VALUE_TYPE</code>, for which a type <code>VALUE_TYPE::first_type</code> must be defined and be of the key type, and for which the operation <code>.first</code> must be defined and must yield the object of the key type. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>This component will, given an object of a value type consisting of a key type and some other information, return a const reference to only the key type within that object. The object passed will be of parameterized type <code>VALUE_TYPE</code>, for which a type <code>VALUE_TYPE::first_type</code> must be defined and be of the key type, and for which the operation <code>.first</code> must be defined and must yield the object of the key type. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="structbslalg_1_1HashTableImpUtil.html">bslalg::HashTableImpUtil</a></code> has a static <code>extractKey</code> function template that, given a <code>value type</code>, will represent objects stored in a data structure, will abstract out the <code>key type</code> portion of that object. In the case of the <code>unordered_map</code> data structure, the <code>value type</code> will be <code><a class="el" href="classbsl_1_1pair.html">bsl::pair</a></code>, and the key type will <code>bsl::pair::first_type</code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.1"></a> </dd></dl>
@@ -120,7 +120,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE_TYPE, <span class="keyword">class</span> KEY_EXTRACTOR&gt;
   <span class="keywordtype">void</span> mySort(VALUE_TYPE *begin, VALUE_TYPE *end, <span class="keyword">const</span> KEY_EXTRACTOR&amp;)
       <span class="comment">// This function provides an order-preserving sort of the items in the</span>
-      <span class="comment">// range &#39;[ begin, end )&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the</span>
+      <span class="comment">// range &#39;[begin .. end)&#39;, where &#39;KEY_EXTRACTOR::extractKey&#39; yields the</span>
       <span class="comment">// key being sorted over.  We require that &#39;VALUE_TYPE&#39; support copy</span>
       <span class="comment">// construction and assignment.</span>
   {
@@ -136,7 +136,7 @@ Namespaces</h2></td></tr>
               }
           }
 
-          <span class="comment">// &#39;*end&#39; is now the highest element in the range &#39;[ begin, end ]&#39;,</span>
+          <span class="comment">// &#39;*end&#39; is now the highest element in the range &#39;[begin .. end]&#39;,</span>
           <span class="comment">// so we only have to sort the elements before it in the next pass.</span>
       }
   }
@@ -213,7 +213,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  List of students, lowest GPA first:
   ===================================
-  Name   GPA  AGE
+                              Name   GPA  AGE
   -----  ---  ---
   Stan   1.9   18
   Ann    2.3   21
@@ -252,7 +252,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  List of students, youngest first:
   ================================
-  Name   GPA  AGE
+                              Name   GPA  AGE
   -----  ---  ---
   Stan   1.9   18
   Phil   3.4   19
@@ -279,7 +279,7 @@ Namespaces</h2></td></tr>
   <span class="keyword">const</span> <span class="keywordtype">int</span> NUM_EMPLOYEES = <span class="keyword">sizeof</span> employees / <span class="keyword">sizeof</span> *employees;
 </pre></div><br/>
 <br/>
- Then, we create an <code>UnorderedMapKeyConfiguration</code> type paramtrized on <code>EmployeePair</code>, which will extract the <code>.first</code> field, which is the wage, from an employee pair: <br/>
+ Then, we create an <code>UnorderedMapKeyConfiguration</code> type parameterized on <code>EmployeePair</code>, which will extract the <code>.first</code> field, which is the wage, from an employee pair: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <a class="code" href="structbslstl_1_1UnorderedMapKeyConfiguration.html">bslstl::UnorderedMapKeyConfiguration&lt;EmployeePair&gt;</a> wageExtractor;
 </pre></div><br/>
@@ -310,7 +310,7 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  List of employees, cheapest first:
   ==================================
-  Name   Wage
+                              Name   Wage
   -----  -----
   Kenny   7.75
   Kyle   12.25
@@ -320,7 +320,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:59 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

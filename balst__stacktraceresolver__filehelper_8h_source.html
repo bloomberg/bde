@@ -1,0 +1,266 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balst_stacktraceresolver_filehelper.h                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
+#define INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide platform-independent file input for stack trace resolvers.
+//
+//@CLASSES:
+//   balst::StackTraceResolver_FileHelper: file input for stack trace resolvers
+//
+//@SEE_ALSO: balst::StackTraceResolverImpl_Elf
+//           balst::StackTraceResolverImpl_Xcoff
+//
+//@DESCRIPTION: The one class in this component opens a file in readonly mode
+// and then owns the file descriptor, and provides 3 utility functions for
+// reading from the file: &#39;readBytes&#39;, which attempts to read a number of bytes
+// into a buffer, and does a partial read if it can&#39;t read that many;
+// &#39;readExact&#39;, which either reads an exact number of bytes or fails, and
+// &#39;loadString&#39;, which reads a 0 terminated string from the file, copies it to
+// a buffer it allocates, and returns a pointer to the copy.
+//
+///Usage
+///-----
+//..
+//  bslma::TestAllocator ta;
+//
+//  char fileNameBuffer[100];
+//  sprintf(fileNameBuffer,
+//          &quot;/tmp/balst_StackTraceResolver_FileHelper.usage.%d.txt&quot;,
+//          getProcessId());
+//..
+// Make sure file does not already exist.
+//..
+//  bdls::FilesystemUtil::remove(fileNameBuffer);
+//..
+// Next, Create the file and open a file descriptor to it.  The boolean
+// flags indicate that the file is writable, and not previously existing
+// (and therefore must be created).
+//..
+//  FdType fd = FilesystemUtil::open(fileNameBuffer,
+//                             true,          // writable
+//                             false);        // doesn&#39;t already exist
+//  assert(FilesystemUtil::k_INVALID_FD != fd);
+//..
+// 64 char long string
+//..
+//  const char *testString64 =
+//              &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
+//                                                      &quot;0123456789+-&quot;;
+//..
+// Populate the file with known data, with a zero byte at a known offset.
+//..
+//  int rc;
+//  for (int i = 0; i &lt; 20; ++i) {
+//      rc = FilesystemUtil::write(fd, testString64, 64);
+//      assert(64 == rc);
+//  }
+//
+//  enum { OFFSET_OF_ZERO_BYTE = 7 * 64 };
+//
+//  rc = (int) FilesystemUtil::seek(fd,
+//                            OFFSET_OF_ZERO_BYTE,
+//                            FilesystemUtil::e_SEEK_FROM_BEGINNING);
+//  assert(OFFSET_OF_ZERO_BYTE == rc);
+//
+//  rc = FilesystemUtil::write(fd, &quot;&quot;, 1);        // write the zero byte
+//  assert(1 == rc);
+//
+//  rc = FilesystemUtil::close(fd);
+//  assert(0 == rc);
+//
+//  {
+//      balst::StackTraceResolver_FileHelper helper(fileNameBuffer);
+//
+//      char buf[100];
+//      memset(buf, 0, sizeof(buf));
+//      rc = helper.readExact(buf,
+//                            6,                    // # chars to read
+//                            128);                 // offset
+//      assert(0 == rc);
+//      assert(!strcmp(buf, &quot;abcdef&quot;));
+//..
+// &#39;readExact&#39; past EOF fails
+//..
+//      rc = helper.readExact(buf,
+//                            6,                    // # chars to read
+//                            64 * 40);             // offset
+//      assert(0 != rc);
+//..
+// &#39;loadString&#39; will read a zero terminated string at a given offset,
+// using a buffer passed in, and allocating memory for a new copy of
+// the string.
+//..
+//      memset(buf, &#39;a&#39;, sizeof(buf));
+//      char *result = helper.loadString(OFFSET_OF_ZERO_BYTE - 12,
+//                                       buf,
+//                                       sizeof(buf),
+//                                       &amp;ta);
+//
+//      assert(12 == bsl::strlen(result));
+//      assert(!bsl::strcmp(&quot;0123456789+-&quot;, result));
+//..
+// clean up
+//..
+//      ta.deallocate(result);
+//  }
+//  bdls::FilesystemUtil::remove(fileNameBuffer);
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
+#include &lt;balst_objectfileformat.h&gt;
+#endif
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+    defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+
+#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
+#include &lt;bdls_filesystemutil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include &lt;bsls_types.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace balst {
+                    // ===================================
+                    // class StackTraceResolver_FileHelper
+                    // ===================================
+
+class StackTraceResolver_FileHelper {
+    // This class provides a low-level file utility functions for
+    // &#39;StackTraceResolver&lt;Elf&gt;&#39; and &#39;StackTraceResolver&lt;Xcoff&gt;&#39;.
+    // This class contains the file descriptor of current object file.  Note
+    // that the file is opened readonly, and all reads specify the offset, so
+    // the offset of the file descriptor is not considered part of the state of
+    // this object.
+
+    // PRIVATE TYPES
+    typedef bdls::FilesystemUtil           FilesystemUtil;
+                                                // shorthand for class
+                                                // &#39;bdls::FilesystemUtil&#39;
+    typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
+                                                      // descriptor
+    typedef FilesystemUtil::Offset         Offset;
+    typedef bsls::Types::UintPtr           UintPtr;
+    typedef bsls::Types::IntPtr            IntPtr;
+
+    // DATA
+    FdType d_fd;  // file descriptor
+
+  private:
+    // NOT IMPLEMENTED
+    StackTraceResolver_FileHelper(
+                                   const StackTraceResolver_FileHelper&amp;);
+    StackTraceResolver_FileHelper&amp; operator=(
+                                   const StackTraceResolver_FileHelper&amp;);
+  public:
+    // CREATORS
+    explicit
+    StackTraceResolver_FileHelper(const char *fileName);
+        // Open the file referred to by the specified &#39;fileName&#39; for read-only
+        // access and set &#39;d_fd&#39; to the file descriptor.  The behavior is
+        // undefined if the specified file does not exist or is unreadable.
+
+    ~StackTraceResolver_FileHelper();
+        // Close the file indicated at construction and destroy this object.
+
+    // ACCESSORS
+    char *loadString(Offset            offset,
+                     char             *scratchBuf,
+                     int               scratchBufLength,
+                     bslma::Allocator *basicAllocator) const;
+        // Load into memory newly allocated from the specified &#39;basicAllocator&#39;
+        // a zero-terminated string from the specified absolute file &#39;offset&#39;,
+        // using the specified &#39;scratchBuf&#39; of specified length
+        // &#39;scratchBufLength&#39; as temporary storage before the new string is
+        // allocated.  Return the pointer to the newly allocated string.  The
+        // behavior is undefined unless &#39;scratchBuf != 0&#39; and
+        // &#39;scratchBufLength &gt;= 1&#39;.  Note that if the string is longer than
+        // &#39;scratchBufLength - 1&#39;, it is truncated.
+
+    UintPtr readBytes(void *buf, UintPtr numBytes, Offset offset) const;
+        // Read into the specified &#39;buf&#39; up to the specified &#39;numBytes&#39; of data
+        // starting at the specified &#39;offset&#39; in the current ELF or XCOFF file.
+        // Return the number of bytes read, which can be zero.  The behavior is
+        // undefined unless &#39;buf != 0&#39; and &#39;offset &gt;= 0&#39;.
+
+    int readExact(void *buf, UintPtr numBytes, Offset offset) const;
+        // Read into the specified &#39;buf&#39; exactly the spacified &#39;numBytes&#39; of
+        // data starting at the specified &#39;offset&#39; in the current ELF or XCOFF
+        // file.  Return 0 on success, or a negative value otherwise.  The
+        // behavior is undefined unless &#39;buf != 0&#39; and &#39;offset &gt;= 0&#39;.
+};
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                     // -----------------------------------
+                     // StackTraceResolver_FileHelper
+                     // -----------------------------------
+
+// ACCESSORS
+inline
+int StackTraceResolver_FileHelper::readExact(void    *buf,
+                                             UintPtr  numBytes,
+                                             Offset   offset) const
+{
+    BSLS_ASSERT_SAFE(buf);
+    BSLS_ASSERT_SAFE(offset &gt;= 0);
+
+    UintPtr res = readBytes(buf, numBytes, offset);
+    return res != numBytes ? -1 : 0;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

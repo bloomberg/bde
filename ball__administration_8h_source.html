@@ -1,0 +1,359 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_administration.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_ADMINISTRATION
+#define INCLUDED_BALL_ADMINISTRATION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a suite of utility functions for logging administration.
+//
+//@CLASSES:
+//  ball::Administration: namespace for logging administration utilities
+//
+//@SEE_ALSO: ball_loggermanager
+//
+//@DESCRIPTION: This component provides a namespace, &#39;ball::Administration&#39;,
+// containing a suite of utility functions to facilitate administration of the
+// &#39;ball&#39; logging subsystem from a console operator&#39;s perspective.  Utilities
+// are provided for adding a category to the registry maintained by the
+// singleton instance of a &#39;ball::LoggerManager&#39; (hereafter &quot;the logger
+// manager&quot;), for setting the threshold levels of a category, for setting a
+// limit on the maximum number of categories allowed, and for retrieving the
+// threshold levels of (established) categories.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Managing Categories
+/// - - - - - - - - - - - - - - -
+// The code fragments in this example demonstrate several administration
+// utilities that are used to create categories, and to set and access their
+// threshold levels.
+//
+// First we initialize the logger manager (for the purposes of this example,
+// we use a minimal configuration):
+//..
+//     ball::DefaultObserver observer(cout);
+//     ball::LoggerManagerConfiguration configuration;
+//     ball::LoggerManagerScopedGuard guard(&amp;observer, configuration);
+//..
+// Next define some hypothetical category names:
+//..
+//     const char *equityCategories[] = {
+//         &quot;EQUITY.MARKET.NYSE&quot;,
+//         &quot;EQUITY.MARKET.NASDAQ&quot;,
+//         &quot;EQUITY.GRAPHICS.MATH.FACTORIAL&quot;,
+//         &quot;EQUITY.GRAPHICS.MATH.ACKERMANN&quot;
+//     };
+//     const int NUM_CATEGORIES = sizeof equityCategories
+//                              / sizeof equityCategories[0];
+//..
+// Category naming is by convention only.  In this example, we have chosen a
+// hierarchical naming convention that uses &#39;.&#39; to separate the constituents
+// of category names.
+//
+// In the following, the &#39;addCategory&#39; method is used to define a category for
+// each of the category names in &#39;equityCategories&#39;.  The threshold levels for
+// each of the categories are set to slightly different values to help
+// distinguish them when they are printed later.  The &#39;addCategory&#39; method
+// returns the address of the new category:
+//..
+//     for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//         int retValue = ball::Administration::addCategory(
+//                                             equityCategories[i],
+//                                             ball::Severity::e_TRACE + i,
+//                                             ball::Severity::e_WARN  + i,
+//                                             ball::Severity::e_ERROR + i,
+//                                             ball::Severity::e_FATAL + i);
+//         assert(0 == retValue);  // added new category
+//     }
+//..
+// In the following, each of the new categories is accessed from the registry
+// and its name and threshold levels are printed to &#39;bsl::cout&#39;:
+//..
+//     for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//         const char* name    = equityCategories[i];
+//         int recordLevel     = ball::Administration::recordLevel(name);
+//         int passLevel       = ball::Administration::passLevel(name);
+//         int triggerLevel    = ball::Administration::triggerLevel(name);
+//         int triggerAllLevel = ball::Administration::triggerAllLevel(name);
+//
+//         using namespace bsl;
+//         cout &lt;&lt; &quot;Category name: &quot;       &lt;&lt; name            &lt;&lt; endl;
+//         cout &lt;&lt; &quot;\tRecord level:      &quot; &lt;&lt; recordLevel     &lt;&lt; endl;
+//         cout &lt;&lt; &quot;\tPass level:        &quot; &lt;&lt; passLevel       &lt;&lt; endl;
+//         cout &lt;&lt; &quot;\tTrigger level:     &quot; &lt;&lt; triggerLevel    &lt;&lt; endl;
+//         cout &lt;&lt; &quot;\tTrigger-all level: &quot; &lt;&lt; triggerAllLevel &lt;&lt; endl
+//              &lt;&lt; endl;
+//     }
+//..
+// The following is printed to &#39;stdout&#39;:
+//..
+//     Category name: EQUITY.MARKET.NYSE
+//             Record level:      192
+//             Pass level:        96
+//             Trigger level:     64
+//             Trigger-all level: 32
+//
+//     Category name: EQUITY.MARKET.NASDAQ
+//             Record level:      193
+//             Pass level:        97
+//             Trigger level:     65
+//             Trigger-all level: 33
+//
+//     Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//             Record level:      194
+//             Pass level:        98
+//             Trigger level:     66
+//             Trigger-all level: 34
+//
+//     Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//             Record level:      195
+//             Pass level:        99
+//             Trigger level:     67
+//             Trigger-all level: 35
+//..
+// The following is similar to the first for-loop above, but this time the
+// &#39;setThresholdLevels&#39; method is used to modify the threshold levels of
+// existing categories.  The &#39;setThresholdLevels&#39; method returns 1 to indicate
+// the number of existing categories that were affected by the call:
+//..
+//     for (int i = 0; i &lt; NUM_CATEGORIES; ++i) {
+//         const int returnValue =
+//                   ball::Administration::setThresholdLevels(
+//                                             equityCategories[i],
+//                                             ball::Severity::e_TRACE - i,
+//                                             ball::Severity::e_WARN  - i,
+//                                             ball::Severity::e_ERROR - i,
+//                                             ball::Severity::e_FATAL - i);
+//         assert(1 == returnValue);  // modified one category
+//     }
+//..
+// When the &#39;NUM_CATEGORIES&#39; categories are accessed from the registry a second
+// time and printed, the following is output to &#39;stdout&#39; showing the new
+// threshold levels of the categories:
+//..
+//     Category name: EQUITY.MARKET.NYSE
+//             Record level:      192
+//             Pass level:        96
+//             Trigger level:     64
+//             Trigger-all level: 32
+//
+//     Category name: EQUITY.MARKET.NASDAQ
+//             Record level:      191
+//             Pass level:        95
+//             Trigger level:     63
+//             Trigger-all level: 31
+//
+//     Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//             Record level:      190
+//             Pass level:        94
+//             Trigger level:     62
+//             Trigger-all level: 30
+//
+//     Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//             Record level:      189
+//             Pass level:        93
+//             Trigger level:     61
+//             Trigger-all level: 29
+//..
+// Finally, the category registry is closed to further additions by setting its
+// maximum capacity to (the original) &#39;NUM_CATEGORIES&#39;:
+//..
+//     ball::Administration::setMaxNumCategories(NUM_CATEGORIES);
+//..
+// Following this call to &#39;setMaxNumCategories&#39;, subsequent calls to
+// &#39;addCategory&#39; will fail (until such time as &#39;setMaxNumCategories&#39; is called
+// again with an argument value of either 0 or one that is greater than
+// &#39;NUM_CATEGORIES&#39;).
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                      // =====================
+                      // struct Administration
+                      // =====================
+
+struct Administration {
+    // This struct provides a namespace for a suite of utility functions that
+    // simplify administration of the &#39;ball&#39; logging subsystem, and insulate
+    // administrative clients from changes to lower-level components of the
+    // &#39;ball&#39; package.  Note that all manipulation of categories is by name
+    // only.
+
+    // CLASS METHODS
+    static int addCategory(const char *categoryName,
+                           int         recordLevel,
+                           int         passLevel,
+                           int         triggerLevel,
+                           int         triggerAllLevel);
+        // Add to the registry of the logger manager singleton a new category
+        // having the specified &#39;categoryName&#39; and the specified &#39;recordLevel&#39;,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; threshold levels,
+        // respectively, if (1) &#39;categoryName&#39; is not present in the category
+        // registry, (2) the number of categories in the registry is less than
+        // the registry capacity, and (3) each of the level values is in the
+        // range [0 .. 255].  Return 0 on success, and a non-zero value
+        // otherwise.  The behavior is undefined unless the logger manager
+        // singleton has been initialized and &#39;categoryName&#39; is
+        // null-terminated.
+
+
+    static int setAllThresholdLevels(int recordLevel,
+                                     int passLevel,
+                                     int triggerLevel,
+                                     int triggerAllLevel);
+        // Set *both* the default threshold levels and threshold levels of all
+        // currently existing categories to the specified &#39;recordLevel&#39;,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; values,
+        // respectively, if each of the level values is in the range
+        // [0 .. 255].  Return 0 on success, and a negative value otherwise
+        // (with no effect on the default threshold levels).  The behavior is
+        // undefined unless the logger manager singleton has been initialized.
+
+
+    static int setDefaultThresholdLevels(int recordLevel,
+                                         int passLevel,
+                                         int triggerLevel,
+                                         int triggerAllLevel);
+        // Set the default threshold levels to the specified &#39;recordLevel&#39;,
+        // &#39;passLevel&#39;, &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; values,
+        // respectively, if each of the level values is in the range
+        // [0 .. 255].  Return 0 on success, and a negative value otherwise
+        // (with no effect on the default threshold levels).  The behavior is
+        // undefined unless the logger manager singleton has been initialized.
+
+    static int setThresholdLevels(const char *regularExpression,
+                                  int         recordLevel,
+                                  int         passLevel,
+                                  int         triggerLevel,
+                                  int         triggerAllLevel);
+        // Set the threshold levels of each category in the registry of the
+        // logger manager singleton whose name matches the specified
+        // &#39;regularExpression&#39; to the specified &#39;recordLevel&#39;, &#39;passLevel&#39;,
+        // &#39;triggerLevel&#39;, and &#39;triggerAllLevel&#39; values, respectively, if each
+        // of the threshold values is in the range [0 .. 255].  Return the
+        // number of categories whose threshold levels were set, or a negative
+        // value if the threshold values were invalid.  The behavior is
+        // undefined unless the logger manager singleton has been initialized
+        // and &#39;regularExpression&#39; is null-terminated.  Note that the only
+        // regular expressions supported in this release are of the form (1)
+        // &quot;X*&quot; which matches every category name in the registry of the form
+        // &quot;XY&quot; (&quot;X&quot; may be the empty string), and (2) &quot;X&quot; where X is a valid
+        // category name which matches at most one category in the registry;
+        // that is, only a &#39;*&#39; located at the end of &#39;regularExpression&#39; is
+        // recognized as a special character.
+
+    static void resetDefaultThresholdLevels();
+        // Reset the default threshold levels to the original
+        // &quot;factory-supplied&quot; values.  The behavior is undefined unless the
+        // logger manager singleton has been initialized.
+
+    static int recordLevel(const char *categoryName);
+        // Return the record threshold level currently set for the category
+        // having the specified &#39;categoryName&#39; or a negative value if no such
+        // category exists.  The behavior is undefined unless the logger
+        // manager singleton has been initialized and &#39;categoryName&#39; is
+        // null-terminated.
+
+    static int passLevel(const char *categoryName);
+        // Return the pass threshold level currently set for the category
+        // having the specified &#39;categoryName&#39; or a negative value if no such
+        // category exists.  The behavior is undefined unless the logger
+        // manager singleton has been initialized.
+
+    static int triggerLevel(const char *categoryName);
+        // Return the trigger threshold level currently set for the category
+        // having the specified &#39;categoryName&#39; or a negative value if no such
+        // category exists.  The behavior is undefined unless the logger
+        // manager singleton has been initialized.
+
+    static int triggerAllLevel(const char *categoryName);
+        // Return the trigger-all threshold level currently set for the
+        // category having the specified &#39;categoryName&#39; or a negative value if
+        // no such category exists.  The behavior is undefined unless the
+        // logger manager singleton has been initialized.
+
+    static int defaultRecordThresholdLevel();
+        // Return the default record threshold level.
+
+    static int defaultPassThresholdLevel();
+        // Return the default pass threshold level.
+
+    static int defaultTriggerThresholdLevel();
+        // Return the default trigger threshold level.
+
+    static int defaultTriggerAllThresholdLevel();
+        // Return the default trigger-all threshold level.
+
+    static int maxNumCategories();
+        // Return the current capacity of the registry of the logger manager
+        // singleton.  A capacity of 0 implies no limit will be imposed;
+        // otherwise, new categories may be added only if
+        // &#39;numCategories() &lt; maxNumCategories()&#39;.  Note that
+        // &#39;0 &lt; maxNumCategories() &lt; numCategories()&#39; *is* a valid state,
+        // implying no new categories may be added.
+
+    static int numCategories();
+        // Return the number of categories in the registry of the logger
+        // manager singleton.
+
+    static void setMaxNumCategories(int length);
+        // Set the capacity of the registry of the logger manager singleton to
+        // the specified &#39;length&#39;.  If &#39;length&#39; is 0, no limit will be imposed.
+        // No categories are removed from the registry if the current number of
+        // categories exceeds &#39;length&#39;; however, subsequent attempts to add
+        // categories to the registry will fail.  The behavior is undefined
+        // unless the logger manager singleton has been initialized and
+        // 0 &lt;= length.
+};
+}  // close package namespace
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+// NONE BY DESIGN
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

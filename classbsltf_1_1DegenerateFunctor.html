@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bsltf::DegenerateFunctor</title>
+<title>BDE 3.0: Class bsltf::DegenerateFunctor</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -152,7 +152,7 @@ template&lt;class FUNCTOR, bool ENABLE_SWAP = true&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>&lt; Expose the overloaded function call operator from the parameterizing class <code>FUNCTOR</code>. Swap the wrapped <code>FUNCTOR</code> object, using ADL with <code>std::swap</code> in the lookup set, with the functor wrapper by the specified <code>*other</code>. Note that this function is deliberately <em>not</em> named <code>swap</code> as some "clever" template libraries may try to call a member-swap function when they can find it, and ADL-swap is not available. Also note that this overload is needed only so that the ADL-enabling free-function <code>swap</code> can be defined, as the native std library <code>swap</code> function does will not accept this class on AIX or Visual C++ prior to VC2010. </p>
+<p>&lt; Expose the overloaded function call operator from the parameterizing class <code>FUNCTOR</code>. Swap the wrapped <code>FUNCTOR</code> object, using ADL with <code><a class="el" href="namespacestd.html#a1a88896f0ee62750b5e3b43e0d90a6c8">std::swap</a></code> in the lookup set, with the functor wrapper by the specified <code>*other</code>. Note that this function is deliberately <em>not</em> named <code>swap</code> as some "clever" template libraries may try to call a member-swap function when they can find it, and ADL-swap is not available. Also note that this overload is needed only so that the ADL-enabling free-function <code>swap</code> can be defined, as the native std library <code>swap</code> function does will not accept this class on AIX or Visual C++ prior to VC2010. </p>
 
 </div>
 </div>
@@ -160,7 +160,7 @@ template&lt;class FUNCTOR, bool ENABLE_SWAP = true&gt; </div>
 <li><a class="el" href="bsltf__degeneratefunctor_8h_source.html">bsltf_degeneratefunctor.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:45 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:13 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

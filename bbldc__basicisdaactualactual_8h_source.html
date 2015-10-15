@@ -1,0 +1,132 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bbldc_basicisdaactualactual.h                                      -*-C++-*-
+#ifndef INCLUDED_BBLDC_BASICISDAACTUALACTUAL
+#define INCLUDED_BBLDC_BASICISDAACTUALACTUAL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide stateless functions for the ISDA Actual/Actual convention.
+//
+//@CLASSES:
+//  bbldc::BasicIsdaActualActual: ISDA Actual/Actual stateless functions
+//
+//@DESCRIPTION: This component provides a &#39;struct&#39;,
+// &#39;bbldc::BasicIsdaActualActual&#39;, that serves as a namespace for defining a
+// suite of date-related functions used to compute the day count and the year
+// fraction between two dates as per the ISDA Actual/Actual day-count
+// convention.  In this day-count convention, the day count between two dates
+// is exactly the number of days occurring in the time period and the year
+// fraction between two dates is the number of full calendar years between the
+// dates plus front-stub and back-stub adjustments.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Computing Day Count and Year Fraction
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The following snippets of code illustrate how to use
+// &#39;bbldc::BasicIsdaActualActual&#39; methods.  First, create two &#39;bdlt::Date&#39;
+// variables, &#39;d1&#39; and &#39;d2&#39;:
+//..
+//  const bdlt::Date d1(2003, 10, 19);
+//  const bdlt::Date d2(2003, 12, 31);
+//..
+// Then, compute the day count between the two dates:
+//..
+//  const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
+//  assert(73 == daysDiff);
+//..
+// Finally, compute the year fraction between the two dates:
+//..
+//  const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
+//  // Need fuzzy comparison since &#39;yearsDiff&#39; is a &#39;double&#39;.
+//  assert(yearsDiff &gt; 0.1999 &amp;&amp; yearsDiff &lt; 0.2001);
+//..
+
+#ifndef INCLUDED_BBLSCM_VERSION
+#include &lt;bblscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATE
+#include &lt;bdlt_date.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bbldc {
+
+                       // ============================
+                       // struct BasicIsdaActualActual
+                       // ============================
+
+struct BasicIsdaActualActual {
+    // This &#39;struct&#39; provides a namespace for a suite of pure functions that
+    // compute values based on dates according to the ISDA Actual/Actual
+    // day-count convention.
+
+    // CLASS METHODS
+    static int daysDiff(const bdlt::Date&amp; beginDate,
+                        const bdlt::Date&amp; endDate);
+        // Return the (signed) number of days between the specified &#39;beginDate&#39;
+        // and &#39;endDate&#39; according to the ISDA Actual/Actual day-count
+        // convention.  If &#39;beginDate &lt;= endDate&#39;, then the result is
+        // non-negative.  Note that reversing the order of &#39;beginDate&#39; and
+        // &#39;endDate&#39; negates the result.
+
+    static double yearsDiff(const bdlt::Date&amp; beginDate,
+                            const bdlt::Date&amp; endDate);
+        // Return the (signed fractional) number of years between the specified
+        // &#39;beginDate&#39; and &#39;endDate&#39; according to the ISDA Actual/Actual
+        // day-count convention.  If &#39;beginDate &lt;= endDate&#39;, then the result is
+        // non-negative.  Note that reversing the order of &#39;beginDate&#39; and
+        // &#39;endDate&#39; negates the result; specifically,
+        // &#39;|yearsDiff(b, e) + yearsDiff(e, b)| &lt;= 1.0e-15&#39; for all dates &#39;b&#39;
+        // and &#39;e&#39;.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                         // -----------------------
+                         // struct IsdaActualActual
+                         // -----------------------
+
+// CLASS METHODS
+inline
+int BasicIsdaActualActual::daysDiff(const bdlt::Date&amp; beginDate,
+                                    const bdlt::Date&amp; endDate)
+{
+    return endDate - beginDate;
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdls_memoryutil.h                                                  -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BDLS_MEMORYUTIL
+#define INCLUDED_BDLS_MEMORYUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a set of portable utilities for memory manipulation.
+//
+//@CLASSES:
+//      bdls::MemoryUtil: struct which scopes memory system utilities.
+//
+//@DESCRIPTION: This component, &#39;bdls::MemoryUtil&#39;, defines a
+// platform-independent interface for memory manipulation, providing utilities
+// for querying page size, allocating/deallocating page-aligned memory, and
+// utility to change memory protection.
+//
+///Usage
+///-----
+// First, allocate one page of memory.
+//..
+//  int pageSize = bdls::MemoryUtil::pageSize();
+//  char *data = (char*)bdls::MemoryUtil::allocate(pageSize);
+//..
+// Write into the allocated buffer.
+//..
+//  data[0] = &#39;1&#39;;
+//..
+//
+// Make the memory write protected
+//..
+//  bdls::MemoryUtil::protect(data, pageSize,
+//                            bdls::MemoryUtil::k_ACCESS_READ);
+//..
+//
+// Verify that data still could be read.
+//..
+//  assert(&#39;1&#39; == data[0]);
+//..
+//
+// Once again, try writing into the buffer.  This should crash our process.
+//..
+//  data[0] = &#39;2&#39;;
+//..
+//
+// Restore read/write access and free the allocated memory.  Actually, this
+// will never be executed, as the process has already crashed.
+//..
+//  bdls::MemoryUtil::protect(data, pageSize,
+//                            bdls::MemoryUtil::k_ACCESS_READ_WRITE);
+//  bdls::MemoryUtil::free(data);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bdls {
+                             // =================
+                             // struct MemoryUtil
+                             // =================
+
+struct MemoryUtil {
+
+    // TYPES
+    enum Access {
+        k_ACCESS_NONE          = 0,
+        k_ACCESS_READ          = 0x1,
+        k_ACCESS_WRITE         = 0x2,
+        k_ACCESS_EXECUTE       = 0x4,
+        k_ACCESS_READ_WRITE    = k_ACCESS_READ | k_ACCESS_WRITE,
+        k_ACCESS_READ_EXECUTE  = k_ACCESS_READ | k_ACCESS_EXECUTE,
+        k_ACCESS_WRITE_EXECUTE = k_ACCESS_WRITE | k_ACCESS_EXECUTE,
+        k_ACCESS_READ_WRITE_EXECUTE
+                                   = k_ACCESS_READ | k_ACCESS_WRITE
+                                   | k_ACCESS_EXECUTE
+
+    };
+
+    // CLASS METHODS
+    static int pageSize();
+        // Return the memory page size of the platform.
+
+    static int protect(void *address, int numBytes, int mode);
+        // Change the access protection on a region of memory starting at the
+        // specified &#39;address&#39; and &#39;numBytes&#39; long, according to specified
+        // &#39;mode&#39;, making memory readable if &#39;(mode &amp; ACCESS_READ)&#39; is nonzero
+        // and writable if &#39;(mode &amp; ACCESS_WRITE)&#39; is nonzero.  Return 0 on
+        // success, and a nonzero value otherwise.  The behavior is undefined
+        // if &#39;addr&#39; is not aligned on a page boundary, if &#39;numBytes&#39; is not a
+        // multiple of &#39;pageSize()&#39;, or if &#39;numBytes&#39; is 0.  Note that some
+        // platforms do not support certain protection modes, e.g., on some
+        // platforms the memory cannot be made writable but unreadable, or
+        // readable but non-executable.  On these platforms the actual access
+        // protection set on the region might be more permissive than the
+        // specified one.  Also note that most memory allocators do not expect
+        // memory protection on allocated memory to be changed, so you must
+        // reset protection back to ACCESS_READ_WRITE before releasing the
+        // memory.
+
+    static void *allocate(int numBytes);
+        // Allocate an area of memory of the specified size &#39;numBytes&#39;, aligned
+        // on a page boundary.  Return a pointer to allocated memory on
+        // success, and a null pointer otherwise.  Note that the allocated
+        // memory is readable and writable, and read/write access to this
+        // memory, if revoked, must be restored before deallocation.
+
+    static int deallocate(void *address);
+        // Deallocate a memory area at the specified &#39;address&#39; previously
+        // allocated with the &#39;allocate&#39; method.  Return 0 on success, and a
+        // nonzero value otherwise.  The behavior is undefined if read or write
+        // access to any memory in this area has been revoked and not restored.
+        // Note that deallocating memory does not change memory protection.
+};
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

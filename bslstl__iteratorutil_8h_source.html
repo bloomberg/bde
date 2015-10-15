@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslstl_iteratorutil.h                                              -*-C++-*-
@@ -24,7 +24,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // component includes a function &#39;insertDistance&#39; that returns the the number
 // of elements that should be accounted for when range-inserting in a
 // container, given a pair of iterator &#39;a&#39; and &#39;b&#39; describing a half-open range
-// &#39;[a,b)&#39;.
+// &#39;[a .. b)&#39;.
 //
 ///Usage
 ///-----
@@ -44,7 +44,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  int *end   = &amp;values[3];
 //..
 // Now, we use the &#39;IteratorUtil::insertDistance&#39; class method to calculate the
-// distance of the open range [&#39;begin&#39;, &#39;end&#39;):
+// distance of the open range &#39;[begin .. end)&#39;:
 //..
 //  std::size_t distance = IteratorUtil::insertDistance(begin, end);
 //  assert(3 == distance);
@@ -83,11 +83,11 @@ struct IteratorUtil {
         // Return 0 if the (template parameter) type &#39;InputIterator&#39; is limited
         // to the standard input-iterator category, otherwise return the number
         // of elements that is reachable from the specified &#39;first&#39; to (but not
-        // including) the specified &#39;last&#39;.  The behavior is undefined unless
-        // &#39;last&#39; is reachable from &#39;first&#39;.  This function has a constant-time
+        // including) the specified &#39;last&#39;.  This function has a constant-time
         // complexity if the iterator category of &#39;InputIterator&#39; is a strictly
         // a standard input iterator, or is a random access iterator, otherwise
-        // it is linear in the length of the range [&#39;first&#39;, &#39;last&#39;).  Note
+        // it is linear in the length of the range &#39;[first .. last)&#39;.  The
+        // behavior is undefined unless &#39;last&#39; is reachable from &#39;first&#39;.  Note
         // that this function always returns 0 when compiled with the Sun
         // compiler, while we work around issues in the Sun standard library.
 };

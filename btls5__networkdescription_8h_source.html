@@ -1,0 +1,425 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btls5_networkdescription.h                                         -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLS5_NETWORKDESCRIPTION
+#define INCLUDED_BTLS5_NETWORKDESCRIPTION
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a description of a network of SOCKS5 proxies.
+//
+//@CLASSES:
+//  btls5::NetworkDescription: description of a network of SOCKS5 proxies
+//
+//@SEE_ALSO: btls5_proxydescription, btls5_networkconnector,
+//           btls5_networkdescriptionutil
+//
+//@DESCRIPTION: This component provides a value-semantic class,
+// &#39;btls5::NetworkDescription&#39;, describing a network of SOCKS5 proxies
+// necessary to reach one or more destination hosts.  An object of this type is
+// used with &#39;btls5::NetworkConnector&#39;; see the &#39;btls5_networkconnector&#39;
+// component for a more complete usage examples.
+//
+// Each proxy is described by its address (hostname and port) and credentials
+// (username and password) for authentication (see RFC 1929).  The credentials
+// can be empty (equal to the default &#39;btls5::Credentials&#39; value) indicating no
+// predefined credentials are available.  Proxies are grouped into levels, with
+// proxies in level 0 reachable directly, and proxies in level &#39;n&#39; reachable
+// from those in level &#39;n - 1&#39;.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Describe a Two-level Proxy Network
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Let&#39;s define a network of proxies necessary to reach the Internet from a
+// corporate Intranet.  The Internet can be reached through 2 levels: a
+// corporate proxy, which then has a connection to a regional proxy, which
+// finally has direct access to the Internet.  Each proxy level has two proxies
+// for redundancy.
+//
+// First, we declare an empty network:
+//..
+//  btls5::NetworkDescription network;
+//  assert(0 == network.numLevels());
+//..
+// Then, we add the addresses of corporate proxies as level 0 (directly
+// reachable from our host):
+//..
+//  int proxyNumber;  // ordinal number of proxy within a level
+//
+//  btlso::Endpoint corp1(&quot;proxy1.corp.com&quot;, 1081);
+//  btlso::Endpoint corp2(&quot;proxy2.corp.com&quot;, 1082);
+//  proxyNumber = network.addProxy(0, corp1);
+//  assert(0 == proxyNumber);
+//
+//  proxyNumber = network.addProxy(0, corp2);
+//  assert(1 == proxyNumber);
+//  assert(1 == network.numLevels());
+//..
+// Now, we add the regional proxies that we can connect to only through the
+// corporate proxies.  There are two regional proxies, for redundancy.
+//..
+//  btlso::Endpoint region1(&quot;proxy1.region.com&quot;, 1091);
+//  btlso::Endpoint region2(&quot;proxy2.region.com&quot;, 1092);
+//  proxyNumber = network.addProxy(1, region1);
+//  assert(0 == proxyNumber);
+//
+//  proxyNumber = network.addProxy(1, region2);
+//  assert(1 == proxyNumber);
+//  assert(2 == network.numLevels());
+//..
+// Finally, we have a fully defined network that we can use for connection
+// using &#39;btls5::NetworkDescription&#39;.
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLS5_PROXYDESCRIPTION
+#include &lt;btls5_proxydescription.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_ENDPOINT
+#include &lt;btlso_endpoint.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include &lt;bslalg_swaputil.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDDEF
+#include &lt;bsl_cstddef.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace bslma { class Allocator; }
+
+namespace btls5 {
+
+class Credentials;
+
+                          // ========================
+                          // class NetworkDescription
+                          // ========================
+
+class NetworkDescription {
+    // This value-semantic class allows the definition of multiple levels of
+    // SOCKS5 proxies necessary to reach a destination host.
+
+    // PRIVATE TYPES
+    typedef bsl::vector&lt;ProxyDescription&gt; ProxyLevel;
+        // Ordered list of SOCKS5 proxy servers at one level.
+
+  public:
+    // TYPES
+    typedef bsl::vector&lt;ProxyDescription&gt;::const_iterator ProxyIterator;
+        // Alias for the type of iterator providing read-only access to
+        // descriptions in a level of SOCKS5 proxies.
+
+  private:
+    // DATA
+    bsl::vector&lt;ProxyLevel&gt; d_proxies;  // all proxies, arranged by level
+
+    // FRIENDS
+    friend bool operator==(const NetworkDescription&amp;,
+                           const NetworkDescription&amp;);
+    friend bool operator!=(const NetworkDescription&amp;,
+                           const NetworkDescription&amp;);
+
+  public:
+    // CREATORS
+    explicit
+    NetworkDescription(bslma::Allocator *basicAllocator = 0);
+        // Create an empty &#39;NetworkDescription&#39; object.  Optionally specify a
+        // &#39;basicAllocator&#39; used to supply memory.  If &#39;basicAllocator&#39; is 0,
+        // the currently installed default allocator is used.
+
+    NetworkDescription(const NetworkDescription&amp;  original,
+                       bslma::Allocator          *basicAllocator = 0);
+        // Create a &#39;NetworkDescription&#39; object having the same value as the
+        // specified &#39;original&#39; object.  Optionally specify a &#39;basicAllocator&#39;
+        // used to supply memory.  If &#39;basicAllocator&#39; is 0, the currently
+        // installed default allocator is used.
+
+    //! ~NetworkDescription() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    NetworkDescription&amp; operator=(const NetworkDescription&amp; rhs);
+        // Assign to this object the value of the specified &#39;rhs&#39; object, and
+        // return a reference providing modifiable access to this object.
+
+    bsl::size_t addProxy(bsl::size_t level, const btlso::Endpoint&amp; address);
+        // Add a proxy host with the specified &#39;address&#39; and empty credentials
+        // to the specified &#39;level&#39; in this &#39;NetworkDescription&#39; object, and
+        // return its ordinal number in the &#39;level&#39;.  Note that if
+        // &#39;numLevels() &lt;= level&#39;, this function will create empty intermediate
+        // proxy levels.
+
+    bsl::size_t addProxy(bsl::size_t            level,
+                         const btlso::Endpoint&amp; address,
+                         const Credentials&amp;     credentials);
+        // Add a proxy host with the specified &#39;address&#39; and &#39;credentials&#39; to
+        // the specified &#39;level&#39; in this &#39;NetworkDescription&#39; object, and
+        // return its ordinal number in the &#39;level&#39;.  Note that if
+        // &#39;numLevels() &lt;= level&#39;, this function will create empty intermediate
+        // proxy levels.
+
+    void setCredentials(bsl::size_t        level,
+                        bsl::size_t        order,
+                        const Credentials&amp; credentials);
+        // Set credentials for the proxy identified by the specified &#39;level&#39;
+        // and &#39;order&#39; in this &#39;NetworkDescription&#39; object to the specified
+        // &#39;credentials&#39;.  The behavior is undefined unless &#39;level&#39; and &#39;order&#39;
+        // identify a proxy previously added with &#39;addProxy&#39;.
+
+                                  // Aspects
+
+    void swap(NetworkDescription&amp; other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified &#39;other&#39; object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as &#39;other&#39;.
+
+    // ACCESSORS
+    bsl::size_t numLevels() const;
+        // Return the number of levels in this &#39;NetworkDescription&#39; object.
+
+    bsl::size_t numProxies(bsl::size_t level) const;
+        // Return the number of proxies in the specified &#39;level&#39; in this
+        // &#39;NetworkDescription&#39; object.  The behavior is undefined unless
+        // &#39;level &lt; numLevels()&#39;.
+
+    ProxyIterator beginLevel(bsl::size_t level) const;
+        // Return the beginning iterator providing read-only access to proxies
+        // in the specified &#39;level&#39; in this &#39;NetworkDescription&#39; object.  The
+        // behavior is undefined unless &#39;level &lt; numLevels()&#39;.
+
+    ProxyIterator endLevel(bsl::size_t level) const;
+        // Return the ending iterator providing read-only access to proxies in
+        // the specified &#39;level&#39; in this &#39;NetworkDescription&#39; object.  The
+        // behavior is undefined unless &#39;level &lt; numLevels()&#39;.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
+
+    bsl::ostream&amp; print(bsl::ostream&amp; stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output &#39;stream&#39; in a
+        // human-readable format, and return a reference to &#39;stream&#39;.
+        // Optionally specify an initial indentation &#39;level&#39;, whose absolute
+        // value is incremented recursively for nested objects.  If &#39;level&#39; is
+        // specified, optionally specify &#39;spacesPerLevel&#39;, whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If &#39;level&#39; is negative, suppress
+        // indentation of the first line.  If &#39;spacesPerLevel&#39; is negative,
+        // format the entire output on one line, suppressing all but the
+        // initial indentation (as governed by &#39;level&#39;).  If &#39;stream&#39; is not
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
+};
+
+// FREE OPERATORS
+bool operator==(const NetworkDescription&amp; lhs, const NetworkDescription&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects have the same
+    // value, and &#39;false&#39; otherwise.  Two &#39;NetworkDescription&#39; objects have the
+    // same value if &#39;lhs.numLevels() == rhs.numLevels()&#39; and every level
+    // contains the same proxies in the same order in &#39;lhs&#39; and &#39;rhs&#39;.
+
+bool operator!=(const NetworkDescription&amp; lhs, const NetworkDescription&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have the
+    // same value, and &#39;false&#39; otherwise.  Two &#39;NetworkDescription&#39; objects do
+    // not have the same value if &#39;lhs.numLevels() != rhs.numLevels()&#39; or at
+    // least one level in &#39;lhs&#39; has a different ordered list of proxies than
+    // the corresponding level in &#39;rhs&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;             output,
+                         const NetworkDescription&amp; object);
+    // Write the specified &#39;object&#39; to the specified &#39;output&#39; in human-readable
+    // format, and return a reference to &#39;output&#39;.
+
+// FREE FUNCTIONS
+void swap(btls5::NetworkDescription&amp; a, btls5::NetworkDescription&amp; b);
+    // Efficiently exchange the values of the specified &#39;a&#39; and &#39;b&#39; objects.
+    // This function provides the no-throw exception-safety guarantee.  The
+    // behavior is undefined unless the two objects were created with the same
+    // allocator.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // ------------------------
+                          // class NetworkDescription
+                          // ------------------------
+
+// CREATORS
+inline
+NetworkDescription::NetworkDescription(bslma::Allocator *basicAllocator)
+: d_proxies(basicAllocator)
+{
+}
+
+inline
+NetworkDescription::NetworkDescription(
+                                     const NetworkDescription&amp;  original,
+                                     bslma::Allocator          *basicAllocator)
+: d_proxies(original.d_proxies, basicAllocator)
+{
+}
+
+// MANIPULATORS
+inline
+NetworkDescription&amp; NetworkDescription::operator=(
+                                                 const NetworkDescription&amp; rhs)
+{
+    d_proxies = rhs.d_proxies;
+    return *this;
+}
+
+inline
+bsl::size_t NetworkDescription::addProxy(bsl::size_t            level,
+                                         const btlso::Endpoint&amp; address)
+{
+    return addProxy(level, address, Credentials());
+}
+
+                                  // Aspects
+
+inline
+void NetworkDescription::swap(NetworkDescription&amp; other)
+{
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&amp;d_proxies, &amp;other.d_proxies);
+}
+
+// ACCESSORS
+inline
+bsl::size_t NetworkDescription::numLevels() const
+{
+    return d_proxies.size();
+}
+
+inline
+bsl::size_t NetworkDescription::numProxies(bsl::size_t level) const
+{
+    BSLS_ASSERT_SAFE(level &lt; d_proxies.size());
+
+    return d_proxies[level].size();
+}
+
+inline
+NetworkDescription::ProxyIterator NetworkDescription::beginLevel(
+                                                       bsl::size_t level) const
+{
+    BSLS_ASSERT_SAFE(level &lt; d_proxies.size());
+
+    return d_proxies[level].begin();
+}
+
+inline
+NetworkDescription::ProxyIterator NetworkDescription::endLevel(
+                                                       bsl::size_t level) const
+{
+    BSLS_ASSERT_SAFE(level &lt; d_proxies.size());
+
+    return d_proxies[level].end();
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *NetworkDescription::allocator() const
+{
+    return d_proxies.get_allocator().mechanism();
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool btls5::operator==(const NetworkDescription&amp; lhs,
+                       const NetworkDescription&amp; rhs)
+{
+    return lhs.d_proxies == rhs.d_proxies;
+}
+
+inline
+bool btls5::operator!=(const NetworkDescription&amp; lhs,
+                       const NetworkDescription&amp; rhs)
+{
+    return lhs.d_proxies != rhs.d_proxies;
+}
+
+inline
+void btls5::swap(btls5::NetworkDescription&amp; a, btls5::NetworkDescription&amp; b)
+{
+    a.swap(b);
+}
+
+// TRAITS
+namespace bslma {
+
+template&lt;&gt;
+struct UsesBslmaAllocator&lt;btls5::NetworkDescription&gt; : bsl::true_type {
+};
+
+}  // close namespace bslma
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

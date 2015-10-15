@@ -1,0 +1,523 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bdlt_calendarreverseiteratoradapter.h                              -*-C++-*-
+#ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
+#define INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide reverse iterator adapter for calendar iterators.
+//
+//@CLASSES:
+//  bdlt::CalendarReverseIteratorAdapter: calendar reverse iterator adapter
+//
+//@SEE_ALSO: bdlt_calendar, bdlt_packedcalendar
+//
+//@DESCRIPTION: This component provides a template,
+// &#39;bdlt::CalendarReverseIteratorAdapter&#39;, that can be used to adapt a calendar
+// iterator to be a reverse iterator (see &#39;bdlt_calendar&#39; and
+// &#39;bdlt_packedcalendar&#39;).  Calendar iterators cannot return a reference to an
+// underlying element of the calendar and hence cannot be used with
+// &#39;bsl::reverse_iterator&#39;.  The reverse iterator adapter defined in this
+// component provides a subset of the &#39;bsl::reverse_iterator&#39; interface that
+// can be used with the calendar iterators defined in &#39;bdlt&#39;.  Specifically,
+// the types &#39;value_type&#39;, &#39;difference_type&#39;, &#39;pointer&#39;, and &#39;reference&#39; are
+// defined but &#39;iterator_category&#39; is not defined (since this is not a
+// fully-compliant iterator).  Furthermore, the methods appropriate for
+// random-access iterators are not included (e.g., &#39;operator+=&#39;).
+//
+///Limitation
+///----------
+// &#39;bdlt::CalendarReverseIteratorAdapter&#39; is *not* a fully-compliant
+// implementation of &#39;std::reverse_iterator&#39; according to the C++ standard.  It
+// is an implementation of the minimum functionality needed to support the
+// public iterators in the &#39;bdlt_calendar&#39; and &#39;bdlt_packedcalendar&#39;
+// components.  Within that limitation, it is a subset implementation of
+// &#39;bsl::reverse_iterator&#39;.  Specifically, &#39;iterator_category&#39; is not defined
+// for this adapter and the methods of a &#39;bsl::reverse_iterator&#39; relevant only
+// to random-access compliant &#39;ITERATOR&#39; types are omitted.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of &#39;bdlt::CalendarReverseIteratorAdapter&#39;
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will use the &#39;bdlt::CalendarReverseIteratorAdapter&#39; to
+// traverse an iterable container type.  Specifically, we will create an array
+// of &#39;struct&#39; values, implement a bidirectional iterator class that is a
+// forward iterator for this array, and then use
+// &#39;bdlt::CalendarReverseIteratorAdapter&#39; to provide a reverse iterator that
+// will be used to traverse the array.
+//
+// First, we define a bidirectional iterator class:
+//..
+//  template &lt;class TYPE&gt;
+//  class Iterator {
+//      // This &#39;class&#39; basically behaves as a pointer to the (template
+//      // parameter) &#39;TYPE&#39; with 4 types defined to allow the use of
+//      // &#39;bdlt::CalendarReverseIteratorAdapter&#39; with this &#39;class&#39;.  Note that
+//      // this &#39;class&#39; supports only a subset of the functionality that a
+//      // pointer would, but this subset covers all the functionality that a
+//      // &#39;bdlt::CalendarReverseIteratorAdapter&#39; needs.
+//
+//      // DATA
+//      TYPE *d_ptr;  // pointer to the element referred to by this iterator
+//
+//      // FRIENDS
+//      template &lt;class OTHER&gt;
+//      friend bool operator==(const Iterator&lt;OTHER&gt;&amp;, const Iterator&lt;OTHER&gt;&amp;);
+//
+//    public:
+//      // PUBLIC TYPES
+//      typedef TYPE   value_type;
+//      typedef int    difference_type;
+//      typedef TYPE  *pointer;
+//      typedef TYPE&amp;  reference;
+//
+//      // CREATORS
+//      Iterator()
+//          // Create an &#39;Iterator&#39; object having the default value.
+//      : d_ptr(0)
+//      {
+//      }
+//
+//      Iterator(TYPE *value)                                       // IMPLICIT
+//          // Create an &#39;Iterator&#39; object from the specified &#39;value&#39;.
+//      : d_ptr(value)
+//      {
+//      }
+//
+//      // Iterator(const Iterator&amp;) = default;
+//
+//      // ~Iterator() = default;
+//
+//      // MANIPULATORS
+//      // Iterator&amp; operator=(const Iterator&amp;) = default;
+//
+//      Iterator&amp; operator++()
+//          // Increment to the next element in the iteration sequence, and
+//          // return a reference providing modifiable access to this iterator.
+//          // The behavior is undefined if, on entry, this iterator has the
+//          // past-the-end value for an iterator over the underlying sequence.
+//      {
+//          ++d_ptr;
+//          return *this;
+//      }
+//
+//      Iterator&amp; operator--()
+//          // Decrement to the previous element in the iteration sequence, and
+//          // return a reference providing modifiable access to this iterator.
+//          // The behavior is undefined if, on entry, this iterator has the
+//          // same value as an iterator at the start of the underlying
+//          // sequence.
+//      {
+//          --d_ptr;
+//          return *this;
+//      }
+//
+//      // ACCESSORS
+//      reference operator*() const
+//          // Return a reference to the element referred to by this iterator.
+//          // The behavior is undefined unless this iterator is within the
+//          // bounds of the underlying sequence.
+//      {
+//          return *d_ptr;
+//      }
+//
+//      pointer operator-&gt;() const
+//          // Return a pointer to the element referred to by this iterator.
+//          // The behavior is undefined unless this iterator is within the
+//          // bounds of the underlying sequence.
+//      {
+//          return d_ptr;
+//      }
+//
+//      Iterator operator+(bsl::ptrdiff_t offset) const
+//          // Return an iterator referencing the location at the specified
+//          // &#39;offset&#39; from the element referenced by this iterator.  The
+//          // behavior is undefined unless the resultant iterator is within
+//          // the bounds of the underlying sequence.
+//      {
+//          return Iterator(d_ptr + offset);
+//      }
+//  };
+//
+//  // FREE OPERATORS
+//  template &lt;class TYPE&gt;
+//  inline
+//  bool operator==(const Iterator&lt;TYPE&gt;&amp; lhs,  const Iterator&lt;TYPE&gt;&amp; rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator has the same value as
+//      // the specified &#39;rhs&#39; iterator, and &#39;false&#39; otherwise.  Two iterators
+//      // have the same value if they refer to the same element, or both have
+//      // the past-the-end value for am iterator over the underlying iteration
+//      // sequence.  The behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39; refer to
+//      // the same underlying sequence.
+//  {
+//      return lhs.d_ptr == rhs.d_ptr;
+//  }
+//
+//  template &lt;class TYPE&gt;
+//  inline
+//  bool operator!=(const Iterator&lt;TYPE&gt;&amp; lhs, const Iterator&lt;TYPE&gt;&amp; rhs)
+//      // Return &#39;true&#39; if the specified &#39;lhs&#39; iterator does not have the same
+//      // value as the specified &#39;rhs&#39; iterator, and &#39;false&#39; otherwise.  Two
+//      // iterators do not have the same value if (1) they do not refer to the
+//      // same element and (2) both do not have the past-the-end value for an
+//      // iterator over the underlying iteration sequence.  The behavior is
+//      // undefined unless &#39;lhs&#39; and &#39;rhs&#39; refer to the same underlying
+//      // sequence.
+//  {
+//      return !(lhs == rhs);
+//  }
+//..
+// Then, we define &#39;struct&#39; &#39;S&#39;, the type that will be referred to by the
+// &#39;Iterator&#39; type:
+//..
+//  struct S {
+//      char d_c;
+//      int  d_i;
+//  };
+//..
+// The &#39;struct&#39; &#39;S&#39; has two data members.  By creating an array of distinct &#39;S&#39;
+// values, the state of an iterator referring to an element of this array can
+// be easily verified by inspecting these two members.
+//
+// Next, we define four (distinct) &#39;S&#39; values:
+//..
+//  const S s0 = { &#39;A&#39;, 3 };
+//  const S s1 = { &#39;B&#39;, 5 };
+//  const S s2 = { &#39;C&#39;, 7 };
+//  const S s3 = { &#39;D&#39;, 9 };
+//..
+// Then, we define &#39;s&#39;, an array of &#39;S&#39; values:
+//..
+//  S s[] = { s0, s1, s2, s3 };
+//  enum { NUM_S = sizeof s / sizeof *s };
+//..
+// Next, we define an iterator, &#39;sfBegin&#39;, referring to the first element of
+// &#39;s&#39; and an iterator, &#39;sfEnd&#39;, having the past-the-end value for an iterator
+// over &#39;s&#39;:
+//..
+//  Iterator&lt;S&gt; sfBegin(s + 0), sfEnd(s + NUM_S);
+//..
+// Then, for convenience we declare our reverse iterator type that will be used
+// to traverse &#39;s&#39; in the reverse direction:
+//..
+//  typedef bdlt::CalendarReverseIteratorAdapter&lt;Iterator&lt;S&gt; &gt; Reverse;
+//..
+// Next, we declare begin and end reverse iterators to our range of &#39;S&#39; values:
+//..
+//  const Reverse rBegin(sfEnd), rEnd(sfBegin);
+//..
+// Now, we traverse our range in the reverse direction, from &#39;rBegin&#39; to
+// &#39;rEnd&#39;, streaming out the contents of the &#39;S&#39; values as we go:
+//..
+//  bsl::ostringstream stream;
+//  for (Reverse it = rBegin; rEnd != it; ++it) {
+//      stream &lt;&lt; (rBegin == it ? &quot;&quot; : &quot;, &quot;)
+//             &lt;&lt; &quot;{ &quot;
+//             &lt;&lt; it-&gt;d_c
+//             &lt;&lt; &quot;, &quot;
+//             &lt;&lt; it-&gt;d_i
+//             &lt;&lt; &quot; }&quot;;
+//  }
+//  stream &lt;&lt; bsl::flush;
+//..
+// Finally, we verify the contents of the range output:
+//..
+//  assert(stream.str() == &quot;{ D, 9 }, { C, 7 }, { B, 5 }, { A, 3 }&quot;);
+//..
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bdlt {
+
+                    // ====================================
+                    // class CalendarReverseIteratorAdapter
+                    // ====================================
+
+template &lt;class ITERATOR&gt;
+class CalendarReverseIteratorAdapter {
+    // This reverse iterator adapter  provides a subset of the
+    // &#39;bsl::reverse_iterator&#39; interface that can be used with the calendar
+    // iterators defined in &#39;bdlt&#39;.  Specifically, the types &#39;value_type&#39;,
+    // &#39;difference_type&#39;, &#39;pointer&#39;, and &#39;reference&#39; are defined but
+    // &#39;iterator_category&#39; is not defined (since this is not a fully-compliant
+    // iterator).  Furthermore, the methods appropriate for random-access
+    // iterators are not included (e.g., &#39;operator+=&#39;).
+
+    // DATA
+    ITERATOR d_forwardIter;  // bidirectional iterator referring to current
+                             // position
+
+  public:
+    // PUBLIC TYPES
+    typedef typename ITERATOR::value_type      value_type;
+    typedef typename ITERATOR::difference_type difference_type;
+    typedef typename ITERATOR::pointer         pointer;
+    typedef typename ITERATOR::reference       reference;
+
+    // CREATORS
+    CalendarReverseIteratorAdapter();
+        // Create a reverse iterator having the default value.  The
+        // default-constructed reverse iterator does not have a singular value
+        // unless an object of the type specified by the template parameter
+        // &#39;ITERATOR&#39; has a singular value after default construction.
+
+    explicit
+    CalendarReverseIteratorAdapter(const ITERATOR&amp; value);
+        // Create a reverse iterator referring to the element that precedes, in
+        // the forward sequence (or that follows, in the backward sequence) the
+        // element referred to by the specified &#39;value&#39;.
+
+//! CalendarReverseIteratorAdapter(
+//!                  const CalendarReverseIteratorAdapter&amp; original) = default;
+        // Create a &#39;CalendarReverseIteratorAdapter&#39; object having the value of
+        // the specified &#39;original&#39; object.
+
+//! ~CalendarReverseIteratorAdapter() = default;
+        // Destroy this &#39;CalendarReverseIteratorAdapter&#39; object.
+
+    // MANIPULATORS
+    CalendarReverseIteratorAdapter&amp; operator=(
+                                    const CalendarReverseIteratorAdapter&amp; rhs);
+        // Assign the value of the specified &#39;rhs&#39; to this object, and return a
+        // reference providing modifiable access to this object.
+
+    CalendarReverseIteratorAdapter&amp; operator=(const ITERATOR&amp; rhs);
+        // Set the value of this object to refer to the element that precedes,
+        // in the forward sequence (or that follows, in the backward sequence)
+        // the element referred to by the specified &#39;rhs&#39;, and return a
+        // reference providing modifiable access to this object.
+
+    CalendarReverseIteratorAdapter&amp; operator++();
+        // Modify this reverse iterator to refer to the next element in the
+        // reverse iteration sequence, and return a reference providing
+        // modifiable access to this reverse iterator.  The behavior is
+        // undefined unless, on entry, this reverse iterator does not have the
+        // past-the-end value for a reverse iterator over the underlying
+        // sequence.
+
+    CalendarReverseIteratorAdapter&amp; operator--();
+        // Modify this reverse iterator to refer to the previous element in the
+        // reverse iteration sequence, and return a reference providing
+        // modifiable access to this reverse iterator.  The behavior is
+        // undefined unless, on entry, this reverse iterator does not have the
+        // same value as a reverse iterator at the start of the underlying
+        // sequence.
+
+    // ACCESSORS
+    reference operator*() const;
+        // Return a reference to the element referred to by this reverse
+        // iterator.  The behavior is undefined unless this iterator is within
+        // the bounds of the underlying sequence.
+
+    pointer operator-&gt;() const;
+        // Return a pointer to the element referred to by this reverse
+        // iterator.  The behavior is undefined unless this iterator is within
+        // the bounds of the underlying sequence.
+
+    ITERATOR forwardIterator() const;
+        // Return the forward iterator referring to the element in the forward
+        // sequence after the element referred to by this reverse iterator.
+};
+
+// FREE OPERATORS
+template &lt;class ITERATOR&gt;
+bool operator==(const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; lhs,
+                const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; reverse iterator has the same value
+    // as the specified &#39;rhs&#39; reverse iterator, and &#39;false&#39; otherwise.  Two
+    // reverse iterators have the same value if they refer to the same element,
+    // or both have the past-the-end value for a reverse iterator over the
+    // underlying reverse iteration sequence.  The behavior is undefined unless
+    // &#39;lhs&#39; and &#39;rhs&#39; refer to the same underlying sequence.
+
+template &lt;class ITERATOR&gt;
+bool operator!=(const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; lhs,
+                const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; rhs);
+    // Return &#39;true&#39; if the specified &#39;lhs&#39; reverse iterator does not have the
+    // same value as the specified &#39;rhs&#39; reverse iterator, and &#39;false&#39;
+    // otherwise.  Two reverse iterators do not have the same value if (1) they
+    // do not refer to the same element and (2) both do not have the
+    // past-the-end value for a reverse iterator over the underlying reverse
+    // iteration sequence.  The behavior is undefined unless &#39;lhs&#39; and &#39;rhs&#39;
+    // refer to the same underlying sequence.
+
+template &lt;class ITERATOR&gt;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt; operator++(
+                      CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; iterator, int);
+    // Modify the specified &#39;iterator&#39; to refer to the next element in the
+    // reverse iteration sequence, and return a reverse iterator having the
+    // pre-increment value of &#39;iterator&#39;.  The behavior is undefined unless, on
+    // entry, &#39;iterator&#39; does not have the past-the-end value for a reverse
+    // iterator over the underlying sequence.
+
+template &lt;class ITERATOR&gt;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt; operator--(
+                      CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; iterator, int);
+    // Modify the specified &#39;iterator&#39; to refer to the previous element in the
+    // reverse iteration sequence, and return a reverse iterator having the
+    // pre-decrement value of &#39;iterator&#39;.  The behavior is undefined unless, on
+    // entry, &#39;iterator&#39; does not have the same value as a reverse iterator to
+    // the start of the underlying sequence.
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                    // ------------------------------------
+                    // class CalendarReverseIteratorAdapter
+                    // ------------------------------------
+
+// CREATORS
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::CalendarReverseIteratorAdapter()
+: d_forwardIter()
+{
+}
+
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::CalendarReverseIteratorAdapter(
+                                                         const ITERATOR&amp; value)
+: d_forwardIter(value)
+{
+}
+
+// MANIPULATORS
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator=(
+                                     const CalendarReverseIteratorAdapter&amp; rhs)
+{
+    d_forwardIter = rhs.d_forwardIter;
+    return *this;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator=(const ITERATOR&amp; rhs)
+{
+    d_forwardIter = rhs;
+    return *this;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator++()
+{
+    --d_forwardIter;
+    return *this;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp;
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator--()
+{
+    ++d_forwardIter;
+    return *this;
+}
+
+// ACCESSORS
+template &lt;class ITERATOR&gt;
+inline
+typename CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::reference
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator*() const
+{
+    ITERATOR tmp = d_forwardIter;
+    return *--tmp;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+typename CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::pointer
+CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::operator-&gt;() const
+{
+    ITERATOR tmp = d_forwardIter;
+    return &amp;*--tmp;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+ITERATOR CalendarReverseIteratorAdapter&lt;ITERATOR&gt;::forwardIterator() const
+{
+    return d_forwardIter;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+template &lt;class ITERATOR&gt;
+inline
+bool bdlt::operator==(const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; lhs,
+                      const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; rhs)
+{
+    return lhs.forwardIterator() == rhs.forwardIterator();
+}
+
+template &lt;class ITERATOR&gt;
+inline
+bool bdlt::operator!=(const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; lhs,
+                      const CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; rhs)
+{
+    return lhs.forwardIterator() != rhs.forwardIterator();
+}
+
+template &lt;class ITERATOR&gt;
+inline
+bdlt::CalendarReverseIteratorAdapter&lt;ITERATOR&gt;
+      bdlt::operator++(CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; iterator, int)
+{
+    CalendarReverseIteratorAdapter&lt;ITERATOR&gt; tmp = iterator;
+    ++iterator;
+    return tmp;
+}
+
+template &lt;class ITERATOR&gt;
+inline
+bdlt::CalendarReverseIteratorAdapter&lt;ITERATOR&gt;
+      bdlt::operator--(CalendarReverseIteratorAdapter&lt;ITERATOR&gt;&amp; iterator, int)
+{
+    CalendarReverseIteratorAdapter&lt;ITERATOR&gt; tmp = iterator;
+    --iterator;
+    return tmp;
+}
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

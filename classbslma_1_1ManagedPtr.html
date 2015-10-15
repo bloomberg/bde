@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: Class bslma::ManagedPtr</title>
+<title>BDE 3.0: Class bslma::ManagedPtr</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -122,7 +122,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a706df5bd259bd244636eae65003e858b">swap</a> (<a class="el" href="classbslma_1_1ManagedPtr.html">ManagedPtr</a> &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a6178b46544d9621a32b623062d32a74f">operator BoolType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbslmf_1_1AddReference.html">bslmf::AddReference</a><br class="typebreak"/>
-&lt; TARGET_TYPE &gt;::Type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#ad8629f0fbe9ae3088e9c07069a548b8f">operator*</a> () const </td></tr>
+&lt; TARGET_TYPE &gt;::<a class="el" href="classBind__ImplSelector_1_1Type.html">Type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#ad8629f0fbe9ae3088e9c07069a548b8f">operator*</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a7a985054043e5ac19a51b6db8f4f4f6f">operator-&gt;</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classbslma_1_1ManagedPtrDeleter.html">ManagedPtrDeleter</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a3d979e298134421c44100723dadc56fd">deleter</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">TARGET_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslma_1_1ManagedPtr.html#a83325a674a64bd8c45607d2822df0d8e">get</a> () const </td></tr>
@@ -806,7 +806,7 @@ template&lt;class TARGET_TYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a value of "unspecified bool" type that evaluates to <code>false</code> if this managed pointer is empty, and <code>true</code> otherwise. Note that this conversion operator allows a managed pointer to be used within a conditional context, such as within an <code>if</code> or <code>while</code> statement, but does <em>not</em> allow managed pointers to be compared (e.g., via <code>&lt;</code> or <code>&gt;</code>). Note that a superior solution is available in C++11 using the <code>explicit operator bool()</code> syntax, that removes the need for a special boolean-like type and private equality comparison operators. </p>
+<p>Return a value of "unspecified bool" type that evaluates to <code>false</code> if this managed pointer is empty, and <code>true</code> otherwise. Note that this conversion operator allows a managed pointer to be used within a conditional context, such as within an <code>if</code> or <code>while</code> statement, but does <em>not</em> allow managed pointers to be compared (e.g., via <code>&lt;</code> or <code>&gt;</code>). Note that a superior solution is available in C++11 using the <code>explicit operator bool()</code> syntax, that removes the need for a special boolean-like type and private equality-comparison operators. </p>
 
 </div>
 </div>
@@ -817,7 +817,7 @@ template&lt;class TARGET_TYPE&gt; </div>
 template&lt;class TARGET_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbslmf_1_1AddReference.html">bslmf::AddReference</a>&lt;TARGET_TYPE&gt;::Type <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::operator* </td>
+          <td class="memname"><a class="el" href="structbslmf_1_1AddReference.html">bslmf::AddReference</a>&lt;TARGET_TYPE&gt;::<a class="el" href="classBind__ImplSelector_1_1Type.html">Type</a> <a class="el" href="classbslma_1_1ManagedPtr.html">bslma::ManagedPtr</a>&lt; TARGET_TYPE &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -932,7 +932,7 @@ template&lt;class TARGET_TYPE&gt; </div>
 <li><a class="el" href="bslma__managedptr_8h_source.html">bslma_managedptr.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:34 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:35:01 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

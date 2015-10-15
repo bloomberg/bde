@@ -1,0 +1,140 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_patternutil.h                                                 -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_PATTERNUTIL
+#define INCLUDED_BALL_PATTERNUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+
+//@PURPOSE: Provide a utility class for string pattern matching.
+//
+//@CLASSES:
+//  ball::PatternUtil: utility class for string pattern matching
+//
+//@DESCRIPTION: This component defines a namespace, &#39;ball::PatternUtil&#39;, that
+// provides utility functions for matching input strings to a given pattern
+// based on wild-card and simple escape sequences.
+//
+///Usage
+///-----
+// The following code fragments illustrate basic usage of this component&#39;s
+// utility functions.
+//
+// A string matches a pattern if they are identical:
+//..
+//     assert(ball::PatternUtil::isMatch(&quot;EQ&quot;,           &quot;EQ&quot;));
+//..
+// A string matches a pattern containing an (unescaped) trailing &#39;*&#39; if that
+// pattern (without the trailing &#39;*&#39;) is a prefix of the string:
+//..
+//     assert(ball::PatternUtil::isMatch(&quot;EQ.MARKET&quot;,    &quot;EQ*&quot;));
+//     assert(ball::PatternUtil::isMatch(&quot;EQ&quot;,           &quot;EQ*&quot;));
+//..
+// An escaped &#39;*&#39; at the end loses its wild-card semantics and matches a single
+// &#39;*&#39;:
+//..
+//     assert(false == ball::PatternUtil::isMatch(&quot;EQ.MARKET&quot;, &quot;EQ\\*&quot;));
+//     assert(ball::PatternUtil::isMatch(&quot;EQ*&quot;,          &quot;EQ\\*&quot;));
+//..
+// Escape sequences include &#39;\\&#39; and &#39;\*&#39; only and they can appear anywhere in
+// the pattern:
+//..
+//     assert(ball::PatternUtil::isMatch(&quot;\\EQ&quot;,         &quot;\\\\EQ&quot;));
+//     assert(ball::PatternUtil::isMatch(&quot;E*Q&quot;,          &quot;E\\*Q&quot;));
+//..
+// A pattern is invalid if it contains a non-trailing &#39;*&#39;, or any &#39;\&#39; that is
+// not followed by either &#39;\&#39; or &#39;*&#39;.  The &#39;isValidPattern&#39; function can be
+// used to determine whether or not a pattern is valid:
+//..
+//     assert(false == ball::PatternUtil::isValidPattern(&quot;E\\Q&quot;));
+//     assert(false == ball::PatternUtil::isValidPattern(&quot;E*Q&quot;));
+//     assert(true  == ball::PatternUtil::isValidPattern(&quot;E\\\\Q&quot;));
+//     assert(true  == ball::PatternUtil::isValidPattern(&quot;E\\*Q&quot;));
+//..
+// The &#39;isMatch&#39; function always returns &#39;false&#39; on an invalid pattern:
+//..
+//     assert(false == ball::PatternUtil::isMatch(&quot;E\\Q&quot;,&quot;E\\Q&quot;));
+//     assert(false == ball::PatternUtil::isMatch(&quot;E*Q&quot;, &quot;E*Q&quot;));
+//     assert(false == ball::PatternUtil::isMatch(&quot;ETQ&quot;, &quot;E*Q&quot;));
+//..
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+                        // =================
+                        // class PatternUtil
+                        // =================
+
+struct PatternUtil {
+    // This utility class provides functions relating to pattern matching for
+    // strings.
+
+    // CLASS METHODS
+    static bool isMatch(const char *inputString, const char *pattern);
+        // Return &#39;true&#39; if the specified &#39;pattern&#39; matches the specified
+        // &#39;inputString&#39;, and &#39;false&#39; if the pattern does not match or is
+        // invalid.  There are two types of escape sequences that are allowed
+        // in &#39;pattern&#39;.  (See the function-level documentation of
+        // &#39;PatternUtil::isValidPattern&#39; for the definition of invalid
+        // patterns.)  A &#39;\*&#39; escape sequence in &#39;pattern&#39; matches a single
+        // &#39;*&#39; in &#39;inputString&#39;.  A &#39;\\&#39; escape sequence in &#39;pattern&#39; matches
+        // a single &#39;\&#39; in &#39;inputString&#39;.  If &#39;pattern&#39; ends with an unescaped
+        // &#39;*&#39;, then &#39;pattern&#39; matches &#39;inputString&#39; if the string indicated
+        // by &#39;pattern&#39; (after escape sequence processing) with the final &#39;*&#39;
+        // removed is a prefix of &#39;inputString&#39;.  Otherwise &#39;pattern&#39; matches
+        // &#39;inputString&#39; only if the string indicated by &#39;pattern&#39; (after
+        // escape sequence processing) and &#39;inputString&#39; are the same.  The
+        // behavior is undefined unless both &#39;inputString&#39; and &#39;pattern&#39; are
+        // null-terminated c-style strings.
+
+    static bool isValidPattern(const char *pattern);
+        // Return &#39;true&#39; if the specified &#39;pattern&#39; does not contain a &#39;\&#39; not
+        // followed by either &#39;\&#39; or &#39;*&#39;, or an unescaped &#39;*&#39; at locations
+        // other than at the end, and &#39;false&#39; otherwise.  Note that an
+        // unescaped &#39;*&#39; not at the end may someday be considered a valid
+        // pattern.
+};
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

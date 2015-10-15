@@ -1,0 +1,307 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// ball_multiplexobserver.h                                           -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALL_MULTIPLEXOBSERVER
+#define INCLUDED_BALL_MULTIPLEXOBSERVER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a multiplexing observer that forwards to other observers.
+//
+//@CLASSES:
+//    ball::MultiplexObserver: multiplexing observer that forwards log records
+//
+//@SEE_ALSO: ball_record, ball_context, ball_defaultobserver,
+//           ball_loggermanager
+//
+//@DESCRIPTION: This component provides a concrete implementation of the
+// &#39;ball::Observer&#39; protocol for receiving and processing log records:
+//..
+//               ( ball::MultiplexObserver )
+//                            |             ctor
+//                            |             registerObserver
+//                            |             deregisterObserver
+//                            |             numRegisteredObservers
+//                            V
+//                    ( ball::Observer )
+//                                          dtor
+//                                          publish
+//                                          releaseRecords
+//..
+// &#39;ball::MultiplexObserver&#39; is a concrete class derived from &#39;ball::Observer&#39;
+// that processes the log records it receives through its &#39;publish&#39; method by
+// forwarding them to other concrete observers.  &#39;ball::MultiplexObserver&#39;
+// maintains a registry of observers to which it forwards log records.  Clients
+// of &#39;ball::MultiplexObserver&#39; register observers using the &#39;registerObserver&#39;
+// method and unregister observers with the &#39;deregisterObserver&#39; method.  Once
+// registered, an observer receives all log records that its associated
+// multiplexing observer receives.
+//
+///Thread Safety
+///-------------
+// &#39;ball::MultiplexObserver&#39; is thread-safe and thread-enabled, meaning that
+// multiple threads may share the same instance, or may have their own
+// instances.
+//
+///Usage
+///-----
+// Multiplexing observers are used to interface a &#39;ball&#39; logging system, which
+// generates log records, with the multiplicity of observers that are to
+// receive the generated records that are published.  Establishing this
+// interface proceeds in three logical steps:
+//..
+//    (1) Create a distinguished &#39;ball::MultiplexObserver&#39; that will be the
+//        unique observer to receive log records directly from the logging
+//        system.
+//    (2) Create the other observers required by the application and register
+//        each of these observers with some &#39;ball::MultiplexObserver&#39;.  (Note
+//        that a &#39;ball::MultiplexObserver&#39; may be registered with another
+//        &#39;ball::MultiplexObserver&#39;.)
+//    (3) Install the distinguished multiplexor from step (1) within the
+//        &#39;ball&#39; logging system.
+//..
+// This example demonstrates the use of a multiplexing observer to forward log
+// records from a &#39;ball&#39; logging system to three registered observers.  Each of
+// the three registered observers performs distinct actions upon receipt of log
+// records:
+//..
+//    (1) &#39;defaultObserver&#39;, an instance of &#39;ball::DefaultObserver&#39;, formats
+//        the records it receives and outputs them to &#39;stdout&#39;.
+//    (2) &#39;logfileObserver&#39;, an instance of &#39;my_LogfileObserver&#39; (assumed to
+//        be a concrete class derived from &#39;ball::Observer&#39;) writes selected
+//        records to a log file.
+//    (3) &#39;encryptingObserver&#39;, an instance of &#39;my_EncryptingObserver&#39; (also
+//        assumed to be a concrete class derived from &#39;ball::Observer&#39;) creates
+//        a compact, encrypted representation of each record, suitable for
+//        sending over an unsecure network.
+//..
+// First we create the three downstream observers that will be registered with
+// multiplexor observer:
+//..
+//     ball::DefaultObserver   defaultObserver;
+//     my_LogfileObserver     logfileObserver;
+//     my_EncryptingObserver  encryptingObserver;
+//..
+// Next, we create an initially empty multiplexing observer &#39;multiplexor&#39; and
+// register the three downstream observers &#39;multiplexor&#39;:
+//..
+//     ball::MultiplexObserver multiplexor;
+//     assert(0 == multiplexor.numRegisteredObservers());
+//
+//     multiplexor.registerObserver(&amp;defaultObserver);
+//     multiplexor.registerObserver(&amp;logfileObserver);
+//     multiplexor.registerObserver(&amp;encryptingObserver);
+//     assert(3 == multiplexor.numRegisteredObservers());
+//..
+// Then, &#39;multiplexor&#39; is installed within a &#39;ball&#39; logging system to be the
+// direct recipient of published log records.  This registration is done by
+// supplying &#39;multiplexor&#39; to the &#39;ball::LoggerManager::initSingleton&#39; method
+// that is used to initialize the singleton logger manager:
+//..
+//     ball::LoggerManager::initSingleton(&amp;multiplexor);
+//..
+// (Others variants of &#39;ball::LoggerManager::initSingleton&#39; also take a
+// &#39;ball::Observer*&#39;.)  Henceforth, all log records that are published by the
+// logging system will be transmitted to the &#39;publish&#39; method of &#39;multiplexor&#39;
+// which, in turn, forwards them to &#39;defaultObserver&#39;, &#39;logfileObserver&#39;, and
+// &#39;encryptingObserver&#39; by calling their respective &#39;publish&#39; methods.
+//
+// Finally, deregister the three observers when the logs have been all
+// forwarded:
+//..
+//     multiplexor.deregisterObserver(&amp;defaultObserver);
+//     multiplexor.deregisterObserver(&amp;logfileObserver);
+//     multiplexor.deregisterObserver(&amp;encryptingObserver);
+//..
+// Note that any observer must exist before registering with multiplexor.  Any
+// observer already registered must deregister before its destruction.
+// Additional observers may be registered with &#39;multiplexor&#39; at any time.
+// Similarly, observers may be unregistered at any time.  This capability
+// allows for extremely flexible observation scenarios.
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BALL_OBSERVER
+#include &lt;ball_observer.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include &lt;bslmt_readlockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_RWMUTEX
+#include &lt;bslmt_rwmutex.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
+#include &lt;bslmt_writelockguard.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_MEMORY
+#include &lt;bsl_memory.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_SET
+#include &lt;bsl_set.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+
+namespace ball {
+
+class Record;
+class Context;
+
+                         // =======================
+                         // class MultiplexObserver
+                         // =======================
+
+class MultiplexObserver : public Observer {
+    // This class provides a multiplexing implementation of the &#39;Observer&#39;
+    // protocol.  Other concrete observers may be registered with a
+    // multiplexing observer (&#39;registerObserver&#39; method) and later unregistered
+    // (&#39;deregisterObserver&#39; method).  The &#39;publish&#39; method of this class
+    // forwards the log records that it receives to the &#39;publish&#39; method of
+    // each registered observer.
+
+    // DATA
+    bsl::set&lt;Observer *&gt;    d_observerSet;  // observer registry
+
+    mutable bslmt::RWMutex  d_rwMutex;      // protects concurrent access to
+                                            // &#39;d_observerSet&#39;
+
+    // NOT IMPLEMENTED
+    MultiplexObserver(const MultiplexObserver&amp;);
+    MultiplexObserver&amp; operator=(const MultiplexObserver&amp;);
+
+  public:
+    // CREATORS
+    explicit MultiplexObserver(bslma::Allocator *basicAllocator = 0);
+        // Create a multiplexing observer having no registered observers.
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.
+
+    virtual ~MultiplexObserver();
+        // Destroy this multiplexing observer.  Note that this method has no
+        // effect on the lifetime of observers registered with this observer,
+        // if any.
+
+    // MANIPULATORS
+    virtual void publish(const Record&amp;  record,
+                         const Context&amp; context);
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39; by forwarding &#39;record&#39; and &#39;context&#39; to each of the
+        // observers registered with this multiplexing observer.
+        //
+        // DEPRECATED: use the alternative &#39;publish&#39; overload instead.
+
+    virtual void publish(const bsl::shared_ptr&lt;const Record&gt;&amp;  record,
+                         const Context&amp;                        context);
+        // Process the specified log &#39;record&#39; having the specified publishing
+        // &#39;context&#39;.  This concrete publish implementations processes the
+        // &#39;record&#39; by forwarding &#39;record&#39; and &#39;context&#39; to each of the
+        // observers registered with this multiplexing observer.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a &#39;Record&#39; object that was supplied
+        // to the &#39;publish&#39; method, and is held by this observer.  This
+        // implementation processes &#39;releaseRecords&#39; by calling
+        // &#39;releaseRecords&#39; on each of the registered observers.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released.
+
+    int registerObserver(Observer *observer);
+        // Add the specified &#39;observer&#39; to the registry of this multiplexing
+        // observer.  Return 0 if &#39;observer&#39; is non-null and was not already
+        // registered with this multiplexing observer, and a non-zero value
+        // (with no effect) otherwise.  Henceforth, this multiplexing observer
+        // will forward each record it receives through its &#39;publish&#39; method,
+        // including the record&#39;s context, to the &#39;publish&#39; method of
+        // &#39;observer&#39;, until &#39;observer&#39; is deregistered.  The behavior is
+        // undefined unless &#39;observer&#39; remains valid until it is deregistered
+        // from this multiplexing observer or until this observer is destroyed.
+
+    int deregisterObserver(Observer *observer);
+        // Remove the specified &#39;observer&#39; from the registry of this
+        // multiplexing observer.  Return 0 if &#39;observer&#39; is non-null and was
+        // registered with this multiplexing observer, and a non-zero value
+        // (with no effect) otherwise.  Henceforth, &#39;observer&#39; will no longer
+        // receive log records from this multiplexing observer.
+
+    // ACCESSORS
+    int numRegisteredObservers() const;
+        // Return the number of observers registered with this multiplexing
+        // observer.
+};
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                         // -----------------------
+                         // class MultiplexObserver
+                         // -----------------------
+
+// CREATORS
+inline
+MultiplexObserver::MultiplexObserver(bslma::Allocator *basicAllocator)
+: d_observerSet(basicAllocator)
+{
+}
+
+// ACCESSORS
+inline
+int MultiplexObserver::numRegisteredObservers() const
+{
+    bslmt::ReadLockGuard&lt;bslmt::RWMutex&gt; guard(&amp;d_rwMutex);
+    return static_cast&lt;int&gt;(d_observerSet.size());
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

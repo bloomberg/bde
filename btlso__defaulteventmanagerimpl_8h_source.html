@@ -1,0 +1,152 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// btlso_defaulteventmanagerimpl.h                                    -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BTLSO_DEFAULTEVENTMANAGERIMPL
+#define INCLUDED_BTLSO_DEFAULTEVENTMANAGERIMPL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide forward declaration and constants for event managers.
+//
+//@CLASSES:
+//  btlso::DefaultEventManager&lt;POLLING_MECHANISM&gt;: default multiplexer
+//
+//@SEE_ALSO: btlso_defaulteventmanager
+//
+//@DESCRIPTION: This component provides a forward declaration for
+// &#39;btlso::DefaultEventManager&#39; class along with certain type constants shared
+// by various implementations.  This component is used to implement
+// btlso_defaulteventmanager component as shown on the following diagram:
+//..
+//     |                btlso_defaulteventmanager            |
+//     |               /   /     |      \        \           |
+//     |        /-----/   /      |       \        \          |
+//     |    _select    _poll  _devpoll  _pollset   _epoll    |
+//     |        \-----    \      |       /        /          |
+//     |              \    \     |      /        /           |
+//     |              btlso_defaulteventmanagerimpl          |
+//..
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Creating a Default Event Manager
+///- - - - - - - - - - - - - - - - - - - - - -
+// In the following usage example we show how to create an default instance of
+// a default event manager.  First, we need to include this file (shown here
+// for completeness):
+//..
+//  #include &lt;btlso_defaulteventmanagerimpl.h&gt;
+//..
+// Second, create a &#39;btlso::TimeMetrics&#39; to give to the event manager:
+//..
+//  btlso::TimeMetrics metrics(btlso::TimeMetrics::e_MIN_NUM_CATEGORIES,
+//                             btlso::TimeMetrics::e_CPU_BOUND);
+//..
+// Now, create a default event manager that uses this &#39;metrics&#39;:
+//..
+//  btlso::DefaultEventManager&lt;&gt; eventManager(&amp;metrics);
+//..
+// Note that the time metrics is optional.
+
+#ifndef INCLUDED_BTLSCM_VERSION
+#include &lt;btlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_PLATFORM
+#include &lt;btlso_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BTLSO_SOCKETHANDLE
+#include &lt;btlso_sockethandle.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include &lt;bslmf_istriviallycopyable.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+    #ifndef INCLUDED_SYS_POLL
+    #include &lt;sys/poll.h&gt;
+    #define INCLUDED_SYS_POLL
+    #endif
+#endif
+
+namespace BloombergLP {
+
+namespace btlso {
+
+                     // =========================
+                     // class DefaultEventManager
+                     // =========================
+
+template &lt;class POLLING_MECHANISM = Platform::DEFAULT_POLLING_MECHANISM&gt;
+class DefaultEventManager;
+
+}  // close package namespace
+
+}  // close enterprise namespace
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+// Ascribe &#39;HANDLE&#39; with &#39;bsl::is_trivially_copyable&#39; trait to use it in
+// &#39;bsl::vector&#39; efficiently.
+
+namespace bsl {
+
+template &lt;&gt; struct is_trivially_copyable&lt;HANDLE&gt; : true_type {};
+
+}
+
+#else
+
+// Ascribe &#39;pollfd&#39; with &#39;bsl::is_trivially_copyable&#39; trait to use it in
+// &#39;bsl::vector&#39; efficiently.
+
+namespace bsl {
+
+template &lt;&gt; struct is_trivially_copyable&lt;pollfd&gt; : true_type {};
+
+}  // close namespace bsl
+
+#endif // BSLS_PLATFORM_OS_WINDOWS
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

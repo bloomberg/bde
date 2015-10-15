@@ -1,0 +1,352 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// bbldc_perioddaterangedaycountadapter.h                             -*-C++-*-
+#ifndef INCLUDED_BBLDC_PERIODDATERANGEDAYCOUNTADAPTER
+#define INCLUDED_BBLDC_PERIODDATERANGEDAYCOUNTADAPTER
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide a parameterized day-count convention implementation.
+//
+//@CLASSES:
+//  bbldc::PeriodDateRangeDayCountAdapter: &#39;bbldc::DateRangeDayCount&#39; adapter
+//
+//@DESCRIPTION: This component provides a parameterized (template)
+// implementation, &#39;bbldc::PeriodDateRangeDayCountAdapter&#39;, of the
+// &#39;bbldc::DateRangeDayCount&#39; protocol.  The template argument can be any type
+// supporting the following two class methods.
+//..
+//  int daysDiff(const bdlt::Date&amp; beginDate, const bdlt::Date&amp; endDate);
+//
+//  double yearsDiff(const bdlt::Date&amp;              beginDate,
+//                   const bdlt::Date&amp;              endDate,
+//                   const bsl::vector&lt;bdlt::Date&gt;&amp; periodDate,
+//                   double                         periodYearDiff);
+//..
+// The template class &#39;bbldc::PeriodDateRangeDayCountAdapter&#39; provides
+// convenient support for run-time polymorphic choice of day-count conventions
+// (via conventional use of a base-class pointer or reference) without having
+// to implement each derived type explicitly.  In this sense,
+// &#39;bbldc::PeriodDateRangeDayCountAdapter&#39; adapts the various concrete
+// period-based day-count convention classes (e.g.,
+// &#39;bbldc::PeriodIcmaActualActual&#39;) to a run-time binding mechanism.
+//
+// The &#39;bbldc::DateRangeDayCount&#39; protocol requires two methods, &#39;firstDate&#39;
+// and &#39;lastDate&#39;, that define a date range for which calculations are valid,
+// to reflect the valid range of, say, a calendar required for the
+// computations.  For &quot;period&quot; day-count implementations, the valid date range
+// is from the first to the last period date.
+//
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Adapting &#39;bbldc::PeriodIcmaActualActual&#39;
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows the procedure for using
+// &#39;bbldc::PeriodDateRangeDayCountAdapter&#39; to adapt the
+// &#39;bbldc::PeriodIcmaActualActual&#39; day-count convention to the
+// &#39;bbldc::DateRangeDayCount&#39; protocol, and then the use of the day-count
+// methods.  First, we create a schedule of period dates, &#39;sched&#39;,
+// corresponding to a quarterly payment (&#39;periodYearDiff == 0.25&#39;):
+//..
+//  bsl::vector&lt;bdlt::Date&gt; sched;
+//  sched.push_back(bdlt::Date(2003, 10, 1));
+//  sched.push_back(bdlt::Date(2004,  1, 1));
+//..
+// Then, we define an instance of the adapted day-count convention and obtain a
+// reference to the &#39;bbldc::DateRangeDayCount&#39;:
+//..
+//  const bbldc::PeriodDateRangeDayCountAdapter&lt;bbldc::PeriodIcmaActualActual&gt;
+//                                                                 myDcc(sched,
+//                                                                       0.25);
+//  const bbldc::DateRangeDayCount&amp;                                dcc = myDcc;
+//..
+// Next, create two &#39;bdlt::Date&#39; variables, &#39;d1&#39; and &#39;d2&#39;, with which to use
+// the day-count convention methods:
+//..
+//  const bdlt::Date d1(2003, 10, 19);
+//  const bdlt::Date d2(2003, 12, 31);
+//..
+// Now, use the base-class reference to compute the day count between the two
+// dates:
+//..
+//  const int daysDiff = dcc.daysDiff(d1, d2);
+//  assert(73 == daysDiff);
+//..
+// Finally, use the base-class reference to compute the year fraction between
+// the two dates:
+//..
+//  const double yearsDiff = dcc.yearsDiff(d1, d2);
+//  // Need fuzzy comparison since &#39;yearsDiff&#39; is a &#39;double&#39;.
+//  assert(yearsDiff &gt; 0.1983 &amp;&amp; yearsDiff &lt; 0.1985);
+//..
+
+#ifndef INCLUDED_BBLSCM_VERSION
+#include &lt;bblscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BBLDC_DATERANGEDAYCOUNT
+#include &lt;bbldc_daterangedaycount.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLT_DATE
+#include &lt;bdlt_date.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include &lt;bslma_allocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include &lt;bslma_usesbslmaallocator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include &lt;bslmf_integralconstant.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_ITERATOR
+#include &lt;bsl_iterator.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include &lt;bsl_vector.h&gt;
+#endif
+
+namespace BloombergLP {
+namespace bbldc {
+
+                   // ====================================
+                   // class PeriodDateRangeDayCountAdapter
+                   // ====================================
+
+template &lt;class CONVENTION&gt;
+class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
+    // This &#39;class&#39; provides an &quot;adapter&quot; from the specified &#39;CONVENTION&#39;, that
+    // requires a set of periods to compute the year fraction, to the
+    // &#39;bbldc::DateRangeDayCount&#39; protocol that can be used for determining
+    // values based on dates according to the day-count &#39;CONVENTION&#39;.
+
+    // DATA
+    bsl::vector&lt;bdlt::Date&gt; d_periodDate;      // period starting dates
+
+    double                  d_periodYearDiff;  // years for each period
+
+  private:
+    // PRIVATE ACCESSORS
+    bool isSortedAndUnique(const bsl::vector&lt;bdlt::Date&gt;&amp; periodDate) const;
+        // Return &#39;true&#39; if all values contained in the specified &#39;periodDate&#39;
+        // are unique and sorted from minimum to maximum value, and &#39;false&#39;
+        // otherwise.
+
+    // NOT IMPLEMENTED
+    PeriodDateRangeDayCountAdapter(const PeriodDateRangeDayCountAdapter&amp;);
+    PeriodDateRangeDayCountAdapter&amp; operator=(
+                                        const PeriodDateRangeDayCountAdapter&amp;);
+
+  public:
+    // CREATORS
+    PeriodDateRangeDayCountAdapter(
+                           const bsl::vector&lt;bdlt::Date&gt;&amp;  periodDate,
+                           double                          periodYearDiff,
+                           bslma::Allocator               *basicAllocator = 0);
+        // Create a day-count adapter that uses the specified &#39;periodDate&#39; and
+        // &#39;periodYearDiff&#39; during invocations of &#39;yearsDiff&#39;.  &#39;periodDate&#39;
+        // provides the period starting dates and &#39;periodYearDiff&#39; defines the
+        // duration of each period (e.g., 0.25 for quarterly periods).
+        // Optionally specify a &#39;basicAllocator&#39; used to supply memory.  If
+        // &#39;basicAllocator&#39; is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless &#39;periodDate.size() &gt;= 2&#39; and
+        // the values contained in &#39;periodDate&#39; are unique and sorted from
+        // minimum to maximum.
+
+    virtual ~PeriodDateRangeDayCountAdapter();
+        // Destroy this object.
+
+    // ACCESSORS
+    int daysDiff(const bdlt::Date&amp; beginDate, const bdlt::Date&amp; endDate) const;
+        // Return the (signed) number of days between the specified &#39;beginDate&#39;
+        // and &#39;endDate&#39; as per the &#39;CONVENTION&#39; template policy.  If
+        // &#39;beginDate &lt;= endDate&#39;, then the result is non-negative.  Note that
+        // reversing the order of &#39;beginDate&#39; and &#39;endDate&#39; negates the result.
+
+    const bdlt::Date&amp; firstDate() const;
+        // Return a reference providing non-modifiable access to
+        // &#39;periodDate.front()&#39; for the &#39;periodDate&#39; provided at construction.
+        // Note that this value is the earliest date in the valid range of this
+        // day-count convention adaptation.
+
+    const bdlt::Date&amp; lastDate() const;
+        // Return a reference providing non-modifiable access to
+        // &#39;periodDate.back()&#39; for the &#39;periodDate&#39; provided at construction.
+        // Note that this value is the latest date in the valid range of this
+        // day-count convention adaptation.
+
+    double yearsDiff(const bdlt::Date&amp; beginDate,
+                     const bdlt::Date&amp; endDate) const;
+        // Return the (signed fractional) number of years between the specified
+        // &#39;beginDate&#39; and &#39;endDate&#39; as per the &#39;CONVENTION&#39; template policy.
+        // If &#39;beginDate &lt;= endDate&#39;, then the result is non-negative.  The
+        // behavior is undefined unless, for the &#39;periodDate&#39; provided at
+        // construction, &#39;periodDate.front() &lt;= beginDate &lt;= periodDate.back()&#39;
+        // and &#39;periodDate.front() &lt;= endDate &lt;= periodDate.back()&#39;.  Note that
+        // reversing the order of &#39;beginDate&#39; and &#39;endDate&#39; negates the result;
+        // specifically, &#39;|yearsDiff(b, e) + yearsDiff(e, b)| &lt;= 1.0e-15&#39; for
+        // all dates &#39;b&#39; and &#39;e&#39;.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this adapter to supply memory.
+};
+
+// ============================================================================
+//                             INLINE DEFINITIONS
+// ============================================================================
+
+                   // ------------------------------------
+                   // class PeriodDateRangeDayCountAdapter
+                   // ------------------------------------
+
+// PRIVATE ACCESSORS
+template &lt;class CONVENTION&gt;
+bool PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::isSortedAndUnique(
+                               const bsl::vector&lt;bdlt::Date&gt;&amp; periodDate) const
+{
+    bsl::vector&lt;bdlt::Date&gt;::const_iterator begin = periodDate.begin();
+    bsl::vector&lt;bdlt::Date&gt;::const_iterator end   = periodDate.end();
+
+    if (begin == end) {
+        return true;                                                  // RETURN
+    }
+
+    bsl::vector&lt;bdlt::Date&gt;::const_iterator prev = begin;
+    bsl::vector&lt;bdlt::Date&gt;::const_iterator at   = begin + 1;
+
+    while (at != end) {
+        if (*prev &gt;= *at) {
+            return false;                                             // RETURN
+        }
+        prev = at++;
+    }
+
+    return true;
+}
+
+// CREATORS
+template &lt;class CONVENTION&gt;
+inline
+PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::PeriodDateRangeDayCountAdapter(
+                                const bsl::vector&lt;bdlt::Date&gt;&amp;  periodDate,
+                                double                          periodYearDiff,
+                                bslma::Allocator               *basicAllocator)
+: d_periodDate(periodDate, basicAllocator)
+, d_periodYearDiff(periodYearDiff)
+{
+    BSLS_ASSERT_SAFE(d_periodDate.size() &gt;= 2);
+
+    BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
+}
+
+template &lt;class CONVENTION&gt;
+inline
+PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::~PeriodDateRangeDayCountAdapter()
+{
+}
+
+// ACCESSORS
+template &lt;class CONVENTION&gt;
+inline
+int PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::daysDiff(
+                                               const bdlt::Date&amp; beginDate,
+                                               const bdlt::Date&amp; endDate) const
+{
+    return CONVENTION::daysDiff(beginDate, endDate);
+}
+
+template &lt;class CONVENTION&gt;
+inline
+const bdlt::Date&amp; PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::firstDate() const
+{
+    return d_periodDate.front();
+}
+
+template &lt;class CONVENTION&gt;
+inline
+const bdlt::Date&amp; PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::lastDate() const
+{
+    return d_periodDate.back();
+}
+
+template &lt;class CONVENTION&gt;
+inline
+double PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::yearsDiff(
+                                               const bdlt::Date&amp; beginDate,
+                                               const bdlt::Date&amp; endDate) const
+{
+    BSLS_ASSERT_SAFE(d_periodDate.front() &lt;= beginDate);
+    BSLS_ASSERT_SAFE(                        beginDate &lt;= d_periodDate.back());
+    BSLS_ASSERT_SAFE(d_periodDate.front() &lt;= endDate);
+    BSLS_ASSERT_SAFE(                        endDate   &lt;= d_periodDate.back());
+
+    return CONVENTION::yearsDiff(beginDate,
+                                 endDate,
+                                 d_periodDate,
+                                 d_periodYearDiff);
+}
+
+                                  // Aspects
+
+template &lt;class CONVENTION&gt;
+inline
+bslma::Allocator *PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt;::allocator() const
+{
+    return d_periodDate.get_allocator().mechanism();
+}
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslma {
+
+template &lt;class CONVENTION&gt;
+struct UsesBslmaAllocator&lt;bbldc::PeriodDateRangeDayCountAdapter&lt;CONVENTION&gt; &gt;
+                                                           : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

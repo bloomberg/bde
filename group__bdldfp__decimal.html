@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bdldfp_decimal Component</title>
+<title>BDE 3.0: bdldfp_decimal Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -112,7 +112,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.3.1">No Namespace Level Named Functions</a> </li>
 <li>
-<a href="#4.3.2">All Converting Constructors From Integer Types Are Explicit</a> </li>
+<a href="#4.3.2">All Converting Constructors from Integer Types are Explicit</a> </li>
 <li>
 <a href="#4.3.3">No Heterogeneous Comparisons Without Casting</a> </li>
 <li>
@@ -130,7 +130,7 @@ Namespaces</h2></td></tr>
 <li>
 <a href="#4.7">Decimal Number Formatting</a> </li>
 <li>
-<a href="#4.8">Preliminary Release - Known Bugs</a> </li>
+<a href="#4.8">Preliminary Release: Known Bugs</a> </li>
 <li>
 <a href="#4.9">Usage</a> <ul>
 <li>
@@ -319,7 +319,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b></b></dt><dd>BDE design guidelines do not allow namespace level functions other than operators and aspects. According to BDE design principles all such functions are placed into a utility component. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="standards_conformance.all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="description.standards_conformance.all_converting_constructors_from_integer_types_are_explicit"></a> <a class="anchor" id="4.3.2"></a> </dd></dl>
-<dl class="user"><dt><b>All Converting Constructors From Integer Types Are Explicit: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>All Converting Constructors from Integer Types are Explicit: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This change is necessary to disable the use of comparison operators without explicit casting. See No Heterogeneous Comparisons Without Casting. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="standards_conformance.no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="description.standards_conformance.no_heterogeneous_comparisons_without_casting"></a> <a class="anchor" id="4.3.3"></a> </dd></dl>
@@ -355,8 +355,8 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <dl class="user"><dt><b>Decimal Number Formatting: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Streaming decimal floating point nubmers to an output stream currently supports formatting flags for width, capitalization, and justification. Because of potential for future improvements in format handling, the operations should not be used for serialization. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release_-_known_bugs"></a> <a class="anchor" id="description.preliminary_release_-_known_bugs"></a> <a class="anchor" id="4.8"></a> </dd></dl>
-<dl class="user"><dt><b>Preliminary Release - Known Bugs: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="preliminary_release~3A_known_bugs"></a> <a class="anchor" id="description.preliminary_release~3A_known_bugs"></a> <a class="anchor" id="preliminary_release"></a> <a class="anchor" id="description.preliminary_release"></a> <a class="anchor" id="4.8"></a> </dd></dl>
+<dl class="user"><dt><b>Preliminary Release: Known Bugs: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Stream output operators do not obey formatting flags or the precision algorithm as required by the TR; they instead print all significant digits all the time. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.9"></a> </dd></dl>
@@ -392,7 +392,7 @@ Note that the C++ Decimal TR uses a different, not-specified, and not very usefu
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:19 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:42 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

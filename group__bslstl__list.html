@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_list Component</title>
+<title>BDE 3.0: bslstl_list Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -245,7 +245,7 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.2">Operations</a> </li>
 <li>
-<a href="#3.3">Thread-Safety</a> </li>
+<a href="#3.3">Thread Safety</a> </li>
 <li>
 <a href="#3.4">Usage</a> <ul>
 <li>
@@ -324,7 +324,7 @@ Friends</h2></td></tr>
   | list&lt;V&gt; a(i1, i2);                                 | O(distance(i1,i2)) |
   | list&lt;V&gt; a(i1, i2, al);                             |                    |
   +----------------------------------------------------+--------------------+
-  | a.~list&lt;V&gt;(); (destruction)                        | O(n)               |
+  | a.~list&lt;<a class="code" href="bdlf__bind__test_8h.html#ad98bc55172072c2c874bcdfbace3ad22">V</a>&gt;(); (destruction)                        | O(n)               |
   +----------------------------------------------------+--------------------+
   | a = b;        (assignment)                         | O(n)               |
   +----------------------------------------------------+--------------------+
@@ -362,9 +362,9 @@ Friends</h2></td></tr>
   +----------------------------------------------------+--------------------+
   | a.clear()                                          | O(n)               |
   +----------------------------------------------------+--------------------+
-  | a.assign(i1,i2)                                    | O(distance(i1, i2))|
+  | a.<a class="code" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">assign</a>(i1,i2)                                    | O(distance(i1, i2))|
   +----------------------------------------------------+--------------------+
-  | a.assign(n, value_type(v))                         | O(n)               |
+  | a.<a class="code" href="namespacebdlat__ValueTypeFunctions.html#a8878d14342c51302d88f1c2e8d242a5e">assign</a>(n, value_type(v))                         | O(n)               |
   +----------------------------------------------------+--------------------+
   | a.front(), a.back()                                | O(1)               |
   +----------------------------------------------------+--------------------+
@@ -375,7 +375,7 @@ Friends</h2></td></tr>
   +----------------------------------------------------+--------------------+
   | a.pop_front(), a.pop_back()                        | O(1)               |
   +----------------------------------------------------+--------------------+
-  | a.resize(n), a.resize(n, value_type(v))            | O(n)               |
+  | a.<a class="code" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">resize</a>(n), a.<a class="code" href="namespacebdlat__ArrayFunctions.html#ae5c3b710446596e75a9743e4a973792e">resize</a>(n, value_type(v))            | O(n)               |
   +----------------------------------------------------+--------------------+
   | a.splice(p, b), a.splice(p, b, s1)                 | O(1)               |
   +----------------------------------------------------+--------------------+
@@ -395,8 +395,8 @@ Friends</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread-safety"></a> <a class="anchor" id="description.thread-safety"></a> <a class="anchor" id="3.3"></a> </dd></dl>
-<dl class="user"><dt><b>Thread-Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="3.3"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code>list</code> is <a href="group__bsldoc__glossary.html#const_thread-safe_~5Bts.2~5D" class="glossary"><code>const</code> Thread-Safe [TS.2]</a> (see <a href="group__bsldoc__glossary.html" class="el"><code>bsldoc_glossary</code></a>). Separate threads can safely access and modify separate <code>list</code> objects. Separate threads can safely perform <code>const</code> operations on a single <code>list</code> object. Separate threads cannot safely perform operations on a single <code>list</code> object if at least one of those operations modifies the list. If an iterator or reference to a list element is obtained in one thread, it may become invalidated if the list is modified in the same or another thread, even if the iterator is a <code>const_iterator</code> or the reference is a reference-to-'const'. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.4"></a> </dd></dl>
@@ -635,19 +635,19 @@ Friends</h2></td></tr>
       fprintf(output, <span class="stringliteral">&quot;%f %f %d\n&quot;</span>, d_x, d_y, d_brightness);
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aa87851224efdfae6f5f519901c970262">operator==</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#a43eb69dcb057a13f6d636c27339604e0">operator==</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
   {
       <span class="keywordflow">return</span> lhs.x() == rhs.x()
           &amp;&amp; lhs.y() == rhs.y()
           &amp;&amp; lhs.brightness() == rhs.brightness();
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#aceb1a703f6f64327cd3cdcd03a557f4a">operator!=</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebalb.html#af875b084e6111d26ceea345a0cc0b642">operator!=</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
   {
       <span class="keywordflow">return</span> ! (lhs == rhs);
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebdlb.html#ad07f3843b29d0d2bdc6cad3e1fa4a009">operator&lt;</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebaltzo.html#a7103b08c49f3116c75f12856af5d1ca7">operator&lt;</a>(<span class="keyword">const</span> Star&amp; lhs, <span class="keyword">const</span> Star&amp; rhs)
   {
       <span class="keywordflow">if</span> (lhs.x() &lt; rhs.x())
           <span class="keywordflow">return</span> <span class="keyword">true</span>;
@@ -1092,7 +1092,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Advance this iterator to the next element in this list and return its new value. The behavior is undefined unless this iterator is in the range <code>[ begin(), end() )</code> for some list (i.e., the iterator is not singular, is not <code>end()</code> and has not be invalidated). </p>
+<p>Advance this iterator to the next element in this list and return its new value. The behavior is undefined unless this iterator is in the range <code>[begin() .. end())</code> for some list (i.e., the iterator is not singular, is not <code>end()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1112,7 +1112,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Move this iterator to the previous element in this list and return its new value. The behavior is undefined unless this iterator is in the range <code>( begin(), end() ]</code> for some list (i.e., the iterator is not singular, is not <code>begin()</code> and has not be invalidated). </p>
+<p>Move this iterator to the previous element in this list and return its new value. The behavior is undefined unless this iterator is in the range <code>( begin(), end() ]</code> for some list (i.e., the iterator is not singular, is not <code>begin()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1133,7 +1133,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Advance this iterator to the next element in this list and return its previous value. The behavior is undefined unless this iterator is in the range <code>[ begin(), end() )</code> for some list (i.e., the iterator is not singular, is not <code>end()</code> and has not be invalidated). </p>
+<p>Advance this iterator to the next element in this list and return its previous value. The behavior is undefined unless this iterator is in the range <code>[begin() .. end())</code> for some list (i.e., the iterator is not singular, is not <code>end()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1154,7 +1154,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Move this iterator to the previous element in this list and return its previous value. The behavior is undefined unless this iterator is in the range <code>( begin(), end() ]</code> for some list (i.e., the iterator is not singular, is not <code>begin()</code> and has not be invalidated). </p>
+<p>Move this iterator to the previous element in this list and return its previous value. The behavior is undefined unless this iterator is in the range <code>( begin(), end() ]</code> for some list (i.e., the iterator is not singular, is not <code>begin()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1174,7 +1174,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a reference to this list object referenced by this iterator. The behavior is undefined unless this iterator is in the range <code>[ begin(), end() )</code> for some list (i.e., the iterator is not singular, is not <code>end()</code> and has not be invalidated). </p>
+<p>Return a reference to this list object referenced by this iterator. The behavior is undefined unless this iterator is in the range <code>[begin() .. end())</code> for some list (i.e., the iterator is not singular, is not <code>end()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1194,7 +1194,7 @@ template&lt;class VALUE, class NODEPTR, class DIFFTYPE&gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a pointer to this list object referenced by this iterator. The behavior is undefined unless this iterator is in the range <code>[ begin(), end() )</code> for some list (i.e., the iterator is not singular, is not <code>end()</code> and has not be invalidated). </p>
+<p>Return a pointer to this list object referenced by this iterator. The behavior is undefined unless this iterator is in the range <code>[begin() .. end())</code> for some list (i.e., the iterator is not singular, is not <code>end()</code>, and has not been invalidated). </p>
 
 </div>
 </div>
@@ -1579,8 +1579,6 @@ template&lt;class InputIter &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="group__bslstl__list.html#ga5c31176fa2f214a7932d504200b37f9f">bsl::list&lt; VALUE, ALLOCATOR &gt;::begin()</a>, and <a class="el" href="group__bslstl__list.html#gac8430d1383d5d6bc57602e490b0ecc0c">bsl::list&lt; VALUE, ALLOCATOR &gt;::insert()</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ga2f7e69d139593183cc48fc3f6d95d8ae"></a><!-- doxytag: member="bsl::list::list" ref="ga2f7e69d139593183cc48fc3f6d95d8ae" args="(const list &amp;original)" -->
@@ -1710,8 +1708,6 @@ template&lt;class InputIter &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="group__bslstl__list.html#ga5c31176fa2f214a7932d504200b37f9f">bsl::list&lt; VALUE, ALLOCATOR &gt;::begin()</a>, <a class="el" href="group__bslstl__list.html#ga98cc46a578156771ccf9f5b661ac9209">bsl::list&lt; VALUE, ALLOCATOR &gt;::emplace()</a>, <a class="el" href="group__bslstl__list.html#gaaff91bdeee8bf00648c6f0ea63e89c5d">bsl::list&lt; VALUE, ALLOCATOR &gt;::end()</a>, and <a class="el" href="group__bslstl__list.html#gad9acaadae5c8562714adb86525bd7773">bsl::list&lt; VALUE, ALLOCATOR &gt;::erase()</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="ga2b7d4db579127e781bf8d2d8aa40a07d"></a><!-- doxytag: member="bsl::list::assign" ref="ga2b7d4db579127e781bf8d2d8aa40a07d" args="(size_type n, const VALUE &amp;value)" -->
@@ -1740,7 +1736,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
       </table>
 </div>
 <div class="memdoc">
-<p>Replace the contents of this list with the specified <code>n</code> copies of the specified <code>value</code>. Each element in this list is set by either copy-assignment or "copy-insertion" from <code>value</code>. </p>
+<p>Replace the contents of this list with the specified <code>n</code> copies of the specified <code>value</code>. Each element in this list is set by either copy assignment or "copy insertion" from <code>value</code>. </p>
 
 </div>
 </div>
@@ -1762,7 +1758,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
 <div class="memdoc">
 <p>Return a mutating iterator referring to the first element in the list, if any, or one past the end of this list if this list is empty. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; VALUE, ALLOCATOR &gt;::assign()</a>, and <a class="el" href="group__bslstl__list.html#ga5bb6a12020db04f7426f4cb84c767995">bsl::list&lt; VALUE, ALLOCATOR &gt;::list()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; ReadQueueEntry &gt;::assign()</a>, and <a class="el" href="group__bslstl__list.html#ga5bb6a12020db04f7426f4cb84c767995">bsl::list&lt; ReadQueueEntry &gt;::list()</a>.</p>
 
 </div>
 </div>
@@ -1784,7 +1780,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
 <div class="memdoc">
 <p>Return a mutating iterator referring to one past the end of this list. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; VALUE, ALLOCATOR &gt;::assign()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; ReadQueueEntry &gt;::assign()</a>.</p>
 
 </div>
 </div>
@@ -2077,7 +2073,7 @@ template&lt;class... ARGS&gt; </div>
 <div class="memdoc">
 <p>Insert a new element into this list before the element at the specified <code>position</code> using "emplace-construction" from the specified <code>args</code>. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; VALUE, ALLOCATOR &gt;::assign()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; ReadQueueEntry &gt;::assign()</a>.</p>
 
 </div>
 </div>
@@ -2109,7 +2105,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
 <div class="memdoc">
 <p>Insert into this list a copy of the specified <code>value</code> before the element at the specified <code>position</code> of this list. The newly inserted elements in this list is copy-constructed from <code>value</code>. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__list.html#gadeb98f74827b9950281c3e2052cfdd59">bsl::list&lt; VALUE, ALLOCATOR &gt;::insert()</a>, and <a class="el" href="group__bslstl__list.html#ga5bb6a12020db04f7426f4cb84c767995">bsl::list&lt; VALUE, ALLOCATOR &gt;::list()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__list.html#gadeb98f74827b9950281c3e2052cfdd59">bsl::list&lt; ReadQueueEntry &gt;::insert()</a>, and <a class="el" href="group__bslstl__list.html#ga5bb6a12020db04f7426f4cb84c767995">bsl::list&lt; ReadQueueEntry &gt;::list()</a>.</p>
 
 </div>
 </div>
@@ -2190,8 +2186,6 @@ template&lt;class InputIter &gt; </div>
 </div>
 <div class="memdoc">
 
-<p>References <a class="el" href="group__bslstl__list.html#gac8430d1383d5d6bc57602e490b0ecc0c">bsl::list&lt; VALUE, ALLOCATOR &gt;::insert()</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="gad9acaadae5c8562714adb86525bd7773"></a><!-- doxytag: member="bsl::list::erase" ref="gad9acaadae5c8562714adb86525bd7773" args="(const_iterator position)" -->
@@ -2211,9 +2205,9 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this list the element at the specified <code>position</code>, and return an iterator referring to the element immediately following the removed element, or to the position returned by the <code>end</code> method if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin(), end() )</code>. </p>
+<p>Remove from this list the element at the specified <code>position</code>, and return an iterator referring to the element immediately following the removed element, or to the position returned by the <code>end</code> method if the removed element was the last in the sequence. The behavior is undefined unless <code>position</code> is an iterator in the range <code>[ begin() .. end())</code>. </p>
 
-<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; VALUE, ALLOCATOR &gt;::assign()</a>.</p>
+<p>Referenced by <a class="el" href="group__bslstl__list.html#gaaffd7b613113b8f37262b27820268a37">bsl::list&lt; ReadQueueEntry &gt;::assign()</a>.</p>
 
 </div>
 </div>
@@ -2243,7 +2237,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
       </table>
 </div>
 <div class="memdoc">
-<p>Remove from this list the elements starting at the specified <code>first</code> position that are before the specified <code>last</code> position, and return an iterator referring to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[ begin(), end() ]</code> and <code>last</code> is an iterator in the range <code>[ first, end() ]</code> (both endpoints included). </p>
+<p>Remove from this list the elements starting at the specified <code>first</code> position that are before the specified <code>last</code> position, and return an iterator referring to the element immediately following the last removed element, or the position returned by the method <code>end</code> if the removed elements were last in the sequence. The behavior is undefined unless <code>first</code> is an iterator in the range <code>[begin() .. end()]</code> and <code>last</code> is an iterator in the range <code>[first .. end()]</code> (both endpoints included). </p>
 
 </div>
 </div>
@@ -2392,7 +2386,7 @@ template&lt;class VALUE, class ALLOCATOR = bsl::allocator&lt;VALUE&gt;&gt; </div
       </table>
 </div>
 <div class="memdoc">
-<p>Insert the elements starting at the specified <code>first</code> position and before the specified <code>last</code> position into this list, right before the element at the specified <code>position</code>, and remove those elements from the specified list <code>x</code>. The behavior is undefined unless <code>[first, last)</code> represents a range of valid elements in <code>x</code>, and <code>position</code> is not in the range <code>[first, last)</code>. </p>
+<p>Insert the elements starting at the specified <code>first</code> position and before the specified <code>last</code> position into this list, right before the element at the specified <code>position</code>, and remove those elements from the specified list <code>x</code>. The behavior is undefined unless <code>[first .. last)</code> represents a range of valid elements in <code>x</code>, and <code>position</code> is not in the range <code>[first .. last)</code>. </p>
 
 </div>
 </div>
@@ -2905,7 +2899,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> lists have the same value, and <code>false</code> otherwise. The <code>lhs</code> and the <code>rhs</code> objects have the same value if they have the same number of elements, and each element of <code>lhs</code> has same value as that of the corresponding element in <code>rhs</code>. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator==</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> lists have the same value, and <code>false</code> otherwise. The <code>lhs</code> and the <code>rhs</code> objects have the same value if they have the same number of elements, and each element of <code>lhs</code> has same value as that of the corresponding element in <code>rhs</code>. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator==</code> defined. </p>
 
 </div>
 </div>
@@ -2935,7 +2929,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> lists do not have the same value, and <code>false</code> otherwise. The <code>lhs</code> and the <code>rhs</code> objects do have the same value if they do not have the same number of elements, or at least one element of <code>lhs</code> does not have same value as that of the corresponding element in <code>rhs</code>. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator==</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> and <code>rhs</code> lists do not have the same value, and <code>false</code> otherwise. The <code>lhs</code> and the <code>rhs</code> objects do have the same value if they do not have the same number of elements, or at least one element of <code>lhs</code> does not have same value as that of the corresponding element in <code>rhs</code>. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator==</code> defined. </p>
 
 </div>
 </div>
@@ -2965,7 +2959,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically smaller than the specified <code>rhs</code> list, and <code>false</code> otherwise. The <code>lhs</code> is lexicographically smaller than the <code>rhs</code> if there exists an element <code>v</code> in <code>lhs</code> such that <code>v</code> is smaller than the corresponding element in <code>rhs</code>, and all elements before <code>v</code> in <code>lhs</code> have the same values as those of the corresponding elements in <code>rhs</code>. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically smaller than the specified <code>rhs</code> list, and <code>false</code> otherwise. The <code>lhs</code> is lexicographically smaller than the <code>rhs</code> if there exists an element <code>v</code> in <code>lhs</code> such that <code>v</code> is smaller than the corresponding element in <code>rhs</code>, and all elements before <code>v</code> in <code>lhs</code> have the same values as those of the corresponding elements in <code>rhs</code>. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
 
 </div>
 </div>
@@ -2995,7 +2989,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically larger than the specified <code>rhs</code> list, and <code>false</code> otherwise. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically larger than the specified <code>rhs</code> list, and <code>false</code> otherwise. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
 
 </div>
 </div>
@@ -3025,7 +3019,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically smaller than or equal to the specified <code>rhs</code> list, and <code>false</code> otherwise. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically smaller than or equal to the specified <code>rhs</code> list, and <code>false</code> otherwise. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
 
 </div>
 </div>
@@ -3055,7 +3049,7 @@ template&lt;class VALUE , class ALLOCATOR &gt; </div>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically larger than or equal to the specified <code>rhs</code> list, and <code>false</code> otherwise. This method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
+<p>Return <code>true</code> if the specified <code>lhs</code> list is lexicographically larger than or equal to the specified <code>rhs</code> list, and <code>false</code> otherwise. Note that this method requires that the (template parameter) <code>VALUE</code> type has <code>operator&lt;</code> defined. </p>
 
 </div>
 </div>
@@ -3232,7 +3226,7 @@ template&lt;class T1 , class T2 , class NODEP , class DIFFT &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:22 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:55 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

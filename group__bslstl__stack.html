@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BDE 2.23.1 OSS: bslstl_stack Component</title>
+<title>BDE 3.0: bslstl_stack Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -33,7 +33,7 @@
  </td>
  <td valign=top align=center>
  <p align=center>
-<a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a>
+<a class="qindex" href="group__bal.html" target="_blank">bal</a> | <a class="qindex" href="group__bbl.html" target="_blank">bbl</a> | <a class="qindex" href="group__bdl.html" target="_blank">bdl</a> | <a class="qindex" href="group__bsl.html" target="_blank">bsl</a> | <a class="qindex" href="group__btl.html" target="_blank">btl</a>
  </td>
  </tr>
  </table>
@@ -84,7 +84,7 @@ Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef CONTAINER&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__stack.html#ga349ea093959cdd009cf54d94a812a5f6">bsl::stack::container_type</a></td></tr>
 <tr><td colspan="2"><h2><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__bslstl__stack.html#gga52c6b8af942aec869ea38821b8b8435aa0b5c74707a1b1c1f24870cd4db679d19">bsl::Stack_HasAllocatorType::VALUE</a> =  (sizeof(YesType) == sizeof(match&lt;CONTAINER&gt;(0)))
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__bslstl__stack.html#gga31202e23b405a7884dc35a742a494c6aa0b5c74707a1b1c1f24870cd4db679d19">bsl::Stack_HasAllocatorType::VALUE</a> =  (sizeof(YesType) == sizeof(match&lt;CONTAINER&gt;(0)))
  }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -209,13 +209,13 @@ void pop_back()  </li>
 <li>
 value_type&amp; back()  </li>
 <li>
-size_type size()  </li>
+size_type <a class="el" href="namespacebdlat__ArrayFunctions.html#a65e1cfba76b2d13054b61159488b0da8">size()</a>  </li>
 <li>
 <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>  </li>
 <li>
 <code>operator=</code>  </li>
 <li>
-std::swap(CONTAINER&amp;, CONTAINER&amp;) must work  </li>
+<a class="el" href="namespacestd.html#a1a88896f0ee62750b5e3b43e0d90a6c8">std::swap</a>(CONTAINER&amp;, CONTAINER&amp;) must work  </li>
 </ul>
 </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
@@ -463,7 +463,7 @@ template&lt;class VALUE , class CONTAINER  = deque&lt;VALUE&gt;&gt; </div>
 </div>
 </div>
 <hr/><h2>Enumeration Type Documentation</h2>
-<a class="anchor" id="ga52c6b8af942aec869ea38821b8b8435a"></a><!-- doxytag: member="bsl::Stack_HasAllocatorType::@173" ref="ga52c6b8af942aec869ea38821b8b8435a" args="" -->
+<a class="anchor" id="ga31202e23b405a7884dc35a742a494c6a"></a><!-- doxytag: member="bsl::Stack_HasAllocatorType::@396" ref="ga31202e23b405a7884dc35a742a494c6a" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -476,7 +476,7 @@ template&lt;class CONTAINER &gt; </div>
 </div>
 <div class="memdoc">
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="gga52c6b8af942aec869ea38821b8b8435aa0b5c74707a1b1c1f24870cd4db679d19"></a><!-- doxytag: member="VALUE" ref="gga52c6b8af942aec869ea38821b8b8435aa0b5c74707a1b1c1f24870cd4db679d19" args="" -->VALUE</em>&nbsp;</td><td>
+<tr><td valign="top"><em><a class="anchor" id="gga31202e23b405a7884dc35a742a494c6aa0b5c74707a1b1c1f24870cd4db679d19"></a><!-- doxytag: member="VALUE" ref="gga31202e23b405a7884dc35a742a494c6aa0b5c74707a1b1c1f24870cd4db679d19" args="" -->VALUE</em>&nbsp;</td><td>
 </td></tr>
 </table>
 </dd>
@@ -1290,7 +1290,7 @@ template&lt;class VAL , class CONT &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Tue Jun 2 2015 13:40:23 for BDE Release 2.23.1 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Thu Oct 15 2015 14:33:57 for BDE Release 3.0 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

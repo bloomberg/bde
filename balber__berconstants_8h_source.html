@@ -1,0 +1,110 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BDE 3.0</title>
+<html>
+<pre>
+// balber_berconstants.h                                              -*-C++-*-
+
+// ----------------------------------------------------------------------------
+//                                   NOTICE
+//
+// This component is not up to date with current BDE coding standards, and
+// should not be used as an example for new development.
+// ----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BALBER_BERCONSTANTS
+#define INCLUDED_BALBER_BERCONSTANTS
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id: $&quot;)
+
+//@PURPOSE: Provide namespace for BER-related constants.
+//
+//@CLASSES:
+//  balber::BerConstants: namespace for BER-related constants
+//
+//@SEE_ALSO: BER Specification (ITU-T X.690)
+//
+//@DESCRIPTION: The &#39;balber::BerConstants&#39; &#39;struct&#39; defined in this component
+// defines two enumerations, &#39;balber::TagClass&#39; and &#39;balber::TagType&#39;, that
+// contain symbolic constants for the corresponding tag classes and tag types,
+// as defined in the BER specification (X.690).
+//
+///Usage
+///-----
+// TBD
+
+#ifndef INCLUDED_BALSCM_VERSION
+#include &lt;balscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_IOSFWD
+#include &lt;bsl_iosfwd.h&gt;
+#endif
+
+
+namespace BloombergLP {
+namespace balber {
+
+                            // ===================
+                            // struct BerConstants
+                            // ===================
+
+struct BerConstants {
+    // This &#39;struct&#39; contains enumerations of the constants used by the BER
+    // encoder and decoder.
+
+    enum TagClass {
+        // Enumeration of the four possible BER tag classes.
+
+        e_UNIVERSAL         = 0x00  // the universal tag class
+      , e_APPLICATION       = 0x40  // the application tag class
+      , e_CONTEXT_SPECIFIC  = 0x80  // the context-specific tag class
+      , e_PRIVATE           = 0xC0  // the private tag class
+
+    };
+
+    enum TagType {
+        // Enumeration of the two possible BER tag types.
+
+        e_PRIMITIVE   = 0x00  // the primitive tag type
+      , e_CONSTRUCTED = 0x20  // the constructed tag type
+
+    };
+};
+
+// FREE OPERATORS
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;          stream,
+                         BerConstants::TagClass tagClass);
+    // Format the specified &#39;tagClass&#39; to the specified output &#39;stream&#39; and
+    // return a reference providing modifiable access to &#39;stream&#39;.
+
+bsl::ostream&amp; operator&lt;&lt;(bsl::ostream&amp;         stream,
+                         BerConstants::TagType tagType);
+    // Format the specified &#39;tagType&#39; to the specified output &#39;stream&#39; and
+    // return a reference providing modifiable access to &#39;stream&#39;.
+
+}  // close package namespace
+}  // close enterprise namespace
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2015 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

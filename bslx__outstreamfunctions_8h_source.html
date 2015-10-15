@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BDE 2.23.1 OSS</title>
+<title>BDE 3.0</title>
 <html>
 <pre>
 // bslx_outstreamfunctions.h                                          -*-C++-*-
@@ -70,7 +70,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // contract.
 //
 ///Implementing BDEX Streaming in Value-Semantic Template Classes
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The author of a non-template value-semantic type has full knowledge of the
 // details of the &quot;value&quot; of that type, and may choose to use the appropriate
 // output stream &#39;put&#39; methods directly when implementing the required
@@ -491,6 +491,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslx_versionfunctions.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLMF_IF
 #include &lt;bslmf_if.h&gt;
 #endif
@@ -509,6 +513,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSL_VECTOR
 #include &lt;bsl_vector.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CSTDINT
+#include &lt;bsl_cstdint.h&gt;
 #endif
 
 namespace BloombergLP {
@@ -917,7 +925,7 @@ namespace OutStreamFunctions {
         // more information on BDEX streaming of value-semantic types and
         // containers.
 
-}  // close OutStreamFunctions namespace
+}  // close namespace OutStreamFunctions
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
@@ -934,6 +942,13 @@ STREAM&amp; OutStreamFunctions::bdexStreamOutImp(STREAM&amp;           stream,
                                              int            /* version */,
                                              const IsEnumType&amp;)
 {
+    // A compilation error indicating the next line of code implies the &#39;TYPE&#39;
+    // cannot be represented as a 32-bit &#39;int&#39; and an overload for the
+    // &#39;OutStreamFunctions::bdexStreamOut&#39; function, in the enumeration&#39;s
+    // namespace, should be provided.
+
+    BSLMF_ASSERT(sizeof(TYPE) &lt;= sizeof(bsl::int32_t));
+
     // Stream the &#39;enum&#39; value as a 32-bit &#39;int&#39;.
     return stream.putInt32(static_cast&lt;int&gt;(value));
 }
