@@ -36,10 +36,12 @@ namespace bsl {
 // Libc++ for osx has a c++ 03 version of initializer_list that implements
 // nothing, but can still be included.  The type is also defined by g++ in
 // versions above 4.8 (in c++ 11 mode).
+// Note that __cplusplus does not have a conforming value for g++ versions
+// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
 #if (!(defined(BSLS_PLATFORM_OS_DARWIN)                                       \
        &&!defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)))   \
   ||                                                                          \
-    (defined(BDE_BUILD_TARGET_CPP11)                                          \
+    ((__cplusplus >= 201103L)                                                 \
      && defined(BSLS_PLATFORM_CMP_GNU)                                        \
      && BSLS_PLATFORM_CMP_VERSION >= 40800)
 using native_std::initializer_list;

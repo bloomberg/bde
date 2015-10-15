@@ -3202,7 +3202,9 @@ int main(int argc, char *argv[])
         // imported.
         // --------------------------------------------------------------------
 
- #if defined(BDE_BUILD_TARGET_CPP11) \
+ // Note that __cplusplus does not have a conforming value for g++ versions
+ // before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+ #if (__cplusplus >= 201103L)       \
  && defined(BSLS_PLATFORM_CMP_GNU)  \
  && BSLS_PLATFORM_CMP_VERSION >= 40800
         bsl::unique_ptr<int>       p;
