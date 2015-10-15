@@ -1,5 +1,16 @@
-bsl-internal (2.24.1.0) unstable; urgency=low
+bsl-internal (2.24.1.1) unstable; urgency=low
 
+  * 3540d61 [APPROVAL] pending/releases/2.24.x/fix-bdldfp-runtime-failures_cherrypick to releases/2.24.x
+  * c66dd1d Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * c66cb27 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
+  * b71857f [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
+  * 2df1620 drqs-71737205: Fixes for 'doxygen' conversion.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 15 Oct 2015 16:28:21 -0400
+
+bsl-internal (2.24.1.0) git; urgency=low
+
+  * 9f63e7e Changelog for version 2.24.1.0
   * d6ac94c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 13b9d7f [APPROVAL] INTERNAL bump-version-to-2.24.1 to releases/2.24.x
   * 4612338 [APPROVAL] bump-version-to-2.24.1 to releases/2.24.x
@@ -17,7 +28,7 @@ bsl-internal (2.24.1.0) unstable; urgency=low
   * 7773de8 [APPROVAL] OSS review/update-wscripts-drqs-70793850 to releases/2.24.x
   * ae85bad [APPROVAL] review/update-wscripts-drqs-70793850 to releases/2.24.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Sep 2015 13:48:47 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Sep 2015 14:18:50 -0400
 
 bsl-internal (2.24.0.4) git; urgency=low
 
