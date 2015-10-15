@@ -1,12 +1,13 @@
 bsl-internal (2.24.1.1) unstable; urgency=low
 
+  * 5633165 Changelog for version 2.24.1.1
   * 3540d61 [APPROVAL] pending/releases/2.24.x/fix-bdldfp-runtime-failures_cherrypick to releases/2.24.x
   * c66dd1d Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * c66cb27 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
   * b71857f [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
   * 2df1620 drqs-71737205: Fixes for 'doxygen' conversion.
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 15 Oct 2015 16:28:21 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 15 Oct 2015 16:30:56 -0400
 
 bsl-internal (2.24.1.0) git; urgency=low
 
