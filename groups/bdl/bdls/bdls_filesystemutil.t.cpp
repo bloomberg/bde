@@ -77,9 +77,9 @@ using namespace bsl;
 // [12] int tryLock(FileDescriptor, bool ) (Windows)
 // [13] int sync(char *, int , bool )
 // [14] int close(FileDescriptor )
-// [21] createTemporaryFile
-// [22] createTemporaryDirectory
-// [20] createUnsafeTemporaryFilename
+// [21] createTemporaryFile(string *, const StringRef&)
+// [22] createTemporaryDirectory(string *, const StringRef&)
+// [20] makeUnsafeTemporaryFilename(string *, const StringRef&)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -541,12 +541,11 @@ int main(int argc, char *argv[])
         //: 4 The created directory has the correct permissions.
         //
         // Plan:
-        //: 1 Create directories and a subdirectory. (C1,3)
-        //: 2 Check names, types, and permission. (C2,4)
+        //: 1 Create directories and a subdirectory. (C-1,3)
+        //: 2 Check names, types, and permission. (C-2,4)
         //
         // Testing:
-        //   int createTemporaryDirectory(bsl::string             *outPath,
-        //                                const bslstl::StringRef& prefix);
+        //   createTemporaryDirectory(string *, const StringRef&)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -603,12 +602,11 @@ int main(int argc, char *argv[])
         //: 4 The created file is open for writing.
         //
         // Plan:
-        //: 1 Create files. (C1)
-        //: 2 Check names, types, and permissions. (C2,3,4)
+        //: 1 Create files. (C-1)
+        //: 2 Check names, types, and permissions. (C-2,3,4)
         //
         // Testing:
-        //   void createTemporaryFile(bsl::string             *outPath,
-        //                            const bslstl::StringRef& prefix);
+        //   createTemporaryFile(string *, const StringRef&)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -671,13 +669,12 @@ int main(int argc, char *argv[])
         //: 3 Stuff appended is different from previous calls.
         //
         // Plan:
-        //: 1 Create names. (C1)
-        //: 2 Check invariant and variant parts. (C1,2)
-        //: 3 Sample entropy. (C3)
+        //: 1 Create names. (C-1)
+        //: 2 Check invariant and variant parts. (C-1,2)
+        //: 3 Sample entropy. (C-3)
         //
         // Testing:
-        //   void makeUnsafeTemporaryFilename(bsl::string             *outPath,
-        //                                    const bslstl::StringRef& prefix);
+        //   makeUnsafeTemporaryFilename(string *, const StringRef&)
         //
         // --------------------------------------------------------------------
 

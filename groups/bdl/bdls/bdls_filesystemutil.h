@@ -619,11 +619,12 @@ struct FilesystemUtil {
         // the specified 'outPath'.  Note that this function is called "unsafe"
         // because a file with the resulting name may be created by another
         // program before the caller has opportunity to use the name, which
-        // could be a security vulnerability.  Note that the suffix is hashed
-        // from environmental details including any pre-existing value of
-        // 'outPath', so that if a resulting name is unsuitable (e.g. the file
-        // exists) this function may simply be called again, pointing to its
-        // previous result, to get a new, different name.
+        // could be a security vulnerability, and a file with the given name
+        // may already exist where you mean to put it.  Note that the suffix is
+        // hashed from environmental details, including any pre-existing value
+        // of 'outPath' so that if a resulting name is unsuitable (e.g. the
+        // file exists) this function may simply be called again, pointing to
+        // its previous result, to get a new, probably different name.
 
     static void visitPaths(
                          const bsl::string&                           pattern,
