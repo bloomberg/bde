@@ -22,7 +22,15 @@
 #include <bsl_cstring.h>
 
 #include <bsl_cstddef.h>
-#include <bsl_initializer_list.h>
+
+// Note that __cplusplus does not have a conforming value for g++ versions
+// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+#if (__cplusplus >= 201103L)       \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    #include <bsl_initializer_list.h>
+#endif
+
 #include <bsl_memory.h>
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
