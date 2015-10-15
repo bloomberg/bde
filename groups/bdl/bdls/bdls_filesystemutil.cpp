@@ -1697,14 +1697,14 @@ int FilesystemUtil::rollFileChain(const char *path, int maxSuffix)
 }
 
 FilesystemUtil::FileDescriptor
-FilesystemUtil::createTemporaryFile(const bslstl::StringRef& prefix,
-                                    bsl::string             *outPath)
+FilesystemUtil::createTemporaryFile(bsl::string             *outPath,
+                                    const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
     FileDescriptor result;
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
-        makeUnsafeTemporaryFilename(prefix, &localOutPath);
+        makeUnsafeTemporaryFilename(&localOutPath, prefix);
         result = bdls::FilesystemUtil::open(
            (const char*) localOutPath.c_str(), e_CREATE_PRIVATE, e_READ_WRITE);
         if (result != k_INVALID_FD) {
@@ -1716,14 +1716,14 @@ FilesystemUtil::createTemporaryFile(const bslstl::StringRef& prefix,
 }
 
 int
-FilesystemUtil::createTemporaryDirectory(const bslstl::StringRef& prefix,
-                                         bsl::string             *outPath)
+FilesystemUtil::createTemporaryDirectory(bsl::string             *outPath,
+                                         const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
     int result;
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
-        makeUnsafeTemporaryFilename(prefix, &localOutPath);
+        makeUnsafeTemporaryFilename(&localOutPath, prefix);
         result = bdls::FilesystemUtil::createPrivateDirectory(localOutPath);
         if (result == 0) {
             *outPath = localOutPath;
@@ -1734,8 +1734,8 @@ FilesystemUtil::createTemporaryDirectory(const bslstl::StringRef& prefix,
 }
 
 void
-FilesystemUtil::makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
-                                            bsl::string             *outPath)
+FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
+                                            const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
     char suffix[8];
@@ -1751,7 +1751,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
     hashAppend(hashee, bdls::ProcessUtil::getProcessId());
     bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
     for (int i = 0; i < int(sizeof(suffix)); ++i) {
-        const char s[63] =
+        static const char s[63] =
               "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         suffix[i] = s[hash % 62];
         hash /= 62;

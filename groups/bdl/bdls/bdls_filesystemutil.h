@@ -567,12 +567,12 @@ struct FilesystemUtil {
     static int createDirectories(
                                const char        *path,
                                bool               isLeafDirectoryFlag = false);
-        // Create any directories in the specified 'path' that do not exist. If
-        // the optionally specified 'isLeafDirectoryFlag' is 'true', treat the
-        // final name component in 'path' as a directory name, and create it.
-        // Otherwise, ignore the final name component, and create only the
-        // directories leading up to it. Return 0 on success, and a non-zero
-        // value if any needed directories in 'path' could not be created.
+        // Create any directories in the specified 'path' that do not exist.
+        // If the optionally specified 'isLeafDirectoryFlag' is 'true', treat
+        // the final name component in 'path' as a directory name, and create
+        // it.  Otherwise, create only the directories leading up to the final
+        // name component.  Return 0 on success, and a non-zero value if any
+        // needed directories in 'path' could not be created.
 
     static int createPrivateDirectory(const bslstl::StringRef& path);
         // Create a private directory with the specified 'path'.  Return 0 on
@@ -583,9 +583,8 @@ struct FilesystemUtil {
         // permissions are not changed.  Note that directories created on
         // Microsoft Windows may receive default, not restricted permissions.
 
-    static FileDescriptor createTemporaryFile(
-                                             const bslstl::StringRef& prefix,
-                                             bsl::string             *outPath);
+    static FileDescriptor createTemporaryFile(bsl::string             *outPath,
+                                              const bslstl::StringRef& prefix);
         // Create and open a new file with a name constructed by appending an
         // automatically-generated suffix to the specified 'prefix', and return
         // its file descriptor open for reading and writing.  A return value of
@@ -600,21 +599,21 @@ struct FilesystemUtil {
         // closed.  Note that files created on Microsoft Windows may receive
         // default, not restricted permissions.
 
-    static int createTemporaryDirectory(const bslstl::StringRef& prefix,
-                                        bsl::string             *outPath);
+    static int createTemporaryDirectory(bsl::string             *outPath,
+                                        const bslstl::StringRef& prefix);
         // Create a new directory with a name constructed by appending an
-        // automatically-generated suffix to the specified 'prefix'. A non-zero
-        // return value indicates that no such directory could be created;
-        // otherwise the name of the directory created is assigned to the
-        // specified 'outPath'.  The directory is created with permissions
+        // automatically-generated suffix to the specified 'prefix'.  A
+        // non-zero return value indicates that no such directory could be
+        // created; otherwise the name of the directory created is assigned to
+        // the specified 'outPath'.  The directory is created with permissions
         // restricted, as closely as possible, to the caller only.  If the
         // prefix is a relative path, the directory is created relative to the
         // process current directory.  Responsibility for deleting the
         // directory (and any files subsequently created in it) is left to the
         // caller.
 
-    static void makeUnsafeTemporaryFilename(const bslstl::StringRef& prefix,
-                                            bsl::string             *outPath);
+    static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
+                                            const bslstl::StringRef& prefix);
         // Construct a file name by appending an automatically-generated suffix
         // to the specified 'prefix'.  The file name constructed is assigned to
         // the specified 'outPath'.  Note that this function is called "unsafe"

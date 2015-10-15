@@ -532,29 +532,39 @@ int main(int argc, char *argv[])
     switch(test) { case 0:
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING: createTemporaryDirectory
+        // TESTING 'createTemporaryDirectory' METHOD
         //
         // Concerns:
-        //  1 It actually creates a new directory.
-        //  2 A directory created has a different name than a previous one.
-        //  3 Files can be created in the directory.
-        //  4 The created directory has the correct permissions.
+        //: 1 It actually creates a new directory.
+        //: 2 A directory created has a different name than a previous one.
+        //: 3 Files can be created in the directory.
+        //: 4 The created directory has the correct permissions.
         //
         // Plan:
-        //  Create directories and a subdirectory, and check names, types, and
-        //  permissions.
+        //: 1 Create directories and a subdirectory. (C1,3)
+        //: 2 Check names, types, and permission. (C2,4)
         //
+        // Testing:
+        //   int createTemporaryDirectory(bsl::string             *outPath,
+        //                                const bslstl::StringRef& prefix);
         // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTesting 'createTemporaryDirectory' METHOD"
+                    "\n=========================================\n";
+        }
 
         bsl::string prefix = "name_prefix";
         bsl::string dirName;
-        int madeDir = Obj::createTemporaryDirectory(prefix, &dirName);
+        int madeDir = Obj::createTemporaryDirectory(&dirName, prefix);
         ASSERT(madeDir == 0);
         if (madeDir == 0) {
             ASSERT(Obj::isDirectory(dirName));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            verbose && (cout << "DIR PERMISSIONS CHECK SKIPPED ON WINDOS\n");
+            if (verbose) {
+                cout << "DIR PERMISSIONS CHECK SKIPPED ON WINDOWS\n";
+            }
 #else
             struct stat info;
             memset(&info, 0, sizeof(info));
@@ -570,9 +580,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(dirName));
 
             bsl::string dirName2, dirName3;
-            int madeDir2 = Obj::createTemporaryDirectory(prefix, &dirName2);
+            int madeDir2 = Obj::createTemporaryDirectory(&dirName2, prefix);
             ASSERT(madeDir2 == 0);
-            int madeDir3 = Obj::createTemporaryDirectory(dirName2, &dirName3);
+            int madeDir3 = Obj::createTemporaryDirectory(&dirName3, dirName2);
             ASSERT(madeDir3 == 0);
             if (madeDir2 == 0) {
                 ASSERT(Obj::isDirectory(dirName2));
@@ -584,25 +594,31 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING: createTemporaryFile
+        // TESTING 'createTemporaryFile' METHOD
         //
         // Concerns:
-        //  1 It actually creates a new file.
-        //  2 A file created has a different name than a previous one.
-        //  3 The created file has the correct permissions.
-        //  4 The created file is open for writing
+        //: 1 It actually creates a new file.
+        //: 2 A file created has a different name than a previous one.
+        //: 3 The created file has the correct permissions.
+        //: 4 The created file is open for writing.
         //
         // Plan:
-        //  Create files, and check names, types, and permissions.
+        //: 1 Create files. (C1)
+        //: 2 Check names, types, and permissions. (C2,3,4)
         //
-        //
-        // Plan:
-        //
+        // Testing:
+        //   void createTemporaryFile(bsl::string             *outPath,
+        //                            const bslstl::StringRef& prefix);
         // --------------------------------------------------------------------
+
+          if (verbose) {
+              cout << "\nTesting 'createTemporaryFile' METHOD"
+                      "\n====================================\n";
+          }
 
         bsl::string prefix = "name_prefix";
         bsl::string fileName;
-        Obj::FileDescriptor fd = Obj::createTemporaryFile(prefix, &fileName);
+        Obj::FileDescriptor fd = Obj::createTemporaryFile(&fileName, prefix);
         ASSERT(fd != Obj::k_INVALID_FD);
         ASSERT(fileName.size() >= prefix.size() + 6);
         ASSERT(prefix == fileName.substr(0, prefix.size()));
@@ -614,7 +630,9 @@ int main(int argc, char *argv[])
             ASSERT(Obj::isRegularFile(fileName));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            verbose && (cout << "FILE PERMISSIONS CHECK SKIPPED ON WINDOS\n");
+            if (verbose) {
+                cout << "FILE PERMISSIONS CHECK SKIPPED ON WINDOWS\n";
+            }
 #else
             struct stat info;
             memset(&info, 0, sizeof(info));
@@ -629,7 +647,7 @@ int main(int argc, char *argv[])
 #endif
             bsl::string fileName2;
             Obj::FileDescriptor fd2 =
-                                  Obj::createTemporaryFile(prefix, &fileName2);
+                                  Obj::createTemporaryFile(&fileName2, prefix);
             ASSERT(fd2 != Obj::k_INVALID_FD);
             if (fd2 != Obj::k_INVALID_FD) {
                 ASSERT(fileName2 != fileName);
@@ -645,29 +663,49 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING: makeUnsafeTemporaryFilename
+        // TESTING 'makeUnsafeTemporaryFilename' METHOD
         //
         // Concerns:
-        //  1 Prefix is copied to output with stuff appended
-        //  2 Stuff appended is enough to make it unique
-        //  3 Stuff appended is different from previous calls
+        //: 1 Prefix is copied to output with stuff appended.
+        //: 2 Stuff appended is enough to make it unique.
+        //: 3 Stuff appended is different from previous calls.
         //
         // Plan:
-        //   Create names, check invariant and variant parts
+        //: 1 Create names. (C1)
+        //: 2 Check invariant and variant parts. (C1,2)
+        //: 3 Sample entropy. (C3)
+        //
+        // Testing:
+        //   void makeUnsafeTemporaryFilename(bsl::string             *outPath,
+        //                                    const bslstl::StringRef& prefix);
         //
         // --------------------------------------------------------------------
 
+        if (verbose) {
+            cout << "\nTesting 'makeUnsafeTemporaryFilename' METHOD"
+                    "\n============================================\n";
+        }
+
         const bsl::string prefix = "name_prefix";
         bsl::string name1;
-        Obj::makeUnsafeTemporaryFilename(prefix, &name1);
+        Obj::makeUnsafeTemporaryFilename(&name1, prefix);
         bsl::string name2 = name1;
-        Obj::makeUnsafeTemporaryFilename(prefix, &name2);
+        Obj::makeUnsafeTemporaryFilename(&name2, prefix);
         const size_t p1 = prefix.size();
         ASSERT(name1.size() >= p1 + 8);
         ASSERT(name2.size() >= p1 + 8);
         ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
         ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
+        ASSERT(name1.size() == name2.size());
         ASSERT(name1.substr(p1) != name2.substr(p1));
+        int sum = 0, diffs = 0;
+        for (int i = p1; i < name1.size(); ++i) {
+            int diff = name1[i] - name2[i];
+            diffs += diff != 0;
+            sum += bsl::abs(diff);
+        }
+        ASSERT(sum >= 40);
+        ASSERT(diffs >= 4);
 
       } break;
       case 19: {
@@ -4718,16 +4756,16 @@ int main(int argc, char *argv[])
 
             bsl::string fixedPrefix = "name_prefix";
             bsl::string varPrefix;
-            Obj::makeUnsafeTemporaryFilename(fixedPrefix, &varPrefix);
+            Obj::makeUnsafeTemporaryFilename(&varPrefix, fixedPrefix);
 
             bsl::string dirName;
-            int madeDir = Obj::createTemporaryDirectory(varPrefix, &dirName);
+            int madeDir = Obj::createTemporaryDirectory(&dirName, varPrefix);
             ASSERT(madeDir == 0);
             if (madeDir) {
                 bsl::string subDirName = dirName + "/file_base";
                 bsl::string fileName;
                 Obj::FileDescriptor fd =
-                              Obj::createTemporaryFile(subDirName, &fileName);
+                               Obj::createTemporaryFile(&fileName, subDirName);
                 if (fd != Obj::k_INVALID_FD) {
                     static const char hello[] = "hello, world\n";
                     Obj::write(fd, hello, sizeof(hello) - 1);
