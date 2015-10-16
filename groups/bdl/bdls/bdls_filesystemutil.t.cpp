@@ -553,11 +553,14 @@ int main(int argc, char *argv[])
                     "\n=========================================\n";
         }
 
-        bsl::string prefix = "name_prefix";
+        bsl::string prefix = "name_prefix_";
         bsl::string dirName;
         int madeDir = Obj::createTemporaryDirectory(&dirName, prefix);
         ASSERT(madeDir == 0);
         if (madeDir == 0) {
+            if (veryVerbose) {
+                cout << ":" << dirName << ":\n";
+            }
             ASSERT(Obj::isDirectory(dirName));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -570,9 +573,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == ::stat(dirName.c_str(), &info));
             info.st_mode &= 0777;
             ASSERT((S_IRUSR|S_IWUSR|S_IXUSR) == info.st_mode);
-            if (veryVeryVerbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode) {
+            if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
+                                                          || veryVeryVerbose) {
                 cout.flush(); fflush(stdout);
-                printf("Temp file permissions %o\n", info.st_mode);
+                printf("Temp file permissions 0%o\n", info.st_mode);
                 fflush(stdout);
             }
 #endif
@@ -584,6 +588,9 @@ int main(int argc, char *argv[])
             int madeDir3 = Obj::createTemporaryDirectory(&dirName3, dirName2);
             ASSERT(madeDir3 == 0);
             if (madeDir2 == 0) {
+                if (veryVerbose) {
+                    cout << ":" << dirName2 << ": :" << dirName3 << ":\n";
+                }
                 ASSERT(Obj::isDirectory(dirName2));
                 ASSERT(Obj::isDirectory(dirName3));
                 ASSERT(dirName2 != dirName);
@@ -614,9 +621,12 @@ int main(int argc, char *argv[])
                     "\n====================================\n";
         }
 
-        bsl::string prefix = "name_prefix";
+        bsl::string prefix = "name_prefix_";
         bsl::string fileName;
         Obj::FileDescriptor fd = Obj::createTemporaryFile(&fileName, prefix);
+        if (veryVerbose) {
+            cout << ":" << fileName << ":\n";
+        }
         ASSERT(fd != Obj::k_INVALID_FD);
         ASSERT(fileName.size() >= prefix.size() + 6);
         ASSERT(prefix == fileName.substr(0, prefix.size()));
@@ -637,15 +647,19 @@ int main(int argc, char *argv[])
             ASSERT(0 == ::stat(fileName.c_str(), &info));
             info.st_mode &= 0777;
             ASSERT((S_IRUSR|S_IWUSR) == info.st_mode);
-            if (veryVeryVerbose && (S_IRUSR|S_IWUSR) != info.st_mode) {
+            if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
+                                                          || veryVeryVerbose) {
                 cout.flush(); fflush(stdout);
-                printf("Temp file permissions %o\n", info.st_mode);
+                printf("Temp file permissions 0%o\n", info.st_mode);
                 fflush(stdout);
             }
 #endif
             bsl::string fileName2;
             Obj::FileDescriptor fd2 =
                                   Obj::createTemporaryFile(&fileName2, prefix);
+            if (veryVerbose) {
+                cout << ":" << fileName2 << ":\n";
+            }
             ASSERT(fd2 != Obj::k_INVALID_FD);
             if (fd2 != Obj::k_INVALID_FD) {
                 ASSERT(fileName2 != fileName);
@@ -683,26 +697,31 @@ int main(int argc, char *argv[])
                     "\n============================================\n";
         }
 
-        const bsl::string prefix = "name_prefix";
-        bsl::string name1;
-        Obj::makeUnsafeTemporaryFilename(&name1, prefix);
-        bsl::string name2 = name1;
-        Obj::makeUnsafeTemporaryFilename(&name2, prefix);
-        const size_t p1 = prefix.size();
-        ASSERT(name1.size() >= p1 + 8);
-        ASSERT(name2.size() >= p1 + 8);
-        ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
-        ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
-        ASSERT(name1.size() == name2.size());
-        ASSERT(name1.substr(p1) != name2.substr(p1));
-        int sum = 0, diffs = 0;
-        for (int i = p1; i < name1.size(); ++i) {
-            int diff = name1[i] - name2[i];
-            diffs += diff != 0;
-            sum += bsl::abs(diff);
+        const bsl::string prefix = "name_prefix_";
+        for (int check = 0; check < 100; ++check) {
+            bsl::string name1;
+            Obj::makeUnsafeTemporaryFilename(&name1, prefix);
+            bsl::string name2 = name1;
+            Obj::makeUnsafeTemporaryFilename(&name2, prefix);
+            if ((check == 0 && veryVerbose) || veryVeryVerbose) {
+                cout << ":" << name1 << ": :" << name2 << ":\n";
+            }
+            const size_t p1 = prefix.size();
+            ASSERT(name1.size() >= p1 + 8);
+            ASSERT(name2.size() >= p1 + 8);
+            ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
+            ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
+            ASSERT(name1.size() == name2.size());
+            ASSERT(name1.substr(p1) != name2.substr(p1));
+            int sum = 0, diffs = 0;
+            for (size_t i = p1; i < name1.size(); ++i) {
+                int diff = name1[i] - name2[i];
+                diffs += diff != 0;
+                sum += bsl::abs(diff);
+            }
+            ASSERT(sum >= 40);
+            ASSERT(diffs >= 4);
         }
-        ASSERT(sum >= 40);
-        ASSERT(diffs >= 4);
 
       } break;
       case 19: {
@@ -4751,7 +4770,7 @@ int main(int argc, char *argv[])
 
             // exercise temp name, file, directory
 
-            bsl::string fixedPrefix = "name_prefix";
+            bsl::string fixedPrefix = "name_prefix_";
             bsl::string varPrefix;
             Obj::makeUnsafeTemporaryFilename(&varPrefix, fixedPrefix);
 
