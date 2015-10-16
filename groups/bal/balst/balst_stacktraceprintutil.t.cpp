@@ -142,23 +142,29 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
+    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
+    enum { FORMAT_DWARF = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_HPUX)
+    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
 # else
 #   error unknown platform
 # endif
 
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 1,
+                                                            FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_DLADDR = 0,
+                                                            FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0,
+                                                            FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
 # error unknown object file format
@@ -289,7 +295,8 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-    if (!FORMAT_ELF && !FORMAT_DLADDR && !FORMAT_WINDOWS && DEBUG_ON) {
+    if (!(FORMAT_ELF && !FORMAT_DWARF) && !FORMAT_DLADDR && !FORMAT_WINDOWS &&
+                                                                    DEBUG_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
@@ -298,7 +305,15 @@ void top()
         matches.push_back("balst");
         matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
-        matches.push_back(" source:balst_stacktraceprintutil.h");
+        if (FORMAT_DWARF) {
+            // DWARF gets the source file name wrong for functions in include
+            // files, showing instead the file they were called from.
+
+            matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
+        }
+        else {
+            matches.push_back(" source:balst_stacktraceprintutil.h");
+        }
         matches.push_back(" in balst_stacktraceprintutil.t");
         matches.push_back("\n");
         matches.push_back("top");

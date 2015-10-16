@@ -120,6 +120,10 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 
     char              *d_scratchBufB_p;     // scratch buffer B
 
+    char              *d_scratchBufC_p;     // scratch buffer C
+
+    char              *d_scratchBufD_p;     // scratch buffer D
+
     HiddenRec&         d_hidden;            // reference to the 'HiddenRec'.
 
     bool               d_demangle;          // whether we demangle names
@@ -179,6 +183,11 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 
+    static void test();
+        // This function is just there to test how code deals with inline
+        // functions in an include file.  It does not provide any otherwise
+        // useful functionality.
+
     // MANIPULATOR
     int processLoadedImage(const char *fileName,
                            const void *programHeaders,
@@ -203,6 +212,15 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // Return the number of frames in the stack trace that are still
         // unmatched.
 };
+
+inline
+void StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
+{
+    StackTrace st;
+    StackTraceResolverImpl<ObjectFileFormat::Elf> resolver(&st, true);
+
+    (void) resolver.numUnmatchedFrames();
+}
 
 }  // close package namespace
 

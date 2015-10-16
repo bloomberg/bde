@@ -14,6 +14,7 @@
 #include <balst_stacktrace.h>
 
 #include <bdlb_string.h>
+#include <bdlb_stringrefutil.h>
 
 #include <bdlma_sequentialallocator.h>
 
@@ -362,9 +363,12 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!FORMAT_ELF && !FORMAT_DLADDR && !FORMAT_XCOFF && DEBUG_ON &&
+        if (!(FORMAT_ELF && !PLAT_LINUX) && !FORMAT_DLADDR && DEBUG_ON &&
                                                                 !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
+        }
+
+        if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !reachedMain) {
             ASSERT(frame.lineNumber() > 0);
         }
         else if (FORMAT_XCOFF) {
@@ -917,7 +921,10 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     break;
                 }
 
-                if (bsl::strstr(sn, "bsl") && bsl::strstr(sn, "function")) {
+                const bslstl::StringRef& funcMatch =
+                               bdlb::StringRefUtil::strstrCaseless(sn,
+                                                                   "function");
+                if (bsl::strstr(sn, "bsl") && !funcMatch.isEmpty()) {
                     continue;
                 }
 
