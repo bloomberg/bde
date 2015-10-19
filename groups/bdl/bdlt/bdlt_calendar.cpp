@@ -319,6 +319,176 @@ int Calendar::getNextBusinessDay(Date        *nextBusinessDay,
     return e_SUCCESS;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+// DEPRECATED METHODS
+Date Calendar::getNextBusinessDay(const Date& initialDate) const
+{
+    Date currentDate = initialDate;
+    ++currentDate;
+
+    if (0 == length()) {
+        while (isWeekendDay(currentDate)) {
+            ++currentDate;
+        }
+
+        return currentDate;                                           // RETURN
+    }
+
+    Date calendarFirstDate = firstDate();
+
+    // For 'currentDate < calendarFirstDate', only weekend days are considered
+    // non-business days.  Note that the following loop will run 6 times in the
+    // worst case because we know at this point that this calendar has at least
+    // one day which is not a weekend day.
+
+    while (currentDate < calendarFirstDate) {
+        if (0 == isWeekendDay(currentDate)) {
+            return currentDate;                                       // RETURN
+        }
+        ++currentDate;
+    }
+
+    // If 'currentDate' is in the range of the calendar, we just need to lookup
+    // in this calendar's cache.
+
+    if (isInRange(currentDate)) {
+        int offset = d_nonBusinessDays.find0AtMinIndex(
+                                              currentDate - calendarFirstDate);
+        if (offset != -1) {
+            // Found the next business day within the valid range of this
+            // calendar.
+
+            return calendarFirstDate + offset;                        // RETURN
+        }
+        // No business day could be found in the range of the calendar.
+        // Position 'currentDate' one day past the last valid date of this
+        // calendar for the next lookup.
+
+        currentDate = lastDate();
+        ++currentDate;
+    }
+
+    // Starting from 'lastDate + 1', only weekend days are considered
+    // non-business days.  Note that this loop will run 6 times in the worst
+    // case because we know at this point that this calendar has at least one
+    // day which is not a weekend day.
+
+    while (isWeekendDay(currentDate)) {
+        ++currentDate;
+    }
+
+    return currentDate;
+}
+
+Date Calendar::getNextBusinessDay(const Date& initialDate, int nth) const
+{
+    BSLS_ASSERT(nth > 1);
+
+    Date currentDate       = initialDate;
+    ++currentDate;
+
+    if (0 == length()) {
+        while (1) {
+            if (!isWeekendDay(currentDate)) {
+                // Found a business day, so decrement 'nth'.
+
+                --nth;
+                if (0 == nth) {
+                    // Found the next 'nth' business day after the last date.
+
+                    break;
+                }
+            }
+            ++currentDate;
+        }
+
+        return currentDate;                                           // RETURN
+    }
+
+    Date calendarFirstDate = firstDate();
+    
+    // Every time a new business day is found, 'nth' will be decremented by one
+    // until it reaches 0, in which case we return the business day found.
+
+    // For 'currentDate < calendarFirstDate', only weekend days are considered
+    // holidays.  Note that the following loop will run '6 * nth' times in the
+    // worst case because we know at this point that this calendar has at least
+    // one day which is not a weekend day.
+
+    while (currentDate < calendarFirstDate) {
+        if (0 == isWeekendDay(currentDate)) {
+            // Found a business day, so decrement 'nth'.
+
+            --nth;
+            if (0 == nth) {
+                // Found the next 'nth' business day before the first date.
+
+                return currentDate;                                   // RETURN
+            }
+        }
+        ++currentDate;
+    }
+    int offset = currentDate - calendarFirstDate;
+
+    // If 'currentDate' is in the range of the calendar, we just need to lookup
+    // in this calendar's cache.
+
+    while (isInRange(calendarFirstDate + offset)) {
+        offset = d_nonBusinessDays.find0AtMinIndex(offset);
+        if (offset != -1) {
+            // Found the next business day within the valid range of this
+            // calendar, so decrement 'nth'.
+
+            --nth;
+            if (0 == nth) {
+                // Found the next 'nth' business day.
+
+                return calendarFirstDate + offset;                    // RETURN
+            }
+            ++offset;
+        }
+        else {
+            // No more business day could be found in the range of the
+            // calendar.  Position 'currentDate' one day past the last valid
+            // date of this calendar for the next lookup.
+
+            break;
+        }
+    }
+
+    // Position 'currentDate' one day past the last valid date of this calendar
+    // for the next lookup only if 'currentDate' was within the valid range.
+
+    if (isInRange(currentDate)) {
+        currentDate = lastDate();
+        ++currentDate;
+    }
+
+    // Starting from 'lastDate + 1', only weekend days are considered holidays.
+    // Note that this loop will run '6 * nth' times in the worst case because
+    // we know at this point that this calendar has at least one day which is
+    // not a weekend day.
+
+    while (1) {
+        if (!isWeekendDay(currentDate)) {
+            // Found a business day, so decrement 'nth'.
+
+            --nth;
+            if (0 == nth) {
+                // Found the next 'nth' business day after the last date.
+
+                break;
+            }
+        }
+        ++currentDate;
+    }
+
+    return currentDate;
+}
+    
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
                    // -----------------------------------
                    // class Calendar_BusinessDayConstIter
                    // -----------------------------------

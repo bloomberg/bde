@@ -1355,17 +1355,16 @@ class PackedCalendar {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
     // DEPRECATED METHODS
-
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
 
-#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 };
 
 // FREE OPERATORS
@@ -1502,6 +1501,12 @@ class PackedCalendar_HolidayConstIterator {
     typedef PackedCalendar_DateRef   reference;
         // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+    typedef bsl::bidirectional_iterator_tag iterator_category;
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
 
     // CREATORS
     PackedCalendar_HolidayConstIterator(
@@ -1606,6 +1611,12 @@ class PackedCalendar_HolidayCodeConstIterator {
     typedef int *pointer;
     typedef int  reference;
         // The star operator returns an 'int' *by* *value*.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+    typedef bsl::bidirectional_iterator_tag iterator_category;
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
     // CREATORS
     PackedCalendar_HolidayCodeConstIterator(
@@ -1742,6 +1753,12 @@ class PackedCalendar_BusinessDayConstIterator {
     typedef PackedCalendar_DateProxy pointer;
     typedef PackedCalendar_DateRef   reference;
         // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+    typedef bsl::bidirectional_iterator_tag iterator_category;
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
     // CREATORS
     PackedCalendar_BusinessDayConstIterator(
@@ -3200,17 +3217,16 @@ STREAM& PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
 // DEPRECATED METHODS
-
 inline
 int PackedCalendar::maxSupportedBdexVersion()
 {
     return 1;
 }
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

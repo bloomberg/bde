@@ -159,10 +159,14 @@ using namespace bsl;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& stream, int level = 0, int sPL = 4) const;
 //
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+// [28] Date getNextBusinessDay(const Date& initialDate) const;
+// [28] Date getNextBusinessDay(const Date& initialDate, int n) const;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 //
 // FREE OPERATORS
 // [ 6] bool operator==(lhs, rhs);
@@ -1347,6 +1351,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   int getNextBusinessDay(Date *nextBusinessDay, const Date& date);
         //   int getNextBusinessDay(Date *nBD, const Date& date, int nth);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+        //   Date getNextBusinessDay(const Date& initialDate) const;
+        //   Date getNextBusinessDay(const Date& initialDate, int n) const;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1460,6 +1468,120 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(X.getNextBusinessDay(&date, X.firstDate() - 1, 0));
             ASSERT_FAIL(X.getNextBusinessDay(0, X.firstDate() - 1, 1));
         }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+        struct {
+            int d_line;
+            const char *d_spec;
+        } DATA[] = {
+            { L_, "" },
+            { L_, "auw" },
+            { L_, "@2005/1/1" },
+            { L_, "a@2005/1/1" },
+            { L_, "@2005/1/1 30" },
+            { L_, "au@1/1/1 30 7 9 27 28 29 30" },
+            { L_, "mwf@2005/3/1 30 7 8 9 22 27 29" },
+            { L_, "@2005/3/1 30 7 8 9 10 22 27 29" },
+            { L_, "twrfau@2005/3/1 30 6 13 20 27" },
+            { L_, "au@2005/8/1 30 0m 30w" },
+            { L_, "au@2005/8/1 30 0mt 29tw" },
+            { L_, "m@2005/8/1 30 1t 29tw" } ,
+            { L_, "@2005/8/1 10 0mtwrfa" },
+            { L_, "@1/1/1 100 0mt 30rf 60au" },
+        };
+        enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
+
+        // Testing 'getNextBusinessDay(const Date&)'.
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+
+            Obj mX;  const Obj& X = gg(&mX, SPEC);
+            bdlt::Date startDate, endDate;
+
+            // Setting up the test range.
+
+            if (X.length() > 0) {
+                startDate =   X.firstDate() > bdlt::Date(1, 1, 7)
+                            ? X.firstDate() - 7
+                            : bdlt::Date(1, 1, 1);
+                endDate   =   X.lastDate() < bdlt::Date(9999, 12, 25)
+                            ? X.lastDate() + 7
+                            : bdlt::Date(9999, 12, 31);
+            }
+            else {
+                startDate.setYearMonthDay(2005, 1, 1);
+                endDate.setYearMonthDay(2005, 1, 1);
+            }
+
+            // Testing all dates within the test range.
+
+            for (bdlt::Date tempDate = startDate; tempDate <= endDate;
+                                                                  ++tempDate) {
+                bdlt::Date result(tempDate);
+
+                // Finding the next business day.
+
+                ++result;
+                while (   X.isInRange(result)  && X.isNonBusinessDay(result)
+                       || !X.isInRange(result) && X.isWeekendDay(result)) {
+                    ++result;
+                }
+
+                LOOP2_ASSERT(i, tempDate,
+                                     X.getNextBusinessDay(tempDate) == result);
+            }
+        }
+
+        // Testing 'getNextBusinessDay(const Date&, int)'.
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE   = DATA[i].d_line;
+            const char *SPEC = DATA[i].d_spec;
+
+            Obj mX;  const Obj& X = gg(&mX, SPEC);
+            bdlt::Date startDate, endDate;
+
+            // Setting up the test range.
+
+            if (X.length() > 0) {
+                startDate =   X.firstDate() > bdlt::Date(1, 1, 7)
+                            ? X.firstDate() - 7
+                            : bdlt::Date(1, 1, 1);
+                endDate   =   X.lastDate() < bdlt::Date(9999, 12, 25)
+                            ? X.lastDate() + 7
+                            : bdlt::Date(9999, 12, 31);
+            }
+            else {
+                startDate.setYearMonthDay(2005, 1, 1);
+                endDate.setYearMonthDay(2005, 1, 1);
+            }
+
+            // Testing all dates within the test range.
+
+            for (bdlt::Date tempDate = startDate; tempDate <= endDate;
+                                                                  ++tempDate) {
+                for (int n = 2; n <= 8; ++n) {
+                    bdlt::Date result(tempDate);
+
+                    // Call 'getNextBusinessDay(const& Date)' 'n' times
+                    // and use the result to verify
+                    // 'getNextBusinessDay(const& Date, int)'.
+
+                    for (int nn = 0; nn < n; ++nn) {
+                        result = X.getNextBusinessDay(result);
+                    }
+                    LOOP2_ASSERT(i, tempDate,
+                                  X.getNextBusinessDay(tempDate, n) == result);
+                }
+            }
+        }
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
+
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -5034,9 +5156,9 @@ int main(int argc, char *argv[])
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5072,9 +5194,9 @@ int main(int argc, char *argv[])
             ASSERT(3 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(1 == Obj::maxSupportedBdexVersion());
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         }
 
         const int VERSIONS[] = { 2, 3 };
