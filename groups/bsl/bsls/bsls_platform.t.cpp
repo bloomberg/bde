@@ -176,12 +176,14 @@ int main(int argc, char *argv[])
           printf("BSLS_PLATFORM_CMP_SUN == 0\n");
         #endif
         #ifdef BSLS_PLATFORM_CMP_VERSION
-          printf("BSLS_PLATFORM_CMP_VERSION == 1\n");
+          printf("BSLS_PLATFORM_CMP_VERSION == %d\n",
+                 BSLS_PLATFORM_CMP_VERSION);
         #else
           printf("BSLS_PLATFORM_CMP_VERSION == 0\n");
         #endif
         #ifdef BSLS_PLATFORM_CMP_VER_MAJOR
-          printf("BSLS_PLATFORM_CMP_VER_MAJOR == 1\n");
+          printf("BSLS_PLATFORM_CMP_VER_MAJOR == %d\n",
+                 BSLS_PLATFORM_CMP_VER_MAJOR);
         #else
           printf("BSLS_PLATFORM_CMP_VER_MAJOR == 0\n");
         #endif
@@ -331,12 +333,14 @@ int main(int argc, char *argv[])
           printf("BSLS_PLATFORM_OS_UNIX == 0\n");
         #endif
         #ifdef BSLS_PLATFORM_OS_VER_MAJOR
-          printf("BSLS_PLATFORM_OS_VER_MAJOR == 1\n");
+          printf("BSLS_PLATFORM_OS_VER_MAJOR == %d\n",
+                 BSLS_PLATFORM_OS_VER_MAJOR);
         #else
           printf("BSLS_PLATFORM_OS_VER_MAJOR == 0\n");
         #endif
         #ifdef BSLS_PLATFORM_OS_VER_MINOR
-          printf("BSLS_PLATFORM_OS_VER_MINOR == 1\n");
+          printf("BSLS_PLATFORM_OS_VER_MINOR == %d\n",
+                 BSLS_PLATFORM_OS_VER_MINOR);
         #else
           printf("BSLS_PLATFORM_OS_VER_MINOR == 0\n");
         #endif
