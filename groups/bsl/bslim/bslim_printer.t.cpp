@@ -21,6 +21,18 @@
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
 
+#include <bsl_cstddef.h>
+
+// Note that __cplusplus does not have a conforming value for g++ versions
+// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+#if (__cplusplus >= 201103L)       \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    #include <bsl_initializer_list.h>
+#endif
+
+#include <bsl_memory.h>
+
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
 #include <stdlib.h>    // 'atoi'
@@ -3183,6 +3195,34 @@ int main(int argc, char *argv[])
         }
         LOOP2_ASSERT(EXPECTED, ACTUAL, EXPECTED == ACTUAL);
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // BSL namespace import tests
+        //
+        // Concerns:
+        //: 1 (Ab)use this test driver to validate changes in
+        //:   bsl_initializer_list.h, bsl_memory.h and bsl_cstddef.h to include
+        //:   C++11 symbols in bsl for g++ versions 4.8 and above.
+        //
+        // Plan: Declare a variable of each of the imported types, using the
+        // bsl:: namespace.  This suffices to validate that they are correctly
+        // imported.
+        // --------------------------------------------------------------------
+
+ // Note that __cplusplus does not have a conforming value for g++ versions
+ // before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+ #if (__cplusplus >= 201103L)       \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+        bsl::unique_ptr<int>       p;
+        bsl::nullptr_t             q;
+        bsl::initializer_list<int> r;
+
+        (void)p;
+        (void)q;
+        (void)r;
+#endif
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
