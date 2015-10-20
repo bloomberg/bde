@@ -1,3 +1,11 @@
+bsl-internal (2.24.1.1) unstable; urgency=low
+
+  * bc2b0e7 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.1.x
+  * 823fa86 [APPROVAL] INTERNAL review/add-missing-cpp11-imports-drqs-72488687 to releases/2.24.1.x
+  * 8837ef6 [APPROVAL] review/add-missing-cpp11-imports-drqs-72488687 to releases/2.24.1.x
+
+ -- Alexander Beels <abeels@bloomberg.net>  Tue, 20 Oct 2015 15:31:42 -0400
+
 bsl-internal (2.24.1.0) unstable; urgency=low
 
   * d6ac94c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
