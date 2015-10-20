@@ -143,6 +143,14 @@ struct is_enum
     // 'bsl::false_type' otherwise.
 };
 
+template <class TYPE>
+struct is_enum<TYPE *> : false_type {
+    // Pointers are not enumerated types.  This is captured above without this
+    // partial specialization, but the convertability tests can trigger ADL
+    // such that the compiler will want TYPE to be complete, breaking some
+    // desirable usages involving forward-declarations.
+};
+
 // Additional partial specializations for cv-qualified types ensure that the
 // correct result is obtained for cv-qualified enums.  Note that there is a
 // peculiar bug wit the IBM xlC compiler that requires an additional use of the
