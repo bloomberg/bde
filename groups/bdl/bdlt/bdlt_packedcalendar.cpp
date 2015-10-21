@@ -531,6 +531,10 @@ PackedCalendar::PackedCalendar(const Date&       firstDate,
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(firstDate <= lastDate);
+    if (firstDate > lastDate) {
+        d_firstDate = Date(9999, 12, 31);
+        d_lastDate  = Date(   1,  1,  1);
+    }
 }
 
 PackedCalendar::PackedCalendar(const PackedCalendar&  original,
@@ -819,12 +823,20 @@ void PackedCalendar::setValidRange(const Date& firstDate, const Date& lastDate)
 {
     BSLS_ASSERT(firstDate <= lastDate);
 
-    if (lastDate < d_firstDate || firstDate > d_lastDate) {
+    if (firstDate > lastDate
+     || lastDate < d_firstDate
+     || firstDate > d_lastDate) {
         d_holidayOffsets.removeAll();
         d_holidayCodesIndex.removeAll();
         d_holidayCodes.removeAll();
-        d_firstDate = firstDate;
-        d_lastDate = lastDate;
+        if (firstDate <= lastDate) {
+            d_firstDate = firstDate;
+            d_lastDate = lastDate;
+        }
+        else {
+            d_firstDate = Date(9999, 12, 31);
+            d_lastDate  = Date(   1,  1,  1);
+        }
 
         return;                                                       // RETURN
     }
