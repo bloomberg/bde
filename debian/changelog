@@ -1,10 +1,14 @@
-bsl-internal (2.24.1.2) unstable; urgency=low
+bsl-internal (2.24.1.3) unstable; urgency=low
 
+  * 9955f41 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.1.x
+  * 48d98e2 [APPROVAL] INTERNAL review/2.24-merge-base-adl-is_enum-drqs-72324531 to releases/2.24.1.x
+  * 42a4733 [APPROVAL] review/2.24-merge-base-adl-is_enum-drqs-72324531 to releases/2.24.1.x
+  * 8595ecd Changelog for version 2.24.1.2
   * 4d08a43 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.1.x
   * b716960 [APPROVAL] INTERNAL add-missing-cpp11-imports-drqs-72488687 to releases/2.24.1.x
   * d8f966d [APPROVAL] add-missing-cpp11-imports-drqs-72488687 to releases/2.24.1.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 21 Oct 2015 10:36:11 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 21 Oct 2015 16:34:41 -0400
 
 bsl-internal (2.24.1.1) git; urgency=low
 
