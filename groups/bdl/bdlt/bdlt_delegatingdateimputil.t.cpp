@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(MON ==       Util::serialToDayOfWeek(1));
-            ASSERT(SAT ==  PosixUtil::serial2weekday(   1));
+            ASSERT(SAT ==  PosixUtil::serialToDayOfWeek(   1));
             ASSERT(MON == SerialUtil::serialToDayOfWeek(1));
         }
         {
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(SAT ==       Util::serialToDayOfWeek(1));
-            ASSERT(SAT ==  PosixUtil::serial2weekday(   1));
+            ASSERT(SAT ==  PosixUtil::serialToDayOfWeek(   1));
             ASSERT(MON == SerialUtil::serialToDayOfWeek(1));
         }
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(WED ==       Util::ydToDayOfWeek(1, 3));
-            ASSERT(MON ==  PosixUtil::yd2weekday(   1, 3));
+            ASSERT(MON ==  PosixUtil::ydToDayOfWeek(   1, 3));
             ASSERT(WED == SerialUtil::ydToDayOfWeek(1, 3));
         }
         {
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(MON ==       Util::ydToDayOfWeek(1, 3));
-            ASSERT(MON ==  PosixUtil::yd2weekday(   1, 3));
+            ASSERT(MON ==  PosixUtil::ydToDayOfWeek(   1, 3));
             ASSERT(WED == SerialUtil::ydToDayOfWeek(1, 3));
         }
 
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(FRI ==       Util::ymdToDayOfWeek(1, 1, 5));
-            ASSERT(WED ==  PosixUtil::ymd2weekday(   1, 1, 5));
+            ASSERT(WED ==  PosixUtil::ymdToDayOfWeek(   1, 1, 5));
             ASSERT(FRI == SerialUtil::ymdToDayOfWeek(1, 1, 5));
         }
         {
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(WED ==       Util::ymdToDayOfWeek(1, 1, 5));
-            ASSERT(WED ==  PosixUtil::ymd2weekday(   1, 1, 5));
+            ASSERT(WED ==  PosixUtil::ymdToDayOfWeek(   1, 1, 5));
             ASSERT(FRI == SerialUtil::ymdToDayOfWeek(1, 1, 5));
         }
 
@@ -283,11 +283,11 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT( 1 ==       Util::serialToDay(       36525));
-            ASSERT(31 ==  PosixUtil::serial2day(        36525));
+            ASSERT(31 ==  PosixUtil::serialToDay(        36525));
             ASSERT( 1 == SerialUtil::serialToDay(       36525));
 
             ASSERT( 1 ==       Util::serialToDayNoCache(36525));
-            ASSERT(31 ==  PosixUtil::serial2dayNoCache( 36525));
+            ASSERT(31 ==  PosixUtil::serialToDayNoCache( 36525));
             ASSERT( 1 == SerialUtil::serialToDayNoCache(36525));
         }
         {
@@ -297,11 +297,11 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(31 ==       Util::serialToDay(       36525));
-            ASSERT(31 ==  PosixUtil::serial2day(        36525));
+            ASSERT(31 ==  PosixUtil::serialToDay(        36525));
             ASSERT( 1 == SerialUtil::serialToDay(       36525));
 
             ASSERT(31 ==       Util::serialToDayNoCache(36525));
-            ASSERT(31 ==  PosixUtil::serial2dayNoCache( 36525));
+            ASSERT(31 ==  PosixUtil::serialToDayNoCache( 36525));
             ASSERT( 1 == SerialUtil::serialToDayNoCache(36525));
         }
 
@@ -313,11 +313,11 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT( 1 ==       Util::serialToMonth(       36525));
-            ASSERT(12 ==  PosixUtil::serial2month(        36525));
+            ASSERT(12 ==  PosixUtil::serialToMonth(        36525));
             ASSERT( 1 == SerialUtil::serialToMonth(       36525));
 
             ASSERT( 1 ==       Util::serialToMonthNoCache(36525));
-            ASSERT(12 ==  PosixUtil::serial2monthNoCache( 36525));
+            ASSERT(12 ==  PosixUtil::serialToMonthNoCache( 36525));
             ASSERT( 1 == SerialUtil::serialToMonthNoCache(36525));
         }
         {
@@ -327,11 +327,11 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(12 ==       Util::serialToMonth(       36525));
-            ASSERT(12 ==  PosixUtil::serial2month(        36525));
+            ASSERT(12 ==  PosixUtil::serialToMonth(        36525));
             ASSERT( 1 == SerialUtil::serialToMonth(       36525));
 
             ASSERT(12 ==       Util::serialToMonthNoCache(36525));
-            ASSERT(12 ==  PosixUtil::serial2monthNoCache( 36525));
+            ASSERT(12 ==  PosixUtil::serialToMonthNoCache( 36525));
             ASSERT( 1 == SerialUtil::serialToMonthNoCache(36525));
         }
 
@@ -343,11 +343,11 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(101 ==       Util::serialToYear(       36525));
-            ASSERT(100 ==  PosixUtil::serial2year(        36525));
+            ASSERT(100 ==  PosixUtil::serialToYear(        36525));
             ASSERT(101 == SerialUtil::serialToYear(       36525));
 
             ASSERT(101 ==       Util::serialToYearNoCache(36525));
-            ASSERT(100 ==  PosixUtil::serial2yearNoCache( 36525));
+            ASSERT(100 ==  PosixUtil::serialToYearNoCache( 36525));
             ASSERT(101 == SerialUtil::serialToYearNoCache(36525));
         }
         {
@@ -357,11 +357,11 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(100 ==       Util::serialToYear(       36525));
-            ASSERT(100 ==  PosixUtil::serial2year(        36525));
+            ASSERT(100 ==  PosixUtil::serialToYear(        36525));
             ASSERT(101 == SerialUtil::serialToYear(       36525));
 
             ASSERT(100 ==       Util::serialToYearNoCache(36525));
-            ASSERT(100 ==  PosixUtil::serial2yearNoCache( 36525));
+            ASSERT(100 ==  PosixUtil::serialToYearNoCache( 36525));
             ASSERT(101 == SerialUtil::serialToYearNoCache(36525));
         }
 
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
             ASSERT(  1 == m);
             ASSERT(  1 == d);
 
-             PosixUtil::serial2ymd(        &y, &m, &d, 36525);
+             PosixUtil::serialToYmd(        &y, &m, &d, 36525);
             ASSERT(100 == y);
             ASSERT( 12 == m);
             ASSERT( 31 == d);
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
             ASSERT(  1 == m);
             ASSERT(  1 == d);
 
-             PosixUtil::serial2ymdNoCache( &y, &m, &d, 36525);
+             PosixUtil::serialToYmdNoCache( &y, &m, &d, 36525);
             ASSERT(100 == y);
             ASSERT( 12 == m);
             ASSERT( 31 == d);
@@ -417,7 +417,7 @@ int main(int argc, char *argv[])
             ASSERT( 12 == m);
             ASSERT( 31 == d);
 
-             PosixUtil::serial2ymd(        &y, &m, &d, 36525);
+             PosixUtil::serialToYmd(        &y, &m, &d, 36525);
             ASSERT(100 == y);
             ASSERT( 12 == m);
             ASSERT( 31 == d);
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
             ASSERT( 12 == m);
             ASSERT( 31 == d);
 
-             PosixUtil::serial2ymdNoCache( &y, &m, &d, 36525);
+             PosixUtil::serialToYmdNoCache( &y, &m, &d, 36525);
             ASSERT(100 == y);
             ASSERT( 12 == m);
             ASSERT( 31 == d);
@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT( 1 ==       Util::ydToDay(100, 335));
-            ASSERT(30 ==  PosixUtil::yd2day( 100, 335));
+            ASSERT(30 ==  PosixUtil::ydToDay( 100, 335));
             ASSERT( 1 == SerialUtil::ydToDay(100, 335));
         }
         {
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(30 ==       Util::ydToDay(100, 335));
-            ASSERT(30 ==  PosixUtil::yd2day( 100, 335));
+            ASSERT(30 ==  PosixUtil::ydToDay( 100, 335));
             ASSERT( 1 == SerialUtil::ydToDay(100, 335));
         }
 
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
             ASSERT(12 == m);
             ASSERT( 1 == d);
 
-             PosixUtil::yd2md( &m, &d, 100, 335);
+             PosixUtil::ydToMd( &m, &d, 100, 335);
             ASSERT(11 == m);
             ASSERT(30 == d);
 
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
             ASSERT(11 == m);
             ASSERT(30 == d);
 
-             PosixUtil::yd2md( &m, &d, 100, 335);
+             PosixUtil::ydToMd( &m, &d, 100, 335);
             ASSERT(11 == m);
             ASSERT(30 == d);
 
@@ -515,7 +515,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(12 ==       Util::ydToMonth(100, 335));
-            ASSERT(11 ==  PosixUtil::yd2month( 100, 335));
+            ASSERT(11 ==  PosixUtil::ydToMonth( 100, 335));
             ASSERT(12 == SerialUtil::ydToMonth(100, 335));
         }
         {
@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(11 ==       Util::ydToMonth(100, 335));
-            ASSERT(11 ==  PosixUtil::yd2month( 100, 335));
+            ASSERT(11 ==  PosixUtil::ydToMonth( 100, 335));
             ASSERT(12 == SerialUtil::ydToMonth(100, 335));
         }
 
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(  1 ==       Util::serialToDayOfYear(36525));
-            ASSERT(366 ==  PosixUtil::serial2dayOfYear( 36525));
+            ASSERT(366 ==  PosixUtil::serialToDayOfYear( 36525));
             ASSERT(  1 == SerialUtil::serialToDayOfYear(36525));
         }
         {
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(366 ==       Util::serialToDayOfYear(36525));
-            ASSERT(366 ==  PosixUtil::serial2dayOfYear( 36525));
+            ASSERT(366 ==  PosixUtil::serialToDayOfYear( 36525));
             ASSERT(  1 == SerialUtil::serialToDayOfYear(36525));
         }
 
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
             ASSERT(101 == y);
             ASSERT(  1 == d);
 
-             PosixUtil::serial2yd( &y, &d, 36525);
+             PosixUtil::serialToYd( &y, &d, 36525);
             ASSERT(100 == y);
             ASSERT(366 == d);
 
@@ -612,7 +612,7 @@ int main(int argc, char *argv[])
             ASSERT(100 == y);
             ASSERT(366 == d);
 
-             PosixUtil::serial2yd( &y, &d, 36525);
+             PosixUtil::serialToYd( &y, &d, 36525);
             ASSERT(100 == y);
             ASSERT(366 == d);
 
@@ -629,7 +629,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(60 ==       Util::ymdToDayOfYear(1700, 3, 1));
-            ASSERT(61 ==  PosixUtil::ymd2dayOfYear (1700, 3, 1));
+            ASSERT(61 ==  PosixUtil::ymdToDayOfYear (1700, 3, 1));
             ASSERT(60 == SerialUtil::ymdToDayOfYear(1700, 3, 1));
         }
         {
@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(61 ==       Util::ymdToDayOfYear(1700, 3, 1));
-            ASSERT(61 ==  PosixUtil::ymd2dayOfYear (1700, 3, 1));
+            ASSERT(61 ==  PosixUtil::ymdToDayOfYear (1700, 3, 1));
             ASSERT(60 == SerialUtil::ymdToDayOfYear(1700, 3, 1));
         }
 
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(36525 ==       Util::ydToSerial(101, 1));
-            ASSERT(36526 ==  PosixUtil::yd2serial( 101, 1));
+            ASSERT(36526 ==  PosixUtil::ydToSerial( 101, 1));
             ASSERT(36525 == SerialUtil::ydToSerial(101, 1));
         }
         {
@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(36526 ==       Util::ydToSerial(101, 1));
-            ASSERT(36526 ==  PosixUtil::yd2serial( 101, 1));
+            ASSERT(36526 ==  PosixUtil::ydToSerial( 101, 1));
             ASSERT(36525 == SerialUtil::ydToSerial(101, 1));
         }
 
@@ -701,11 +701,11 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(3652058 ==       Util::ymdToSerial(       9999, 12, 30));
-            ASSERT(3652060 ==  PosixUtil::ymd2serial(        9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymdToSerial(        9999, 12, 30));
             ASSERT(3652058 == SerialUtil::ymdToSerial(       9999, 12, 30));
 
             ASSERT(3652058 ==       Util::ymdToSerialNoCache(9999, 12, 30));
-            ASSERT(3652060 ==  PosixUtil::ymd2serialNoCache( 9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymdToSerialNoCache( 9999, 12, 30));
             ASSERT(3652058 == SerialUtil::ymdToSerialNoCache(9999, 12, 30));
         }
         {
@@ -715,11 +715,11 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(3652060 ==       Util::ymdToSerial(       9999, 12, 30));
-            ASSERT(3652060 ==  PosixUtil::ymd2serial(        9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymdToSerial(        9999, 12, 30));
             ASSERT(3652058 == SerialUtil::ymdToSerial(       9999, 12, 30));
 
             ASSERT(3652060 ==       Util::ymdToSerialNoCache(9999, 12, 30));
-            ASSERT(3652060 ==  PosixUtil::ymd2serialNoCache( 9999, 12, 30));
+            ASSERT(3652060 ==  PosixUtil::ymdToSerialNoCache( 9999, 12, 30));
             ASSERT(3652058 == SerialUtil::ymdToSerialNoCache(9999, 12, 30));
         }
 
@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(false ==       Util::isValidSerial(    3652060));
-            ASSERT(true  ==  PosixUtil::isValidSerialDate(3652060));
+            ASSERT(true  ==  PosixUtil::isValidSerial(3652060));
             ASSERT(false == SerialUtil::isValidSerial(    3652060));
         }
         {
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(true  ==       Util::isValidSerial(    3652060));
-            ASSERT(true  ==  PosixUtil::isValidSerialDate(3652060));
+            ASSERT(true  ==  PosixUtil::isValidSerial(3652060));
             ASSERT(false == SerialUtil::isValidSerial(    3652060));
         }
 
@@ -782,7 +782,7 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(false ==       Util::isValidYearDay(    1700, 366));
-            ASSERT(true  ==  PosixUtil::isValidYearDayDate(1700, 366));
+            ASSERT(true  ==  PosixUtil::isValidYearDay(1700, 366));
             ASSERT(false == SerialUtil::isValidYearDay(    1700, 366));
         }
         {
@@ -792,7 +792,7 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(true  ==       Util::isValidYearDay(    1700, 366));
-            ASSERT(true  ==  PosixUtil::isValidYearDayDate(1700, 366));
+            ASSERT(true  ==  PosixUtil::isValidYearDay(1700, 366));
             ASSERT(false == SerialUtil::isValidYearDay(    1700, 366));
         }
 
@@ -805,12 +805,12 @@ int main(int argc, char *argv[])
             ASSERT(true == Util::isProlepticGregorianMode());
 
             ASSERT(false ==       Util::isValidYearMonthDay(1700, 2, 29));
-            ASSERT(true  ==  PosixUtil::isValidCalendarDate(1700, 2, 29));
+            ASSERT(true  ==  PosixUtil::isValidYearMonthDay(1700, 2, 29));
             ASSERT(false == SerialUtil::isValidYearMonthDay(1700, 2, 29));
 
             ASSERT(true  ==       Util::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));
-            ASSERT(false ==  PosixUtil::isValidCalendarDateNoCache(
+            ASSERT(false ==  PosixUtil::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));
             ASSERT(true  == SerialUtil::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));
@@ -822,12 +822,12 @@ int main(int argc, char *argv[])
             ASSERT(false == Util::isProlepticGregorianMode());
 
             ASSERT(true  ==       Util::isValidYearMonthDay(1700, 2, 29));
-            ASSERT(true  ==  PosixUtil::isValidCalendarDate(1700, 2, 29));
+            ASSERT(true  ==  PosixUtil::isValidYearMonthDay(1700, 2, 29));
             ASSERT(false == SerialUtil::isValidYearMonthDay(1700, 2, 29));
 
             ASSERT(false ==       Util::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));
-            ASSERT(false ==  PosixUtil::isValidCalendarDateNoCache(
+            ASSERT(false ==  PosixUtil::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));
             ASSERT(true  == SerialUtil::isValidYearMonthDayNoCache(
                                                             1752, 9, 10));

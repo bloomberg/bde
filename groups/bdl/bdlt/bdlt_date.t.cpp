@@ -382,12 +382,6 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-#ifdef BDE_USE_PROLEPTIC_DATES
-    cout << "KILROY: 'BDE_USE_PROLEPTIC_DATES' is defined."     << endl;
-#else
-    cout << "KILROY: 'BDE_USE_PROLEPTIC_DATES' is not defined." << endl;
-#endif
-
     // CONCERN: This test driver is reusable w/other, similar components.
 
     // CONCERN: In no case does memory come from the global allocator.

@@ -33,39 +33,39 @@ using namespace bsl;
 // [ 1] static bool isLeapYear(int year);
 // [ 3] static int  lastDayOfMonth(int year, int month);
 // [ 2] static int  numLeapYears(int year1, int year2);
-// [ 4] static bool isValidCalendarDate(int year, int month, int day);
-// [ 4] static bool isValidCalendarDateNoCache(int y, int m, int day);
-// [ 4] static bool isValidSerialDate(int serialDay);
-// [ 4] static bool isValidYearDayDate(int year, int dayOfYear);
-// [ 8] static int  yd2serial(int year, int dayOfYear);
-// [ 5] static int  ymd2serial(int year, int month, int day);
-// [ 5] static int  ymd2serialNoCache(int year, int month, int day);
-// [ 9] static int  serial2dayOfYear(int serialDay);
-// [ 9] static void serial2yd(int *year, int *dayOfYear, int serialDay);
-// [ 6] static int  ymd2dayOfYear(int year, int month, int day);
-// [10] static int  serial2day(int serialDay);
-// [10] static int  serial2dayNoCache(int serialDay);
-// [10] static int  serial2month(int serialDay);
-// [10] static int  serial2monthNoCache(int serialDay);
-// [10] static int  serial2year(int serialDay);
-// [10] static int  serial2yearNoCache(int serialDay);
-// [10] static void serial2ymd(int *y, int *m, int *d, int sD);
-// [10] static void serial2ymdNoCache(int *y, int *m, int *d, int sD);
-// [ 7] static int  yd2day(int year, int dayOfYear);
-// [ 7] static void yd2md(int *month, int *day, int year, int dayOfYear);
-// [ 7] static int  yd2month(int year, int dayOfYear);
-// [11] static int  serial2weekday(int serialDay);
-// [11] static int  yd2weekday(int year, int dayOfYear);
-// [11] static int  ymd2weekday(int year, int month, int day);
+// [ 4] static bool isValidYearMonthDay(int year, int month, int day);
+// [ 4] static bool isValidYearMonthDayNoCache(int y, int m, int day);
+// [ 4] static bool isValidSerial(int serialDay);
+// [ 4] static bool isValidYearDay(int year, int dayOfYear);
+// [ 8] static int  ydToSerial(int year, int dayOfYear);
+// [ 5] static int  ymdToSerial(int year, int month, int day);
+// [ 5] static int  ymdToSerialNoCache(int year, int month, int day);
+// [ 9] static int  serialToDayOfYear(int serialDay);
+// [ 9] static void serialToYd(int *year, int *dayOfYear, int serialDay);
+// [ 6] static int  ymdToDayOfYear(int year, int month, int day);
+// [10] static int  serialToDay(int serialDay);
+// [10] static int  serialToDayNoCache(int serialDay);
+// [10] static int  serialToMonth(int serialDay);
+// [10] static int  serialToMonthNoCache(int serialDay);
+// [10] static int  serialToYear(int serialDay);
+// [10] static int  serialToYearNoCache(int serialDay);
+// [10] static void serialToYmd(int *y, int *m, int *d, int sD);
+// [10] static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
+// [ 7] static int  ydToDay(int year, int dayOfYear);
+// [ 7] static void ydToMd(int *month, int *day, int year, int dayOfYear);
+// [ 7] static int  ydToMonth(int year, int dayOfYear);
+// [11] static int  serialToDayOfWeek(int serialDay);
+// [11] static int  ydToDayOfWeek(int year, int dayOfYear);
+// [11] static int  ymdToDayOfWeek(int year, int month, int day);
 // ----------------------------------------------------------------------------
 // [12] USAGE EXAMPLE
 // [-1] CACHE GENERATOR
-// [-2] PERFORMANCE TEST: isValidCalendarDate[NoCache]
-// [-3] PERFORMANCE TEST: ymd2serial[NoCache]
-// [-4] PERFORMANCE TEST: serial2ymd[NoCache]
-// [-5] PERFORMANCE TEST: serial2year[NoCache]
-// [-6] PERFORMANCE TEST: serial2month[NoCache]
-// [-7] PERFORMANCE TEST: serial2day[NoCache]
+// [-2] PERFORMANCE TEST: isValidYearMonthDay[NoCache]
+// [-3] PERFORMANCE TEST: ymdToSerial[NoCache]
+// [-4] PERFORMANCE TEST: serialToYmd[NoCache]
+// [-5] PERFORMANCE TEST: serialToYear[NoCache]
+// [-6] PERFORMANCE TEST: serialToMonth[NoCache]
+// [-7] PERFORMANCE TEST: serialToDay[NoCache]
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -235,7 +235,7 @@ typedef bdlt::PosixDateImpUtil Util;
     inline
     bool MyDate::isValid(int year, int month, int day)
     {
-        return bdlt::PosixDateImpUtil::isValidCalendarDate(year, month, day);
+        return bdlt::PosixDateImpUtil::isValidYearMonthDay(year, month, day);
     }
 
     // CREATORS
@@ -268,8 +268,7 @@ typedef bdlt::PosixDateImpUtil Util;
     MyDate& MyDate::operator++()
     {
         ++d_serialDate;
-        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-                                                                d_serialDate));
+        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
         return *this;
     }
 
@@ -277,8 +276,7 @@ typedef bdlt::PosixDateImpUtil Util;
     MyDate& MyDate::operator--()
     {
         --d_serialDate;
-        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-                                                                d_serialDate));
+        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
         return *this;
     }
 
@@ -286,8 +284,7 @@ typedef bdlt::PosixDateImpUtil Util;
     MyDate& MyDate::operator+=(int numDays)
     {
         d_serialDate += numDays;
-        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-                                                                d_serialDate));
+        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
         return *this;
     }
 
@@ -295,25 +292,24 @@ typedef bdlt::PosixDateImpUtil Util;
     MyDate& MyDate::operator-=(int numDays)
     {
         d_serialDate -= numDays;
-        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-                                                                d_serialDate));
+        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
         return *this;
     }
 
     inline
     void MyDate::setYearMonthDay(int year, int month, int day)
     {
-        d_serialDate = bdlt::PosixDateImpUtil::ymd2serial(year, month, day);
-        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-                                                                d_serialDate));
+        d_serialDate = bdlt::PosixDateImpUtil::ymdToSerial(year, month, day);
+        BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
     }
 
     inline
     bool MyDate::setYearMonthDayIfValid(int year, int month, int day)
     {
-        const int newDate =
-                          bdlt::PosixDateImpUtil::ymd2serial(year, month, day);
-        if (bdlt::PosixDateImpUtil::isValidSerialDate(newDate)) {
+        const int newDate = bdlt::PosixDateImpUtil::ymdToSerial(year,
+                                                                month,
+                                                                day);
+        if (bdlt::PosixDateImpUtil::isValidSerial(newDate)) {
             d_serialDate = newDate;
             return true;                                              // RETURN
         }
@@ -324,31 +320,31 @@ typedef bdlt::PosixDateImpUtil Util;
     inline
     void MyDate::getYearMonthDay(int *year, int *month, int *day) const
     {
-        bdlt::PosixDateImpUtil::serial2ymd(year, month, day, d_serialDate);
+        bdlt::PosixDateImpUtil::serialToYmd(year, month, day, d_serialDate);
     }
 
     inline
     int MyDate::year() const
     {
-        return bdlt::PosixDateImpUtil::serial2year(d_serialDate);
+        return bdlt::PosixDateImpUtil::serialToYear(d_serialDate);
     }
 
     inline
     int MyDate::month() const
     {
-        return bdlt::PosixDateImpUtil::serial2month(d_serialDate);
+        return bdlt::PosixDateImpUtil::serialToMonth(d_serialDate);
     }
 
     inline
     int MyDate::day() const
     {
-        return bdlt::PosixDateImpUtil::serial2day(d_serialDate);
+        return bdlt::PosixDateImpUtil::serialToDay(d_serialDate);
     }
 
     inline
     MyDate::Day MyDate::dayOfWeek() const
     {
-        return MyDate::Day(bdlt::PosixDateImpUtil::serial2weekday(
+        return MyDate::Day(bdlt::PosixDateImpUtil::serialToDayOfWeek(
                                                                 d_serialDate));
     }
 
@@ -432,7 +428,7 @@ typedef bdlt::PosixDateImpUtil Util;
         char buf[SIZE];
 
         int y, m, d;
-        bdlt::PosixDateImpUtil::serial2ymd(&y, &m, &d, d_serialDate);
+        bdlt::PosixDateImpUtil::serialToYmd(&y, &m, &d, d_serialDate);
 
         buf[0] = static_cast<char>(d / 10 + '0');
         buf[1] = static_cast<char>(d % 10 + '0');
@@ -519,7 +515,7 @@ int main(int argc, char *argv[])
 //
 // What day of the week was January 3, 2010?
 //..
-    ASSERT(2 == bdlt::PosixDateImpUtil::ymd2weekday(2010, 3, 1));
+    ASSERT(2 == bdlt::PosixDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
                                                              // 2 means Monday.
 //..
 // Was the year 2000 a leap year?
@@ -529,7 +525,7 @@ int main(int argc, char *argv[])
 //..
 // Was February 29, 1900, a valid date in history?
 //..
-    ASSERT(false == bdlt::PosixDateImpUtil::isValidCalendarDate(1900, 2, 29));
+    ASSERT(false == bdlt::PosixDateImpUtil::isValidYearMonthDay(1900, 2, 29));
                                                              // No, it was not.
 //..
 // What was the last day of February in 1600?
@@ -544,12 +540,12 @@ int main(int argc, char *argv[])
 //..
 // On what day of the year does February 29, 2020 fall?
 //..
-    ASSERT(60 == bdlt::PosixDateImpUtil::ymd2dayOfYear(2020, 2, 29));
+    ASSERT(60 == bdlt::PosixDateImpUtil::ymdToDayOfYear(2020, 2, 29));
                                                              // The 60th one.
 //..
 // In what month does the 120th day of 2011 fall?
 //..
-    ASSERT(4 == bdlt::PosixDateImpUtil::yd2month(2011, 120));
+    ASSERT(4 == bdlt::PosixDateImpUtil::ydToMonth(2011, 120));
                                                              // 4 means April.
 //..
 
@@ -602,13 +598,13 @@ if (veryVerbose)
         //
         // In this test we take advantage of the fact that all of the date
         // conversion functions have already been tested by tabulating the
-        // expected results for 'ymd2weekday' and then generating the
+        // expected results for 'ymdToDayOfWeek' and then generating the
         // corresponding test vectors from the year/month/day representation.
         //
         // Testing:
-        //   static int  serial2weekday(int serialDay);
-        //   static int  yd2weekday(int year, int dayOfYear);
-        //   static int  ymd2weekday(int year, int month, int day);
+        //   static int  serialToDayOfWeek(int serialDay);
+        //   static int  ydToDayOfWeek(int year, int dayOfYear);
+        //   static int  ymdToDayOfWeek(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -662,11 +658,11 @@ if (veryVerbose)
                 const int d = DATA[di].d_day;
                 const int w = DATA[di].d_exp;
 
-                int w1 = Util::ymd2weekday(y, m, d);
-                int j  = Util::ymd2dayOfYear(y, m, d);
-                int w2 = Util::yd2weekday(y, j);
-                int s  = Util::yd2serial(y, j);
-                int w3 = Util::serial2weekday(s);
+                int w1 = Util::ymdToDayOfWeek(y, m, d);
+                int j  = Util::ymdToDayOfYear(y, m, d);
+                int w2 = Util::ydToDayOfWeek(y, j);
+                int s  = Util::ydToSerial(y, j);
+                int w3 = Util::serialToDayOfWeek(s);
 
                 if (veryVerbose) cout << w << ' '
                                       << w1 << ' ' << w2 << ' ' << w3 << endl;
@@ -683,14 +679,14 @@ if (veryVerbose)
         // TESTING 'serial2{ymd|year|month|day}[NoCache]'
         //
         // Testing:
-        //   static int  serial2day(int serialDay);
-        //   static int  serial2dayNoCache(int serialDay);
-        //   static int  serial2month(int serialDay);
-        //   static int  serial2monthNoCache(int serialDay);
-        //   static int  serial2year(int serialDay);
-        //   static int  serial2yearNoCache(int serialDay);
-        //   static void serial2ymd(int *y, int *m, int *d, int sD);
-        //   static void serial2ymdNoCache(int *y, int *m, int *d, int sD);
+        //   static int  serialToDay(int serialDay);
+        //   static int  serialToDayNoCache(int serialDay);
+        //   static int  serialToMonth(int serialDay);
+        //   static int  serialToMonthNoCache(int serialDay);
+        //   static int  serialToYear(int serialDay);
+        //   static int  serialToYearNoCache(int serialDay);
+        //   static void serialToYmd(int *y, int *m, int *d, int sD);
+        //   static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -790,7 +786,7 @@ if (veryVerbose)
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
                 int       yy, mm, dd;
-                Util::serial2ymd(&yy, &mm, &dd, DATA[di].d_serial);
+                Util::serialToYmd(&yy, &mm, &dd, DATA[di].d_serial);
                 if (veryVerbose) {
                     cout << setw(15) << DATA[di].d_serial << ": "
                          << setw(4) << yy << " / " << setw(2) << mm
@@ -800,7 +796,7 @@ if (veryVerbose)
                 LOOP_ASSERT(LINE, DATA[di].d_expMonth == mm);
                 LOOP_ASSERT(LINE, DATA[di].d_expDay   == dd);
                 yy = mm = dd = -1;
-                Util::serial2ymdNoCache(&yy, &mm, &dd, DATA[di].d_serial);
+                Util::serialToYmdNoCache(&yy, &mm, &dd, DATA[di].d_serial);
                 if (veryVerbose) {
                     cout << setw(15) << DATA[di].d_serial << ": "
                          << setw(4) << yy << " / " << setw(2) << mm
@@ -825,21 +821,21 @@ if (veryVerbose)
             }
             for (int m = 1; m <= 12; ++m)
             for (int d = 1; d <= 31; ++d) {
-                if (Util::isValidCalendarDate(y, m, d)) {
+                if (Util::isValidYearMonthDay(y, m, d)) {
                     int year2, year2NC, month2, month2NC, day2, day2NC;
-                    int serial = Util::ymd2serial(y, m, d);
+                    int serial = Util::ymdToSerial(y, m, d);
 
-                    int year1  = Util::serial2year (serial);
-                    int month1 = Util::serial2month(serial);
-                    int day1   = Util::serial2day  (serial);
-                    Util::serial2ymd(&year2, &month2, &day2, serial);
+                    int year1  = Util::serialToYear (serial);
+                    int month1 = Util::serialToMonth(serial);
+                    int day1   = Util::serialToDay  (serial);
+                    Util::serialToYmd(&year2, &month2, &day2, serial);
 
-                    int serialR = Util::ymd2serialNoCache(y, m, d);
+                    int serialR = Util::ymdToSerialNoCache(y, m, d);
 
-                    int year1NC  = Util::serial2yearNoCache (serial);
-                    int month1NC = Util::serial2monthNoCache(serial);
-                    int day1NC   = Util::serial2dayNoCache  (serial);
-                    Util::serial2ymdNoCache(&year2NC,
+                    int year1NC  = Util::serialToYearNoCache (serial);
+                    int month1NC = Util::serialToMonthNoCache(serial);
+                    int day1NC   = Util::serialToDayNoCache  (serial);
+                    Util::serialToYmdNoCache(&year2NC,
                                             &month2NC,
                                             &day2NC,
                                             serialR);
@@ -867,31 +863,31 @@ if (veryVerbose)
                      << " to " << s/100000 << 99999 << endl;
             }
 
-            int year1  = Util::serial2year (s);
-            int month1 = Util::serial2month(s);
-            int day1   = Util::serial2day  (s);
-            Util::serial2ymd(&year2, &month2, &day2, s);
+            int year1  = Util::serialToYear (s);
+            int month1 = Util::serialToMonth(s);
+            int day1   = Util::serialToDay  (s);
+            Util::serialToYmd(&year2, &month2, &day2, s);
             ASSERT(year1  == year2);
             ASSERT(month1 == month2);
             ASSERT(day1   == day2);
 
-            int year1NC  = Util::serial2yearNoCache (s);
-            int month1NC = Util::serial2monthNoCache(s);
-            int day1NC   = Util::serial2dayNoCache  (s);
-            Util::serial2ymdNoCache(&year2NC, &month2NC, &day2NC, s);
+            int year1NC  = Util::serialToYearNoCache (s);
+            int month1NC = Util::serialToMonthNoCache(s);
+            int day1NC   = Util::serialToDayNoCache  (s);
+            Util::serialToYmdNoCache(&year2NC, &month2NC, &day2NC, s);
             ASSERT(year1NC  == year2NC);
             ASSERT(month1NC == month2NC);
             ASSERT(day1NC   == day2NC);
 
             if (s >= 1 && s <= Y9999_END) {
-                ASSERT(s == Util::ymd2serial(year1, month1, day1));
-                ASSERT(s == Util::ymd2serialNoCache(year1NC,
+                ASSERT(s == Util::ymdToSerial(year1, month1, day1));
+                ASSERT(s == Util::ymdToSerialNoCache(year1NC,
                                                     month1NC,
                                                     day1NC));
             }
             else {
-                ASSERT(0 == Util::ymd2serial(year1, month1, day1));
-                ASSERT(0 == Util::ymd2serialNoCache(year1NC,
+                ASSERT(0 == Util::ymdToSerial(year1, month1, day1));
+                ASSERT(0 == Util::ymdToSerialNoCache(year1NC,
                                                     month1NC,
                                                     day1NC));
             }
@@ -903,8 +899,8 @@ if (veryVerbose)
         // TESTING 'serial2{yd|dayOfYear}'
         //
         // Testing:
-        //   static int  serial2dayOfYear(int serialDay);
-        //   static void serial2yd(int *year, int *dayOfYear, int serialDay);
+        //   static int  serialToDayOfYear(int serialDay);
+        //   static void serialToYd(int *year, int *dayOfYear, int serialDay);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1007,7 +1003,7 @@ if (veryVerbose)
                 const int EXP_DAY  = DATA[di].d_expDay;
 
                 int       yy, jj;
-                Util::serial2yd(&yy, &jj, SERIAL);
+                Util::serialToYd(&yy, &jj, SERIAL);
                 if (veryVerbose) {
                     cout << setw(15) << SERIAL << ": "
                          << setw(4)  << yy << " / " << setw(3) << jj << endl;
@@ -1015,7 +1011,7 @@ if (veryVerbose)
                 LOOP3_ASSERT(LINE, EXP_YEAR, yy, EXP_YEAR == yy);
                 LOOP3_ASSERT(LINE, EXP_DAY,  jj, EXP_DAY  == jj);
 
-                jj = Util::serial2dayOfYear(SERIAL);
+                jj = Util::serialToDayOfYear(SERIAL);
                 LOOP3_ASSERT(LINE, EXP_DAY,  jj, EXP_DAY  == jj);
             }
         }
@@ -1032,28 +1028,28 @@ if (veryVerbose)
             }
 
             for (int j = -1; j <= 367; ++j) {
-                if (Util::isValidYearDayDate(y, j)) {
+                if (Util::isValidYearDay(y, j)) {
                     int yy, jj;
-                    int s = Util::yd2serial(y, j);
-                    Util::serial2yd(&yy, &jj, s);
+                    int s = Util::ydToSerial(y, j);
+                    Util::serialToYd(&yy, &jj, s);
 
                     ASSERT(y == yy);  ASSERT(j == jj);
-                    ASSERT(y == Util::serial2year(s));
-                    ASSERT(j == Util::serial2dayOfYear(s));
+                    ASSERT(y == Util::serialToYear(s));
+                    ASSERT(j == Util::serialToDayOfYear(s));
                 }
             }
         }
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'yd2serial'
+        // TESTING 'ydToSerial'
         //
         // Testing:
-        //   static int  yd2serial(int year, int dayOfYear);
+        //   static int  ydToSerial(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yd2serial'" << endl
+                          << "TESTING 'ydToSerial'" << endl
                           << "===================" << endl;
 
         if (verbose) cout << "\tDirect test vectors\n" << endl;
@@ -1119,7 +1115,7 @@ if (veryVerbose)
                 const int LINE = DATA[di].d_lineNum;
                 const int Y    = DATA[di].d_year;
                 const int J    = DATA[di].d_dayOfYear;
-                LOOP_ASSERT(LINE, DATA[di].d_exp == Util::yd2serial(Y, J));
+                LOOP_ASSERT(LINE, DATA[di].d_exp == Util::ydToSerial(Y, J));
             }
         }
 
@@ -1136,10 +1132,10 @@ if (veryVerbose)
 
             for (int m = 1; m <= 12; ++m) {
                 for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidCalendarDate(y, m, d)) {
-                        int j  = Util::ymd2dayOfYear(y, m, d);
-                        int s1 = Util::ymd2serial(y, m, d);
-                        int s2 = Util::yd2serial(y, j);
+                    if (Util::isValidYearMonthDay(y, m, d)) {
+                        int j  = Util::ymdToDayOfYear(y, m, d);
+                        int s1 = Util::ymdToSerial(y, m, d);
+                        int s2 = Util::ydToSerial(y, j);
                         ASSERT(s1 == s2);
                         if (verbose && 0 == y % 100 && m == 2 && d == 29) {
                             cout << '\t';  P_(s1);  P(s2);
@@ -1155,16 +1151,16 @@ if (veryVerbose)
         // TESTING 'yd2{md|month|day}'
         //
         // Testing:
-        //   static int  yd2day(int year, int dayOfYear);
-        //   static void yd2md(int *month, int *day, int year, int dayOfYear);
-        //   static int  yd2month(int year, int dayOfYear);
+        //   static int  ydToDay(int year, int dayOfYear);
+        //   static void ydToMd(int *month, int *day, int year, int dayOfYear);
+        //   static int  ydToMonth(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'yd2{md|month|day}'" << endl
                           << "===========================" << endl;
 
-        if (verbose) cout << "\nTesting: 'yd2md'" << endl;
+        if (verbose) cout << "\nTesting: 'ydToMd'" << endl;
 
         {
             static const struct {
@@ -1230,13 +1226,13 @@ if (veryVerbose)
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
-                Util::yd2md(&m, &d, DATA[di].d_year, DATA[di].d_dayOfYear);
+                Util::ydToMd(&m, &d, DATA[di].d_year, DATA[di].d_dayOfYear);
                 LOOP_ASSERT(LINE, DATA[di].d_expMonth == m)
                 LOOP_ASSERT(LINE, DATA[di].d_expDay   == d)
             }
         }
 
-        if (verbose) cout << "\nTesting: 'yd2month' and 'yd2day'" << endl;
+        if (verbose) cout << "\nTesting: 'ydToMonth' and 'ydToDay'" << endl;
 
         if (verbose) cout << "\n (y, m, d) -> (y, j) -> (y, m, d)" << endl;
 
@@ -1250,12 +1246,12 @@ if (veryVerbose)
 
             for (int m = 1; m <= 12; ++m) {
                 for (int d = 1; d <= 31; ++d) {
-                    if (Util::isValidCalendarDate(y, m, d)) {
+                    if (Util::isValidYearMonthDay(y, m, d)) {
                         int mm, dd;
-                        int j     = Util::ymd2dayOfYear(y, m, d);
-                        int month = Util::yd2month(y, j);
-                        int day   = Util::yd2day  (y, j);
-                        Util::yd2md(&mm, &dd, y, j);
+                        int j     = Util::ymdToDayOfYear(y, m, d);
+                        int month = Util::ydToMonth(y, j);
+                        int day   = Util::ydToDay  (y, j);
+                        Util::ydToMd(&mm, &dd, y, j);
 
                         ASSERT(j != 0);
                         LOOP4_ASSERT(y, j, m, month, m == month);
@@ -1270,14 +1266,14 @@ if (veryVerbose)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'ymd2dayOfYear'
+        // TESTING 'ymdToDayOfYear'
         //
         // Testing:
-        //   static int  ymd2dayOfYear(int year, int month, int day);
+        //   static int  ymdToDayOfYear(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymd2dayOfYear'" << endl
+                          << "TESTING 'ymdToDayOfYear'" << endl
                           << "=======================" << endl;
 
         {
@@ -1453,22 +1449,22 @@ if (veryVerbose)
                 const int M    = DATA[di].d_month;
                 const int D    = DATA[di].d_day;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                                 Util::ymd2dayOfYear(Y, M, D));
+                                                 Util::ymdToDayOfYear(Y, M, D));
             }
         }
 
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'ymd2serial[NoCache]'
+        // TESTING 'ymdToSerial[NoCache]'
         //
         // Testing:
-        //   static int  ymd2serial(int year, int month, int day);
-        //   static int  ymd2serialNoCache(int year, int month, int day);
+        //   static int  ymdToSerial(int year, int month, int day);
+        //   static int  ymdToSerialNoCache(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymd2serial[NoCache]'" << endl
+                          << "TESTING 'ymdToSerial[NoCache]'" << endl
                           << "=============================" << endl;
 
         {
@@ -1697,22 +1693,22 @@ if (veryVerbose)
                 const int M    = DATA[di].d_month;
                 const int D    = DATA[di].d_day;
                 const int EXP  = DATA[di].d_exp;
-                const int RES1 = Util::ymd2serial(Y, M, D);
-                const int RES2 = Util::ymd2serialNoCache(Y, M, D);
+                const int RES1 = Util::ymdToSerial(Y, M, D);
+                const int RES2 = Util::ymdToSerialNoCache(Y, M, D);
                 LOOP3_ASSERT(LINE, EXP, RES1, EXP == RES1);
                 LOOP3_ASSERT(LINE, EXP, RES2, EXP == RES2);
             }
         }
 
         if (veryVerbose) {
-            cout << "\nTesting: 'ymd2serial' vs 'ymd2serialNoCache'" << endl;
+            cout << "\nTesting: 'ymdToSerial' vs 'ymdToSerialNoCache'" << endl;
 
             for (int year  = 1; year  <= 9999; ++year)
             for (int month = 1; month <= 12;   ++month)
             for (int day   = 1; day   <= 31;   ++day) {
-                if (Util::isValidCalendarDate(year, month, day)) {
-                    int x1 = Util::ymd2serial(year, month, day);
-                    int x2 = Util::ymd2serialNoCache(year, month,
+                if (Util::isValidYearMonthDay(year, month, day)) {
+                    int x1 = Util::ymdToSerial(year, month, day);
+                    int x2 = Util::ymdToSerialNoCache(year, month,
                                                                 day);
                     LOOP3_ASSERT(year, month, day, x1 == x2);
                     if (year % 100 == 0 && month == 2 && day == 29) {
@@ -1728,10 +1724,10 @@ if (veryVerbose)
         // TESTING 'isValid{Calendar|YearDay|Serial}Date[NoCache]'
         //
         // Testing:
-        //   static bool isValidCalendarDate(int year, int month, int day);
-        //   static bool isValidCalendarDateNoCache(int y, int m, int day);
-        //   static bool isValidSerialDate(int serialDay);
-        //   static bool isValidYearDayDate(int year, int dayOfYear);
+        //   static bool isValidYearMonthDay(int year, int month, int day);
+        //   static bool isValidYearMonthDayNoCache(int y, int m, int day);
+        //   static bool isValidSerial(int serialDay);
+        //   static bool isValidYearDay(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1742,8 +1738,8 @@ if (veryVerbose)
                  << endl;
 
         if (verbose)
-            cout << "\nTesting: 'isValidCalendarDate' "
-                 << "and 'isValidCalendarDateNoCache'"
+            cout << "\nTesting: 'isValidYearMonthDay' "
+                 << "and 'isValidYearMonthDayNoCache'"
                  << endl;
 
         {
@@ -1931,26 +1927,26 @@ if (veryVerbose)
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidCalendarDate(DATA[di].d_year,
+                                  Util::isValidYearMonthDay(DATA[di].d_year,
                                                     DATA[di].d_month,
                                                     DATA[di].d_day));
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                            Util::isValidCalendarDateNoCache(DATA[di].d_year,
+                            Util::isValidYearMonthDayNoCache(DATA[di].d_year,
                                                            DATA[di].d_month,
                                                            DATA[di].d_day));
             }
         }
 
         if (veryVerbose) {
-            cout << "\nTesting: 'isValidCalendarDate' "
-                 << "vs 'isValidCalendarDateNoCache'"
+            cout << "\nTesting: 'isValidYearMonthDay' "
+                 << "vs 'isValidYearMonthDayNoCache'"
                  << endl;
 
             for (int year  = 0; year  <= 10000; ++year)
             for (int month = 0; month <= 13;   ++month)
             for (int day   = 0; day   <= 32;   ++day) {
-                int x1 = Util::isValidCalendarDate(year, month, day);
-                int x2 = Util::isValidCalendarDateNoCache(year, month,day);
+                int x1 = Util::isValidYearMonthDay(year, month, day);
+                int x2 = Util::isValidYearMonthDayNoCache(year, month,day);
                 LOOP3_ASSERT(year, month, day, x1 == x2);
                 if (year % 100 == 0 && month == 2 && day == 29) {
                     P_(x1); P(x2);
@@ -1958,7 +1954,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting: 'isValidYearDayDate'" << endl;
+        if (verbose) cout << "\nTesting: 'isValidYearDay'" << endl;
 
         {
             static const struct {
@@ -2041,7 +2037,7 @@ if (veryVerbose)
                 const int Y    = DATA[di].d_year;
                 const int J    = DATA[di].d_dayOfYear;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidYearDayDate(Y, J));
+                                  Util::isValidYearDay(Y, J));
             }
         }
 
@@ -2052,40 +2048,40 @@ if (veryVerbose)
         int first = shortTestFlag ? SHORT_YEAR_START : 1;
         int last  = shortTestFlag ? SHORT_YEAR_END : 9999;
         for (y = first; y <= last; ++y) {
-            ASSERT(0 == Util::isValidYearDayDate(y, -y));
-            ASSERT(0 == Util::isValidYearDayDate(y, 0));
+            ASSERT(0 == Util::isValidYearDay(y, -y));
+            ASSERT(0 == Util::isValidYearDay(y, 0));
             for (j = 1; j <= 355; ++j) {
-                ASSERT(1 == Util::isValidYearDayDate(y, j));
+                ASSERT(1 == Util::isValidYearDay(y, j));
             }
             const bool isNotY1752 = 1752 != y;
 
             for (; j <= 365; ++j) {
-                ASSERT(isNotY1752 == Util::isValidYearDayDate(y,j));
+                ASSERT(isNotY1752 == Util::isValidYearDay(y,j));
             }
 
             const bool isLeapYear = Util::isLeapYear(y);
             const bool isLongYear = isLeapYear && isNotY1752;
 
-            ASSERT(isLongYear == Util::isValidYearDayDate(y, j));
+            ASSERT(isLongYear == Util::isValidYearDay(y, j));
 
-            ASSERT(0 == Util::isValidYearDayDate(y, 367));
+            ASSERT(0 == Util::isValidYearDay(y, 367));
         }
 
-        if (verbose) cout << "\nTesting: 'isValidSerialDate'" << endl;
+        if (verbose) cout << "\nTesting: 'isValidSerial'" << endl;
         {
             int s;
             for (s = -1500; s <= 0; ++s) {
-                ASSERT(0 == Util::isValidSerialDate(s));
+                ASSERT(0 == Util::isValidSerial(s));
             }
 
             first = shortTestFlag ? SHORT_SERIAL_START : 1;
             last  = shortTestFlag ? SHORT_SERIAL_END : Y9999_END;
             for (s = first; s <= last; ++s) {
-                ASSERT(1 == Util::isValidSerialDate(s));
+                ASSERT(1 == Util::isValidSerial(s));
             }
 
             for (s = Y9999_END+1; s <= Y9999_END + 1500; ++s) {
-                ASSERT(0 == Util::isValidSerialDate(s));
+                ASSERT(0 == Util::isValidSerial(s));
             }
 
             static const struct {
@@ -2122,7 +2118,7 @@ if (veryVerbose)
                 const int LINE = DATA[di].d_lineNum;
                 const int S    = DATA[di].d_serial;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidSerialDate(S));
+                                  Util::isValidSerial(S));
             }
         }
 
@@ -2437,8 +2433,8 @@ if (veryVerbose)
 
         const int firstYear       = 1980;
         const int lastYear        = 2040;
-        const int firstSerialDate = Util::ymd2serialNoCache(firstYear, 1,  1);
-        const int lastSerialDate  = Util::ymd2serialNoCache(lastYear, 12, 31);
+        const int firstSerialDate = Util::ymdToSerialNoCache(firstYear, 1,  1);
+        const int lastSerialDate  = Util::ymdToSerialNoCache(lastYear, 12, 31);
         const int numCachedYears  = lastYear - firstYear + 1;
 
         cout << "const int PosixDateImpUtil::s_firstCachedYear       = "
@@ -2461,9 +2457,9 @@ if (veryVerbose)
 
         for (int i = firstSerialDate; i <= lastSerialDate; ++i) {
             cout << "  { "
-                 << Util::serial2yearNoCache(i)  << ", " << setw(2)
-                 << Util::serial2monthNoCache(i) << ", " << setw(2)
-                 << Util::serial2dayNoCache(i)   << " },";
+                 << Util::serialToYearNoCache(i)  << ", " << setw(2)
+                 << Util::serialToMonthNoCache(i) << ", " << setw(2)
+                 << Util::serialToDayNoCache(i)   << " },";
 
             if ((i - firstSerialDate + 1) % 4 == 0) {
                 cout << "\n";
@@ -2481,7 +2477,7 @@ if (veryVerbose)
             cout << "  { 0, ";
 
             for (int m = 1; m <= 12; ++m) {
-                cout << setw(6) << Util::ymd2serialNoCache(y, m, 1) - 1;
+                cout << setw(6) << Util::ymdToSerialNoCache(y, m, 1) - 1;
 
                 if (m % 7 == 6) {
                     cout << ",\n       ";
@@ -2516,16 +2512,16 @@ if (veryVerbose)
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'isValidCalendarDate[NoCache]'
+        // PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: isValidCalendarDate[NoCache]
+        //   PERFORMANCE TEST: isValidYearMonthDay[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'isValidCalendarDate[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'" << endl
                  << "================================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -2533,23 +2529,23 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'isValidCalendarDateNoCache(y, m, d)':" << endl;
+            cout << "\nTesting 'isValidYearMonthDayNoCache(y, m, d)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
 
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
-                Util::isValidCalendarDateNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
+                Util::isValidYearMonthDayNoCache(year, month, day);
             }
             sw.stop();
 
@@ -2558,23 +2554,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'isValidCalendarDate(y, m, d)':" << endl;
+            cout << "\nTesting 'isValidYearMonthDay(y, m, d)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
 
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
-                Util::isValidCalendarDate(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
+                Util::isValidYearMonthDay(year, month, day);
             }
             sw.stop();
 
@@ -2585,16 +2581,16 @@ if (veryVerbose)
       } break;
       case -3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'ymd2serial[NoCache]'
+        // PERFORMANCE TEST: 'ymdToSerial[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: ymd2serial[NoCache]
+        //   PERFORMANCE TEST: ymdToSerial[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'ymd2serial[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'ymdToSerial[NoCache]'" << endl
                  << "=======================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -2602,23 +2598,23 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'ymd2serialNoCache(y, m, d)':" << endl;
+            cout << "\nTesting 'ymdToSerialNoCache(y, m, d)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
 
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
-                Util::ymd2serialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
+                Util::ymdToSerialNoCache(year, month, day);
             }
             sw.stop();
 
@@ -2627,23 +2623,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'ymd2serial(y, m, d)':" << endl;
+            cout << "\nTesting 'ymdToSerial(y, m, d)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
 
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
-                Util::ymd2serial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
+                Util::ymdToSerial(year, month, day);
             }
             sw.stop();
 
@@ -2654,43 +2650,43 @@ if (veryVerbose)
       } break;
       case -4: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serial2ymd[NoCache]'
+        // PERFORMANCE TEST: 'serialToYmd[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: serial2ymd[NoCache]
+        //   PERFORMANCE TEST: serialToYmd[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serial2ymd[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'serialToYmd[NoCache]'" << endl
                  << "=======================================" << endl;
 
         int year = 1900, month = 2, day = 16;  // arbitrary values
 
-        int serial = Util::ymd2serial(2002, 5, 13);  // *must* be within cache
+        int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
 
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serial2ymdNoCache(&y, &m, &d, serialDay)':"
+            cout << "\nTesting 'serialToYmdNoCache(&y, &m, &d, serialDay)':"
                  << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
 
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
-                Util::serial2ymdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
+                Util::serialToYmdNoCache(&year, &month, &day, serial);
             }
             sw.stop();
 
@@ -2699,23 +2695,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serial2ymd(&y, &m, &d, serialDay)':" << endl;
+            cout << "\nTesting 'serialToYmd(&y, &m, &d, serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
 
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
-                Util::serial2ymd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
+                Util::serialToYmd(&year, &month, &day, serial);
             }
             sw.stop();
 
@@ -2726,40 +2722,40 @@ if (veryVerbose)
       } break;
       case -5: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serial2year[NoCache]'
+        // PERFORMANCE TEST: 'serialToYear[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: serial2year[NoCache]
+        //   PERFORMANCE TEST: serialToYear[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serial2year[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'serialToYear[NoCache]'" << endl
                  << "========================================" << endl;
 
-        int serial = Util::ymd2serial(2002, 5, 13);  // *must* be within cache
+        int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
 
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serial2yearNoCache(serialDay)':" << endl;
+            cout << "\nTesting 'serialToYearNoCache(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
 
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
-                Util::serial2yearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
+                Util::serialToYearNoCache(serial);
             }
             sw.stop();
 
@@ -2768,23 +2764,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serial2year(serialDay)':" << endl;
+            cout << "\nTesting 'serialToYear(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
 
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
-                Util::serial2year(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
+                Util::serialToYear(serial);
             }
             sw.stop();
 
@@ -2795,40 +2791,40 @@ if (veryVerbose)
       } break;
       case -6: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serial2month[NoCache]'
+        // PERFORMANCE TEST: 'serialToMonth[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: serial2month[NoCache]
+        //   PERFORMANCE TEST: serialToMonth[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serial2month[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'serialToMonth[NoCache]'" << endl
                  << "=========================================" << endl;
 
-        int serial = Util::ymd2serial(2002, 5, 13);  // *must* be within cache
+        int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
 
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serial2monthNoCache(serialDay)':" << endl;
+            cout << "\nTesting 'serialToMonthNoCache(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
 
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
-                Util::serial2monthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
+                Util::serialToMonthNoCache(serial);
             }
             sw.stop();
 
@@ -2837,23 +2833,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serial2month(serialDay)':" << endl;
+            cout << "\nTesting 'serialToMonth(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
 
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
-                Util::serial2month(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
+                Util::serialToMonth(serial);
             }
             sw.stop();
 
@@ -2864,40 +2860,40 @@ if (veryVerbose)
       } break;
       case -7: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serial2day[NoCache]'
+        // PERFORMANCE TEST: 'serialToDay[NoCache]'
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
-        //   PERFORMANCE TEST: serial2day[NoCache]
+        //   PERFORMANCE TEST: serialToDay[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serial2day[NoCache]'" << endl
+                 << "PERFORMANCE TEST: 'serialToDay[NoCache]'" << endl
                  << "=======================================" << endl;
 
-        int serial = Util::ymd2serial(2002, 5, 13);  // *must* be within cache
+        int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
 
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serial2dayNoCache(serialDay)':" << endl;
+            cout << "\nTesting 'serialToDayNoCache(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
 
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
-                Util::serial2dayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
+                Util::serialToDayNoCache(serial);
             }
             sw.stop();
 
@@ -2906,23 +2902,23 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serial2day(serialDay)':" << endl;
+            cout << "\nTesting 'serialToDay(serialDay)':" << endl;
         {
             bsls::Stopwatch sw;
 
             sw.start(true);
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
 
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
-                Util::serial2day(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
+                Util::serialToDay(serial);
             }
             sw.stop();
 

@@ -307,7 +307,7 @@ bool DelegatingDateImpUtil::isValidSerial(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::isValidSerial(serialDay)
-           : PosixDateImpUtil::isValidSerialDate(serialDay);
+           : PosixDateImpUtil::isValidSerial(serialDay);
 }
 
 inline
@@ -315,7 +315,7 @@ bool DelegatingDateImpUtil::isValidYearDay(int year, int dayOfYear)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::isValidYearDay(year, dayOfYear)
-           : PosixDateImpUtil::isValidYearDayDate(year, dayOfYear);
+           : PosixDateImpUtil::isValidYearDay(year, dayOfYear);
 }
 
 inline
@@ -323,7 +323,7 @@ bool DelegatingDateImpUtil::isValidYearMonthDay(int year, int month, int day)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::isValidYearMonthDay(year, month, day)
-           : PosixDateImpUtil::isValidCalendarDate(year, month, day);
+           : PosixDateImpUtil::isValidYearMonthDay(year, month, day);
 }
 
 inline
@@ -333,7 +333,7 @@ bool DelegatingDateImpUtil::isValidYearMonthDayNoCache(int year,
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::isValidYearMonthDayNoCache(year, month, day)
-           : PosixDateImpUtil::isValidCalendarDateNoCache(year, month, day);
+           : PosixDateImpUtil::isValidYearMonthDayNoCache(year, month, day);
 }
 
                         // To Serial Date (s)
@@ -343,7 +343,7 @@ int DelegatingDateImpUtil::ydToSerial(int year, int dayOfYear)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ydToSerial(year, dayOfYear)
-           : PosixDateImpUtil::yd2serial(year, dayOfYear);
+           : PosixDateImpUtil::ydToSerial(year, dayOfYear);
 }
 
 inline
@@ -351,7 +351,7 @@ int DelegatingDateImpUtil::ymdToSerial(int year, int month, int day)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ymdToSerial(year, month, day)
-           : PosixDateImpUtil::ymd2serial(year, month, day);
+           : PosixDateImpUtil::ymdToSerial(year, month, day);
 }
 
 inline
@@ -359,7 +359,7 @@ int DelegatingDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ymdToSerialNoCache(year, month, day)
-           : PosixDateImpUtil::ymd2serialNoCache(year, month, day);
+           : PosixDateImpUtil::ymdToSerialNoCache(year, month, day);
 }
 
                         // To Day-Of-Year Date (yd)
@@ -369,7 +369,7 @@ int DelegatingDateImpUtil::serialToDayOfYear(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToDayOfYear(serialDay)
-           : PosixDateImpUtil::serial2dayOfYear(serialDay);
+           : PosixDateImpUtil::serialToDayOfYear(serialDay);
 }
 
 inline
@@ -379,7 +379,7 @@ void DelegatingDateImpUtil::serialToYd(int *year,
 {
     isProlepticGregorianMode()
     ? SerialDateImpUtil::serialToYd(year, dayOfYear, serialDay)
-    : PosixDateImpUtil::serial2yd(year, dayOfYear, serialDay);
+    : PosixDateImpUtil::serialToYd(year, dayOfYear, serialDay);
 }
 
 inline
@@ -387,7 +387,7 @@ int DelegatingDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ymdToDayOfYear(year, month, day)
-           : PosixDateImpUtil::ymd2dayOfYear(year, month, day);
+           : PosixDateImpUtil::ymdToDayOfYear(year, month, day);
 }
 
                         // To Calendar Date (ymd)
@@ -397,7 +397,7 @@ int DelegatingDateImpUtil::serialToDay(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToDay(serialDay)
-           : PosixDateImpUtil::serial2day(serialDay);
+           : PosixDateImpUtil::serialToDay(serialDay);
 }
 
 inline
@@ -405,7 +405,7 @@ int DelegatingDateImpUtil::serialToDayNoCache(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToDayNoCache(serialDay)
-           : PosixDateImpUtil::serial2dayNoCache(serialDay);
+           : PosixDateImpUtil::serialToDayNoCache(serialDay);
 }
 
 inline
@@ -413,7 +413,7 @@ int DelegatingDateImpUtil::serialToMonth(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToMonth(serialDay)
-           : PosixDateImpUtil::serial2month(serialDay);
+           : PosixDateImpUtil::serialToMonth(serialDay);
 }
 
 inline
@@ -421,7 +421,7 @@ int DelegatingDateImpUtil::serialToMonthNoCache(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToMonthNoCache(serialDay)
-           : PosixDateImpUtil::serial2monthNoCache(serialDay);
+           : PosixDateImpUtil::serialToMonthNoCache(serialDay);
 }
 
 inline
@@ -429,7 +429,7 @@ int DelegatingDateImpUtil::serialToYear(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToYear(serialDay)
-           : PosixDateImpUtil::serial2year(serialDay);
+           : PosixDateImpUtil::serialToYear(serialDay);
 }
 
 inline
@@ -437,7 +437,7 @@ int DelegatingDateImpUtil::serialToYearNoCache(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToYearNoCache(serialDay)
-           : PosixDateImpUtil::serial2yearNoCache(serialDay);
+           : PosixDateImpUtil::serialToYearNoCache(serialDay);
 }
 
 inline
@@ -448,7 +448,7 @@ void DelegatingDateImpUtil::serialToYmd(int *year,
 {
     isProlepticGregorianMode()
     ? SerialDateImpUtil::serialToYmd(year, month, day, serialDay)
-    : PosixDateImpUtil::serial2ymd(year, month, day, serialDay);
+    : PosixDateImpUtil::serialToYmd(year, month, day, serialDay);
 }
 
 inline
@@ -459,7 +459,7 @@ void DelegatingDateImpUtil::serialToYmdNoCache(int *year,
 {
     isProlepticGregorianMode()
     ? SerialDateImpUtil::serialToYmdNoCache(year, month, day, serialDay)
-    : PosixDateImpUtil::serial2ymdNoCache(year, month, day, serialDay);
+    : PosixDateImpUtil::serialToYmdNoCache(year, month, day, serialDay);
 }
 
 inline
@@ -467,7 +467,7 @@ int DelegatingDateImpUtil::ydToDay(int year, int dayOfYear)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ydToDay(year, dayOfYear)
-           : PosixDateImpUtil::yd2day(year, dayOfYear);
+           : PosixDateImpUtil::ydToDay(year, dayOfYear);
 }
 
 inline
@@ -478,7 +478,7 @@ void DelegatingDateImpUtil::ydToMd(int *month,
 {
     isProlepticGregorianMode()
     ? SerialDateImpUtil::ydToMd(month, day, year, dayOfYear)
-    : PosixDateImpUtil::yd2md(month, day, year, dayOfYear);
+    : PosixDateImpUtil::ydToMd(month, day, year, dayOfYear);
 }
 
 inline
@@ -486,7 +486,7 @@ int DelegatingDateImpUtil::ydToMonth(int year, int dayOfYear)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ydToMonth(year, dayOfYear)
-           : PosixDateImpUtil::yd2month(year, dayOfYear);
+           : PosixDateImpUtil::ydToMonth(year, dayOfYear);
 }
 
                         // To Day of Week '[SUN = 1, MON .. SAT]'
@@ -496,7 +496,7 @@ int DelegatingDateImpUtil::serialToDayOfWeek(int serialDay)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::serialToDayOfWeek(serialDay)
-           : PosixDateImpUtil::serial2weekday(serialDay);
+           : PosixDateImpUtil::serialToDayOfWeek(serialDay);
 }
 
 inline
@@ -504,7 +504,7 @@ int DelegatingDateImpUtil::ydToDayOfWeek(int year, int dayOfYear)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ydToDayOfWeek(year, dayOfYear)
-           : PosixDateImpUtil::yd2weekday(year, dayOfYear);
+           : PosixDateImpUtil::ydToDayOfWeek(year, dayOfYear);
 }
 
 inline
@@ -512,7 +512,7 @@ int DelegatingDateImpUtil::ymdToDayOfWeek(int year, int month, int day)
 {
     return isProlepticGregorianMode()
            ? SerialDateImpUtil::ymdToDayOfWeek(year, month, day)
-           : PosixDateImpUtil::ymd2weekday(year, month, day);
+           : PosixDateImpUtil::ymdToDayOfWeek(year, month, day);
 }
 
                         // Calendar Mode

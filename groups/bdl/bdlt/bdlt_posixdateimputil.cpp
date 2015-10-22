@@ -64,9 +64,9 @@ enum {
     k_DAYS_IN_400_YEARS           =   4 * k_DAYS_IN_100_YEARS   + 1  // 146,097
 };
 
-// Note that, in each of the following arrays, the element at index position
-// 0 is always the value of 0 (in order to facilitate asking questions
-// involving all months up through the *previous* one).
+// Note that, in each of the following arrays, the element at index position 0
+// is always the value of 0 (in order to facilitate asking questions involving
+// all months up through the *previous* one).
 
 static const int normDaysThroughMonth[] = { 0,
 // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
@@ -95,11 +95,11 @@ static const int leapDaysPerMonth[] = { 0,
 
 static inline
 const int *getArrayDaysThroughMonth(int year)
-    // Return the address of a static array that, for the specified 'year',
-    // can be used to determine the number of days up to and including the
-    // month indicated by an integer index in the range '[ 0 .. k_MAX_MONTH ]',
-    // where an index of 0 always results in the value 0.  The behavior is
-    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
+    // Return the address of a static array that, for the specified 'year', can
+    // be used to determine the number of days up to and including the month
+    // indicated by an integer index in the range '[ 0 .. k_MAX_MONTH ]', where
+    // an index of 0 always results in the value 0.  The behavior is undefined
+    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
     BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
@@ -114,8 +114,8 @@ const int *getArrayDaysThroughMonth(int year)
 static
 int numDaysInPreviousYears(int year)
     // Return the total number of days in all years, beginning with the year 1,
-    // up to but not including the specified 'year'.  The behavior is
-    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
+    // up to but not including the specified 'year'.  The behavior is undefined
+    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT(k_MIN_YEAR <= year);
     BSLS_ASSERT(              year <= k_MAX_YEAR);
@@ -204,7 +204,7 @@ int PosixDateImpUtil::numLeapYears(int year1, int year2)
 
                         // Is Valid Date
 
-bool PosixDateImpUtil::isValidCalendarDateNoCache(int year, int month, int day)
+bool PosixDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
 {
     if (year < k_MIN_YEAR || year > k_MAX_YEAR) {
         return false;                                                 // RETURN
@@ -235,7 +235,7 @@ bool PosixDateImpUtil::isValidCalendarDateNoCache(int year, int month, int day)
     return true;
 }
 
-bool PosixDateImpUtil::isValidYearDayDate(int year, int dayOfYear)
+bool PosixDateImpUtil::isValidYearDay(int year, int dayOfYear)
 {
     if (year < k_MIN_YEAR || year > k_MAX_YEAR) {
         return false;                                                 // RETURN
@@ -249,29 +249,29 @@ bool PosixDateImpUtil::isValidYearDayDate(int year, int dayOfYear)
 
                         // To Serial Date (s)
 
-int PosixDateImpUtil::yd2serial(int year, int dayOfYear)
+int PosixDateImpUtil::ydToSerial(int year, int dayOfYear)
 {
-    BSLS_ASSERT(isValidYearDayDate(year, dayOfYear));
+    BSLS_ASSERT(isValidYearDay(year, dayOfYear));
 
     return numDaysInPreviousYears(year) + dayOfYear;
 }
 
-int PosixDateImpUtil::ymd2serial(int year, int month, int day)
+int PosixDateImpUtil::ymdToSerial(int year, int month, int day)
 {
-    BSLS_ASSERT(isValidCalendarDate(year, month, day));
+    BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
     if (s_firstCachedYear <= year && year <= s_lastCachedYear) {
         return s_cachedSerialDate[year - s_firstCachedYear][month] + day;
                                                                       // RETURN
     }
     else {
-        return ymd2serialNoCache(year, month, day);                   // RETURN
+        return ymdToSerialNoCache(year, month, day);                  // RETURN
     }
 }
 
-int PosixDateImpUtil::ymd2serialNoCache(int year, int month, int day)
+int PosixDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 {
-    BSLS_ASSERT(isValidCalendarDate(year, month, day));
+    BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
     const int totalDaysInPreviousMonths = normDaysThroughMonth[month - 1];
 
@@ -312,11 +312,11 @@ int PosixDateImpUtil::ymd2serialNoCache(int year, int month, int day)
 
                         // To Day-Of-Year Date (yd)
 
-void PosixDateImpUtil::serial2yd(int *year, int *dayOfYear, int serialDay)
+void PosixDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(dayOfYear);
-    BSLS_ASSERT(isValidSerialDate(serialDay));
+    BSLS_ASSERT(isValidSerial(serialDay));
 
     if (serialDay >= k_JAN_01_1753) {
         int y = k_YEAR_1601;                    // base year
@@ -379,9 +379,9 @@ void PosixDateImpUtil::serial2yd(int *year, int *dayOfYear, int serialDay)
     }
 }
 
-int PosixDateImpUtil::ymd2dayOfYear(int year, int month, int day)
+int PosixDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 {
-    BSLS_ASSERT(isValidCalendarDate(year, month, day));
+    BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
     const int *daysThroughMonth = getArrayDaysThroughMonth(year);
 
@@ -398,9 +398,9 @@ int PosixDateImpUtil::ymd2dayOfYear(int year, int month, int day)
 
                         // To Calendar Date (ymd)
 
-int PosixDateImpUtil::serial2day(int serialDay)
+int PosixDateImpUtil::serialToDay(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -408,13 +408,13 @@ int PosixDateImpUtil::serial2day(int serialDay)
                                                                       // RETURN
     }
     else {
-        return serial2dayNoCache(serialDay);                          // RETURN
+        return serialToDayNoCache(serialDay);                         // RETURN
     }
 }
 
-int PosixDateImpUtil::serial2month(int serialDay)
+int PosixDateImpUtil::serialToMonth(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -423,13 +423,13 @@ int PosixDateImpUtil::serial2month(int serialDay)
                                                                       // RETURN
     }
     else {
-        return serial2monthNoCache(serialDay);                        // RETURN
+        return serialToMonthNoCache(serialDay);                       // RETURN
     }
 }
 
-int PosixDateImpUtil::serial2year(int serialDay)
+int PosixDateImpUtil::serialToYear(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -438,19 +438,19 @@ int PosixDateImpUtil::serial2year(int serialDay)
                                                                       // RETURN
     }
     else {
-        return serial2yearNoCache(serialDay);                         // RETURN
+        return serialToYearNoCache(serialDay);                        // RETURN
     }
 }
 
-void PosixDateImpUtil::serial2ymd(int *year,
-                                  int *month,
-                                  int *day,
-                                  int  serialDay)
+void PosixDateImpUtil::serialToYmd(int *year,
+                                   int *month,
+                                   int *day,
+                                   int  serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
-    BSLS_ASSERT_SAFE(isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -461,15 +461,15 @@ void PosixDateImpUtil::serial2ymd(int *year,
         *day   = ymd->d_day;
     }
     else {
-        serial2ymdNoCache(year, month, day, serialDay);
+        serialToYmdNoCache(year, month, day, serialDay);
     }
 }
 
-void PosixDateImpUtil::yd2md(int *month, int *day, int year, int dayOfYear)
+void PosixDateImpUtil::ydToMd(int *month, int *day, int year, int dayOfYear)
 {
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
-    BSLS_ASSERT(isValidYearDayDate(year, dayOfYear));
+    BSLS_ASSERT(isValidYearDay(year, dayOfYear));
 
     const int *daysThroughMonth = getArrayDaysThroughMonth(year);
 
@@ -495,9 +495,9 @@ void PosixDateImpUtil::yd2md(int *month, int *day, int year, int dayOfYear)
 
                         // To Day of Week '[ SUN = 1, MON .. SAT ]'
 
-int PosixDateImpUtil::serial2weekday(int serialDay)
+int PosixDateImpUtil::serialToDayOfWeek(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
     int d = serialDay - 1;
 
@@ -6287,15 +6287,15 @@ const char PosixDateImpUtil::s_cachedDaysInMonth[61][13] = {
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

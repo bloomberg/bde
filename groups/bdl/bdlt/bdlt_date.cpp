@@ -77,7 +77,7 @@ void Date::logIfProblematicDateAddition(const char *fileName,
 #ifdef BDE_USE_PROLEPTIC_DATES
         ProlepticDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 #else
-             PosixDateImpUtil::serial2ymd(&year, &month, &day, serialDate);
+             PosixDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 #endif
 
         bsls::Log::logFormattedMessage(
@@ -126,11 +126,11 @@ void Date::logIfProblematicDateDifference(const char *fileName,
                                           &rhsDay,
                                           rhsSerialDate);
 #else
-             PosixDateImpUtil::serial2ymd(&lhsYear,
+             PosixDateImpUtil::serialToYmd(&lhsYear,
                                           &lhsMonth,
                                           &lhsDay,
                                           lhsSerialDate);
-             PosixDateImpUtil::serial2ymd(&rhsYear,
+             PosixDateImpUtil::serialToYmd(&rhsYear,
                                           &rhsMonth,
                                           &rhsDay,
                                           rhsSerialDate);
@@ -175,7 +175,7 @@ void Date::logIfProblematicDateValue(const char *fileName,
  && defined(BDE_USE_PROLEPTIC_DATES)
         ProlepticDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 #else
-             PosixDateImpUtil::serial2ymd(&year, &month, &day, serialDate);
+             PosixDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
 #endif
 
         bsls::Log::logFormattedMessage(
