@@ -691,7 +691,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
                  __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40700
 #define ENABLE_CPP11_TESTS 1
 #elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L 
-#if  __has_include(forward_list)
+#if  __has_include(<forward_list>)
 #define ENABLE_CPP11_TESTS 1
 #endif
 #elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1800
