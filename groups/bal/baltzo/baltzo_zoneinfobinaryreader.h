@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //     Byte | Name              | Description
 // ---------+-------------------+----------------------------------------------
 //   0 -  3 | 'T''Z''i''f'      | magic characters to identify the file
-//        4 | version           | '\0' or '2' to identify the version
+//        4 | version           | '\0', '2' or '3' to identify the version
 //   5 - 19 | reserved          | unused
 //  20 - 23 | numIsGmt          | number of UTC/local-time indicators
 //  24 - 27 | numIsStd          | number of standard/local-time indicators
@@ -175,8 +175,23 @@ BSLS_IDENT("$Id: $")
 // the version '\0' format, which leads to inaccurate information for dates far
 // in the past or future).
 //
+// The version '2' format adds an additional optional POSIX TZ environment
+// string found between two newline '\n' characters immediately following the
+// data.  If two consecutive newline characters are found, no string has been
+// specified.
+//
 // This component will always load version '2' data if it is present in the
 // supplied binary data.
+//
+///Version '3'
+///- - - - - -
+// Version '3' format of the Zoneinfo binary data is identical to the version
+// '2' data described above.  The version number was incremented because the
+// rules for the allowable range of values for the POSIX TZ environment string
+// optionally found at the end of the data.  The version '3' relaxed string
+// is referred to as POSIX-like because it deviates from what is strictly
+// allowable according to the POSIX standard, but makes representing certain
+// time zones much easier.
 //
 ///Additional Information
 /// - - - - - - - - - - -

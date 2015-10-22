@@ -2166,15 +2166,16 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using the table-driven technique:  (C-1..3, 6..7)
         //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     formatting parameters ('level' and 'spacesPerLevel'), along
+        //:   1 Define thirteen carefully selected combinations of (three)
+        //:     object values ('A', 'B' and 'C'), having distinct values for
+        //:     each corresponding salient attribute, and various values for
+        //:     the formatting parameters ('level' and 'spacesPerLevel'), along
         //:     with the expected output:
         //:     1. { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
         //:     2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
         //:     3. { B } x { 2 }     x { 3 }         -->  1 expected output
         //:     4. { A B } x { -9 }  x { -9 }        -->  2 expected output
+        //:     5. { C } x { 2 }     x { 3 }         -->  1 expected output
         //:
         //:   2 For each row in the table defined in P2-1:  (C-1..3, 6..7)
         //:
@@ -2256,6 +2257,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 1, 0)
                                + transitionPrintOutput(TB, 1, 0) +
                                "]"                                  NL
+                               "tz = \"\""                          NL
                                "]"                                  NL
                                                                              },
 
@@ -2265,6 +2267,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 1, 1)
                                + transitionPrintOutput(TB, 1, 1) +
                                " ]"                                 NL
+                               " tz = \"\""                         NL
                                "]"                                  NL
                                                                              },
 
@@ -2274,6 +2277,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 1, -1)
                                + transitionPrintOutput(TB, 1, -1) + SP
                                "]"                                  SP
+                               "tz = \"\""                          SP
                                "]"
                                                                              },
 
@@ -2290,6 +2294,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 4, 0)
                                + transitionPrintOutput(TB, 4, 0) +
                                "]"                                  NL
+                               "tz = \"\""                          NL
                                "]"                                  NL
                                                                              },
 
@@ -2299,6 +2304,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 4, 2)
                                + transitionPrintOutput(TB, 4, 2) +
                                "        ]"                                 NL
+                               "        tz = \"\""                         NL
                                "      ]"                                   NL
                                                                              },
 
@@ -2308,6 +2314,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, -4, -2) +       SP
                                + transitionPrintOutput(TB, -4, -2) +       SP
                                "]"                                         SP
+                               "tz = \"\""                                 SP
                                "]"
                                                                              },
 
@@ -2317,6 +2324,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 4, 0)
                                + transitionPrintOutput(TB, 4, 0) +
                                "]"                                  NL
+                               "tz = \"\""                          NL
                                "]"                                  NL
                                                                              },
 
@@ -2326,6 +2334,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, 4, 2)
                                + transitionPrintOutput(TB, 4, 2) +
                                "        ]"                                 NL
+                               "        tz = \"\""                         NL
                                "      ]"                                   NL
                                                                              },
 
@@ -2335,6 +2344,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TD, -4, -2) +       SP
                                + transitionPrintOutput(TB, -4, -2) +       SP
                                "]"                                         SP
+                               "tz = \"\""                                 SP
                                "]"
                                                                              },
 
@@ -2351,6 +2361,7 @@ int main(int argc, char *argv[])
                                + transitionPrintOutput(TA, 3, 3)
                                + transitionPrintOutput(TD, 3, 3) +
                                "         ]"                                NL
+                               "         tz = \"\""                        NL
                                "      ]"                                   NL
                                                                              },
 
@@ -2363,6 +2374,7 @@ int main(int argc, char *argv[])
 
         { L_, -9, -9, "xDyB",  "["                                  SP
                                "\"ABC\""                            SP
+                               "\"\""                               SP
                                "["                                  SP
                                + transitionOperatorOutput(TD) +     SP
                                + transitionOperatorOutput(TB) +     SP
@@ -2372,6 +2384,7 @@ int main(int argc, char *argv[])
 
         { L_, -9, -9, "nAxD",  "["                                  SP
                                "\"ABC\""                            SP
+                               "\"\""                               SP
                                "["                                  SP
                                + transitionOperatorOutput(TA) +     SP
                                + transitionOperatorOutput(TD) +     SP

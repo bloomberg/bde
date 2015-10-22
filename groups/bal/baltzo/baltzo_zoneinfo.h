@@ -53,6 +53,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o the ordered sequence of 'baltzo::ZoneinfoTransition' objects,
 //:   representing the various transitions from UTC for this time zone.
+//:
+//: o any optional POSIX-like TZ environment string used to represent
+//:   far-reaching times past the end of the explicit time zone data.
 //
 // A 'baltzo::Zoneinfo' object also provides the method
 // 'findTransitionForUtcTime' that allows a client to find, in the sequence of
@@ -74,11 +77,11 @@ BSLS_IDENT("$Id: $")
 // about the Zoneinfo database -- including the time zone rules for the
 // supported time zones, and source code for the 'zic' compiler (for compiling
 // those rules into the binary representation used by this component) -- can be
-// found online at 'http://www.twinsun.com/tz/tz-link.htm'.  This time-zone
-// information can be used to perform the conversion of dates and times from
-// UTC to their corresponding dates and times in a given time zone and
-// vice-versa.  (See 'baltzo_zoneinfobinaryreader' for more information about
-// the binary file format.)
+// found online at 'http://www.iana.org/time-zones/repository/tz-link.html'.
+// This time zone information can be used to perform the conversion of dates
+// and times from UTC to their corresponding dates and times in a given time
+// zone and vice-versa.  (See 'baltzo_zoneinfobinaryreader' for more
+// information about the binary file format.)
 //
 ///Usage
 ///-----
@@ -451,6 +454,10 @@ class Zoneinfo {
                                         // to 'EDT'), ordered by the time the
                                         // transition occurred (or will occur)
 
+    bsl::string         d_tz;           // optional POSIX-like TZ environment
+                                        // string representing far-reaching
+                                        // times
+
     bslma::Allocator   *d_allocator_p;  // allocator used to supply memory
                                         // (held, not owned)
 
@@ -525,6 +532,10 @@ class Zoneinfo {
         // Set the 'identifier' attribute of this object to the specified
         // 'value'.
 
+    void setTz(const bslstl::StringRef&  value);
+    void setTz(const char               *value);
+        // Set the 'tz' attribute of this object to the specified 'value'.
+
     void swap(Zoneinfo& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
@@ -553,6 +564,10 @@ class Zoneinfo {
     const bsl::string& identifier() const;
         // Return a reference providing non-modifiable access to the
         // 'identifier' attribute of this object.
+
+    const bsl::string& tz() const;
+        // Return a reference providing non-modifiable access to the 'tz'
+        // attribute of this object.
 
     bsl::size_t numTransitions() const;
         // Return the number of transitions maintained by this zone info.
@@ -694,6 +709,7 @@ baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
+, d_tz(basicAllocator)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -723,6 +739,22 @@ void baltzo::Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
+void baltzo::Zoneinfo::setTz(const bslstl::StringRef& value)
+{
+    BSLS_ASSERT_SAFE(0 != value.data());
+
+    d_tz.assign(value.begin(), value.end());
+}
+
+inline
+void baltzo::Zoneinfo::setTz(const char *value)
+{
+    BSLS_ASSERT_SAFE(value);
+
+    bsl::string(value, d_tz.allocator()).swap(d_tz);
+}
+
+inline
 void baltzo::Zoneinfo::swap(Zoneinfo& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
@@ -730,6 +762,7 @@ void baltzo::Zoneinfo::swap(Zoneinfo& other)
     bsl::swap(d_identifier,  other.d_identifier);
     bsl::swap(d_descriptors, other.d_descriptors);
     bsl::swap(d_transitions, other.d_transitions);
+    bsl::swap(d_tz, other.d_tz);
 }
 
 // ACCESSORS
@@ -751,6 +784,12 @@ inline
 const bsl::string& baltzo::Zoneinfo::identifier() const
 {
     return d_identifier;
+}
+
+inline
+const bsl::string& baltzo::Zoneinfo::tz() const
+{
+    return d_tz;
 }
 
 inline
@@ -778,6 +817,7 @@ inline
 bool baltzo::operator==(const Zoneinfo& lhs, const Zoneinfo& rhs)
 {
     return lhs.identifier()     == rhs.identifier()
+        && lhs.tz()             == rhs.tz()
         && lhs.numTransitions() == rhs.numTransitions()
         && bsl::equal(lhs.d_transitions.begin(),
                       lhs.d_transitions.end(),
