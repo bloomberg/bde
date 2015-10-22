@@ -3,5 +3,4 @@
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
 
-!! windows-Windows_NT-amd64-*-cl    64  TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
 !! windows-             _       BDE_ENDLDFLAGS  =  Advapi32.lib
