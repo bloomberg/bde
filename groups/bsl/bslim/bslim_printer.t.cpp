@@ -3256,7 +3256,6 @@ int main(int argc, char *argv[])
 #if defined ( ENABLE_CPP11_TESTS)
         if (verbose) cout << "\nTEST INSTANTIATING BSL TYPES"
                              "\n============================\n";
-        ostringstream out;
 
         bsl::unique_ptr<int>       p;
         bsl::nullptr_t             q;
