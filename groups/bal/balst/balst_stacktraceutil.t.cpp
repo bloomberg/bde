@@ -17,7 +17,6 @@
 
 #include <bdlma_sequentialallocator.h>
 
-#include <bdlf_function.h>
 #include <bdlt_currenttime.h>
 
 #include <bslma_defaultallocatorguard.h>
