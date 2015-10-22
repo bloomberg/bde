@@ -2,7 +2,6 @@
 #include <bdldfp_decimalutil.h>
 
 #include <bdldfp_decimal.h>
-#include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_uint128.h>
 
 #include <bslim_testutil.h>
@@ -2706,10 +2705,10 @@ int main(int argc, char* argv[])
             }
             symbolData[index].d_valueTraded += price * data[i].d_quantity;
             symbolData[index].d_volume += data[i].d_quantity;
-            symbolData[index].d_vwap =
-                BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
-                (symbolData[index].d_valueTraded /
-                 symbolData[index].d_volume);
+            bsl::stringstream stream;
+            stream << symbolData[index].d_valueTraded /
+                      symbolData[index].d_volume;
+            stream >> symbolData[index].d_vwap;
         }
 
         const double totalTime = s.accumulatedWallTime();
@@ -2895,10 +2894,10 @@ int main(int argc, char* argv[])
                 }
                 symbolData[index].d_valueTraded += price * data[i].d_quantity;
                 symbolData[index].d_volume += data[i].d_quantity;
-                symbolData[index].d_vwap =
-                    BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
-                    (symbolData[index].d_valueTraded /
-                     symbolData[index].d_volume);
+                bsl::stringstream stream;
+                stream << symbolData[index].d_valueTraded /
+                          symbolData[index].d_volume;
+                stream >> symbolData[index].d_vwap;
             }
         }
 
