@@ -1,8 +1,8 @@
-// bdlt_serialdateimputil.cpp                                         -*-C++-*-
-#include <bdlt_serialdateimputil.h>
+// bdlt_prolepticdateimputil.cpp                                      -*-C++-*-
+#include <bdlt_prolepticdateimputil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_serialdateimputil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlt_prolepticdateimputil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {
@@ -156,8 +156,8 @@ int numLeapYearsSoFar(int);
 static inline
 int calendarDaysThroughMonth(int year, int month)
     // Return the number of calendar days since the start of the specified
-    // 'year' and including the days in the specified 'month'.  The behavior
-    // is undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR' and
+    // 'year' and including the days in the specified 'month'.  The behavior is
+    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR' and
     // '0 <= month <= k_MAX_MONTH'.
 {
     BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
@@ -170,16 +170,16 @@ int calendarDaysThroughMonth(int year, int month)
 
 static inline
 const int *getArrayDaysThroughMonth(int year)
-    // Return the address of a static array that, for the specified 'year',
-    // can be used to determine the number of days up to and including the
-    // month indicated by an integer index in the range '[0 .. k_MAX_MONTH]',
-    // where an index of 0 always results in the value 0.  The behavior is
-    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
+    // Return the address of a static array that, for the specified 'year', can
+    // be used to determine the number of days up to and including the month
+    // indicated by an integer index in the range '[0 .. k_MAX_MONTH]', where
+    // an index of 0 always results in the value 0.  The behavior is undefined
+    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
     BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
 
-    return bdlt::SerialDateImpUtil::isLeapYear(year)
+    return bdlt::ProlepticDateImpUtil::isLeapYear(year)
            ? leapDaysThroughMonth
            : normDaysThroughMonth;
 }
@@ -187,8 +187,8 @@ const int *getArrayDaysThroughMonth(int year)
 static inline
 int numDaysInPreviousYears(int year)
     // Return the total number of days in all years, beginning with the year 1,
-    // up to but not including the specified 'year'.  The behavior is
-    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
+    // up to but not including the specified 'year'.  The behavior is undefined
+    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
     BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
@@ -211,12 +211,12 @@ int numLeapYearsSoFar(int year)
 
 }  // close unnamed namespace
 
-                           // ------------------------
-                           // struct SerialDateImpUtil
-                           // ------------------------
+                           // ---------------------------
+                           // struct ProlepticDateImpUtil
+                           // ---------------------------
 
 // CLASS METHODS
-int SerialDateImpUtil::lastDayOfMonth(int year, int month)
+int ProlepticDateImpUtil::lastDayOfMonth(int year, int month)
 {
     BSLS_ASSERT(k_MIN_YEAR  <= year);
     BSLS_ASSERT(               year  <= k_MAX_YEAR);
@@ -226,7 +226,7 @@ int SerialDateImpUtil::lastDayOfMonth(int year, int month)
     return normDaysPerMonth[month] + (k_FEB == month && isLeapYear(year));
 }
 
-int SerialDateImpUtil::numLeapYears(int year1, int year2)
+int ProlepticDateImpUtil::numLeapYears(int year1, int year2)
 {
     BSLS_ASSERT(k_MIN_YEAR <= year1);
     BSLS_ASSERT(              year1 <= k_MAX_YEAR);
@@ -239,7 +239,7 @@ int SerialDateImpUtil::numLeapYears(int year1, int year2)
 
                         // Is Valid Date
 
-bool SerialDateImpUtil::isValidYearDay(int year, int dayOfYear)
+bool ProlepticDateImpUtil::isValidYearDay(int year, int dayOfYear)
 {
     if (year < k_MIN_YEAR || year > k_MAX_YEAR) {
         return false;                                                 // RETURN
@@ -252,7 +252,7 @@ bool SerialDateImpUtil::isValidYearDay(int year, int dayOfYear)
 }
 
 bool
-SerialDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
+ProlepticDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
 {
     if (year < k_MIN_YEAR || month < k_MIN_MONTH || day < k_MIN_DAY
      || year > k_MAX_YEAR || month > k_MAX_MONTH) {
@@ -269,14 +269,14 @@ SerialDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
 
                         // To Serial Date (s)
 
-int SerialDateImpUtil::ydToSerial(int year, int dayOfYear)
+int ProlepticDateImpUtil::ydToSerial(int year, int dayOfYear)
 {
     BSLS_ASSERT(isValidYearDay(year, dayOfYear));
 
     return numDaysInPreviousYears(year) + dayOfYear;
 }
 
-int SerialDateImpUtil::ymdToSerial(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToSerial(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
@@ -289,7 +289,7 @@ int SerialDateImpUtil::ymdToSerial(int year, int month, int day)
     }
 }
 
-int SerialDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
@@ -304,7 +304,7 @@ int SerialDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 
                         // To Day-Of-Year Date (yd)
 
-void SerialDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
+void ProlepticDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(dayOfYear);
@@ -342,7 +342,7 @@ void SerialDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
     *dayOfYear = static_cast<int>(doy + 1);
 }
 
-int SerialDateImpUtil::ymdToDayOfYear(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
@@ -353,7 +353,7 @@ int SerialDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 
                         // To Calendar Date (ymd)
 
-int SerialDateImpUtil::serialToDay(int serialDay)
+int ProlepticDateImpUtil::serialToDay(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -367,7 +367,7 @@ int SerialDateImpUtil::serialToDay(int serialDay)
     }
 }
 
-int SerialDateImpUtil::serialToMonth(int serialDay)
+int ProlepticDateImpUtil::serialToMonth(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -382,7 +382,7 @@ int SerialDateImpUtil::serialToMonth(int serialDay)
     }
 }
 
-int SerialDateImpUtil::serialToYear(int serialDay)
+int ProlepticDateImpUtil::serialToYear(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -397,10 +397,10 @@ int SerialDateImpUtil::serialToYear(int serialDay)
     }
 }
 
-void SerialDateImpUtil::serialToYmd(int *year,
-                                    int *month,
-                                    int *day,
-                                    int  serialDay)
+void ProlepticDateImpUtil::serialToYmd(int *year,
+                                       int *month,
+                                       int *day,
+                                       int  serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
@@ -421,7 +421,10 @@ void SerialDateImpUtil::serialToYmd(int *year,
     }
 }
 
-void SerialDateImpUtil::ydToMd(int *month, int *day, int year, int dayOfYear)
+void ProlepticDateImpUtil::ydToMd(int *month,
+                                  int *day,
+                                  int  year,
+                                  int  dayOfYear)
 {
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
@@ -442,13 +445,13 @@ void SerialDateImpUtil::ydToMd(int *month, int *day, int year, int dayOfYear)
 //                    MACHINE-GENERATED DATA GOES HERE
 // ============================================================================
 
-const int SerialDateImpUtil::s_firstCachedYear       = 1980;
-const int SerialDateImpUtil::s_lastCachedYear        = 2040;
-const int SerialDateImpUtil::s_firstCachedSerialDate = 722815;
-const int SerialDateImpUtil::s_lastCachedSerialDate  = 745095;
+const int ProlepticDateImpUtil::s_firstCachedYear       = 1980;
+const int ProlepticDateImpUtil::s_lastCachedYear        = 2040;
+const int ProlepticDateImpUtil::s_firstCachedSerialDate = 722815;
+const int ProlepticDateImpUtil::s_lastCachedSerialDate  = 745095;
 
-const SerialDateImpUtil::YearMonthDay
-    SerialDateImpUtil::s_cachedYearMonthDay[] = {
+const ProlepticDateImpUtil::YearMonthDay
+    ProlepticDateImpUtil::s_cachedYearMonthDay[] = {
   { 1980,  1,  1 },  { 1980,  1,  2 },  { 1980,  1,  3 },  { 1980,  1,  4 },
   { 1980,  1,  5 },  { 1980,  1,  6 },  { 1980,  1,  7 },  { 1980,  1,  8 },
   { 1980,  1,  9 },  { 1980,  1, 10 },  { 1980,  1, 11 },  { 1980,  1, 12 },
@@ -6022,7 +6025,7 @@ const SerialDateImpUtil::YearMonthDay
   { 2040, 12, 31 },
 };
 
-const int SerialDateImpUtil::s_cachedSerialDate[61][13] = {
+const int ProlepticDateImpUtil::s_cachedSerialDate[61][13] = {
   { 0, 722814, 722845, 722874, 722905, 722935, 722966,
        722996, 723027, 723058, 723088, 723119, 723149,   },
   { 0, 723180, 723211, 723239, 723270, 723300, 723331,
@@ -6147,7 +6150,7 @@ const int SerialDateImpUtil::s_cachedSerialDate[61][13] = {
        744911, 744942, 744973, 745003, 745034, 745064,   },
 };
 
-const char SerialDateImpUtil::s_cachedDaysInMonth[61][13] = {
+const char ProlepticDateImpUtil::s_cachedDaysInMonth[61][13] = {
   { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
   { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
   { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
@@ -6217,15 +6220,15 @@ const char SerialDateImpUtil::s_cachedDaysInMonth[61][13] = {
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

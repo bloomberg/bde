@@ -74,7 +74,11 @@ void Date::logIfProblematicDateAddition(const char *fileName,
                              static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
 
         int year, month, day;
-        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+        ProlepticDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+#else
+             PosixDateImpUtil::serial2ymd(&year, &month, &day, serialDate);
+#endif
 
         bsls::Log::logFormattedMessage(
                               fileName, lineNumber,
@@ -111,12 +115,26 @@ void Date::logIfProblematicDateDifference(const char *fileName,
      && (LOG_THROTTLE_MASK & tmpCount)) {
 
         int lhsYear, lhsMonth, lhsDay;
-        DelegatingDateImpUtil::serialToYmd(&lhsYear, &lhsMonth, &lhsDay,
-                                           lhsSerialDate);
-
         int rhsYear, rhsMonth, rhsDay;
-        DelegatingDateImpUtil::serialToYmd(&rhsYear, &rhsMonth, &rhsDay,
-                                           rhsSerialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+        ProlepticDateImpUtil::serialToYmd(&lhsYear,
+                                          &lhsMonth,
+                                          &lhsDay,
+                                          lhsSerialDate);
+        ProlepticDateImpUtil::serialToYmd(&rhsYear,
+                                          &rhsMonth,
+                                          &rhsDay,
+                                          rhsSerialDate);
+#else
+             PosixDateImpUtil::serial2ymd(&lhsYear,
+                                          &lhsMonth,
+                                          &lhsDay,
+                                          lhsSerialDate);
+             PosixDateImpUtil::serial2ymd(&rhsYear,
+                                          &rhsMonth,
+                                          &rhsDay,
+                                          rhsSerialDate);
+#endif
 
         bsls::Log::logFormattedMessage(
                             fileName, lineNumber,
@@ -153,7 +171,12 @@ void Date::logIfProblematicDateValue(const char *fileName,
      && (LOG_THROTTLE_MASK & tmpCount)) {
 
         int year, month, day;
-        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+#if defined(BDE_OPENSOURCE_PUBLICATION) \
+ && defined(BDE_USE_PROLEPTIC_DATES)
+        ProlepticDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
+#else
+             PosixDateImpUtil::serial2ymd(&year, &month, &day, serialDate);
+#endif
 
         bsls::Log::logFormattedMessage(
                                  fileName, lineNumber,

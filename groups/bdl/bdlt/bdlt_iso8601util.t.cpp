@@ -19,7 +19,9 @@
 #include <bsl_string.h>
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#if 0
 #include <bdlt_delegatingdateimputil.h>
+#endif
 #include <bsls_log.h>
 #endif
 
@@ -645,6 +647,7 @@ int main(int argc, char *argv[])
         bsls::Log::setLogMessageHandler(&noopLogMessageHandler);
     }
 
+#if 0
     if (veryVerbose) {
         cout << "The calendar mode in effect is "
              << (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
@@ -652,6 +655,7 @@ int main(int argc, char *argv[])
                  : "Gregorian (POSIX)")
              << endl;
     }
+#endif
 #endif
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;

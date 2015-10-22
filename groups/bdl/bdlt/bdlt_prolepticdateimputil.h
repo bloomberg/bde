@@ -1,6 +1,6 @@
-// bdlt_serialdateimputil.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
-#define INCLUDED_BDLT_SERIALDATEIMPUTIL
+// bdlt_prolepticdateimputil.h                                        -*-C++-*-
+#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
+#define INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide low-level support functions for date-value manipulation.
 //
 //@CLASSES:
-//  bdlt::SerialDateImpUtil: low-level date-related stateless functions
+//  bdlt::ProlepticDateImpUtil: low-level date-related stateless functions
 //
 //@SEE_ALSO: bdlt_date
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::SerialDateImpUtil', that defines a suite of low-level, date-related
-// functions, which can be used to validate, manipulate, and convert among
-// values in three different formats:
+// 'bdlt::ProlepticDateImpUtil', that defines a suite of low-level,
+// date-related functions, which can be used to validate, manipulate, and
+// convert among values in three different formats:
 //..
 //  YMD: year/month/day date
 //   YD: year/day-of-year date
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 // To achieve maximal runtime performance, several of the functions in this
 // component reserve the right to be implemented using statically cached (i.e.,
 // tabulated, pre-calculated) values (which is inherently thread-safe).  For
-// all functions where a cache may be used, 'bdlt::SerialDateImpUtil' also
+// all functions where a cache may be used, 'bdlt::ProlepticDateImpUtil' also
 // explicitly provides a 'NoCache' version (e.g., 'ymdToSerialNoCache') that is
 // guaranteed NOT to use a cache.  Although the "normal" (potentially cached)
 // functions typically gain huge performance advantages, the 'NoCache' versions
@@ -99,37 +99,39 @@ BSLS_IDENT("$Id: $")
 //
 // First, what day of the week was January 3, 2010?
 //..
-//  assert(2 == bdlt::SerialDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
+//  assert(2 == bdlt::ProlepticDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
 //                                                           // 2 means Monday.
 //..
 // Then, was the year 2000 a leap year?
 //..
-//  assert(true == bdlt::SerialDateImpUtil::isLeapYear(2000));
+//  assert(true == bdlt::ProlepticDateImpUtil::isLeapYear(2000));
 //                                                           // Yes, it was.
 //..
 // Next, was February 29, 1900 a valid date in history?
 //..
-//  assert(false == bdlt::SerialDateImpUtil::isValidYearMonthDay(1900, 2, 29));
+//  assert(false == bdlt::ProlepticDateImpUtil::isValidYearMonthDay(1900,
+//                                                                     2,
+//                                                                    29));
 //                                                           // No, it was not.
 //..
 // Then, what was the last day of February in 1600?
 //..
-//  assert(29 == bdlt::SerialDateImpUtil::lastDayOfMonth(1600, 2));
+//  assert(29 == bdlt::ProlepticDateImpUtil::lastDayOfMonth(1600, 2));
 //                                                           // The 29th.
 //..
 // Next, how many leap years occurred from 1959 to 2012, inclusive?
 //..
-//  assert(14 == bdlt::SerialDateImpUtil::numLeapYears(1959, 2012));
+//  assert(14 == bdlt::ProlepticDateImpUtil::numLeapYears(1959, 2012));
 //                                                           // There were 14.
 //..
 // Now, on what day of the year will February 29, 2020 fall?
 //..
-//  assert(60 == bdlt::SerialDateImpUtil::ymdToDayOfYear(2020, 2, 29));
+//  assert(60 == bdlt::ProlepticDateImpUtil::ymdToDayOfYear(2020, 2, 29));
 //                                                           // The 60th one.
 //..
 // Finally, in what month did the 120th day of 2011 fall?
 //..
-//  assert(4 == bdlt::SerialDateImpUtil::ydToMonth(2011, 120));
+//  assert(4 == bdlt::ProlepticDateImpUtil::ydToMonth(2011, 120));
 //                                                           // 4 means April.
 //..
 //
@@ -223,21 +225,24 @@ BSLS_IDENT("$Id: $")
 // Then, we provide an implementation of the 'MyDate' methods and associated
 // free operators declared above, using 'bsls_assert' to identify preconditions
 // and invariants where appropriate.  Note the use of various
-// 'bdlt::SerialDateImpUtil' functions in the code:
+// 'bdlt::ProlepticDateImpUtil' functions in the code:
 //..
 //  // PRIVATE CREATORS
 //  inline
 //  MyDate::MyDate(int serialDate)
 //  : d_serialDate(serialDate)
 //  {
-//      BSLS_ASSERT_SAFE(bdlt::SerialDateImpUtil::isValidSerial(d_serialDate));
+//      BSLS_ASSERT_SAFE(bdlt::ProlepticDateImpUtil::isValidSerial(
+//                                                              d_serialDate));
 //  }
 //
 //  // CLASS METHODS
 //  inline
 //  bool MyDate::isValid(int year, int month, int day)
 //  {
-//      return bdlt::SerialDateImpUtil::isValidYearMonthDay(year, month, day);
+//      return bdlt::ProlepticDateImpUtil::isValidYearMonthDay(year,
+//                                                             month,
+//                                                             day);
 //  }
 //
 //  // CREATORS
@@ -249,7 +254,7 @@ BSLS_IDENT("$Id: $")
 //
 //  inline
 //  MyDate::MyDate(int year, int month, int day)
-//  : d_serialDate(bdlt::SerialDateImpUtil::ymdToSerial(year, month, day))
+//  : d_serialDate(bdlt::ProlepticDateImpUtil::ymdToSerial(year, month, day))
 //  {
 //      BSLS_ASSERT_SAFE(isValid(year, month, day));
 //  }
@@ -265,7 +270,9 @@ BSLS_IDENT("$Id: $")
 //  {
 //      BSLS_ASSERT_SAFE(isValid(year, month, day));
 //
-//      d_serialDate = bdlt::SerialDateImpUtil::ymdToSerial(year, month, day);
+//      d_serialDate = bdlt::ProlepticDateImpUtil::ymdToSerial(year,
+//                                                             month,
+//                                                             day);
 //  }
 //
 //  // ACCESSORS
@@ -276,25 +283,28 @@ BSLS_IDENT("$Id: $")
 //      BSLS_ASSERT_SAFE(month);
 //      BSLS_ASSERT_SAFE(day);
 //
-//      bdlt::SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+//      bdlt::ProlepticDateImpUtil::serialToYmd(year,
+//                                              month,
+//                                              day,
+//                                              d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::day() const
 //  {
-//      return bdlt::SerialDateImpUtil::serialToDay(d_serialDate);
+//      return bdlt::ProlepticDateImpUtil::serialToDay(d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::month() const
 //  {
-//      return bdlt::SerialDateImpUtil::serialToMonth(d_serialDate);
+//      return bdlt::ProlepticDateImpUtil::serialToMonth(d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::year() const
 //  {
-//      return bdlt::SerialDateImpUtil::serialToYear(d_serialDate);
+//      return bdlt::ProlepticDateImpUtil::serialToYear(d_serialDate);
 //  }
 //
 //  // FREE OPERATORS
@@ -329,12 +339,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that equality comparison of 'MyDate' objects is very efficient, being
 // comprised of a comparison of two 'int' values.  Similarly, the 'MyDate'
-// methods and free operators (not shown) that add a (signed) number of days
-// to a date are also very efficient.  However, one of the trade-offs of
-// storing a date internally as a serial value is that operations involving
-// conversion among the serial value and one or more of the 'year', 'month',
-// and 'day' attributes (e.g., 'setYearMonthDay', 'getYearMonthDay') entail
-// considerably more computation.
+// methods and free operators (not shown) that add a (signed) number of days to
+// a date are also very efficient.  However, one of the trade-offs of storing a
+// date internally as a serial value is that operations involving conversion
+// among the serial value and one or more of the 'year', 'month', and 'day'
+// attributes (e.g., 'setYearMonthDay', 'getYearMonthDay') entail considerably
+// more computation.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -347,11 +357,11 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                           // ========================
-                           // struct SerialDateImpUtil
-                           // ========================
+                           // ===========================
+                           // struct ProlepticDateImpUtil
+                           // ===========================
 
-struct SerialDateImpUtil {
+struct ProlepticDateImpUtil {
     // This 'struct' provides a namespace for a suite of pure functions that
     // perform low-level operations on date values in a variety of formats:
     // year/month/day, year/day-of-year, and serial date.  Dates in the range
@@ -421,7 +431,7 @@ struct SerialDateImpUtil {
 
     static bool isValidYearMonthDayNoCache(int year, int month, int day);
         // Return 'true' if the specified 'year', 'month', and 'day' represents
-        // a valid date value,  and 'false' otherwise.  Note that valid date
+        // a valid date value, and 'false' otherwise.  Note that valid date
         // values are (as fully defined in the component-level documentation)
         // in the range '[0001/01/01 .. 9999/12/31]'.  Also note that this
         // function is guaranteed not to use any date-cache optimizations.
@@ -429,8 +439,8 @@ struct SerialDateImpUtil {
                         // To Serial Date (s)
 
     static int ydToSerial(int year, int dayOfYear);
-        // Return the serial date representation of the date value indicated
-        // by the specified 'year' and 'dayOfYear'.  The behavior is undefined
+        // Return the serial date representation of the date value indicated by
+        // the specified 'year' and 'dayOfYear'.  The behavior is undefined
         // unless 'isValidYearDay(year, dayOfYear)' returns 'true'.
 
     static int ymdToSerial(int year, int month, int day);
@@ -439,11 +449,11 @@ struct SerialDateImpUtil {
         // unless 'isValidYearMonthDay(year, month, day)' returns 'true'.
 
     static int ymdToSerialNoCache(int year, int month, int day);
-        // Return the serial date representation of the date value indicated
-        // by the specified 'year', 'month', and 'day'.  The behavior is
-        // undefined unless 'isValidYearMonthDay(year, month, day)' returns
-        // 'true'.  Note that this function is guaranteed not to use any
-        // date-cache optimizations.
+        // Return the serial date representation of the date value indicated by
+        // the specified 'year', 'month', and 'day'.  The behavior is undefined
+        // unless 'isValidYearMonthDay(year, month, day)' returns 'true'.  Note
+        // that this function is guaranteed not to use any date-cache
+        // optimizations.
 
                         // To Day-Of-Year Date (yd)
 
@@ -553,13 +563,13 @@ struct SerialDateImpUtil {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                           // ------------------------
-                           // struct SerialDateImpUtil
-                           // ------------------------
+                           // ---------------------------
+                           // struct ProlepticDateImpUtil
+                           // ---------------------------
 
 // CLASS METHODS
 inline
-bool SerialDateImpUtil::isLeapYear(int year)
+bool ProlepticDateImpUtil::isLeapYear(int year)
 {
     BSLS_ASSERT_SAFE(1 <= year);
     BSLS_ASSERT_SAFE(     year <= 9999);
@@ -575,13 +585,13 @@ bool SerialDateImpUtil::isLeapYear(int year)
                         // Is Valid Date
 
 inline
-bool SerialDateImpUtil::isValidSerial(int serialDay)
+bool ProlepticDateImpUtil::isValidSerial(int serialDay)
 {
     return static_cast<unsigned>(serialDay) - 1 < k_MAX_SERIAL_DATE;
 }
 
 inline
-bool SerialDateImpUtil::isValidYearMonthDay(int year, int month, int day)
+bool ProlepticDateImpUtil::isValidYearMonthDay(int year, int month, int day)
 {
     if (s_firstCachedYear <= year && year <= s_lastCachedYear) {
         // Check 'month' and 'day'; the cache cannot catch out-of-range issues.
@@ -601,7 +611,7 @@ bool SerialDateImpUtil::isValidYearMonthDay(int year, int month, int day)
                         // To Day-Of-Year Date (yd)
 
 inline
-int SerialDateImpUtil::serialToDayOfYear(int serialDay)
+int ProlepticDateImpUtil::serialToDayOfYear(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -613,7 +623,7 @@ int SerialDateImpUtil::serialToDayOfYear(int serialDay)
                         // To Calendar Date (ymd)
 
 inline
-int SerialDateImpUtil::serialToDayNoCache(int serialDay)
+int ProlepticDateImpUtil::serialToDayNoCache(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -623,7 +633,7 @@ int SerialDateImpUtil::serialToDayNoCache(int serialDay)
 }
 
 inline
-int SerialDateImpUtil::serialToMonthNoCache(int serialDay)
+int ProlepticDateImpUtil::serialToMonthNoCache(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -633,7 +643,7 @@ int SerialDateImpUtil::serialToMonthNoCache(int serialDay)
 }
 
 inline
-int SerialDateImpUtil::serialToYearNoCache(int serialDay)
+int ProlepticDateImpUtil::serialToYearNoCache(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -643,10 +653,10 @@ int SerialDateImpUtil::serialToYearNoCache(int serialDay)
 }
 
 inline
-void SerialDateImpUtil::serialToYmdNoCache(int *year,
-                                           int *month,
-                                           int *day,
-                                           int  serialDay)
+void ProlepticDateImpUtil::serialToYmdNoCache(int *year,
+                                              int *month,
+                                              int *day,
+                                              int  serialDay)
 {
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(month);
@@ -659,7 +669,7 @@ void SerialDateImpUtil::serialToYmdNoCache(int *year,
 }
 
 inline
-int SerialDateImpUtil::ydToDay(int year, int dayOfYear)
+int ProlepticDateImpUtil::ydToDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
@@ -669,7 +679,7 @@ int SerialDateImpUtil::ydToDay(int year, int dayOfYear)
 }
 
 inline
-int SerialDateImpUtil::ydToMonth(int year, int dayOfYear)
+int ProlepticDateImpUtil::ydToMonth(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
@@ -681,7 +691,7 @@ int SerialDateImpUtil::ydToMonth(int year, int dayOfYear)
                         // To Day of Week '[SUN = 1, MON .. SAT]'
 
 inline
-int SerialDateImpUtil::serialToDayOfWeek(int serialDay)
+int ProlepticDateImpUtil::serialToDayOfWeek(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -691,7 +701,7 @@ int SerialDateImpUtil::serialToDayOfWeek(int serialDay)
 }
 
 inline
-int SerialDateImpUtil::ydToDayOfWeek(int year, int dayOfYear)
+int ProlepticDateImpUtil::ydToDayOfWeek(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
@@ -699,7 +709,7 @@ int SerialDateImpUtil::ydToDayOfWeek(int year, int dayOfYear)
 }
 
 inline
-int SerialDateImpUtil::ymdToDayOfWeek(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToDayOfWeek(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
@@ -714,15 +724,15 @@ int SerialDateImpUtil::ymdToDayOfWeek(int year, int month, int day)
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

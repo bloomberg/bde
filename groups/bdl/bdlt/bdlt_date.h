@@ -194,6 +194,13 @@ BSLS_IDENT("$Id: $")
 //..
 // on 'stdout'.
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' disallowed except when building \
+           'BDE_OPENSOURCE_PUBLICATION'.
+    #endif
+#endif
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -206,13 +213,13 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_monthofyear.h>
 #endif
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
-#include <bdlt_serialdateimputil.h>
+#ifdef BDE_USE_PROLEPTIC_DATES
+#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
+#include <bdlt_prolepticdateimputil.h>
 #endif
 #else
-#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-#include <bdlt_delegatingdateimputil.h>
+#ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
+#include <bdlt_posixdateimputil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
@@ -239,6 +246,7 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
 
 namespace BloombergLP {
 namespace bdlt {
@@ -714,10 +722,10 @@ void hashAppend(HASHALG& hashAlg, const Date& date);
 inline
 bool Date::isValidSerial(int serialDate)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::isValidSerial(serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::isValidSerial(serialDate);
 #else
-    return DelegatingDateImpUtil::isValidSerial(serialDate);
+    return PosixDateImpUtil::isValidSerialDate(serialDate);
 #endif
 }
 
@@ -733,20 +741,20 @@ Date::Date(int serialDate)
 inline
 bool Date::isValidYearDay(int year, int dayOfYear)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::isValidYearDay(year, dayOfYear);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::isValidYearDay(year, dayOfYear);
 #else
-    return DelegatingDateImpUtil::isValidYearDay(year, dayOfYear);
+    return PosixDateImpUtil::isValidYearDayDate(year, dayOfYear);
 #endif
 }
 
 inline
 bool Date::isValidYearMonthDay(int year, int month, int day)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::isValidYearMonthDay(year, month, day);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::isValidYearMonthDay(year, month, day);
 #else
-    return DelegatingDateImpUtil::isValidYearMonthDay(year, month, day);
+    return     PosixDateImpUtil::isValidCalendarDate(year, month, day);
 #endif
 }
 
@@ -767,10 +775,10 @@ Date::Date()
 
 inline
 Date::Date(int year, int dayOfYear)
-#ifdef BDE_OPENSOURCE_PUBLICATION
-: d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
+#ifdef BDE_USE_PROLEPTIC_DATES
+: d_serialDate(ProlepticDateImpUtil::ydToSerial(year, dayOfYear))
 #else
-: d_serialDate(DelegatingDateImpUtil::ydToSerial(year, dayOfYear))
+: d_serialDate(     PosixDateImpUtil::yd2serial(year, dayOfYear))
 #endif
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
@@ -786,10 +794,10 @@ Date::Date(int year, int dayOfYear)
 
 inline
 Date::Date(int year, int month, int day)
-#ifdef BDE_OPENSOURCE_PUBLICATION
-: d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
+#ifdef BDE_USE_PROLEPTIC_DATES
+: d_serialDate(ProlepticDateImpUtil::ymdToSerial(year, month, day))
 #else
-: d_serialDate(DelegatingDateImpUtil::ymdToSerial(year, month, day))
+: d_serialDate(     PosixDateImpUtil::ymd2serial(year, month, day))
 #endif
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
@@ -896,11 +904,13 @@ void Date::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    d_serialDate = SerialDateImpUtil::ydToSerial(year, dayOfYear);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    d_serialDate = ProlepticDateImpUtil::ydToSerial(year, dayOfYear);
 #else
-    d_serialDate = DelegatingDateImpUtil::ydToSerial(year, dayOfYear);
+    d_serialDate =      PosixDateImpUtil::yd2serial(year, dayOfYear);
+#endif
 
+#ifndef BDE_OPENSOURCE_PUBLICATION 
     enum { locationId = 6 };
 
     Date::logIfProblematicDateValue(__FILE__, __LINE__,
@@ -927,11 +937,13 @@ void Date::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    d_serialDate = SerialDateImpUtil::ymdToSerial(year, month, day);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    d_serialDate = ProlepticDateImpUtil::ymdToSerial(year, month, day);
 #else
-    d_serialDate = DelegatingDateImpUtil::ymdToSerial(year, month, day);
+    d_serialDate =      PosixDateImpUtil::ymd2serial(year, month, day);
+#endif
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
     enum { locationId = 7 };
 
     Date::logIfProblematicDateValue(__FILE__, __LINE__,
@@ -965,9 +977,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
-#endif
+#ifdef BDE_USE_PROLEPTIC_DATES
             // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
             // component-level documentation.
 
@@ -977,8 +987,6 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
             }
             else if (tmpSerialDate > 0) {
                 tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-            }
-#ifndef BDE_OPENSOURCE_PUBLICATION
             }
 #endif
 
@@ -1010,40 +1018,40 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 inline
 int Date::day() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::serialToDay(d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::serialToDay(d_serialDate);
 #else
-    return DelegatingDateImpUtil::serialToDay(d_serialDate);
+    return      PosixDateImpUtil::serial2day(d_serialDate);
 #endif
 }
 
 inline
 int Date::dayOfYear() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::serialToDayOfYear(d_serialDate);
 #else
-    return DelegatingDateImpUtil::serialToDayOfYear(d_serialDate);
+    return      PosixDateImpUtil::serial2dayOfYear(d_serialDate);
 #endif
 }
 
 inline
 int Date::month() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::serialToMonth(d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::serialToMonth(d_serialDate);
 #else
-    return DelegatingDateImpUtil::serialToMonth(d_serialDate);
+    return      PosixDateImpUtil::serial2month(d_serialDate);
 #endif
 }
 
 inline
 int Date::year() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::serialToYear(d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return ProlepticDateImpUtil::serialToYear(d_serialDate);
 #else
-    return DelegatingDateImpUtil::serialToYear(d_serialDate);
+    return      PosixDateImpUtil::serial2year(d_serialDate);
 #endif
 }
 
@@ -1051,12 +1059,12 @@ int Date::year() const
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
     return static_cast<DayOfWeek::Enum>(
-                           SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+                        ProlepticDateImpUtil::serialToDayOfWeek(d_serialDate));
 #else
     return static_cast<DayOfWeek::Enum>(
-                       DelegatingDateImpUtil::serialToDayOfWeek(d_serialDate));
+                               PosixDateImpUtil::serial2weekday(d_serialDate));
 #endif
 }
 
@@ -1066,10 +1074,10 @@ void Date::getYearDay(int *year, int *dayOfYear) const
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(dayOfYear);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    SerialDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    ProlepticDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
 #else
-    DelegatingDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
+         PosixDateImpUtil::serial2yd(year, dayOfYear, d_serialDate);
 #endif
 }
 
@@ -1080,10 +1088,10 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(month);
     BSLS_ASSERT_SAFE(day);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+#ifdef BDE_USE_PROLEPTIC_DATES
+    ProlepticDateImpUtil::serialToYmd(year, month, day, d_serialDate);
 #else
-    DelegatingDateImpUtil::serialToYmd(year, month, day, d_serialDate);
+         PosixDateImpUtil::serial2ymd(year, month, day, d_serialDate);
 #endif
 }
 
@@ -1114,11 +1122,11 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             Date::logIfProblematicDateValue(__FILE__, __LINE__,
                                             static_cast<int>(locationId),
                                             d_serialDate);
+#endif
 
-            if (!DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                stream.putInt24(d_serialDate);
-                break;
-            }
+#ifndef BDE_USE_PROLEPTIC_DATES
+            stream.putInt24(d_serialDate);
+            break;
 #endif
             // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
             // component-level documentation.

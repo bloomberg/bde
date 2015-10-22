@@ -382,6 +382,12 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+#ifdef BDE_USE_PROLEPTIC_DATES
+    cout << "KILROY: 'BDE_USE_PROLEPTIC_DATES' is defined."     << endl;
+#else
+    cout << "KILROY: 'BDE_USE_PROLEPTIC_DATES' is not defined." << endl;
+#endif
+
     // CONCERN: This test driver is reusable w/other, similar components.
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -559,7 +565,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << log.str();
 
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+#ifdef BDE_USE_PROLEPTIC_DATES 
+            {
                 log.str(EMPTY);
 
                 mX.setYearMonthDay(1752, 9, 16);
@@ -576,7 +583,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
-            else {
+#else
+            {
                 log.str(EMPTY);
 
                 mX.setYearMonthDay(1752, 9, 14);
@@ -593,6 +601,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
+#endif
         }
 
         if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
@@ -812,7 +821,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << log.str();
 
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+#ifdef BDE_USE_PROLEPTIC_DATES
+            {
                 log.str(EMPTY);
 
                 Obj mX(1752, 9, 17);
@@ -853,7 +863,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
-            else {
+#else
+            {
                 log.str(EMPTY);
 
                 Obj mX(1752, 9, 15);
@@ -894,6 +905,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
+#endif
         }
 
         if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
@@ -917,7 +929,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << log.str();
 
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+#ifdef BDE_USE_PROLEPTIC_DATES
+            {
                 log.str(EMPTY);
 
                 const Obj X(1752, 9, 16);
@@ -954,7 +967,9 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
-            else {
+#else
+            {
+
                 log.str(EMPTY);
 
                 const Obj X(1752, 9, 14);
@@ -991,6 +1006,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << log.str();
             }
+#endif
         }
 
         if (verbose) cout << "\nTest log throttling." << endl;
@@ -1580,9 +1596,8 @@ if (verbose)
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
-             && YEAR <= 1752) {
+#ifndef BDE_USE_PROLEPTIC_DATES
+            if (YEAR <= 1752) {
                 continue;
             }
 #endif
@@ -2274,21 +2289,13 @@ if (verbose)
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=        0);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=       -1);
                 }
-
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
-                    }
-                    else {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652060);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652061);
-                    }
+                    Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652060);
+                    Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652061);
 #endif
                 }
 
@@ -2299,19 +2306,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
-                    }
-                    else {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652060);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652061);
-                    }
+                    Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652060);
+                    Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652061);
 #endif
                 }
             }
@@ -2325,19 +2325,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
-                    }
-                    else {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652060);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652061);
-                    }
+                    Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652060);
+                    Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652061);
 #endif
                 }
 
@@ -2348,19 +2341,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#if BDLT_USE_PROLPETIC_DATES
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
-                    }
-                    else {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652060);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652061);
-                    }
+                    Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652060);
+                    Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652061);
 #endif
                 }
             }
@@ -2372,18 +2358,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +        0);
                 ASSERT_SAFE_FAIL(V +       -1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(V +  3652058);
-                    ASSERT_SAFE_FAIL(V +  3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(V +  3652060);
-                    ASSERT_SAFE_FAIL(V +  3652061);
-                }
+                ASSERT_SAFE_PASS(V +  3652060);
+                ASSERT_SAFE_FAIL(V +  3652061);
 #endif
 
                 const Obj W(9999, 365);
@@ -2391,18 +2371,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(W +        0);
                 ASSERT_SAFE_FAIL(W +        1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(W + -3652058);
-                    ASSERT_SAFE_FAIL(W + -3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(W + -3652060);
-                    ASSERT_SAFE_FAIL(W + -3652061);
-                }
+                ASSERT_SAFE_PASS(W + -3652060);
+                ASSERT_SAFE_FAIL(W + -3652061);
 #endif
             }
 
@@ -2413,18 +2387,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + V);
                 ASSERT_SAFE_FAIL(      -1 + V);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS( 3652058 + V);
-                    ASSERT_SAFE_FAIL( 3652059 + V);
-                }
-                else {
-                    ASSERT_SAFE_PASS( 3652060 + V);
-                    ASSERT_SAFE_FAIL( 3652061 + V);
-                }
+                ASSERT_SAFE_PASS( 3652060 + V);
+                ASSERT_SAFE_FAIL( 3652061 + V);
 #endif
 
                 const Obj W(9999, 365);
@@ -2432,18 +2400,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + W);
                 ASSERT_SAFE_FAIL(       1 + W);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(-3652058 + W);
-                    ASSERT_SAFE_FAIL(-3652059 + W);
-                }
-                else {
-                    ASSERT_SAFE_PASS(-3652060 + W);
-                    ASSERT_SAFE_FAIL(-3652061 + W);
-                }
+                ASSERT_SAFE_PASS(-3652060 + W);
+                ASSERT_SAFE_FAIL(-3652061 + W);
 #endif
             }
 
@@ -2454,18 +2416,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(V -        0);
                 ASSERT_SAFE_FAIL(V -        1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(V - -3652058);
-                    ASSERT_SAFE_FAIL(V - -3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(V - -3652060);
-                    ASSERT_SAFE_FAIL(V - -3652061);
-                }
+                ASSERT_SAFE_PASS(V - -3652060);
+                ASSERT_SAFE_FAIL(V - -3652061);
 #endif
 
                 const Obj W(9999, 365);
@@ -2473,18 +2429,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(W -        0);
                 ASSERT_SAFE_FAIL(W -       -1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(W -  3652058);
-                    ASSERT_SAFE_FAIL(W -  3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(W -  3652060);
-                    ASSERT_SAFE_FAIL(W -  3652061);
-                }
+                ASSERT_SAFE_PASS(W -  3652060);
+                ASSERT_SAFE_FAIL(W -  3652061);
 #endif
             }
         }
@@ -4276,17 +4226,10 @@ if (verbose)
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
         const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
-        int SERIAL_Y;               // streamed rep. of 'Y'
-
-        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-            SERIAL_Y = 733;
-        }
-        else {
-            SERIAL_Y = 731;
-        }
+        const int SERIAL_Y = 731;   // streamed rep. of 'Y'
 #endif
 
         if (verbose) {
@@ -4520,7 +4463,7 @@ if (verbose)
             }
         }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
+#if 0 // ifndef BDE_OPENSOURCE_PUBLICATION
 
         if (verbose) cout << "\nCompatibility of the two calendar modes."
                           << endl;
