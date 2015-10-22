@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
     BSLS_PLATFORM_CMP_VERSION >= 40400
 #define BSL_MEMORY_SUPPORT_UNIQUE_PTR
 #elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L
-#if __has_include(forward_list)
+#if __has_include(<forward_list>)
 #define BSL_MEMORY_SUPPORT_UNIQUE_PTR
 #endif
 #elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1600
