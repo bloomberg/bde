@@ -138,7 +138,7 @@ struct SymbolDataDecimal64 {
     BDEC::Decimal64    d_low;
     BDEC::Decimal64    d_high;
     BDEC::Decimal64    d_valueTraded;
-    double             d_vwap;
+    BDEC::Decimal64    d_vwap;
     unsigned long long d_volume;
 };
 
@@ -2677,7 +2677,7 @@ int main(int argc, char* argv[])
             Util::parseDecimal64(&d.d_low , "+inf");
             Util::parseDecimal64(&d.d_high, "-inf");
             d.d_valueTraded = BDEC::Decimal64(0);
-            d.d_vwap = 0.0;
+            d.d_vwap = BDEC::Decimal64(0);
             d.d_volume = 0;
             symbolData.push_back(d);
         }
@@ -2706,9 +2706,8 @@ int main(int argc, char* argv[])
             symbolData[index].d_valueTraded += price * data[i].d_quantity;
             symbolData[index].d_volume += data[i].d_quantity;
             bsl::stringstream stream;
-            stream << symbolData[index].d_valueTraded /
-                      symbolData[index].d_volume;
-            stream >> symbolData[index].d_vwap;
+            symbolData[index].d_vwap =
+                symbolData[index].d_valueTraded / symbolData[index].d_volume;
         }
 
         const double totalTime = s.accumulatedWallTime();
@@ -2865,7 +2864,7 @@ int main(int argc, char* argv[])
             Util::parseDecimal64(&d.d_low , "+inf");
             Util::parseDecimal64(&d.d_high, "-inf");
             d.d_valueTraded = BDEC::Decimal64(0);
-            d.d_vwap = 0.0;
+            d.d_vwap = BDEC::Decimal64(0);
             d.d_volume = 0;
             symbolData.push_back(d);
         }
@@ -2895,9 +2894,8 @@ int main(int argc, char* argv[])
                 symbolData[index].d_valueTraded += price * data[i].d_quantity;
                 symbolData[index].d_volume += data[i].d_quantity;
                 bsl::stringstream stream;
-                stream << symbolData[index].d_valueTraded /
-                          symbolData[index].d_volume;
-                stream >> symbolData[index].d_vwap;
+                symbolData[index].d_vwap = symbolData[index].d_valueTraded /
+                                           symbolData[index].d_volume;
             }
         }
 
