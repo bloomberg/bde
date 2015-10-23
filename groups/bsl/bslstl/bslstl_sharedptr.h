@@ -5357,11 +5357,25 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
 
     if (shareable && shareable->d_weakThis.d_rep_p != sp->d_rep_p) {
 #if !defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        // 'shareable' cannot be already menaged, unless creating a new
-        // 'shared_ptr' object for a 'shared_from_this' call, which calls a
-        // chain of constructors, ultimately resulting in a 'weak_ptr::lock'
-        // call, which calls the 'shared_ptr' constructor that takes a
-        // 'SharedPtrRep *', which will in turn call this method.
+        // This function is only reachable from the constructor of 'shared_ptr'
+        // when constructing a 'shared_ptr' for an object inheriting from
+        // 'enable_shared_from_this'.  Either, this is the first call to create
+        // a 'shared_ptr' for the 'shareable' object (i.e.,
+        // 'shareable->d_weakThis.d_rep_p' is 0), or we are creating an
+        // additional shared reference (either by copying an existing
+        // 'shared_ptr' or by calling 'shared_from_this' on a
+        // 'enable_shared_from_this' object).
+        //
+        // Currently the following is *not* supported (either by the standard,
+        // or this implementation):
+        //..
+        //  // Type 'A' inherits from 'bsl::enable_shared_from_this'.
+        //  bsl::shared_ptr<A> first(new A);
+        //  bsl::shared_ptr<A> second(first.ptr());
+        //..
+        // We don't think such usage makes sense, though there is an open
+        // standards proposal (P0033) to require supporting it:
+        // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0033r0.html
 
         BSLS_ASSERT(!shareable->d_weakThis.d_ptr_p);
         BSLS_ASSERT(!shareable->d_weakThis.d_rep_p);
@@ -5372,8 +5386,6 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
 
 #if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        // proposal to support objects managed by multiple 'shared_ptr's:
-        // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0033r0.html
         if (shareable->d_weakThis.d_rep_p) {
             shareable->d_weakThis.d_rep_p->releaseWeakRef();
         }
