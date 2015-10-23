@@ -86,7 +86,6 @@ BSLS_IDENT("$Id: $")
 //:     resulting date, then adjust the resulting date to be the last day of
 //:     the month.
 //
-//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -156,14 +155,26 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
-#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
-#include <bdlt_serialdateimputil.h>
-#endif
+#if 0
+    #ifdef BDE_OPENSOURCE_PUBLICATION
+        #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
+        #include <bdlt_serialdateimputil.h>
+        #endif
+    #else
+        #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+        #include <bdlt_delegatingdateimputil.h>
+        #endif
+    #endif
 #else
-#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-#include <bdlt_delegatingdateimputil.h>
-#endif
+    #ifdef BDE_USE_PROLEPTIC_DATES
+        #ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
+        #include <bdlt_prolepticdateimputil.h>
+        #endif
+    #else
+        #ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
+        #include <bdlt_posixdateimputil.h>
+        #endif
+    #endif
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -182,6 +193,21 @@ struct DateUtil {
     // non-primitive operations on dates.
 
   private:
+    // PRIVATE TYPES
+#ifdef BDE_USE_PROLEPTIC_DATES
+    typedef ProlepticDateImpUtil DateImpUtil;
+#else
+    typedef     PosixDateImpUtil DateImpUtil;
+#endif
+        // The 'DateImpUtil' utilty 'struct' provides low-level support
+        // functions for date-value manipulation.  The support functions
+        // include conversion of data values between "year-month-day" form and
+        // a serial representation, the validation of date values, leap year
+        // calculations, and calculation of day-of-week for a date.  The set of
+        // representable days must be '0001/01/01' to '9999/12/31' inclusive.
+        // See {'bdlt_posixdateimputil'} or {'bdlt_prolepticdateimputil'} for
+        // the method signatures.
+
     // PRIVATE CLASS METHODS
     static Date addYearsEomEndOfFebruary(const Date& original, int numYears);
         // Return the date that is the specified 'numYears' from the specified
@@ -356,7 +382,7 @@ Date DateUtil::addYears(const Date& original, int numYears, bool eomFlag)
 inline
 Date DateUtil::addYearsEom(const Date& original, int numYears)
 {
-    BSLS_ASSERT_SAFE(1    <= original.year() + numYears);
+    BSLS_ASSERT_SAFE(   1 <= original.year() + numYears);
     BSLS_ASSERT_SAFE(9999 >= original.year() + numYears);
 
     if (2 == original.month() && 28 <= original.day()) {
@@ -368,7 +394,7 @@ Date DateUtil::addYearsEom(const Date& original, int numYears)
 inline
 Date DateUtil::addYearsNoEom(const Date& original, int numYears)
 {
-    BSLS_ASSERT_SAFE(1    <= original.year() + numYears);
+    BSLS_ASSERT_SAFE(   1 <= original.year() + numYears);
     BSLS_ASSERT_SAFE(9999 >= original.year() + numYears);
 
     const int newYear = original.year() + numYears;
@@ -376,13 +402,17 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
     if (2 == original.month() && 29 == original.day()) {
         return Date(newYear,
                     original.month(),
+#if 0
 #ifdef BDE_OPENSOURCE_PUBLICATION
                     SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #else
                     DelegatingDateImpUtil::isLeapYear(newYear) ? 29 : 28);
-                                                                      // RETURN
+#endif
+#else
+                    DateImpUtil::isLeapYear(newYear) ? 29 : 28);
 #endif
                                                                       // RETURN
+
     }
     return Date(newYear, original.month(), original.day());
 }
@@ -423,6 +453,7 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     yyyymmddValue   /= 100;
     const int month  = yyyymmddValue % 100;
 
+#if 0
 #ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
                                                   month,
@@ -431,6 +462,11 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     return DelegatingDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
                                                       month,
                                                       day);
+#endif
+#else 
+    return DateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
+                                            month,
+                                            day);
 #endif
 }
 

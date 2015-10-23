@@ -265,15 +265,24 @@ class Date {
     // representation).  See {Valid Date Values and Their Representations} for
     // details.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    // CLASS DATA
-    static bool s_loggingEnabledFlag;  // 'true' iff logging is enabled
-#endif
-
+    // PRIVATE TYPES
 #ifdef BDE_USE_PROLEPTIC_DATES
     typedef ProlepticDateImpUtil DateImpUtil;
 #else
     typedef     PosixDateImpUtil DateImpUtil;
+#endif
+        // The 'DateImpUtil' utilty 'struct' provides low-level support
+        // functions for date-value manipulation.  The support functions
+        // include conversion of data values between "year-month-day" form and
+        // a serial representation, the validation of date values, leap year
+        // calculations, and calculation of day-of-week for a date.  The set of
+        // representable days must be '0001/01/01' to '9999/12/31' inclusive.
+        // See {'bdlt_posixdateimputil'} or {'bdlt_prolepticdateimputil'} for
+        // the method signatures.
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    // CLASS DATA
+    static bool s_loggingEnabledFlag;  // 'true' iff logging is enabled
 #endif
 
     // DATA

@@ -11,6 +11,11 @@
 #include <bsl_limits.h>
 #include <bsl_vector.h>
 
+#if 0
+#include <bdlt_posixdateimputil.h>       // XXX
+#include <bdlt_prolepticdateimputil.h>   // XXX
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -117,6 +122,8 @@ const bdlt::DayOfWeek::Enum e_SAT = bdlt::DayOfWeek::e_SAT;
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
+#include <bslmf_issame.h>  // XXX
+
 int main(int argc, char *argv[])
 {
     const int                 test = argc > 1 ? atoi(argv[1]) : 0;
@@ -129,6 +136,19 @@ int main(int argc, char *argv[])
     (void) veryVeryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+#if 0
+    bool usesPosixDateImpUtil     =
+      bsl::is_same<bdlt::Date::DateImpUtil, bdlt::    PosixDateImpUtil>::value;
+
+    bool usesProlepticDateImpUtil =
+      bsl::is_same<bdlt::Date::DateImpUtil, bdlt::ProlepticDateImpUtil>::value;
+
+    cout << "usesPosixDateImpUtil    " << ": "
+         <<  usesPosixDateImpUtil      << endl;
+    cout << "usesProlepticDateImpUtil" << ": "
+         <<  usesProlepticDateImpUtil  << endl;
+#endif
 
     switch (test) { case 0:
       case 17: {
@@ -490,6 +510,10 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(ORIGINAL) P_(NUM_YEARS) P(EXP);
+            }
+
+            if (473 == LINE) {
+                cout << "Datum of Interest" << endl;
             }
 
             const bdlt::Date result = Util::addYearsEom(ORIGINAL, NUM_YEARS);
