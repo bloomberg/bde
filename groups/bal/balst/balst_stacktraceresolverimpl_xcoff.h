@@ -130,15 +130,15 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
     enum FindIncludeFileFlags {
         // flags returned by 'findIncludeFile'
 
-        k_FOUND_INCLUDE_FILE      = 0x1,
-        k_LINE_NUMBER_IS_ABSOLUTE = 0x2
+        k_USE_INCLUDE_SOURCE_FILE_NAME = 0x1,
+        k_SUPPRESS_LINE_NUMBER         = 0x2
     };
 
     // DATA
     StackTraceResolver_FileHelper
                           *d_helper;          // helper for reading files
 
-    StackTrace      *d_stackTrace_p;    // pointer to stack trace object
+    StackTrace            *d_stackTrace_p;    // pointer to stack trace object
                                               // to be populated by resolution.
                                               // Note only the 'address' fields
                                               // are initialized at the start,
@@ -408,7 +408,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::testFunc()
 }
 }  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 #endif

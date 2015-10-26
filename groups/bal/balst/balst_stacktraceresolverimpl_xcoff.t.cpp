@@ -185,7 +185,7 @@ const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
 
     const char **ptr = (const char **) funcAddress;
 
-    return *ptr + 1;
+    return *ptr + 20;
 #else
 # error unsupported platform
 #endif
@@ -263,6 +263,8 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 3: {

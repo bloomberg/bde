@@ -209,6 +209,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 //                            // struct ld_info
 //                            // ==============
 //
+//                            // /usr/include/sys/ldr.h
+//
 //  struct ld_info {
 //      // This 'struct' describes a loadable module in the context of either
 //      // tracing a process (with the ptrace system call) or examining a core
@@ -223,9 +225,9 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 //                                       // program image, including xcoff
 //                                       // headers
 //
-//      int           ldinfo_textsize;   // length of the loaded program image
+//      unsigned int  ldinfo_textsize;   // length of the loaded program image
 //
-//      char         *ldinfo_filename[2];// null-terminated path name
+//      char          ldinfo_filename[2];// null-terminated path name
 //                                       // followed by null-terminated member
 //                                       // name.  The member name is "" if
 //                                       // filename is not an archive.  Note
@@ -508,7 +510,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 //
 // The steps used for resolution are as follows:
 // 1. Read an xcoff executable / shraed library.  Shared libraries will be
-//    arcihves with multiple members.  Each executable file or arhive member
+//    archives with multiple members.  Each executable file or arhive member
 //    will have one code segment.  For each segment, we iterate through the
 //    'address' fields of the stack trace frames, and for those addresses, if
 //    any, that match, we resolve the symbol information for that address.
@@ -592,6 +594,32 @@ local::UintPtr parseNumber(const TYPE& text)
     }
 
     return result;
+}
+
+static
+bool symbolsMatch(const SYMENT& a, const SYMENT& b)
+    // Return 'true' if the symbols indicated by the specified 'a' and 'b' are
+    // identical and 'false' otherwise.  Note that this function assumes that
+    // a given string has only one unique entry in the string table.
+{
+#ifdef __XCOFF32__
+    if (0 != a.n_zeroes) {
+        // This would be simpler if we had 'strnlen', but it turns out that's
+        // not POSIX, it's only a GNU extension.
+
+        const char *pc = a.n_name, *pcEnd = pc + SYMNMLEN;
+        while (pc < pcEnd && *pc) {
+            ++pc;
+        }
+        pc += pc < pcEnd;    // include '\0' if there
+        bsl::size_t len = pc - a.n_name;
+
+        return 0 != b.n_zeroes && 0 == bsl::memcmp(a.n_name, b.n_name, len);
+                                                                      // RETURN
+    }
+#endif
+
+    return a.n_offset == b.n_offset;
 }
 
  // ===========================================================================
@@ -807,8 +835,8 @@ local::UintPtr local::StackTraceResolver::findCsectIndex(
             return primarySymIndex;                                   // RETURN
         }
         else {
-            zprintf("addr=%p csectEnd=%p iaddr=%p no match\n",
-                                            symbolAddress, csectEndAddress, a);
+            // zprintf("addr=%p csectEnd=%p iaddr=%p no match\n",
+            //                              symbolAddress, csectEndAddress, a);
         }
     }
 
@@ -832,7 +860,8 @@ int local::StackTraceResolver::findIncludeFile(
     const UintPtr maxSymsInBuf = local::SYMBOL_BUF_LEN / SYMESZ;
 
     bool bincl = false;
-    bool binclFirst = false;
+    bool binclFunctionStart = false;
+    UintPtr binclValue;
     for (UintPtr symIndex = symStartIndex; symIndex < symEndIndex; ++symIndex){
         if (symIndex >= symBufEndIndex) {
             // read a bufferful of symbols, this always happens the first time
@@ -858,29 +887,52 @@ int local::StackTraceResolver::findIncludeFile(
         SYMENT *symEnt = (SYMENT *) (d_symbolBuf_p +
                                        (symIndex - symBufStartIndex) * SYMESZ);
         if (C_BINCL == symEnt->n_sclass) {
+            bincl = true;
+            binclValue = static_cast<UintPtr>(symEnt->n_value);
             zprintf("%lu BINCL %lu (need %lu)\n", symIndex,
-                                  (UintPtr) symEnt->n_value, lineNumberOffset);
-            bincl = (symEnt->n_value <= lineNumberOffset);
-            binclFirst = (symEnt->n_value <= firstLineNumberOffset);
+                                                 binclValue, lineNumberOffset);
         }
         else {
-            if (C_EINCL == symEnt->n_sclass) {
-                zprintf("%lu EINCL %lu (need %lu)\n", symIndex,
-                                  (UintPtr) symEnt->n_value, lineNumberOffset);
-                if (bincl && symEnt->n_value >= lineNumberOffset) {
-                    *includeSymEnt = *symEnt;
-                    if (binclFirst) {
-                        zprintf("Found, includes first line\n");
+            if (C_EINCL == symEnt->n_sclass && bincl) {
+                UintPtr einclValue = static_cast<UintPtr>(symEnt->n_value);
 
-                        return k_FOUND_INCLUDE_FILE;                  // RETURN
-                    }
-                    else {
-                        zprintf("Found, does not include first line\n");
-                        return k_FOUND_INCLUDE_FILE |
-                                        k_LINE_NUMBER_IS_ABSOLUTE;    // RETURN
-                    }
+                zprintf("%lu EINCL %lu (need %lu)\n", symIndex,
+                                                 einclValue, lineNumberOffset);
+
+                if (firstLineNumberOffset <= einclValue
+                                      && binclValue <= firstLineNumberOffset
+                                                      && !binclFunctionStart) {
+                    zprintf("findIncludeFile: %lu first line number match"
+                                                        " %lu in [%lu, %lu]\n",
+                            symIndex, firstLineNumberOffset, binclValue,
+                            einclValue);
+
+                    binclFunctionStart = true;
+                    bsl::memcpy(includeSymEnt, symEnt, SYMESZ);
+                }
+
+                if (lineNumberOffset <= einclValue &&
+                                              binclValue <= lineNumberOffset) {
+                    zprintf("findIncludeFile: %lu final line number match"
+                                                        " %lu in [%lu, %lu]\n",
+                            symIndex, lineNumberOffset, binclValue,
+                            einclValue);
+
+                    return binclFunctionStart
+                           ? (k_USE_INCLUDE_SOURCE_FILE_NAME |
+                              (! symbolsMatch(*symEnt, *includeSymEnt)
+                              ? k_SUPPRESS_LINE_NUMBER
+                              : 0))
+                           : k_SUPPRESS_LINE_NUMBER;                  // RETURN
                 }
             }
+            else if (C_EINCL == symEnt->n_sclass) {
+                zprintf("%lu EINCL out of order\n", symIndex);
+            }
+            else {
+                zprintf("%lu sclass: %u\n", symIndex, symEnt->n_sclass);
+            }
+
             bincl = false;
         }
 
@@ -889,7 +941,12 @@ int local::StackTraceResolver::findIncludeFile(
         symIndex += symEnt->n_numaux;
     }
 
-    return 0;
+    zprintf("findIncludeFile: no final line number match, functionStart: %d\n",
+            binclFunctionStart);
+
+    return binclFunctionStart ? (k_USE_INCLUDE_SOURCE_FILE_NAME |
+                                 k_SUPPRESS_LINE_NUMBER)
+                              : 0;
 }
 
 int local::StackTraceResolver::findLineNumber(int       *outLineNumber,
@@ -1038,8 +1095,8 @@ void local::StackTraceResolver::loadAuxInfos(
             }
         }
         else {
-            zprintf("addr=%p iaddr=%p no match\n",
-                                    functionBeginAddress, d_segAddresses_p[i]);
+            // zprintf("addr=%p iaddr=%p no match\n",
+            //                      functionBeginAddress, d_segAddresses_p[i]);
         }
     }
 }
@@ -1519,7 +1576,8 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
             frame->setMangledSymbolName(symbolName);
-            zprintf("Loaded symbol name: %s\n", frame->mangledSymbolName());
+            zprintf("Loaded symbol name: %s\n",
+                                           frame->mangledSymbolName().c_str());
 
             bsl::auto_ptr<Name> name;
             if (d_demangle) {
@@ -1550,7 +1608,8 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                 frame->setSymbolName(text);
             }
             else {
-                zprintf("Did not demangle: %s\n", frame->mangledSymbolName());
+                zprintf("Did not demangle: %s\n",
+                                           frame->mangledSymbolName().c_str());
                 frame->setSymbolName(frame->mangledSymbolName());
             }
         }
@@ -1584,15 +1643,24 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
                 if (rc < 0) {
                     return -1;                                        // RETURN
                 }
-                if (rc & k_FOUND_INCLUDE_FILE) {
+
+                if (rc & k_USE_INCLUDE_SOURCE_FILE_NAME) {
                     frame->setSourceFileName(getSymbolName(&includeSymEnt));
                 }
                 else {
                     frame->setSourceFileName(
                                       getSourceName(&auxInfo->d_sourceAuxEnt));
                 }
-                if (rc & k_LINE_NUMBER_IS_ABSOLUTE) {
-                    frame->setLineNumber(lineNumber);
+
+                if (rc & k_SUPPRESS_LINE_NUMBER) {
+                    // We're in inlined code within the function that called
+                    // the inlined code.  We have no way to find the name of
+                    // the inlined function.  The line number we have is for
+                    // the file the inlined function is in, which is different
+                    // from the source file name we will display.  Best to just
+                    // not do the line number.
+
+                    frame->setLineNumber(-1);
                 }
                 else {
                     // line number is relative to start of function
@@ -1615,7 +1683,7 @@ int local::StackTraceResolver::resolveSegment(void       *segmentPtr,
             // an include file
 
             zprintf("Final source file name: %s line %d\n",
-                    frame->sourceFileName(),
+                    frame->sourceFileName().c_str(),
                     frame->lineNumber());
         }
         else {
@@ -1710,7 +1778,7 @@ int local::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
