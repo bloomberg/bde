@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide test utilities for components in 'bdl' and above.
 //
-//@DEPRECATED: Use 'bslim_testutil' instead.
-//
 //@CLASSES:
 //
 //@MACROS:
@@ -27,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //  BDLS_TESTUTIL_L_: current line number
 //  BDLS_TESTUTIL_T_: print tab without '\n'
 //
-//@SEE ALSO: bslim_testutil
+//@SEE ALSO: bsls_bsltestutil
 //
 //@DESCRIPTION: This component provides the standard print macros used in
 // BDE-style test drivers ('ASSERT', 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L',
@@ -39,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // above to print the objects of these types to 'bsl::cout'.
 //
 // Note that the 'bsltf' package resides below 'bsl+bslhdrs', in which
-// 'bsl::cout' is defined; therefore, the components in 'bsltf' cannot
+// 'bsl::cout' is defined; therefore, the components in 'bsltf' can not
 // directly define the overloads of the insertion operator to support printing
 // the test types.  Instead, an alternate method supplied in 'bsls_bsltestutil'
 // is used for test drivers in the 'bsl' package group.

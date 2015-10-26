@@ -1,11 +1,13 @@
 // bdldfp_decimalimputil_inteldfp.t.cpp                               -*-C++-*-
 #include <bdldfp_decimalimputil_inteldfp.h>
 
-#include <bslim_testutil.h>
-#include <bsls_assert.h>
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$")
 
-#include <bsl_cstdlib.h>
+#include <bdls_testutil.h>
+#include <bsls_assert.h>
 #include <bsl_iostream.h>
+#include <bsl_cstdlib.h>
 
 // ============================================================================
 //                                 TEST PLAN
@@ -55,7 +57,7 @@ void aSsErT(bool b, const char *s, int i)
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERT       BDLS_TESTUTIL_ASSERT
 
 #ifdef BSLS_PLATFORM_OS_LINUX
 extern "C" {
