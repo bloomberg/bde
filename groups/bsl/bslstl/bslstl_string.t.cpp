@@ -918,6 +918,55 @@ struct TestDriver {
     typedef typename Obj::const_reverse_iterator  const_reverse_iterator;
         // Shorthand.
 
+    struct InputIterator {
+        // Input iterator type to test functions that take input iterators.
+
+        const TYPE *d_data;
+
+        typedef bsl::input_iterator_tag  iterator_category;
+        typedef TYPE                     value_type;
+        typedef bsls::Types::IntPtr      difference_type;
+        typedef TYPE                    *pointer;
+        typedef TYPE&                    reference;
+
+        InputIterator(const TYPE *initVal)
+        : d_data(initVal)
+            // Create an input iterator pointing to '*initVal' (or after
+            // 'initVal[-1]').
+        {}
+
+        // MANIPULATORS
+        InputIterator& operator++()
+            // Increment this iterator and return the new value.
+        {
+            ++d_data;
+
+            return *this;
+        }
+
+        // ACCESSORS
+        const TYPE& operator*() const
+            // Dereference this iterator and return a reference to the object
+            // it refers to.
+        {
+            return *d_data;
+        }
+
+        bool operator==(const InputIterator& rhs) const
+            // Return 'true' if this iterator is equal to the specified 'rhs'
+            // and 'false' otherwise.
+        {
+            return d_data == rhs.d_data;
+        }
+
+        bool operator!=(const InputIterator& rhs) const
+            // Return 'true' if this iterator is not equal to the specified
+            // 'rhs' and 'false' otherwise.
+        {
+            return d_data != rhs.d_data;
+        }
+    };
+
     // TEST APPARATUS
     static int getValues(const TYPE **values);
         // Load the specified 'values' with the address of an array containing
@@ -1063,6 +1112,12 @@ struct TestDriver {
     template <class CONTAINER>
     static void testCase13Range(const CONTAINER&);
         // Test 'assign' member template.
+
+    static void testCase13StrRefData();
+        // Test 'assign' member template from 'StrRefData' type.
+
+    static void testCase13InputIterator();
+        // Test 'assign' member template from a pair of input iterators.
 
     static void testCase13Negative();
         // Negative test for 'assign' members.
@@ -9879,17 +9934,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             { L_,        4   },
             { L_,        5   },
             { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-            { L_,       11   },
-            { L_,       12   },
-            { L_,       13   },
-            { L_,       15   }
-#else
             { L_,       23   },
             { L_,       24   },
             { L_,       25   },
             { L_,       30   }
-#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10148,6 +10196,275 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'assign' FROM STRING REF
+    // The concerns are the same as for the constructor with the same
+    // signature (case 12), except that the implementation is different,
+    // and in addition the previous value must be freed properly.
+    //
+    // Plan:
+    //   For the assignment we will create objects of varying sizes containing
+    //   default values for type T, and then assign different 'value' as
+    //   argument.  Perform the above tests:
+    //    - From the 'bslstl::StringRefData' object.
+    //    - In the presence of exceptions during memory allocations using
+    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //   and use basic accessors to verify
+    //      - size
+    //      - capacity
+    //      - element value at each index position { 0 .. length - 1 }.
+    //   Note that we relax the concerns about memory consumption, since this
+    //   is implemented as 'erase + insert', and insert will be tested more
+    //   completely in test case 17.
+    //
+    // Testing:
+    //   template <class InputIter>
+    //     assign(InputIter first, InputIter last, const A& a = A());
+    // --------------------------------------------------------------------
+
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        unsigned    d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0   },
+        { L_,        1   },
+        { L_,        2   },
+        { L_,        3   },
+        { L_,        4   },
+        { L_,        5   },
+        { L_,        9   },
+        { L_,       23   },
+        { L_,       24   },
+        { L_,       25   },
+        { L_,       30   }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } U_DATA[] = {
+        //line  spec                                   length
+        //----  ----                                    ------
+        { L_,   ""                                   }, // 0
+        { L_,   "A"                                  }, // 1
+        { L_,   "AB"                                 }, // 2
+        { L_,   "ABC"                                }, // 3
+        { L_,   "ABCD"                               }, // 4
+        { L_,   "ABCDEABC"                           }, // 8
+        { L_,   "ABCDEABCD"                          }, // 9
+        { L_,   "ABCDEABCDEABCDEABCDEABC"            }, // 23
+        { L_,   "ABCDEABCDEABCDEABCDEABCD"           }, // 24
+        { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
+        { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
+    };
+    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+
+    {
+        const Obj dummy;
+        ASSERT(dummy.capacity() < DATA[NUM_DATA - 1].d_length);
+    }
+
+    if (verbose) printf("\tUsing 'bslstl::StringRefData'.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf("using default char value.\n");
+            }
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                Obj mY(g(SPEC)); const Obj& Y = mY;
+
+                const bslstl::StringRefData<TYPE> strRef(Y.begin(), Y.end());
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES],
+                       AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                const size_t preCapacity = X.capacity();
+                const size_t numAllocs   = testAllocator.numAllocations();
+
+                mX.assign(strRef);
+
+                if (LENGTH <= preCapacity) {
+                    LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
+                                  testAllocator.numAllocations() == numAllocs);
+                }
+                else {
+                    LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
+                              testAllocator.numAllocations() == numAllocs + 1);
+                }
+
+                if (veryVerbose) {
+                    T_; T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP6_ASSERT(INIT_LINE, LINE, i, ti, LENGTH, X.size(),
+                                                           LENGTH == X.size());
+
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
+                }
+            }
+        }
+        ASSERT(0 == testAllocator.numMismatches());
+        ASSERT(0 == testAllocator.numBlocksInUse());
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'assign' FROM STRING REF
+    // The concerns are the same as for the constructor with the same
+    // signature (case 12), except that the implementation is different,
+    // and in addition the previous value must be freed properly.
+    //
+    // Plan:
+    //   For the assignment we will create objects of varying sizes containing
+    //   default values for type T, and then assign different 'value' as
+    //   argument.  Perform the above tests:
+    //    - From the 'bslstl::StringRefData' object.
+    //    - In the presence of exceptions during memory allocations using
+    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //   and use basic accessors to verify
+    //      - size
+    //      - capacity
+    //      - element value at each index position { 0 .. length - 1 }.
+    //   Note that we relax the concerns about memory consumption, since this
+    //   is implemented as 'erase + insert', and insert will be tested more
+    //   completely in test case 17.
+    //
+    // Testing:
+    //   template <class InputIter>
+    //     assign(InputIter first, InputIter last, const A& a = A());
+    // --------------------------------------------------------------------
+
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::Allocator     *Z = &testAllocator;
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        int         d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0   },
+        { L_,        1   },
+        { L_,        2   },
+        { L_,        3   },
+        { L_,        4   },
+        { L_,        5   },
+        { L_,        9   },
+        { L_,       23   },
+        { L_,       24   },
+        { L_,       25   },
+        { L_,       30   }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec;     // container spec
+    } U_DATA[] = {
+        //line  spec                                   length
+        //----  ----                                    ------
+        { L_,   ""                                   }, // 0
+        { L_,   "A"                                  }, // 1
+        { L_,   "AB"                                 }, // 2
+        { L_,   "ABC"                                }, // 3
+        { L_,   "ABCD"                               }, // 4
+        { L_,   "ABCDEABC"                           }, // 8
+        { L_,   "ABCDEABCD"                          }, // 9
+        { L_,   "ABCDEABCDEABCDEABCDEABC"            }, // 23
+        { L_,   "ABCDEABCDEABCDEABCDEABCD"           }, // 24
+        { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
+        { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
+    };
+    const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+
+    {
+        const Obj dummy;
+        ASSERT(dummy.capacity() < DATA[NUM_DATA - 1].d_length);
+    }
+
+    if (verbose) printf("\tUsing 'bslstl::StringRefData'.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf("using default char value.\n");
+            }
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                Obj mY(g(SPEC)); const Obj& Y = mY;
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES],
+                       AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                mX.assign(InputIterator(Y.data()),
+                          InputIterator(Y.data() + LENGTH));
+
+                if (veryVerbose) {
+                    T_; T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP6_ASSERT(INIT_LINE, LINE, i, ti, LENGTH, X.size(),
+                                                           LENGTH == X.size());
+
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
+                }
+            }
+        }
+        ASSERT(0 == testAllocator.numMismatches());
+        ASSERT(0 == testAllocator.numBlocksInUse());
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 template <class CONTAINER>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 {
@@ -10203,17 +10520,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-        { L_,       11   },
-        { L_,       12   },
-        { L_,       13   },
-        { L_,       15   }
-#else
         { L_,       23   },
         { L_,       24   },
         { L_,       25   },
         { L_,       30   }
-#endif
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -10230,19 +10540,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
-        { L_,   "ABCDEABCDEA"                        }, // 11
-        { L_,   "ABCDEABCDEAB"                       }, // 12
-        { L_,   "ABCDEABCDEABC"                      }, // 13
-        { L_,   "ABCDEABCDEABCDE"                    }  // 15
-#else
         { L_,   "ABCDEABCDEABCDEABCDEABC"            }, // 23
         { L_,   "ABCDEABCDEABCDEABCDEABCD"           }, // 24
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
-#endif
     };
     const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
+
+    {
+        const Obj dummy;
+        ASSERT(dummy.capacity() < DATA[NUM_DATA - 1].d_length);
+    }
 
     if (verbose) printf("\tUsing 'CONTAINER::const_iterator'.\n");
     {
@@ -10254,10 +10562,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                 printf("\t\tWith initial value of "); P_(INIT_LENGTH);
                 printf("using default char value.\n");
             }
-
-            Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES],
-                   AllocType(&testAllocator));
-            const Obj& X = mX;
 
             for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                 const int     LINE   = U_DATA[ti].d_lineNum;
@@ -10271,13 +10575,30 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                     printf(" using "); P(SPEC);
                 }
 
+                Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES],
+                       AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                const size_t preCapacity = X.capacity();
+                const size_t numAllocs   = testAllocator.numAllocations();
+
                 mX.assign(U.begin(), U.end());
+
+                if (LENGTH <= preCapacity) {
+                    LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
+                                  testAllocator.numAllocations() == numAllocs);
+                }
+                else {
+                    LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
+                              testAllocator.numAllocations() == numAllocs + 1);
+                }
 
                 if (veryVerbose) {
                     T_; T_; T_; P_(X); P(X.capacity());
                 }
 
-                LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                LOOP6_ASSERT(INIT_LINE, LINE, i, ti, LENGTH, X.size(),
+                                                           LENGTH == X.size());
                 if (!INPUT_ITERATOR_TAG) {
                     LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
                                  X.capacity() >= X.size());
@@ -10334,7 +10655,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                         T_; T_; T_; P_(X); P(X.capacity());
                     }
 
-                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                    LOOP6_ASSERT(INIT_LINE, LINE, i, ti, LENGTH, X.size(),
+                                                           LENGTH == X.size());
 
                     for (size_t j = 0; j < LENGTH; ++j) {
                         LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
@@ -15927,19 +16249,35 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'char' "
                             "and arbitrary input iterator.\n");
+        TestDriver<char>::testCase13InputIterator();
+
+        if (verbose) printf("\n... with 'char' "
+                            "and arbitrary forward iterator.\n");
         TestDriver<char>::testCase13Range(CharList<char>());
 
         if (verbose) printf("\n... with 'char' "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase13Range(CharArray<char>());
 
+        if (verbose) printf("\n... with 'char' "
+                            "and StringRefData.\n");
+        TestDriver<char>::testCase13StrRefData();
+
         if (verbose) printf("\n... with 'wchar_t' "
                             "and arbitrary input iterator.\n");
+        TestDriver<wchar_t>::testCase13InputIterator();
+
+        if (verbose) printf("\n... with 'wchar_t' "
+                            "and arbitrary forward iterator.\n");
         TestDriver<wchar_t>::testCase13Range(CharList<wchar_t>());
 
         if (verbose) printf("\n... with 'wchar_t' "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase13Range(CharArray<wchar_t>());
+
+        if (verbose) printf("\n... with 'wchar_t' "
+                            "and StringRefData.\n");
+        TestDriver<wchar_t>::testCase13StrRefData();
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Assignment"
