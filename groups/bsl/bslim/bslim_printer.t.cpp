@@ -1,25 +1,37 @@
 // bslim_printer.t.cpp                                                -*-C++-*-
+
 #include <bslim_printer.h>
 
-#include <bslim_testutil.h>  // for testing only
-
 #include <bslma_testallocator.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <bsl_cctype.h>
 #include <bsl_cstdio.h>
-#include <bsl_cstring.h>
-#include <bsl_deque.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
+#include <bsl_deque.h>
 #include <bsl_list.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
-#include <bsl_sstream.h>
-#include <bsl_string.h>
 #include <bsl_unordered_map.h>
 #include <bsl_unordered_set.h>
 #include <bsl_vector.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
+#include <bsl_cctype.h>
+#include <bsl_cstring.h>
+
+#include <bsl_cstddef.h>
+
+// Note that __cplusplus does not have a conforming value for g++ versions
+// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+#if (__cplusplus >= 201103L)       \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    #include <bsl_initializer_list.h>
+#endif
+
+#include <bsl_memory.h>
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
@@ -43,7 +55,6 @@ using namespace bslim;
 // cases:
 //: 1 Test initial indentation for different values of 'level' and
 //:   'spacesPerLevel', and the output when a 'name' is supplied.
-//:
 //: 2 Test the output of each method and method template (and its
 //:   specializations, if any), for positive and negative values of
 //:   'spacesPerLevel'.
@@ -111,23 +122,43 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                      HELPER CLASSES AND FUNCTIONS
+// ----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bsls {
+
+template<>
+void BslTestUtil::callDebugprint(const bsl::string&  object,
+                                 const char         *leadingString,
+                                 const char         *trailingString)
+    // Forward printing of the specified string 'object' to the 'char *'
+    // printer, along with the specified 'leadingString' and 'trailingString'.
+{
+    callDebugprint(object.c_str(), leadingString, trailingString);
+}
+
+}  // close namespace bsls
+}  // close enterprise namespace
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1110,9 +1141,9 @@ int main(int argc, char *argv[])
         }
 
         // STL sequence & associative containers, in the order in which they
-        // are listed in 'http://www.sgi.com/tech/stl/table_of_contents.html'.
+        // are listed in http://www.sgi.com/tech/stl/table_of_contents.html.
 
-// BDE_VERIFY pragma: push   // Disable 'verbose print in loop'.
+// BDE_VERIFY pragma: push   // Disable 'verbose print in loop'
 // BDE_VERIFY pragma: -TP21
 
         if (veryVerbose) { printf("vector<int>\n"); }
@@ -1925,7 +1956,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
-// BDE_VERIFY pragma: pop    // Disable 'verbose print in loop'.
+// BDE_VERIFY pragma: pop    // Disable 'verbose print in loop'
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1940,7 +1971,7 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Testing:
-        //   void printAttribute(const char *, const ITR&, const ITR&) const;
+        //    void printAttribute(const char *, const ITR&, const ITR&) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n'printAttribute' WITH RANGE"
@@ -3153,6 +3184,34 @@ int main(int argc, char *argv[])
         }
         LOOP2_ASSERT(EXPECTED, ACTUAL, EXPECTED == ACTUAL);
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // BSL namespace import tests
+        //
+        // Concerns:
+        //: 1 (Ab)use this test driver to validate changes in
+        //:   bsl_initializer_list.h, bsl_memory.h and bsl_cstddef.h to include
+        //:   C++11 symbols in bsl for g++ versions 4.8 and above.
+        //
+        // Plan: Declare a variable of each of the imported types, using the
+        // bsl:: namespace.  This suffices to validate that they are correctly
+        // imported.
+        // --------------------------------------------------------------------
+
+ // Note that __cplusplus does not have a conforming value for g++ versions
+ // before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+ #if (__cplusplus >= 201103L)       \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+        bsl::unique_ptr<int>       p;
+        bsl::nullptr_t             q;
+        bsl::initializer_list<int> r;
+
+        (void)p;
+        (void)q;
+        (void)r;
+#endif
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";

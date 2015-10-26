@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslim_testutil.h>  // for testing only
-
 #include <bsls_assert.h>
 
 #include <bsl_cctype.h>
