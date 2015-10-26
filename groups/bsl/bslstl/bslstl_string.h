@@ -3977,7 +3977,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
 {
-    return assign(strRef.begin(), strRef.end());
+    return privateAssign(strRef.begin(), strRef.end() - strRef.begin());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4002,8 +4002,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    basic_string(first, last, get_allocator()).swap(*this);
-    return *this;
+    return privateReplaceDispatch(0, this->d_length, first, last, first, last);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
