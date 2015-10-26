@@ -4723,15 +4723,43 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                     bsl::shared_ptr<SHARED_TYPE>                    *sp,
                     const bsl::enable_shared_from_this<ENABLE_TYPE> *shareable)
 {
-    BSLS_ASSERT_OPT(0 != sp);
+    BSLS_ASSERT(0 != sp);
 
-    if (shareable) {
+    if (shareable && shareable->d_weakThis.d_rep_p != sp->d_rep_p) {
+#if !defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
+        // This function is only reachable from the constructor of 'shared_ptr'
+        // when constructing a 'shared_ptr' for an object inheriting from
+        // 'enable_shared_from_this'.  Either, this is the first call to create
+        // a 'shared_ptr' for the 'shareable' object (i.e.,
+        // 'shareable->d_weakThis.d_rep_p' is 0), or we are creating an
+        // additional shared reference (either by copying an existing
+        // 'shared_ptr' or by calling 'shared_from_this' on a
+        // 'enable_shared_from_this' object).
+        //
+        // Currently the following is *not* supported (either by the standard,
+        // or this implementation):
+        //..
+        //  // Type 'A' inherits from 'bsl::enable_shared_from_this'.
+        //  bsl::shared_ptr<A> first(new A);
+        //  bsl::shared_ptr<A> second(first.ptr());
+        //..
+        // We don't think such usage makes sense, though there is an open
+        // standards proposal (P0033) to require supporting it:
+        // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0033r0.html
+
+        BSLS_ASSERT(!shareable->d_weakThis.d_ptr_p);
+        BSLS_ASSERT(!shareable->d_weakThis.d_rep_p);
+#endif
+
         shareable->d_weakThis.d_ptr_p =
                                   const_cast<ENABLE_TYPE      *>(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
+
+#if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
         if (shareable->d_weakThis.d_rep_p) {
             shareable->d_weakThis.d_rep_p->releaseWeakRef();
         }
+#endif
         shareable->d_weakThis.d_rep_p = sp->d_rep_p;
         shareable->d_weakThis.d_rep_p->acquireWeakRef();
     }
