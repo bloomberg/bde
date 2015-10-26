@@ -475,8 +475,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 //
 // Explanation of the various storage classes used (from storclass.h):
 //
-// C_BINCL         //  marks beginning of include file
-// C_EINCL         //  marks ending of include file
+// C_BINCL         //  marks beginning of section of code from an include file
+// C_EINCL         //  marks end of section of code from an include file
 // C_FILE          //  provides source file-name information, source-language
 //                 //  ID and CPU-version ID information, and, optionally,
 //                 //  compiler-version and time-stamp information
@@ -538,7 +538,15 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 //                                       functions in include files, from the
 //                                       beginning of the include file) until
 //                                       finding the line number matching the
-//                                       stack trace frame's address
+//                                       stack trace frame's address.  Inlined
+//                                       functions will show up as incomplete
+//                                       sequences in the 'BINCL, EINCL' info,
+//                                       invalidate the line numbers in that
+//                                       case.  If the 'BINCL, EINCL' info
+//                                       includes the beginning of the
+//                                       function, the function is out of line
+//                                       and its source file name and line
+//                                       number should be used.
 // 3. offset from symbol               : Obtained by subtracting the address
 //                                       associated with the symbol from the
 //                                       matching 'address' field from the
@@ -917,6 +925,19 @@ int local::StackTraceResolver::findIncludeFile(
                                                         " %lu in [%lu, %lu]\n",
                             symIndex, lineNumberOffset, binclValue,
                             einclValue);
+
+                    // If 'binclFunctionStart' is set, the beginning of this
+                    // included function is in the information, meaning the
+                    // function was called out-of-line.  Use the source file
+                    // name for that function.  If the source file name from
+                    // the EINCL symEnt doesn't match, that means the line is
+                    // from another inlined function from another file and the
+                    // line number inforation is not to be trusted.
+
+                    // If the line matches but the beginning of the function
+                    // was not to be found, that means the included function
+                    // was called inline and the line number info is not to be
+                    // trusted.
 
                     return binclFunctionStart
                            ? (k_USE_INCLUDE_SOURCE_FILE_NAME |

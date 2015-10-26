@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility to resolve xcoff symbols in a stack trace.
+//@PURPOSE: Provide a mechanism to resolve xcoff symbols in a stack trace.
 //
 //@CLASSES:
 //   balst::StackTraceResolverImpl<Xcoff>: symbol resolution for Xcoff objects
@@ -30,6 +30,13 @@ BSLS_IDENT("$Id: $")
 // 'balst::StackTraceFrame's that have only their 'address' fields set,
 // resolves all other fields in those frames.  Xcoff objects are used on AIX
 // platforms.
+//
+///Inline Functions
+///----------------
+// Inline functions and template functions that are, in fact, called out of
+// line are handled properly.  Functions that are inlined are not represented
+// in the stack trace, and the stack frames of the functions that called them
+// do not have their line number information populated.
 //
 ///Usage
 ///-----
