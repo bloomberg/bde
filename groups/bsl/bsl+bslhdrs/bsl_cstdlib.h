@@ -52,6 +52,7 @@ namespace bsl
     using native_std::qsort;
     using native_std::rand;
     using native_std::realloc;
+    using native_std::size_t;
     using native_std::srand;
     using native_std::strtod;
     using native_std::strtol;
@@ -59,11 +60,7 @@ namespace bsl
     using native_std::system;
     using native_std::wcstombs;
     using native_std::wctomb;
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::size_t;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
-}  // close package namespace
+}
 
 #endif
 
