@@ -9,12 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide allocation and management of a sequence of memory blocks.
 //
-//@INTERNAL_DEPRECATED: Use 'bdema_infrequentdeleteblocklist' instead.
+//@INTERNAL_DEPRECATED: Use 'bdlma_infrequentdeleteblocklist' instead.
 //
 //@CLASSES:
 //  bslma::InfrequentDeleteBlockList: list of infrequently deleted blocks
 //
-//@SEE_ALSO: bdema_infrequentdeleteblocklist
+//@SEE_ALSO: bdlma_infrequentdeleteblocklist
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //

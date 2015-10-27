@@ -111,7 +111,7 @@ void aSsErT(bool condition, const char *message, int line)
 // *indirect* and *by* *default* (see 'bslma_default').  For example,
 // consider (along with its destructor) the default and copy constructors for,
 // say, a simple container, such as 'my_ShortArray', each of which take as
-// its final optional argument the address of a 'bdema_Allocator' protocol:
+// its final optional argument the address of a 'bslma_Allocator' protocol:
 //..
 //  // my_shortarray.h:
 //  // ...
