@@ -1,5 +1,47 @@
-bsl-internal (2.24.1.0) unstable; urgency=low
+bsl-internal (2.24.2.0) unstable; urgency=low
 
+  * 0b458d3 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 344f7d2 [APPROVAL] INTERNAL pending/releases/2.24.x/deprecate-bslma-types-drqs-73220711 to releases/2.24.x
+  * cd4ce16 [APPROVAL] pending/releases/2.24.x/deprecate-bslma-types-drqs-73220711 to releases/2.24.x
+  * fdfb62c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 3729213 [APPROVAL] INTERNAL bump-version-to-2.24.2 to releases/2.24.x
+  * 2af34c8 [APPROVAL] bump-version-to-2.24.2 to releases/2.24.x
+  * 25aab8e bump patchversion for 2.24.2
+  * d0a42e2 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 726c9be [APPROVAL] INTERNAL gchassiakos-typos-correct-base to releases/2.24.x
+  * 499f986 [APPROVAL] gchassiakos-typos-correct-base to releases/2.24.x
+  * eb67a75 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * c025680 [APPROVAL] INTERNAL pending/releases/2.24.x/add-bslcstdlib-export-drqs-69830273 to releases/2.24.x
+  * 6745217 [APPROVAL] pending/releases/2.24.x/add-bslcstdlib-export-drqs-69830273 to releases/2.24.x
+  * 6575b91 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * c02800d [APPROVAL] INTERNAL pending/releases/2.24.x/fix_enable_shared_from_this_drqs72349245 to releases/2.24.x
+  * b48231c [APPROVAL] pending/releases/2.24.x/fix_enable_shared_from_this_drqs72349245 to releases/2.24.x
+  * 5f169ed [APPROVAL] review/remove-vestigial-third-party-dep-files to releases/2.24.x
+  * 7b1347c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 6c07456 [APPROVAL] INTERNAL pending/releases/2.24.x/windows_patches_for_2_24_drqs70498681 to releases/2.24.x
+  * b9acb15 [APPROVAL] pending/releases/2.24.x/windows_patches_for_2_24_drqs70498681 to releases/2.24.x
+  * 7bd0055 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 4244c19 [APPROVAL] INTERNAL pending/releases/2.24.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.24.x
+  * f1d9877 [APPROVAL] pending/releases/2.24.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.24.x
+  * a7b3114 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 3dd853a [APPROVAL] INTERNAL review/2.24-merge-base-adl-is_enum-drqs-72324531 to releases/2.24.x
+  * 2f750b2 [APPROVAL] review/2.24-merge-base-adl-is_enum-drqs-72324531 to releases/2.24.x
+  * b0988fd Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * 6183e84 [APPROVAL] INTERNAL add-missing-cpp11-imports-drqs-72488687 to releases/2.24.x
+  * df36970 [APPROVAL] add-missing-cpp11-imports-drqs-72488687 to releases/2.24.x
+  * ce8b118 [APPROVAL] OSS review/change-third-party-to-thirdparty-drqs-71112272 to releases/2.24.x
+  * acbdd80 [APPROVAL] review/change-third-party-to-thirdparty-drqs-71112272 to releases/2.24.x
+  * 3540d61 [APPROVAL] pending/releases/2.24.x/fix-bdldfp-runtime-failures_cherrypick to releases/2.24.x
+  * c66dd1d Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
+  * c66cb27 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
+  * b71857f [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
+  * 2df1620 drqs-71737205: Fixes for 'doxygen' conversion.
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Tue, 27 Oct 2015 15:37:35 -0400
+
+bsl-internal (2.24.1.0) git; urgency=low
+
+  * 9f63e7e Changelog for version 2.24.1.0
   * d6ac94c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 13b9d7f [APPROVAL] INTERNAL bump-version-to-2.24.1 to releases/2.24.x
   * 4612338 [APPROVAL] bump-version-to-2.24.1 to releases/2.24.x
@@ -17,7 +59,7 @@ bsl-internal (2.24.1.0) unstable; urgency=low
   * 7773de8 [APPROVAL] OSS review/update-wscripts-drqs-70793850 to releases/2.24.x
   * ae85bad [APPROVAL] review/update-wscripts-drqs-70793850 to releases/2.24.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Sep 2015 13:48:47 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Sep 2015 14:18:50 -0400
 
 bsl-internal (2.24.0.4) git; urgency=low
 
