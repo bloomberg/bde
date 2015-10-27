@@ -31,11 +31,11 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_constructorproxy, bslalg_scalarprimitives
 //
 //@DESCRIPTION: This component provides a set of type traits, and a set of
-// macros used to assign traits to user-defined class.  Traits are used to
+// macros used to assign traits to user-defined classes.  Traits are used to
 // enable certain optimizations or discriminations at compile-time.  For
 // instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
-// of invoking a copy-constructor on every objects.  The usage example shows
+// of invoking a copy-constructor on every object.  The usage example shows
 // how to use the 'bslalg::TypeTraitUsesBslmaAllocator' to propagate allocators
 // to nested objects that may require them.
 //
@@ -120,13 +120,13 @@ BSLS_IDENT("$Id: $")
 //..
 //  // CREATORS
 //  MyGenericContainer(const TYPE& object, bslma::Allocator *allocator = 0);
-//      // Create an container containing the specified 'object', using the
+//      // Create a container containing the specified 'object', using the
 //      // optionally specified 'allocator' to allocate memory.  If
 //      // 'allocator' is 0, the currently installed allocator is used.
 //
 //  MyGenericContainer(const MyGenericContainer&  container,
 //                     bslma::Allocator          *allocator = 0);
-//      // Create an container containing the same object as the specified
+//      // Create a container containing the same object as the specified
 //      // 'container', using the optionally specified 'allocator' to
 //      // allocate memory.  If 'allocator' is 0, the currently installed
 //      // allocator is used.
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Using the type traits
 ///- - - - - - - - - - -
-// The challenge in the implementation lays in using the traits of the
+// The challenge in the implementation lies in using the traits of the
 // contained 'TYPE' to determine whether to pass the allocator argument to its
 // copy constructor.  We rely here on a property of templates that templates
 // are not compiled (and thus will not generate compilation errors) until they
@@ -177,7 +177,7 @@ BSLS_IDENT("$Id: $")
 // For types that don't use an allocator, we offer the following overload which
 // will be selected if the type trait of 'TYPE' cannot be converted to
 // 'bslalg::TypeTraitUsesBslmaAllocator'.  In that case, note that the type
-// traits always inherits from 'bslalg::TypeTraitNil'.
+// traits always inherit from 'bslalg::TypeTraitNil'.
 //..
 //  template <class TYPE>
 //  static void copyConstruct(TYPE             *location,
@@ -265,7 +265,7 @@ BSLS_IDENT("$Id: $")
 // We can check that our container actually forwards the correct allocator to
 // its contained objects with a very simple test apparatus, consisting of two
 // classes which have exactly the same signature and implementation except that
-// one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other has
+// one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other does
 // not:
 //..
 //  bslma::Allocator *allocSlot;
@@ -305,7 +305,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  };
 //..
-// Our verification program simply instantiate several 'MyGenericContainer'
+// Our verification program simply instantiates several 'MyGenericContainer'
 // templates with the two test types above, and checks that the allocator slot
 // is as expected:
 //..
