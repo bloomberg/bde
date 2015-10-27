@@ -31,3 +31,4 @@ TAGS
 *.pyc
 .lock-waf*
 .waf-*
+.nfs*
