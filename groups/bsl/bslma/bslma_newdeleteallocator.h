@@ -289,7 +289,7 @@ class NewDeleteAllocator : public Allocator {
         // Also note that if a 'NewDeleteAllocator' object is supplied, it is
         // owned by the class and must NOT be deleted.  Finally note that this
         // method should generally not be called directly by typical clients
-        // (see 'bdema_default' for more information).
+        // (see 'bslma_default' for more information).
 
     // CREATORS
     NewDeleteAllocator();
