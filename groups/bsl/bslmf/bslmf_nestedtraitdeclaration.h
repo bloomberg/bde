@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// This section illustrates the intended use of this component.
 //
 ///Example 1: Testing a Type for a Custom Trait
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, assume that a compatible trait, 'abcd::RequiresLockTrait', has been
 // defined that indicates that a type's methods must not be called unless a
-// known lock it first acquired:
+// known lock is first acquired:
 //..
 //  namespace abcd { template <class TYPE> struct RequiresLockTrait; }
 //..
