@@ -490,6 +490,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
                                                       -62135596800LL > time)
@@ -498,7 +499,14 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 #else
     if (-62135596800LL > time ||  // January    1, 0001 00:00:00
 #endif
-        253402300799LL < time) {  // December  31, 9999 23:59:59
+#else
+#ifdef BDE_USE_PROLEPTIC_DATES
+    if (-62135596800LL > time 
+#else
+    if (-62135769600LL > time
+#endif
+#endif
+    ||  253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }
 
