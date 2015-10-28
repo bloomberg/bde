@@ -9,6 +9,10 @@ BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 #include <bdlb_bitutil.h>
 #include <bsls_log.h>
 #endif
+    
+#ifndef BDE_OPENSOURCE_PUBLICATION
+#include <bsls_atomicoperations.h>
+#endif
 
 namespace BloombergLP {
 namespace bdlt {
@@ -28,12 +32,22 @@ namespace bdlt {
 // that adheres to those restrictions without C++11 'constexpr' constructors.
 // (In C, a union can be used to type pun, but not in C++.)
 
-static const int epochData[2] = { 719163, 0 };
-                                 // 719163 is 1970/01/01 in Proleptic Gregorian
-#ifndef BDE_OPENSOURCE_PUBLICATION
-static const int posixEpochData[2]
-                              = { 719165, 0 };
-                                 // 719165 is 1970/01/01 in POSIX
+#if 0
+ static const int epochData[2] = { 719163, 0 };
+                                  // 719163 is 1970/01/01 in Proleptic Gregorian
+ #ifndef BDE_OPENSOURCE_PUBLICATION
+ static const int posixEpochData[2]
+                               = { 719165, 0 };
+                                  // 719165 is 1970/01/01 in POSIX
+ #endif
+#else 
+ #ifdef BDE_USE_PROLEPTIC_DATES
+  static const int epochData[2] = { 719163, 0 };
+                                  // 719163 is 1970/01/01 in Proleptic Gregorian
+ #else 
+  static const int epochData[2] = { 719165, 0 };
+                                  // 719165 is 1970/01/01 in POSIX
+ #endif
 #endif
 
                             // ----------------
@@ -42,12 +56,19 @@ static const int posixEpochData[2]
 
 // CLASS DATA
 
-const bdlt::Datetime *EpochUtil::s_epoch_p =
+#if 0
+ const bdlt::Datetime *EpochUtil::s_epoch_p =
+                            reinterpret_cast<const bdlt::Datetime *>(epochData);
+ #ifndef BDE_OPENSOURCE_PUBLICATION
+ const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
+                       reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
+ #endif
+#else
+ const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#ifndef BDE_OPENSOURCE_PUBLICATION
-const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
-                      reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
+#endif
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
 // operator to use in the 'logIfProblematicDateValue' function.

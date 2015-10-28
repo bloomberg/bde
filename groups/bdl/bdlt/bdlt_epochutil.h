@@ -141,12 +141,6 @@ BSLS_IDENT("$Id: $")
     #include <bdlt_delegatingdateimputil.h>
     #endif
 #endif
-    
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-    #include <bsls_atomicoperations.h>
-    #endif
-#endif
 
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
@@ -185,11 +179,18 @@ struct EpochUtil {
 
   private:
     // CLASS DATA
+ 
+#if 0
     static const Datetime *s_epoch_p;  // pointer to epoch time value
 #ifndef BDE_OPENSOURCE_PUBLICATION
     static const Datetime *s_posixEpoch_p;
                                        // pointer to POSIX epoch time value
+#endif
+#else
+    static const Datetime *s_epoch_p;  // pointer to epoch time value
+#endif
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
     // PRIVATE CLASS METHODS
     static void logIfProblematicDateValue(const char  *fileName,
                                           int          lineNumber,
@@ -382,12 +383,16 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
+#if 0
 #ifdef BDE_OPENSOURCE_PUBLICATION
     return *s_epoch_p;
 #else
     return DelegatingDateImpUtil::isProlepticGregorianMode()
            ? *s_epoch_p
            : *s_posixEpoch_p;
+#endif
+#else
+    return *s_epoch_p;
 #endif
 }
 
