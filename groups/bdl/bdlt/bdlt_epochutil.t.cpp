@@ -325,7 +325,9 @@ int main(int argc, char *argv[])
         {
             log.str(EMPTY);
 
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+            //if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
+#ifdef BDE_USE_PROLEPTIC_DATES
+            {
                 const bdlt::Datetime GOOD(1752, 9, 16);
                 Util::convertToTimeT64(GOOD);
                 ASSERT(EMPTY == log.str());  // nothing logged
@@ -335,7 +337,8 @@ int main(int argc, char *argv[])
                 Util::convertToTimeT64(BAD);
                 ASSERT(EMPTY != log.str());  // something logged
             }
-            else {
+#else
+            {
                 const bdlt::Datetime GOOD(1752, 9, 14);
                 Util::convertToTimeT64(GOOD);
                 ASSERT(EMPTY == log.str());  // nothing logged
@@ -345,6 +348,7 @@ int main(int argc, char *argv[])
                 Util::convertToTimeT64(BAD);
                 ASSERT(EMPTY != log.str());  // something logged
             }
+#endif
 
             if (veryVerbose) cout << log.str();
         }
