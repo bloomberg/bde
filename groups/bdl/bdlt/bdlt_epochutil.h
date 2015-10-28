@@ -137,13 +137,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-#include <bdlt_delegatingdateimputil.h>
+    #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
+    #include <bdlt_delegatingdateimputil.h>
+    #endif
 #endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
-#endif
+    
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
+    #include <bsls_atomicoperations.h>
+    #endif
 #endif
 
 #ifndef INCLUDED_BDLT_TIME
@@ -449,6 +451,7 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
+#if 0
 #ifdef BDE_OPENSOURCE_PUBLICATION
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
@@ -458,6 +461,13 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
     else {
     BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
     }
+#endif
+#else
+#if BDE_USE_PROLEPTIC_DATES    
+    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
+#else
+    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
+#endif
 #endif
     BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
 
