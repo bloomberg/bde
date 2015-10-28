@@ -19,9 +19,6 @@
 #include <bsl_string.h>
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#if 0
-#include <bdlt_delegatingdateimputil.h>
-#endif
 #include <bsls_log.h>
 #endif
 

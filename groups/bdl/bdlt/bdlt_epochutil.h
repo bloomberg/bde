@@ -136,14 +136,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-#if 0
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-    #include <bdlt_delegatingdateimputil.h>
-    #endif
-#endif
-#endif
-
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif

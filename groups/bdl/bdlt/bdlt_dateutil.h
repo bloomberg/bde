@@ -160,10 +160,6 @@ BSLS_IDENT("$Id: $")
         #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
         #include <bdlt_serialdateimputil.h>
         #endif
-    #else
-        #ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-        #include <bdlt_delegatingdateimputil.h>
-        #endif
     #endif
 #else
     #ifdef BDE_USE_PROLEPTIC_DATES
