@@ -2416,6 +2416,7 @@ int main(int argc, char *argv[])
                           << "==============================================="
                           << endl;
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
         // Prior to the Unix epoch there are two more days in the POSIX
         // calendar as compared to the proleptic Gregorian calendar.
@@ -2429,6 +2430,13 @@ int main(int argc, char *argv[])
         else {
             adjust = SECONDS_IN_TWO_DAYS;
         }
+#endif
+#else 
+#ifdef BDE_USE_PROLEPTIC_DATES
+       ; // empty
+#else
+       int adjust = 2 * 24 * 60 * 60; // two days in seconds
+#endif
 #endif
 
         enum { FAILURE = 1 };
@@ -2455,11 +2463,22 @@ int main(int argc, char *argv[])
 
                 //lin year mon day hou min sec msec           result   ld =
                 //--- ---- --- --- --- --- --- ----  --------------    Leap Day
+#if 0 
 #ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
 #else
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
                                                              - adjust },
+#endif
+#else
+#ifdef BDE_USE_PROLEPTIC_DATES
+                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
+#else
+            //  { L_,    1,  1,  1,  0,  0,  0,   0,   -62135769600LL },
+            //  { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596600LL },
+                { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
+                                                             - adjust },
+#endif
 #endif
                 { L_, 1869, 12, 31, 23, 59, 59, 999,    -3155673601LL },
                 { L_, 1879, 12, 31, 23, 59, 59, 999,    -2840140801LL },
@@ -2553,6 +2572,8 @@ int main(int argc, char *argv[])
 #ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
 #else
+             // { L_,    1,  1,  1, 24,  0,  0,   0,   -62135769600LL },
+             // { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596600LL },
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
                                                              - adjust },
 #endif
@@ -2684,6 +2705,7 @@ int main(int argc, char *argv[])
                 { L_,  LLONG_LIMITS.min(),
                                       FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_,  LLONG_MIN + 1, FAILURE,0,  0,  0,  0,  0,  0 },
+#if 0
 #ifdef BDE_OPENSOURCE_PUBLICATION
                 { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
                 { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
@@ -2701,6 +2723,26 @@ int main(int argc, char *argv[])
                                       0,      1,  1,  1,  0,  0,  1 },
                 { L_, -62135596798LL - adjust,
                                       0,      1,  1,  1,  0,  0,  2 },
+#endif
+#else
+#ifdef BDE_USE_PROLEPTIC_DATES
+                { L_, -62135596802LL, FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596801LL, FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596800LL, 0,      1,  1,  1,  0,  0,  0 },
+                { L_, -62135596799LL, 0,      1,  1,  1,  0,  0,  1 },
+                { L_, -62135596798LL, 0,      1,  1,  1,  0,  0,  2 },
+#else
+                { L_, -62135596802LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596801LL - adjust,
+                                      FAILURE,0,  0,  0,  0,  0,  0 },
+                { L_, -62135596800LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  0 },
+                { L_, -62135596799LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  1 },
+                { L_, -62135596798LL - adjust,
+                                      0,      1,  1,  1,  0,  0,  2 },
+#endif
 #endif
                 { L_,  -3155673601LL, 0,   1869, 12, 31, 23, 59, 59 },
                 { L_,  -2840140801LL, 0,   1879, 12, 31, 23, 59, 59 },
