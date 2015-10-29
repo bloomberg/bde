@@ -32,22 +32,12 @@ namespace bdlt {
 // that adheres to those restrictions without C++11 'constexpr' constructors.
 // (In C, a union can be used to type pun, but not in C++.)
 
-#if 0
- static const int epochData[2] = { 719163, 0 };
-                                  // 719163 is 1970/01/01 in Proleptic Gregorian
- #ifndef BDE_OPENSOURCE_PUBLICATION
- static const int posixEpochData[2]
-                               = { 719165, 0 };
-                                  // 719165 is 1970/01/01 in POSIX
- #endif
+#ifdef BDE_USE_PROLEPTIC_DATES
+static const int epochData[2] = { 719163, 0 };
+                                 // 719163 is 1970/01/01 in Proleptic Gregorian
 #else 
- #ifdef BDE_USE_PROLEPTIC_DATES
-  static const int epochData[2] = { 719163, 0 };
-                                  // 719163 is 1970/01/01 in Proleptic Gregorian
- #else 
-  static const int epochData[2] = { 719165, 0 };
-                                  // 719165 is 1970/01/01 in POSIX
- #endif
+static const int epochData[2] = { 719165, 0 };
+                                 // 719165 is 1970/01/01 in POSIX
 #endif
 
                             // ----------------
@@ -56,17 +46,8 @@ namespace bdlt {
 
 // CLASS DATA
 
-#if 0
- const bdlt::Datetime *EpochUtil::s_epoch_p =
-                            reinterpret_cast<const bdlt::Datetime *>(epochData);
- #ifndef BDE_OPENSOURCE_PUBLICATION
- const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
-                       reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
- #endif
-#else
- const bdlt::Datetime *EpochUtil::s_epoch_p =
+const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With

@@ -643,16 +643,6 @@ int main(int argc, char *argv[])
 
         bsls::Log::setLogMessageHandler(&noopLogMessageHandler);
     }
-
-#if 0
-    if (veryVerbose) {
-        cout << "The calendar mode in effect is "
-             << (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
-                 ? "proleptic Gregorian"
-                 : "Gregorian (POSIX)")
-             << endl;
-    }
-#endif
 #endif
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;

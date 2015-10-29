@@ -155,17 +155,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
-#if 0
+#ifdef BDE_USE_PROLEPTIC_DATES
+#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
+#include <bdlt_prolepticdateimputil.h>
+#endif
 #else
-    #ifdef BDE_USE_PROLEPTIC_DATES
-        #ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
-        #include <bdlt_prolepticdateimputil.h>
-        #endif
-    #else
-        #ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
-        #include <bdlt_posixdateimputil.h>
-        #endif
-    #endif
+#ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
+#include <bdlt_posixdateimputil.h>
+#endif
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -393,16 +390,7 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
     if (2 == original.month() && 29 == original.day()) {
         return Date(newYear,
                     original.month(),
-#if 0
-#ifdef BDE_OPENSOURCE_PUBLICATION
-                    SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
-#else
-                    DelegatingDateImpUtil::isLeapYear(newYear) ? 29 : 28);
-#endif
-#else
-                    DateImpUtil::isLeapYear(newYear) ? 29 : 28);
-#endif
-                                                                      // RETURN
+                    DateImpUtil::isLeapYear(newYear) ? 29 : 28);      // RETURN
 
     }
     return Date(newYear, original.month(), original.day());
@@ -444,21 +432,9 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     yyyymmddValue   /= 100;
     const int month  = yyyymmddValue % 100;
 
-#if 0
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    return SerialDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
-                                                  month,
-                                                  day);
-#else
-    return DelegatingDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
-                                                      month,
-                                                      day);
-#endif
-#else 
     return DateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
                                             month,
                                             day);
-#endif
 }
 
 }  // close package namespace

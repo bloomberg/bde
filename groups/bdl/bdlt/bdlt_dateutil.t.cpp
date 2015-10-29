@@ -11,11 +11,6 @@
 #include <bsl_limits.h>
 #include <bsl_vector.h>
 
-#if 0
-#include <bdlt_posixdateimputil.h>       // XXX
-#include <bdlt_prolepticdateimputil.h>   // XXX
-#endif
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -136,19 +131,6 @@ int main(int argc, char *argv[])
     (void) veryVeryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
-
-#if 0
-    bool usesPosixDateImpUtil     =
-      bsl::is_same<bdlt::Date::DateImpUtil, bdlt::    PosixDateImpUtil>::value;
-
-    bool usesProlepticDateImpUtil =
-      bsl::is_same<bdlt::Date::DateImpUtil, bdlt::ProlepticDateImpUtil>::value;
-
-    cout << "usesPosixDateImpUtil    " << ": "
-         <<  usesPosixDateImpUtil      << endl;
-    cout << "usesProlepticDateImpUtil" << ": "
-         <<  usesProlepticDateImpUtil  << endl;
-#endif
 
     switch (test) { case 0:
       case 17: {
