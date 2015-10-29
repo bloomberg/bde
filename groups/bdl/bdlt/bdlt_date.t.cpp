@@ -24,10 +24,12 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
 #include <bsls_log.h>
 #include <bsl_string.h>
+#endif
 #endif
 
 using namespace BloombergLP;
@@ -133,12 +135,14 @@ using namespace bsl;
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
+#if 0
 // TRANSITIONAL
 // [22] static void logIfProblematicDate*(args);
 // [23] static void disableLogging();
 // [23] static void enableLogging();
 // [23] static bool isLoggingEnabled();
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
 // [13] int validateAndSetYearDay(int year, int dayOfYear);
@@ -229,6 +233,7 @@ typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDate*'
@@ -251,6 +256,7 @@ void logMessageHandler(const char *file, int line, const char *message)
     *globalLogPtr << file << ':' << line << ' ' << message << '\n';
 }
 
+#endif
 }  // close unnamed namespace
 
 #endif
@@ -395,6 +401,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
       case 23: {
         // --------------------------------------------------------------------
@@ -1113,6 +1120,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
+#endif
 #endif
       case 21: {
         // --------------------------------------------------------------------
@@ -5599,6 +5607,7 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
       case -1: {
         // --------------------------------------------------------------------
@@ -5833,6 +5842,7 @@ if (verbose)
         }
 
       } break;
+#endif
 #endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

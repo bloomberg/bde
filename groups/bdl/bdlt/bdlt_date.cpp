@@ -14,8 +14,10 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bsl_c_stdio.h>   // 'snprintf'
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlb_bitutil.h>
+#endif
 #endif
 
 namespace BloombergLP {
@@ -31,6 +33,7 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
@@ -204,6 +207,7 @@ void Date::enableLogging()
 }
 
 #endif
+#endif
 
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)
@@ -216,6 +220,7 @@ int Date::addDaysIfValid(int numDays)
         return k_FAILURE;                                             // RETURN
     }
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     // Using maximum location 31 to minimize chance of a conflict with header
     // location values.
@@ -224,6 +229,7 @@ int Date::addDaysIfValid(int numDays)
     Date::logIfProblematicDateAddition(__FILE__, __LINE__,
                                        static_cast<int>(locationId),
                                        d_serialDate, numDays);
+#endif
 #endif
 
     d_serialDate = tmpSerialDate;
