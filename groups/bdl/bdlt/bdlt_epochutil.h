@@ -175,6 +175,7 @@ struct EpochUtil {
     // CLASS DATA
     static const Datetime *s_epoch_p;  // pointer to epoch time value
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     // PRIVATE CLASS METHODS
     static void logIfProblematicDateValue(const char  *fileName,
@@ -191,6 +192,7 @@ struct EpochUtil {
         // the 'fileName'/'lineNumber' pair.  Note that actual generation of
         // log messages may be throttled to limit spew to 'stderr', but the
         // internal count for the 'locationId' is always incremented.
+#endif
 #endif
 
   public:
@@ -453,13 +455,14 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
-
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     enum { locationId = 0 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
                                          static_cast<int>(locationId),
                                          datetime.date());
+#endif
 #endif
 
     return datetime;
@@ -493,12 +496,14 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     *result = epoch();
     result->addSeconds(time);
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     enum { locationId = 1 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
                                          static_cast<int>(locationId),
                                          result->date());
+#endif
 #endif
 
     return 0;
@@ -508,12 +513,14 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     enum { locationId = 2 };
 
     EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
                                          static_cast<int>(locationId),
                                          datetime.date());
+#endif
 #endif
     return TimeT64(((datetime - epoch()).totalMilliseconds()
                                              - datetime.millisecond()) / 1000);

@@ -4,7 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bbldc_periodicmaactualactual_cpp,"$Id$ $CSID$")
 
+#if 0
 #include <bdlt_serialdateimputil.h>
+#endif
 
 #include <bsls_assert.h>
 

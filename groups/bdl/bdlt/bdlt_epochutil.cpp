@@ -49,6 +49,7 @@ static const int epochData[2] = { 719165, 0 };
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
 // 639798 for the "magic" serial date value, '>' is the appropriate comparison
@@ -95,6 +96,7 @@ void EpochUtil::logIfProblematicDateValue(const char  *fileName,
     }
 }
 
+#endif
 #endif
 
 }  // close package namespace

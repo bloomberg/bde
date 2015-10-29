@@ -21,6 +21,7 @@
 #include <bsl_string.h>
 #include <bsl_ctime.h>
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Extra inclusions needed temporarily for testing
 //     'logIfProblematicDateValue'.
@@ -29,6 +30,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_log.h>
+#endif
 #endif
 
 using namespace BloombergLP;
@@ -190,6 +192,7 @@ const bdlt::Datetime &EarlyEpochCopier::copiedValue()
 
 EarlyEpochCopier earlyEpochCopier INITATTR;
 
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 
 // TBD stuff needed temporarily for testing 'logIfProblematicDateValue'
@@ -211,6 +214,7 @@ void logMessageHandler(const char *file, int line, const char *message)
 
     *globalLogPtr << file << ':' << line << ' ' << message << '\n';
 }
+#endif
 
 }  // close unnamed namespace
 
@@ -233,6 +237,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
       case 7: {
         // --------------------------------------------------------------------
@@ -409,6 +414,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
+#endif
 #endif
       case 6: {
         // --------------------------------------------------------------------

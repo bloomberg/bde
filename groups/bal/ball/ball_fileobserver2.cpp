@@ -38,10 +38,18 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
 #include <bdlt_delegatingdateimputil.h>
 #else
 #include <bdlt_serialdateimputil.h>
+#endif
+#else
+#ifdef BDE_USE_PROLEPTIC_DATES
+#include <bdlt_prolepticdateimputil.h>
+#else
+#include <bdlt_posixdateimputil.h>
+#endif
 #endif
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
@@ -299,6 +307,7 @@ static int toSerialDate(bdlt::Date date)
     // Return the elapsed number of days between 01JAN0001 and the specified
     // 'date'.
 {
+#if 0
 #ifndef BDE_OPENSOURCE_PUBLICATION
     return bdlt::DelegatingDateImpUtil::ymdToSerial(date.year(),
                                                     date.month(),
@@ -307,6 +316,17 @@ static int toSerialDate(bdlt::Date date)
     return bdlt::SerialDateImpUtil::ymdToSerial(date.year(),
                                                 date.month(),
                                                 date.day());
+#endif
+#else
+#ifdef BDE_USE_PROLEPTIC_DATES
+    return bdlt::ProlepticDateImpUtil::ymdToSerial(date.year(),
+                                                   date.month(),
+                                                   date.day());
+#else
+    return bdlt::PosixDateImpUtil::ymdToSerial(date.year(),
+                                               date.month(),
+                                               date.day());
+#endif
 #endif
 }
 
@@ -326,7 +346,6 @@ static bdlt::Datetime computeNextRotationTime(
     // value to UTC might cause an underflow.
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
-
 
     // Notice that the logic for computing the next time interval must
     // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
