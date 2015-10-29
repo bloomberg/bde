@@ -49,56 +49,6 @@ static const int epochData[2] = { 719165, 0 };
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
 
-#if 0
-#ifndef BDE_OPENSOURCE_PUBLICATION
-// In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
-// 639798 for the "magic" serial date value, '>' is the appropriate comparison
-// operator to use in the 'logIfProblematicDateValue' function.
-
-const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
-                                  // 1752/09/15 proleptic Gregorian
-
-// To limit spewing to 'stderr', log an occurrence of a problematic date value
-// only if the associated logging context count is 1, 8, or 256.
-
-const int LOG_THROTTLE_MASK = 1 | 8 | 256;
-
-// PRIVATE CLASS METHODS
-void EpochUtil::logIfProblematicDateValue(const char  *fileName,
-                                          int          lineNumber,
-                                          int          locationId,
-                                          const Date&  date)
-{
-    if (!Date::isLoggingEnabled()
-     || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
-        return;                                                       // RETURN
-    }
-
-    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
-
-    if (locationId < 0 || locationId > 31) {
-        return;                                                       // RETURN
-    }
-
-    const int tmpCount
-             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
-
-    if ((LOG_THROTTLE_MASK & tmpCount)
-     && 1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
-
-        bsls::Log::logFormattedMessage(fileName, lineNumber,
-                                       "WARNING: bad 'Date' value: "
-                                       "%d/%d/%d [%d] "
-                                       "(see {TEAM 481627583<GO>})",
-                                       date.year(), date.month(), date.day(),
-                                       tmpCount);
-    }
-}
-
-#endif
-#endif
-
 }  // close package namespace
 }  // close enterprise namespace
 
