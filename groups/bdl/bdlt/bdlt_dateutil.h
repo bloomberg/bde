@@ -156,11 +156,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if 0
-    #ifdef BDE_OPENSOURCE_PUBLICATION
-        #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
-        #include <bdlt_serialdateimputil.h>
-        #endif
-    #endif
 #else
     #ifdef BDE_USE_PROLEPTIC_DATES
         #ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL

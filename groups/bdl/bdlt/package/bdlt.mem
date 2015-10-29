@@ -22,7 +22,6 @@ bdlt_monthofyear
 bdlt_packedcalendar
 bdlt_posixdateimputil
 bdlt_prolepticdateimputil
-bdlt_serialdateimputil
 bdlt_time
 bdlt_timetz
 bdlt_timeunitratio
