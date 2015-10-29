@@ -4,16 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bdlt_date.h>
-#include <bdlb_bitutil.h>
-#include <bsls_log.h>
-#endif
-    
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bsls_atomicoperations.h>
-#endif
-
 namespace BloombergLP {
 namespace bdlt {
 

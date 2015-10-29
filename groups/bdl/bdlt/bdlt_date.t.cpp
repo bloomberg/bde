@@ -313,7 +313,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2000,   58,       364 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
     { L_,    1000,    1,   1001,    1,       365 },
 #endif
     { L_,    1998,   59,   1999,   59,       365 },
@@ -325,7 +325,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2002,   59,      1096 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
@@ -668,7 +668,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MIN },
                 { L_,    9999,   365,    INT_MIN },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    9999,   365,   -3652059 },
 #endif
 
@@ -693,7 +693,7 @@ if (verbose)
 
                 { L_,    9998,   365,        366 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1,     1,    3652059 },
 #endif
 
@@ -1842,7 +1842,7 @@ if (verbose)
                 { L_,       4,  366,      5,    1 },
                 { L_,      10,   59,     10,   60 },
                 { L_,     100,   90,    100,   91 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,     100,  365,    101,    1 },
 #endif
                 { L_,     400,   59,    400,   60 },
@@ -2202,7 +2202,7 @@ if (verbose)
                 { L_,        100,        0,     0 },
                 { L_,        100,        1,     1 },
                 { L_,        100,      365,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,        100,      366,     0 },
 #endif
 
@@ -2214,7 +2214,7 @@ if (verbose)
                 { L_,       1000,        0,     0 },
                 { L_,       1000,        1,     1 },
                 { L_,       1000,      365,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1000,      366,     0 },
 #endif
 
@@ -2335,7 +2335,7 @@ if (verbose)
                 { L_,          4,        2,       30,     0 },
 
                 { L_,        100,        2,       28,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,        100,        2,       29,     0 },
 #endif
 
@@ -2344,7 +2344,7 @@ if (verbose)
                 { L_,        400,        2,       30,     0 },
 
                 { L_,       1000,        2,       28,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1000,        2,       29,     0 },
 #endif
 
@@ -2602,20 +2602,20 @@ if (verbose)
                 { L_,       2,    1,      1,        1 },
                 { L_,      10,   95,      4,        5 },
                 { L_,      10,  284,     10,       11 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,     100,  158,      6,        7 },
                 { L_,     100,  316,     11,       12 },
                 { L_,    1000,  221,      8,        9 },
 #endif
                 { L_,    1100,   31,      1,       31 },
                 { L_,    1200,   60,      2,       29 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1300,   90,      3,       31 },
                 { L_,    1400,  120,      4,       30 },
                 { L_,    1500,  151,      5,       31 },
 #endif
                 { L_,    1600,  182,      6,       30 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1700,  212,      7,       31 },
 #endif
                 { L_,    1800,  243,      8,       31 },
@@ -3073,11 +3073,6 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        //:
-        //:10 Streaming version 1 provides the expected compatibility between
-        //:   the two calendar modes.
-#endif
         //
         // Plan:
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
@@ -3130,13 +3125,6 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        //:
-        //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
-        //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
-        //:   dates streamed out in calendar mode 'u' are streamed in as
-        //:   expected in calendar mode 'v'.  (C-10)
-#endif
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);

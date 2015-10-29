@@ -2332,11 +2332,9 @@ int main(int argc, char *argv[])
                     // *** Time = 24:00:00:000 converts to 00:00:00 ***
                 //lin year mon day hou min sec msec          result
                 //--- ---- --- --- --- --- --- ----  --------------
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL },
 #else
-             // { L_,    1,  1,  1, 24,  0,  0,   0,   -62135769600LL },
-             // { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596600LL },
                 { L_,    1,  1,  1, 24,  0,  0,   0,   -62135596800LL
                                                              - adjust },
 #endif
@@ -2777,92 +2775,6 @@ int main(int argc, char *argv[])
         ASSERT(epochAddressIsNotZero);
         ASSERT(EPOCH == EarlyEpochCopier::copiedValue());
       } break;
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      case -1: {
-        // --------------------------------------------------------------------
-        // 'logIfProblematicDateValue' Log Messages
-        //
-        // Testing:
-        //   Manual inspection of log message content.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\n'logIfProblematicDateValue' Log Messages"
-                          << "\n========================================"
-                          << endl;
-
-        // The "GOOD" 'TimeT64' value was taken from case 2 and corresponds to
-        // 'Datetime(1869, 12, 31, 23, 59, 59, 999)',
-
-        const bsls::Types::Int64 GOOD = -3155673601LL;  // good in either mode
-        const bsls::Types::Int64 BAD  =
-                                    3 * -3155673601LL;  // bad in either mode
-
-        if (verbose) cout << "\n'convertFromTimeT64(TimeT64)'." << endl;
-        {
-            Util::convertFromTimeT64(GOOD);
-            Util::convertFromTimeT64(BAD);
-        }
-
-        if (verbose) cout << "\n'convertFromTimeT64(Datetime *, TimeT64)'."
-                          << endl;
-        {
-            bdlt::Datetime result;
-
-            ASSERT(0 == Util::convertFromTimeT64(&result, GOOD));
-            ASSERT(0 == Util::convertFromTimeT64(&result, BAD));
-        }
-
-        if (verbose) cout << "\n'convertToTimeT64(Datetime)'." << endl;
-        if (verbose) cout << "\tTest edge cases." << endl;
-        {
-            const bdlt::Datetime GOOD(1800, 10, 31);  // good in either mode
-            const bdlt::Datetime BAD( 1700, 10, 31);  // bad in either mode
-
-            Util::convertToTimeT64(GOOD);
-            Util::convertToTimeT64(BAD);
-        }
-
-        if (verbose) cout << "\n'convertToTimeT64(TimeT64 *, Datetime)'."
-                          << endl;
-        {
-            bsls::Types::Int64 result;
-
-            const bdlt::Datetime GOOD(1800, 10, 31);  // good in either mode
-            const bdlt::Datetime BAD( 1700, 10, 31);  // bad in either mode
-
-            Util::convertToTimeT64(&result, GOOD);
-
-            // account for log throttling
-            for (int i = 0; i < 6; ++i) {
-                Util::convertToTimeT64(&result, BAD);
-            }
-
-            Util::convertToTimeT64(&result, BAD);
-        }
-
-        if (verbose) cout << "\nTest log throttling." << endl;
-        {
-            // Test throttling using 'convertToTimeT64(Datetime)'.  Note that
-            // the first two occurrences were logged earlier in this test case.
-
-            const bdlt::Datetime BAD( 1700, 10, 31);  // bad in either mode
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-                for (int i = 0; i < 247; ++i) {
-                    Util::convertToTimeT64(BAD);
-                }
-
-                Util::convertToTimeT64(BAD);
-
-                for (int i = 0; i < 20000; ++i) {
-                    Util::convertToTimeT64(BAD);
-                }
-            }
-        }
-
-      } break;
-#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
