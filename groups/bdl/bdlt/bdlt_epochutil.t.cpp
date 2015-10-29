@@ -2240,8 +2240,6 @@ int main(int argc, char *argv[])
 #ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL },
 #else
-            //  { L_,    1,  1,  1,  0,  0,  0,   0,   -62135769600LL },
-            //  { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596600LL },
                 { L_,    1,  1,  1,  0,  0,  0,   0,   -62135596800LL
                                                              - adjust },
 #endif
