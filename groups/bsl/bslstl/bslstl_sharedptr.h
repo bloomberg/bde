@@ -1603,12 +1603,12 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 namespace bslstl {
-    struct SharedPtr_ImpUtil;
-        // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because
-        // this struct is a friend of 'enable_shared_from_this' in the 'bsl'
-        // namespace.
-}
-}
+
+struct SharedPtr_ImpUtil;
+    // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because this
+    // struct is a friend of 'enable_shared_from_this' in the 'bsl' namespace.
+}  // close package namespace
+}  // close enterprise namespace
 
 
 namespace bsl {
@@ -3720,15 +3720,15 @@ class enable_shared_from_this {
     // to safely generate a copy of the managing 'shared_ptr' object.
     // Inheriting from 'enable_shared_from_this<ELEMENT_TYPE>' provides the
     // (template parameter) 'ELEMENT_TYPE' type with a member function
-    // 'share_from_this'. If an object of type 'ELEMENT_TYPE' is managed by a
-    // 'shared_ptr' then calling 'shared_from_this' will return
-    // a 'shared_ptr<ELEMENT_TYPE>' that shares ownership of that object.  It
-    // is undefined behavior to call 'shared_from_this' on an object unless
-    // that object is managed by a 'shared_ptr'.
+    // 'share_from_this'.  If an object of type 'ELEMENT_TYPE' is managed by a
+    // 'shared_ptr' then calling 'shared_from_this' will return a
+    // 'shared_ptr<ELEMENT_TYPE>' that shares ownership of that object.  It is
+    // undefined behavior to call 'shared_from_this' on an object unless that
+    // object is managed by a 'shared_ptr'.
     //
     // The intended use of 'enable_shared_from_this' is that the templated type
     // parameter 'ELEMENT_TYPE' inherits directly from the
-    // 'enable_shared_from_this' class. In the case of multiple inheritance,
+    // 'enable_shared_from_this' class.  In the case of multiple inheritance,
     // only one of the base classes should inherit from the
     // 'enable_shared_from_this' class.  If multiple base classes inherit from
     // 'enable_shared_from_this', then there will be ambiguous calls to the
@@ -3746,34 +3746,44 @@ class enable_shared_from_this {
 
     // CREATORS
     enable_shared_from_this();
-        // Create an 'enable_shared_from_this' object that is not owned by
-        // any 'shared_ptr' object.
+        // Create an 'enable_shared_from_this' object that is not owned by any
+        // 'shared_ptr' object.
 
     enable_shared_from_this(const enable_shared_from_this& unused);
-        // Create an 'enable_shared_from_this' object that is not owned by
-        // any 'shared_ptr' object.
+        // Create an 'enable_shared_from_this' object that is not owned by any
+        // 'shared_ptr' object.  Note that the specified 'unused' argument is
+        // not used by this constructor.
 
     ~enable_shared_from_this();
         // Destroy this 'enable_shared_form_this'.
 
     // MANIPULATORS
-    enable_shared_from_this& operator=(
-                                const enable_shared_from_this& rhs);
-        // Return '*this'. This object is unchanged.
+    enable_shared_from_this& operator=(const enable_shared_from_this& rhs);
+        // Return '*this'. This object is unchanged.  Note that the specified
+        // 'rhs' is not used.
 
   public:
     // MANIPULATORS
     bsl::shared_ptr<ELEMENT_TYPE> shared_from_this();
-        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with
-        // the 'shared_ptr' object that owns '*this'.  The behavior is
-        // undefined unless '*this' is currently managed by a 'shared_ptr'
-        // object.
+        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with the
+        // 'shared_ptr' object that owns '*this'.  The behavior is undefined
+        // unless '*this' is currently managed by a 'shared_ptr' object.
 
     bsl::shared_ptr<const ELEMENT_TYPE> shared_from_this() const;
-        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with
-        // the 'shared_ptr' object that owns '*this'.  The behavior is
-        // undefined unless '*this' is currently managed by a 'shared_ptr'
-        // object.
+        // Return a 'shared_ptr<ELEMENT_TYPE>' that shares ownership with the
+        // 'shared_ptr' object that owns '*this'.  The behavior is undefined
+        // unless '*this' is currently managed by a 'shared_ptr' object.
+
+
+    bsl::weak_ptr<ELEMENT_TYPE> weak_from_this();
+        // Return a 'weak_ptr<ELEMENT_TYPE>' that holds a weak reference to the
+        // 'Imp' object of the first 'shared_ptr' object to own '*this', and an
+        // empty 'weak_ptr' if no such 'Imp' object exists.
+
+    bsl::weak_ptr<const ELEMENT_TYPE> weak_from_this() const;
+        // Return a 'weak_ptr<const ELEMENT_TYPE>' that holds a weak reference
+        // to the 'Imp' object of the first 'shared_ptr' object to own '*this',
+        // and an empty 'weak_ptr' if no such 'Imp' object exists.
 };
 
 // ASPECTS
@@ -3806,12 +3816,12 @@ struct SharedPtr_ImpUtil {
 
     template<class SHARED_TYPE, class ENABLE_TYPE>
     static void setEnableSharedFromThisSelfReference(
-                   bsl::shared_ptr<SHARED_TYPE>* sp,
-                   const bsl::enable_shared_from_this<ENABLE_TYPE>* shareable);
-        // Set the 'd_weakThis' data member of the specified '*sharable' to the
-        // specified '*sp'.  This function shall be called only by 'shared_ptr'
-        // constructors that expect to construct shared pointers from classes
-        // that derive from 'enabled_shared_from_this'.
+                   bsl::shared_ptr<SHARED_TYPE>                    *sp,
+                   const bsl::enable_shared_from_this<ENABLE_TYPE> *shareable);
+        // Set the 'd_weakThis' data member of the specified '*shareable' to
+        // the specified '*sp'.  This function shall be called only by
+        // 'shared_ptr' constructors that expect to construct shared pointers
+        // from classes that derive from 'enabled_shared_from_this'.
 
     static void setEnableSharedFromThisSelfReference(const void *,
                                                      const void *);
@@ -4041,6 +4051,22 @@ shared_ptr<const ELEMENT_TYPE>
 enable_shared_from_this<ELEMENT_TYPE>::shared_from_this() const
 {
     return shared_ptr<const ELEMENT_TYPE>(d_weakThis);
+}
+
+template<class ELEMENT_TYPE>
+inline
+weak_ptr<ELEMENT_TYPE>
+enable_shared_from_this<ELEMENT_TYPE>::weak_from_this()
+{
+    return d_weakThis;
+}
+
+template<class ELEMENT_TYPE>
+inline
+weak_ptr<const ELEMENT_TYPE>
+enable_shared_from_this<ELEMENT_TYPE>::weak_from_this() const
+{
+    return d_weakThis;
 }
 
                             // ----------------
@@ -5347,6 +5373,8 @@ namespace bslstl {
                             // SharedPtr_ImpUtil
                             // -----------------
 
+#define BSLSTL_SHAREDPTR_IMPLEMENTS_P0033
+
 template <class SHARED_TYPE, class ENABLE_TYPE>
 inline
 void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
@@ -5386,12 +5414,14 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
 
 #if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        if (shareable->d_weakThis.d_rep_p) {
-            shareable->d_weakThis.d_rep_p->releaseWeakRef();
+        if (!shareable->d_weakThis.d_rep_p) {
+            shareable->d_weakThis.d_rep_p = sp->d_rep_p;
+            shareable->d_weakThis.d_rep_p->acquireWeakRef();
         }
-#endif
+#else
         shareable->d_weakThis.d_rep_p = sp->d_rep_p;
         shareable->d_weakThis.d_rep_p->acquireWeakRef();
+#endif
     }
 }
 
