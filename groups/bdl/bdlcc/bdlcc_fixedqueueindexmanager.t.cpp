@@ -3180,8 +3180,8 @@ int main(int argc, char *argv[])
             ASSERT_OPT_FAIL_RAW(Obj obj(Obj::k_MAX_CAPACITY + 1, &oa));
 
             // The following test is disabled because it causes a divide by 0
-            // failure prior to reaching the assertion.  ASSERT_OPT_FAIL(Obj
-            // obj(0, &oa));
+            // failure prior to reaching the assertion.
+            ASSERT_FAIL(Obj obj(0, &oa));
         }
       } break;
       case 1: {
