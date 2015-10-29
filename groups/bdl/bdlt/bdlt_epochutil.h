@@ -410,10 +410,16 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 
                            // 'TimeT64'-Based Methods
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
+#endif
+
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-#if BDE_USE_PROLEPTIC_DATES    
+#ifdef BDE_USE_PROLEPTIC_DATES    
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
     BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00

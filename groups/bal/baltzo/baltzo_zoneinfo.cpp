@@ -9,19 +9,19 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 #include <bdlt_datetimeinterval.h>
-#if 0
+
 #ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bdlt_delegatingdateimputil.h>
-#else
-#include <bdlt_serialdateimputil.h>
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
 #endif
-#else
+
 #ifdef BDE_USE_PROLEPTIC_DATES
 #include <bdlt_prolepticdateimptutil.h>
 #else
 #include <bdlt_posixdateimputil.h>
 #endif
-#endif
+
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
 
@@ -156,22 +156,7 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
 bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
-#if 0
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    int elaspedDays =
-        bdlt::DelegatingDateImpUtil::ymdToSerial(datetime.year(),
-                                                 datetime.month(),
-                                                 datetime.day()) -
-        bdlt::DelegatingDateImpUtil::ymdToSerial(1970, 1, 1);
-#else
-    int elaspedDays =
-            bdlt::SerialDateImpUtil::ymdToSerial(datetime.year(),
-                                                 datetime.month(),
-                                                 datetime.day()) -
-            bdlt::SerialDateImpUtil::ymdToSerial(1970, 1, 1);
-#endif
-#else
-#if BDE_USE_PROLEPTIC_DATES
+#ifdef BDE_USE_PROLEPTIC_DATES
     int elaspedDays =
         bdlt::ProlepticDateImpUtil::ymdToSerial(datetime.year(),
                                                 datetime.month(),
@@ -184,7 +169,6 @@ bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
                                                 datetime.day()) -
             bdlt::PosixDateImpUtil::ymdToSerial(1970, 1, 1);
 #endif
-#endif
 
     return elaspedDays * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY +
         (datetime.hour() * 60 + datetime.minute()) * 60 + datetime.second();
@@ -193,24 +177,7 @@ bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
 int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
                                          bdlt::EpochUtil::TimeT64  time)
 {
-#if 0
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    typedef bdlt::DelegatingDateImpUtil DateUtil;
-    if (( DateUtil::isProlepticGregorianMode() && -62135596800LL > time) ||
-        (!DateUtil::isProlepticGregorianMode() && -62135769600LL > time) ||
-        253402300799LL < time) {  // December  31, 9999 23:59:59
-        return 1;                                                     // RETURN
-    }
-#else
-    typedef bdlt::SerialDateImpUtil DateUtil;
-    if ( -62135596800LL > time || 253402300799LL < time) {
-        // December  31, 9999 23:59:59
-
-        return 1;                                                     // RETURN
-    }
-#endif
-#else
-#if BDE_USE_PROLEPTIC_DATES
+#ifdef BDE_USE_PROLEPTIC_DATES
     typedef bdlt::ProlepticDateImpUtil DateUtil;
     if (-62135596800LL > time
     ||  253402300799LL < time) { // December  31, 9999 23:59:59
@@ -222,7 +189,6 @@ int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
     ||  253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }
-#endif
 #endif
 
     time += DateUtil::ymdToSerial(1970, 1, 1) *

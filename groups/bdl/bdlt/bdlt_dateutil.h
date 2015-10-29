@@ -143,6 +143,12 @@ BSLS_IDENT("$Id: $")
 // used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
 // have occurred.
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
+#endif
+
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
