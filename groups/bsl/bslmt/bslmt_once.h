@@ -138,41 +138,48 @@ BSLS_IDENT("$Id: $")
 ///Second Implementation
 ///- - - - - - - - - - -
 // The next singleton function implementation directly uses the 'doOnce' method
-// of 'bslmt::Once'.  We begin by declaring a simple function that does most of
+// of 'bslmt::Once'.  We begin by declaring a functor type that does most of
 // the work of the singleton, i.e., constructing the string and setting a
 // (static) pointer to the string:
 //..
 //  static bsl::string *theSingletonPtr = 0;
 //
-//  void singletonImp(const char *s)
-//  {
-//      static bsl::string theSingleton(s);
-//      theSingletonPtr = &theSingleton;
-//  }
-//..
-// The above function is *not* thread-safe.  Firstly, many threads might
-// attempt to simultaneously construct the 'theSingleton' object.  Secondly,
-// once 'theSingletonPtr' is set by one thread, other threads still might not
-// see the change (and try to initialize the singleton again).
+//  class SingletonInitializer {
+//      const char *d_initialValue;
 //
-// The 'singleton1' function, below, calls 'singletonImp' via the 'callOnce'
-// method of 'bslmt::Once' to ensure that 'singletonImp' is called by only one
-// thread and that the result is visible to all threads.  We start by creating
-// and initializing a static object of type 'bslmt::Once':
-//..
-//  #include <bdlf_bind.h>
+//    public:
+//      SingletonInitializer(const char *initialValue)
+//      : d_initialValue(initialValue)
+//      {
+//      }
 //
+//      void operator()() const {
+//         static bsl::string theSingleton(d_initialValue);
+//         theSingletonPtr = &theSingleton;
+//      }
+//  };
+//..
+// The function call operator of the type above is *not* thread-safe.  Firstly,
+// many threads might attempt to simultaneously construct the 'theSingleton'
+// object.  Secondly, once 'theSingletonPtr' is set by one thread, other
+// threads still might not see the change (and try to initialize the singleton
+// again).
+//
+// The 'singleton1' function, below, invokes 'SingletonInitializer::operator()'
+// via the 'callOnce' method of 'bslmt::Once' to ensure that 'operator()' is
+// called by only one thread and that the result is visible to all threads.  We
+// start by creating and initializing a static object of type 'bslmt::Once':
+//..
 //  const bsl::string& singleton1(const char *s)
 //  {
 //      static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
 //..
-// Since the 'callOnce' method takes only a no-argument functor (or function),
-// to call 'callOnce', we must bind our argument 's' to our function,
-// 'singletonImp' using a binder method and then pass that functor to
-// 'callOnce'.  The first thread (and only the first thread) entering this
-// section of code we will set 'theSingleton'.
+// We construct a 'SingletonInitializer' instance, effectively "binding" the
+// argument 's' so that it may be used in a function invoked by 'callOnce',
+// which takes only a no-argument functor (or function).  The first thread (and
+// only the first thread) entering this section of code will set 'theSingleton'.
 //..
-//      once.callOnce(bdlf::BindUtil::bind(singletonImp, s));
+//      once.callOnce(SingletonInitializer(s));
 //      return *theSingletonPtr;
 //  }
 //..
@@ -200,10 +207,11 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - -
 // Our next implementation, 'singleton2', eliminates the need for the
 // 'singletonImp' function and thereby does away with the use of the
-// 'bdlf::BindUtil' method; however, it does require use of
-// 'bslmt::Once::OnceLock', created on each thread's stack and passed to the
-// methods of 'bslmt::Once'.  First, we declare a static 'bslmt::Once' object
-// as before, and also declare a static pointer to 'bsl::string':
+// a functor type to "bind" the initialization parameter; however, it does
+// require use of 'bslmt::Once::OnceLock', created on each thread's stack and
+// passed to the methods of 'bslmt::Once'.  First, we declare a static
+// 'bslmt::Once' object as before, and also declare a static pointer to
+// 'bsl::string':
 //..
 //  const bsl::string& singleton2(const char *s)
 //  {

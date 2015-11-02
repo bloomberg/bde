@@ -22,10 +22,6 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeutil.h>
 
-/* TBD -- bind
-#include <bdlf_bind.h>
-*/
-
 #include <bsl_algorithm.h>
 #include <bsl_functional.h>
 #include <bsl_limits.h>
@@ -656,14 +652,11 @@ public:
       detached.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
 
-      /* TBD -- bind
-      ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached,
-                           bdlf::BindUtil::bind(&Case7_Waiter::run,
-                                               this)));
-      */
+
+      ASSERT(0 == bslmt::ThreadUtil::create(&dummy, detached, *this));
    }
 
-   void run() {
+   void operator()() {
       ASSERT(0 != d_state);
       for (int i = 0; i < d_numWaits; ++i) {
          d_barrier->wait();
@@ -806,9 +799,7 @@ int main(int argc, char *argv[])
        if (veryVerbose) {
           cout << "   ...Basic barrier..." << endl;
        }
-       /* TBD -- bind
        case7(&basicBarrier, veryVerbose, k_NUM_THREADS, k_NUM_SHORT_WAITS);
-       */
 
       } break;
 
