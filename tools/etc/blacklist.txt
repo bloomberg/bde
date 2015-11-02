@@ -1,0 +1,67 @@
+file: tools/etc/blacklist.txt
+
+directory: debian
+
+package: groups/bsl/bslstp
+package: groups/bsl/bslfwd
+
+## bsl+(bsl|std)hdrs mess ##
+
+# Dummies
+glob: groups/bsl/bsl+stdhdrs/dummy_*.h
+
+# bde_build support
+#file: groups/bsl/cphdrs.pl
+
+# Legacy container support
+file: groups/bsl/bsl+bslhdrs/bsl_hash_map.h
+file: groups/bsl/bsl+bslhdrs/test/bsl_hash_map.t.cpp
+file: groups/bsl/bsl+stdhdrs/hash_map
+file: groups/bsl/bsl+stdhdrs/hash_map.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/test/bsl_hash_map.t.cpp
+file: groups/bsl/bsl+stdhdrs/test/hash_map.t.cpp
+
+file: groups/bsl/bsl+bslhdrs/bsl_hash_set.h
+file: groups/bsl/bsl+bslhdrs/test/bsl_hash_set.t.cpp
+file: groups/bsl/bsl+stdhdrs/hash_set
+file: groups/bsl/bsl+stdhdrs/hash_set.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/test/bsl_hash_set.t.cpp
+file: groups/bsl/bsl+stdhdrs/test/hash_set.t.cpp
+
+file: groups/bsl/bsl+bslhdrs/bsl_slist.h
+file: groups/bsl/bsl+bslhdrs/test/bsl_slist.t.cpp
+file: groups/bsl/bsl+stdhdrs/slist
+file: groups/bsl/bsl+stdhdrs/slist.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/test/bsl_slist.t.cpp
+file: groups/bsl/bsl+stdhdrs/test/slist.t.cpp
+
+# Non-standard ".h" variations of standard headers 
+# (for legacy Sun support only)
+file: groups/bsl/bsl+stdhdrs/exception.h
+file: groups/bsl/bsl+stdhdrs/exception.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/fstream.h
+file: groups/bsl/bsl+stdhdrs/fstream.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/iomanip.h
+file: groups/bsl/bsl+stdhdrs/iomanip.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/iosfwd.h
+file: groups/bsl/bsl+stdhdrs/iosfwd.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/ios.h
+file: groups/bsl/bsl+stdhdrs/ios.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/iostream.h
+file: groups/bsl/bsl+stdhdrs/iostream.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/istream.h
+file: groups/bsl/bsl+stdhdrs/istream.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/math.h
+file: groups/bsl/bsl+stdhdrs/math.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/memory.h
+file: groups/bsl/bsl+stdhdrs/memory.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/new.h
+file: groups/bsl/bsl+stdhdrs/new.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/ostream.h
+file: groups/bsl/bsl+stdhdrs/ostream.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/streambuf.h
+file: groups/bsl/bsl+stdhdrs/streambuf.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/strstream.h
+file: groups/bsl/bsl+stdhdrs/strstream.h.SUNWCCh
+file: groups/bsl/bsl+stdhdrs/typeinfo.h
+file: groups/bsl/bsl+stdhdrs/typeinfo.h.SUNWCCh
