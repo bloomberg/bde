@@ -42,6 +42,14 @@ namespace bsl
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
+// Note that __cplusplus does not have a conforming value for g++ versions
+// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
+#if (__cplusplus >= 201103L)        \
+ && defined(BSLS_PLATFORM_CMP_GNU)  \
+ && BSLS_PLATFORM_CMP_VERSION >= 40800
+    using native_std::unique_ptr;
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
     // Import additional names expected by existing code, but not mandated by
