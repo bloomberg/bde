@@ -9985,6 +9985,50 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
             ASSERT(0 == testAllocator.numBlocksInUse());
         }
 
+        if (verbose) printf("\tUsing 'n' copies of 'size_t' 'value'.\n");
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int    INIT_LINE   = DATA[i].d_lineNum;
+                const size_t INIT_LENGTH = DATA[i].d_length;
+
+                Obj mX(INIT_LENGTH, DEFAULT_VALUE, AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE   = DATA[ti].d_lineNum;
+                    const size_t LENGTH = DATA[ti].d_length;
+                    const size_t VALUE  = VALUES[ti % NUM_VALUES];
+
+                    if (veryVerbose) {
+                        printf("\t\tAssign "); P_(LENGTH);
+                        printf(" using "); P(VALUE);
+                    }
+
+                    mX.assign(LENGTH, VALUE);
+
+                    if (veryVerbose) {
+                        T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 X.capacity() >= X.size());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, VALUE == X[j]);
+                    }
+                }
+            }
+            ASSERT(0 == testAllocator.numMismatches());
+            ASSERT(0 == testAllocator.numBlocksInUse());
+        }
+
         if (verbose) printf("\tWith exceptions.\n");
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -10584,6 +10628,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 
                 mX.assign(U.begin(), U.end());
 
+#if 1
+                LOOP3_ASSERT(testAllocator.numAllocations(), numAllocs,
+                                                                    X.length(),
+                              testAllocator.numAllocations() <= numAllocs + 1);
+#else
+                // This code should be re-enabled once we change iterator-based
+                // 'assign' to no longer being based on copy-swap.
+
                 if (LENGTH <= preCapacity) {
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
                                   testAllocator.numAllocations() == numAllocs);
@@ -10592,6 +10644,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
                               testAllocator.numAllocations() == numAllocs + 1);
                 }
+#endif
 
                 if (veryVerbose) {
                     T_; T_; T_; P_(X); P(X.capacity());
