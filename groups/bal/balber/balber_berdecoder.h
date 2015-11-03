@@ -1019,6 +1019,11 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
     typedef typename
     bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
 
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#endif
+
     BaseType base;
 
     typedef typename bdlat_TypeCategory::Select<BaseType>::Type BaseTag;
@@ -1032,6 +1037,10 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
                                                            base) != 0) {
         return logError("Error converting from base type for customized");
     }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
     return BerDecoder::e_BER_SUCCESS;
 }
