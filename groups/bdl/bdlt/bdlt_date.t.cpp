@@ -1579,7 +1579,7 @@ if (verbose)
                 }
 
                 {
-#if BDLT_USE_PROLPETIC_DATES
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
