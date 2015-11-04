@@ -3695,15 +3695,10 @@ int main(int argc, char *argv[])
     case 35:{
         // --------------------------------------------------------------------
         // TESTING 'enable_shared_from_this<T>'
-        //   While the standard proposal P0033R1 is held at Ready status, test
-        //   that we have correctly implemented the (to be) standard behavior
-        //   without documenting this as well-defined behavior.  We retain the
-        //   freedom to change without notice to our end users, if the standard
-        //   contract is not adopted for any reason.  The main area of freedom
-        //   is the undefined behavior trying to acquire a 'shared_from_this'
-        //   shared pointer when the target object is not actually owned by a
-        //   'shared_ptr'.  This behavior is specified to throw 'bad_weak_ptr'
-        //   when P0033R1 is adopted.
+        //   Test the whole 'enable_shared_from_this' facility, which includes
+        //   a variety of interactions with 'shared_ptr' and 'weak_ptr', and
+        //   not just directly testing the 'enable_shared_from_this' class
+        //   template itself.
         //
         // Concerns:
         //   1) 'shared_ptr' constructors are able to identify correctly the
@@ -3722,12 +3717,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   First demonstrate that the 'shared_from_this' facility behaves
-        //   correctly (as defined by P0033R1) when it is NOT in use, i,e,,
-        //   when used with a shared pointer that does not own its target.
-        //   Then test the basic facility behaves correctly when used with each
-        //   possible 'shared_ptr' constructor.  Finally, check additional
-        //   behaviors with extended lifetimes and multiple 'shared_ptr'
-        //   owner-groups.
+        //   correctly when it is NOT in use, i,e,, when used with a shared
+        //   pointer that does not own its target.  Then test the basic
+        //   facility behaves correctly when used with each possible
+        //   'shared_ptr' constructor.  Next, check additional behaviors
+        //   with extended lifetimes and multiple 'shared_ptr' owner-groups.
+        //   Finally, check that the various factory functions that can create
+        //   a new shared pointer value also behave correctly with respect to
+        //   this facility.
         //
         // Testing:
         //   enable_shared_from_this()
