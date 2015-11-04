@@ -386,7 +386,7 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!(FORMAT_ELF && !PLAT_LINUX) && !FORMAT_DLADDR && DEBUG_ON &&
+        if (!(FORMAT_ELF && !FORMAT_DWARF) && !FORMAT_DLADDR && DEBUG_ON &&
                                                                 !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
         }
