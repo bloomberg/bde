@@ -10672,24 +10672,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 
                 mX.assign(U.begin(), U.end());
 
-#define BSLSTL_STRING_ASSIGN_ITER_ITER_USES_COPY_SWAP 1
-#if defined(BSLSTL_STRING_ASSIGN_ITER_ITER_USES_COPY_SWAP)
-                if (X.length() > SHORT_STRING_BUFFER_BYTES) {
-                    LOOP3_ASSERT(testAllocator.numAllocations(), numAllocs,
-                                                                    X.length(),
-                              testAllocator.numAllocations() == numAllocs + 1);
-                }
-                else {
-                    LOOP3_ASSERT(testAllocator.numAllocations(), numAllocs,
-                                                                    X.length(),
-                              testAllocator.numAllocations() <= numAllocs + 1);
-                }
-#else
-                // We plan to eventually re-implement 'assign(ITER, ITER)' to
-                // to use some form of dispatch assign rather than copy-swap,
-                // at which point it will do fewer allocations, and this test
-                // will then be approrpiate.
-
                 if (LENGTH <= preCapacity) {
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
                                   testAllocator.numAllocations() == numAllocs);
@@ -10698,7 +10680,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
                               testAllocator.numAllocations() == numAllocs + 1);
                 }
-#endif
 
                 if (veryVerbose) {
                     T_; T_; T_; P_(X); P(X.capacity());

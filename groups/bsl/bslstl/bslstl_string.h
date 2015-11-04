@@ -4039,15 +4039,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    // Note that the template parameter 'INPUT_ITER' may match an integral type
-    // (e.g. calling 'assign(100, 100)' will match this function with
-    // 'INPUT_TYPE' being 'int').  If 'INPUT_ITER' is an integral type this
-    // method should treat the input as 'assign(size_type, CHAR_TYPE)'.  The
-    // 'basic_string' constructor already handles this dispatch correctly, so
-    // we use it here.
-
-    basic_string(first, last, get_allocator()).swap(*this);
-    return *this;
+    return privateReplaceDispatch(0,
+                                  this->d_length,
+                                  first,
+                                  last,
+                                  first,
+                                  BloombergLP::bslmf::Nil());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
