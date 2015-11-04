@@ -3575,6 +3575,14 @@ class weak_ptr {
                                                // shared object (held, not
                                                // owned)
 
+
+    // PRIVATE MANIPULATORS
+    void privateAssign(BloombergLP::bslma::SharedPtrRep *rep,
+                       ELEMENT_TYPE                     *target);
+        // Release weak ownership of the currently managed shared pointer rep
+        // and assign to this weak pointer weak ownership of the specified
+        // shared pointer 'rep', aliasing the specified 'target' pointer.
+
     // FRIENDS
     template <class COMPATIBLE_TYPE>
     friend class weak_ptr;
@@ -4186,8 +4194,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
-    BloombergLP::bslstl::SharedPtr_ImpUtil::
-                               setEnableSharedFromThisSelfReference(this, ptr);
 }
 
 template <class ELEMENT_TYPE>
@@ -4328,6 +4334,9 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
                             BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> > Rep;
 
     if (d_ptr_p) {
+        ELEMENT_TYPE *pPotentiallyShared = static_cast<ELEMENT_TYPE *>(
+                                                managedPtr.deleter().object());
+
         if (&BloombergLP::bslma::SharedPtrRep::managedPtrDeleter ==
                                               managedPtr.deleter().deleter()) {
             d_rep_p = static_cast<BloombergLP::bslma::SharedPtrRep *>
@@ -4340,8 +4349,10 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
             (*rep->ptr()) = managedPtr;
             d_rep_p = rep;
         }
+
         BloombergLP::bslstl::SharedPtr_ImpUtil::
-                           setEnableSharedFromThisSelfReference(this, d_ptr_p);
+                      setEnableSharedFromThisSelfReference(this,
+                                                           pPotentiallyShared);
     }
 }
 
@@ -5236,6 +5247,22 @@ weak_ptr<ELEMENT_TYPE>::~weak_ptr()
     }
 }
 
+// PRIVATE MANIPULATORS
+template <class ELEMENT_TYPE>
+inline
+void weak_ptr<ELEMENT_TYPE>::privateAssign(
+                                      BloombergLP::bslma::SharedPtrRep *rep,
+                                      ELEMENT_TYPE                     *target)
+{
+    if (d_rep_p) {
+        d_rep_p->releaseWeakRef();
+    }
+
+    d_ptr_p = target;
+    d_rep_p = rep;
+    d_rep_p->acquireWeakRef();
+}
+
 // MANIPULATORS
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
@@ -5384,9 +5411,17 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
                     const bsl::enable_shared_from_this<ENABLE_TYPE> *shareable)
 {
     BSLS_ASSERT(0 != sp);
+    BSLS_ASSERT(0 != shareable);
 
+#if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
+    if (shareable->d_weakThis.expired()) {
+        shareable->d_weakThis.privateAssign(
+                                sp->d_rep_p,
+                                const_cast <ENABLE_TYPE      *>(
+                                static_cast<ENABLE_TYPE const*>(sp->d_ptr_p)));
+    }
+#else
     if (shareable && shareable->d_weakThis.d_rep_p != sp->d_rep_p) {
-#if !defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
         // This function is only reachable from the constructor of 'shared_ptr'
         // when constructing a 'shared_ptr' for an object inheriting from
         // 'enable_shared_from_this'.  Either, this is the first call to create
@@ -5409,22 +5444,15 @@ void SharedPtr_ImpUtil::setEnableSharedFromThisSelfReference(
 
         BSLS_ASSERT(!shareable->d_weakThis.d_ptr_p);
         BSLS_ASSERT(!shareable->d_weakThis.d_rep_p);
-#endif
 
         shareable->d_weakThis.d_ptr_p =
                                   const_cast<ENABLE_TYPE      *>(
                                  static_cast<ENABLE_TYPE const*>(sp->d_ptr_p));
 
-#if defined(BSLSTL_SHAREDPTR_IMPLEMENTS_P0033)
-        if (!shareable->d_weakThis.d_rep_p) {
-            shareable->d_weakThis.d_rep_p = sp->d_rep_p;
-            shareable->d_weakThis.d_rep_p->acquireWeakRef();
-        }
-#else
         shareable->d_weakThis.d_rep_p = sp->d_rep_p;
         shareable->d_weakThis.d_rep_p->acquireWeakRef();
-#endif
     }
+#endif
 }
 
 inline
