@@ -22,7 +22,7 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-
+#include <bslmf_assert.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
@@ -163,6 +163,12 @@ typedef balst::StackTraceUtil           Util;
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
 
+# if   defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
+    enum { FORMAT_DWARF = 1 };
+# else
+    enum { FORMAT_DWARF = 0 };
+# endif
+
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
@@ -176,16 +182,19 @@ typedef balst::StackTraceUtil           Util;
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_DLADDR)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 1 };
+    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
            PLAT_DARWIN = 1 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
            FORMAT_DLADDR = 0 };
+    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
            PLAT_DARWIN = 0 };
 #elif defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
     enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
            FORMAT_DLADDR = 0 };
+    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
            PLAT_DARWIN = 0 };
 #else
@@ -231,6 +240,20 @@ bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // 'verbose'.
 
 static const bsl::size_t npos = bsl::string::npos;
+
+template <class TYPE>
+static inline
+TYPE approxAbs(TYPE x)
+{
+    BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);
+
+    x = x < 0 ? -x : x;
+    x = x < 0 ? ~x : x;    // INT_MIN -- close enough
+
+    BSLS_ASSERT_OPT(x >= 0);
+
+    return x;
+}
 
 static inline
 bool problem()
@@ -1822,9 +1845,19 @@ int main(int argc, char *argv[])
             lastAddress = thisAddress;
             lastOffset = offset;
 
-            if (DEBUG_ON && !FORMAT_ELF && !FORMAT_DLADDR) {
+            if (DEBUG_ON && (!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR) {
                 int lineNumber = frame.lineNumber();
-                LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber == lns[i]);
+                if (FORMAT_DWARF) {
+                    // Line numbers on DWARF seem to be sloppy
+
+                    LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber >= lns[i]);
+                    LOOP4_ASSERT(i, lineNumber, lns[i],
+                                                approxAbs(lineNumber - lns[i]),
+                                          approxAbs(lineNumber - lns[i]) <= 2);
+                }
+                else {
+                    LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber == lns[i]);
+                }
                 LOOP2_ASSERT(lastLineNumber, lineNumber,
                                                   lastLineNumber < lineNumber);
                 lastLineNumber = lineNumber;

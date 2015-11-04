@@ -305,15 +305,7 @@ void top()
         matches.push_back("balst");
         matches.push_back("StackTracePrintUtil_Test");
         matches.push_back("printStackTraceToString");
-        if (FORMAT_DWARF) {
-            // DWARF gets the source file name wrong for functions in include
-            // files, showing instead the file they were called from.
-
-            matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
-        }
-        else {
-            matches.push_back(" source:balst_stacktraceprintutil.h");
-        }
+        matches.push_back(" source:balst_stacktraceprintutil.h");
         matches.push_back(" in balst_stacktraceprintutil.t");
         matches.push_back("\n");
         matches.push_back("top");

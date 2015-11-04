@@ -130,7 +130,7 @@ struct ObjectFileFormat {
     typedef Elf Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-# if defined(BSLS_PLATFORM_OS_LINUX)
+# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
 # endif
 

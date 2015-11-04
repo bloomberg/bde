@@ -102,6 +102,11 @@ enum { e_IS_LINUX = 1 };
 #else
 enum { e_IS_LINUX = 0 };
 #endif
+#if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
+enum { e_IS_DWARF = 1 };
+#else
+enum { e_IS_DWARF = 0 };
+#endif
 
 // ============================================================================
 //                    GLOBAL HELPER VARIABLES FOR TESTING
@@ -452,28 +457,32 @@ int main(int argc, char *argv[])
             // found this source file name.
 
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (e_IS_LINUX || 1 == i || 2 == i) {
-                    LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
-                }
-                else {
-                    LOOP_ASSERT(i, !stackTrace[i].isSourceFileNameKnown());
+                if (!e_IS_DWARF && 1 != i) {
                     continue;
                 }
 
+                LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
+
+                const char *sym = stackTrace[i].symbolName().c_str();
+
                 const char *name = stackTrace[i].sourceFileName().c_str();
+                LOOP_ASSERT(i, !e_IS_DWARF || '/' == *name);
                 const char *pc = name + bsl::strlen(name);
                 while (pc > name && '/' != pc[-1]) {
                     --pc;
                 }
 
-                if (veryVerbose) { P_(i); P(name); }
+                int line = stackTrace[i].lineNumber();
+
+                if (veryVerbose) cout << i << ", " << sym << ", " << name <<
+                                                           ':' << line << endl;
 
                 LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
                            3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
+                         : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
                                   : "balst_stacktraceresolverimpl_elf.t.cpp"));
 
-                LOOP2_ASSERT(i, name, (!e_IS_LINUX && '/' != *name) ||
-                                           bdls::FilesystemUtil::exists(name));
+                LOOP2_ASSERT(i, name, bdls::FilesystemUtil::exists(name));
             }
 
 #undef  SM
