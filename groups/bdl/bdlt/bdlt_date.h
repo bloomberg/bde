@@ -913,8 +913,7 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
 
 #ifndef BDE_USE_PROLEPTIC_DATES
             stream.putInt24(d_serialDate);
-            break;
-#endif
+#else
             // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
             // component-level documentation.
 
@@ -926,6 +925,7 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
                                       // ensure that serial values for
                                       // 1752SEP14 and later dates "align"
             }
+#endif
           } break;
           default: {
             stream.invalidate();  // unrecognized version number

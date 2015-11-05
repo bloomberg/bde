@@ -416,17 +416,8 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-#if 0
-#ifdef BDE_USE_PROLEPTIC_DATES    
-    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
-#else
-    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
-#endif
-    BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
-#else
     BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time); 
-    BSLS_ASSERT_SAFE(                 time <=  s_latestAsTimeT64);
-#endif
+    BSLS_ASSERT_SAFE(                       time <=  s_latestAsTimeT64);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -439,21 +430,9 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-#if  0
-#ifdef BDE_USE_PROLEPTIC_DATES
-    if (-62135596800LL > time 
-#else
-    if (-62135769600LL > time
-#endif
-    ||  253402300799LL < time) {  // December  31, 9999 23:59:59
-        return 1;                                                     // RETURN
-    }
-#else
     if (time < s_earliestAsTimeT64  || time > s_latestAsTimeT64) {
         return 1;                                                     // RETURN
     }
-
-#endif
 
     *result = epoch();
     result->addSeconds(time);
