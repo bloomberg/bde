@@ -277,6 +277,9 @@ class Date {
         // 1 greater than that of the previous day.  See {Valid Date Values and
         // Their Representations} for details.
 
+    static int convertDateToProlepticIfNeeded(int serialDate);
+    static int convertDateToPosixIfNeeded(int serialDate);
+
     // PRIVATE CREATORS
     explicit Date(int serialDate);
         // Create a date initialized with the value indicated by the specified
@@ -809,18 +812,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-#ifdef BDE_USE_PROLEPTIC_DATES
-            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
-            // component-level documentation.
-
-            if (tmpSerialDate > 3) {
-                tmpSerialDate -= 2;  // ensure that serial values for 1752SEP14
-                                     // and later dates "align"
-            }
-            else if (tmpSerialDate > 0) {
-                tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-            }
-#endif
+            tmpSerialDate = convertDateToProlepticIfNeeded(tmpSerialDate);
 
             if (stream && Date::isValidSerial(tmpSerialDate)) {
                 d_serialDate = tmpSerialDate;
@@ -911,21 +903,8 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             BSLS_ASSERT_OPT(Date::isValidSerial(d_serialDate));
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
-#ifndef BDE_USE_PROLEPTIC_DATES
-            stream.putInt24(d_serialDate);
-#else
-            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
-            // component-level documentation.
+            stream.putInt24(convertDateToPosixIfNeeded(d_serialDate));
 
-            if (1 == d_serialDate) {  // preserve default value
-                stream.putInt24(d_serialDate);
-            }
-            else {
-                stream.putInt24(d_serialDate + 2);
-                                      // ensure that serial values for
-                                      // 1752SEP14 and later dates "align"
-            }
-#endif
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
