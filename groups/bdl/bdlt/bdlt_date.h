@@ -194,12 +194,6 @@ BSLS_IDENT("$Id: $")
 //..
 // on 'stdout'.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifdef BDE_USE_PROLEPTIC_DATES
-    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
-    #endif
-#endif
-
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -212,18 +206,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_monthofyear.h>
 #endif
 
-#ifdef BDE_USE_PROLEPTIC_DATES
-#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
-#include <bdlt_prolepticdateimputil.h>
-#endif
-#else
-#ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
-#include <bdlt_posixdateimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
-#endif
+#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
+#include <bdlt_serialdateimputil.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -263,21 +247,6 @@ class Date {
     // canonical representation) or year/day-of-year (an alternate
     // representation).  See {Valid Date Values and Their Representations} for
     // details.
-
-    // PRIVATE TYPES
-#ifdef BDE_USE_PROLEPTIC_DATES
-    typedef ProlepticDateImpUtil DateImpUtil;
-#else
-    typedef     PosixDateImpUtil DateImpUtil;
-#endif
-        // The 'DateImpUtil' utilty 'struct' provides low-level support
-        // functions for date-value manipulation.  The support functions
-        // include conversion of data values between "year-month-day" form and
-        // a serial representation, the validation of date values, leap year
-        // calculations, and calculation of day-of-week for a date.  The set of
-        // representable days must be '0001/01/01' to '9999/12/31' inclusive.
-        // See {'bdlt_posixdateimputil'} or {'bdlt_prolepticdateimputil'} for
-        // the method signatures.
 
     // DATA
     int d_serialDate;  // absolute serial date (1 == 1/1/1, 2 == 1/1/2, ...)
@@ -677,7 +646,7 @@ void hashAppend(HASHALG& hashAlg, const Date& date);
 inline
 bool Date::isValidSerial(int serialDate)
 {
-    return DateImpUtil::isValidSerial(serialDate);
+    return SerialDateImpUtil::isValidSerial(serialDate);
 }
 
 // PRIVATE CREATORS
@@ -692,13 +661,13 @@ Date::Date(int serialDate)
 inline
 bool Date::isValidYearDay(int year, int dayOfYear)
 {
-    return DateImpUtil::isValidYearDay(year, dayOfYear);
+    return SerialDateImpUtil::isValidYearDay(year, dayOfYear);
 }
 
 inline
 bool Date::isValidYearMonthDay(int year, int month, int day)
 {
-    return DateImpUtil::isValidYearMonthDay(year, month, day);
+    return SerialDateImpUtil::isValidYearMonthDay(year, month, day);
 }
 
                                   // Aspects
@@ -718,18 +687,14 @@ Date::Date()
 
 inline
 Date::Date(int year, int dayOfYear)
-: d_serialDate(DateImpUtil::ydToSerial(year, dayOfYear))
+: d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 }
 
 inline
 Date::Date(int year, int month, int day)
-#ifdef BDE_USE_PROLEPTIC_DATES
-: d_serialDate(ProlepticDateImpUtil::ymdToSerial(year, month, day))
-#else
-: d_serialDate(     PosixDateImpUtil::ymdToSerial(year, month, day))
-#endif
+: d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 }
@@ -795,7 +760,7 @@ void Date::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
-    d_serialDate = DateImpUtil::ydToSerial(year, dayOfYear);
+    d_serialDate = SerialDateImpUtil::ydToSerial(year, dayOfYear);
 }
 
 inline
@@ -816,7 +781,7 @@ void Date::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
-    d_serialDate = DateImpUtil::ymdToSerial(year, month, day);
+    d_serialDate = SerialDateImpUtil::ymdToSerial(year, month, day);
 }
 
 inline
@@ -877,25 +842,25 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 inline
 int Date::day() const
 {
-    return DateImpUtil::serialToDay(d_serialDate);
+    return SerialDateImpUtil::serialToDay(d_serialDate);
 }
 
 inline
 int Date::dayOfYear() const
 {
-    return DateImpUtil::serialToDayOfYear(d_serialDate);
+    return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
 }
 
 inline
 int Date::month() const
 {
-    return DateImpUtil::serialToMonth(d_serialDate);
+    return SerialDateImpUtil::serialToMonth(d_serialDate);
 }
 
 inline
 int Date::year() const
 {
-    return DateImpUtil::serialToYear(d_serialDate);
+    return SerialDateImpUtil::serialToYear(d_serialDate);
 }
 
 // ACCESSORS
@@ -903,7 +868,7 @@ inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
     return static_cast<DayOfWeek::Enum>(
-                                 DateImpUtil::serialToDayOfWeek(d_serialDate));
+                           SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
 }
 
 inline
@@ -912,7 +877,7 @@ void Date::getYearDay(int *year, int *dayOfYear) const
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(dayOfYear);
 
-    DateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
+    SerialDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
 }
 
 inline
@@ -922,7 +887,7 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(month);
     BSLS_ASSERT_SAFE(day);
 
-    DateImpUtil::serialToYmd(year, month, day, d_serialDate);
+    SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
 }
 
 inline

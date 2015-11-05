@@ -38,20 +38,9 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifdef BDE_USE_PROLEPTIC_DATES
-    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
-    #endif
-#endif
-
-#ifdef BDE_USE_PROLEPTIC_DATES
-#include <bdlt_prolepticdateimputil.h>
-#else
-#include <bdlt_posixdateimputil.h>
-#endif
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
+#include <bdlt_serialdateimputil.h>
 #include <bdlt_time.h>
 
 #include <bsls_assert.h>
@@ -306,16 +295,10 @@ static int toSerialDate(bdlt::Date date)
     // Return the elapsed number of days between 01JAN0001 and the specified
     // 'date'.
 {
-#ifdef BDE_USE_PROLEPTIC_DATES
-    return bdlt::ProlepticDateImpUtil::ymdToSerial(date.year(),
-                                                   date.month(),
-                                                   date.day());
-#else
-    return bdlt::PosixDateImpUtil::ymdToSerial(date.year(),
-                                               date.month(),
-                                               date.day());
+    return bdlt::SerialDateImpUtil::ymdToSerial(date.year(),
+                                                date.month(),
+                                                date.day());
 }
-#endif
 
 static bdlt::Datetime computeNextRotationTime(
                      const bdlt::Datetime&          referenceStartTimeLocal,

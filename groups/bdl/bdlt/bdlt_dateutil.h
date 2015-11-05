@@ -143,12 +143,6 @@ BSLS_IDENT("$Id: $")
 // used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
 // have occurred.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifdef BDE_USE_PROLEPTIC_DATES
-    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
-    #endif
-#endif
-
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
@@ -161,14 +155,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
-#ifdef BDE_USE_PROLEPTIC_DATES
-#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
-#include <bdlt_prolepticdateimputil.h>
-#endif
-#else
-#ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
-#include <bdlt_posixdateimputil.h>
-#endif
+#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
+#include <bdlt_serialdateimputil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -187,21 +175,6 @@ struct DateUtil {
     // non-primitive operations on dates.
 
   private:
-    // PRIVATE TYPES
-#ifdef BDE_USE_PROLEPTIC_DATES
-    typedef ProlepticDateImpUtil DateImpUtil;
-#else
-    typedef     PosixDateImpUtil DateImpUtil;
-#endif
-        // The 'DateImpUtil' utilty 'struct' provides low-level support
-        // functions for date-value manipulation.  The support functions
-        // include conversion of data values between "year-month-day" form and
-        // a serial representation, the validation of date values, leap year
-        // calculations, and calculation of day-of-week for a date.  The set of
-        // representable days must be '0001/01/01' to '9999/12/31' inclusive.
-        // See {'bdlt_posixdateimputil'} or {'bdlt_prolepticdateimputil'} for
-        // the method signatures.
-
     // PRIVATE CLASS METHODS
     static Date addYearsEomEndOfFebruary(const Date& original, int numYears);
         // Return the date that is the specified 'numYears' from the specified
@@ -396,7 +369,8 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
     if (2 == original.month() && 29 == original.day()) {
         return Date(newYear,
                     original.month(),
-                    DateImpUtil::isLeapYear(newYear) ? 29 : 28);      // RETURN
+                    SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28);
+                                                                      // RETURN
 
     }
     return Date(newYear, original.month(), original.day());
@@ -438,9 +412,9 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     yyyymmddValue   /= 100;
     const int month  = yyyymmddValue % 100;
 
-    return DateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
-                                            month,
-                                            day);
+    return SerialDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
+                                                  month,
+                                                  day);
 }
 
 }  // close package namespace

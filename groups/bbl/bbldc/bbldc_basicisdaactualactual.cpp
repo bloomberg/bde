@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bbldc_basicisdaactualactual_cpp,"$Id$ $CSID$")
 
-#include <bdlt_prolepticdateimputil.h>
+#include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
 
@@ -23,9 +23,9 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
     const int endYear   = endDate.year();
 
     const double daysInBeginYear =
-                     365.0 + bdlt::ProlepticDateImpUtil::isLeapYear(beginYear);
+                        365.0 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
     const double daysInEndYear   =
-                     365.0 + bdlt::ProlepticDateImpUtil::isLeapYear(endYear);
+                        365.0 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
 
     return static_cast<double>(endYear - beginYear - 1)
          + static_cast<double>(bdlt::Date(beginYear + 1, 1, 1) - beginDate)

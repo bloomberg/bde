@@ -170,11 +170,7 @@ struct EpochUtil {
     // epoch time, returned by the 'epoch' method.  These methods are
     // alias-safe, thread-safe, and exception-neutral.  Functions are provided
     // for returning converted values by value or through a result pointer.
-
-  private:
-    // CLASS DATA
-    static const Datetime *s_epoch_p;  // pointer to epoch time value
-
+  
   public:
     // TYPES
     typedef bsls::Types::Int64 TimeT64;
@@ -184,6 +180,13 @@ struct EpochUtil {
         // 'Datetime' values that are less than the epoch (corresponding to
         // negative 'TimeT64' values).
 
+  private:
+    // CLASS DATA
+    static const Datetime *s_epoch_p;            // pointer to epoch time value
+    static const TimeT64   s_earliestAsTimeT64;  // January   1, 0001 00:00:00
+    static const TimeT64   s_latestAsTimeT64;    // December 31, 9999 23:59:59
+
+  public:
     // CLASS METHODS
     static const Datetime& epoch();
         // Return a reference providing non-modifiable access to the epoch
@@ -410,21 +413,20 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 
                            // 'TimeT64'-Based Methods
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    #ifdef BDE_USE_PROLEPTIC_DATES
-    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
-    #endif
-#endif
-
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
+#if 0
 #ifdef BDE_USE_PROLEPTIC_DATES    
     BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
 #else
     BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
 #endif
     BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
+#else
+    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time); 
+    BSLS_ASSERT_SAFE(                 time <=  s_latestAsTimeT64);
+#endif
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -437,6 +439,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
+#if  0
 #ifdef BDE_USE_PROLEPTIC_DATES
     if (-62135596800LL > time 
 #else
@@ -445,6 +448,12 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
     ||  253402300799LL < time) {  // December  31, 9999 23:59:59
         return 1;                                                     // RETURN
     }
+#else
+    if (time < s_earliestAsTimeT64  || time > s_latestAsTimeT64) {
+        return 1;                                                     // RETURN
+    }
+
+#endif
 
     *result = epoch();
     result->addSeconds(time);

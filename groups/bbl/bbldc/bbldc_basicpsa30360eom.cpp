@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bbldc_basicpsa30360eom_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
-#include <bdlt_prolepticdateimputil.h>
+#include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
 
@@ -20,12 +20,11 @@ static bool isLastDayOfFebruary(int year, int month, int day)
     // 'false' otherwise.  The behavior is undefined unless 'year', 'month',
     // and 'day' represent a valid 'bdlt::Date' value.
 {
-    BSLS_ASSERT_SAFE(bdlt::ProlepticDateImpUtil::
-                                        isValidYearMonthDay(year, month, day));
+    BSLS_ASSERT_SAFE(bdlt::Date::isValidYearMonthDay(year, month, day));
 
     return 2 == month
         && (   29 == day
-            || (28 == day && !bdlt::ProlepticDateImpUtil::isLeapYear(year)));
+            || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
 }
 
 inline

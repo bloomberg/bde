@@ -629,9 +629,9 @@ struct PosixDateImpUtil {
         // unless 'true == isValidSerial(serialDay)'.
 
     static void serialToYmdNoCache(int *year,
-                                  int *month,
-                                  int *day,
-                                  int  serialDay);
+                                   int *month,
+                                   int *day,
+                                   int  serialDay);
         // Load, into the specified 'year', 'month', and 'day', the date value
         // indicated by the specified 'serialDay'.  The behavior is undefined
         // unless 'true == isValidSerial(serialDay)'.  Note that this function

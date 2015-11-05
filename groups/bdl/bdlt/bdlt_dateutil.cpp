@@ -43,12 +43,12 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     BSLS_ASSERT_SAFE(28 == original.day() || 29 == original.day());
 
     const int newYear = original.year() + numYears;
-    const int eom     = DateImpUtil::isLeapYear(original.year())
+    const int eom     = SerialDateImpUtil::isLeapYear(original.year())
                       ? 29
                       : 28;
 
     if (original.day() == eom) {
-        const int newEom = DateImpUtil::isLeapYear(newYear) ? 29 : 28;
+        const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;
         return Date(newYear, original.month(), newEom);               // RETURN
     }
 
@@ -71,10 +71,10 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
-    const int eom    = DateImpUtil::lastDayOfMonth(original.year(),
-                                                   original.month());
-    const int newEom = DateImpUtil::lastDayOfMonth(newYear,
-                                                   newMonth);
+    const int eom    = SerialDateImpUtil::lastDayOfMonth(original.year(),
+                                                         original.month());
+    const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear,
+                                                         newMonth);
 
     if (original.day() == eom) {
         return Date(newYear, newMonth, newEom);                       // RETURN
@@ -100,7 +100,7 @@ Date DateUtil::addMonthsNoEom(const Date& original, int numMonths)
     BSLS_ASSERT_SAFE(1 <= newYear);
     BSLS_ASSERT_SAFE(newYear <= 9999);
 
-    const int newEom = DateImpUtil::lastDayOfMonth(newYear, newMonth);
+    const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
 
     if (newEom < original.day()) {
         return Date(newYear, newMonth, newEom);                       // RETURN
@@ -117,7 +117,7 @@ Date DateUtil::lastDayOfWeekInMonth(int             year,
     BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
     BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
 
-    const int eom = DateImpUtil::lastDayOfMonth(year, month);
+    const int eom = SerialDateImpUtil::lastDayOfMonth(year, month);
 
     return previousDayOfWeekInclusive(dayOfWeek, Date(year, month, eom));
 }
