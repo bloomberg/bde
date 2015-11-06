@@ -277,8 +277,27 @@ class Date {
         // 1 greater than that of the previous day.  See {Valid Date Values and
         // Their Representations} for details.
 
-    static int convertDateToProlepticIfNeeded(int serialDate);
+
     static int convertDateToPosixIfNeeded(int serialDate);
+        // Return the serial date in the POSIX calendar having the same
+        // year-month-day representation as the specified 'serialDate'
+        // represents in the proleptic Gregorian calendar calendar if 'Date'
+        // uses a proleptic Gregorian representation, otherwise return
+        // 'serialDate' (unchanged).  The behavior is undefined if 'Date' is
+        // using a proleptic Gregorian representation and 'serialDate' has a
+        // year-month-day representation earlier than 1752/09/14 that is not
+        // 0001/01/01.  Note that {BDEX Compatibility with Legacy POSIX-Based
+        // Date} has further details.
+
+    static int convertDateToProlepticIfNeeded(int serialDate);
+        // Return the serial date in the proleptic Gregorial calendar
+        // representing the year-month-day as the specified 'serialDate'
+        // represents in the POSIX calendar if 'Date' uses a proleptic
+        // Gregorian representation, otherwise return 'serialDate' (unchanged).
+        // The behavior is undefined if 'Date' is using a proleptic Gregorian
+        // representation and 'serialDate' has a year-month-day representation
+        // earlier than 1752/09/14 that is not 0001/01/01.  Note that {BDEX
+        // Compatibility with Legacy POSIX-Based Date} has further details.
 
     // PRIVATE CREATORS
     explicit Date(int serialDate);

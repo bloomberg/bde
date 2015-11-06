@@ -34,6 +34,18 @@ static const char *const months[] = {
     #endif                                                                      
 #endif      
 
+int Date::convertDateToPosixIfNeeded(int serialDate)
+{
+#ifdef BDE_USE_PROLEPTIC_DATES                                                  
+    if (1 != serialDate) { // Preserve the default value.
+
+        serialDate += 2;   // Ensure that serial values for 1752SEP14 and later
+                           // dates "align".
+    }
+#endif
+    return serialDate;
+}
+
 int Date::convertDateToProlepticIfNeeded(int serialDate)
 {
 #ifdef BDE_USE_PROLEPTIC_DATES                                                  
@@ -43,18 +55,6 @@ int Date::convertDateToProlepticIfNeeded(int serialDate)
     }
     else if (serialDate > 0) {
         serialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-    }
-#endif
-    return serialDate;
-}
-
-int Date::convertDateToPosixIfNeeded(int serialDate)
-{
-#ifdef BDE_USE_PROLEPTIC_DATES                                                  
-    if (1 != serialDate) { // Preserve the default value.
-
-        ++serialDate;      // Ensure that serial values for 1752SEP14 and later
-                           // dates "align".
     }
 #endif
     return serialDate;
