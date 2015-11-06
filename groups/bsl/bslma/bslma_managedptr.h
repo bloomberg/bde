@@ -988,10 +988,10 @@ class ManagedPtr {
         // constructor will not compile unless 'MANAGED_TYPE *' is convertible
         // to 'TARGET_TYPE *'.  The behavior is undefined unless the managed
         // object (if any) can be destroyed by the specified 'factory', or if
-        // the the lifetime of the managed object is already managed by another
-        // object.  Note that 'bslma::Allocator', and any class publicly and
-        // unambiguously derived from 'bslma::Allocator', meets the
-        // requirements for 'FACTORY_TYPE'.
+        // '0 == factory && 0 != ptr', or if the the lifetime of the managed
+        // object is already managed by another object.  Note that
+        // 'bslma::Allocator', and any class publicly and unambiguously derived
+        // from 'bslma::Allocator', meets the requirements for 'FACTORY_TYPE'.
 
     template <class FACTORY_TYPE>
     ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory);
