@@ -1,6 +1,6 @@
 # BDE overrides for default.opts
 
-*-                      _       OPTS_FILE       = bde.opts
+*-                      _       OPTS_FILE       = bdl.opts
 
 -- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
 -- unix-SunOS-*-*-cc	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)

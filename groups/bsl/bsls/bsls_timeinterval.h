@@ -904,6 +904,8 @@ STREAM& TimeInterval::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
+
+
 }  // close package namespace
 
 // FREE OPERATORS

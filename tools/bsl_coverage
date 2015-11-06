@@ -16,6 +16,7 @@
 # limitations under the License.
 # ----------------------------- END-OF-FILE ----------------------------------
 
+
 if [ "$1" = "init" ]
 then
     rm -rf coverage

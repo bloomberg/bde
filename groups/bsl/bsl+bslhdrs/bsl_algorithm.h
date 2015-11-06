@@ -105,6 +105,7 @@ namespace bsl {
 
 }  // close package namespace
 
+
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
 // implementation, in which case the implementation file will be included by
@@ -113,6 +114,7 @@ namespace bsl {
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_algorithmworkaround.h>
 #endif
+
 
 #endif
 

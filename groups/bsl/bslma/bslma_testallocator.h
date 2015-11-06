@@ -638,6 +638,7 @@ class TestAllocator : public Allocator {
         // number of such errors that have occurred as a positive number; if
         // either '0 < numBlocksInUse()' or '0 < numBytesInUse()', return an
         // arbitrary negative number; else return 0.
+
 };
 
 }  // close package namespace
@@ -939,7 +940,10 @@ bsls::Types::Int64 TestAllocator::numMismatches() const
     return d_numMismatches.loadRelaxed();
 }
 
+
 }  // close package namespace
+
+
 }  // close enterprise namespace
 
 #endif

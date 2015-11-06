@@ -74,8 +74,6 @@
      bslalg_typetraitnil
      bslalg_typetraitpair                                !DEPRECATED!
      bslalg_typetraitusesbslmaallocator
-
-  1. bslalg_typetraitpair
 ..
 
 /Component Synopsis

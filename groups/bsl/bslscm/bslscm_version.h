@@ -52,6 +52,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
 #endif
 
+
 #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES 1
     // When we don't want to rely on legacy features, we also want to make sure
     // we are not picking up macros or type aliases via (direct or transitive)
@@ -101,6 +102,7 @@ const char *Version::version()
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           bslscm_version_assertion,
                                           bslscm::Version::BSLSCM_S_VERSION);
+
 
 }  // close enterprise namespace
 
