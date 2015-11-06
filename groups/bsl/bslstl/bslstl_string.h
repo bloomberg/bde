@@ -4039,7 +4039,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    return privateReplaceDispatch(0, this->d_length, first, last, first, last);
+    return privateReplaceDispatch(0,
+                                  this->d_length,
+                                  first,
+                                  last,
+                                  first,
+                                  BloombergLP::bslmf::Nil());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4536,7 +4541,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                   stringFirst,
                                   stringLast,
                                   stringFirst,
-                                  stringLast);
+                                  BloombergLP::bslmf::Nil());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
