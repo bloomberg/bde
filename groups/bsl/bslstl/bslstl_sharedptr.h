@@ -1609,6 +1609,13 @@ namespace bslstl {
 struct SharedPtr_ImpUtil;
     // Forward declaration of 'SharedPtr_ImpUtil'. This is needed because this
     // struct is a friend of 'enable_shared_from_this' in the 'bsl' namespace.
+
+struct SharedPtrRepFromExistingSharedPtr {
+    // This 'struct' provides a tag for 'shared_ptr' constructors to recognize
+    // that a passed 'SharedPtrRep' was obtained from an existing 'shared_ptr'
+    // object.
+};
+
 }  // close package namespace
 }  // close enterprise namespace
 
@@ -1794,6 +1801,23 @@ class shared_ptr {
         //  template <class COMPATIBLE_TYPE, class DELETER>
         //  shared_ptr(COMPATIBLE_TYPE *ptr, DELETER * deleter);
         //..
+
+    shared_ptr(ELEMENT_TYPE                     *ptr,
+               BloombergLP::bslma::SharedPtrRep *rep,
+               BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr);
+        // Create a shared pointer that takes ownership of the specified 'rep'
+        // and refers to the modifiable object at the specified 'ptr' address.
+        // The number of references to 'rep' is *NOT* incremented.  The
+        // behavior is undefined unless 'rep' was previously obtained from an
+        // existing 'shared_ptr', 'rep->disposeObject' has not been called, and
+        // 'rep->numReferences() > 0'.  Note that this constructor is intended
+        // for use by 'weak_ptr::lock', and it would be surprising to find
+        // another client.  This solves an obscure problem that arises from
+        // unusual use of classes derived from 'enable_shared_from_this'.
+        // Further note that the caller is responsible for incrementing the
+        // 'numReferences' count prior to calling this constructor, in order to
+        // maintain a consistent reference count when this 'shared_ptr' object
+        // releases the shared object from its management.
 
     template <class COMPATIBLE_TYPE, class DELETER>
     shared_ptr(COMPATIBLE_TYPE *ptr, DELETER *deleter);
@@ -4214,6 +4238,19 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
+    BloombergLP::bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(ptr,
+                                                                     this);
+}
+
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(
+                        ELEMENT_TYPE                     *ptr,
+                        BloombergLP::bslma::SharedPtrRep *rep,
+                        BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr)
+: d_ptr_p(ptr)
+, d_rep_p(rep)
+{
 }
 
 template <class ELEMENT_TYPE>
@@ -5357,7 +5394,11 @@ template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::lock() const
 {
     if (d_rep_p && d_rep_p->tryAcquireRef()) {
-        return shared_ptr<ELEMENT_TYPE>(d_ptr_p, d_rep_p);            // RETURN
+        return shared_ptr<ELEMENT_TYPE>(
+                     d_ptr_p,
+                     d_rep_p,
+                     BloombergLP::bslstl::SharedPtrRepFromExistingSharedPtr());
+                                                                      // RETURN
     }
     return shared_ptr<ELEMENT_TYPE>();
 }
