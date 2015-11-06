@@ -110,6 +110,7 @@ using namespace BloombergLP;
 // [ 3] shared_ptr(OTHER *ptr)
 // [ 3] shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
 // [ 3] shared_ptr(ELEM_TYPE *ptr, bslma::SharedPtrRep *rep)
+// [ 3] shared_ptr(ELEM_TYPE *, bslma::SharedPtrRep *, FromSharedTag)
 // [ 3] shared_ptr(OTHER *ptr, DELETER *deleter)
 // [ 3] shared_ptr(OTHER *ptr, DELETER, bslma::Allocator* = 0)
 // [ 3] shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
@@ -2163,11 +2164,6 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
 
     bslma::Allocator *d_allocator_p;        // allocator
 
-    explicit TestSharedPtrRep(bslma::Allocator *basicAllocator);
-        // Construct a test shared ptr rep object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
-
   public:
     // CREATORS
 
@@ -2205,6 +2201,71 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
     int disposeRepCount() const;
         // Return the number of time 'release' was called.
 
+    TYPE *ptr() const;
+        // Return the data pointer stored by this representation.
+};
+
+                        // ==================
+                        // class NonOwningRep
+                        // ==================
+
+template <class TYPE>
+class NonOwningRep : public bslma::SharedPtrRep {
+    // This 'class' implements a shared pointer representation that does not
+    // "own" the lifetime of its shared object, i.e., it will not delete the
+    // shared object when the final strong reference is released.  In order to
+    // support testing scenarios, this class provides accessors to report the
+    // number of times the disposal methods 'disposeObject' and 'disposeRep'
+    // have been called.  When a call to 'disposeRep' decrements the number
+    // references to zero, this object destroys itself.
+
+    // DATA
+    TYPE             *d_dataPtr_p;            // data ptr
+
+    int              *d_disposeObjectCount_p; // counter storing the number of
+                                              // times 'releaseValue' is called
+
+    int              *d_disposeRepCount_p;    // counter storing the number of
+                                              // times 'release' is called
+
+    bslma::Allocator *d_allocator_p;          // allocator
+
+  public:
+    // CREATORS
+
+    NonOwningRep(TYPE            *dataPtr_p,
+                int              *disposeObjectCount,
+                int              *disposeRepCount,
+                bslma::Allocator *basicAllocator = 0);
+        // Construct a non-owning shared ptr test-rep object referring to (but
+        // not owning) the object pointed to by the specified 'dataPtr_p', and
+        // reporting the every call to 'disposeObject' by incrementing the
+        // specified 'disposeObjectCount', and reportingevery call to the
+        // 'disposeRep' method by incrementing the specified 'disposeRepCount'.
+        // Optionally specify the 'basicAllocator' that was used to supply the
+        // memory that holds this object.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is presumed to have been used.
+        // Note that this object does not allocate any memory itself.
+
+    ~NonOwningRep();
+        // Destroy this test shared ptr rep object.
+
+    // VIRTUAL (OVERRIDE) MANIPULATORS
+    virtual void disposeObject();
+        // Release the value stored by this representation.
+
+    virtual void disposeRep();
+        // Release this representation.
+
+    virtual void *getDeleter(const std::type_info&) { return 0; }
+        // Return a null pointer.  Note that this rep type does not support
+        // 'shared_ptr' custom deleters.
+
+    // VIRTUAL (OVERRIDE) ACCESSORS
+    virtual void *originalPtr() const;
+        // Return the original pointer stored by this representation.
+
+    // ACCESSORS
     TYPE *ptr() const;
         // Return the data pointer stored by this representation.
 };
@@ -2303,6 +2364,10 @@ struct UsesBslmaAllocator<MyAllocTestDeleter>
 template <class TYPE>
 struct UsesBslmaAllocator<TestSharedPtrRep<TYPE> >
      : bsl::true_type {};
+
+template <class TYPE>
+struct UsesBslmaAllocator<NonOwningRep<TYPE> >
+     : bsl::false_type {};
 
 }  // close traits namespace
 }  // close enterprise namespace
@@ -2520,18 +2585,6 @@ int *MyInstrumentedObject::destroyCounter() const
                         // class TestSharedPtrRep
                         // ----------------------
 
-// CREATORS
-template <class TYPE>
-inline
-TestSharedPtrRep<TYPE>::TestSharedPtrRep(bslma::Allocator *basicAllocator)
-: d_dataPtr_p(0)
-, d_disposeRepCount(0)
-, d_disposeObjectCount(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    d_dataPtr_p = new (*d_allocator_p) TYPE();
-}
-
 template <class TYPE>
 inline
 TestSharedPtrRep<TYPE>::TestSharedPtrRep(TYPE             *dataPtr_p,
@@ -2594,6 +2647,65 @@ void *TestSharedPtrRep<TYPE>::originalPtr() const
 template <class TYPE>
 inline
 TYPE *TestSharedPtrRep<TYPE>::ptr() const
+{
+    return d_dataPtr_p;
+}
+
+                        // ----------------------
+                        // class NonOwningRep
+                        // ----------------------
+
+// CREATORS
+template <class TYPE>
+inline
+NonOwningRep<TYPE>::NonOwningRep(TYPE             *dataPtr_p,
+                                 int              *disposeObjectCount,
+                                 int              *disposeRepCount,
+                                 bslma::Allocator *basicAllocator)
+: d_dataPtr_p(dataPtr_p)
+, d_disposeObjectCount_p(disposeObjectCount)
+, d_disposeRepCount_p(disposeRepCount)
+, d_allocator_p(basicAllocator)
+{
+    BSLS_ASSERT_OPT(d_dataPtr_p);
+    BSLS_ASSERT_OPT(d_disposeObjectCount_p);
+    BSLS_ASSERT_OPT(d_disposeRepCount_p);
+    BSLS_ASSERT_OPT(basicAllocator);
+}
+
+template <class TYPE>
+NonOwningRep<TYPE>::~NonOwningRep()
+{
+    BSLS_ASSERT_OPT(0 == numReferences());
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+void NonOwningRep<TYPE>::disposeObject()
+{
+    ++*d_disposeObjectCount_p;
+}
+
+template <class TYPE>
+inline
+void NonOwningRep<TYPE>::disposeRep()
+{
+    ++*d_disposeRepCount_p;
+    d_allocator_p->deleteObject(this);  // suicide
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+void *NonOwningRep<TYPE>::originalPtr() const
+{
+    return static_cast<void *>(d_dataPtr_p);
+}
+
+template <class TYPE>
+inline
+TYPE *NonOwningRep<TYPE>::ptr() const
 {
     return d_dataPtr_p;
 }
@@ -3718,10 +3830,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   First demonstrate that the 'shared_from_this' facility behaves
         //   correctly when it is NOT in use, i,e,, when used with a shared
-        //   pointer that does not own its target.  Then test the basic
+        //   pointer that does not own its target.  Then test that everything
+        //   works correctly when creating 'shared_ptr' objects from raw
+        //   'SharedPtrRep' objects, as this is the basis for 'weak_ptr::lock'
+        //   that drives much of the subsequent testing.  Next, test the basic
         //   facility behaves correctly when used with each possible
-        //   'shared_ptr' constructor.  Next, check additional behaviors
-        //   with extended lifetimes and multiple 'shared_ptr' owner-groups.
+        //   'shared_ptr' constructor.  Then check additional behaviors with
+        //   extended lifetimes and multiple 'shared_ptr' owner-groups.
         //   Finally, check that the various factory functions that can create
         //   a new shared pointer value also behave correctly with respect to
         //   this facility.
@@ -3803,7 +3918,6 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-
         if (verbose) printf("\n\tBasic usage of most-derived type\n");
         {
             ShareThisDerived stackThis(&destructorCount);
@@ -3877,6 +3991,318 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
+        if (verbose) printf(
+                      "\nTesting facility with 'SharedPtrRep' constructors"
+                      "\n-------------------------------------------------\n");
+
+        int disposeObjectCount = 0;
+        int disposeRepCount = 0;
+
+        if (verbose) printf("\nTesting constructor with abstract rep"
+                            "\n-------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                bslma::SharedPtrRep *pRep = rep;  // Cast to base
+                SharedPtr ptr(pThis, pRep);
+                ASSERTV(ptr.use_count(),     ptr.use_count() == 1);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm weak and shared pointers use the same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount,     0 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf("\nTesting constructor with typed-rep"
+                            "\n----------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+
+            {
+                SharedPtr ptr(pThis, rep);
+                ASSERTV(ptr.use_count(),     ptr.use_count() == 1);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm weak and shared pointers use the same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount,     0 == destructorCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf(
+        "\nTesting constructor with abstract rep and from-'shared_ptr' tag"
+        "\n---------------------------------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+            bslma::SharedPtrRep *pRep = rep;   // Cast to base
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 0 == REP.numWeakReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                // Establish the pre-condition of a rep already owned by a
+                // 'shaerd_ptr' object.
+                SharedPtr firstPtr(pThis, pRep);
+                ASSERTV(disposeRepCount,      0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(),  1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 1 == REP.numWeakReferences());
+
+                WeakPtr weakFirst = pThis->weak_from_this();
+                ASSERT(!weakFirst.expired());
+                ASSERT(weakBefore.expired());
+                ASSERTV(REP.numReferences(),     1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 2 == REP.numWeakReferences());
+
+                manager.reset();    // Destroy the SharedThis object managed,
+                                    // but not owned, by '*rep'.  'd_weakThis'
+                                    // will release on weak reference, and the
+                                    // 'destructorCount' will increment, but
+                                    // NOT 'disposeObjectCount' as the 'rep'
+                                    // maintains a non-owning strong reference
+                                    // to the destroyed object.
+
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                const bool acquiredRef = pRep->tryAcquireRef();
+                ASSERT(acquiredRef);
+
+                {
+                    SharedPtr testPtr(
+                                  pThis,
+                                  pRep,
+                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                    ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
+                    ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                    ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                    ASSERTV(REP.numReferences(), 2 == REP.numReferences());
+                    ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+                }
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                weakBefore = weakFirst;  // ensure a weak pointer outlives the
+                                         // last 'shared_ptr'
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                2  == REP.numWeakReferences());
+
+            }
+            ASSERTV(destructorCount,     1 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 1  == REP.numWeakReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf(
+                 "\nTesting constructor with rep and from-'shared_ptr' tag"
+                 "\n------------------------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 0 == REP.numWeakReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                // Establish the pre-condition of a rep already owned by a
+                // 'shaerd_ptr' object.
+                SharedPtr firstPtr(pThis, rep);
+                ASSERTV(disposeRepCount,      0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(),  1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 1 == REP.numWeakReferences());
+
+                WeakPtr weakFirst = pThis->weak_from_this();
+                ASSERT(!weakFirst.expired());
+                ASSERT(weakBefore.expired());
+                ASSERTV(REP.numReferences(),     1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 2 == REP.numWeakReferences());
+
+                manager.reset();    // Destroy the SharedThis object managed,
+                                    // but not owned, by '*rep'.  'd_weakThis'
+                                    // will release on weak reference, and the
+                                    // 'destructorCount' will increment, but
+                                    // NOT 'disposeObjectCount' as the 'rep'
+                                    // maintains a non-owning strong reference
+                                    // to the destroyed object.
+
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                const bool acquiredRef = rep->tryAcquireRef();
+                ASSERT(acquiredRef);
+
+                {
+                    SharedPtr testPtr(
+                                  pThis,
+                                  rep,
+                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                    ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
+                    ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                    ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                    ASSERTV(REP.numReferences(), 2 == REP.numReferences());
+                    ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+                }
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                weakBefore = weakFirst;  // ensure a weak pointer outlives the
+                                         // last 'shared_ptr'
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                2  == REP.numWeakReferences());
+
+            }
+            ASSERTV(destructorCount,     1 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 1  == REP.numWeakReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
 
         if (verbose) printf("\nTesting simple usage of the facility"
                             "\n------------------------------------\n");
@@ -4387,9 +4813,6 @@ int main(int argc, char *argv[])
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
-
-
-
 
         if (verbose) printf("\nTesting awkward lifetime concerns"
                             "\n---------------------------------\n");
@@ -9600,6 +10023,7 @@ int main(int argc, char *argv[])
         //   shared_ptr(OTHER *ptr)
         //   shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
         //   shared_ptr(ELEM_TYPE *ptr, bslma::SharedPtrRep *rep)
+        //   shared_ptr(ELEM_TYPE *, bslma::SharedPtrRep *, FromSharedTag)
         //   shared_ptr(OTHER *ptr, DELETER *deleter)
         //   shared_ptr(OTHER *ptr, DELETER, bslma::Allocator* = 0)
         //   shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
@@ -10300,6 +10724,67 @@ int main(int argc, char *argv[])
             x.release();
 
             Obj xx(p, rep); const Obj& XX = xx;
+            ASSERT(p == XX.get());
+            ASSERT(rep ==  XX.rep());
+            ASSERT(1 == XX.use_count());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+
+        if (verbose) printf("\nTesting constructor (with typed-rep)"
+                            "\n------------------------------------\n");
+
+        {
+            MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP = rep;
+            ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
+            LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        0 == REP.disposeObjectCount());
+            MyTestObject *PTR = REP.ptr();
+            {
+                ObjSP mS(PTR, &rep);
+                LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
+                LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+                LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+            }
+            LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        1 == REP.disposeObjectCount());
+        }
+
+        if (verbose) printf(
+                   "\nTesting constructor (with rep and \"from-shared\" tag)"
+                   "\n----------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(p, &ta); const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bslma::SharedPtrRep *rep = x.rep();
+            x.release();
+
+            Obj xx(p, rep, bslstl::SharedPtrRepFromExistingSharedPtr());
+            const Obj& XX = xx;
             ASSERT(p == XX.get());
             ASSERT(rep ==  XX.rep());
             ASSERT(1 == XX.use_count());
