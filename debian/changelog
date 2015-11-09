@@ -1,7 +1,10 @@
 bsl-internal (2.24.4.0) unstable; urgency=low
 
+  * f143d3d Merge pull request #13 from mgiroux/review/bump-patchlevel-to-2.24.4
+  * c481093 bump bslscm_patchversion to 2.24.4
+  * 6647ae1 Changelog for version 2.24.4.0
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 6 Nov 2015 11:30:09 -0500
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 9 Nov 2015 11:46:23 -0500
 
 bsl-internal (2.24.2.0) git; urgency=low
 
