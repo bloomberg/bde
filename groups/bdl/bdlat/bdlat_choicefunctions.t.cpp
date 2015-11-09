@@ -45,6 +45,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [ 1] METHOD FORWARDING TEST
 // [ 2] INFO ACCESS TEST
+// [ 3] ENUMERATORS
 // [ 4] USAGE EXAMPLE
 
 // ============================================================================
@@ -674,7 +675,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -699,6 +700,64 @@ int main(int argc, char *argv[])
         }
 
         LOOP_ASSERT(ss.str(), "intValue: 321\n" == ss.str());
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TEST ENUMERATORS
+        //
+        // Concerns
+        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
+        //:   enumeration literals should exist and evaluate to their e_...
+        //:   equivalents.
+        //:
+        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
+        //:   enumeration literals should not exist.
+        //
+        // Plan
+        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
+        //:   BDEAT_... enumeration literals evaluate to their e_...
+        //:   equivalents.  (C-1)
+        //:
+        //: 2 We cannot check for (C-2), so hope for the best.
+        //
+        // Testing:
+        //   ENUMERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTEST ENUMERATORS"
+                          << "\n================" << endl;
+
+#undef e
+#define e(Class, Enumerator)                                                  \
+    { L_, #Class "::..._" #Enumerator,                                        \
+      Class::e_##Enumerator, Class::BDEAT_##Enumerator }
+
+        static struct {
+            int         d_line;         // line number
+            const char *d_name;         // printable enumerator name
+            int         d_bdeat_value;  // value of BDEAT_... version
+            int         d_bdlat_value;  // value of e_... version
+        } DATA [] = {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+          { L_, "bdlat_ChoiceFunctions::..._UNDEFINED_SELECTION_ID",
+            bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID,
+            bdlat_ChoiceFunctions::k_UNDEFINED_SELECTION_ID
+          },
+#endif
+          { L_, "None", 0, 0 },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE   = DATA[i].d_line;
+            const char *NAME   = DATA[i].d_name;
+            const int   EVALUE = DATA[i].d_bdeat_value;
+            const int   LVALUE = DATA[i].d_bdlat_value;
+
+            if (veryVerbose) { P_(LINE) P_(NAME) P_(EVALUE) P(LVALUE) }
+
+            ASSERTV(LINE, NAME, EVALUE, LVALUE, EVALUE == LVALUE);
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
