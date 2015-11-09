@@ -361,6 +361,13 @@ class FixedQueueIndexManager {
                                     // implementation note in the .cpp for more
                                     // details)
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+      , e_MAX_CAPACITY = k_MAX_CAPACITY
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
+        
     };
 
     // CREATORS
