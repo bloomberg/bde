@@ -4,6 +4,7 @@
 #include <bslim_testutil.h>  // for testing only
 
 #include <bslma_testallocator.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_cctype.h>
@@ -21,17 +22,7 @@
 #include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstddef.h>
 
-// Note that __cplusplus does not have a conforming value for g++ versions
-// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
-#if (__cplusplus >= 201103L)       \
- && defined(BSLS_PLATFORM_CMP_GNU)  \
- && BSLS_PLATFORM_CMP_VERSION >= 40800
-    #include <bsl_initializer_list.h>
-#endif
-
-#include <bsl_memory.h>
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
@@ -648,6 +639,55 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
 }
 
 // BDE_VERIFY pragma: pop    // Disable warnings for usage examples.
+
+
+//=============================================================================
+//                        C++11 Standard Library Test
+//-----------------------------------------------------------------------------
+
+// This test should be relocated.
+
+// The following tests are meant to ensure key C++11 standard library features
+// provided by the platform are exported as 'bsl::' types by the bsl+bslhdrs
+// (non-standard) package.  We are concerned that these types are available:
+//: 1 For linux C++11 production builds (Redhat DTS: gcc-4.8.2)
+//: 2 For relatively modern versions of Clang & MSVC
+//
+// The types we are explicitly testing:
+//: o bsl::nullptr_t        (bsl_cstddef.h)
+//: o bsl::initializer_list (bsl_initializer_list.h)
+//: o bsl::tuple            (bsl_tuple.h)
+//: o bsl::unique_ptr       (bsl_memory.h)
+//
+// The compilers we are testing on:
+//: o gcc 4.7+, C++11 builds
+//: o clang, C++11 builds
+//:   Note that clang version numbers are inconsistent on OSX so we use
+//:   the availability of the <forward_list> header as a proxy to confirm
+//:   a "modern" clang compiler
+//: o MSVC 2013
+
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+                 __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40700
+#define ENABLE_CPP11_TESTS 1
+#elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L 
+#if  __has_include(<forward_list>)
+#define ENABLE_CPP11_TESTS 1
+#endif
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1800
+#define ENABLE_CPP11_TESTS 1
+#endif
+
+#include <bsl_cstddef.h>  
+#include <bsl_memory.h>
+
+// The following headers can't be included unless the platform supports the
+// underlying types.
+
+#if defined(ENABLE_CPP11_TESTS)
+#include <bsl_initializer_list.h>
+#include <bsl_tuple.h>
+#endif
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -3180,18 +3220,23 @@ int main(int argc, char *argv[])
         // imported.
         // --------------------------------------------------------------------
 
- // Note that __cplusplus does not have a conforming value for g++ versions
- // before 4.7.  See http://stackoverflow.com/questions/7530047/ .
- #if (__cplusplus >= 201103L)       \
- && defined(BSLS_PLATFORM_CMP_GNU)  \
- && BSLS_PLATFORM_CMP_VERSION >= 40800
+
+#if defined ( ENABLE_CPP11_TESTS)
+        if (verbose) cout << "\nTEST INSTANTIATING BSL TYPES"
+                             "\n============================\n";
+
         bsl::unique_ptr<int>       p;
         bsl::nullptr_t             q;
         bsl::initializer_list<int> r;
+        bsl::tuple<int, double>    s;
 
         (void)p;
         (void)q;
         (void)r;
+        (void)s;
+#else
+        if (verbose) cout << "\nTEST INSTANTIATING BSL TYPES(DISABLED)"
+                             "\n=====================================\n";
 #endif
       } break;
       default: {
