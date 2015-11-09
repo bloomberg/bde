@@ -19,7 +19,7 @@ using namespace bsl;
 // classes that implement the same (documentation-only) protocol.  This test
 // driver uses a template meta-function, 'bsl::is_same', to confirm that the
 // mapping is correct for the current build mode.  Each of those implementation
-// classes is exhautively tested in their own test drivers, not here.
+// classes is exhautively tested in their own test drivers (not here).
 // ----------------------------------------------------------------------------
 // [ 1] typedef ProlepticDateImpUtil SerialDateImpUtil;
 // [ 1] typedef     PosixDateImpUtil SerialDateImpUtil;
