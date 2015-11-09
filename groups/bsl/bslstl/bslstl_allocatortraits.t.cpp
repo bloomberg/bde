@@ -456,11 +456,11 @@ struct AttribStruct5
 {
     // This test struct has up to 5 attributes of different types.  It is a
     // simple aggregate type so it can be statically constructed.
-    char        d_a;
-    int         d_b;
-    double      d_c;
-    const char *d_d;
-    Uniq       *d_e;
+    char          d_a;
+    volatile int  d_b;
+    double        d_c;
+    const char   *d_d;
+    Uniq         *d_e;
 };
 
 class AttribClass5
@@ -507,6 +507,10 @@ class AttribClass5
     double      c() const { return d_attrib.d_c; }
     const char *d() const { return d_attrib.d_d; }
     Uniq       *e() const { return d_attrib.d_e; }
+
+    const volatile int* adddressOfB() const { return &d_attrib.d_b; }
+        // Return the address of a data member that can be used to inspect the
+        // state of memory after this object has been destroyed.
 
     AllocatorType allocator() const { return bslma::Default::allocator(0); }
 };
@@ -557,6 +561,10 @@ class AttribClass5Alloc
     Uniq       *e() const { return d_attrib.e(); }
 
     AllocatorType allocator() const { return d_allocator; }
+
+    const volatile int* adddressOfB() const { return d_attrib.adddressOfB(); }
+        // Return the address of a data member that can be used to inspect the
+        // state of memory after this object has been destroyed.
 
     friend void operator&(AttribClass5Alloc&) { }
 };
@@ -618,6 +626,10 @@ class AttribClass5bslma
     Uniq       *e() const { return d_attrib.e(); }
 
     bslma::Allocator *allocator() const { return d_allocator_p; }
+
+    const volatile int* adddressOfB() const { return d_attrib.adddressOfB(); }
+        // Return the address of a data member that can be used to inspect the
+        // state of memory after this object has been destroyed.
 };
 
 template <class TYPE>
@@ -1589,11 +1601,11 @@ void testConstructDestroy(const char *allocname,
                      matchAttrib(objects[6].object(), A, B, C, D, E, exp_a));
 
         for (int j = 0; j < 7; ++j) {
+            const volatile int *b_p = objects[i].object().adddressOfB();
             TraitsT::destroy(a, bsls::Util::addressOf(objects[i].object()));
             LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
             LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
-            LOOP3_ASSERT(allocname,tname,i,
-                         0xdeadbeaf == (unsigned) objects[i].object().b());
+            LOOP3_ASSERT(allocname,tname,i, (int)0xdeadbeaf == *b_p);
         }
     }
 }
