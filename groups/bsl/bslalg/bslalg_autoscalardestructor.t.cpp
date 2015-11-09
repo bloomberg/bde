@@ -1,12 +1,11 @@
 // bslalg_autoscalardestructor.t.cpp                                  -*-C++-*-
-
 #include <bslalg_autoscalardestructor.h>
 
-#include <bslalg_scalarprimitives.h>             // for testing only
 #include <bslma_allocator.h>                     // for testing only
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 #include <bslma_testallocatorexception.h>        // for testing only
+#include <bslma_usesbslmaallocator.h>
 #include <bsls_alignmentutil.h>                  // for testing only
 #include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>                      // for testing only
@@ -15,6 +14,7 @@
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strlen'
+#include <new>
 
 using namespace BloombergLP;
 
