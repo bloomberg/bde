@@ -2638,7 +2638,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
         //
@@ -2662,6 +2662,104 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         my_Server server(bsls::TimeInterval(10), &ta);
 
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING CLOCKTYPE ACCESSOR
+        //
+        // Concern:
+        //   That the 'clockType' accessor correctly return the clock type the
+        //   object was constructed with.
+        //
+        // Plan:
+        //   Run all c'tors with all values of 'clockType', and verify that
+        //   the value returned by the 'clockType' accessor is as expected.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING CLOCKTYPE ACCESSOR\n"
+                             "==========================\n";
+
+        using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24;
+        using namespace bdlf::PlaceHolders;
+
+        bdlmt::TimerEventScheduler::Dispatcher dispatcher =
+                                 bdlf::BindUtil::bind(&dispatcherFunction, _1);
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        const bsls::SystemClockType::Enum realTime =
+                                            bsls::SystemClockType::e_REALTIME;
+        const bsls::SystemClockType::Enum monotonic =
+                                            bsls::SystemClockType::e_MONOTONIC;
+
+        ASSERT(realTime != monotonic);
+
+        if (verbose) cout << "Default c'tor\n";
+        {
+            Obj x(&ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Explicit clock type, no dispatcher\n";
+        {
+            Obj x(realTime,  &ta);    const Obj& X = x;
+            Obj y(monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, clock type defaults\n";
+        {
+            Obj x(dispatcher, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, explicit clock type\n";
+        {
+            Obj x(dispatcher, realTime,  &ta);    const Obj& X = x;
+            Obj y(dispatcher, monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "num events, clocks\n";
+        {
+            Obj x(0, 0, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Num events, clocks, explicit clock type,"
+                                                            " no dispatcher\n";
+        {
+            Obj x(0, 0, realTime,  &ta);    const Obj& X = x;
+            Obj y(0, 0, monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "Num events, clocks, dispatcher, clock type"
+                                                                 " defaults\n";
+        {
+            Obj x(0, 0, dispatcher, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Num events, clocks, explicit clock type,"
+                                                               " dispatcher\n";
+        {
+            Obj x(0, 0, dispatcher, realTime,  &ta);    const Obj& X = x;
+            Obj y(0, 0, dispatcher, monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
       } break;
       case 24: {
         // -----------------------------------------------------------------
