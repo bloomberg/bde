@@ -57,8 +57,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example: Basic Use of 'bdlb::NullOutputIterator'
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+/// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
