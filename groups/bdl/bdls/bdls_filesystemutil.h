@@ -55,6 +55,10 @@ BSLS_IDENT("$Id: $")
 //: 'e_CREATE':
 //:   Create a new file.
 //:
+//: 'e_CREATE_PRIVATE':
+//:   Create a new file, with limited permissions where that is supported (e.g.
+//:   not necessarily Microsoft Windows).
+//:
 //: 'e_OPEN_OR_CREATE':
 //:   Open a file if it exists, and create a new file otherwise.
 //
@@ -163,7 +167,7 @@ BSLS_IDENT("$Id: $")
 ///File Truncation Caveats
 ///-----------------------
 // In order to provide consistent behavior across both Posix and Windows
-// platforms, when the 'open' method is called file truncation is allowed only
+// platforms, when the 'open' method is called, file truncation is allowed only
 // if the client requests an 'openPolicy' containing the word 'CREATE' and/or
 // an 'ioPolicy' containing the word 'WRITE'.
 //
@@ -189,9 +193,9 @@ BSLS_IDENT("$Id: $")
 //  bsl::string oldPath(logPath), newPath(logPath);
 //  bdls::PathUtil::appendRaw(&oldPath, "old");
 //  bdls::PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+//  int rc = bdls::FilesystemUtil::createDirectories(oldPath, true);
 //  assert(0 == rc);
-//  rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
+//  rc = bdls::FilesystemUtil::createDirectories(newPath, true);
 //  assert(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -225,10 +229,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to
-// operate on file paths that match a specified pattern.  In this example, we
-// create a function that can be used to filter out files that have a last
-// modified time within a particular time frame.
+// 'bdls::FilesystemUtil::visitPaths' enables clients to define a function
+// object to operate on file paths that match a specified pattern.  In this
+// example, we create a function that can be used to filter out files that have
+// a last modified time within a particular time frame.
 //
 // First we define our filtering function:
 //..
@@ -363,16 +367,16 @@ struct FilesystemUtil {
 #endif
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-    static const Offset k_OFFSET_MAX =  (9223372036854775807L);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807L-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #else
-    static const Offset k_OFFSET_MAX =  (9223372036854775807LL);
+    static const Offset k_OFFSET_MAX =  (0x7FFFFFFFFFFFFFFFLL);
         // maximum representable file offset value
 
-    static const Offset k_OFFSET_MIN = (-9223372036854775807LL-1);
+    static const Offset k_OFFSET_MIN = (-0x7FFFFFFFFFFFFFFFLL-1);
         // minimum representable file offset value
 #endif
 
@@ -388,8 +392,8 @@ struct FilesystemUtil {
     };
 
     enum {
-        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which
-                                                 // to grow files
+        k_DEFAULT_FILE_GROWTH_INCREMENT = 0x10000  // default block size to
+                                                   // grow files by
     };
 
     enum {
@@ -408,6 +412,10 @@ struct FilesystemUtil {
 
         e_CREATE,         // Create a new file, and fail if the file already
                           // exists.
+
+        e_CREATE_PRIVATE, // Create a new file with access restricted to the
+                          // creating userid, where supported, and fail if the
+                          // file already exists.
 
         e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
                           // otherwise.
@@ -458,28 +466,37 @@ struct FilesystemUtil {
         // 'FileDescriptor' for the file on success, or 'k_INVALID_FD'
         // otherwise.  If 'openPolicy' is 'e_OPEN', the file will be opened if
         // it exists, and 'open' will fail otherwise.  If 'openPolicy' is
-        // 'e_CREATE', and no file exists at 'path', a new file will be
-        // created, and 'open' will fail otherwise.  If 'openPolicy' is
-        // 'e_OPEN_OR_CREATE', the file will be opened if it exists, and a new
-        // file will be created otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the
-        // returned 'FileDescriptor' will allow only read operations on the
-        // file.  If 'ioPolicy' is 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the
-        // returned 'FileDescriptor' will allow only write operations on the
-        // file.  If 'ioPolicy' is 'e_READ_WRITE' or 'e_READ_APPEND', the
-        // returned 'FileDescriptor' will allow both read and write operations
-        // on the file.  Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or
-        // 'e_READ_APPEND' all writes will be made to the end of the file
-        // ("append mode").  If 'truncatePolicy' is 'e_TRUNCATE', the file will
-        // have zero length when 'open' returns.  If 'truncatePolicy' is
-        // 'e_KEEP', the file will be opened with its existing contents, if
-        // any.  Note that when a file is opened in 'append' mode, all writes
-        // will go to the end of the file, even if there has been seeking on
-        // the file descriptor or another process has changed the length of the
-        // file, though append-mode writes are not guaranteed to be atomic.
-        // Note that 'open' will fail to open a file with a 'truncatePolicy' of
-        // 'e_TRUNCATE' unless at least one of the following policies is
-        // specified for 'openPolicy' or 'ioPolicy':
+        // 'e_CREATE' or 'e_CREATE_PRIVATE', and no file exists at 'path', a
+        // new file will be created, and 'open' will fail otherwise.  If
+        // 'openPolicy' is 'e_CREATE_PRIVATE', the file will be created with
+        // access restricted to the same userid as the caller in environments
+        // where that is supported (which does not necessarily include Windows)
+        // otherwise the system default access policy is used (e.g. '0777 &
+        // ~umask').  If 'openPolicy' is 'e_OPEN_OR_CREATE', the file will be
+        // opened if it exists, and a new file will be created otherwise.  If
+        // 'ioPolicy' is 'e_READ_ONLY', the returned 'FileDescriptor' will
+        // allow only read operations on the file.  If 'ioPolicy' is
+        // 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the returned 'FileDescriptor'
+        // will allow only write operations on the file.  If 'ioPolicy' is
+        // 'e_READ_WRITE' or 'e_READ_APPEND', the returned 'FileDescriptor'
+        // will allow both read and write operations on the file.
+        // Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or 'e_READ_APPEND'
+        // all writes will be made to the end of the file ("append mode").  If
+        // 'truncatePolicy' is 'e_TRUNCATE', the file will have zero length
+        // when 'open' returns.  If 'truncatePolicy' is 'e_KEEP', the file will
+        // be opened with its existing contents, if any.  Note that when a file
+        // is opened in 'append' mode, all writes will go to the end of the
+        // file, even if there has been seeking on the file descriptor or
+        // another process has changed the length of the file.  Append-mode
+        // writes are not atomic except in limited cases; another thread, or
+        // even another process, operating on the file may cause output not to
+        // be written, unbroken, to the end of the file. (Unix environments
+        // writing to local file systems may promise more.) Note that 'open'
+        // will fail to open a file with a 'truncatePolicy' of 'e_TRUNCATE'
+        // unless at least one of the following policies is specified for
+        // 'openPolicy' or 'ioPolicy':
         //: o 'e_CREATE'
+        //: o 'e_CREATE_PRIVATE'
         //: o 'e_OPEN_OR_CREATE'
         //: o 'e_WRITE_ONLY
         //: o 'e_READ_WRITE'
@@ -542,19 +559,69 @@ struct FilesystemUtil {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(
-                              const bsl::string&  path,
-                              bool                isLeafDirectoryFlag = false);
+                               const bsl::string& path,
+                               bool               isLeafDirectoryFlag = false);
     static int createDirectories(
-                              const char         *path,
-                              bool                isLeafDirectoryFlag = false);
+                               const char        *path,
+                               bool               isLeafDirectoryFlag = false);
         // Create any directories in the specified 'path' that do not exist.
-        // If the optionally specified 'isLeafDirectoryFlag' is 'true', then
-        // treat the last filename in 'path' as a directory and attempt to
-        // create it.  Otherwise, treat the last filename as a regular file and
-        // ignore it.  Return 0 on success, and a non-zero value if any needed
-        // directories in 'path' could not be created.  Note that this
-        // function may return an error status if another task attempts to
-        // create a directory in 'path' concurrently to this function call.
+        // If the optionally specified 'isLeafDirectoryFlag' is 'true', treat
+        // the final name component in 'path' as a directory name, and create
+        // it.  Otherwise, create only the directories leading up to the final
+        // name component.  Return 0 on success, and a non-zero value if any
+        // needed directories in 'path' could not be created.
+
+    static int createPrivateDirectory(const bslstl::StringRef& path);
+        // Create a private directory with the specified 'path'.  Return 0 on
+        // success, and a non-zero value if the directory could not be created.
+        // The directory is created with permissions restricting access, as
+        // closely as possible, to the caller's userid only.  If the directory
+        // already exists, the function reports success but the directory's
+        // permissions are not changed.  Note that directories created on
+        // Microsoft Windows may receive default, not restricted permissions.
+
+    static FileDescriptor createTemporaryFile(bsl::string             *outPath,
+                                              const bslstl::StringRef& prefix);
+        // Create and open a new file with a name constructed by appending an
+        // automatically-generated suffix to the specified 'prefix', and return
+        // its file descriptor open for reading and writing.  A return value of
+        // 'k_INVALID_FD' indicates that no such file could be created;
+        // otherwise, the name of the file created is assigned to the specified
+        // 'outPath'.  The file is created with permissions restricted, as
+        // closely as possible, to the caller's userid only.  If the prefix is
+        // a relative path, the file is created relative to the process current
+        // directory.  Responsibility for deleting the file is left to the
+        // caller.  Note that on Posix systems, if 'outPath' is unlinked
+        // immediately, the file will remain usable until its descriptor is
+        // closed.  Note that files created on Microsoft Windows may receive
+        // default, not restricted permissions.
+
+    static int createTemporaryDirectory(bsl::string             *outPath,
+                                        const bslstl::StringRef& prefix);
+        // Create a new directory with a name constructed by appending an
+        // automatically-generated suffix to the specified 'prefix'.  A
+        // non-zero return value indicates that no such directory could be
+        // created; otherwise the name of the directory created is assigned to
+        // the specified 'outPath'.  The directory is created with permissions
+        // restricted, as closely as possible, to the caller only.  If the
+        // prefix is a relative path, the directory is created relative to the
+        // process current directory.  Responsibility for deleting the
+        // directory (and any files subsequently created in it) is left to the
+        // caller.
+
+    static void makeUnsafeTemporaryFilename(bsl::string             *outPath,
+                                            const bslstl::StringRef& prefix);
+        // Construct a file name by appending an automatically-generated suffix
+        // to the specified 'prefix'.  The file name constructed is assigned to
+        // the specified 'outPath'.  Note that this function is called "unsafe"
+        // because a file with the resulting name may be created by another
+        // program before the caller has opportunity to use the name, which
+        // could be a security vulnerability, and a file with the given name
+        // may already exist where you mean to put it.  Note that the suffix is
+        // hashed from environmental details, including any pre-existing value
+        // of 'outPath' so that if a resulting name is unsuitable (e.g. the
+        // file exists) this function may simply be called again, pointing to
+        // its previous result, to get a new, probably different name.
 
     static void visitPaths(
                          const bsl::string&                           pattern,
@@ -562,13 +629,12 @@ struct FilesystemUtil {
     static void visitPaths(
                         const char                                   *pattern,
                         const bsl::function<void(const char *path)>&  visitor);
-        // Call the specified 'visitor' functor for each path in the filesystem
-        // matching the specified 'pattern'.  If 'visitor' deletes files or
-        // directories during the search, the behavior is
-        // implementation-dependent: 'visitor' may subsequently be called with
-        // paths which have already been deleted, or it may not.  Note that
-        // there is no stability risk in that case.  See 'findMatchingPaths'
-        // for a discussion of how 'pattern' is interpreted.
+        // Call the specified 'visitor' function object for each path in the
+        // filesystem matching the specified 'pattern'.  Note that if 'visitor'
+        // deletes files or directories during the search, 'visitor' may
+        // subsequently be called with paths which have already been deleted,
+        // so must be prepared for this event.  See 'findMatchingPaths' for a
+        // discussion of how 'pattern' is interpreted.
 
     static void findMatchingPaths(bsl::vector<bsl::string> *result,
                                   const char               *pattern);
@@ -771,6 +837,7 @@ struct FilesystemUtil {
                            // ---------------------
 
 // CLASS METHODS
+
 inline
 int FilesystemUtil::createDirectories(const bsl::string& path,
                                       bool               isLeafDirectoryFlag)

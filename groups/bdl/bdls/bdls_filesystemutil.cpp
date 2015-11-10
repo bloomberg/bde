@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 
 #include <bdls_memoryutil.h>
 #include <bdls_pathutil.h>
+#include <bdls_processutil.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -22,15 +23,18 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
+#include <bslmt_threadutil.h>
 #include <bsls_assert.h>
 #include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
-
+#include <bslh_hash.h>
+#include <bsls_timeutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
 #include <bsl_cstring.h>
 #include <bsl_limits.h>
+#include <bsl_string.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -165,7 +169,7 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
 }
 
 static inline
-int makeDirectory(const char *path)
+int makeDirectory(const char *path, bool)
     // Create a directory.  Return 0 on success and a non-zero value otherwise.
 {
     BSLS_ASSERT_SAFE(path);
@@ -294,17 +298,20 @@ bool isDotOrDots(const char *path)
 }
 
 static inline
-int makeDirectory(const char *path)
+int makeDirectory(const char *path, bool isPrivate)
     // Create a directory
 {
     BSLS_ASSERT_SAFE(path);
 
-    // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
+    // Permissions of created dir will be ANDed with process '~umask()'.
+    static const int PERMS[2] = {
+        (S_IRUSR | S_IWUSR | S_IXUSR |  // user   rwx
+         S_IRGRP | S_IWGRP | S_IXGRP |  // group  rwx
+         S_IROTH | S_IWOTH | S_IXOTH),  // others rwx
 
-    enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
-                   S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
-                   S_IROTH | S_IWOTH | S_IXOTH };   // others rwx
-    return mkdir(path, PERMS);
+        (S_IRUSR | S_IWUSR | S_IXUSR)  // only user rwx
+    };
+    return mkdir(path, PERMS[isPrivate]);
 }
 
 static inline
@@ -389,8 +396,8 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
             creationInfo = OPEN_EXISTING;
         }
       } break;
-      case e_CREATE: {
-        // Fails if file exists.
+      case e_CREATE:
+      case e_CREATE_PRIVATE: {  // Fails if file exists.
 
         creationInfo = CREATE_NEW;
       } break;
@@ -1057,6 +1064,11 @@ FilesystemUtil::FileDescriptor FilesystemUtil::open(
         extendedFlags =
                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
       } break;
+      case e_CREATE_PRIVATE: {
+        oflag |= O_CREAT | O_EXCL;
+        useExtendedOpen = true;
+        extendedFlags = S_IRUSR | S_IWUSR;
+      } break;
       case e_OPEN_OR_CREATE: {
         oflag |= O_CREAT;
         if (isTruncateMode) {
@@ -1505,20 +1517,16 @@ namespace bdls {
 int FilesystemUtil::createDirectories(const char *path,
                                       bool        isLeafDirectoryFlag)
 {
+    BSLS_ASSERT(path);
+
     // Implementation note: some Unix platforms may have mkdirp, which does
-    // what this function does.  But not all do, and hyper-fast performance is
-    // not a concern for a method like this, so let's just roll our own to
-    // ensure maximum portability.
-    //
-    // Not to mention that we have to do at least a little parsing anyway,
-    // since even mkdirp does not provide anything like 'isLeafDirectoryFlag'.
+    // some of what this function does, but not all do.  We have to parse
+    // 'path' anyway, since mkdirp does nothing like 'isLeafDirectoryFlag'.
 
     // Let's first give at least a nod to efficiency and see if we don't need
     // to do anything at all.
 
-    BSLS_ASSERT(path);
-
-    if (exists(path)) {
+    if (!isLeafDirectoryFlag && exists(path)) {
         return 0;                                                     // RETURN
     }
 
@@ -1526,6 +1534,10 @@ int FilesystemUtil::createDirectories(const char *path,
     bsl::vector<bsl::string> directoryStack;
     if (!isLeafDirectoryFlag && PathUtil::hasLeaf(workingPath)) {
         PathUtil::popLeaf(&workingPath);
+    }
+
+    if (isDirectory(workingPath)) {
+        return 0;                                                     // RETURN
     }
 
     while (PathUtil::hasLeaf(workingPath)) {
@@ -1536,16 +1548,25 @@ int FilesystemUtil::createDirectories(const char *path,
     }
 
     while (!directoryStack.empty()) {
-        PathUtil::appendRaw(&workingPath,
-                            directoryStack.back().c_str(),
-                            static_cast<int>(directoryStack.back().length()));
-        if (!exists(workingPath.c_str())) {
-            if (0 != makeDirectory(workingPath.c_str())) {
+        PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
+                             static_cast<int>(directoryStack.back().length()));
+        if (0 != makeDirectory(workingPath.c_str(), false)) {
+            if (!isDirectory(workingPath)) {
                 return -1;                                            // RETURN
             }
         }
         directoryStack.pop_back();
     }
+    return 0;
+}
+
+int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
+{
+    bsl::string workingPath = path;  // need NUL termination
+    if (0 != makeDirectory(workingPath.c_str(), true)) {
+        return -1;                                                    // RETURN
+    }
+
     return 0;
 }
 
@@ -1675,6 +1696,71 @@ int FilesystemUtil::rollFileChain(const char *path, int maxSuffix)
     allocator_p->deallocate(buffer);
     return maxSuffix;
 }
+
+FilesystemUtil::FileDescriptor
+FilesystemUtil::createTemporaryFile(bsl::string             *outPath,
+                                    const bslstl::StringRef& prefix)
+{
+    BSLS_ASSERT(outPath);
+    FileDescriptor result;
+    bsl::string localOutPath = *outPath;
+    for (int i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(&localOutPath, prefix);
+        result = bdls::FilesystemUtil::open(
+           (const char*) localOutPath.c_str(), e_CREATE_PRIVATE, e_READ_WRITE);
+        if (result != k_INVALID_FD) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+int
+FilesystemUtil::createTemporaryDirectory(bsl::string             *outPath,
+                                         const bslstl::StringRef& prefix)
+{
+    BSLS_ASSERT(outPath);
+    int result;
+    bsl::string localOutPath = *outPath;
+    for (int i = 0; i < 10; ++i) {
+        makeUnsafeTemporaryFilename(&localOutPath, prefix);
+        result = bdls::FilesystemUtil::createPrivateDirectory(localOutPath);
+        if (result == 0) {
+            *outPath = localOutPath;
+            break;
+        }
+    }
+    return result;
+}
+
+void
+FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
+                                            const bslstl::StringRef& prefix)
+{
+    BSLS_ASSERT(outPath);
+    char suffix[8];
+    bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
+    bsls::Types::Uint64 tid =
+                      bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::self());
+    using bslh::hashAppend;
+    bslh::DefaultHashAlgorithm hashee;
+    hashAppend(hashee, now);
+    hashAppend(hashee, prefix);
+    hashAppend(hashee, (const bslstl::StringRef&) *outPath);
+    hashAppend(hashee, tid);
+    hashAppend(hashee, bdls::ProcessUtil::getProcessId());
+    bslh::DefaultHashAlgorithm::result_type hash = hashee.computeHash();
+    for (int i = 0; i < int(sizeof(suffix)); ++i) {
+        static const char s[63] =
+              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        suffix[i] = s[hash % 62];
+        hash /= 62;
+    }
+    *outPath = prefix;
+    outPath->append(suffix, sizeof(suffix));
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
