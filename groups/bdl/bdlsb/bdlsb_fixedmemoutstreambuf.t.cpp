@@ -42,6 +42,9 @@ using namespace bsl;  // automatically added by script
 // ensure correct interplay between these protected methods and the base-
 // class-provided implementations that use them.
 //
+// Note that output operator used for test tracing purposes is tested in test
+// case 3.
+//
 // Primary Manipulators:
 //: o Value constructor 'FixedMemOutStreamBuf(char *, bsl::streamsize)'
 //: o 'sputc'
@@ -59,10 +62,10 @@ using namespace bsl;  // automatically added by script
 // MANIPULATORS
 // [ 2] char* data();
 // [ 2] int_type sputc(char_type);
-// [ 7] pos_type seekpos(pos_type, openmode);
-// [ 7] pos_type seekoff(off_type, seekdir, openmode);
-// [ 8] FixedMemOutStreamBuf *setbuf(char_type *buf, streamsize length);
-// [ 6] streamsize sputn(const char_type, streamsize);
+// [ 6] pos_type seekpos(pos_type, openmode);
+// [ 6] pos_type seekoff(off_type, seekdir, openmode);
+// [ 7] FixedMemOutStreamBuf *setbuf(char_type *buf, streamsize length);
+// [ 5] streamsize sputn(const char_type, streamsize);
 //
 // ACCESSORS
 // [ 4] const char* data() const;
@@ -71,7 +74,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] ostream& operator<<(ostream&, const FixedMemOutStreamBuf&);
-// [ 9] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -198,7 +201,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -264,8 +267,9 @@ int main(int argc, char *argv[])
     ASSERT(0 == strncmp("The answer is 42.", storage, 17));
 //..
 //
-///Example 2: Fixed buffer's size illustration
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Fixed Buffer Size
+/// - - - - - - - - - - - - - -
+
 // Unlike most implementations of the 'bsl::basic_streambuf' concept,
 // 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
 // constructor together with the address of the storage buffer.  That limit
@@ -311,13 +315,11 @@ int main(int argc, char *argv[])
     ASSERT(0 == strncmp("Truth.", smallStorage, 6));
 //..
       } break;
-
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'setbuf' METHOD
-        //
-        // Ensure that we can reset put area to client-provided buffer for a
-        // constructed stream buffer object
+        //   Ensure that we can reset put area to client-provided buffer for a
+        //   constructed stream buffer object
         //
         // Concerns:
         //: 1 The 'setbuf' method can reset internal buffer via base public
@@ -350,13 +352,12 @@ int main(int argc, char *argv[])
             ASSERT(INIT_BUFSIZE/2 == SB.capacity());
         }
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'seek' METHODS
-        //
-        // As the only action performed in 'seekpos' is the call for 'seekoff'
-        // with predetermined second parameter, then we can test 'seekpos'
-        // superficially.
+        //   As the only action performed in 'seekpos' is the call for
+        //   'seekoff' with predetermined second parameter, then we can test
+        //   'seekpos' superficially.
         //
         // Concerns:
         //: 1 Seeking is correct for:
@@ -582,7 +583,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING 'sputn' METHOD
         //
@@ -677,29 +678,12 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR
-        //
-        // This component does not provide output operator.  Note that output
-        // operator used for test tracing purposes is tested in test case 3.
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-        if (verbose) cout << endl
-                          << "TESTING OUTPUT (<<) OPERATOR" << endl
-                          << "============================" << endl;
-
-      } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
-        //
-        // Verify the basic accessors of the 'bdlsb::FixedMemOutStreamBuf'
-        // object.  Note that none of the accessors are strictly needed for
-        // followup tests, but simplify the overall test logic.
+        //   Verify the basic accessors of the 'bdlsb::FixedMemOutStreamBuf'
+        //   object.  Note that none of the accessors are strictly needed for
+        //   followup tests, but simplify the overall test logic.
         //
         // Concerns:
         //: 1 Accessors work off of a references to 'const' objects.
@@ -808,10 +792,9 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TEST APPARATUS
-        //
-        // Verify the auxiliary function used in the test driver. Note that
-        // the tested function is not part of the component and use only to
-        // provide human readable test traces.
+        //   Verify the auxiliary function used in the test driver. Note that
+        //   the tested function is not part of the component and use only to
+        //   provide human readable test traces.
         //
         // Concerns:
         //: 1 Output operator formats the stream buffer correctly.
@@ -926,7 +909,6 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS
-        //
         //   Ensure that we can use the 2-argument value constructor to create
         //   an object having any state relevant for thorough testing, and use
         //   the destructor to destroy it safely.
@@ -978,7 +960,6 @@ int main(int argc, char *argv[])
         //   ~FixedMemOutStreamBuf();
         //   char* data();
         //   int_type sputc(char_type);
-        //
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1032,14 +1013,14 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   Note: This test merely exercises basic functionality.
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
         //: 1 The class is sufficiently functional to enable comprehensive
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Manually test various methods
+        //: 1 Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1087,6 +1068,7 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
