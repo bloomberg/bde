@@ -1061,6 +1061,9 @@ struct TestDriver {
     static void testCase20();
         // Test 'replace'.
 
+    static void testCase20MatchTypes();
+        // Test 'replace' where the types of 'NUM_ELEMENTS' and 'VALUE' match.
+
     template <class CONTAINER>
     static void testCase20Range(const CONTAINER&);
         // Test 'replace' member template.
@@ -5314,6 +5317,300 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
                     const int    LINE         = DATA[ti].d_lineNum;
                     const size_t NUM_ELEMENTS = DATA[ti].d_length;
                     const TYPE   VALUE        = VALUES[ti % NUM_VALUES];
+
+                    for (size_t b = 0; b <= INIT_LENGTH; ++b) {
+                    for (size_t s = 0; s <= INIT_LENGTH; ++s) {
+                        const size_t BEGIN = b;
+                        const size_t SIZE  = s;
+                        const size_t END   = min(b + s, INIT_LENGTH);
+
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
+                            const Int64 AL = testAllocator.allocationLimit();
+                            testAllocator.setAllocationLimit(-1);
+
+                            Obj mX(INIT_LENGTH,
+                                   DEFAULT_VALUE,
+                                   ALLOC(&testAllocator));  const Obj& X = mX;
+                            mX.reserve(INIT_RES);
+
+                            Obj mExp(X);  const Obj& EXP = mExp;
+                            mExp.erase(mExp.begin() + BEGIN,
+                                       mExp.begin() + END);
+                            mExp.insert(BEGIN, NUM_ELEMENTS, VALUE);
+
+                            testAllocator.setAllocationLimit(AL);
+
+                            bool checkResultFlag = false;
+                            switch (replaceMode) {
+                              case REPLACE_CHAR_N_AT_INDEX: {
+                                // string& replace(pos1, n1, n2, C c);
+                                Obj &result = mX.replace(BEGIN, SIZE,
+                                                         NUM_ELEMENTS,
+                                                         VALUE);
+                                LOOP4_ASSERT(INIT_LINE, LINE, BEGIN, SIZE,
+                                             &X == &result);
+                                checkResultFlag = true;
+                              } break;
+                              case REPLACE_CHAR_N_AT_ITERATOR: {
+                                // void replace(iterator p, iterator q,
+                                //              size_type n2, C c);
+                                Obj &result = mX.replace(mX.begin() + BEGIN,
+                                                         mX.begin() + END,
+                                                         NUM_ELEMENTS,
+                                                         VALUE);
+                                LOOP4_ASSERT(INIT_LINE, LINE, BEGIN, END,
+                                             &X == &result);
+                                checkResultFlag = true;
+                              } break;
+                              default:
+                                printf("***UNKNOWN REPLACE MODE***\n");
+                                ASSERT(0);
+                            };
+
+                            if (veryVerbose) {
+                                T_; T_; T_; P_(X); P(X.capacity());
+                            }
+
+                            if (checkResultFlag) {
+                                LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                             EXP == X);
+                            }
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+                    }
+                }
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
+{
+    // --------------------------------------------------------------------
+    // TESTING REPLACE:
+    // We have the following concerns:
+    //   1) That the resulting string value is correct.
+    //   2) That the 'replace' return value is a reference to self.
+    //   3) That the resulting capacity is correctly set up.
+    //   4) That existing elements are moved via Traits::move.
+    //   5) That insertion is exception neutral w.r.t. memory allocation.
+    //   6) The internal memory management system is hooked up properly
+    //      so that *all* internally allocated memory draws from a
+    //      user-supplied allocator whenever one is specified.
+    //
+    // Plan:
+    //   The plan is similar to 'insert' (case 17) with two nested loops
+    //   for the beginning and end of the replace range (instead of only one
+    //   for the insert position).  Since both 'erase' and 'insert' have been
+    //   tested, and conceptually replace is equivalent to 'erase' followed by
+    //   'insert', is suffices to perform 'replace' using this alternate method
+    //   and compare the resulting strings.
+    //
+    // Testing:
+    //   string& replace(pos1, n1, size_type n2, C c);
+    //   replace(const_iterator first, const_iterator last, size_type n2, C c);
+    // -----------------------------------------------------------------------
+
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+
+    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    enum {
+        REPLACE_CHAR_MODE_FIRST    = 0,
+        REPLACE_CHAR_N_AT_INDEX    = 0,
+        REPLACE_CHAR_N_AT_ITERATOR = 1,
+        REPLACE_CHAR_MODE_LAST     = 1
+    };
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        int         d_length;           // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0   },
+        { L_,        1   },
+        { L_,        2   },
+        { L_,        3   },
+        { L_,        4   },
+        { L_,        5   },
+        { L_,        9   },
+#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
+        { L_,       11   },
+        { L_,       12   },
+        { L_,       13   },
+        { L_,       18   }
+#else
+        { L_,       23   },
+        { L_,       24   },
+        { L_,       25   },
+        { L_,       32   }
+#endif
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("\nTesting 'replace'.\n");
+
+    for (int replaceMode  = REPLACE_CHAR_MODE_FIRST;
+             replaceMode <= REPLACE_CHAR_MODE_LAST;
+             ++replaceMode)
+    {
+        if (verbose)
+            printf("\tUsing 'n' copies of 'value', replaceMode = %d.\n",
+                   replaceMode);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE         = DATA[ti].d_lineNum;
+                    const int    NUM_ELEMENTS = DATA[ti].d_length;
+                    const int    VALUE        = VALUES[ti % NUM_VALUES];
+
+                    for (size_t b = 0; b <= INIT_LENGTH; ++b) {
+                    for (size_t s = 0; s <= INIT_LENGTH; ++s) {
+                        const size_t BEGIN = b;
+                        const size_t SIZE  = s;
+                        const size_t END   = std::min(b + s, INIT_LENGTH);
+
+                        const size_t LENGTH = INIT_LENGTH + NUM_ELEMENTS -
+                                                                 (END - BEGIN);
+
+                        Obj mX(INIT_LENGTH,
+                               DEFAULT_VALUE,
+                               ALLOC(&testAllocator));  const Obj& X = mX;
+                        mX.reserve(INIT_RES);
+                        const size_t INIT_CAP = X.capacity();
+
+                        size_t k;
+                        for (k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] =  VALUES[k % NUM_VALUES];
+                        }
+
+                        Obj mExp(X);  const Obj& EXP = mExp;
+                        mExp.erase(mExp.begin() + BEGIN, mExp.begin() + END);
+                        mExp.insert(BEGIN, NUM_ELEMENTS, VALUE);
+
+                        const size_t CAP = computeNewCapacity(LENGTH,
+                                                              INIT_LENGTH,
+                                                              INIT_CAP,
+                                                              X.max_size());
+
+                        if (veryVerbose) {
+                            printf("\t\t\tReplace "); P_(SIZE);
+                            printf("elements between "); P_(BEGIN); P_(END);
+                            printf("using "); P_(NUM_ELEMENTS); P(VALUE);
+                        }
+
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBefore:"); P_(BB); P(B);
+                        }
+
+                        switch (replaceMode) {
+                          case REPLACE_CHAR_N_AT_ITERATOR: {
+                            //   void replace(iterator p, iterator q,
+                            //                size_type n, C c);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     NUM_ELEMENTS,
+                                                     VALUE);
+                            LOOP3_ASSERT(INIT_LINE, i, ti, &X == &result);
+                          } break;
+                          case REPLACE_CHAR_N_AT_INDEX: {
+                            // string& replace(pos1, n1, n2, C c);
+                            Obj &result = mX.replace(BEGIN,
+                                                     SIZE,
+                                                     NUM_ELEMENTS,
+                                                     VALUE);
+                            LOOP3_ASSERT(INIT_LINE, i, ti, &X == &result);
+                          } break;
+                          default:
+                            printf("***UNKNOWN REPLACE MODE***\n");
+                            ASSERT(0);
+                        };
+
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAfter :"); P_(AA); P(A);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                     LENGTH == X.size());
+                        LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                     CAP == X.capacity());
+                        LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                     EXP == X);
+
+                        const int REALLOC = X.capacity() > INIT_CAP;
+                        const int A_ALLOC =
+                            DEFAULT_CAPACITY >= INIT_CAP &&
+                            X.capacity() > DEFAULT_CAPACITY;
+
+                        LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                     BB + REALLOC == AA);
+                        LOOP5_ASSERT(INIT_LINE, LINE, BEGIN, END, SIZE,
+                                     B + A_ALLOC ==  A);
+                    }
+                    }
+                }
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
+
+    if (verbose) printf("\tWith exceptions.\n");
+
+    for (int replaceMode  =  REPLACE_CHAR_MODE_FIRST;
+             replaceMode <= REPLACE_CHAR_MODE_LAST;
+             ++replaceMode)
+    {
+        if (verbose)
+            printf("\t\tUsing string with replaceMode = %d.\n", replaceMode);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE         = DATA[ti].d_lineNum;
+                    const size_t NUM_ELEMENTS = DATA[ti].d_length;
+                    const size_t VALUE        = VALUES[ti % NUM_VALUES];
 
                     for (size_t b = 0; b <= INIT_LENGTH; ++b) {
                     for (size_t s = 0; s <= INIT_LENGTH; ++s) {
@@ -9960,6 +10257,94 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const int    LINE   = DATA[ti].d_lineNum;
                     const size_t LENGTH = DATA[ti].d_length;
                     const TYPE   VALUE  = VALUES[ti % NUM_VALUES];
+
+                    if (veryVerbose) {
+                        printf("\t\tAssign "); P_(LENGTH);
+                        printf(" using "); P(VALUE);
+                    }
+
+                    mX.assign(LENGTH, VALUE);
+
+                    if (veryVerbose) {
+                        T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 X.capacity() >= X.size());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, VALUE == X[j]);
+                    }
+                }
+            }
+            ASSERT(0 == testAllocator.numMismatches());
+            ASSERT(0 == testAllocator.numBlocksInUse());
+        }
+
+        if (verbose) printf("\tUsing 'n' copies of 'size_t' 'value'.\n");
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int    INIT_LINE   = DATA[i].d_lineNum;
+                const size_t INIT_LENGTH = DATA[i].d_length;
+
+                Obj mX(INIT_LENGTH, DEFAULT_VALUE, AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int    LINE   = DATA[ti].d_lineNum;
+                    const size_t LENGTH = DATA[ti].d_length;
+                    const size_t VALUE  = VALUES[ti % NUM_VALUES];
+
+                    if (veryVerbose) {
+                        printf("\t\tAssign "); P_(LENGTH);
+                        printf(" using "); P(VALUE);
+                    }
+
+                    mX.assign(LENGTH, VALUE);
+
+                    if (veryVerbose) {
+                        T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti,
+                                 X.capacity() >= X.size());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, VALUE == X[j]);
+                    }
+                }
+            }
+            ASSERT(0 == testAllocator.numMismatches());
+            ASSERT(0 == testAllocator.numBlocksInUse());
+        }
+
+        if (verbose) printf("\tUsing 'n' copies of 'int' 'value'.\n");
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int    INIT_LINE   = DATA[i].d_lineNum;
+                const size_t INIT_LENGTH = DATA[i].d_length;
+
+                Obj mX(INIT_LENGTH, DEFAULT_VALUE, AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_DATA; ++ti) {
+                    const int LINE   = DATA[ti].d_lineNum;
+                    const int LENGTH = DATA[ti].d_length;
+                    const int VALUE  = VALUES[ti % NUM_VALUES];
 
                     if (veryVerbose) {
                         printf("\t\tAssign "); P_(LENGTH);
@@ -15979,6 +16364,12 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
         TestDriver<wchar_t>::testCase20();
+
+        if (verbose) printf("\n... with 'char' & matching integral types.\n");
+        TestDriver<char>::testCase20MatchTypes();
+
+        if (verbose) printf("\n... with 'wchar_t' & matching integ types.\n");
+        TestDriver<wchar_t>::testCase20MatchTypes();
 
         if (verbose) printf("\nTesting 'replace' with range"
                             "\n==========================\n");

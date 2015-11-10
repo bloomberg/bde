@@ -213,7 +213,8 @@ class FixedMemOutStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    FixedMemOutStreamBuf(char *buffer, bsl::streamsize length);
+    FixedMemOutStreamBuf(char            *buffer,
+                         bsl::streamsize  length);
         // Create an empty stream buffer that uses the specified character
         // 'buffer' of the specified 'length'.  The behavior is undefined
         // unless 'length == 0' or 'length > 0 && buffer != 0'.

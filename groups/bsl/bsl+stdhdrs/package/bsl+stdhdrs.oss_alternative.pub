@@ -1,0 +1,112 @@
+# Standard Container headers
+deque           deque.SUNWCCh
+iterator        iterator.SUNWCCh
+list            list.SUNWCCh
+map             map.SUNWCCh
+memory          memory.SUNWCCh
+queue           queue.SUNWCCh
+set             set.SUNWCCh
+sstream         sstream.SUNWCCh
+stack           stack.SUNWCCh
+string          string.SUNWCCh
+unordered_map   unordered_map.SUNWCCh
+unordered_set   unordered_set.SUNWCCh
+vector          vector.SUNWCCh
+
+# Non-container headers
+algorithm       algorithm.SUNWCCh
+bitset          bitset.SUNWCCh
+complex         complex.SUNWCCh
+exception       exception.SUNWCCh
+fstream         fstream.SUNWCCh
+functional      functional.SUNWCCh
+iomanip         iomanip.SUNWCCh
+ios             ios.SUNWCCh
+iosfwd          iosfwd.SUNWCCh
+iostream        iostream.SUNWCCh
+istream         istream.SUNWCCh
+limits          limits.SUNWCCh
+locale          locale.SUNWCCh
+new             new.SUNWCCh
+numeric         numeric.SUNWCCh
+ostream         ostream.SUNWCCh
+stdexcept       stdexcept.SUNWCCh
+streambuf       streambuf.SUNWCCh
+strstream       strstream.SUNWCCh
+typeinfo        typeinfo.SUNWCCh
+utility         utility.SUNWCCh
+valarray        valarray.SUNWCCh
+
+# C headers
+cassert         cassert.SUNWCCh
+cctype          cctype.SUNWCCh
+cerrno          cerrno.SUNWCCh
+cfloat          cfloat.SUNWCCh
+ciso646         ciso646.SUNWCCh
+climits         climits.SUNWCCh
+clocale         clocale.SUNWCCh
+cmath           cmath.SUNWCCh
+csetjmp         csetjmp.SUNWCCh
+csignal         csignal.SUNWCCh
+cstdarg         cstdarg.SUNWCCh
+cstddef         cstddef.SUNWCCh
+cstdio          cstdio.SUNWCCh
+cstdlib         cstdlib.SUNWCCh
+cstring         cstring.SUNWCCh
+ctime           ctime.SUNWCCh
+cwchar          cwchar.SUNWCCh
+cwctype         cwctype.SUNWCCh
+
+# C++11 headers
+array               array.SUNWCCh
+atomic              atomic.SUNWCCh
+chrono              chrono.SUNWCCh
+condition_variable  condition_variable.SUNWCCh
+future              future.SUNWCCh
+initializer_list    initializer_list.SUNWCCh
+mutex               mutex.SUNWCCh
+random              random.SUNWCCh
+ratio               ratio.SUNWCCh
+regex               regex.SUNWCCh
+scoped_allocator    scoped_allocator.SUNWCCh
+system_error        system_error.SUNWCCh
+thread              thread.SUNWCCh
+tuple               tuple.SUNWCCh
+typeindex           typeindex.SUNWCCh
+
+#C11 headers
+cfenv  cfenv
+cinttypes       cinttypes.SUNWCCh
+ciso646         ciso646.SUNWCCh
+cstdbool        cstdbool.SUNWCCh
+cstdint         cstdint.SUNWCCh
+ctgmath         ctgmath.SUNWCCh
+cuchar          cuchar.SUNWCCh
+
+# Package headers
+bsl_stdhdrs_epilogue.h
+bsl_stdhdrs_epilogue_recursive.h
+bsl_stdhdrs_incpaths.h
+bsl_stdhdrs_prologue.h
+
+# C or POSIX headers
+assert.h        assert.h.SUNWCCh
+ctype.h         ctype.h.SUNWCCh
+errno.h         errno.h.SUNWCCh
+float.h         float.h.SUNWCCh
+iso646.h        iso646.h.SUNWCCh
+limits.h        limits.h.SUNWCCh
+locale.h        locale.h.SUNWCCh
+math.h          math.h.SUNWCCh
+pthread.h
+signal.h        signal.h.SUNWCCh
+stdarg.h        stdarg.h.SUNWCCh
+stddef.h        stddef.h.SUNWCCh
+stdio.h         stdio.h.SUNWCCh
+stdlib.h        stdlib.h.SUNWCCh
+string.h        string.h.SUNWCCh
+sys/time.h      sys/time.h.SUNWCCh
+time.h          time.h.SUNWCCh
+wchar.h         wchar.h.SUNWCCh
+wctype.h        wctype.h.SUNWCCh
+setjmp.h        setjmp.h.SUNWCCh

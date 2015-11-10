@@ -2,7 +2,6 @@
 #include <bdldfp_decimalutil.h>
 
 #include <bdldfp_decimal.h>
-#include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_uint128.h>
 
 #include <bslim_testutil.h>
@@ -21,7 +20,6 @@
 #include <bsl_fstream.h>
 #include <bsl_limits.h>
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
@@ -139,7 +137,7 @@ struct SymbolDataDecimal64 {
     BDEC::Decimal64    d_low;
     BDEC::Decimal64    d_high;
     BDEC::Decimal64    d_valueTraded;
-    double             d_vwap;
+    BDEC::Decimal64    d_vwap;
     unsigned long long d_volume;
 };
 
@@ -353,23 +351,7 @@ BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-                 // stringstream helpers - not thread safe!
-
-void getStringFromStream(bsl::ostringstream &o, bsl::string  *out)
-{
-    bslma::TestAllocator osa("osstream");
-    bslma::DefaultAllocatorGuard g(&osa);
-    *out = o.str();
-}
-
-void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
-{
-    bslma::TestAllocator osa("osstream");
-    bslma::DefaultAllocatorGuard g(&osa);
-    *out = o.str();
-}
-
- // String compare for decimal floating point numbers needs 'e'/'E' conversion
+// String compare for decimal floating point numbers needs 'e'/'E' conversion
 
 bsl::string& decLower(bsl::string& s)
 {
@@ -2667,7 +2649,7 @@ int main(int argc, char* argv[])
         for (size_type i = 0; i < data.size(); ++i) {
             const bsl::string& symbol = data[i].d_symbol;
             if (symbol2Index.find(symbol) == symbol2Index.end()) {
-                symbol2Index[symbol] = ++numSymbols;
+                symbol2Index[symbol] = numSymbols++;
             }
         }
 
@@ -2678,7 +2660,7 @@ int main(int argc, char* argv[])
             Util::parseDecimal64(&d.d_low , "+inf");
             Util::parseDecimal64(&d.d_high, "-inf");
             d.d_valueTraded = BDEC::Decimal64(0);
-            d.d_vwap = 0.0;
+            d.d_vwap = BDEC::Decimal64(0);
             d.d_volume = 0;
             symbolData.push_back(d);
         }
@@ -2707,9 +2689,7 @@ int main(int argc, char* argv[])
             symbolData[index].d_valueTraded += price * data[i].d_quantity;
             symbolData[index].d_volume += data[i].d_quantity;
             symbolData[index].d_vwap =
-                BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
-                (symbolData[index].d_valueTraded /
-                 symbolData[index].d_volume);
+                symbolData[index].d_valueTraded / symbolData[index].d_volume;
         }
 
         const double totalTime = s.accumulatedWallTime();
@@ -2752,7 +2732,7 @@ int main(int argc, char* argv[])
         for (size_type i = 0; i < data.size(); ++i) {
             const bsl::string& symbol = data[i].d_symbol;
             if (symbol2Index.find(symbol) == symbol2Index.end()) {
-                symbol2Index[symbol] = ++numSymbols;
+                symbol2Index[symbol] = numSymbols++;
             }
         }
 
@@ -2855,7 +2835,7 @@ int main(int argc, char* argv[])
         for (size_type i = 0; i < data.size(); ++i) {
             const bsl::string& symbol = data[i].d_symbol;
             if (symbol2Index.find(symbol) == symbol2Index.end()) {
-                symbol2Index[symbol] = ++numSymbols;
+                symbol2Index[symbol] = numSymbols++;
             }
         }
 
@@ -2866,7 +2846,7 @@ int main(int argc, char* argv[])
             Util::parseDecimal64(&d.d_low , "+inf");
             Util::parseDecimal64(&d.d_high, "-inf");
             d.d_valueTraded = BDEC::Decimal64(0);
-            d.d_vwap = 0.0;
+            d.d_vwap = BDEC::Decimal64(0);
             d.d_volume = 0;
             symbolData.push_back(d);
         }
@@ -2895,10 +2875,8 @@ int main(int argc, char* argv[])
                 }
                 symbolData[index].d_valueTraded += price * data[i].d_quantity;
                 symbolData[index].d_volume += data[i].d_quantity;
-                symbolData[index].d_vwap =
-                    BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
-                    (symbolData[index].d_valueTraded /
-                     symbolData[index].d_volume);
+                symbolData[index].d_vwap = symbolData[index].d_valueTraded /
+                                           symbolData[index].d_volume;
             }
         }
 
@@ -2961,7 +2939,7 @@ int main(int argc, char* argv[])
         for (size_type i = 0; i < data.size(); ++i) {
             const bsl::string& symbol = data[i].d_symbol;
             if (symbol2Index.find(symbol) == symbol2Index.end()) {
-                symbol2Index[symbol] = ++numSymbols;
+                symbol2Index[symbol] = numSymbols++;
             }
         }
 

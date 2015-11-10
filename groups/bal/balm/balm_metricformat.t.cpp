@@ -10,7 +10,6 @@
 #include <balm_metricformat.h>
 
 #include <balm_category.h>
-#include <balm_metricdescription.h>
 
 #include <bdlf_bind.h>
 
