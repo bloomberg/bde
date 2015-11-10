@@ -68,6 +68,7 @@ using namespace bsl;
 // [ 6] void deleteObjectRaw(const TYPE *object);
 // [ 6] void deleteObject(const TYPE *object);
 // [ 5] void release();
+// [ 5] void rewind();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
@@ -756,8 +757,14 @@ int main(int argc, char *argv[])
             mX.allocate(BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
+            void* first = mX.allocate(BUFFER_SIZE + 1);
 
             ASSERT(0 != objectAllocator.numBlocksInUse());
+
+            mX.rewind();
+            ASSERT(1 == objectAllocator.numBlocksInUse());
+            void* second = mX.allocate(BUFFER_SIZE + 1);
+            ASSERT(first == second);
 
             // Release all memory.
             mX.release();
@@ -1823,15 +1830,20 @@ int main(int argc, char *argv[])
         {
             Obj mY(buffer, BUFFER_SIZE, &objectAllocator);
             addr1 = mY.allocate(BUFFER_SIZE + 1);
+            addr2 = mY.allocate(BUFFER_SIZE + 1);
 
             // Allocation request is satisfied even when larger than the
             // supplied buffer.
             LOOP_ASSERT(addr1, 0 != addr1);
+            LOOP_ASSERT(addr2, 0 != addr2);
 
             // Allocation comes from the objectAllocator.
-            ASSERT(0 != objectAllocator.numBlocksInUse());
+            ASSERT(2 == objectAllocator.numBlocksInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
+
+            mY.rewind();
+            ASSERT(1 == objectAllocator.numBlocksInUse());
         }
 
         // All dynamically allocated memory is released after the pool's

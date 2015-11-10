@@ -37,6 +37,7 @@ using namespace bsl;
 // [ 2] void *allocate(int size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
+// [ 3] void rewind();
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -404,7 +405,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // DTOR & RELEASE
         //   Ensure that both the destructor and the 'release' method release
-        //   all memory allocated from the object allocator.
+        //   all memory allocated from the object allocator.  Ensure that
+        //   'rewind' frees all but the last-allocated block.
         //
         // Concerns:
         //: 1 All memory allocated from the object allocator is released at
@@ -448,7 +450,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "DTOR & RELEASE" << endl
                                   << "==============" << endl;
 
-        const int DATA[]   = { 1, 16, 256, 1000 };
+        const int DATA[]   = { 1, 1, 16, 16, 256, 256, 1000, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -490,17 +492,30 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
 
-                mX.release();
+                if ((ti & 1) == 0) {
+                    mX.release();
+                    LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
 
-                LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
+                    for (int tj = 0; tj < ti; ++tj) {
+                        const int SIZE = DATA[tj];
 
-                for (int tj = 0; tj < ti; ++tj) {
-                    const int SIZE = DATA[tj];
+                        void *p = mX.allocate(SIZE);
+                        if (veryVerbose) { T_; P_(SIZE); P(p); }
+                    }
+                    LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
+                } else {
+                    mX.rewind();
+                    LOOP_ASSERT(ti,  1 == oa.numBlocksInUse());
 
-                    void *p = mX.allocate(SIZE);
-                    if (veryVerbose) { T_; P_(SIZE); P(p); }
+                    for (int tj = 0; tj < ti; ++tj) {
+                        const int SIZE = DATA[tj];
+
+                        void *p = mX.allocate(SIZE);
+                        if (veryVerbose) { T_; P_(SIZE); P(p); }
+                    }
+                    LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
+                    mX.release();
                 }
-                LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
             }
         }
 
@@ -804,9 +819,10 @@ int main(int argc, char *argv[])
         //: 2 Allocate a block 'b1' from 'mX'.
         //: 3 Deallocate block 'b1' (with no effect).
         //: 4 Allocate blocks 'b2' and 'b3' from 'mX'.
-        //: 5 Invoke the release method on 'mX'.
-        //: 6 Allocate a block 'b4' from 'mX'.
-        //: 7 Allow 'mX' to go out of scope.
+        //: 5 Invoke the rewind method on 'mX'.
+        //: 6 Invoke the release method on 'mX'.
+        //: 7 Allocate a block 'b4' from 'mX'.
+        //: 8 Allow 'mX' to go out of scope.
         //
         // Testing:
         //   BREATHING TEST
@@ -833,11 +849,14 @@ int main(int argc, char *argv[])
             mX.allocate(32);               ASSERT(3 == oa.numBlocksInUse());
 
             // 5
-            mX.release();                  ASSERT(0 == oa.numBlocksInUse());
+            mX.rewind();                   ASSERT(1 == oa.numBlocksInUse());
 
             // 6
+            mX.release();                  ASSERT(0 == oa.numBlocksInUse());
+
+            // 7
             mX.allocate(1);                ASSERT(1 == oa.numBlocksInUse());
-        }   // 7
+        }   // 8
                                            ASSERT(0 == oa.numBlocksInUse());
 
       } break;
