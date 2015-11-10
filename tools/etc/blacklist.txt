@@ -51,8 +51,6 @@ file: groups/bsl/bsl+stdhdrs/iostream.h
 file: groups/bsl/bsl+stdhdrs/iostream.h.SUNWCCh
 file: groups/bsl/bsl+stdhdrs/istream.h
 file: groups/bsl/bsl+stdhdrs/istream.h.SUNWCCh
-file: groups/bsl/bsl+stdhdrs/math.h
-file: groups/bsl/bsl+stdhdrs/math.h.SUNWCCh
 file: groups/bsl/bsl+stdhdrs/memory.h
 file: groups/bsl/bsl+stdhdrs/memory.h.SUNWCCh
 file: groups/bsl/bsl+stdhdrs/new.h
