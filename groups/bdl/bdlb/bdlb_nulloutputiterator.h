@@ -11,12 +11,13 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlb::NullOutputIterator: output iterator template that discards the output
-//  bdlb::NullOutputIteratorAssignmentProxy: proxy for assignment
+//  bdlb::NullOutputIterator::AssignmentProxy: proxy for assignment
 //
 //@SEE_ALSO: bdlb_nullinputiterator
 //
-//@DESCRIPTION: This component provides a class template defining an output
-// iterator type, 'bdlb::NullOutputIterator', with the following attributes:
+//@DESCRIPTION: This component provides a mechanism,
+// 'bdlb::NullOutputIterator', that defines an output iterator with the
+// following attributes:
 //: o Meets exactly the requirements for an output iterator according to the
 //:   C++ Standard (C++98, Section 24.1.2 [lib.output.iterators]).
 //: o De-referencing an iterator and assigning to the returned value has no
@@ -27,10 +28,37 @@ BSLS_IDENT("$Id: $")
 // side-effects, discarding the normal output.  It is also useful for testing
 // whether a template function will compile when presented with a pure output
 // iterator.  This component also provides a template
-// 'bdlb::NullOutputIteratorAssignmentProxy' allowing assignment from any type.
+// 'bdlb::NullOutputIterator::AssignmentProxy', that is used as the return type
+// of 'bdlb::NullOutputIterator::operator*'.  The 'AssignmentProxy' provides an
+// 'operator=' that does nothing, so that the result of the iterator's
+// 'operator*' can be assigned to even if the value type of the
+// 'bdlb::NullOutputIterator' does not provide a default constructor:
+//..
+//  class ValueType {
+//      // ... data members ...
+//
+//    public:
+//      ValueType(int value) { ... implementation elided ... }
+//
+//      // ... rest of class definition elided ...
+//
+//  };
+//
+//  ValueType v(42);
+//  bdlb::NullOutputIterator<ValueType> i;
+//
+//  // With a non-proxy return type for 'operator*' it would be difficult to
+//  // provide a value for the lefthand side of this expression:
+//
+//  *i = v;
+//..
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+/// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bdlb::NullOutputIterator' to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
@@ -57,8 +85,19 @@ BSLS_IDENT("$Id: $")
 //..
 //  int average(int values[], int numValues)
 //  {
-//      int sum = runningSum(values, values + numValues,
-//                           bdlb::NullOutputIterator<int>()) / numValues;
+//      // ... input validation elided ...
+//      return runningSum(values, values + numValues,
+//                        bdlb::NullOutputIterator<int>()) / numValues;
+//  }
+//..
+// Finally, we invoke function 'average' on user array and validate result.
+//..
+//  void usageExample()
+//  {
+//      const int myArray[5] = { 3, 4, 5, 7, 11 };
+//
+//      int averageValue = average(myArray, 5);
+//      assert( averageValue == 6 );
 //  }
 //..
 
@@ -86,7 +125,7 @@ class NullOutputIteratorAssignmentProxy {
     // MANIPULATORS
     void operator=(const TYPE& rhs);
         // Assign to this object the value of the specified 'rhs'. The operator
-        // has not effect.
+        // has no effect.
 };
 
                         // ========================
