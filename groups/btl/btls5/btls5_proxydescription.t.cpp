@@ -1975,7 +1975,7 @@ int main(int argc, char *argv[])
             0,
             0,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                             NL
@@ -1985,7 +1985,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"UA\""             NL
-            "password = \"PWD\""            NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
         },
@@ -1994,7 +1994,7 @@ int main(int argc, char *argv[])
             0,
             1,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                               NL
@@ -2004,7 +2004,7 @@ int main(int argc, char *argv[])
             " ]"                              NL
             " credentials = ["                NL
             "  username = \"UA\""             NL
-            "  password = \"PWD\""            NL
+            "  password = \"*****\""          NL
             " ]"                              NL
             "]"                               NL
         },
@@ -2013,7 +2013,7 @@ int main(int argc, char *argv[])
             0,
             -1,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                             SP
@@ -2023,7 +2023,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"UA\""             SP
-            "password = \"PWD\""            SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"
         },
@@ -2032,7 +2032,7 @@ int main(int argc, char *argv[])
             0,
             -8,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                               NL
@@ -2042,7 +2042,7 @@ int main(int argc, char *argv[])
             "    ]"                           NL
             "    credentials = ["             NL
             "        username = \"UA\""       NL
-            "        password = \"PWD\""      NL
+            "        password = \"*****\""    NL
             "    ]"                           NL
             "]"                               NL
         },
@@ -2059,7 +2059,7 @@ int main(int argc, char *argv[])
             3,
             0,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                               NL
@@ -2069,7 +2069,7 @@ int main(int argc, char *argv[])
             "]"                               NL
             "credentials = ["                 NL
             "username = \"UA\""               NL
-            "password = \"PWD\""              NL
+            "password = \"*****\""            NL
             "]"                               NL
             "]"                               NL
         },
@@ -2078,7 +2078,7 @@ int main(int argc, char *argv[])
             3,
             2,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "      ["                               NL
@@ -2088,7 +2088,7 @@ int main(int argc, char *argv[])
             "        ]"                             NL
             "        credentials = ["               NL
             "          username = \"UA\""           NL
-            "          password = \"PWD\""          NL
+            "          password = \"*****\""        NL
             "        ]"                             NL
             "      ]"                               NL
         },
@@ -2097,7 +2097,7 @@ int main(int argc, char *argv[])
             3,
             -2,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "      ["                       SP
@@ -2107,7 +2107,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"UA\""             SP
-            "password = \"PWD\""            SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"
         },
@@ -2116,7 +2116,7 @@ int main(int argc, char *argv[])
             3,
             -8,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "            ["                               NL
@@ -2126,7 +2126,7 @@ int main(int argc, char *argv[])
             "                ]"                           NL
             "                credentials = ["             NL
             "                    username = \"UA\""       NL
-            "                    password = \"PWD\""      NL
+            "                    password = \"*****\""    NL
             "                ]"                           NL
             "            ]"                               NL
         },
@@ -2135,7 +2135,7 @@ int main(int argc, char *argv[])
             -3,
             0,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                             NL
@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
             "]"                             NL
             "credentials = ["               NL
             "username = \"UA\""             NL
-            "password = \"PWD\""            NL
+            "password = \"*****\""          NL
             "]"                             NL
             "]"                             NL
         },
@@ -2154,7 +2154,7 @@ int main(int argc, char *argv[])
             -3,
             2,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                                     NL
@@ -2164,7 +2164,7 @@ int main(int argc, char *argv[])
             "        ]"                             NL
             "        credentials = ["               NL
             "          username = \"UA\""           NL
-            "          password = \"PWD\""          NL
+            "          password = \"*****\""        NL
             "        ]"                             NL
             "      ]"                               NL
         },
@@ -2173,7 +2173,7 @@ int main(int argc, char *argv[])
             -3,
             -2,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                             SP
@@ -2183,7 +2183,7 @@ int main(int argc, char *argv[])
             "]"                             SP
             "credentials = ["               SP
             "username = \"UA\""             SP
-            "password = \"PWD\""            SP
+            "password = \"*****\""          SP
             "]"                             SP
             "]"
         },
@@ -2192,7 +2192,7 @@ int main(int argc, char *argv[])
             -3,
             -8,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                                           NL
@@ -2202,7 +2202,7 @@ int main(int argc, char *argv[])
             "                ]"                           NL
             "                credentials = ["             NL
             "                    username = \"UA\""       NL
-            "                    password = \"PWD\""      NL
+            "                    password = \"*****\""    NL
             "                ]"                           NL
             "            ]"                               NL
         },
@@ -2219,7 +2219,7 @@ int main(int argc, char *argv[])
             2,
             3,
             "UB",
-            "PWD2",
+            "*****",
             "HB",
             65535,
             "      ["                               NL
@@ -2229,7 +2229,7 @@ int main(int argc, char *argv[])
             "         ]"                            NL
             "         credentials = ["              NL
             "            username = \"UB\""         NL
-            "            password = \"PWD2\""       NL
+            "            password = \"*****\""      NL
             "         ]"                            NL
             "      ]"                               NL
         },
@@ -2246,7 +2246,7 @@ int main(int argc, char *argv[])
             -8,
             -8,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
             "["                               NL
@@ -2256,7 +2256,7 @@ int main(int argc, char *argv[])
             "    ]"                           NL
             "    credentials = ["             NL
             "        username = \"UA\""       NL
-            "        password = \"PWD\""      NL
+            "        password = \"*****\""    NL
             "    ]"                           NL
             "]"                               NL
         },
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
             -8,
             -8,
             "UB",
-            "PWD2",
+            "*****",
             "HB",
             65535,
             "["                               NL
@@ -2275,7 +2275,7 @@ int main(int argc, char *argv[])
             "    ]"                           NL
             "    credentials = ["             NL
             "        username = \"UB\""       NL
-            "        password = \"PWD2\""     NL
+            "        password = \"*****\""    NL
             "    ]"                           NL
             "]"                               NL
         },
@@ -2292,10 +2292,10 @@ int main(int argc, char *argv[])
             -9,
             -9,
             "UA",
-            "PWD",
+            "*****",
             "HA",
             255,
-            "[ [ \"HA\" 255 ] [ \"UA\" \"PWD\" ] ]"
+            "[ [ \"HA\" 255 ] [ \"UA\" \"*****\" ] ]"
         },
 
         {
@@ -2303,10 +2303,10 @@ int main(int argc, char *argv[])
             -9,
             -9,
             "UB",
-            "PWD2",
+            "*****",
             "HB",
             65535,
-            "[ [ \"HB\" 65535 ] [ \"UB\" \"PWD2\" ] ]"
+            "[ [ \"HB\" 65535 ] [ \"UB\" \"*****\" ] ]"
         },
 
 #undef NL

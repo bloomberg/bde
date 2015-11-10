@@ -313,6 +313,8 @@ int FixedQueueIndexManager::circularDifference(unsigned int minuend,
 unsigned int FixedQueueIndexManager::numRepresentableGenerations(
                                                           bsl::size_t capacity)
 {
+    BSLS_ASSERT(0 != capacity);
+
     return static_cast<unsigned int>(
                       bsl::min(k_NUM_REPRESENTABLE_COMBINED_INDICES / capacity,
                                k_NUM_REPRESENTABLE_ELEMENT_STATE_GENERATIONS));

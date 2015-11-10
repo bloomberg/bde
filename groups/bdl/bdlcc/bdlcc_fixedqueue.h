@@ -270,7 +270,7 @@ class FixedQueue {
                                            // 'd_popControlSema' to pop an
                                            // element
 
-    bslmt::Semaphore   d_popControlSema;    // semaphore on which threads
+    bslmt::Semaphore  d_popControlSema;    // semaphore on which threads
                                            // waiting to pop 'wait'
 
     const char        d_popControlSemaPad[k_SEMA_PADDING];
@@ -280,7 +280,7 @@ class FixedQueue {
                                            // 'd_pushControlSema' to push an
                                            // element
 
-    bslmt::Semaphore   d_pushControlSema;   // semaphore on which threads
+    bslmt::Semaphore  d_pushControlSema;   // semaphore on which threads
                                            // waiting to push 'wait'
 
     const char        d_pushControlSemaPad[k_SEMA_PADDING];

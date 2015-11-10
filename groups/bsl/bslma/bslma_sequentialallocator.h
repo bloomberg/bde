@@ -9,12 +9,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support fast memory allocation for objects of varying sizes.
 //
-//@INTERNAL_DEPRECATED: Use 'bdema_sequentialallocator' instead.
+//@INTERNAL_DEPRECATED: Use 'bdlma_bufferedsequentialallocator' instead.
 //
 //@CLASSES:
 //  bslma::SequentialAllocator: fast variable-size memory allocator
 //
-//@SEE_ALSO: bdema_sequentialallocator
+//@SEE_ALSO: bdlma_sequentialallocator, bdlma_bufferedsequentialallocator
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
