@@ -149,26 +149,6 @@ void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-
-// In optimized builds, some compilers will elide some of the operations in the
-// destructors of the test classes defined below.  In order to force the
-// compiler to retain all of the code in the destructors, we provide the
-// following function that can be used to (conditionally) print out some of the
-// state of a data member.  If the destructor calls this function after
-// updating a data member, then the value set in the destructor will have
-// visible side-effects, but normal test runs do not have to be burdened with
-// additional output.
-
-static bool forceDestructorCall = false;
-
-template <class DATA_TYPE>
-void dumpData(const DATA_TYPE& data)
-{
-    if (forceDestructorCall) {
-        printf("%p: %c\n", &data, *reinterpret_cast<const char *>(&data));
-    }
-}
-
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -470,12 +450,15 @@ class AttribClass5
 
     AttribStruct5 d_attrib;
 
-    static int d_ctorCount;  // Count of constructor calls
-    static int d_dtorCount;  // Count of destructor calls
+    static int s_ctorCount;       // Count of constructor calls
+    static int s_dtorCount;       // Count of destructor calls
+    static int s_dtorScratchPad;  // Scratch area for dtor trace data
 
   public:
-    static int ctorCount() { return d_ctorCount; }
-    static int dtorCount() { return d_dtorCount; }
+    static int ctorCount() { return s_ctorCount; }
+    static int dtorCount() { return s_dtorCount; }
+    static int dtorScratchPad() { return s_dtorScratchPad; }
+    static void setDtorScratchPad(int value) { s_dtorScratchPad = value; }
 
     typedef bslma::Allocator* AllocatorType;
 
@@ -487,19 +470,16 @@ class AttribClass5
     {
         AttribStruct5 values = { a, b, c, d, e };
         d_attrib = values;
-        ++d_ctorCount;
+        ++s_ctorCount;
     }
 
     AttribClass5(const AttribClass5& other)
-        : d_attrib(other.d_attrib) { ++d_ctorCount; }
+        : d_attrib(other.d_attrib) { ++s_ctorCount; }
 
     ~AttribClass5()
     {
-        d_attrib.d_b = 0xdeadbeaf;
-        ++d_dtorCount;
-
-      dumpData(d_attrib.d_b);
-      dumpData(d_dtorCount);
+        s_dtorScratchPad = d_attrib.d_b;
+        ++s_dtorCount;
     }
 
     char        a() const { return d_attrib.d_a; }
@@ -511,8 +491,9 @@ class AttribClass5
     AllocatorType allocator() const { return bslma::Default::allocator(0); }
 };
 
-int AttribClass5::d_ctorCount = 0;
-int AttribClass5::d_dtorCount = 0;
+int AttribClass5::s_ctorCount = 0;
+int AttribClass5::s_dtorCount = 0;
+int AttribClass5::s_dtorScratchPad = 0;
 
 template <class ALLOC>
 class AttribClass5Alloc
@@ -1107,10 +1088,11 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT(allocName, p  == a.address(v));
     LOOP_ASSERT(allocName, cp == a.address(cv));
 
+    const int bBefore = cp->b();
+    AttribClass5::setDtorScratchPad(bBefore + 1); // any value != bBefore is OK
     a.destroy(bsls::Util::addressOf(*p));
     LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
-    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) p->b());
-    LOOP_ASSERT(allocName, 0xdeadbeaf == (unsigned) cp->b());
+    LOOP_ASSERT(allocName, bBefore == AttribClass5::dtorScratchPad());
 
     a.deallocate(p, 1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == 0)
@@ -1589,11 +1571,12 @@ void testConstructDestroy(const char *allocname,
                      matchAttrib(objects[6].object(), A, B, C, D, E, exp_a));
 
         for (int j = 0; j < 7; ++j) {
+            const int bBefore = objects[i].object().b();
+            C::setDtorScratchPad(bBefore + 1);  // a value != bBefore
             TraitsT::destroy(a, bsls::Util::addressOf(objects[i].object()));
             LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
             LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
-            LOOP3_ASSERT(allocname,tname,i,
-                         0xdeadbeaf == (unsigned) objects[i].object().b());
+            LOOP3_ASSERT(allocname,tname,i, bBefore == C::dtorScratchPad());
         }
     }
 }
@@ -1608,11 +1591,6 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
-
-    // Output triggered by 'forceDestructorCall' is not meaningful, so
-    // de-couple output from test driver verbosity.
-
-    forceDestructorCall = argc > 6;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
@@ -2294,8 +2272,9 @@ int main(int argc, char *argv[])
             ASSERT(matchAttrib(*p, 'x', 88, 0.25, DFLT_D, DFLT_E));
 
             // Test 'destroy'
+            AttribClass5::setDtorScratchPad(0);
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == (unsigned) p->b());
+            ASSERT(88 == AttribClass5::dtorScratchPad());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);
@@ -2328,8 +2307,9 @@ int main(int argc, char *argv[])
             ASSERT(matchAttrib(*p, 'x', 88, 0.25, bye, DFLT_E, &ta));
 
             // Test 'destroy'
+            AttribClass5::setDtorScratchPad(0);
             Traits::destroy(a1, p);
-            ASSERT(0xdeadbeaf == (unsigned) p->b());
+            ASSERT(88 == AttribClass5::dtorScratchPad());
 
             // Test 'deallocate'
             Traits::deallocate(a1, p, 1);

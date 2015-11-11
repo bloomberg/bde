@@ -664,6 +664,10 @@ class TimerEventScheduler {
         // is ignored to avoid deadlock.
 
     // ACCESSORS
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the value of the clock type that this object was created
+        // with.
+
     int numClocks() const;
         // Return a *snapshot* of the number of registered clocks with this
         // scheduler.
@@ -698,6 +702,12 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
 }
 
 // ACCESSORS
+inline
+bsls::SystemClockType::Enum TimerEventScheduler::clockType() const
+{
+    return d_clockType;
+}
+
 inline
 int TimerEventScheduler::numClocks() const
 {

@@ -15,12 +15,12 @@ bdlb_guidutil
 bdlb_hashutil
 bdlb_nullableallocatedvalue
 bdlb_nullablevalue
-bdlb_nullinputiterator
 bdlb_nulloutputiterator
 bdlb_print
 bdlb_printmethods
 bdlb_random
 bdlb_randomdevice
 bdlb_string
+bdlb_testinputiterator
 bdlb_tokenizer
 bdlb_variant

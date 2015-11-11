@@ -13,14 +13,23 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
+//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
+//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
+//  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default' 
+//  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: explicit '= deleted'
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
+//  BSLS_COMPILERFEATURES_SUPPORT_FINAL: flag for 'final' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
 //  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for 'include_next'
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: 'noexcept' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
+//  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: 'explicit' operator
+//  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
-//  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'.
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: flag for 'noexcept' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: Has <type_traits> header
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
@@ -47,6 +56,10 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
 //:     This macro is defined if alias templates are supported by the current
 //:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+//:     This macro is defined if 'alignas' alignment specifier is supported by
+//:     the current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN':
 //:     This macro is defined if the '[[noreturn]]' attribute is supported by
@@ -113,10 +126,6 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
-//:     This macro is defined if 'alignas' alignment specifier is supported by
-//:     the current compiler settings for this platform.
-//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 //:     This macro is defined if the 'noexcept' keyword is supported by the
 //:     current compiler settings for this platform, both for designating a
@@ -169,6 +178,17 @@ BSLS_IDENT("$Id: $")
 //:   o clang 3.0
 //:   o MSVC 2013
 //:   o Oracle CC 12.4
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
+///- - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports the 'alignas' alignment
+// specifier.
+//
+//: o Compiler support:
+//:   o gcc 4.8
+//:   o clang 3.0
+//
+// This feature is not yet supported in Visual Studio, xlc, CC.
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -367,16 +387,6 @@ BSLS_IDENT("$Id: $")
 // Note that bugs in MSVC 2013 support for variadic templates preclude
 // enabling the feature for BSL.
 //
-///'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
-///- - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports the 'alignas' alignment
-// specifier.
-//
-//: o Compiler support:
-//:   o gcc 4.8
-//:   o clang 3.0
-//
-// This feature is not yet supported in Visual Studio, xlc, CC.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
