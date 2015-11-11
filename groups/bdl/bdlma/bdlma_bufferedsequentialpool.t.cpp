@@ -759,13 +759,13 @@ int main(int argc, char *argv[])
             mX.allocate(k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
-            void* first = mX.allocate(BUFFER_SIZE + 1);
+            void* first = mX.allocate(k_BUFFER_SIZE + 1);
 
             ASSERT(0 != objectAllocator.numBlocksInUse());
 
             mX.rewind();
             ASSERT(1 == objectAllocator.numBlocksInUse());
-            void* second = mX.allocate(BUFFER_SIZE + 1);
+            void* second = mX.allocate(k_BUFFER_SIZE + 1);
             ASSERT(first == second);
 
             // Release all memory.
@@ -1840,9 +1840,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting allocate when buffer runs out."
                           << endl;
         {
-            Obj mY(buffer, BUFFER_SIZE, &objectAllocator);
-            addr1 = mY.allocate(BUFFER_SIZE + 1);
-            addr2 = mY.allocate(BUFFER_SIZE + 1);
+            Obj mY(buffer, k_BUFFER_SIZE, &objectAllocator);
+            addr1 = mY.allocate(k_BUFFER_SIZE + 1);
+            addr2 = mY.allocate(k_BUFFER_SIZE + 1);
 
             // Allocation request is satisfied even when larger than the
             // supplied buffer.
