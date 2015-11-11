@@ -83,6 +83,19 @@ void InfrequentDeleteBlockList::release()
     }
 }
 
+void InfrequentDeleteBlockList::rewind()
+{
+    if (d_head_p == 0)
+        return;                                                       // RETURN
+    Block *tail = d_head_p->d_next_p;
+    d_head_p->d_next_p = 0;
+    while (tail) {
+        void *lastBlock = tail;
+        tail = tail->d_next_p;
+        d_allocator_p->deallocate(lastBlock);
+    }
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 

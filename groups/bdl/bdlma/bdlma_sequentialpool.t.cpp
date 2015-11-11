@@ -77,6 +77,7 @@ using namespace bsl;
 // [ 6] void deleteObjectRaw(const TYPE *object);
 // [ 6] void deleteObject(const TYPE *object);
 // [ 5] void release();
+// [ 5] void rewind();
 // [ 9] void reserveCapacity(int numBytes);
 // [ 8] int truncate(void *address, int originalSize, int newSize);
 //-----------------------------------------------------------------------------
@@ -1186,6 +1187,33 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(0 == ta.numBytesInUse());
 
+                // Again, make 'NUMREQ' requests for memory, recording how the
+                // allocator was used after each request.
+
+                for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
+                    void *returnAddr = mX.allocate(REQSIZE);
+                    LOOP2_ASSERT(LINE, reqNum, returnAddr);
+                    LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
+
+                    if (veryVerbose) {
+                        P_(reqNum) P(returnAddr);
+                    }
+                }
+
+                void* addrPre =  mX.allocate(BUFSIZE);
+
+                // Now release all the allocations, but keep the last buffer
+                // to use again.
+
+                mX.rewind();
+                void* addrPost = mX.allocate(1);
+                ASSERT(addrPre == addrPost);
+                ASSERT(1 == ta.numBlocksInUse());
+
+                mX.release();
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(0 == ta.numBytesInUse());
+
                 if (1 == BUFSIZE) continue;
 
                 if (verbose) cout << "\nTesting alignment and growth"
@@ -2193,9 +2221,13 @@ int main(int argc, char *argv[])
             ASSERT(oldNumBytesInUse < objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
+
+            mX.rewind();
+            ASSERT(1 == objectAllocator.numBlocksInUse());
         }
 
         if (verbose) cout << "\nTesting destruction." << endl;
+        ASSERT(0 == objectAllocator.numBlocksInUse());
         ASSERT(0 == objectAllocator.numBytesInUse());
         ASSERT(0 == defaultAllocator.numBlocksTotal());
         ASSERT(0 == globalAllocator.numBlocksTotal());
