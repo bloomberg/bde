@@ -17,6 +17,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -98,6 +99,8 @@ using namespace BloombergLP;
 // ACCESSORS
 // [35] shared_ptr<T> shared_from_this()
 // [35] shared_ptr<const T> shared_from_this() const
+// [35] weak_ptr<T> weak_from_this()
+// [35] weak_ptr<const T> weak_from_this() const
 //
 // bsl::shared_ptr
 //----------------
@@ -107,6 +110,7 @@ using namespace BloombergLP;
 // [ 3] shared_ptr(OTHER *ptr)
 // [ 3] shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
 // [ 3] shared_ptr(ELEM_TYPE *ptr, bslma::SharedPtrRep *rep)
+// [ 3] shared_ptr(ELEM_TYPE *, bslma::SharedPtrRep *, FromSharedTag)
 // [ 3] shared_ptr(OTHER *ptr, DELETER *deleter)
 // [ 3] shared_ptr(OTHER *ptr, DELETER, bslma::Allocator* = 0)
 // [ 3] shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
@@ -293,9 +297,9 @@ using namespace BloombergLP;
 // [29] bool owner_before(const weak_ptr<OTHER_TYPE>& rhs)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST (weak_ptr)
-// [35] USAGE EXAMPLE 1: weak_ptr
-// [36] USAGE EXAMPLE 2: weak_ptr
-// [37] USAGE EXAMPLE 3: weak_ptr
+// [36] USAGE EXAMPLE 1: weak_ptr
+// [37] USAGE EXAMPLE 2: weak_ptr
+// [38] USAGE EXAMPLE 3: weak_ptr
 //-----------------------------------------------------------------------------
 //
 // ============================================================================
@@ -2087,8 +2091,7 @@ class MyTestDeleter {
         // objects passed to 'operator()'.
 };
 
-BSLMF_ASSERT(!(bslalg::HasTrait<MyTestDeleter,
-                                bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<MyTestDeleter>::VALUE);
 
                          // ========================
                          // class MyAllocTestDeleter
@@ -2161,11 +2164,6 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
 
     bslma::Allocator *d_allocator_p;        // allocator
 
-    explicit TestSharedPtrRep(bslma::Allocator *basicAllocator);
-        // Construct a test shared ptr rep object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
-
   public:
     // CREATORS
 
@@ -2207,6 +2205,71 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // Return the data pointer stored by this representation.
 };
 
+                        // ==================
+                        // class NonOwningRep
+                        // ==================
+
+template <class TYPE>
+class NonOwningRep : public bslma::SharedPtrRep {
+    // This 'class' implements a shared pointer representation that does not
+    // "own" the lifetime of its shared object, i.e., it will not delete the
+    // shared object when the final strong reference is released.  In order to
+    // support testing scenarios, this class provides accessors to report the
+    // number of times the disposal methods 'disposeObject' and 'disposeRep'
+    // have been called.  When a call to 'disposeRep' decrements the number
+    // references to zero, this object destroys itself.
+
+    // DATA
+    TYPE             *d_dataPtr_p;            // data ptr
+
+    int              *d_disposeObjectCount_p; // counter storing the number of
+                                              // times 'releaseValue' is called
+
+    int              *d_disposeRepCount_p;    // counter storing the number of
+                                              // times 'release' is called
+
+    bslma::Allocator *d_allocator_p;          // allocator
+
+  public:
+    // CREATORS
+
+    NonOwningRep(TYPE            *dataPtr_p,
+                int              *disposeObjectCount,
+                int              *disposeRepCount,
+                bslma::Allocator *basicAllocator = 0);
+        // Construct a non-owning shared ptr test-rep object referring to (but
+        // not owning) the object pointed to by the specified 'dataPtr_p', and
+        // reporting the every call to 'disposeObject' by incrementing the
+        // specified 'disposeObjectCount', and reportingevery call to the
+        // 'disposeRep' method by incrementing the specified 'disposeRepCount'.
+        // Optionally specify the 'basicAllocator' that was used to supply the
+        // memory that holds this object.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is presumed to have been used.
+        // Note that this object does not allocate any memory itself.
+
+    ~NonOwningRep();
+        // Destroy this test shared ptr rep object.
+
+    // VIRTUAL (OVERRIDE) MANIPULATORS
+    virtual void disposeObject();
+        // Release the value stored by this representation.
+
+    virtual void disposeRep();
+        // Release this representation.
+
+    virtual void *getDeleter(const std::type_info&) { return 0; }
+        // Return a null pointer.  Note that this rep type does not support
+        // 'shared_ptr' custom deleters.
+
+    // VIRTUAL (OVERRIDE) ACCESSORS
+    virtual void *originalPtr() const;
+        // Return the original pointer stored by this representation.
+
+    // ACCESSORS
+    TYPE *ptr() const;
+        // Return the data pointer stored by this representation.
+};
+
                 // ================================
                 // class template PerformanceTester
                 // ================================
@@ -2237,16 +2300,27 @@ class ShareThis : public bsl::enable_shared_from_this<ShareThis>
     // with a destructor that updates an externally managed integer to track
     // when destruction occurs.
 
+  private:
+      // not defined
+      ShareThis(const ShareThis&);            // = delete
+      ShareThis& operator=(const ShareThis&); // = delete
+
   protected:
     int *d_destructorCount_p;
 
   public:
     // CREATORS
     explicit ShareThis(int *destructorCount)
+        // Create a 'ShareThis' object using the specified 'destructorCount'
+        // to report when this object is destroyed.
         : d_destructorCount_p(destructorCount)
     {}
 
-    virtual ~ShareThis() { ++*d_destructorCount_p; }
+    virtual ~ShareThis()
+        // Increment the integer supplied at construction.
+    {
+        ++*d_destructorCount_p;
+    }
 };
 
                         // ======================
@@ -2259,15 +2333,21 @@ class ShareThisDerived : public ShareThis
     // 'shared_from_this' method where a base/derived relationship exists
     // between the shared pointer-to-base and a derived object.  It updates
     // the base class instrumented destructor to updates the externally managed
-    // integer with a different value when the derived ckass destructor is run.
+    // integer with a different value when the derived class destructor is run.
 
   public:
     // CREATORS
     explicit ShareThisDerived(int *destructorCount)
+        // Create a 'ShareThisDerived' object using the specified
+        // 'destructorCount' to report when this object is destroyed.
         : ShareThis(destructorCount)
     {}
 
-    ~ShareThisDerived() { *d_destructorCount_p += 10; }
+    ~ShareThisDerived()
+        // Increment by 10 the integer supplied at construction.
+    {
+        *d_destructorCount_p += 10;
+    }
 };
 
 // Traits for test types:
@@ -2284,6 +2364,10 @@ struct UsesBslmaAllocator<MyAllocTestDeleter>
 template <class TYPE>
 struct UsesBslmaAllocator<TestSharedPtrRep<TYPE> >
      : bsl::true_type {};
+
+template <class TYPE>
+struct UsesBslmaAllocator<NonOwningRep<TYPE> >
+     : bsl::false_type {};
 
 }  // close traits namespace
 }  // close enterprise namespace
@@ -2501,18 +2585,6 @@ int *MyInstrumentedObject::destroyCounter() const
                         // class TestSharedPtrRep
                         // ----------------------
 
-// CREATORS
-template <class TYPE>
-inline
-TestSharedPtrRep<TYPE>::TestSharedPtrRep(bslma::Allocator *basicAllocator)
-: d_dataPtr_p(0)
-, d_disposeRepCount(0)
-, d_disposeObjectCount(0)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    d_dataPtr_p = new (*d_allocator_p) TYPE();
-}
-
 template <class TYPE>
 inline
 TestSharedPtrRep<TYPE>::TestSharedPtrRep(TYPE             *dataPtr_p,
@@ -2575,6 +2647,65 @@ void *TestSharedPtrRep<TYPE>::originalPtr() const
 template <class TYPE>
 inline
 TYPE *TestSharedPtrRep<TYPE>::ptr() const
+{
+    return d_dataPtr_p;
+}
+
+                        // ----------------------
+                        // class NonOwningRep
+                        // ----------------------
+
+// CREATORS
+template <class TYPE>
+inline
+NonOwningRep<TYPE>::NonOwningRep(TYPE             *dataPtr_p,
+                                 int              *disposeObjectCount,
+                                 int              *disposeRepCount,
+                                 bslma::Allocator *basicAllocator)
+: d_dataPtr_p(dataPtr_p)
+, d_disposeObjectCount_p(disposeObjectCount)
+, d_disposeRepCount_p(disposeRepCount)
+, d_allocator_p(basicAllocator)
+{
+    BSLS_ASSERT_OPT(d_dataPtr_p);
+    BSLS_ASSERT_OPT(d_disposeObjectCount_p);
+    BSLS_ASSERT_OPT(d_disposeRepCount_p);
+    BSLS_ASSERT_OPT(basicAllocator);
+}
+
+template <class TYPE>
+NonOwningRep<TYPE>::~NonOwningRep()
+{
+    BSLS_ASSERT_OPT(0 == numReferences());
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+void NonOwningRep<TYPE>::disposeObject()
+{
+    ++*d_disposeObjectCount_p;
+}
+
+template <class TYPE>
+inline
+void NonOwningRep<TYPE>::disposeRep()
+{
+    ++*d_disposeRepCount_p;
+    d_allocator_p->deleteObject(this);  // suicide
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+void *NonOwningRep<TYPE>::originalPtr() const
+{
+    return static_cast<void *>(d_dataPtr_p);
+}
+
+template <class TYPE>
+inline
+TYPE *NonOwningRep<TYPE>::ptr() const
 {
     return d_dataPtr_p;
 }
@@ -3675,23 +3806,40 @@ int main(int argc, char *argv[])
     } break;
     case 35:{
         // --------------------------------------------------------------------
-        // TESTING 'enable_shared_from_this' CONSTRUCTORS
+        // TESTING 'enable_shared_from_this<T>'
+        //   Test the whole 'enable_shared_from_this' facility, which includes
+        //   a variety of interactions with 'shared_ptr' and 'weak_ptr', and
+        //   not just directly testing the 'enable_shared_from_this' class
+        //   template itself.
         //
         // Concerns:
-        //   1) Shared_ptr constructors are able to identify correctly the
-        //      enable_shared_from_this (possibly indirect) base class and
-        //      initalize the d_weak_this weak ptr.
-        //   2) Converting from a managedPtr or auto_ptr to a shared_ptr will
-        //      initalize weak_this_ weak_ptr correctly.
-        //   3) Calling shared_from_this() will create a new reference to the
-        //      shared_ptr.
-        //   2) shared_ptr<const T> constructors are able to initialize
-        //      enable_shared_from_this<T>::d_weak_this.
+        //   1) 'shared_ptr' constructors are able to identify correctly the
+        //      'enable_shared_from_this' (possibly indirect) base class and
+        //      initialize the 'd_weakThis' 'weak ptr'.
+        //   2) Converting from a 'ManagedPtr' or 'auto_ptr' to a 'shared_ptr'
+        //      will initialize 'd_weakThis' 'weak_ptr' correctly.
+        //   3) Calling 'shared_from_this()' will create a new reference to the
+        //      original owning 'shared_ptr'.
+        //   4) All relevant 'shared_ptr<const T>' constructors are able to
+        //      initialize 'enable_shared_from_this<T>::d_weakThis'.
+        //   5) The 'd_weakThis' member does not rebind on creation of a
+        //      subsequent owner-group, unless it has already expired.
+        //   6) In addition to constructors, the 'd_weakThis' member binds
+        //      correctly for 'load', 'reset', and 'createInplace' methods.
         //
         // Plan:
-        //   Create a shared_ptrs from a class with enable_shared_from_this as
-        //   the base class. From this shared pointer call share_from_this and
-        //   ensure that the use_count() of the shared_pointer has incermented.
+        //   First demonstrate that the 'shared_from_this' facility behaves
+        //   correctly when it is NOT in use, i,e,, when used with a shared
+        //   pointer that does not own its target.  Then test that everything
+        //   works correctly when creating 'shared_ptr' objects from raw
+        //   'SharedPtrRep' objects, as this is the basis for 'weak_ptr::lock'
+        //   that drives much of the subsequent testing.  Next, test the basic
+        //   facility behaves correctly when used with each possible
+        //   'shared_ptr' constructor.  Then check additional behaviors with
+        //   extended lifetimes and multiple 'shared_ptr' owner-groups.
+        //   Finally, check that the various factory functions that can create
+        //   a new shared pointer value also behave correctly with respect to
+        //   this facility.
         //
         // Testing:
         //   enable_shared_from_this()
@@ -3700,220 +3848,984 @@ int main(int argc, char *argv[])
         //   enable_shared_from_this& operator=(const enable_shared_from_this&)
         //   shared_ptr<T> shared_from_this()
         //   shared_ptr<const T> shared_from_this() const
+        //   weak_ptr<T> weak_from_this()
+        //   weak_ptr<const T> weak_from_this() const
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'enable_shared_from_this<T>'"
+                            "\n====================================\n");
+
         typedef bsl::shared_ptr<ShareThis> SharedPtr;
         typedef bsl::shared_ptr<const ShareThis> ConstSharedPtr;
         typedef bsl::shared_ptr<ShareThisDerived> SharedPtrDerived;
         typedef bsl::shared_ptr<const ShareThisDerived> ConstSharedPtrDerived;
 
+        typedef bsl::weak_ptr<ShareThis> WeakPtr;
+        typedef bsl::weak_ptr<const ShareThis> ConstWeakPtr;
+
+        int destructorCount = 0;   // observe 'ShareThis' objects are destroyed
+
         bslma::TestAllocator ta("enable_shared_from_this test",
                                 veryVeryVeryVerbose);
 
-        if (verbose) printf("\nTESTING 'enable_share_from_this<T>()'"
-                            "\n======================================\n");
+        if (verbose) printf("\nTesting when the facility is not used"
+                            "\n-------------------------------------\n");
 
-        int destructorCount = 0;
-
-        if (verbose) printf("\nBasic usage\n");
+        if (verbose) printf("\n\tBasic usage\n");
         {
-            SharedPtr ptr(new ShareThis(&destructorCount));
+            ShareThis stackThis(&destructorCount);
+#if defined(BDE_BUILD_TARGET_EXC)
+            {
+                // Test exception thrown when not yet owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    SharedPtr badPtr = stackThis.shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+
+                WeakPtr wPtr = stackThis.weak_from_this();
+                ASSERT(wPtr.expired());
+            }
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tBasic usage with 'const' element type\n");
+        {
+            const ShareThis stackThis(&destructorCount);
+#if defined(BDE_BUILD_TARGET_EXC)
+            {
+                // Test exception thrown when not yet owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    ConstSharedPtr badPtr = stackThis.shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+                ConstWeakPtr wPtr = stackThis.weak_from_this();
+                ASSERT(wPtr.expired());
+            }
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tBasic usage of most-derived type\n");
+        {
+            ShareThisDerived stackThis(&destructorCount);
+#if defined(BDE_BUILD_TARGET_EXC)
+            {
+                // Test exception thrown when not yet owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    SharedPtr badPtr = stackThis.shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+                WeakPtr wPtr = stackThis.weak_from_this();
+                ASSERT(wPtr.expired());
+            }
+        }
+        ASSERTV(destructorCount, 11 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tBasic usage of 'const' most-derived type\n");
+        {
+            const ShareThisDerived stackThis(&destructorCount);
+#if defined(BDE_BUILD_TARGET_EXC)
+            {
+                // Test exception thrown when not yet owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    ConstSharedPtr badPtr = stackThis.shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+                ConstWeakPtr wPtr = stackThis.weak_from_this();
+                ASSERT(wPtr.expired());
+            }
+        }
+        ASSERTV(destructorCount, 11 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest with un-owned pointer\n");
+        {
+            native_std::auto_ptr<ShareThis> originalPtr(
+                                              new ShareThis(&destructorCount));
+            SharedPtr unownedPtr(SharedPtr(), originalPtr.get());
+
+#if defined(BDE_BUILD_TARGET_EXC)
+            {
+                // Test exception thrown when not yet owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    SharedPtr badPtr = unownedPtr->shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+
+                WeakPtr wPtr = unownedPtr->weak_from_this();
+                ASSERT(wPtr.expired());
+            }
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf(
+                      "\nTesting facility with 'SharedPtrRep' constructors"
+                      "\n-------------------------------------------------\n");
+
+        int disposeObjectCount = 0;
+        int disposeRepCount = 0;
+
+        if (verbose) printf("\nTesting constructor with abstract rep"
+                            "\n-------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                bslma::SharedPtrRep *pRep = rep;  // Cast to base
+                SharedPtr ptr(pThis, pRep);
+                ASSERTV(ptr.use_count(),     ptr.use_count() == 1);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm weak and shared pointers use the same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount,     0 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf("\nTesting constructor with typed-rep"
+                            "\n----------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+
+            {
+                SharedPtr ptr(pThis, rep);
+                ASSERTV(ptr.use_count(),     ptr.use_count() == 1);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm weak and shared pointers use the same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount,     0 == destructorCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf(
+        "\nTesting constructor with abstract rep and from-'shared_ptr' tag"
+        "\n---------------------------------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+            bslma::SharedPtrRep *pRep = rep;   // Cast to base
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 0 == REP.numWeakReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                // Establish the pre-condition of a rep already owned by a
+                // 'shaerd_ptr' object.
+                SharedPtr firstPtr(pThis, pRep);
+                ASSERTV(disposeRepCount,      0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(),  1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 1 == REP.numWeakReferences());
+
+                WeakPtr weakFirst = pThis->weak_from_this();
+                ASSERT(!weakFirst.expired());
+                ASSERT(weakBefore.expired());
+                ASSERTV(REP.numReferences(),     1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 2 == REP.numWeakReferences());
+
+                manager.reset();    // Destroy the SharedThis object managed,
+                                    // but not owned, by '*rep'.  'd_weakThis'
+                                    // will release on weak reference, and the
+                                    // 'destructorCount' will increment, but
+                                    // NOT 'disposeObjectCount' as the 'rep'
+                                    // maintains a non-owning strong reference
+                                    // to the destroyed object.
+
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                const bool acquiredRef = pRep->tryAcquireRef();
+                ASSERT(acquiredRef);
+
+                {
+                    SharedPtr testPtr(
+                                  pThis,
+                                  pRep,
+                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                    ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
+                    ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                    ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                    ASSERTV(REP.numReferences(), 2 == REP.numReferences());
+                    ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+                }
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                weakBefore = weakFirst;  // ensure a weak pointer outlives the
+                                         // last 'shared_ptr'
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                2  == REP.numWeakReferences());
+
+            }
+            ASSERTV(destructorCount,     1 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 1  == REP.numWeakReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf(
+                 "\nTesting constructor with rep and from-'shared_ptr' tag"
+                 "\n------------------------------------------------------\n");
+        {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> manager(pThis, &ta);  // Clean-up
+
+            NonOwningRep<ShareThis> *rep = new(ta) NonOwningRep<ShareThis>(
+                                                            pThis,
+                                                           &disposeObjectCount,
+                                                           &disposeRepCount,
+                                                           &ta);
+            const NonOwningRep<ShareThis>& REP = *rep;
+
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 0 == REP.numWeakReferences());
+            ASSERTV(REP.ptr(), pThis,    REP.ptr() == pThis);
+
+            {
+                // Establish the pre-condition of a rep already owned by a
+                // 'shaerd_ptr' object.
+                SharedPtr firstPtr(pThis, rep);
+                ASSERTV(disposeRepCount,      0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,   0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(),  1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 1 == REP.numWeakReferences());
+
+                WeakPtr weakFirst = pThis->weak_from_this();
+                ASSERT(!weakFirst.expired());
+                ASSERT(weakBefore.expired());
+                ASSERTV(REP.numReferences(),     1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(), 2 == REP.numWeakReferences());
+
+                manager.reset();    // Destroy the SharedThis object managed,
+                                    // but not owned, by '*rep'.  'd_weakThis'
+                                    // will release on weak reference, and the
+                                    // 'destructorCount' will increment, but
+                                    // NOT 'disposeObjectCount' as the 'rep'
+                                    // maintains a non-owning strong reference
+                                    // to the destroyed object.
+
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                const bool acquiredRef = rep->tryAcquireRef();
+                ASSERT(acquiredRef);
+
+                {
+                    SharedPtr testPtr(
+                                  pThis,
+                                  rep,
+                                  bslstl::SharedPtrRepFromExistingSharedPtr());
+                    ASSERTV(testPtr.use_count(), 2 == testPtr.use_count());
+                    ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                    ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                    ASSERTV(REP.numReferences(), 2 == REP.numReferences());
+                    ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+                }
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                1  == REP.numWeakReferences());
+
+                weakBefore = weakFirst;  // ensure a weak pointer outlives the
+                                         // last 'shared_ptr'
+                ASSERTV(destructorCount,     1 == destructorCount);
+                ASSERTV(disposeRepCount,     0 == disposeRepCount);
+                ASSERTV(disposeObjectCount,  0 == disposeObjectCount);
+                ASSERTV(REP.numReferences(), 1 == REP.numReferences());
+                ASSERTV(REP.numWeakReferences(),
+                                                2  == REP.numWeakReferences());
+
+            }
+            ASSERTV(destructorCount,     1 == destructorCount);
+            ASSERTV(disposeRepCount,     0 == disposeRepCount);
+            ASSERTV(disposeObjectCount,  1 == disposeObjectCount);
+            ASSERTV(REP.numReferences(), 0 == REP.numReferences());
+            ASSERTV(REP.numWeakReferences(), 1  == REP.numWeakReferences());
+        }
+        ASSERTV(destructorCount,    1 == destructorCount);
+        ASSERTV(disposeRepCount,    1 == disposeRepCount);
+        ASSERTV(disposeObjectCount, 1 == disposeObjectCount);
+        destructorCount    = 0; // reset 'destructorCount' for next test.
+        disposeRepCount    = 0;
+        disposeObjectCount = 0;
+
+        if (verbose) printf("\nTesting simple usage of the facility"
+                            "\n------------------------------------\n");
+
+        if (verbose) printf("\n\tBasic usage\n");
+        {
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtr ptr(pThis);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nBasic usage with 'const' element type\n");
+        if (verbose) printf("\n\tBasic usage with 'const' element type\n");
         {
-            ConstSharedPtr ptr(static_cast<const ShareThis*>(
-                                             new ShareThis(&destructorCount)));
+            const ShareThis *pThis = new ShareThis(&destructorCount);
+            ConstWeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ConstSharedPtr ptr(pThis);
             ASSERT(ptr.use_count() == 1);
-            ConstSharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            ConstWeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            ConstSharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\n'shared_from_this' into shared<constT>'\n");
+        if (verbose) printf("\n\t'shared_from_this' into shared<constT>'\n");
         {
-            SharedPtr ptr(new ShareThis(&destructorCount));
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtr ptr(pThis);
             ASSERT(ptr.use_count() == 1);
-            ConstSharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            ConstSharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nBasic usage of most-derived type\n");
+        if (verbose) printf("\n\tBasic usage of most-derived type\n");
         {
-            SharedPtrDerived ptr(new ShareThisDerived(&destructorCount));
+            ShareThisDerived *pThis = new ShareThisDerived(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtrDerived ptr(pThis);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 11 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nBasic usage of 'const' most-derived type\n");
+        if (verbose) printf("\n\tBasic usage of 'const' most-derived type\n");
         {
-            ConstSharedPtrDerived ptr(static_cast<const ShareThisDerived*>(
-                                      new ShareThisDerived(&destructorCount)));
+            const ShareThisDerived *pThis =
+                                        new ShareThisDerived(&destructorCount);
+            ConstWeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ConstSharedPtrDerived ptr(pThis);
             ASSERT(ptr.use_count() == 1);
-            ConstSharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            ConstWeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            ConstSharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 11 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest making a copy\n");
+        if (verbose) printf("\n\tTest making a copy\n");
         {
-            SharedPtr ptr(new ShareThis(&destructorCount));
-            SharedPtr ptr_cp(ptr);
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtr ptr(pThis);
+            SharedPtr ptrCopy(ptr);
             ASSERT(ptr.use_count() == 2);
-            SharedPtr ptr_cp2 = ptr->shared_from_this();
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptrCopy->shared_from_this();
             ASSERT(ptr.use_count() == 3);
-            ASSERT(ptr.get() == ptr_cp2.get());
+            ASSERT(ptr.get() == sharedThisPtr.get());
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest with BDE allocator\n");
+        if (verbose) printf("\n\tTest with BDE allocator\n");
         {
-            SharedPtr ptr(new (ta) ShareThis(&destructorCount), &ta);
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtr ptr(pThis, &ta);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
 
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        MyTestDeleter d1(&ta);  // custom deleter for the next few tests
+        int callsToMyDeleter = 0;
+        MyTestDeleter d1(&ta, &callsToMyDeleter);  // custom deleter for tests
+                                                   // of deleter support.
 
-        if (verbose) printf("\nTest with BDE allocator and deleter\n");
+        if (verbose) printf("\n\tTest with BDE allocator and deleter\n");
         {
-            SharedPtr ptr(new (ta) ShareThis(&destructorCount), d1, &ta);
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            SharedPtr ptr(pThis, d1, &ta);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
 
-            ASSERTV(destructorCount, 0 == destructorCount);
-        }
-        ASSERTV(destructorCount, 1 == destructorCount);
-        destructorCount = 0;    // reset 'destructorCount' for next test.
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
-        if (verbose) printf("\nTest with standard allocator and deleter\n");
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\n\tTest with standard allocator and deleter\n");
         {
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
             bsltf::StdStatefulAllocator<TObj, false, false, false, false>
-                                                                 stdalloc(&ta);
-            SharedPtr ptr(new (ta) ShareThis(&destructorCount), d1, stdalloc);
+                                                                 stdAlloc(&ta);
+            SharedPtr ptr(pThis, d1, stdAlloc);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
 
-            ASSERTV(destructorCount, 0 == destructorCount);
-        }
-        ASSERTV(destructorCount, 1 == destructorCount);
-        destructorCount = 0;    // reset 'destructorCount' for next test.
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
-        if (verbose) printf("\nTest with in-place buffer\n");
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\n\tTest with in-place buffer\n");
         {
             SharedPtr ptr = bsl::make_shared<ShareThis>(&destructorCount);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            WeakPtr weakAfter = sharedThisPtr->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest with in-place buffer and BDE allocator\n");
+        if (verbose) printf(
+                          "\n\tTest with in-place buffer and BDE allocator\n");
         {
             SharedPtr ptr = bsl::allocate_shared<ShareThis>(&ta,
                                                             &destructorCount);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            WeakPtr weakAfter = sharedThisPtr->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest with 'ManagedPtr'\n");
+        if (verbose) printf("\n\tTest with 'ManagedPtr'\n");
         {
-            bslma::ManagedPtr<ShareThis> managedPtr(
-                                              new ShareThis(&destructorCount));
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bslma::ManagedPtr<ShareThis> managedPtr(pThis);
             SharedPtr ptr(managedPtr);
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest with 'auto_ptr'\n");
+        if (verbose) printf("\n\tTest with 'auto_ptr'\n");
         {
-            std::auto_ptr<ShareThis> autoPtr(new ShareThis(&destructorCount));
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            std::auto_ptr<ShareThis> autoPtr(pThis);
             SharedPtr ptr(autoPtr);
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
             ASSERT(ptr.use_count() == 1);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
             ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest with aliased 'shared_ptr'\n");
+        if (verbose) printf("\n\tTest with 'shared_ptr<void>'\n");
         {
-            ShareThis *data_p = new ShareThis(&destructorCount);
-            bsl::shared_ptr<void> voidPtr(data_p);
-            SharedPtr ptr(voidPtr, data_p);
-            ASSERT(ptr.use_count() == 2);
-            SharedPtr ptr_cp = ptr->shared_from_this();
-            ASSERT(ptr.get() == ptr_cp.get());
-            ASSERT(ptr.use_count() == 3);
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bsl::shared_ptr<void> voidPtr(pThis);
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = pThis->shared_from_this();
+            ASSERT(voidPtr.get() == sharedThisPtr.get());
+            ASSERT(voidPtr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
 
             ASSERTV(destructorCount, 0 == destructorCount);
         }
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
-        if (verbose) printf("\nTest extended lifetimes\n");
+        if (verbose) printf("\n\tTest with aliased 'shared_ptr'\n");
+        {
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            {
+                int data = 0;
+                bsl::shared_ptr<void> voidPtr(&data,
+                                               bslstl::SharedPtrNilDeleter());
+                SharedPtr ptr(voidPtr, pThis);
+                ASSERT(ptr.use_count() == 2);
+
+                WeakPtr weakAfter = ptr->weak_from_this();
+                ASSERT( weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+#if defined(BDE_BUILD_TARGET_EXC)
+                // Test exception thrown when alias not owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    SharedPtr sharedThisPtr = ptr->shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+
+            delete pThis;    // manual memory management safe if all tests pass
+            ASSERTV(destructorCount, 1 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest with aliased 'managed_ptr'\n");
+        {
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakThisBefore = pThis->weak_from_this();
+            ASSERT(weakThisBefore.expired());
+
+            ShareThis *pThat = new ShareThis(&destructorCount);
+            WeakPtr weakThatBefore = pThis->weak_from_this();
+            ASSERT(weakThatBefore.expired());
+
+            // Create aliased managed pointer, which owns 'pThis' but points to
+            // 'pThat'.
+            bslma::ManagedPtr<ShareThis> managedPtr(pThis);
+            managedPtr.loadAlias(managedPtr, pThat);
+
+            SharedPtr ptr(managedPtr);
+            ASSERT(ptr.use_count() == 1);
+            ASSERT(ptr.get() == pThat);
+
+            // 'ptr' owns 'pThis' but points to 'pThat'.  The enable-shared
+            // base object has a weak reference to 'pThis', and should alias
+            // 'pThis'.
+            ASSERT( weakThisBefore.expired());
+            ASSERT( weakThatBefore.expired());
+
+            weakThisBefore = pThis->weak_from_this();
+            weakThatBefore = pThat->weak_from_this();
+
+            ASSERT(!weakThisBefore.expired());
+            ASSERT( weakThatBefore.expired());
+
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(!weakThisBefore.expired());
+            ASSERT( weakThatBefore.expired());
+
+            // Note that we cannot easily make a "from this" 'shared_ptr' as
+            // the aliased pointer is not under shared ownership, and the
+            // managed pointer is not directly exposed after the 'ptr' takes
+            // ownership.
+
+            SharedPtr sharedThisPtr = ptr->weak_from_this().lock();
+            ASSERT(!sharedThisPtr);
+
+            delete pThat;  // manual memory management is safe if driver passes
+            ASSERTV(destructorCount, 1 == destructorCount);
+        }
+        ASSERTV(destructorCount, 2 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf(
+                      "\n\tTest 'managed_ptr' managing aliased 'shared_ptr\n");
+        {
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            {
+                int data = 0;
+                bsl::shared_ptr<void> voidPtr(&data,
+                                               bslstl::SharedPtrNilDeleter());
+                SharedPtr ptr(voidPtr, pThis);
+                ASSERT(ptr.use_count() == 2);
+
+                // Pass the aliased pointer to a ManagedPtr, and verify that
+                // no 'enable_shared_from_this' dance occurs when passed again
+                // to a 'shared_ptr' constructor.
+
+                bslma::ManagedPtr<ShareThis> managedPtr = ptr.managedPtr();
+                ASSERTV(ptr.use_count(), 3 == ptr.use_count());
+                SharedPtr finalAlias(ptr);
+                ASSERTV(finalAlias.use_count(), 4 == finalAlias.use_count());
+
+                WeakPtr weakAfter = finalAlias->weak_from_this();
+                ASSERT( weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+#if defined(BDE_BUILD_TARGET_EXC)
+                // Test exception thrown when alias not owned by a 'shared_ptr'
+                bool caughtException = false;
+                try {
+                    SharedPtr sharedThisPtr = finalAlias->shared_from_this();
+                    ASSERTV("Should have thrown a 'bad_weak_ptr'.", false);
+                }
+                catch(const bsl::bad_weak_ptr&) {
+                    caughtException = true;
+                }
+                ASSERT(caughtException);
+#endif
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+
+            delete pThis;    // manual memory management safe if all tests pass
+            ASSERTV(destructorCount, 1 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\nTesting awkward lifetime concerns"
+                            "\n---------------------------------\n");
+
+        if (verbose) printf("\n\tTest extended lifetimes\n");
         {
             struct LocalFactory {
-                static SharedPtr make(int *destructorCount_p) {
-                    ShareThis *data_p = new ShareThis(destructorCount_p);
+                static SharedPtr make(int *destructorCount)
+                    // Return (by value) a 'SharedPtr' object that used the
+                    // specified 'destructorCount' to report the eventual
+                    // destruction of the shared object.
+                {
+                    ShareThis *data_p = new ShareThis(destructorCount);
                     bsl::shared_ptr<void> voidPtr(data_p);
                     SharedPtr ptr(voidPtr, data_p);
                     ASSERT(ptr.use_count() == 2);
@@ -3940,6 +4852,571 @@ int main(int argc, char *argv[])
         ASSERTV(destructorCount, 1 == destructorCount);
         destructorCount = 0;    // reset 'destructorCount' for next test.
 
+        if (verbose) printf("\n\tTest multiple 'shared_ptr' groups\n");
+        {
+            SharedPtr ptr(new (ta) ShareThis(&destructorCount), d1, &ta);
+            ASSERT(ptr.use_count() == 1);
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
+            ASSERT(ptr.use_count() == 2);
+
+            // confirm that both shared pointers have the same rep object
+            ASSERT(!ptr.owner_before(sharedThisPtr) &&
+                   !sharedThisPtr.owner_before(ptr));
+
+            ShareThis *const OUTER_P = ptr.get();
+            {
+                SharedPtr innerPtr(OUTER_P, bslstl::SharedPtrNilDeleter());
+                bslstl::SharedPtrNilDeleter *delPtr =
+                      bsl::get_deleter<bslstl::SharedPtrNilDeleter>(innerPtr);
+                ASSERT(delPtr);
+
+                SharedPtr sharedInnerPtr = innerPtr->shared_from_this();
+
+                // confirm that shared pointers do not have the same rep object
+                ASSERT(innerPtr.owner_before(sharedInnerPtr) ||
+                       sharedInnerPtr.owner_before(innerPtr));
+
+                bslstl::SharedPtrNilDeleter *innerDelPtr =
+                 bsl::get_deleter<bslstl::SharedPtrNilDeleter>(sharedInnerPtr);
+
+                ASSERTV(delPtr, innerDelPtr, delPtr != innerDelPtr);
+            }
+            SharedPtr latterPtr = ptr->shared_from_this();
+
+            // confirm that both shared pointers have the same rep object
+            ASSERT(!ptr.owner_before(latterPtr) &&
+                   !latterPtr.owner_before(ptr));
+
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\n\tTest additional shares without ownership\n");
+        {
+            SharedPtr ptr(new (ta) ShareThis(&destructorCount), d1, &ta);
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+
+            // confirm that both shared pointers have the same rep object
+            ASSERT(!ptr.owner_before(sharedThisPtr) &&
+                   !sharedThisPtr.owner_before(ptr));
+            ASSERT(ptr.get() == sharedThisPtr.get());
+            ASSERT(ptr.use_count() == 2);
+
+            ShareThis *const OUTER_P = ptr.get();
+            {
+                SharedPtr innerPtr(SharedPtr(), OUTER_P);
+                ASSERT(0 == innerPtr.use_count());
+
+                WeakPtr innerWeakThis = innerPtr->weak_from_this();
+                WeakPtr innerWeak     = innerPtr;
+
+                ASSERT(!innerWeakThis.expired());
+                ASSERT(innerWeak.expired());
+
+                ASSERT(innerWeak.owner_before(innerWeakThis) ||
+                       innerWeakThis.owner_before(innerWeak));
+
+                ASSERT(!innerWeakThis.owner_before(sharedThisPtr) &&
+                       !sharedThisPtr.owner_before(innerWeakThis));
+
+                SharedPtr sharedInnerPtr = innerPtr->shared_from_this();
+
+                // confirm that shared pointers do not have the same rep object
+                ASSERT(innerPtr.owner_before(sharedInnerPtr) ||
+                       sharedInnerPtr.owner_before(innerPtr));
+            }
+            SharedPtr latterPtr = ptr->shared_from_this();
+
+            // confirm that both shared pointers have the same rep object
+            ASSERT(!ptr.owner_before(latterPtr) &&
+                   !latterPtr.owner_before(ptr));
+
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+
+        if (verbose) printf("\n\tExtended 'shared_ptr' groups test\n");
+        {
+            // First confirm that weak pointers rebind after expiring, before
+            // repeating a similar test with 'shared_from_this' to manage the
+            // lifetime of the shared object itself.
+
+            if (veryVeryVerbose) printf(
+                        "\t\tFirst check that weak pointers bind correctly\n");
+
+            ShareThis *pThis = new (ta) ShareThis(&destructorCount);
+            WeakPtr weakThis = pThis->weak_from_this();
+            ASSERT(weakThis.expired());
+
+            WeakPtr weak1, weak2;
+            {
+                SharedPtr shared1(pThis, bslstl::SharedPtrNilDeleter());
+                weak1 = shared1->weak_from_this();
+                ASSERT(!weak1.expired());
+
+                // Confirm that 'weak1' and 'weakThis' use different reps
+                ASSERT(weak1.owner_before(weakThis) ||
+                       weakThis.owner_before(weak1));
+
+                {
+                    SharedPtr shared2(pThis, bslstl::SharedPtrNilDeleter());
+                    weak2 = shared2->weak_from_this();
+                    ASSERT(!weak1.expired());
+                    ASSERT(!weak2.expired());
+
+                    // Confirm that both weak pointers use the same rep
+                    ASSERT(!weak1.owner_before(weak2) &&
+                           !weak2.owner_before(weak1));
+
+                    // Confirm that 'shared2' uses a different rep than 'weak2'
+                    ASSERT(weak2.owner_before(shared2) ||
+                           shared2.owner_before(weak2));
+                }
+            }
+
+            ASSERT(weakThis.expired());
+            ASSERT(weak1.expired());
+            ASSERT(weak2.expired());
+
+            // Repeat, to see that the weak pointer rebinds again, now that all
+            // weak pointers have expired
+
+            if (veryVeryVerbose) printf(
+                      "\t\tThen check that weak pointers re-bind correctly\n");
+            {
+                // Verify assumption on entry that 'weak1' and 'weak2' wrap the
+                // same rep object:
+                ASSERT(!weak1.owner_before(weak2) &&
+                       !weak2.owner_before(weak1));
+
+                SharedPtr shared1(pThis, bslstl::SharedPtrNilDeleter());
+                weak1 = shared1->weak_from_this();
+                ASSERT(!weak1.expired());
+                ASSERT( weak2.expired());
+
+                // Confirm that 'weak1' and 'weakThis' use different reps, and
+                // that 'weak1' and 'weak2' use different reps
+                ASSERT(weak1.owner_before(weakThis) ||
+                       weakThis.owner_before(weak1));
+
+                ASSERT(weak1.owner_before(weak2) ||
+                       weak2.owner_before(weak1));
+
+            }
+
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+
+            if (veryVeryVerbose) printf(
+                "\t\tNext, check that shared_ptrs hand ownership correctly\n");
+            {
+                SharedPtr shared1(pThis, bslstl::SharedPtrNilDeleter());
+                weak1 = shared1->weak_from_this();
+                ASSERT(!weak1.expired());
+
+                // Confirm that 'shared1' uses the same rep as 'weak1'
+                ASSERT(!weak1.owner_before(shared1) &&
+                       !shared1.owner_before(weak1));
+
+                // Confirm that 'weak1' and 'weakThis' use different reps
+                ASSERT(weak1.owner_before(weakThis) ||
+                       weakThis.owner_before(weak1));
+
+                {
+                    SharedPtr shared2(pThis, d1, &ta);
+                    weak2 = shared2->weak_from_this();
+                    ASSERT(!weak1.expired());
+                    ASSERT(!weak2.expired());
+
+                    // Confirm that both weak pointers use the same rep
+                    ASSERT(!weak1.owner_before(weak2) &&
+                           !weak2.owner_before(weak1));
+
+                    // Confirm that 'shared2' uses a different rep than 'weak2'
+                    ASSERT(weak2.owner_before(shared2) ||
+                           shared2.owner_before(weak2));
+                }
+
+                // Note that '*pThis' is now destroyed, so should *not* attempt
+                // to call its methods through any of the smart pointers now.
+                ASSERTV(destructorCount,  1 == destructorCount);
+                ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+
+                if (veryVeryVerbose) printf(
+                        "\t\tCheck we can still lock the non-expired weak1\n");
+                ASSERT(!weak1.expired());
+                ASSERT(1 == shared1.use_count());
+                WeakPtr weakAfter(shared1);
+                {
+                    SharedPtr sharedAfter = weakAfter.lock();
+                    ASSERT(sharedAfter);
+                }
+                SharedPtr locked = weak1.lock();
+                SharedPtr pDeadPointer(weak1);         // can still lock, but
+                ASSERT(pDeadPointer.get() == pThis);   // target is destroyed
+            }
+
+            ASSERTV(destructorCount,  1 == destructorCount);
+            ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+
+            ASSERT(weakThis.expired());
+            ASSERT(weak1.expired());
+            ASSERT(weak2.expired());
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\nTesting 'reset' overloads"
+                            "\n-------------------------\n");
+
+        if (verbose) printf("\n\tTest basic 'reset'\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.reset(pThis);
+            {
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
+            ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+            ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'reset' with derived class\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new ShareThisDerived(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.reset(pThis);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 11 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'reset' with allocator\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.reset(pThis, &ta);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'reset' with deleter\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.reset(pThis, d1);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount,  0 == destructorCount);
+                ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+            }
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\n\tTest 'reset' with deleter and allocator\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.reset(pThis, d1, &ta);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount,  0 == destructorCount);
+                ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+            }
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf(
+                     "\n\tTest 'reset' with standard allocator and deleter\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            bsltf::StdStatefulAllocator<TObj, false, false, false, false>
+                                                                 stdAlloc(&ta);
+            ptr.reset(pThis, d1, stdAlloc);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount,  0 == destructorCount);
+                ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+            }
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+
+        if (verbose) printf("\n\tTest 'createInplace'\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+
+            ptr.createInplace(&ta, &destructorCount);
+            {
+                WeakPtr weakAfter = ptr->weak_from_this();
+                ASSERT(!weakAfter.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm weak and shared pointer have the same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+        if (verbose) printf("\n\tTest basic 'load'\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.load(pThis);
+            {
+            WeakPtr weakAfter = pThis->weak_from_this();
+            ASSERT(!weakAfter.expired());
+            ASSERT(weakBefore.expired());
+
+            SharedPtr sharedThisPtr = ptr->shared_from_this();
+            ASSERT(ptr.get() == sharedThisPtr.get());
+            ASSERT(ptr.use_count() == 2);
+
+            // Confirm that weak and shared pointer have the same rep object.
+            ASSERT(!sharedThisPtr.owner_before(weakAfter));
+            ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+            ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'load' with derived class\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new ShareThisDerived(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.load(pThis);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 11 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'load' with allocator\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.load(pThis, &ta);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount, 0 == destructorCount);
+            }
+            ASSERTV(destructorCount, 0 == destructorCount);
+        }
+        ASSERTV(destructorCount, 1 == destructorCount);
+        destructorCount = 0;    // reset 'destructorCount' for next test.
+
+        if (verbose) printf("\n\tTest 'load' with deleter and allocator\n");
+        {
+            SharedPtr ptr;
+            ASSERT(0 == ptr.use_count());
+            ShareThis *pThis = new(ta) ShareThis(&destructorCount);
+            WeakPtr weakBefore = pThis->weak_from_this();
+            ASSERT(weakBefore.expired());
+
+            ptr.load(pThis, d1, &ta);
+            {
+                WeakPtr weakAfter = pThis->weak_from_this();
+                ASSERT(!weakAfter.expired());
+                ASSERT(weakBefore.expired());
+
+                SharedPtr sharedThisPtr = ptr->shared_from_this();
+                ASSERT(ptr.get() == sharedThisPtr.get());
+                ASSERT(ptr.use_count() == 2);
+
+                // Confirm that weak and shared pointer have same rep object.
+                ASSERT(!sharedThisPtr.owner_before(weakAfter));
+                ASSERT(!weakAfter.owner_before(sharedThisPtr));
+
+                ASSERTV(destructorCount,  0 == destructorCount);
+                ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+            }
+            ASSERTV(destructorCount,  0 == destructorCount);
+            ASSERTV(callsToMyDeleter, 0 == callsToMyDeleter);
+        }
+        ASSERTV(destructorCount,  1 == destructorCount);
+        ASSERTV(callsToMyDeleter, 1 == callsToMyDeleter);
+        destructorCount  = 0;   // reset 'destructorCount' for next test.
+        callsToMyDeleter = 0;   // reset 'callsToMyDeleter' for next test.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 34: {
         // --------------------------------------------------------------------
@@ -8546,6 +10023,7 @@ int main(int argc, char *argv[])
         //   shared_ptr(OTHER *ptr)
         //   shared_ptr(OTHER *ptr, bslma::Allocator *basicAllocator)
         //   shared_ptr(ELEM_TYPE *ptr, bslma::SharedPtrRep *rep)
+        //   shared_ptr(ELEM_TYPE *, bslma::SharedPtrRep *, FromSharedTag)
         //   shared_ptr(OTHER *ptr, DELETER *deleter)
         //   shared_ptr(OTHER *ptr, DELETER, bslma::Allocator* = 0)
         //   shared_ptr(OTHER *ptr, DELETER, ALLOCATOR, SFINAE)
@@ -9246,6 +10724,67 @@ int main(int argc, char *argv[])
             x.release();
 
             Obj xx(p, rep); const Obj& XX = xx;
+            ASSERT(p == XX.get());
+            ASSERT(rep ==  XX.rep());
+            ASSERT(1 == XX.use_count());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+
+        if (verbose) printf("\nTesting constructor (with typed-rep)"
+                            "\n------------------------------------\n");
+
+        {
+            MyTestObject *REP_PTR = new(ta) MyTestObject(&numDeletes);
+            TestSharedPtrRep<MyTestObject> rep(REP_PTR, &ta);
+            const TestSharedPtrRep<MyTestObject>& REP = rep;
+            ASSERTV(REP_PTR, REP.ptr(),          REP_PTR == REP.ptr());
+            LOOP_ASSERT(REP.numReferences(),     1 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),   0 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        0 == REP.disposeObjectCount());
+            MyTestObject *PTR = REP.ptr();
+            {
+                ObjSP mS(PTR, &rep);
+                LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
+                LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
+                LOOP_ASSERT(REP.disposeObjectCount(),
+                                                0 == REP.disposeObjectCount());
+            }
+            LOOP_ASSERT(REP.numReferences(),     0 == REP.numReferences());
+            LOOP_ASSERT(REP.disposeRepCount(),   1 == REP.disposeRepCount());
+            LOOP_ASSERT(REP.disposeObjectCount(),
+                        1 == REP.disposeObjectCount());
+        }
+
+        if (verbose) printf(
+                   "\nTesting constructor (with rep and \"from-shared\" tag)"
+                   "\n----------------------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(p, &ta); const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bslma::SharedPtrRep *rep = x.rep();
+            x.release();
+
+            Obj xx(p, rep, bslstl::SharedPtrRepFromExistingSharedPtr());
+            const Obj& XX = xx;
             ASSERT(p == XX.get());
             ASSERT(rep ==  XX.rep());
             ASSERT(1 == XX.use_count());
