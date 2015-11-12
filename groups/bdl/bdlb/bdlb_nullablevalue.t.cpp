@@ -31,6 +31,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_typeinfo.h>                                                       
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
