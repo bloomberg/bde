@@ -165,7 +165,7 @@ template <class DATA_TYPE>
 void dumpData(const DATA_TYPE& data)
 {
     if (forceDestructorCall) {
-        printf("%p: %c\n", &data, *reinterpret_cast<const char *>(&data));
+        printf("%p: %c\n", &data, *(const char *)(&data));
     }
 }
 
