@@ -11163,17 +11163,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,        4   },
         { L_,        5   },
         { L_,        9   },
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,       11   },
         { L_,       12   },
         { L_,       13   },
-        { L_,       15   }
-#else
+        { L_,       15   },
         { L_,       23   },
         { L_,       24   },
         { L_,       25   },
         { L_,       30   }
-#endif
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11190,17 +11187,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         { L_,   "ABCD"                               }, // 4
         { L_,   "ABCDEABC"                           }, // 8
         { L_,   "ABCDEABCD"                          }, // 9
-#if 1  // #ifndef BSLS_PLATFORM_CPU_64_BIT
         { L_,   "ABCDEABCDEA"                        }, // 11
         { L_,   "ABCDEABCDEAB"                       }, // 12
         { L_,   "ABCDEABCDEABC"                      }, // 13
-        { L_,   "ABCDEABCDEABCDE"                    }  // 15
-#else
+        { L_,   "ABCDEABCDEABCDE"                    }, // 15
         { L_,   "ABCDEABCDEABCDEABCDEABC"            }, // 23
         { L_,   "ABCDEABCDEABCDEABCDEABCD"           }, // 24
         { L_,   "ABCDEABCDEABCDEABCDEABCDE"          }, // 25
         { L_,   "ABCDEABCDEABCDEABCDEABCDEABCDE"     }  // 30
-#endif
     };
     const int NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA;
 
@@ -12690,6 +12684,567 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Move()
+{
+    // --------------------------------------------------------------------
+    // TESTING MOVE-ASSIGNMENT OPERATOR:
+    //
+    // Concerns:
+    //   1) The value represented by any object can be assigned to any other
+    //      object regardless of how either value is represented internally.
+    //   2) The 'rhs' value is left useable after the move.
+    //   3) 'rhs' going out of scope has no effect on the value of 'lhs' after
+    //      the assignment.
+    //   4) Aliasing ('x = x'): The assignment operator must always work --
+    //      even when the lhs and rhs are identically the same object.
+    //   5) The assignment operator must be neutral with respect to memory
+    //      allocation exceptions.
+    //   6) The move constructor's internal functionality varies according to
+    //      which bitwise copy/move trait is applied.
+    //
+    // Plan:
+    //   Specify a set S of unique object values with substantial and varied
+    //   differences, ordered by increasing length.  For each value in S,
+    //   construct an object x along with a sequence of similarly constructed
+    //   duplicates x1, x2, ..., xN.  Attempt to affect every aspect of
+    //   white-box state by altering each xi in a unique way.  Let the union of
+    //   all such objects be the set T.
+    //
+    //   To address concerns 1, 2, and 5, construct tests u = v for all (u, v)
+    //   in T X T.  Using canonical controls UU and VV, assert before the
+    //   assignment that UU == u, VV == v, and v == u if and only if VV == UU.
+    //   After the assignment, assert that VV == u, VV == v, and, for grins,
+    //   that v == u.  Let v go out of scope and confirm that VV == u.  All of
+    //   these tests are performed within the 'bslma' exception testing
+    //   apparatus.  Since the execution time is lengthy with exceptions, every
+    //   permutation is not performed when exceptions are tested.  Every
+    //   permutation is also tested separately without exceptions.
+    //
+    //   As a separate exercise, we address 4 and 5 by constructing tests y = y
+    //   for all y in T.  Using a canonical control X, we will verify that
+    //   X == y before and after the assignment, again within the bslma
+    //   exception testing apparatus.
+    //
+    //   To address concern 6, all these tests are performed on user defined
+    //   types:
+    //          With allocator, copyable
+    //          With allocator, moveable
+    //          With allocator, not moveable
+    //
+    // Testing:
+    //   basic_string& operator=(MovableRef<basic_string> rhs);
+    // --------------------------------------------------------------------
+
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    Allocator            Z(&testAllocator);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    (void) NUM_VALUES;
+
+    // --------------------------------------------------------------------
+
+    static const char *SPECS[] = {                      // length
+        "",                                             // 0
+        "A",                                            // 1
+        "BC",                                           // 2
+        "CDE",                                          // 3
+        "DEAB",                                         // 4
+        "DEABC",                                        // 5
+        "CBAEDCBA",                                     // 8
+        "EDCBAEDCB",                                    // 9
+        "EDCBAEDCBAE",                                  // 11
+        "EDCBAEDCBAED",                                 // 12
+        "EDCBAEDCBAEDC",                                // 13
+        "EDCBAEDCBAEDCBAEDCBAEDC",                      // 23
+        "EDCBAEDCBAEDCBAEDCBAEDCB",                     // 24
+        "EDCBAEDCBAEDCBAEDCBAEDCBA",                    // 25
+        "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBA",               // 30
+        "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAE",              // 31
+        "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAED",             // 32
+        "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAEDC",            // 33
+        0 // null string required as last element
+    };
+
+    static const int EXTEND[] = {
+        0, 1, 2, 3, 4, 5, 8, 9, 11, 12, 13, 15, 23, 24, 25, 30, 63, 64, 65
+    };
+    const int NUM_EXTEND = sizeof(EXTEND) / sizeof(*EXTEND);
+
+    if (verbose) printf("\nAssign cross product of values "
+                        "with varied representations.\n"
+                        "Without Exceptions\n");
+    { // Testing Move with same allocators
+        if (verbose) printf("\twith the same allocators.\n");
+        int uOldLen = -1;
+        for (int ui = 0; SPECS[ui]; ++ui) {
+            const char *const U_SPEC = SPECS[ui];
+            const size_t      uLen   = strlen(U_SPEC);
+
+            if (veryVerbose) {
+                printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                P(U_SPEC);
+            }
+
+            LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+            uOldLen = static_cast<int>(uLen);
+
+            const Obj UU = g(U_SPEC);  // control
+            LOOP_ASSERT(ui, uLen == UU.size());   // same lengths
+
+            for (int vi = 0; SPECS[vi]; ++vi) {
+                const char *const V_SPEC = SPECS[vi];
+                const size_t      vLen   = strlen(V_SPEC);
+
+                if (veryVerbose) {
+                    printf("\t\tFor rhs objects of length " ZU ":\t", vLen);
+                    P(V_SPEC);
+                }
+
+                const Obj VV = g(V_SPEC); // control
+
+                const bool EQUAL = ui == vi; // flag indicating same values
+
+                for (int uj = 0; uj < NUM_EXTEND; ++uj) {
+                    const int U_N = EXTEND[uj];
+                    for (int vj = 0; vj < NUM_EXTEND; ++vj) {
+                        const int V_N = EXTEND[vj];
+
+                        Obj mU(Z);  const Obj& U = mU;
+                        stretchRemoveAll(&mU, U_N, VALUES[0]);
+                        gg(&mU, U_SPEC);
+                        {
+                    // v--------
+                    Obj mV(Z);  const Obj& V = mV;
+                    stretchRemoveAll(&mV, V_N, VALUES[0]);
+                    gg(&mV, V_SPEC);
+
+                    static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                    if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
+                        printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
+                        --firstFew;
+                    }
+                    if (!veryVeryVerbose && veryVerbose && 0 == firstFew) {
+                        printf("\t| ... (ommitted from now on\n");
+                        --firstFew;
+                    }
+
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, UU == U);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, EQUAL == (V == U));
+
+                    const int NUM_CTOR = numCopyCtorCalls;
+                    const int NUM_DTOR = numDestructorCalls;
+
+                    Obj& result = (mU = bslmf::MovableRefUtil::move(mV));
+                        // test move assignment here
+
+                    ASSERT(&result == &U);
+
+                    ASSERT((numCopyCtorCalls - NUM_CTOR) == 0);
+                    ASSERT((numDestructorCalls - NUM_DTOR) == 0);
+
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                 V.empty() || V == VV);
+                    // ---------v
+                        }
+                        // 'mV' (and therefore 'V') now out of scope
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    }
+                }
+            }
+        }
+    }
+    { // Testing Move with different allocators
+        if (verbose) printf("\twith different allocators.\n");
+        int uOldLen = -1;
+        for (int ui = 0; SPECS[ui]; ++ui) {
+            const char *const U_SPEC = SPECS[ui];
+            const size_t      uLen   = strlen(U_SPEC);
+
+            if (veryVerbose) {
+                printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                P(U_SPEC);
+            }
+
+            LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+            uOldLen = static_cast<int>(uLen);
+
+            const Obj UU = g(U_SPEC);  // control
+            LOOP_ASSERT(ui, uLen == UU.size());   // same lengths
+
+            for (int vi = 0; SPECS[vi]; ++vi) {
+                const char *const V_SPEC = SPECS[vi];
+                const size_t      vLen   = strlen(V_SPEC);
+
+                if (veryVerbose) {
+                    printf("\t\tFor rhs objects of length " ZU ":\t", vLen);
+                    P(V_SPEC);
+                }
+
+                const Obj VV = g(V_SPEC); // control
+
+                const bool EQUAL = ui == vi; // flag indicating same values
+
+                for (int uj = 0; uj < NUM_EXTEND; ++uj) {
+                    const int U_N = EXTEND[uj];
+                    for (int vj = 0; vj < NUM_EXTEND; ++vj) {
+                        const int V_N = EXTEND[vj];
+
+                        Obj mU; const Obj& U = mU;
+                        stretchRemoveAll(&mU, U_N, VALUES[0]);
+                        gg(&mU, U_SPEC);
+                        {
+                    // v--------
+                    Obj mV(Z); const Obj& V = mV;
+                    stretchRemoveAll(&mV, V_N, VALUES[0]);
+                    gg(&mV, V_SPEC);
+
+                    static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                    if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
+                        printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
+                        --firstFew;
+                    }
+                    if (!veryVeryVerbose && veryVerbose && 0 == firstFew) {
+                        printf("\t| ... (ommitted from now on\n");
+                        --firstFew;
+                    }
+
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, UU == U);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, EQUAL == (V == U));
+
+                    const int NUM_CTOR = numCopyCtorCalls;
+                    const int NUM_DTOR = numDestructorCalls;
+
+                    // test move assignment here
+                    mU = bslmf::MovableRefUtil::move(mV);
+
+                    ASSERT((numCopyCtorCalls - NUM_CTOR) == 0);
+                    ASSERT((numDestructorCalls - NUM_DTOR) == 0);
+
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                    // ---------v
+                        }
+                        // 'mV' (and therefore 'V') now out of scope
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\nAssign cross product of values "
+                        "with varied representations.\n"
+                        "With Exceptions\n");
+    {
+        static const char *SPECS[] = {
+            // spec                              length
+            // ----                              ------
+            "",                                   // 0
+            "A",                                 // 1
+            "AB",                                // 2
+            "ABC",                               // 3
+            "ABCD",                              // 4
+            "ABCDEABC",                          // 8
+            "ABCDEABCD",                         // 9
+            "ABCDEABCDEA",                       // 11
+            "ABCDEABCDEAB",                      // 12
+            "ABCDEABCDEABC",                     // 13
+            "ABCDEABCDEABCDE",                   // 15
+            "ABCDEABCDEABCDEABCDEABC",           // 23
+            "ABCDEABCDEABCDEABCDEABCD",          // 24
+            "ABCDEABCDEABCDEABCDEABCDE",         // 25
+            "ABCDEABCDEABCDEABCDEABCDEABCDE",    // 30
+            0
+        }; // Null string required as last element.
+
+        static const int EXTEND[] = {
+            0, 1, 2, 3, 4, 5, 9, 11, 12, 13,
+            DEFAULT_CAPACITY - 1,
+            DEFAULT_CAPACITY,
+            DEFAULT_CAPACITY + 1,
+            DEFAULT_CAPACITY * 5
+        };
+        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+        int iterationModulus = 1;
+        int iteration = 0;
+        {
+            if (verbose) printf("\tWith the same allocators.\n");
+            int uOldLen = -1;
+            for (int ui = 0; SPECS[ui]; ++ui) {
+                const char *const U_SPEC = SPECS[ui];
+                const size_t      uLen   = strlen(U_SPEC);
+
+                if (veryVerbose) {
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                    P(U_SPEC);
+                }
+
+                LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+                uOldLen = static_cast<int>(uLen);
+
+                const Obj UU = g(U_SPEC);  // control
+                LOOP_ASSERT(ui, uLen == UU.size()); // same lengths
+
+                // int vOldLen = -1;
+                for (int vi = 0; SPECS[vi]; ++vi) {
+                    const char *const V_SPEC = SPECS[vi];
+                    const size_t      vLen   = strlen(V_SPEC);
+
+                    if (veryVerbose) {
+                        printf("\t\tFor rhs objects of length " ZU ":\t",vLen);
+                            P(V_SPEC);
+                        }
+
+                    // control
+                    const Obj VV = g(V_SPEC);
+
+                    for (int uj = 0; uj < NUM_EXTEND; ++uj) {
+                        const int U_N = EXTEND[uj];
+                        for (int vj = 0; vj < NUM_EXTEND; ++vj) {
+                            const int V_N = EXTEND[vj];
+
+                            if (iteration % iterationModulus == 0) {
+                //--------------^
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const Int64 AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+                    Obj mU(Z);  const Obj& U = mU;
+                    stretchRemoveAll(&mU, U_N, VALUES[0]);
+                    gg(&mU, U_SPEC);
+                    {
+                        Obj mV(Z); const Obj& V = mV;
+                        stretchRemoveAll(&mV, V_N, VALUES[0]);
+                        gg(&mV, V_SPEC);
+
+                        static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
+                            printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
+                            --firstFew;
+                        }
+                        if (!veryVeryVerbose && veryVerbose && 0 == firstFew) {
+                            printf("\t| ... (ommitted from now on\n");
+                            --firstFew;
+                        }
+
+                        ExceptionGuard<Obj> guard(U, L_);
+                        testAllocator.setAllocationLimit(AL);
+                        // test move assignment here
+                        mU = bslmf::MovableRefUtil::move(mV);
+                        guard.release();
+
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
+                                     V.empty() || VV == V);
+                    }
+                    // 'mV' (and therefore 'V') now out of scope
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                //--------------v
+                            }
+                            ++iteration;
+                        }
+                    }
+                }
+            }
+        }
+
+        iterationModulus = 1;
+        iteration = 0;
+        {
+            if (verbose) printf("\tWith different allocators.\n");
+            int uOldLen = -1;
+            for (int ui = 0; SPECS[ui]; ++ui) {
+                const char *const U_SPEC = SPECS[ui];
+                const size_t      uLen   = strlen(U_SPEC);
+
+                if (veryVerbose) {
+                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                    P(U_SPEC);
+                }
+
+                LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+                uOldLen = static_cast<int>(uLen);
+
+                const Obj UU = g(U_SPEC);  // control
+                LOOP_ASSERT(ui, uLen == UU.size()); // same lengths
+
+                // int vOldLen = -1;
+                for (int vi = 0; SPECS[vi]; ++vi) {
+                    const char *const V_SPEC = SPECS[vi];
+                    const size_t      vLen   = strlen(V_SPEC);
+
+                    if (veryVerbose) {
+                        printf("\t\tFor rhs objects of length " ZU ":\t",vLen);
+                            P(V_SPEC);
+                        }
+
+                    // control
+                    const Obj VV = g(V_SPEC);
+
+                    for (int uj = 0; uj < NUM_EXTEND; ++uj) {
+                        const int U_N = EXTEND[uj];
+                        for (int vj = 0; vj < NUM_EXTEND; ++vj) {
+                            const int V_N = EXTEND[vj];
+
+                            if (iteration % iterationModulus == 0) {
+                //--------------^
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const Int64 AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+                    Obj mU(Z);  const Obj& U = mU;
+                    stretchRemoveAll(&mU, U_N, VALUES[0]);
+                    gg(&mU, U_SPEC);
+                    {
+                        Obj mV; const Obj& V = mV;
+                        stretchRemoveAll(&mV, V_N, VALUES[0]);
+                        gg(&mV, V_SPEC);
+
+                        static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
+                            printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
+                            --firstFew;
+                        }
+                        if (!veryVeryVerbose && veryVerbose && 0 == firstFew) {
+                            printf("\t| ... (ommitted from now on\n");
+                            --firstFew;
+                        }
+
+                        ExceptionGuard<Obj> guard(U, L_);
+                        testAllocator.setAllocationLimit(AL);
+                        // test move assignment here
+                        mU = bslmf::MovableRefUtil::move(mV);
+                        guard.release();
+
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                        LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
+                    }
+                    // 'mV' (and therefore 'V') now out of scope
+                    LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                //--------------v
+                            }
+                            ++iteration;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\nTesting self assignment (Aliasing).\n");
+    {
+        static const char *SPECS[] = {
+            "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
+            "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
+            "ABCDEABCDEABCDE", "ABCDEABCDEABCDEA", "ABCDEABCDEABCDEAB",
+            0 // null string required as last element
+        };
+
+        static const int EXTEND[] = {
+            0, 1, 2, 3, 4, 5, 7, 8, 9,
+            DEFAULT_CAPACITY - 1,
+            DEFAULT_CAPACITY,
+            DEFAULT_CAPACITY + 1,
+            DEFAULT_CAPACITY * 5
+        };
+        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+        int oldLen = -1;
+        for (int ti = 0; SPECS[ti]; ++ti) {
+            const char *const SPEC = SPECS[ti];
+            const int curLen = (int) strlen(SPEC);
+
+            if (veryVerbose) {
+                printf("\tFor an object of length %d:\t", curLen);
+                P(SPEC);
+            }
+            LOOP_ASSERT(SPEC, oldLen < curLen);  // strictly increasing
+            oldLen = curLen;
+
+            // control
+            const Obj X = g(SPEC);
+            LOOP_ASSERT(ti, curLen == (int)X.size());  // same lengths
+
+            for (int tj = 0; tj < NUM_EXTEND; ++tj) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const Int64 AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+
+                    const int N = EXTEND[tj];
+                    Obj mY(Z);  const Obj& Y = mY;
+                    stretchRemoveAll(&mY, N, VALUES[0]);
+                    gg(&mY, SPEC);
+
+                    if (veryVerbose) { T_; T_; P_(N); P(Y); }
+
+                    LOOP2_ASSERT(SPEC, N, Y == Y);
+                    LOOP2_ASSERT(SPEC, N, X == Y);
+
+                    testAllocator.setAllocationLimit(AL);
+                    {  // test move assignment here
+                        ExceptionGuard<Obj> guard(Y, L_);
+                        mY = bslmf::MovableRefUtil::move(mY);
+                    }
+
+                    LOOP2_ASSERT(SPEC, N, Y == Y);
+                    LOOP2_ASSERT(SPEC, N, X == Y);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
+        }
+    }
+#ifndef BDE_BUILD_TARGET_EXC
+    if (verbose) printf("\nSkip testing assignment exception-safety.\n");
+#else
+    if (verbose) printf("\nTesting assignment exception-safety.\n");
+
+    {
+        size_t defaultCapacity = Obj().capacity();
+
+        // 'src' and 'dst' must have different allocators for the exception to
+        // be thrown.
+        Obj src(defaultCapacity + 1, '1');
+
+        Obj dst(defaultCapacity, '2', &testAllocator);
+        Obj dstCopy(dst, &testAllocator);
+
+        // Make the allocator throw on the next allocation:
+        bsls::Types::Int64 oldLimit = testAllocator.allocationLimit();
+        testAllocator.setAllocationLimit(0);
+
+        bool exceptionCaught = false;
+
+        try
+        {
+            // the assignment will require to allocate more memory
+            dst = bslmf::MovableRefUtil::move(src);
+        }
+        catch (bslma::TestAllocatorException &)
+        {
+            exceptionCaught = true;
+        }
+        catch (...)
+        {
+            exceptionCaught = true;
+            ASSERT(0 && "Wrong exception caught");
+        }
+
+        // Restore the allocator state.
+        testAllocator.setAllocationLimit(oldLimit);
+
+        ASSERT(exceptionCaught);
+        ASSERT(dst == dstCopy);
+    }
+#endif
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
 {
     // --------------------------------------------------------------------
@@ -13160,6 +13715,546 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                         }
                         LOOP3_ASSERT(SPEC, N, i, W != Y5);
                     }
+                }
+            }
+        }
+    }
+}
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase7Move()
+{
+    // --------------------------------------------------------------------
+    // TESTING MOVE CONSTRUCTORS:
+    //
+    // Concerns:
+    //   1) move constructor
+    //       1a) The new object's value is the same as that of the original
+    //           object (relying on the equality operator) and created with
+    //           the correct capacity.
+    //       1b) All internal representations of a given value can be used to
+    //            create a new object of equivalent value.
+    //       1c) The value of the original object remains useable.
+    //       1d) Subsequent changes in or destruction of the source object have
+    //            no effect on the move-constructed object.
+    //       1e) Subsequent changes ('push_back's) on the created object have
+    //            no effect on the original and change the capacity of the new
+    //            object correctly.
+    //       1f) The object has its internal memory management system hooked up
+    //            properly so that *all* internally allocated memory draws
+    //            from a user-supplied allocator whenever one is specified.
+    //       1g) The function is exception neutral w.r.t. memory allocation.
+    //
+    // Plan:
+    //   Specify a set S of object values with substantial and varied
+    //   differences, ordered by increasing length, to be used in the
+    //   following tests.
+    //
+    //   For concerns a - d, for each value in S, initialize objects w and
+    //   x, move construct y from x and use 'operator==' to verify that
+    //   both x and y subsequently have the same value as w or, in the case
+    //   that x is moved-from, x is empty. Let x go out of scope and again
+    //   verify that w == y.
+    //
+    //   For concern e, for each value in S initialize objects w and x,
+    //   and move construct y from x.  Change the state of y, by using the
+    //   *primary* *manipulator* 'push_back'.  Using the 'operator!=' verify
+    //   that y differs from x and w, and verify that the capacity of y
+    //   changes correctly.
+    //
+    //   To address concern f, we will perform tests performed for concern 1:
+    //     - While passing a testAllocator as a parameter to the new object
+    //       and ascertaining that the new object gets its memory from the
+    //       provided testAllocator.  Also perform test for concerns 'a' and
+    //       'e'.
+    //    - Where the object is constructed with an object allocator, and
+    //        neither of global and default allocator is used to supply memory.
+    //
+    //   To address concern g, perform tests for concern 1 performed
+    //   in the presence of exceptions during memory allocations using a
+    //   'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //
+    // Testing:
+    //   string(MovableRef<string> original);
+    //   string(MovableRef<string> original, ALLOC basicAllocator);
+    // --------------------------------------------------------------------
+    if (verbose) {
+        printf("Testing Move Constructor\n");
+    }
+
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
+    Allocator            Z(&testAllocator);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+    {
+        static const char *SPECS[] = {
+            "",                                             // 0
+            "A",                                            // 1
+            "BC",                                           // 2
+            "CDE",                                          // 3
+            "DEAB",                                         // 4
+            "CBAEDCBA",                                     // 8
+            "EDCBAEDCB",                                    // 9
+            "EDCBAEDCBAE",                                  // 11
+            "EDCBAEDCBAED",                                 // 12
+            "EDCBAEDCBAEDC",                                // 13
+            "EDCBAEDCBAEDCBAEDCBAEDC",                      // 23
+            "EDCBAEDCBAEDCBAEDCBAEDCB",                     // 24
+            "EDCBAEDCBAEDCBAEDCBAEDCBA",                    // 25
+            "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBA",               // 30
+            "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAE",              // 31
+            "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAED",             // 32
+            "EDCBAEDCBAEDCBAEDCBAEDCBAEDCBAEDC",            // 33
+            0  // null string required as last element
+        };
+
+        static const int EXTEND[] = {
+            0, 1, 2, 3, 4, 5, 7, 8, 9,
+            DEFAULT_CAPACITY - 1,
+            DEFAULT_CAPACITY,
+            DEFAULT_CAPACITY + 1,
+            DEFAULT_CAPACITY * 5
+        };
+
+        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+        int oldLen = -1;
+        for (int ti = 0; SPECS[ti]; ++ti) {
+            const char *const SPEC   = SPECS[ti];
+            const size_t      LENGTH = strlen(SPEC);
+
+            if (verbose) {
+                printf("\tFor an object of length " ZU ":\t", LENGTH);
+                P(SPEC);
+            }
+
+            LOOP_ASSERT(SPEC, oldLen < (int)LENGTH); // strictly increasing
+            oldLen = static_cast<int>(LENGTH);
+
+            // Create control object w.
+            Obj mW; gg(&mW, SPEC);
+            const Obj& W = mW;
+
+            LOOP_ASSERT(ti, LENGTH == W.size()); // same lengths
+            if (veryVerbose) { printf("\tControl Obj: "); P(W); }
+
+            // Stretch capacity of x object by different amounts.
+
+            for (int ei = 0; ei < NUM_EXTEND; ++ei) {
+
+                const int N = EXTEND[ei];
+                if (veryVerbose) { printf("\t\tExtend By  : "); P(N); }
+
+                {   // Testing concern 1a with implicit allocator.
+                    Obj *pX = new Obj(Z);
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    const bool XAllocated = X.capacity() != DEFAULT_CAPACITY;
+
+                    if (veryVerbose) { printf("\t\tDynamic Obj: "); P(X); }
+
+                    if (veryVerbose) { printf("\t\t\tRegular Case :"); }
+
+                    const Int64 B  = testAllocator.numBlocksTotal();
+                    const Int64 BB = testAllocator.numBlocksInUse();
+
+                    // Note that 'Obj Y0 = bslmf::...' will not compile on a
+                    // strict C++03 compiler due to an ambiguity.  We do not
+                    // add a separate C++11 only test for that syntax, as that
+                    // would be testing the compiler, rather than the library.
+                    Obj Y0(bslmf::MovableRefUtil::move(mX));
+
+                    const Int64 A  = testAllocator.numBlocksTotal();
+                    const Int64 AA = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\tObj : "); P_(Y0); P(Y0.capacity());
+                    }
+
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+                    LOOP2_ASSERT(SPEC, N, LENGTH <= Y0.capacity());
+                    LOOP2_ASSERT(SPEC, N, Y0.get_allocator() ==
+                                                            X.get_allocator());
+                    // If 'X' had a dynamically allocated string, check that
+                    // we stole the string and left 'X' empty.  Otherwise,
+                    // check that 'X' is unchanged.
+                    if (XAllocated) {
+                        LOOP2_ASSERT(SPEC, N, X.empty());
+                    } else {
+                        LOOP2_ASSERT(SPEC, N, X == W);
+                    }
+
+                    ASSERTV(A,   B,  A == B);
+                    ASSERTV(AA, BB, AA == BB);
+
+                    // Testing concern 1d by modifying X.
+                    stretch(&mX, 1, VALUES[ei % NUM_VALUES]);
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+
+                    delete pX;
+
+                    // Testing concern 1d after deleting X.
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+                }
+                {   // Testing concern 1a with specified different allocator.
+                    Obj *pX = new Obj();
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    bool isShort = X.size() <= DEFAULT_CAPACITY;
+
+                    if (veryVerbose) { printf("\t\t\tRegular Case With "
+                                                     "Different Allocators :");
+                    }
+
+                    const Int64 B  = testAllocator.numBlocksTotal();
+                    const Int64 BB = testAllocator.numBlocksInUse();
+
+                    Obj Y0(bslmf::MovableRefUtil::move(mX), &testAllocator);
+
+                    const Int64 A  = testAllocator.numBlocksTotal();
+                    const Int64 AA = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\tObj : "); P_(Y0); P(Y0.capacity());
+                    }
+
+                    LOOP2_ASSERT(SPEC, N,
+                                      Y0.get_allocator() != X.get_allocator());
+                    LOOP2_ASSERT(SPEC, N,
+                                         Y0.get_allocator() == &testAllocator);
+
+
+                    // Check that 'X' is left unchanged because it does not
+                    // have the same allocator as 'Y0'.
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+                    LOOP2_ASSERT(SPEC, N, W == X);
+                    LOOP2_ASSERT(SPEC, N, Y0.get_allocator() ==
+                                                               &testAllocator);
+                    LOOP2_ASSERT(SPEC, N, LENGTH <= Y0.capacity());
+
+                    if (!isShort) {
+                        LOOP2_ASSERT(SPEC, N,  A == B  + 1);
+                        LOOP2_ASSERT(SPEC, N, AA == BB + 1);
+                    } else {
+                        LOOP2_ASSERT(SPEC, N,  A == B);
+                        LOOP2_ASSERT(SPEC, N, AA == BB);
+                    }
+
+                    // Testing concern 1d by modifying X.
+                    stretch(&mX, 1, VALUES[ei % NUM_VALUES]);
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+
+                    delete pX;
+
+                    // Testing concern 1d after deleting X.
+                    LOOP2_ASSERT(SPEC, N, W == Y0);
+                }
+                {   // Testing concern 1e.
+                    Obj *pX = new Obj();
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    if (veryVerbose) printf("\t\t\tMove into created obj, "
+                                            "without test allocator:\n");
+
+                    Obj Y1(bslmf::MovableRefUtil::move(mX));
+                    // Control object for X.
+                    Obj X_ctrl(X);
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore Insert: "); P(Y1);
+                    }
+
+                    for (int i = 1; i < N + 1; ++i) {
+                        const size_t oldCap = Y1.capacity();
+                        const size_t remSlots = Y1.capacity() - Y1.size();
+
+                        size_t newCap = 0 != remSlots
+                                      ? -1
+                                      : Imp::computeNewCapacity(LENGTH + i,
+                                                                oldCap,
+                                                                Y1.max_size());
+
+                        stretch(&Y1, 1, VALUES[i % NUM_VALUES]);
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAfter Insert : ");
+                            P_(Y1.capacity()); P_(i); P(Y1);
+                        }
+
+                        LOOP3_ASSERT(SPEC, N, i, Y1.size() == LENGTH + i);
+                        LOOP3_ASSERT(SPEC, N, i, W != Y1);
+                        LOOP3_ASSERT(SPEC, N, i, X != Y1);
+                        LOOP3_ASSERT(SPEC, N, i, X == X_ctrl);
+                        if (remSlots == 0) {
+                            LOOP5_ASSERT(SPEC, N, i, Y1.capacity(), newCap,
+                                         Y1.capacity() == newCap);
+                        }
+                        else {
+                            LOOP3_ASSERT(SPEC, N, i,
+                                         Y1.capacity() == oldCap);
+                        }
+                    }
+
+                    delete pX;
+                }
+                {   // Testing concern 1e with test allocator.
+                    Obj *pX = new Obj(Z);
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    if (veryVerbose)
+                        printf("\t\t\tMove into created obj, "
+                                                     "with test allocator:\n");
+
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
+                    }
+
+                    Obj Y11(bslmf::MovableRefUtil::move(mX),
+                            AllocType(&testAllocator));
+                    // Control object for X.
+                    Obj X_ctrl(X);
+
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
+                        printf("\t\t\t\tBefore Append: "); P(Y11);
+                    }
+
+                    LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
+                    LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
+
+                    for (int i = 1; i < N+1; ++i) {
+                        const size_t oldCap   = Y11.capacity();
+                        const size_t initCap = DEFAULT_CAPACITY;
+
+                        const Int64 CC = testAllocator.numBlocksTotal();
+                        const Int64  C = testAllocator.numBlocksInUse();
+
+                        stretch(&Y11, 1, VALUES[i % NUM_VALUES]);
+
+                        const Int64 DD = testAllocator.numBlocksTotal();
+                        const Int64  D = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBefore Append: ");  P_(DD); P(D);
+                            printf("\t\t\t\tAfter Append : "); P_(CC); P(C);
+                            T_ T_ T_ T_ T_ P_(i); P_(Y11.capacity()); P(Y11);
+                        }
+
+                        // Blocks allocated should increase only when trying to
+                        // add more than capacity.  When adding the first
+                        // element, 'numBlocksInUse' will increase by 1.  In
+                        // all other conditions 'numBlocksInUse' should remain
+                        // the same.
+
+                        if (oldCap < Y11.capacity() && oldCap == initCap) {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 1  == D);
+                        }
+                        else if (oldCap < Y11.capacity()) {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 0  == D);
+                        } else {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 0 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 0 ==  D);
+                        }
+
+                        LOOP3_ASSERT(SPEC, N, i, Y11.size() == LENGTH + i);
+                        LOOP3_ASSERT(SPEC, N, i, W != Y11);
+                        LOOP3_ASSERT(SPEC, N, i, X == X_ctrl);
+                        LOOP3_ASSERT(SPEC, N, i,
+                                     Y11.get_allocator() == X.get_allocator());
+                    }
+                    delete pX;
+                }
+                {   // Testing concern 1e with different allocator.
+                    Obj *pX = new Obj();
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    bool isShort = X.size() <= DEFAULT_CAPACITY;
+
+                    if (veryVerbose)
+                        printf("\t\t\t\tMove into created obj, "
+                                "with test allocator:\n");
+
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
+                    }
+
+                    Obj Y11(bslmf::MovableRefUtil::move(mX),
+                            AllocType(&testAllocator));
+
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
+                        printf("\t\t\t\tBefore Append: "); P(Y11);
+                    }
+
+                    if (isShort) {
+                        LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
+                        LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
+                    }
+                    else {
+                        LOOP2_ASSERT(SPEC, N, BB + 1 == AA);
+                        LOOP2_ASSERT(SPEC, N,  B + 1 ==  A);
+                    }
+
+                    for (int i = 1; i < N+1; ++i) {
+                        const size_t oldCap   = Y11.capacity();
+                        const size_t initCap = DEFAULT_CAPACITY;
+
+                        const Int64 CC = testAllocator.numBlocksTotal();
+                        const Int64  C = testAllocator.numBlocksInUse();
+
+                        stretch(&Y11, 1, VALUES[i % NUM_VALUES]);
+
+                        const Int64 DD = testAllocator.numBlocksTotal();
+                        const Int64  D = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBefore Append: ");  P_(DD); P(D);
+                            printf("\t\t\t\tAfter Append : "); P_(CC); P(C);
+                            T_ T_ T_ T_ T_ P_(i); P_(Y11.capacity()); P(Y11);
+                        }
+
+                        // Blocks allocated should increase only when trying to
+                        // add more than capacity.  When adding the first
+                        // element, 'numBlocksInUse' will increase by 1.  In
+                        // all other conditions 'numBlocksInUse' should remain
+                        // the same.
+
+                        if (oldCap < Y11.capacity() && oldCap == initCap) {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 1  == D);
+                        }
+                        else if (oldCap < Y11.capacity()) {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 1 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 0  == D);
+                        } else {
+                            LOOP3_ASSERT(SPEC, N, i, CC + 0 == DD);
+                            LOOP3_ASSERT(SPEC, N, i,  C + 0 ==  D);
+                        }
+
+                        LOOP3_ASSERT(SPEC, N, i, Y11.size() == LENGTH + i);
+                        LOOP3_ASSERT(SPEC, N, i, W != Y11);
+                        LOOP3_ASSERT(SPEC, N, i, X != Y11);
+                        LOOP3_ASSERT(SPEC, N, i, X == W);
+                        LOOP3_ASSERT(SPEC, N, i,
+                                         Y11.get_allocator() ==&testAllocator);
+                    }
+                    delete pX;
+                }
+                {   // Exception checking with same allocators.
+                    Obj *pX = new Obj(Z);
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
+                    }
+
+                    bool XAllocated = X.capacity() != DEFAULT_CAPACITY;
+
+                    AllocType testA = &testAllocator;
+                    ASSERT(X.get_allocator() == testA);
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                        const Obj Y2(bslmf::MovableRefUtil::move(mX),
+                                     AllocType(&testAllocator));
+                        if (veryVerbose) {
+                            printf("\t\t\tException Case with same "
+                                                             "allocators :\n");
+                            printf("\t\t\t\tObj : "); P(Y2);
+                        }
+                        LOOP2_ASSERT(SPEC, N, W == Y2);
+                        LOOP2_ASSERT(SPEC, N,
+                                     Y2.get_allocator() == X.get_allocator());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
+                    }
+
+                    LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
+                    if (XAllocated) {
+                        LOOP2_ASSERT(SPEC, N,  B - 1 ==  A);
+                    } else {
+                        LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
+                    }
+
+                    delete pX;
+                }
+                {   // Exception checking with different allocators.
+                    Obj *pX = new Obj();
+                    Obj& mX = *pX;
+                    stretchRemoveAll(&mX, N, VALUES[0]);
+                    const Obj& X = mX;  gg(&mX, SPEC);
+
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
+                    }
+
+                    bool isShort = X.size() <= DEFAULT_CAPACITY;
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                        const Obj Y2(bslmf::MovableRefUtil::move(mX),
+                                     AllocType(&testAllocator));
+                        if (veryVerbose) {
+                            printf("\t\t\tException Case with "
+                                                   "different allocators :\n");
+                            printf("\t\t\t\tObj : "); P(Y2);
+                        }
+                        LOOP2_ASSERT(SPEC, N, W == Y2);
+                        LOOP2_ASSERT(SPEC, N,
+                                          Y2.get_allocator() ==&testAllocator);
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
+                    }
+
+                    if (isShort) {
+                        LOOP2_ASSERT(SPEC, N, BB + 0 == AA);
+                    } else {
+                        LOOP2_ASSERT(SPEC, N, BB + 1 == AA);
+                    }
+                    LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
+
+                    delete pX;
                 }
             }
         }
