@@ -161,7 +161,6 @@ struct ByteOrder {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, ByteOrder::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -179,9 +178,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, ByteOrder::Enum value);
                           // struct bdlde::ByteOrder
                           // -----------------------
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bsl::ostream& bdlde::operator<<(bsl::ostream& stream, ByteOrder::Enum value)
+bsl::ostream& bdlde::operator<<(bsl::ostream&          stream,
+                                bdlde::ByteOrder::Enum value)
 {
     return ByteOrder::print(stream, value, 0, -1);
 }

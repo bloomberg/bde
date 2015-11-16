@@ -151,10 +151,10 @@ using namespace bsl;
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [ 5] ostream& print(ostream& stream, int level = 0, int sPL = 4) const;
 //
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // DEPRECATED
 // [10] static int maxSupportedBdexVersion();
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 //
 // FREE OPERATORS
 // [ 6] bool operator==(lhs, rhs);
@@ -4797,9 +4797,9 @@ int main(int argc, char *argv[])
         //   static int maxSupportedBdexVersion(int versionSelector);
         //   STREAM& bdexStreamIn(STREAM& stream, int version);
         //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
         //   static int maxSupportedBdexVersion();
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4835,9 +4835,9 @@ int main(int argc, char *argv[])
             ASSERT(3 == maxSupportedBdexVersion(reinterpret_cast<Obj *>(0),
                                                 VERSION_SELECTOR));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
             ASSERT(1 == Obj::maxSupportedBdexVersion());
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         }
 
         const int VERSIONS[] = { 2, 3 };
