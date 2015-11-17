@@ -1060,6 +1060,16 @@ class basic_string
     friend string to_string(unsigned long);
     friend string to_string(unsigned long long);
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                      basic_string,
+                      BloombergLP::bslmf::IsBitwiseMoveable,
+                      BloombergLP::bslmf::IsBitwiseMoveable<ALLOCATOR>::value);
+        // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
+        // 'CHAR_TYPE' bitwise-movable, so 'basic_string' is bitwise-movable as
+        // long as the (template parameter) 'ALLOCATOR' type is also
+        // bitwise-movable.
+
   private:
     // PRIVATE TYPES
     typedef String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type> Imp;
@@ -6023,15 +6033,6 @@ struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
 {};
 
 }  // close namespace bslalg
-
-namespace bslmf {
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
-struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : IsBitwiseMoveable<ALLOC>
-{};
-
-}  // close namespace bslmf
 
 namespace bslma {
 
