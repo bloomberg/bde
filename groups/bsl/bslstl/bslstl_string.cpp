@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslstl_forwarditerator.h>     // for testing only
+
 #include <bsls_assert.h>
 
 #include <errno.h>
