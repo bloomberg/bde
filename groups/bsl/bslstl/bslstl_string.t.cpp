@@ -18320,6 +18320,13 @@ int main(int argc, char *argv[])
         ASSERT((!bslmf::IsBitwiseMoveable<native_std::string>::value));
         ASSERT((!bslmf::IsBitwiseMoveable<native_std::wstring>::value));
 
+        typedef LimitAllocator<bsl::allocator<char> >
+                                                   NotBitwiseMoveableAllocator;
+        typedef bsl::basic_string<char,
+                                  bsl::char_traits<char>,
+                                  NotBitwiseMoveableAllocator> TestString;
+        ASSERT((!bslmf::IsBitwiseMoveable<TestString>::value));
+
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase11();
 
