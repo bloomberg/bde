@@ -56,6 +56,8 @@ const PredefinedPrefix& lookupPredefinedPrefix(const bslstl::StringRef& prefix)
 }  // close unnamed namespace
 
 namespace balxml {
+
+// CREATORS
 PrefixStack::PrefixStack(NamespaceRegistry *namespaceRegistry,
                          bslma::Allocator  *basicAllocator)
 : d_namespaceRegistry(namespaceRegistry)
@@ -64,6 +66,15 @@ PrefixStack::PrefixStack(NamespaceRegistry *namespaceRegistry,
 {
 }
 
+PrefixStack::PrefixStack(const PrefixStack&  original,
+                         bslma::Allocator   *basicAllocator)
+: d_namespaceRegistry(original.d_namespaceRegistry)
+, d_prefixes(original.d_prefixes, basicAllocator)
+, d_numPrefixes(original.d_numPrefixes)
+{
+}
+
+// MANIPULATORS
 int PrefixStack::pushPrefix(const bslstl::StringRef& prefix,
                             const bslstl::StringRef& namespaceUri)
 {
@@ -98,6 +109,7 @@ int PrefixStack::popPrefixes(int count)
     return count;
 }
 
+// ACCESSORS
 int
 PrefixStack::lookupNamespaceId(const bslstl::StringRef& prefix) const
 {

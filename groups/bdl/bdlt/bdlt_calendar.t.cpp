@@ -1456,6 +1456,9 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(X.getNextBusinessDay(&date, X.firstDate() - 1, 0));
             ASSERT_FAIL(X.getNextBusinessDay(0, X.firstDate() - 1, 1));
         }
+
+
+
       } break;
       case 27: {
         // --------------------------------------------------------------------

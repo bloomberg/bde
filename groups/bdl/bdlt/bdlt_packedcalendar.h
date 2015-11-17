@@ -1492,6 +1492,7 @@ class PackedCalendar_HolidayConstIterator {
         // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
 
 
+
     // CREATORS
     PackedCalendar_HolidayConstIterator(
                           const PackedCalendar_HolidayConstIterator& original);
@@ -1595,6 +1596,7 @@ class PackedCalendar_HolidayCodeConstIterator {
     typedef int *pointer;
     typedef int  reference;
         // The star operator returns an 'int' *by* *value*.
+
 
     // CREATORS
     PackedCalendar_HolidayCodeConstIterator(
@@ -1731,6 +1733,7 @@ class PackedCalendar_BusinessDayConstIterator {
     typedef PackedCalendar_DateProxy pointer;
     typedef PackedCalendar_DateRef   reference;
         // The star operator returns a 'PackedCalendar_DateRef' *by* *value*.
+
 
     // CREATORS
     PackedCalendar_BusinessDayConstIterator(
