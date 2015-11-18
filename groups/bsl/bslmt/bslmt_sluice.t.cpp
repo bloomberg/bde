@@ -20,9 +20,6 @@
 #include <bsls_atomic.h>
 #include <bsls_timeinterval.h>
 
-/* TBD -- bind
-#include <bdlf_bind.h>
-*/
 #include <bsls_systemtime.h>
 
 #include <bslma_testallocator.h>
@@ -175,33 +172,63 @@ class My_TestAllocator : public bslma::Allocator{
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
-void enterAndWaitUntilDone(Obj             *sluice,
-                           int             *done,
-                           bslmt::Mutex    *lock,
-                           bsls::AtomicInt *iterations)
-{
-    while (1) {
-        lock->lock();
-        if (*done) {
-            lock->unlock();
-            break;
-        }
-        const void *token = sluice->enter();
-        lock->unlock();
-        sluice->wait(token);
-        ++(*iterations);
+class EnterAndWaitUntilDoneJob {
+    Obj             *d_sluice;
+    int             *d_done;
+    bslmt::Mutex    *d_lock;
+    bsls::AtomicInt *d_iterations;
+
+  public:
+    EnterAndWaitUntilDoneJob(Obj             *sluice,
+                             int             *done,
+                             bslmt::Mutex    *lock,
+                             bsls::AtomicInt *iterations)
+    : d_sluice(sluice)
+    , d_done(done)
+    , d_lock(lock)
+    , d_iterations(iterations)
+    {
     }
-}
 
-void enterPostSleepAndWait(Obj *sluice, bslmt::Semaphore *semaphore)
-{
-    const void *token = sluice->enter();
+    void operator()() {
+        while (1) {
+            d_lock->lock();
+            if (*d_done) {
+                d_lock->unlock();
+                break;
+            }
+            const void *token = d_sluice->enter();
+            d_lock->unlock();
+            d_sluice->wait(token);
+            ++(*d_iterations);
+        }
+    }
+};
 
-    semaphore->post();
+class EnterPostSleepAndWaitJob {
+    Obj              *d_sluice;
+    bslmt::Semaphore *d_semaphore;
 
-    bslmt::ThreadUtil::sleep(bsls::TimeInterval(2));
-    sluice->wait(token);
-}
+    enum {
+        SLEEP_SECONDS = 2
+    };
+
+  public:
+    EnterPostSleepAndWaitJob(Obj *sluice, bslmt::Semaphore *semaphore)
+    : d_sluice(sluice)
+    , d_semaphore(semaphore)
+    {
+    }
+
+    void operator()() {
+        const void *token = d_sluice->enter();
+
+        d_semaphore->post();
+
+        bslmt::ThreadUtil::sleep(bsls::TimeInterval(SLEEP_SECONDS));
+        d_sluice->wait(token);
+    }
+};
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -233,57 +260,57 @@ int main(int argc, char *argv[])
                           << "Stress / Allocator Test" << endl
                           << "=======================" << endl;
 
-        /* TBD -- bind
-        enum {
-            k_NUM_WAITING_THREADS = 20,
-            k_NUM_TEST_SECONDS    =  3
-        };
+        {
+            enum {
+                k_NUM_WAITING_THREADS = 20,
+                k_NUM_TEST_SECONDS    =  3
+            };
 
-        Obj mX(&ta);
-        int done = 0;
-        bslmt::Mutex lock;
-        bsls::AtomicInt iterations(0);
+            Obj mX(&ta);
+            int done = 0;
+            bslmt::Mutex lock;
+            bsls::AtomicInt iterations(0);
 
-        bslmt::ThreadGroup threadGroup;
+            bslmt::ThreadGroup threadGroup;
 
-        ASSERT(k_NUM_WAITING_THREADS ==
-            threadGroup.addThreads(bdlf::BindUtil::bind(&enterAndWaitUntilDone,
-                                                        &mX,
-                                                        &done,
-                                                        &lock,
-                                                        &iterations),
-                                   k_NUM_WAITING_THREADS));
-        bsls::Stopwatch timer;
-        timer.start();
-        while (timer.elapsedTime() < k_NUM_TEST_SECONDS) {
-            mX.signalOne();
-            mX.signalOne();
-            mX.signalOne();
-            mX.signalOne();
-            mX.signalOne();
+            EnterAndWaitUntilDoneJob job(&mX,
+                                         &done,
+                                         &lock,
+                                         &iterations);
+
+            ASSERT(k_NUM_WAITING_THREADS ==
+                   threadGroup.addThreads(job, k_NUM_WAITING_THREADS));
+
+            bsls::Stopwatch timer;
+            timer.start();
+            while (timer.elapsedTime() < k_NUM_TEST_SECONDS) {
+                mX.signalOne();
+                mX.signalOne();
+                mX.signalOne();
+                mX.signalOne();
+                mX.signalOne();
+            }
+            lock.lock();
+            done = 1;
+            lock.unlock();
+
+            mX.signalAll();
+            threadGroup.joinAll();
+
+            if (verbose) {
+                P(iterations);
+            }
+            // we should ALWAYS be able to make WAY MORE THAN 100 iterations per
+            // thread per second
+            LOOP_ASSERT(iterations,
+                        100 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS <
+                        iterations);
         }
-        lock.lock();
-        done = 1;
-        lock.unlock();
-
-        mX.signalAll();
-        threadGroup.joinAll();
-
         if (verbose) {
-            P(iterations);
+            P(ta.numAllocations());
         }
-        // we should ALWAYS be able to make WAY MORE THAN 100 iterations per
-        // thread per second
-        LOOP_ASSERT(iterations,
-                100 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS < iterations);
-      }
-      if (verbose) {
-          P(ta.numAllocations());
-      }
-      ASSERT(0 < ta.numAllocations());
-      ASSERT(0 == ta.numBytesInUse());
-        */
-
+        ASSERT(0 < ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -301,7 +328,6 @@ int main(int argc, char *argv[])
                           << "Delayed Wait Test" << endl
                           << "=================" << endl;
 
-        /* TBD -- bind
         enum {
             k_NUM_SIGNALED_THREADS = 3,
             k_NUM_ITERATIONS       = 2
@@ -313,9 +339,9 @@ int main(int argc, char *argv[])
             bslmt::Semaphore readySem;
 
             bslmt::ThreadUtil::Handle h;
-            int rc = bslmt::ThreadUtil::create(&h,
-                                   bdlf::BindUtil::bind(&enterPostSleepAndWait,
-                                                       &mX, &readySem));
+
+            EnterPostSleepAndWaitJob job(&mX, &readySem);
+            int rc = bslmt::ThreadUtil::create(&h, job);
             BSLS_ASSERT(0 == rc); // test invariant
 
             readySem.wait();
@@ -323,11 +349,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::join(h);
 
             bslmt::ThreadGroup threadGroup;
-            rc = threadGroup.addThreads(
-                                   bdlf::BindUtil::bind(&enterPostSleepAndWait,
-                                                        &mX,
-                                                        &readySem),
-                                   k_NUM_SIGNALED_THREADS);
+            rc = threadGroup.addThreads(job, k_NUM_SIGNALED_THREADS);
             BSLS_ASSERT(k_NUM_SIGNALED_THREADS == rc); // test invariant
 
             for (int i = 0; i < k_NUM_SIGNALED_THREADS; ++i) {
@@ -336,7 +358,6 @@ int main(int argc, char *argv[])
             mX.signalAll();
             threadGroup.joinAll();
         }
-        */
       } break; // success if we can reach the end of the test
       case 1: {
         // --------------------------------------------------------------------
@@ -379,8 +400,14 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
+          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
           testStatus = -1;
       }
+    }
+
+    if (testStatus > 0) {
+        cerr << "Error, non-zero test status = "
+             << testStatus << "." << endl;
     }
     return testStatus;
 }
