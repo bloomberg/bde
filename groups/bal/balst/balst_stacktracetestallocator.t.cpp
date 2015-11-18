@@ -1643,12 +1643,6 @@ int main(int argc, char *argv[])
             const bool DEMANGLE_CONFIG = d;
             bool demangleExpected = DEMANGLE_CONFIG;
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
- && !(defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
-            // never on Solaris CC
-
-            demangleExpected = false;
-#endif
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
             // always on Windows
 

@@ -166,12 +166,15 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // non-zero value otherwise.
 
     // PRIVATE ACCESSORS
-    void setFrameSymbolName(StackTraceFrame *frame) const;
+    void setFrameSymbolName(StackTraceFrame *frame,
+                            char            *buffer,
+                            bsl::size_t      bufferLen) const;
         // Set the 'symbolName' field of the specified 'frame', which must
         // already have the 'mangledSymbolName' field set, to the demangled
-        // version of the 'mangledSymbolName' field.  If 'd_demangle' is
-        // 'false' or we are otherwise unable to demangle, just set it to the
-        // same as 'mangledSymbolName'.
+        // version of the 'mangledSymbolName' field.  Use the specified
+        // 'buffer' of specified length 'bufferLen' for temporary storage.  If
+        // 'd_demangle' is 'false' or we are otherwise unable to demangle, just
+        // set it to the same as 'mangledSymbolName'.
 
   public:
     // CLASS METHOD

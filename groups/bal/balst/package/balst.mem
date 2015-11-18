@@ -5,6 +5,7 @@ balst_stackaddressutil
 balst_stacktrace
 balst_stacktraceframe
 balst_stacktraceprintutil
+balst_stacktraceresolver_dwarfreader
 balst_stacktraceresolver_filehelper
 balst_stacktraceresolverimpl_dladdr
 balst_stacktraceresolverimpl_elf

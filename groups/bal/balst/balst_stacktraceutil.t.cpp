@@ -17,7 +17,7 @@
 #include <bdlb_stringrefutil.h>
 
 #include <bdlma_sequentialallocator.h>
-
+#include <bdls_filesystemutil.h>
 #include <bdlt_currenttime.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -911,7 +911,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                                    !demangle || !bsl::strncmp(sn, match, len));
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
 
-            if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON) {
+            if ((!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR && DEBUG_ON) {
                 // 'case_5_top' is global -- elf can't find source file names
                 // for globals
 
@@ -947,25 +947,33 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 const bslstl::StringRef& funcMatch =
                                bdlb::StringRefUtil::strstrCaseless(sn,
                                                                    "function");
-                if (bsl::strstr(sn, "bsl") && !funcMatch.isEmpty()) {
-                    continue;
-                }
-
-                LOOP3_ASSERT(i, sn, match, bsl::strstr(sn, match));
-                if (demangle && !FORMAT_DLADDR) {
-                    LOOP4_ASSERT(i, sn, match, len,
+                const bool funcFrame =
+                                bsl::strstr(sn, "bsl") && !funcMatch.isEmpty();
+                if (!funcFrame) {
+                    LOOP3_ASSERT(i, sn, match, bsl::strstr(sn, match));
+                    if (demangle && !FORMAT_DLADDR) {
+                        LOOP4_ASSERT(i, sn, match, len,
                                                 !bsl::strncmp(sn, match, len));
+                    }
                 }
 
                 ++recursersFound;
 
-                if (!FORMAT_DLADDR && DEBUG_ON) {
+                if (!(funcFrame && FORMAT_ELF && !FORMAT_DWARF) &&
+                                                  !FORMAT_DLADDR && DEBUG_ON) {
                     // 'case_5_bottom' is static, so the source file name will
                     // be known on elf, thus it will be known for all
                     // platforms other than Mach-O.
 
-                    const char *sfnMatch = "balst_stacktraceutil.t.cpp";
+                    const char *sfnMatch = funcFrame
+                                         ? "bslstl_function.h"
+                                         : "balst_stacktraceutil.t.cpp";
                     const char *sfn = st[i].sourceFileName().c_str();
+
+                    ASSERT(!FORMAT_DWARF || '/' == sfn[0]);
+                    if ('/' == sfn[0]) {
+                        LOOP_ASSERT(sfn, bdls::FilesystemUtil::exists(sfn));
+                    }
 
                     int sfnMatchLen = (int) bsl::strlen(sfnMatch);
                     int sfnLen = (int) bsl::strlen(sfn);
@@ -1781,39 +1789,70 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING LINE #'S AND OFFSETS\n"
                              "============================\n";
 
-        enum { DATA_POINTS = 3 };
+        enum { DATA_POINTS = 6 };
 
         // Note that 'traces' (stack TRACES), 'ln' (Line NumberS), and 'GET_ST"
         // (GET Stack Trace) must have very short names since it is imperative
         // that we be able do several things on a single 79 column line.
 
-        ST  traces[DATA_POINTS];
-        int lns[   DATA_POINTS];
+        const int  maxFrames = 20;
+        const int  ignore = Address::k_IGNORE_FRAMES;
+        void      *addresses[maxFrames];
+        int        numAddresses;
+        ST         traces[DATA_POINTS];
+        int        lnsRet[DATA_POINTS], lnsCall[DATA_POINTS];
 
 #define GET_ST(st)                                                            \
-        rc = Util::loadStackTraceFromStack(st, 100, false);                   \
-        LOOP_ASSERT(rc, 0 == rc);
+        rc = Util::loadStackTraceFromStack(st, 100, false);
+
+#define GET_A()                                                               \
+        numAddresses = Address::getStackAddresses(addresses, maxFrames);
 
         int rc;
 
-        // We ensure here that the line number returned by the stack trace is
-        // the line number of the actual call, and not the line after it, or
-        // the line of the first executable statement after it.
+        // The goal of this test is to determine whether the line number
+        // returned is that of the actual call or the line number of the return
+        // address, which is the line number after it.
 
-        // We make the assignment conditional on the state of the stack trace
-        // just obtained, to prevent any clever compilers from anticipating the
-        // only assignment to lns[*] and assigning them at variable creation
-        // and putting *NO* executable statement where we're assigning
-        // '__LINE__'.
+        // We make the assignment conditional on the result of the preceding
+        // call, to prevent any clever compilers from anticipating the only
+        // assignment to lnsRet[*] and assigning them at variable creation and
+        // putting *NO* executable statement where we're assigning '__LINE__'.
 
-        GET_ST(&traces[0]); lns[0] = traces[0].length() > 0 ? __LINE__ : -1;
+        GET_ST(&traces[0]); lnsRet[0] = 0 == rc ? __LINE__ : -1;
+        lnsCall[0] = lnsRet[0];
+        LOOP_ASSERT(rc, 0 == rc);
 
         GET_ST(&traces[1]);
-        lns[1] = traces[1].length() > 0 ? __LINE__ - 1 : -1;
+        lnsRet[1] = 0 == rc ? __LINE__ : -1;        lnsCall[1] = lnsRet[1] - 1;
+        LOOP_ASSERT(rc, 0 == rc);
 
         GET_ST(&traces[2]);
 
-        lns[2] = traces[2].length() > 0 ? __LINE__ - 2 : -1;
+        lnsRet[2] = 0 == rc ? __LINE__ : -1;        lnsCall[2] = lnsRet[2] - 2;
+        LOOP_ASSERT(rc, 0 == rc);
+
+        GET_A();        lnsRet[3] = 0 == rc ? __LINE__ : -1;
+        lnsCall[3] = lnsRet[3];
+        rc = Util::loadStackTraceFromAddressArray(&traces[3],
+                                                  addresses + ignore,
+                                                  numAddresses - ignore);
+        LOOP_ASSERT(rc, 0 == rc);
+
+        GET_A();
+        lnsRet[4] = 0 == rc ? __LINE__ : -1;        lnsCall[4] = lnsRet[4] - 1;
+        rc = Util::loadStackTraceFromAddressArray(&traces[4],
+                                                  addresses + ignore,
+                                                  numAddresses - ignore);
+        LOOP_ASSERT(rc, 0 == rc);
+
+        GET_A();
+
+        lnsRet[5] = 0 == rc ? __LINE__ : -1;        lnsCall[5] = lnsRet[5] - 2;
+        rc = Util::loadStackTraceFromAddressArray(&traces[5],
+                                                  addresses + ignore,
+                                                  numAddresses - ignore);
+        LOOP_ASSERT(rc, 0 == rc);
 
         UintPtr lastAddress    = 0;
         IntPtr  lastOffset     = 0;
@@ -1848,21 +1887,26 @@ int main(int argc, char *argv[])
             if (DEBUG_ON && (!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR) {
                 int lineNumber = frame.lineNumber();
                 if (FORMAT_DWARF) {
-                    // Line numbers on DWARF seem to be sloppy
+                    // DWARF usually but not alway gives the line number based
+                    // on the return address on the stack, which is the
+                    // statement after the call.
 
-                    LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber >= lns[i]);
-                    LOOP4_ASSERT(i, lineNumber, lns[i],
-                                                approxAbs(lineNumber - lns[i]),
-                                          approxAbs(lineNumber - lns[i]) <= 2);
+                    LOOP3_ASSERT(i, lineNumber, lnsCall[i],
+                                                     lineNumber >= lnsCall[i]);
+                    LOOP3_ASSERT(i, lineNumber, lnsRet[i],
+                                                      lineNumber <= lnsRet[i]);
                 }
                 else {
-                    LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber == lns[i]);
+                    LOOP3_ASSERT(i, lineNumber, lnsCall[i],
+                                                     lineNumber == lnsCall[i]);
                 }
                 LOOP2_ASSERT(lastLineNumber, lineNumber,
                                                   lastLineNumber < lineNumber);
                 lastLineNumber = lineNumber;
 
-                if (veryVerbose) { P_(lineNumber); P(lns[i]) }
+                if (veryVerbose) {
+                    P_(lineNumber); P_(lnsRet[i]); P(lnsCall[i]);
+                }
             }
         }
 
