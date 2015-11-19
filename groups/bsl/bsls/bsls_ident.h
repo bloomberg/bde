@@ -94,6 +94,16 @@
 //                                     // with '$'
 //..
 
+/* The following macros are defined to enable testing of 'BSLS_ASSERT_SAFE'
+ *  assertions in ICBETA, and the collection of reported assertions by the
+ *  'z_baelu_assertionreporter'.
+ */
+#define Z_BAELU_ASSERTION_REPORTER_ENABLE 1
+
+#if !(defined(__SUNPRO_CC) && (defined(__sparc64) || defined(__sparcv9)))
+#define BSLS_ASSERT_LEVEL_ASSERT_SAFE     1
+#endif
+
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
  * of including an ident string for every file that includes this header
