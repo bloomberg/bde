@@ -44,8 +44,8 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
 
     const int newYear = original.year() + numYears;
     const int eom     = SerialDateImpUtil::isLeapYear(original.year())
-                      ? 29
-                      : 28;
+                        ? 29
+                        : 28;
 
     if (original.day() == eom) {
         const int newEom = SerialDateImpUtil::isLeapYear(newYear) ? 29 : 28;

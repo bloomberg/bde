@@ -89,7 +89,7 @@ using namespace bsl;
 // [-7] PERFORMANCE TEST: serialToDay[NoCache]
 
 // ============================================================================
-// STANDARD BDE ASSERT TEST FUNCTION
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -150,7 +150,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlt::ProlepticDateImpUtil Util;
 
 // ============================================================================
-// GLOBAL CONSTANTS FOR TESTING
+//                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
 enum {
@@ -364,7 +364,7 @@ enum {
 // BDE_VERIFY pragma: pop
 
 // ============================================================================
-// MAIN PROGRAM
+//                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -397,7 +397,8 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 14: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2 Extracted from component header file.
+        // USAGE EXAMPLE 2
+        //   Extracted from component header file.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -408,7 +409,8 @@ int main(int argc, char *argv[])
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //:   (C-1)
         //
-        // Testing: USAGE EXAMPLE 2
+        // Testing:
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -450,7 +452,8 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1 Extracted from component header file.
+        // USAGE EXAMPLE 1
+        //   Extracted from component header file.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -461,7 +464,8 @@ int main(int argc, char *argv[])
         //:   leading comment characters, and replace 'assert' with 'ASSERT'.
         //:   (C-1)
         //
-        // Testing: USAGE EXAMPLE 1
+        // Testing:
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -518,9 +522,9 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING '{serial|yd|ymd}ToDayOfWeek' Ensure that the methods
-        // correctly map every date, in any of the three supported formats, to
-        // its corresponding day of the week.
+        // TESTING '{serial|yd|ymd}ToDayOfWeek'
+        //   Ensure that the methods correctly map every date, in any of the
+        //   three supported formats, to its corresponding day of the week.
         //
         // Concerns:
         //: 1 The 'serialToDayOfWeek' method correctly maps every valid serial
@@ -553,9 +557,10 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
-        // Testing: static int serialToDayOfWeek(int serialDay); static int
-        // ydToDayOfWeek(int year, int dayOfYear); static int
-        // ymdToDayOfWeek(int year, int month, int day);
+        // Testing:
+        //   static int  serialToDayOfWeek(int serialDay);
+        //   static int  ydToDayOfWeek(int year, int dayOfYear);
+        //   static int  ymdToDayOfWeek(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -572,7 +577,7 @@ int main(int argc, char *argv[])
                 int d_day;    // day under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR MONTH DAY EXPECTED
+                //LINE   YEAR   MONTH   DAY   EXPECTED
                 //----   ----   -----   ---   --------
                 { L_,       1,      1,    1,       MON },
                 { L_,       1,      1,    2,       TUE },
@@ -725,9 +730,9 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'serialTo{Day|Month|Ymd}[NoCache]' Ensure that the methods
-        // correctly map every serial date to the corresponding year, month,
-        // and day (of the month).
+        // TESTING 'serialTo{Day|Month|Ymd}[NoCache]'
+        //   Ensure that the methods correctly map every serial date to the
+        //   corresponding year, month, and day (of the month).
         //
         // Concerns:
         //: 1 The 'serialToYmd[NoCache]' methods correctly map every valid
@@ -754,11 +759,13 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
-        // Testing: static int serialToDay(int serialDay); static int
-        // serialToDayNoCache(int serialDay); static int serialToMonth(int
-        // serialDay); static int serialToMonthNoCache(int serialDay); static
-        // void serialToYmd(int *y, int *m, int *d, int sD); static void
-        // serialToYmdNoCache(int *y, int *m, int *d, int sD);
+        // Testing:
+        //   static int  serialToDay(int serialDay);
+        //   static int  serialToDayNoCache(int serialDay);
+        //   static int  serialToMonth(int serialDay);
+        //   static int  serialToMonthNoCache(int serialDay);
+        //   static void serialToYmd(int *y, int *m, int *d, int sD);
+        //   static void serialToYmdNoCache(int *y, int *m, int *d, int sD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -776,7 +783,8 @@ int main(int argc, char *argv[])
                 int d_expMonth;  // expected month value
                 int d_expDay;    // expected day value
             } DATA[] = {
-                // <--- EXPECTED ---> LINE SERIAL YEAR MONTH DAY
+                //                    <--- EXPECTED --->
+                //LINE      SERIAL    YEAR   MONTH   DAY
                 //----      ------    ----   -----   ---
                 { L_,            1,      1,      1,    1 },
                 { L_,            2,      1,      1,    2 },
@@ -1061,9 +1069,9 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}' Ensure that the
-        // methods correctly map every serial date to the corresponding year
-        // and day (of the year).
+        // TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}'
+        //   Ensure that the methods correctly map every serial date to the
+        //   corresponding year and day (of the year).
         //
         // Concerns:
         //: 1 The 'serialToYd' method correctly maps every valid serial date to
@@ -1090,10 +1098,11 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
-        // Testing: static int serialToDayOfYear(int serialDay); static void
-        // serialToYd(int *year, int *dayOfYear, int serialDay); static int
-        // serialToYear(int serialDay); static int serialToYearNoCache(int
-        // serialDay);
+        // Testing:
+        //   static int  serialToDayOfYear(int serialDay);
+        //   static void serialToYd(int *year, int *dayOfYear, int serialDay);
+        //   static int  serialToYear(int serialDay);
+        //   static int  serialToYearNoCache(int serialDay);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1110,7 +1119,8 @@ int main(int argc, char *argv[])
                 int d_expYear;       // expected year value
                 int d_expDayOfYear;  // expected day of year value
             } DATA[] = {
-                // <--- EXPECTED---> LINE SERIAL YEAR DAY OF YEAR
+                //                     <--- EXPECTED--->
+                //LINE       SERIAL    YEAR  DAY OF YEAR
                 //----       ------    ----  -----------
                 { L_,             1,      1,           1 },
                 { L_,             2,      1,           2 },
@@ -1338,8 +1348,9 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'ydToSerial' Ensure that the method correctly maps every
-        // year/day-of-year date to its corresponding serial date.
+        // TESTING 'ydToSerial'
+        //   Ensure that the method correctly maps every year/day-of-year date
+        //   to its corresponding serial date.
         //
         // Concerns:
         //: 1 The method correctly maps every valid year/day-of-year date to
@@ -1359,7 +1370,8 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-2)
         //
-        // Testing: static int ydToSerial(int year, int dayOfYear);
+        // Testing:
+        //   static int  ydToSerial(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1374,7 +1386,7 @@ int main(int argc, char *argv[])
                 int d_dayOfYear;  // day of year under test
                 int d_exp;        // expected value
             } DATA[] = {
-                // LINE YEAR DAY OF YEAR EXPECTED
+                //LINE   YEAR   DAY OF YEAR       EXPECTED
                 //----   ----   -----------       --------
                 { L_,       1,            1,             1 },
                 { L_,       1,          365,           365 },
@@ -1496,9 +1508,9 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'ydTo{Day|Md|Month}' Ensure that the methods correctly map
-        // every year/day-of-year date to the corresponding month and day of
-        // the month.
+        // TESTING 'ydTo{Day|Md|Month}'
+        //   Ensure that the methods correctly map every year/day-of-year date
+        //   to the corresponding month and day of the month.
         //
         // Concerns:
         //: 1 The 'ydToMd' method correctly maps every valid year/day-of-year
@@ -1525,9 +1537,10 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
-        // Testing: static int ydToDay(int year, int dayOfYear); static void
-        // ydToMd(int *month, int *day, int year, int dayOfYear); static int
-        // ydToMonth(int year, int dayOfYear);
+        // Testing:
+        //   static int  ydToDay(int year, int dayOfYear);
+        //   static void ydToMd(int *month, int *day, int year, int dayOfYear);
+        //   static int  ydToMonth(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1543,7 +1556,8 @@ int main(int argc, char *argv[])
                 int d_expMonth;   // expected value for month
                 int d_expDay;     // expected value for day
             } DATA[] = {
-                // < EXPECTED > LINE YEAR DAY OF YEAR MONTH DAY
+                //                            < EXPECTED >
+                //LINE   YEAR   DAY OF YEAR   MONTH    DAY
                 //----   ----   -----------   -----    ---
                 { L_,       1,            1,      1,     1 },
                 { L_,       1,          365,     12,    31 },
@@ -1731,8 +1745,9 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToDayOfYear' Ensure that the method correctly maps every
-        // year/month/day date to the corresponding day of the year.
+        // TESTING 'ymdToDayOfYear'
+        //   Ensure that the method correctly maps every year/month/day date to
+        //   the corresponding day of the year.
         //
         // Concerns:
         //: 1 The method correctly maps every valid year/month/day date to its
@@ -1753,7 +1768,8 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-2)
         //
-        // Testing: static int ymdToDayOfYear(int year, int month, int day);
+        // Testing:
+        //   static int  ymdToDayOfYear(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1769,7 +1785,7 @@ int main(int argc, char *argv[])
                 int d_day;    // day under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR MONTH DAY EXPECTED
+                //LINE   YEAR   MONTH    DAY   EXPECTED
                 //----   ----   -----    ---   --------
                 { L_,       1,      1,     1,         1 },
                 { L_,       1,      1,     2,         2 },
@@ -2001,8 +2017,9 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToSerial[NoCache]' Ensure that the methods correctly map
-        // every year/month/day date to its corresponding serial date.
+        // TESTING 'ymdToSerial[NoCache]'
+        //   Ensure that the methods correctly map every year/month/day date to
+        //   its corresponding serial date.
         //
         // Concerns:
         //: 1 Both methods correctly map every valid year/month/day date to its
@@ -2023,8 +2040,9 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-2)
         //
-        // Testing: static int ymdToSerial(int year, int month, int day);
-        // static int ymdToSerialNoCache(int year, int month, int day);
+        // Testing:
+        //   static int  ymdToSerial(int year, int month, int day);
+        //   static int  ymdToSerialNoCache(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2040,7 +2058,7 @@ int main(int argc, char *argv[])
                 int d_day;    // day under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR MONTH DAY EXPECTED
+                //LINE   YEAR   MONTH    DAY       EXPECTED
                 //----   ----   -----    ---       --------
                 { L_,       1,      1,     1,             1 },
                 { L_,       1,      1,     2,             2 },
@@ -2280,9 +2298,9 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]' Ensure that
-        // the methods accept (reject) valid (invalid) dates in any of the
-        // three supported formats.
+        // TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]'
+        //   Ensure that the methods accept (reject) valid (invalid) dates in
+        //   any of the three supported formats.
         //
         // Concerns:
         //: 1 The 'isValidYearMonthDay[NoCache]' methods correctly categorize
@@ -2323,10 +2341,11 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
-        // Testing: static bool isValidSerial(int serialDay); static bool
-        // isValidYearDay(int year, int dayOfYear); static bool
-        // isValidYearMonthDay(int year, int month, int day); static bool
-        // isValidYearMonthDayNoCache(int y, int m, int day);
+        // Testing:
+        //   static bool isValidSerial(int serialDay);
+        //   static bool isValidYearDay(int year, int dayOfYear);
+        //   static bool isValidYearMonthDay(int year, int month, int day);
+        //   static bool isValidYearMonthDayNoCache(int y, int m, int day);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2348,7 +2367,7 @@ int main(int argc, char *argv[])
                 int d_day;    // day under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR MONTH DAY EXPECTED
+                //LINE    YEAR     MONTH       DAY   EXPECTED
                 //----    ----     -----       ---   --------
                 { L_,        0,        0,        0,         0 },
                 { L_,        1,        1,        0,         0 },
@@ -2609,7 +2628,7 @@ int main(int argc, char *argv[])
                 int d_dayOfYear;  // day of year under test
                 int d_exp;        // expected value
             } DATA[] = {
-                // LINE YEAR DAY OF YEAR EXPECTED
+                //LINE    YEAR   DAY OF YEAR   EXPECTED
                 //----    ----   -----------   --------
                 { L_,        0,            0,         0 },
                 { L_,        1,            0,         0 },
@@ -2741,7 +2760,7 @@ int main(int argc, char *argv[])
                 int d_serial;  // serial date
                 int d_exp;     // expected value
             } DATA[] = {
-                // LINE SERIAL EXPECTED
+                //LINE       SERIAL       EXPECTED
                 //----   --------------   --------
                 { L_,    k_MIN_SERIAL-2,         0 },
                 { L_,    k_MIN_SERIAL-1,         0 },
@@ -2786,8 +2805,9 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lastDayOfMonth' Ensure that the method correctly identifies
-        // the last day of the month.
+        // TESTING 'lastDayOfMonth'
+        //   Ensure that the method correctly identifies the last day of the
+        //   month.
         //
         // Concerns:
         //: 1 The method correctly identifies the last day of the month for
@@ -2808,7 +2828,8 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-2)
         //
-        // Testing: static int lastDayOfMonth(int year, int month);
+        // Testing:
+        //   static int  lastDayOfMonth(int year, int month);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2823,7 +2844,7 @@ int main(int argc, char *argv[])
                 int d_month;  // month under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR MONTH EXPECTED
+                //LINE   YEAR   MONTH   EXPECTED
                 //----   ----   -----   --------
                 { L_,    1999,      1,        31 },
                 { L_,    2000,      1,        31 },
@@ -2990,8 +3011,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'numLeapYears' Ensure that the method correctly calculates
-        // the number of leap years within any valid range of years.
+        // TESTING 'numLeapYears'
+        //   Ensure that the method correctly calculates the number of leap
+        //   years within any valid range of years.
         //
         // Concerns:
         //: 1 The method correctly computes the number of leap years within any
@@ -3015,7 +3037,8 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-3)
         //
-        // Testing: static int numLeapYears(int year1, int year2);
+        // Testing:
+        //   static int  numLeapYears(int year1, int year2);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3029,7 +3052,7 @@ int main(int argc, char *argv[])
                 int d_year2;  // 2nd year in range under test
                 int d_exp;    // expected value
             } DATA[] = {
-                // LINE YEAR1 YEAR2 EXPECTED
+                //LINE   YEAR1   YEAR2   EXPECTED
                 //----   -----   -----   --------
                 { L_,        1,      1,         0 },
                 { L_,        1,      2,         0 },
@@ -3127,7 +3150,8 @@ int main(int argc, char *argv[])
                     P_(LINE);  P_(YEAR1);  P_(YEAR2);  P(EXP);
                 }
 
-// BDE_VERIFY pragma: push BDE_VERIFY pragma: -TP21
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP21
 
                 int actual = 0;
                 for (int y = YEAR1; y <= YEAR2; ++y) {
@@ -3174,8 +3198,8 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isLeapYear' Ensure that the method correctly identifies
-        // leap years.
+        // TESTING 'isLeapYear'
+        //   Ensure that the method correctly identifies leap years.
         //
         // Concerns:
         //: 1 The method correctly identifies every year in the supported range
@@ -3198,7 +3222,8 @@ int main(int argc, char *argv[])
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-3)
         //
-        // Testing: static bool isLeapYear(int year);
+        // Testing:
+        //   static bool isLeapYear(int year);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3212,7 +3237,7 @@ int main(int argc, char *argv[])
                 int d_year;  // year under test
                 int d_exp;   // expected value
             } DATA[] = {
-                // LINE YEAR EXPECTED
+                //LINE   YEAR   EXPECTED
                 //----   ----   --------
                 { L_,       1,         0 },
                 { L_,       2,         0 },
@@ -3308,20 +3333,20 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) { P_(y);  P(isLeapFlag); }
 
-            // 1.  All years not divisible by 4 are non-leap years.
+            // 1. All years not divisible by 4 are non-leap years.
 
             if (0 != y % 4) {
                 LOOP2_ASSERT(y, isLeapFlag, !isLeapFlag);
             }
 
-            // 2.  All years divisible by 4 that are not century years are leap
+            // 2. All years divisible by 4 that are not century years are leap
             // years.
 
             if (0 == y % 4 && 0 != y % 100) {
                 LOOP2_ASSERT(y, isLeapFlag,  isLeapFlag);
             }
 
-            // 3.  Century years are leap years iff they are divisible by 400.
+            // 3. Century years are leap years iff they are divisible by 400.
 
             if (0 == y % 100) {
                 LOOP2_ASSERT(y, isLeapFlag,  isLeapFlag == (0 == y % 400));
@@ -3346,8 +3371,9 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING GLOBAL CONSTANTS Ensure that the global constants whose
-        // values are not self-evident are correct.
+        // TESTING GLOBAL CONSTANTS
+        //   Ensure that the global constants whose values are not self-evident
+        //   are correct.
         //
         // Concerns:
         //: 1 The "magic" values of 'k_MAX_SERIAL', 'k_SHORT_RANGE_MIN_SERIAL',
@@ -3362,7 +3388,8 @@ int main(int argc, char *argv[])
         //:   and 'k_SHORT_RANGE_MAX_SERIAL'.  (Note that 'isLeapYear' is
         //:   thoroughly tested in case 2.)  (C-1)
         //
-        // Testing: CONCERN: The global constants used for testing are correct.
+        // Testing:
+        //   CONCERN: The global constants used for testing are correct.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3392,7 +3419,8 @@ int main(int argc, char *argv[])
 
         ASSERT(   2 == k_MIN_DAYOFWEEK);
 
-// BDE_VERIFY pragma: push BDE_VERIFY pragma: -TP21
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP21
 
         if (verbose) cout << "\tVerify non-axiomatic values." << endl;
 
@@ -3429,10 +3457,12 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // CACHE GENERATOR Generate the C++ code (to be inserted into the
-        // '.cpp' file) that implements the cache.
+        // CACHE GENERATOR
+        //   Generate the C++ code (to be inserted into the '.cpp' file) that
+        //   implements the cache.
         //
-        // Testing: CACHE GENERATOR
+        // Testing:
+        //   CACHE GENERATOR
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3520,10 +3550,11 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]' Manually verify
-        // that the cache provides a performance advantage.
+        // PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: isValidYearMonthDay[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: isValidYearMonthDay[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3588,10 +3619,11 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'ymdToSerial[NoCache]' Manually verify that the
-        // cache provides a performance advantage.
+        // PERFORMANCE TEST: 'ymdToSerial[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: ymdToSerial[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: ymdToSerial[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3656,10 +3688,11 @@ int main(int argc, char *argv[])
       } break;
       case -4: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYmd[NoCache]' Manually verify that the
-        // cache provides a performance advantage.
+        // PERFORMANCE TEST: 'serialToYmd[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: serialToYmd[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: serialToYmd[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3727,10 +3760,11 @@ int main(int argc, char *argv[])
       } break;
       case -5: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYear[NoCache]' Manually verify that the
-        // cache provides a performance advantage.
+        // PERFORMANCE TEST: 'serialToYear[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: serialToYear[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: serialToYear[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3795,10 +3829,11 @@ int main(int argc, char *argv[])
       } break;
       case -6: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToMonth[NoCache]' Manually verify that the
-        // cache provides a performance advantage.
+        // PERFORMANCE TEST: 'serialToMonth[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: serialToMonth[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: serialToMonth[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3863,10 +3898,11 @@ int main(int argc, char *argv[])
       } break;
       case -7: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToDay[NoCache]' Manually verify that the
-        // cache provides a performance advantage.
+        // PERFORMANCE TEST: 'serialToDay[NoCache]'
+        //   Manually verify that the cache provides a performance advantage.
         //
-        // Testing: PERFORMANCE TEST: serialToDay[NoCache]
+        // Testing:
+        //   PERFORMANCE TEST: serialToDay[NoCache]
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3955,15 +3991,15 @@ int main(int argc, char *argv[])
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

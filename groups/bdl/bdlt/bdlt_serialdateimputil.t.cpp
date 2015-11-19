@@ -3,6 +3,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bslmf_issame.h>    // 'bsl::is_same'
+
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_iostream.h>
 
@@ -15,7 +17,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a single utility class,
-// 'bdlt::SerialDateImpUtil', by 'typdef'-ing that class to one of two other
+// 'bdlt::SerialDateImpUtil', by 'typedef'-ing that class to one of two other
 // classes that implement the same (documentation-only) protocol.  This test
 // driver uses a template meta-function, 'bsl::is_same', to confirm that the
 // mapping is correct for the current build mode.  Each of those implementation
@@ -90,7 +92,7 @@ int main(int argc, char *argv[])
         // TESTING 'typedef'
         //
         // Concerns:
-        //: 1 The 'typdef' maps 'SerialDateImpUtil' to the implementation 
+        //: 1 The 'typedef' maps 'SerialDateImpUtil' to the implementation
         //:   class required by the build mode.
         //
         // Plan:

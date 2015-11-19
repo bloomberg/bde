@@ -18,10 +18,6 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#include <bsls_log.h>
-#endif
-
 #undef SEC
 
 using namespace BloombergLP;
@@ -612,13 +608,6 @@ bool containsOnlyDigits(const char *string)
     return true;
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-void noopLogMessageHandler(const char *, int, const char *)
-    // Do nothing.
-{
-}
-#endif
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -633,17 +622,6 @@ int main(int argc, char *argv[])
 
     (void)veryVeryVerbose;  // eliminate unused variable warning
     (void)veryVeryVeryVerbose;
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    if (!veryVeryVerbose) {
-        // Except when in 'veryVeryVerbose' mode, suppress logging performed by
-        // the (private) 'bdlt::Date::logIfProblematicDate*' methods.  When
-        // those methods are removed, the use of a log message handler should
-        // be removed.
-
-        bsls::Log::setLogMessageHandler(&noopLogMessageHandler);
-    }
-#endif
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

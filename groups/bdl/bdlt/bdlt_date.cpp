@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -26,39 +25,6 @@ static const char *const months[] = {
                                   // ----------
                                   // class Date
                                   // ----------
-
-// PRIVATE CLASS METHODS
-#ifndef BDE_OPENSOURCE_PUBLICATION                                              
-    #ifdef BDE_USE_PROLEPTIC_DATES                                              
-    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.      
-    #endif                                                                      
-#endif      
-
-int Date::convertDateToPosixIfNeeded(int serialDate)
-{
-#ifdef BDE_USE_PROLEPTIC_DATES                                                  
-    if (1 != serialDate) { // Preserve the default value.
-
-        serialDate += 2;   // Ensure that serial values for 1752SEP14 and later
-                           // dates "align".
-    }
-#endif
-    return serialDate;
-}
-
-int Date::convertDateToProlepticIfNeeded(int serialDate)
-{
-#ifdef BDE_USE_PROLEPTIC_DATES                                                  
-    if (serialDate > 3) {
-        serialDate -= 2;  // ensure that serial values for 1752SEP14
-                          // and later dates "align"
-    }
-    else if (serialDate > 0) {
-        serialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-    }
-#endif
-    return serialDate;
-}
 
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)

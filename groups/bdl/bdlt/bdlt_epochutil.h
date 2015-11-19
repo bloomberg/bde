@@ -170,7 +170,7 @@ struct EpochUtil {
     // epoch time, returned by the 'epoch' method.  These methods are
     // alias-safe, thread-safe, and exception-neutral.  Functions are provided
     // for returning converted values by value or through a result pointer.
-  
+
   public:
     // TYPES
     typedef bsls::Types::Int64 TimeT64;
@@ -416,8 +416,8 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time); 
-    BSLS_ASSERT_SAFE(                       time <=  s_latestAsTimeT64);
+    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time);
+    BSLS_ASSERT_SAFE(                       time <= s_latestAsTimeT64);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -430,7 +430,7 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-    if (time < s_earliestAsTimeT64  || time > s_latestAsTimeT64) {
+    if (time < s_earliestAsTimeT64 || time > s_latestAsTimeT64) {
         return 1;                                                     // RETURN
     }
 

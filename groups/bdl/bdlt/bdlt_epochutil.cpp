@@ -32,10 +32,10 @@ namespace bdlt {
 #ifdef BDE_USE_PROLEPTIC_DATES
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
-                                 
+
 const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135596800LL;
                                                  // January    1, 0001 00:00:00
-#else 
+#else
 static const int epochData[2] = { 719165, 0 };
                                  // 719165 is 1970/01/01 in POSIX
 

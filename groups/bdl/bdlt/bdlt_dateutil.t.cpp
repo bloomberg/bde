@@ -117,8 +117,6 @@ const bdlt::DayOfWeek::Enum e_SAT = bdlt::DayOfWeek::e_SAT;
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-#include <bslmf_issame.h>  // XXX
-
 int main(int argc, char *argv[])
 {
     const int                 test = argc > 1 ? atoi(argv[1]) : 0;
@@ -492,10 +490,6 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) {
                 T_ P_(LINE) P_(ORIGINAL) P_(NUM_YEARS) P(EXP);
-            }
-
-            if (473 == LINE) {
-                cout << "Datum of Interest" << endl;
             }
 
             const bdlt::Date result = Util::addYearsEom(ORIGINAL, NUM_YEARS);

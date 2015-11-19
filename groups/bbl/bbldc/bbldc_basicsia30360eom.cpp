@@ -5,7 +5,7 @@
 BSLS_IDENT_RCSID(bbldc_basicsia30360eom_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
-#include <bdlt_prolepticdateimputil.h>
+#include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
 

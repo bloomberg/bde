@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // In a leap year, February has 29 days instead of the usual 28.  (Thus, leap
 // years have 366 days instead of the usual 365.)  Prior to 1752, the Unix
 // calendar follows the convention of the Julian calendar: every year divisible
-// by 4 is a leap year; after 1752, the Unix calendar follows the (more
+// by 4 is a leap year.  After 1752, the Unix calendar follows the (more
 // accurate) Gregorian calendar: a year is leap year if it is divisible by 4,
 // but *not* divisible by 100, *unless* it is *also* divisible by 400.  Note
 // that 1752 is the year that Britain and its empire (including the colonies
@@ -118,17 +118,20 @@ BSLS_IDENT("$Id: $")
 // versions of this date class that are built to use the proleptic Gregorian
 // calendar.
 //
+#ifndef BDE_OPENSOURCE_PUBLICATION
 // !WARNING!: Use of the proleptic Gregorian version of this class is
 // *disallowed* in Bloomberg code.
 //
+#endif
 // Over the range of dates supported by 'bdlt::Date'
-// ('[0001JAN01 .. 9999DEC31']), the proleptic Gregorian calendar (used by
+// ('[0001JAN01 .. 9999DEC31]'), the proleptic Gregorian calendar (used by
 // 'bdlt::Date') has two fewer days than 'cal', and some dates that exist in
 // one calendar do not exist in the other; therefore, true compatibility is not
 // possible.  The compatibility guaranteed by BDEX streaming version 1 is such
 // that all dates in the range '[1752SEP14 .. 9999DEC31]', as well as the
 // default value ('0001JAN01'), can be successfully exchanged, via BDEX,
-// between 'bdlt::Date' and the legacy date class.
+// between 'bdlt::Date' classes built to use the POSIX calendar and those built
+// to use the proleptic Gregorian calendar.
 //
 ///Usage
 ///-----
@@ -287,26 +290,31 @@ class Date {
         // of the previous day.  See {Valid Date Values and Their
         // Representations} for details.
 
-    static int convertDateToPosixIfNeeded(int serialDate);
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
+#endif
+
+#ifdef BDE_USE_PROLEPTIC_DATES
+    static int convertProlepticDateToPosix(int serialDate);
         // Return the serial date in the POSIX calendar having the same
         // year-month-day representation as the specified 'serialDate'
-        // represents in the proleptic Gregorian calendar calendar if 'Date'
-        // uses a proleptic Gregorian representation, otherwise return
-        // 'serialDate' (unchanged).  The behavior is undefined if 'Date' is
-        // using a proleptic Gregorian representation and 'serialDate' has a
-        // year-month-day representation earlier than 1752/09/14 that is not
-        // 0001/01/01.  Note that {BDEX Compatibility with Legacy POSIX-Based
-        // Date} has further details.
+        // represents in the proleptic Gregorian calendar The behavior is
+        // undefined if 'Date' is using a proleptic Gregorian representation
+        // and 'serialDate' has a year-month-day representation earlier than
+        // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
+        // with Legacy POSIX-Based Date} has further details.
 
-    static int convertDateToProlepticIfNeeded(int serialDate);
+    static int convertPosixDateToProleptic(int serialDate);
         // Return the serial date in the proleptic Gregorian calendar
-        // representing the year-month-day as the specified 'serialDate'
-        // represents in the POSIX calendar if 'Date' uses a proleptic
-        // Gregorian representation, otherwise return 'serialDate' (unchanged).
-        // The behavior is undefined if 'Date' is using a proleptic Gregorian
-        // representation and 'serialDate' has a year-month-day representation
-        // earlier than 1752/09/14 that is not 0001/01/01.  Note that {BDEX
-        // Compatibility with Legacy POSIX-Based Date} has further details.
+        // representing the same year-month-day as the specified 'serialDate'
+        // represents in the POSIX calendar.  The behavior is undefined if
+        // 'Date' is using a proleptic Gregorian representation and
+        // 'serialDate' has a year-month-day representation earlier than
+        // 1752/09/14 and is not 0001/01/01.  Note that {BDEX Compatibility
+        // with Legacy POSIX-Based Date} has further details.
+#endif
 
     // PRIVATE CREATORS
     explicit Date(int serialDate);
@@ -664,6 +672,33 @@ bool Date::isValidSerial(int serialDate)
     return SerialDateImpUtil::isValidSerial(serialDate);
 }
 
+
+#ifdef BDE_USE_PROLEPTIC_DATES
+inline
+int Date::convertProlepticDateToPosix(int serialDate)
+{
+    if (1 != serialDate) { // Preserve the default value.
+
+        serialDate += 2;   // Ensure that serial values for 1752SEP14 and later
+                           // dates "align".
+    }
+    return serialDate;
+}
+
+inline
+int Date::convertPosixDateToProleptic(int serialDate)
+{
+    if (serialDate > 3) {
+        serialDate -= 2;  // ensure that serial values for 1752SEP14
+                          // and later dates "align"
+    }
+    else if (serialDate > 0) {
+        serialDate = 1;   // "fuzzy" default value '[1 .. 3]'
+    }
+    return serialDate;
+}
+#endif
+
 // PRIVATE CREATORS
 inline
 Date::Date(int serialDate)
@@ -824,7 +859,9 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-            tmpSerialDate = convertDateToProlepticIfNeeded(tmpSerialDate);
+#ifdef BDE_USER_PROLEPTIC_DATES
+            tmpSerialDate = convertPosixDateToProleptic(tmpSerialDate);
+#endif
 
             if (stream && Date::isValidSerial(tmpSerialDate)) {
                 d_serialDate = tmpSerialDate;
@@ -915,7 +952,11 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             BSLS_ASSERT_OPT(Date::isValidSerial(d_serialDate));
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
-            stream.putInt24(convertDateToPosixIfNeeded(d_serialDate));
+#ifdef BDE_USE_PROLEPTIC_DATES
+            stream.putInt24(convertProlepticDateToPosix(d_serialDate));
+#else
+            stream.putInt24(d_serialDate);
+#endif
 
           } break;
           default: {
@@ -1095,15 +1136,15 @@ struct is_trivially_copyable<BloombergLP::bdlt::Date> : bsl::true_type {
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

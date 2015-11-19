@@ -316,6 +316,7 @@ static bdlt::Datetime computeNextRotationTime(
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
+#if 0
     // Notice that the logic for computing the next time interval must
     // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
     // possible use of 'bsls::Log' to report warnings about date math.  Such
@@ -345,6 +346,11 @@ static bdlt::Datetime computeNextRotationTime(
 
     bsls::Types::Int64 timeLeft = fileCreationInterval.totalMilliseconds() %
                                   interval.totalMilliseconds();
+#else
+    bsls::Types::Int64 timeLeft =
+        (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
+                      totalMilliseconds() % interval.totalMilliseconds();
+#endif
 
     // The modulo operator may return a negative number depending on
     // implementation.

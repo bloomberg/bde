@@ -1449,7 +1449,7 @@ if (veryVerbose)
                 const int M    = DATA[di].d_month;
                 const int D    = DATA[di].d_day;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                                 Util::ymdToDayOfYear(Y, M, D));
+                                                Util::ymdToDayOfYear(Y, M, D));
             }
         }
 
