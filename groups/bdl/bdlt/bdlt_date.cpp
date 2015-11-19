@@ -74,9 +74,6 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  this,
                  d_serialDate);
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        BSLS_LOG("'bdlt::Date' precondition violated: %s.", buffer);
-#endif
         BSLS_ASSERT_SAFE(
                  !"'bdlt::Date::print' attempted on date with invalid state.");
     }

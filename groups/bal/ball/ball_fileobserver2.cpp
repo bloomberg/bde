@@ -347,7 +347,9 @@ static bdlt::Datetime computeNextRotationTime(
     bsls::Types::Int64 timeLeft = fileCreationInterval.totalMilliseconds() %
                                   interval.totalMilliseconds();
 #else
-    bsls::Types::Int64 timeLeft =
+    bdlt::DatetimeInterval localTimeOffset =
+                                  localTimeOffsetInterval(fileCreationTimeUtc);
+    bsls::Types::Int64 timeLeft            =
         (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
                       totalMilliseconds() % interval.totalMilliseconds();
 #endif
