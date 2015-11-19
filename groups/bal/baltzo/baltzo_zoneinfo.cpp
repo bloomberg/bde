@@ -8,9 +8,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 #include <bdlb_print.h>
 
 #include <bdlt_epochutil.h>
-#if 0
-#include <bdlt_serialdateimputil.h>
-#endif
 
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
@@ -146,17 +143,7 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
 bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
-#if 0
-    int elaspedDays = bdlt::SerialDateImpUtil::ymdToSerial(datetime.year(),
-                                                           datetime.month(),
-                                                           datetime.day())
-                    - bdlt::SerialDateImpUtil::ymdToSerial(1970, 1, 1);
-
-    return elaspedDays * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY +
-        (datetime.hour() * 60 + datetime.minute()) * 60 + datetime.second();
-#else
     return bdlt::EpochUtil::convertToTimeT64(datetime);
-#endif
 }
 
 int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,

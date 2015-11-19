@@ -316,43 +316,11 @@ static bdlt::Datetime computeNextRotationTime(
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-#if 0
-    // Notice that the logic for computing the next time interval must
-    // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
-    // possible use of 'bsls::Log' to report warnings about date math.  Such
-    // warnings, when issued from within a function in BALL cause an attempt
-    // to recursively re-enter the file-observer (and a dead-lock).  Once
-    // 'bdlt' no longer uses bsls log to report date arithmetic this logic can
-    // be returned to:
-    //..
-    //  bsls::Types::Int64 timeLeft =
-    //      (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
-    //                    totalMilliseconds() % interval.totalMilliseconds();
-    //..
-
-    bdlt::DatetimeInterval localTimeOffset =
-                                  localTimeOffsetInterval(fileCreationTimeUtc);
-
-    bdlt::Datetime fileCreationTimeLocal = fileCreationTimeUtc +
-                                           localTimeOffset;
-
-    int creation  = toSerialDate(fileCreationTimeLocal.date());
-    int reference = toSerialDate(referenceStartTimeLocal.date());
-
-    bdlt::DatetimeInterval fileCreationInterval(creation - reference, 0, 0);
-    fileCreationInterval += bdlt::DatetimeInterval(
-               fileCreationTimeLocal.time() - referenceStartTimeLocal.time());
-
-
-    bsls::Types::Int64 timeLeft = fileCreationInterval.totalMilliseconds() %
-                                  interval.totalMilliseconds();
-#else
     bdlt::DatetimeInterval localTimeOffset =
                                   localTimeOffsetInterval(fileCreationTimeUtc);
     bsls::Types::Int64 timeLeft            =
         (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
                       totalMilliseconds() % interval.totalMilliseconds();
-#endif
 
     // The modulo operator may return a negative number depending on
     // implementation.
