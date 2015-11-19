@@ -8,7 +8,6 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 #include <bdlb_print.h>
 
 #include <bdlt_epochutil.h>
-
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
 
@@ -65,7 +64,7 @@ baltzo::ZoneinfoTransition::print(bsl::ostream& stream,
     bdlb::Print::newlineAndIndent(stream, level, spacesPerLevel);
 
     bdlt::Datetime utcDatetime;
-    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime, d_utcTime);
+    int rc = bdlt::EpochUtil::convertFromTimeT64(&utcDatetime, d_utcTime);
     stream << "time = ";
     if (!rc) {
         stream << utcDatetime;
@@ -101,7 +100,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
     stream << "[ ";
 
     bdlt::Datetime utcDatetime;
-    int rc = Zoneinfo::convertFromTimeT64(&utcDatetime,
+    int rc = bdlt::EpochUtil::convertFromTimeT64(&utcDatetime,
                                                  object.utcTime());
     if (!rc) {
         stream << utcDatetime << " ";
@@ -140,6 +139,7 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
                                // --------------
 
 // CLASS METHODS
+#ifndef BDE_OPENSOURCE_PUBLICATION
 bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
@@ -151,6 +151,7 @@ int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
 {
     return bdlt::EpochUtil::convertFromTimeT64(result, time);
 }
+#endif
 
 // CREATORS
 baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
