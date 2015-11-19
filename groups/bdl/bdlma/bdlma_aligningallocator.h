@@ -11,7 +11,7 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide a wrapper to ensure fixed minimum alignment allocation.
 //
 //@CLASSES:
-//  bdlma::AlignedAllocator: wrapper to align memory allocation.
+//  bdlma::AligningAllocator: wrapper to align memory allocation.
 //
 //@SEE_ALSO:
 //
@@ -48,6 +48,7 @@ BSLS_IDENT("$Id$")
 // Suppose we want to store a linked list of null-terminated strings in
 // dynamically allocated memory, and we want to use a buffered sequential
 // allocator for allocation.
+//
 // First, we define the nodes of the list -- each node containing a pointer to
 // the next element, with the string, which may have any length, immediately
 // following the pointer.
@@ -118,8 +119,8 @@ BSLS_IDENT("$Id$")
 //..
 
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -154,14 +155,14 @@ class AligningAllocator : public bslma::Allocator {
     AligningAllocator(size_type         alignment,
                       bslma::Allocator *allocator = 0);
         // Create an 'AligningAllocator' object that will guarantee alignment
-        // by the specified 'alignment' using the specified 'allocator'.  If
-        // 'alignment' is greaterr than 'bsls::Alignment::MAX_ALIGNMENT', the
-        // alignment will be rounded down to
-        // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  The behavior is
-        // undefined unless the specified 'alignment' is greater than 0 and a
-        // power of 2, and unless the alignment strategy of 'allocator' is
-        // 'BSLS_MAXIMUM' or 'BSLS_NATURAL'.  If no 'allocator' is passed, the
-        // currently installed default alloctor is used.
+        // by the specified 'alignment' using the optionally specified
+        // 'allocator'.  If 'alignment' is greaterr than
+        // 'bsls::Alignment::MAX_ALIGNMENT', the alignment will be rounded down
+        // to max alignment.  The behavior is undefined unless 'alignment' is
+        // greater than 0 and a power of 2, and unless the alignment strategy
+        // of 'allocator' is 'BSLS_MAXIMUM' or 'BSLS_NATURAL'.  If no
+        // 'allocator' is passed, the currently installed default alloctor is
+        // used.
 
     // MANIPULATORS
     virtual void *allocate(size_type size);

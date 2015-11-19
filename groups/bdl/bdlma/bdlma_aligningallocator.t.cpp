@@ -21,29 +21,48 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
-//                              TEST PLAN
+// ============================================================================
+//                                TEST PLAN
+// ----------------------------------------------------------------------------
+//                                 Overview
+//                                 --------
+// 'bdlma::AligningAllocator' is a wrapper to place around another allocator
+// that, if the wrapped allocator guarantees natural or maximum aligning, will
+// guarantee a minimum alignment specified at construction.  The primary
+// concern is that alignment is guaranteed.  To test this, we needed an
+// underlying allocator that provided natural alignment, for which we chose the
+// buffered sequential allocator.  In the first test case, we simply verified
+// that the buffered sequential allocator provided no better than natural
+// alignment, so we could re-use that framework in test case 2 and thus verify
+// that our new component was achieving better alignment of that in spite of of
+// the underlying allocator not providing it.  In test case 3, we verified that
+// the 'deallocate' function was indeed freeing memory.
 //-----------------------------------------------------------------------------
 // [3] deallocate(void *address);
 // [2] AligningAllocator(size_type alignment, Allocator *alloctor);
 // [2] allocate(size_type size);
 // [1] bdlma_bufferedsequentialallocator -- Test Framework
+//-----------------------------------------------------------------------------
+// [4] USAGE EXAMPLE
 //=============================================================================
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
@@ -77,6 +96,7 @@ void aSsErT(int c, const char *s, int i)
 // Suppose we want to store a linked list of null-terminated strings in
 // dynamically allocated memory, and we want to use a buffered sequential
 // allocator for allocation.
+//
 // First, we define the nodes of the list -- each node containing a pointer to
 // the next element, with the string, which may have any length, immediately
 // following the pointer.
@@ -100,7 +120,8 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     enum { k_BUFFER_SIZE = 64 << 10 };    // 64K
-    static char buffer[k_BUFFER_SIZE];
+
+    static char                        buffer[k_BUFFER_SIZE];
     bdlma::BufferedSequentialAllocator bsa(buffer, k_BUFFER_SIZE);
 
     switch (test) { case 0:
@@ -108,13 +129,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // Concern:
+        // Concerns:
         //: 1 That the usage example compiles and works, to demonstrate the
         //:   usage of this component.
         //
         // Plan:
-        //: 2 Code and test the usage example, then propagate it to the
+        //: 1 Code and test the usage example, then propagate it to the
         //:   include file.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << "USAGE EXAMPLE\n"
@@ -160,9 +184,9 @@ int main(int argc, char *argv[])
 //..
     Node *head = 0;
     for (int ii = 0; ii < k_NUM_STRINGS; ++ii) {
-        const char *str = strings[ii];
-        bsl::size_t len = bsl::strlen(str);
-        Node *newNode = static_cast<Node *>(aa.allocate(
+        const char  *str = strings[ii];
+        bsl::size_t  len = bsl::strlen(str);
+        Node        *newNode = static_cast<Node *>(aa.allocate(
                                                     sizeof(Node *) + len + 1));
         ASSERT(0 ==
                  (reinterpret_cast<bsl::size_t>(newNode) & (k_ALIGNMENT - 1)));
@@ -186,7 +210,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
         // DEALLOCATE TEST
         //
-        // Concern:
+        // Concerns:
         //: 1 That deallocate properly frees memory.
         //
         // Plan:
@@ -207,7 +231,7 @@ if (veryVerbose) {
         enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
         for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
-            bsl::vector<void *> segments(&ta);
+            bsl::vector<void *>      segments(&ta);
             bdlma::AligningAllocator aa(align, &ta);
 
             for (bsl::size_t size = align / 2; size < 4 * align;
@@ -226,7 +250,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
         // ALIGNING ALLOCATOR ALIGNMENT TEST
         //
-        // Concern:
+        // Concerns:
         //: 1 That the aligning allocator enforces alignment.
         //
         // Plan:
@@ -235,7 +259,7 @@ if (veryVerbose) {
         //:   allocatoor, and verify that the allocated memory is appropriately
         //:   aligned.
         //
-        // Testing
+        // Testing:
         //   AligningAllocator(size_type alignment, Allocator *alloctor);
         //   allocate(size_type size);
         // --------------------------------------------------------------------
@@ -247,7 +271,7 @@ if (veryVerbose) {
 
         for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
             bdlma::AligningAllocator aa(align, &bsa);
-            bsl::size_t alignBits = 0;
+            bsl::size_t              alignBits = 0;
 
             for (bsl::size_t size = align / 2; size < 4 * align;
                                                                size += align) {
