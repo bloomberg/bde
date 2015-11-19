@@ -93,19 +93,63 @@ void aSsErT(bool condition, const char *message, int line)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Suppose we want to store a linked list of null-terminated strings in
-// dynamically allocated memory, and we want to use a buffered sequential
-// allocator for allocation.
+namespace USAGE_EXAMPLE {
+
+// Suppose we are dealing with an externally supplied library function that
+// creates a linked list of null-terminated strings, and we want to use a
+// default-constructed buffered sequential allocator for memory allocation.
 //
-// First, we define the nodes of the list -- each node containing a pointer to
-// the next element, with the string, which may have any length, immediately
-// following the pointer.
+// First, the externally supplied library defines the 'struct' describing a
+// node in the linked list:
 //..
     struct Node {
+        // This 'struct' describes one node in a linked list containing
+        // strings.
+
         Node *d_next;
         char  d_string[1];
+
+        // CLASS METHODS
+        static
+        bsl::size_t sizeNeededForString(const char *string)
+            // Return the size in bytes needed to store a 'Node' containing a
+            // copy of the specified 'string'.
+        {
+            Node node;
+
+            return sizeof(node.d_next) + bsl::strlen(string) + 1;
+        }
     };
 //..
+// Then, the externally-supplied library defines the function that will create
+// the linked list of nodes from a null-terminated array of pointers to
+// C-strings:
+//..
+    void externalPopulateStringList(Node             **head,
+                                    const char       **stringArray,
+                                    bslma::Allocator  *allocator)
+    {
+        *head = 0;
+        const char *string;
+        for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
+            Node *newNode = static_cast<Node *>(allocator->allocate(
+                                          Node::sizeNeededForString(string)));;
+            bsl::strcpy(newNode->d_string, string);
+
+            newNode->d_next = *head;
+            *head = newNode;
+        }
+    }
+//..
+// Next, the externally-supplied buffered sequential allocator that we are to
+// use:
+//..
+    enum { k_BUFFER_SIZE = 4 * 1024 };
+    char                               buffer4k[k_BUFFER_SIZE];
+    bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
+//..
+
+}  // close namespace USAGE_EXAMPLE
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -144,25 +188,27 @@ int main(int argc, char *argv[])
         if (verbose) cout << "USAGE EXAMPLE\n"
                              "=============\n";
 
-// Note that on a 32-bit platform, the pointer must be 4-byte aligned.  We
-// could configurre the buffered sequential allocator for max alignment, but
-// this would result in an 8-byte alignment, wasting memory.
+        using namespace USAGE_EXAMPLE;
+
+// There is a problem here, in that the nodes must be aligned by
+// 'sizeof(Node *)', but our buffered sequential allocator, like most BDE
+// allocators, has a "natural alignment" strategy (see bsls_alignment), meaning
+// that it infers the required alignment from the size of the allocation
+// requested.  This would normally give us properly aligned memory if we were
+// allocating by 'sizeof(struct)', but our 'Node' objects are variable length,
+// which will mislead the allocator to sometimes align the new segments by less
+// than 'sizeof(Node *)'.
 //
-// Instead, we configure the buffered sequential allocator for natural
-// alignment (the default), and use an aligning allocator to wrap it, ensuring
-// that the memory will be aligned to 'sizeof(Node *)'.
-//
-// Then, we define our allocators. we configure the buffered sequential
-// allocator for natural alignment (the default), and use an aligning allocator
-// to wrap it, ensuring that the memory will be aligned to accomodate 'Node'.
+// Then, we solve this problem by using an aligning allocator to wrap the
+// buffered sequential allocator, ensuring that the memory will still come from
+// the buffered sequential allocator, but nonetheless be aligned to the
+// alignment requirement of 'Node'.
 //..
     enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::VALUE };
-
-    static char                        buffer[4 * 1024];
-    bdlma::BufferedSequentialAllocator bsa(buffer, k_BUFFER_SIZE);
-    bdlma::AligningAllocator           aa(k_ALIGNMENT, &bsa);
+    bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &bsAlloc);
 //..
-// Next, we define some strings we could like to store in the list:
+// Next, we define a null-terminated array of strings we would like to store in
+// the list:
 //..
     const char *strings[] = {
         "A zinger is not a rebuttal.\n",
@@ -176,30 +222,21 @@ int main(int argc, char *argv[])
         "We wanted a labor force, but human beings came.\n",
         "The reward of a thing well done is to have done it.\n",
         "Chance fights ever on the side of the prudent.\n",
-        "The best time to make friends is before you need them.\n" };
-    enum { k_NUM_STRINGS = sizeof strings / sizeof *strings };
+        "The best time to make friends is before you need them.\n",
+        0  };
 //..
-// Now, we store the strings in the list, verifying that they are properly
-// aligned.
+// Now, we call the function to put the strings into a linked list, passing it
+// the aligning allocator:
 //..
     Node *head = 0;
-    for (int ii = 0; ii < k_NUM_STRINGS; ++ii) {
-        const char  *str = strings[ii];
-        bsl::size_t  len = bsl::strlen(str);
-        Node        *newNode = static_cast<Node *>(aa.allocate(
-                                                    sizeof(Node *) + len + 1));
-        ASSERT(0 ==
-                 (reinterpret_cast<bsl::size_t>(newNode) & (k_ALIGNMENT - 1)));
-
-        bsl::strcpy(newNode->d_string, str);
-
-        newNode->d_next = head;
-        head = newNode;
-    }
+    externalPopulateStringList(&head, strings, &aligningAllocator);
 //..
-// Finally, we traverse our linked list and print out the strings:
+// Finally, we traverse the list and print out the strings, verifying that the
+// nodes are properly aligned:
 //..
     for (const Node *node = head; node; node = node->d_next) {
+        ASSERT(0 == (reinterpret_cast<bsl::size_t>(node) & (k_ALIGNMENT - 1)));
+
 if (veryVerbose) {
         cout << node->d_string;
 }
@@ -234,8 +271,7 @@ if (veryVerbose) {
             bsl::vector<void *>      segments(&ta);
             bdlma::AligningAllocator aa(align, &ta);
 
-            for (bsl::size_t size = align / 2; size < 4 * align;
-                                                               size += align) {
+            for (bsl::size_t size = 0; size < 2 * align; ++size) {
                 for (int ii = 0; ii < 4; ++ii) {
                     segments.push_back(aa.allocate(size));
                 }
@@ -273,8 +309,7 @@ if (veryVerbose) {
             bdlma::AligningAllocator aa(align, &bsa);
             bsl::size_t              alignBits = 0;
 
-            for (bsl::size_t size = align / 2; size < 4 * align;
-                                                               size += align) {
+            for (bsl::size_t size = 0; size < 2 * align; ++size) {
                 for (int ii = 0; ii < 4; ++ii) {
                     void *segment = aa.allocate(size);
 
@@ -315,8 +350,7 @@ if (veryVerbose) {
         for (bsl::size_t align = 2; align <= k_MAX_ALIGN; align *= 2) {
             bsl::size_t alignBits = 0;
 
-            for (bsl::size_t size = align / 2; size < 4 * align;
-                                                               size += align) {
+            for (bsl::size_t size = 0; size < 2 * align; ++size) {
                 for (int ii = 0; ii < 4; ++ii) {
                     void *segment = bsa.allocate(size);
 

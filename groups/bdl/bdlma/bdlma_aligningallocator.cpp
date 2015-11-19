@@ -20,23 +20,17 @@ namespace bdlma {
 // CREATORS
 AligningAllocator::AligningAllocator(size_type         alignment,
                                      bslma::Allocator *allocator)
-: d_mask(0)
+: d_mask(bsl::min<size_type>(alignment,
+                             bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT) - 1)
 , d_heldAllocator_p(bslma::Default::allocator(allocator))
 {
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(0 == (alignment & (alignment - 1)));    // power of 2
-
-    alignment = bsl::min<size_type>(alignment,
-                                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-
-    d_mask = alignment - 1;
 }
 
 // MANIPULATORS
 void *AligningAllocator::allocate(size_type size)
 {
-    BSLMF_ASSERT(sizeof(size_type) == sizeof(void *));
-
     size = (size + d_mask) & ~d_mask;
 
     void *ret = d_heldAllocator_p->allocate(size);
