@@ -859,7 +859,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-#ifdef BDE_USER_PROLEPTIC_DATES
+#ifdef BDE_USE_PROLEPTIC_DATES
             tmpSerialDate = convertPosixDateToProleptic(tmpSerialDate);
 #endif
 

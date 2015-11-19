@@ -221,11 +221,12 @@ baltzo::Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
     BSLS_ASSERT_SAFE(d_transitions.front().utcTime() <=
-                                                    convertToTimeT64(utcTime));
+                                   bdlt::EpochUtil::convertToTimeT64(utcTime));
 
     LocalTimeDescriptor dummyDescriptor;
 
-    const bdlt::EpochUtil::TimeT64 utcTimeT64 = convertToTimeT64(utcTime);
+    const bdlt::EpochUtil::TimeT64 utcTimeT64 =
+                                    bdlt::EpochUtil::convertToTimeT64(utcTime);
     TransitionConstIterator it = bsl::upper_bound(
                                      d_transitions.begin(),
                                      d_transitions.end(),
