@@ -1,6 +1,8 @@
 // bdlma_aligningallocator.cpp                                        -*-C++-*-
-
 #include <bdlma_aligningallocator.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlma_aligningallocator_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 #include <bslmf_assert.h>
