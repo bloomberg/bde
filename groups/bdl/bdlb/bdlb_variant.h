@@ -742,6 +742,8 @@ struct Variant_ReturnValueHelper {
     enum {
         value =
          sizeof(match<VISITOR>(0)) == sizeof(Variant_ReturnValueHelper_YesType)
+
+
     };
         // A 'value' of 'true' indicates 'VISITOR::ResultType' exists, and
         // 'false' otherwise.

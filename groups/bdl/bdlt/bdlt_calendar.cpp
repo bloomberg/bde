@@ -245,10 +245,15 @@ void Calendar::addWeekendDay(DayOfWeek::Enum weekendDay)
 
 void Calendar::addWeekendDays(const DayOfWeekSet& weekendDays)
 {
-    for (DayOfWeekSet::iterator it = weekendDays.begin();
-         it != weekendDays.end();
-         ++it) {
-        addWeekendDay(*it);
+    if (!weekendDays.isEmpty()) {
+        for (DayOfWeekSet::iterator it = weekendDays.begin();
+             it != weekendDays.end();
+             ++it) {
+            addWeekendDay(*it);
+        }
+    }
+    else {
+        d_packedCalendar.addWeekendDays(weekendDays);
     }
 }
 
@@ -318,6 +323,7 @@ int Calendar::getNextBusinessDay(Date        *nextBusinessDay,
 
     return e_SUCCESS;
 }
+
 
                    // -----------------------------------
                    // class Calendar_BusinessDayConstIter
