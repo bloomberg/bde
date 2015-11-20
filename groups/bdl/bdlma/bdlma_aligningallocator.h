@@ -89,7 +89,7 @@ BSLS_IDENT("$Id$")
 //      const char *string;
 //      for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
 //          Node *newNode = static_cast<Node *>(allocator->allocate(
-//                                        Node::sizeNeededForString(string)));;
+//                                         Node::sizeNeededForString(string)));
 //          bsl::strcpy(newNode->d_string, string);
 //
 //          newNode->d_next = *head;
@@ -210,9 +210,9 @@ class AligningAllocator : public bslma::Allocator {
         // exception in an exception-enabled build, or else will abort the
         // program in a non-exception build.  The behavior is undefined unless
         // '0 <= size'.  Note that the alignment of the address returned
-        // conforms to the platform requirement for any object of the specified
-        // 'size' and is also guaranteed to be at least the alignment passed
-        // to the constructor.
+        // conforms to the platform requirement for any object of size 'size'
+        // and is also guaranteed to be at least the alignment passed to the
+        // constructor.
 
     virtual void deallocate(void *address);
         // Return the memory block at the specified 'address' back to this
