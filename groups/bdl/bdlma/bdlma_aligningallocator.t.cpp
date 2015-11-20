@@ -128,12 +128,15 @@ namespace USAGE_EXAMPLE {
     void externalPopulateStringList(Node             **head,
                                     const char       **stringArray,
                                     bslma::Allocator  *allocator)
+        // Create a linked list of strings beginning with the specified '*head'
+        // containing the null-terminated strings from the null-terminated
+        // 'stringArray'.  Use the specified 'allocator' for allocation.
     {
         *head = 0;
         const char *string;
         for (int ii = 0; 0 != (string = stringArray[ii]); ++ii) {
             Node *newNode = static_cast<Node *>(allocator->allocate(
-                                          Node::sizeNeededForString(string)));;
+                                           Node::sizeNeededForString(string)));
             bsl::strcpy(newNode->d_string, string);
 
             newNode->d_next = *head;
