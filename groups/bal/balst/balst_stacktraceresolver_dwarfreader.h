@@ -117,7 +117,12 @@ class StackTraceResolver_DwarfReader {
     enum Dwarf4Enums {
         // DWARF 4 flags not necessarily defined in our /usr/include/dwarf.h.
 
+        e_DW_AT_signature              = 0x69,
         e_DW_AT_main_subprogram        = 0x6a,
+        e_DW_AT_data_bit_offset        = 0x6b,
+        e_DW_AT_const_expr             = 0x6c,
+        e_DW_AT_enum_class             = 0x6d,
+        e_DW_AT_linkage_name           = 0x6e,
 
         e_DW_FORM_sec_offset           = 0x17,
         e_DW_FORM_exprloc              = 0x18,

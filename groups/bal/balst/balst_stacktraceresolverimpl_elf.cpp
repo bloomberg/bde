@@ -805,7 +805,12 @@ enum Dwarf4Enums {
     u_DW_TAG_rvalue_reference_type = u_Reader::e_DW_TAG_rvalue_reference_type,
     u_DW_TAG_template_alias        = u_Reader::e_DW_TAG_template_alias,
 
+    u_DW_AT_signature              = u_Reader::e_DW_AT_signature,
     u_DW_AT_main_subprogram        = u_Reader::e_DW_AT_main_subprogram,
+    u_DW_AT_data_bit_offset        = u_Reader::e_DW_AT_data_bit_offset,
+    u_DW_AT_const_expr             = u_Reader::e_DW_AT_const_expr,
+    u_DW_AT_enum_class             = u_Reader::e_DW_AT_enum_class,
+    u_DW_AT_linkage_name           = u_Reader::e_DW_AT_linkage_name,
 
     u_DW_FORM_sec_offset           = u_Reader::e_DW_FORM_sec_offset,
     u_DW_FORM_exprloc              = u_Reader::e_DW_FORM_exprloc,
@@ -982,13 +987,14 @@ static int u_dumpBinary(u_Reader *reader, int numRows)
 
 class u_FrameRec {
     // A struct consisting of the things we want stored associated with a given
-    // frame.  We put these into a vector and sort them for O(log n) lookup of
-    // frames by address.  (The code was previously always doing an exhaustive
-    // search of all the addresses).
+    // frame that will not be stored in the 'StackTraceFrame' itself.  We put
+    // these into a vector and sort them by address so that later we can do
+    // O(log n) lookup of frames by address.  (The code was previously always
+    // doing an exhaustive search of all the addresses).
 
     // DATA
-    const void             *d_address;
-    balst::StackTraceFrame *d_frame_p;
+    const void             *d_address;            // == 'd_frame_p->address()'
+    balst::StackTraceFrame *d_frame_p;            // held, not owned
 #ifdef u_DWARF
     u_Offset                d_compileUnitOffset;
     u_Offset                d_lineNumberOffset;

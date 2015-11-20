@@ -334,7 +334,12 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
       CASE(DW_AT_elemental);
       CASE(DW_AT_pure);
       CASE(DW_AT_recursive);
+      CASE(e_DW_AT_signature);
       CASE(e_DW_AT_main_subprogram);
+      CASE(e_DW_AT_data_bit_offset);
+      CASE(e_DW_AT_const_expr);
+      CASE(e_DW_AT_enum_class);
+      CASE(e_DW_AT_linkage_name);
       default: {
         u_eprintf("%s unrecognized 'DW_AT_? value = 0x%x\n", rn, id);
 

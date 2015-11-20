@@ -326,23 +326,32 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Call static methods for all possible value, store resulting
-        //   strings in a set to detect duplicates, verify 
-	//
-	// Testing:
-	//   stringForAt(unsigned);
-	//   stringForForm(unsigned);
-	//   stringForLNE(unsigned);
-	//   stringForLNS(unsigned);
-	//   stringForInlineState(unsigned);
-	//   stringForTag(unsigned);
+        //   strings in a set to detect duplicates, verify that strings
+        //   returned don't contain '?'.
+        //
+        // Testing:
+        //   stringForAt(unsigned);
+        //   stringForForm(unsigned);
+        //   stringForLNE(unsigned);
+        //   stringForLNS(unsigned);
+        //   stringForInlineState(unsigned);
+        //   stringForTag(unsigned);
         // --------------------------------------------------------------------
 
         bsl::set<bsl::string> ss;
 
-        for (unsigned ii = 1; ii <= Obj::e_DW_AT_main_subprogram; ++ii) {
-            bsl::string s = Obj::stringForAt(ii);
+        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_AT_linkage_name; ++ii) {
+            if ((DW_AT_name < ii && ii < DW_AT_ordering) || 0xe == ii ||
+                        0x1f == ii || 0x23 == ii || 0x24 == ii || 0x26 == ii ||
+                        0x28 == ii || 0x29 == ii || 0x2b == ii || 0x2d == ii ||
+                                                                  0x30 == ii) {
+                continue;
+            }
 
-            if (ii < Obj::e_DW_AT_main_subprogram) {
+            bsl::string s = Obj::stringForAt(ii);
+            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
+
+            if (ii < Obj::e_DW_AT_signature) {
                 ASSERT(s.substr(0, 6) == "DW_AT_");
             }
             else {
@@ -350,12 +359,19 @@ int main(int argc, char *argv[])
             }
 
             ss.insert(s);
-            ASSERT(ss.size() == ii);
+            ++jj;
+            ASSERTV(s, ss.size(), jj, ss.size() == jj);
         }
         ss.clear();
 
-        for (unsigned ii = 1; ii <= Obj::e_DW_FORM_ref_sig8; ++ii) {
+        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_FORM_ref_sig8; ++ii) {
+            if (2 == ii || (Obj::e_DW_FORM_flag_present < ii &&
+                                               ii < Obj::e_DW_FORM_ref_sig8)) {
+                continue;
+            }
+
             bsl::string s = Obj::stringForForm(ii);
+            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
             if (ii < Obj::e_DW_FORM_sec_offset) {
                 ASSERT(s.substr(0, 8) == "DW_FORM_");
@@ -365,7 +381,8 @@ int main(int argc, char *argv[])
             }
 
             ss.insert(s);
-            ASSERT(ss.size() == ii);
+            ++jj;
+            ASSERTV(ii, ss.size() == jj);
         }
         ss.clear();
 
@@ -381,6 +398,7 @@ int main(int argc, char *argv[])
 
         for (unsigned ii = 1; ii <= Obj::e_DW_LNE_set_discriminator; ++ii) {
             bsl::string s = Obj::stringForLNE(ii);
+            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
             if (ii < Obj::e_DW_LNE_set_discriminator) {
                 ASSERT(s.substr(0, 7) == "DW_LNE_");
@@ -396,6 +414,7 @@ int main(int argc, char *argv[])
 
         for (unsigned ii = 1; ii <= DW_LNS_set_isa; ++ii) {
             bsl::string s = Obj::stringForLNS(ii);
+            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
             ASSERT(s.substr(0, 7) == "DW_LNS_");
 
@@ -404,8 +423,16 @@ int main(int argc, char *argv[])
         }
         ss.clear();
 
-        for (unsigned ii = 1; ii <= Obj::e_DW_TAG_template_alias; ++ii) {
+        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_TAG_template_alias;
+                                                                        ++ii) {
+            if ((DW_TAG_formal_parameter < ii &&
+                                ii < DW_TAG_imported_declaration) || 9 == ii ||
+                                        0xc == ii || 0xe == ii || 0x14 == ii) {
+                continue;
+            }
+
             bsl::string s = Obj::stringForTag(ii);
+            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
 
             if (ii < Obj::e_DW_TAG_type_unit) {
                 ASSERT(s.substr(0, 7) == "DW_TAG_");
@@ -415,11 +442,10 @@ int main(int argc, char *argv[])
             }
 
             ss.insert(s);
-            ASSERT(ss.size() == ii);
+            ++jj;
+            ASSERTV(ii, ss.size() == jj);
         }
         ss.clear();
-
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
