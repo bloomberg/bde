@@ -1013,8 +1013,6 @@ bsl::ostream& MySequence::print(
 //@CLASSES:
 //  MySequenceWithNullables: a sequence with nullables
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation for 'MySequenceWithNullables'
 
@@ -1673,8 +1671,6 @@ bsl::ostream& MySequenceWithNullables::print(
 //@CLASSES:
 //  MyChoice: a choice class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation for 'MyChoice'
 
@@ -2320,8 +2316,6 @@ bsl::ostream& MyChoice::print(
 //
 //@CLASSES:
 //  MySequenceWithArrays: a sequence with arrays
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation for 'MySequenceWithArrays'

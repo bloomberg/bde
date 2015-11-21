@@ -30,9 +30,6 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 
 #endif
 
-
-
-
 namespace BloombergLP {
 namespace {
 

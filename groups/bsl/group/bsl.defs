@@ -18,8 +18,6 @@
 
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG)
 
-*                   _       STL_DEFINES     = $(SWITCHCHAR)DBDE_OMIT_INTERNAL_DEPRECATED
-
 !! unix-*-*-*-* 	_       STL_DBGDEFS     =
 !! unix-*-*-*-* 	dbg     STL_DBGDEFS     =
 unix-*-*-*-*    	_       STL_DEFINES     = $(STL_DBGDEFS)
@@ -50,6 +48,14 @@ unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BSL_INCLUDES)
 # -lrt needed by bsls_systemtime.cpp
 unix-SunOS-*-*-*        _       BDE_ENDLDFLAGS  = $(BDE_DYNAMIC) -lrt $(BDE_STATIC)
 
--- *			_	BDE_ENDLDFLAGS = $(BSL_EXTRALIBS)
+# bslmt defines thread primitives, and therefore clients must support threads
+!! unix-*       _       BSLMT_LDFLAGS     = $(BDE_DYNAMIC) -lpthread -lrt $(BDE_STATIC)
+!! unix-Darwin  _       BSLMT_LDFLAGS     = -lpthread
+
+-- *			_	BDE_ENDLDFLAGS = $(BSL_EXTRALIBS) $(BSLMT_LDFLAGS)
+
+# Force threaded /MT over non-threaded /ML
+# <<< this will be ultimately superceded by capabilities declaration
+!! windows-     _   MT_LIBTYPE  = T
 
 #==============================================================================

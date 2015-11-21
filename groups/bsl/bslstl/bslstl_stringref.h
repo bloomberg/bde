@@ -1413,6 +1413,8 @@ void bslstl::hashAppend(HASHALG& hashAlg,
 
 }  // close enterprise namespace
 
+
+
 #endif
 
 // ----------------------------------------------------------------------------

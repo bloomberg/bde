@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Mickey Sweatt (msweatt1)
-//
 //@DESCRIPTION: This component provides a namespace, 'bdlb::RandomDevice', for
 // a suite of functions used to generate random seeds from platform-dependent
 // random number generators.  Two variants are provided: one which may block,

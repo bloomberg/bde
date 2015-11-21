@@ -4,10 +4,6 @@
 
 #include <bslim_testutil.h>
 
-#include <bdlat_choicefunctions.h>  // for testing only
-#include <bdlat_formattingmode.h>   // for testing only
-#include <bdlat_typecategory.h>     // for testing only
-
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -23,7 +19,6 @@ using namespace bsl;
 //                               TBD doc
 //-----------------------------------------------------------------------------
 // [ 1] DEFINITIONS
-// [ 2] ENUMERATORS
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -84,7 +79,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
         // TEST DEFINITIONS
         //
@@ -228,58 +223,6 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P_(LINE) P_(NAME) P_(EXPECTED) P(ACTUAL) }
 
             ASSERTV(LINE, NAME, EXPECTED, ACTUAL, !strcmp(EXPECTED, ACTUAL));
-        }
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // TEST ENUMERATORS
-        //
-        // Concerns
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
-        //:   enumeration literals should exist and evaluate to their e_...
-        //:   equivalents.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
-        //:   enumeration literals should not exist.
-        //
-        // Plan
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
-        //:   BDEAT_... enumeration literals evaluate to their e_...
-        //:   equivalents.  (C-1)
-        //:
-        //: 2 We cannot check for (C-2), so hope for the best.
-        //
-        // Testing:
-        //   ENUMERATORS
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTEST ENUMERATORS"
-                          << "\n================" << endl;
-
-#undef e
-#define e(Class, Enumerator)                                                  \
-    { L_, #Class "::..._" #Enumerator,                                        \
-      Class::e_##Enumerator, Class::BDEAT_##Enumerator }
-
-        static struct {
-            int         d_line;         // line number
-            const char *d_name;         // printable enumerator name
-            int         d_bdeat_value;  // value of BDEAT_... version
-            int         d_bdlat_value;  // value of e_... version
-        } DATA [] = {
-          { L_, "None", 0, 0 },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int   LINE   = DATA[i].d_line;
-            const char *NAME   = DATA[i].d_name;
-            const int   EVALUE = DATA[i].d_bdeat_value;
-            const int   LVALUE = DATA[i].d_bdlat_value;
-
-            if (veryVerbose) { P_(LINE) P_(NAME) P_(EVALUE) P(LVALUE) }
-
-            ASSERTV(LINE, NAME, EVALUE, LVALUE, EVALUE == LVALUE);
         }
       } break;
       default: {

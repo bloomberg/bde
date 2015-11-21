@@ -31,28 +31,36 @@ BSLS_IDENT("$Id: $")
 
 #include <tuple>
 
+#define BSL_TUPLE_SUPPORTS_TUPLE 1
+
+// Note the following logic assumes that if the preceding '#include <tuple>'
+// succeeded, 'std::tuple' is generally available with the exceptions:
+//  o libc++ for OSX has a C++03 version of tuple that is not complete.
+//  o GCC versions prior to 4.7 are not standard conforming (do not support
+//    forward_as_tuple)
+
+#if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+#undef BSL_TUPLE_SUPPORTS_TUPLE
+#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION <= 40700
+#undef BSL_TUPLE_SUPPORTS_TUPLE
+#endif
+
+
+#if defined(BSL_TUPLE_SUPPORTS_TUPLE)
 namespace bsl {
 
     using native_std::tuple_size;
     using native_std::tuple_element;
-
-// Libc++ for osx has a c++ 03 version of tuple that does not implement
-// any of the following components in std if there is no variadic template
-// support.
-#if !(defined(BSLS_PLATFORM_OS_DARWIN) &&                                     \
-    !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES))
     using native_std::tuple;
     using native_std::make_tuple;
-#if !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40600)
     using native_std::forward_as_tuple;
-#endif
     using native_std::tie;
     using native_std::tuple_cat;
     using native_std::get;
     using native_std::ignore;
-#endif
-
 }  // close package namespace
+#endif
 
 
 // Include Bloomberg's implementation, unless compilation is configured to

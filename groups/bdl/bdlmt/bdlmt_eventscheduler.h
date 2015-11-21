@@ -697,6 +697,10 @@ class EventScheduler {
         // corresponding call to 'releaseEventRaw' when the reference is no
         // longer needed.
 
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the value of the clock type that this object was created
+        // with.
+
     int numEvents() const;
         // Return the number of pending and executing one-time events in this
         // scheduler.
@@ -992,6 +996,12 @@ EventScheduler::addRecurringEventRefRaw(RecurringEvent *handle) const
                                               reinterpret_cast<void*>(handle));
     return reinterpret_cast<RecurringEvent*>(
                                      d_recurringQueue.addPairReferenceRaw(h));
+}
+
+inline
+bsls::SystemClockType::Enum EventScheduler::clockType() const
+{
+    return d_clockType;
 }
 
 inline

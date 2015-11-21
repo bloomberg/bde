@@ -62,6 +62,7 @@ using namespace bsl;
 // [ 4] STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
 // [ 4] STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedBdexVersion(const Enum *, int versionSelector);
+//
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -317,6 +318,7 @@ int main(int argc, char *argv[])
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
             ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+
 
             using bslx::VersionFunctions::maxSupportedBdexVersion;
 

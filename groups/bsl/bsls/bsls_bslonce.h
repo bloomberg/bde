@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a pair of classes, 'bsls::BslOnce'
 // and 'bsls::BslOnceGuard', which give the caller a way to run a block of
 // code exactly once within the current process, particularly in the presence

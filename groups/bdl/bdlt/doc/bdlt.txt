@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Library Time (bdlt)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: The 'bdlt' ("Basic Development Library Time") package provides
  vocabulary types for representing date, time, and datetime values, and
  utilities providing non-primitive functionality on the value types.

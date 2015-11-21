@@ -103,7 +103,10 @@ struct DayCountConvention {
         e_SIA_30_360_NEOM           =  8,
         e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
         e_CALENDAR_BUS_252          = 10
+
+
     };
+
 
     // CLASS METHODS
     template <class STREAM>
@@ -181,6 +184,7 @@ struct DayCountConvention {
         // enumerators will result in an unspecified string representation
         // being returned that is distinct from the values returned for any
         // valid enumerator.
+
 };
 
 // FREE OPERATORS
@@ -296,6 +300,7 @@ int DayCountConvention::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
+
 
 }  // close package namespace
 
