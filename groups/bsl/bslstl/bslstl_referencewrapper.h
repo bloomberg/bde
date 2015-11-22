@@ -101,6 +101,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
 #endif
@@ -176,6 +180,19 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
+
+                    // -----------------------
+                    // IsBitwiseMoveable trait
+                    // -----------------------
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class T>
+struct IsBitwiseMoveable<bsl::reference_wrapper<T> > : bsl::true_type { };
+
+}  // close namespace bslmf
+}  // close enterprise namespace
 
                     // -----------------------
                     // class reference_wrapper

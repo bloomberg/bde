@@ -29,7 +29,8 @@
 // [ 1] reference_wrapper<T> ref(reference_wrapper<T>);
 // ----------------------------------------------------------------------------
 // [ 1] BASIC TESTS
-// [ 2] USAGE EXAMPLE
+// [ 2] TYPE TRAITS
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                  STANDARD BSL ASSERT TEST FUNCTION
@@ -87,6 +88,14 @@ static bool veryVeryVeryVerbose;
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
+
+struct NonBitwiseDummy {
+    // Test class that is not bitwise moveable
+    int d_data;
+            
+    explicit NonBitwiseDummy(int v = 0) : d_data(v) { }
+    NonBitwiseDummy(const NonBitwiseDummy& rhs) : d_data(rhs.d_data) {}
+};
 
 // ============================================================================
 //                               TEST FACILITIES
@@ -170,7 +179,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -212,6 +221,40 @@ int main(int argc, char *argv[])
     ASSERT(&canaryB.get() == canaries + 1);
 //..
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TYPE TRAITS
+        //
+        // Concerns:
+        //: 1 'bslmf::IsBitwiseMoveable<reference_wrapper<T>>::value' is
+        //:   true regardless of the type of 'T'.
+        //
+        // Plan:
+        //: 1 For concern 1, instantiate 'reference_wrapper' with both bitwise
+        //:   moveable and non-bitwise moveable types and verify that the
+        //:   'bslmf::isBitwiseMovable' trait is true for both cases.
+        // 
+        // Testing
+        //      bslmf::IsBitwiseMoveable<reference_wrapper<T>>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTYPE TRAITS"
+                            "\n===========\n");
+
+        using BloombergLP::bslmf::IsBitwiseMoveable;
+        using bsl::reference_wrapper;
+        
+        // First, verify that we have one bitwise movable type and one not
+        // bitwise moveable type.
+        ASSERT(  IsBitwiseMoveable<int>::value);
+        ASSERT(! IsBitwiseMoveable<NonBitwiseDummy>::value);
+
+        // Now test that 'reference_wrapper' is bitwise moveable in either
+        // case.
+        ASSERT(IsBitwiseMoveable<reference_wrapper<int> >::value);
+        ASSERT(IsBitwiseMoveable<reference_wrapper<NonBitwiseDummy> >::value);
+        
       } break;
       case 1: {
         // --------------------------------------------------------------------
