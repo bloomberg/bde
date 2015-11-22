@@ -15,7 +15,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: A single-use mechanism for synchronizing threads on an event count.
+//@PURPOSE: Provide a single-use mechanism for synchronizing on an event count.
 //
 //@CLASSES:
 //  bslmt::Latch: single-use synchronization mechanism on a count of events
@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 // before threads waiting on the latch are released.  The initial operation
 // count for the latch is supplied at construction, and is decremented by calls
 // to either 'arrive', 'arriveAndWait', or 'countDown'.  Threads may wait on a
-// latch to be released by calling either 'wait' or 'arriveAndWait' and threads
-// calling those methods will block until the 'currentCount' is 0.
+// latch to be released by calling either 'wait' or 'arriveAndWait', and
+// threads calling those methods will block until the 'currentCount' is 0.
 //
 // *WARNING*: 'bslmt::Latch' is *not* a reusable synchronization mechanism.
 // The behavior is undefined when calling 'countDown', 'arrive', and
@@ -45,8 +45,7 @@ BSLS_IDENT("$Id: $")
 // A latch provides a basic synchronization tool, similar to a barrier.  A
 // latch is distinct from a barrier in that:
 //
-//: o A latch is single-use only, whereas a barrier can be used multiple
-//:  times.
+//: o A latch is single-use only, whereas a barrier can be used multiple times.
 //:
 //: o Threads waiting on a barrier are blocked, whereas threads that 'arrive'
 //:   at a latch are not blocked (only waiting threads are blocked).
@@ -61,8 +60,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Comparison to 'bslmt::Semaphore'
 ///--------------------------------
-// A latch is conceptually similar to a semaphore with a negative count;
-// however, typically semaphore implementations (including 'bslmt::Semaphore'
+// A latch is conceptually similar to a semaphore with a negative count.
+// However, typically semaphore implementations (including 'bslmt::Semaphore'
 // and POSIX) do not allow for negative counts.  Waiting on a latch configured
 // for 'N' events is cleaner than one thread calling 'wait' on a semaphore 'N'
 // times in a loop.  Furthermore, if the use case involves multiple threads
@@ -78,8 +77,8 @@ BSLS_IDENT("$Id: $")
 // safe (i.e., not undefined behavior) to call 'arrive', 'arriveAndWait', or
 // 'countDown'.  A limit on the number of times the event count is decremented
 // must be imposed by the logic of the program.  For example, in the usage
-// example below a latch is created with an event count that matches the
-// number of threads that will call 'arrive' on that latch.
+// example below a latch is created with an event count that matches the number
+// of threads that will call 'arrive' on that latch.
 //
 ///Usage
 ///-----
@@ -303,25 +302,25 @@ class Latch {
         // that the initial count of events is supplied at construction.
 
     void wait();
-        // Blocks until the number of events that this latch is waiting for
+        // Block until the number of events that this latch is waiting for
         // reaches 0.
 
     // ACCESSORS
     int currentCount() const;
-        // Return the current number of events for which this latch is
-        // waiting.  Note that this method is provided primarily for debugging
-        // purposes (i.e., its intended use is not as a synchronization
-        // mechanism), and can be used only as an upper bound for the current
-        // count without other external state information.
+        // Return the current number of events for which this latch is waiting.
+        // Note that this method is provided primarily for debugging purposes
+        // (i.e., its intended use is not as a synchronization mechanism), and
+        // can be used only as an upper bound for the current count without
+        // other external state information.
 
     bool tryWait() const;
         // Return 'true' if this latch has already been released (i.e., the
         // number of events the latch is waiting on is 0), and 'false'
         // otherwise.  This method does not block.  Note that a return value
-        // of 'true' indicates a permanent state change (the latch has
-        // released and will never be un-released), but a return value of
-        // 'false' is ephemeral and cannot typically be acted upon without
-        // additional external state information.
+        // of 'true' indicates a permanent state change (the latch has released
+        // and will never be un-released), but a return value of 'false' is
+        // ephemeral and cannot typically be acted upon without additional
+        // external state information.
 };
 
 // ============================================================================

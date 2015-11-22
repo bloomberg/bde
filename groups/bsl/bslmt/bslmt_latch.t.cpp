@@ -41,8 +41,8 @@ using namespace bsl;
 //                              --------
 // We begin by testing that a latch can be constructed and destroyed, and that
 // the non-blocking methods, 'arrive', 'countDown', and 'arriveAndWait' (on a
-// 'bslmt::Latch(1)'), are indeed non-blocking.  Also a 'wait()' is tested on a
-// 'bslmt::Latch(0)'; indeed, in this case the synchronization point is
+// 'bslmt::Latch(1)'), are indeed non-blocking.  Also, a 'wait()' is tested on
+// a 'bslmt::Latch(0)'; indeed, in this case the synchronization point is
 // already reached.
 //
 // Some "non-blocking" smoke tests are performed by multiple threads.
@@ -52,38 +52,38 @@ using namespace bsl;
 // as Producers, some acting as Consumers, and some acting as both Producers
 // and Consumers.
 //
-// Producer Threads will call:         'arrive()' or 'countDown(n)'
-// Consumer Threads will call:         'wait()'
-// ProducerConsumer Threads will call: 'arriveAndWait()'
+// Producer Threads call:         'arrive()' or 'countDown(n)'
+// Consumer Threads call:         'wait()'
+// ProducerConsumer Threads call: 'arriveAndWait()'
 //
 // In order to test that not a single thread in a "consumer group" passes the
 // latch before the synchronization point is reached the following strategy
 // is performed:
 //
-// All threads will share the Latch under test and an "atomic int".
+// All threads will share the latch under test and an "atomic int".
 //
-//: o Producer threads will perform 'x += 1' on the shared 'int' *before* the
+//: o Producer threads perform 'x += 1' on the shared 'int' *before* the
 //:   'arrive()' or the 'countDown(1)'.
 //:
-//: o Consumer threads will perform 'x *= 2' on the shared 'int' *after* the
+//: o Consumer threads perform 'x *= 2' on the shared 'int' *after* the
 //:   'wait()'.
 //:
-//: o ProducerConsumer threads will perform 'x += 1' on the shared 'int'
-//:   *before* the 'arriveAndWait()' and 'x *= 2' *after* it.
+//: o ProducerConsumer threads perform 'x += 1' on the shared 'int' *before*
+//:   the 'arriveAndWait()' and 'x *= 2' *after* it.
 //
-// After the Threads execution the expected result is:
-//
-//    producer_number * pow(2, consumer_number)
-//
-// If the latch doesn't provide the expected "isolation" and a 'x += 1' and a
+// After the threads execution the expected result is:
+//..
+//  # producers * pow(2, # consumers)
+//..
+// If the latch doesn't provide the expected "isolation" and an 'x += 1' and an
 // 'x *= 2' are mixed the result will be not the expected one.
 //
 // Note that a ProducerConsumer thread counts toward the expected result
 // formula as one producer and one consumer.
 //
 // In order to increase the concurrency on the performed operation all threads
-// will block on their body on a barrier initialized with a value that is the
-// sum of all launched threads.
+// block on a barrier initialized with a value that is the sum of all launched
+// threads.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -91,36 +91,40 @@ using namespace bsl;
 // [ 1] ~Latch();
 //
 // MANIPULATORS
-// [  ] tryWait();
+// [  ] void tryWait();
 //
 // ACCESSORS
-// [ 1] currentCount() const;
+// [ 1] int currentCount() const;
 //
-// Breath tests and non-concurrent usage
+// Breathing tests and non-concurrent usage:
 // MANIPULATORS - MAIN PROCESS
-// [ 5] wait();
-// [ 4] arriveAndWait();
-// [ 1] countDown(int n);
-// [ 2] arrive();
+// [ 5] void wait();
+// [ 4] void arriveAndWait();
+// [ 1] void countDown(int n);
+// [ 2] void arrive();
 //
-// Interactions between manipulators usage
+// Interactions between manipulators:
 // MANIPULATORS - CONCURRENT USAGE
 // [12] countDown(int n); wait(); arriveAndWait();
 // [11] arrive();         wait(); arriveAndWait();
 // [10] countDown(int n); wait();
-// [ 9] arrive(); wait();
+// [ 9] arrive();         wait();
 // [ 8] arriveAndWait();
 // [ 7] countDown(int n);
 // [ 6] arrive();
 // ----------------------------------------------------------------------------
 
-// The following table shows how the three groups of thread described are
+// The following table shows how the three groups of threads described are
 // mixed together in each test case, where:
-//  - A  are threads issuing: x += 1;  arrive();
-//  - CD are threads issuing: x += 1;  countDown(1);
-//  - W  are threads issuing:          wait();           x *= 2;
-//  - AW are threads issuing: x += 1;  arriveAndWait();  x *= 2;
-
+//
+//: o A  threads issue: x += 1;  arrive();
+//:
+//: o CD threads issue: x += 1;  countDown(1);
+//:
+//: o W  threads issue:          wait();           x *= 2;
+//:
+//: o AW threads issue: x += 1;  arriveAndWait();  x *= 2;
+//
 //     | C | C | C | C | C | C | C |
 //     | A | A | A | A | A | A | A |
 //     | S | S | S | S | S | S | S |
@@ -215,9 +219,9 @@ typedef bslmt::Latch Obj;
 // ----------------------------------------------------------------------------
 
 class Thread {
-    // This class is used to easy the launch of a thread, the new Thread have
-    // to inherit from this class and implement the mainLoop.  See his contract
-    // below.
+    // This class is used to facilitate the launch of a thread.  Derived
+    // classes must implement the 'mainLoop' 'virtual' function.  See its
+    // contract below.
 
   private:
     // NOT IMPLEMENTED
@@ -227,12 +231,13 @@ class Thread {
   public:
     // CREATORS
     Thread()
-        // Builds a Thread
+        // Create a 'Thread' object.
     {
     }
 
     virtual ~Thread()
-        // Destroy the thread, undefined behavior if the thread is running
+        // Destroy this object.  The behavior is undefined if the thread is
+        // still running.
     {
     }
 
@@ -254,12 +259,15 @@ class Thread {
         }
     }
 
-  private:
     virtual int mainLoop() = 0;
-        //if returns:
-        //   0: It can be called again.
-        //  >0: Finished with no error and exit code is the value returned.
-        //  <0: Finished with error and the error code is the value returned.
+        // If this method returns a value that is:
+        //:   0 - 'mainLoop' can be called again.
+        //:
+        //: > 0 - The function completed with no error and the exit code is the
+        //:       value returned.
+        //:
+        //: < 0 - The function completed with an error and the error code is
+        //:       the value returned.
 };
 
 class ThreadGroup {
@@ -295,9 +303,8 @@ class ThreadGroup {
     }
 };
 
-
 // ============================================================================
-//                         USAGE EXAMPLE
+//                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 namespace BSLMT_USAGE_EXAMPLE_1 {
@@ -448,14 +455,14 @@ void FixedThreadPool::enqueueJob(const bdef_Function<void(*)()>& job)
 }  // namespace BSLMT_USAGE_EXAMPLE_1
 
 // ----------------------------------------------------------------------------
-//                           HELPER FUNCTIONS
+//                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
 namespace groups {
 
 class IndependentLinearValue {
-    // This class will be shared by the threads in order to test that producers
-    // and consumers do not mix 'inc()' and 'mult()' calls.
+    // This class is shared by threads in order to test that producers and
+    // consumers do not mix 'inc()' and 'mult()' calls.
 
     // DATA
     bsls::SpinLock myLock;
@@ -490,6 +497,12 @@ class IndependentLinearValue {
 
 class ThreadTest : public Thread {
 
+  protected:
+    // DATA
+    bslmt::Latch&           theLatch;
+    bslmt::Barrier&         theBarrier;
+    IndependentLinearValue& theValue;
+
   public:
     // CREATORS
     ThreadTest(bslmt::Latch&           aLatch,
@@ -501,11 +514,6 @@ class ThreadTest : public Thread {
     , theValue(aValue)
     {
     }
-
-  protected:
-    bslmt::Latch&           theLatch;
-    bslmt::Barrier&         theBarrier;
-    IndependentLinearValue& theValue;
 };
 
 class ThreadProducerArrive : public ThreadTest {
@@ -520,7 +528,7 @@ class ThreadProducerArrive : public ThreadTest {
     }
 
     // MANIPULATORS
-    int mainLoop()
+    virtual int mainLoop()
     {
         theBarrier.wait();
         theValue.inc();
@@ -542,7 +550,7 @@ class ThreadProducerCountDown : public ThreadTest {
     }
 
     // MANIPULATORS
-    int mainLoop()
+    virtual int mainLoop()
     {
         theBarrier.wait();
         theValue.inc();
@@ -564,7 +572,7 @@ class ThreadConsumer : public ThreadTest {
     }
 
     // MANIPULATORS
-    int mainLoop()
+    virtual int mainLoop()
     {
         theBarrier.wait();
         theLatch.wait();
@@ -586,7 +594,7 @@ class ThreadProducerConsumer : public ThreadTest {
     }
 
     // MANIPULATORS
-    int mainLoop()
+    virtual int mainLoop()
     {
         theBarrier.wait();
         theValue.inc();
@@ -609,7 +617,7 @@ void test(const int aProducersNumber,
              << aProducerConsumerNumber << " producers-consumer" << endl;
     }
 
-    IndependentLinearValue myInt;  // This will contain the result.
+    IndependentLinearValue result;
 
     const int myProducersAmount = aProducersNumber + aProducerConsumerNumber;
     const int myConsumersAmount = aConsumersNumber + aProducerConsumerNumber;
@@ -617,8 +625,8 @@ void test(const int aProducersNumber,
     // Latch under test.
     bslmt::Latch myLatch(myProducersAmount);
 
-    // The purpose of this barrier here is to let start all Threads at the same
-    // time in order to increase the amount of threads running in parallel.
+    // This barrier enables all threads to start at the same time to maximize
+    // parallelism.
     bslmt::Barrier myBarrier(aProducersNumber +
                              aConsumersNumber +
                              aProducerConsumerNumber);
@@ -631,19 +639,19 @@ void test(const int aProducersNumber,
     // producers
 
     for (int i = 0; i < aProducersNumber; ++i) {
-        myThreads.push_back(new PRODUCER(myLatch, myBarrier, myInt));
+        myThreads.push_back(new PRODUCER(myLatch, myBarrier, result));
     }
 
     // consumers
 
     for (int i = 0; i < aConsumersNumber; ++i) {
-        myThreads.push_back(new CONSUMER(myLatch, myBarrier, myInt));
+        myThreads.push_back(new CONSUMER(myLatch, myBarrier, result));
     }
 
-    // producer - consumers
+    // producer/consumers
 
     for (int i = 0; i < aProducerConsumerNumber; ++i) {
-        myThreads.push_back(new PRODUCERCONSUMER(myLatch, myBarrier, myInt));
+        myThreads.push_back(new PRODUCERCONSUMER(myLatch, myBarrier, result));
     }
 
     ThreadGroup myGroup;
@@ -664,7 +672,7 @@ void test(const int aProducersNumber,
     const double result = myProducersAmount * pow(static_cast<const int>(2),
                                                   myConsumersAmount);
 
-    ASSERTV(result, myInt.value(), result == myInt.value());
+    ASSERTV(result, result.value(), result == result.value());
 
     const int myCount = myLatch.currentCount();
     ASSERTV(0, myCount, 0 == myCount);
@@ -750,7 +758,7 @@ class Worker {
             Job *job = d_jobs.front();
             d_jobs.pop_front();
 
-            if (NULL == job) {
+            if (0 == job) {
                 return;                                               // RETURN
             }
 
@@ -781,7 +789,7 @@ class Worker {
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-        d_jobs.push_front(NULL);
+        d_jobs.push_front(0);
         d_condition.signal();
     }
 };
@@ -886,16 +894,15 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-
         using namespace BSLMT_USAGE_EXAMPLE_1;
 
         // Perform a sanity test on 'parallelVectorSum' (defined above).
 
         double inputA[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
         double inputB[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
-        double result[sizeof(inputA)/sizeof(*inputA)];
+        double result[sizeof inputA / sizeof *inputA];
 
-        const int NUM_ELEM = sizeof(inputA)/sizeof(*inputA);
+        const int NUM_ELEM = sizeof inputA / sizeof *inputA;
         FixedThreadPool pool;
 
         for (int jobs = 1; jobs < NUM_ELEM + 1; ++jobs) {
@@ -904,7 +911,7 @@ int main(int argc, char *argv[])
                 ASSERT(result[i] = inputA[i] + inputB[i]);
 
             }
-            if (verbose) {
+            if (veryVerbose) {
                 for (int i = 0; i < NUM_ELEM; ++i) {
                     cout << result[i] << " ";
                 }
@@ -918,25 +925,31 @@ int main(int argc, char *argv[])
         // PRODUCERS(C-D), CONSUMERS AND PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //   1 The latch has to be a pass through for countDown() callers.
-        //   2 The latch has to be a barrier for arriveAndWait()/wait()
-        //     callers.
-        //   3 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'countDown(n)' callers.
+        //:
+        //: 2 The latch must be a barrier for 'arriveAndWait()' and 'wait()'
+        //:   callers.
+        //:
+        //: 3 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create three groups of threads (from 1 to X concurrent
-        //     threads on each group).
-        //   2 First group will call countDown(1).
-        //   3 Second group will call wait().
-        //   3 Third group will call arriveWait().
-        //   4 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create three groups of threads (from 1 to 'X' concurrent threads
+        //:   in each group).
+        //:
+        //: 2 The first group will call 'countDown(1)'.
+        //:
+        //: 3 The second group will call 'wait()'.
+        //:
+        //: 3 The third group will call 'arriveWait()'.
+        //:
+        //: 4 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //    countDown(int n);
-        //    wait();
-        //    arriveAndWait();
+        //   void countDown(int n);
+        //   void wait();
+        //   void arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -945,43 +958,48 @@ int main(int argc, char *argv[])
                  << endl
                  << "================================================="
                  << endl;
-        for (int i = 1; i <= threadsAmount/3; ++i)
-        {
-            for (int j = 1; j <= threadsAmount/3; ++j)
-            {
-                for (int z = 1; z <= threadsAmount/3; ++z)
-                {
+
+        for (int i = 1; i <= threadsAmount 3; ++i) {
+            for (int j = 1; j <= threadsAmount 3; ++j) {
+                for (int k = 1; k <= threadsAmount 3; ++k) {
                     groups::test<groups::ThreadProducerCountDown,
                                  groups::ThreadConsumer,
-                                 groups::ThreadProducerConsumer>(i, j, z);
+                                 groups::ThreadProducerConsumer>(i, j, k);
                 }
             }
         }
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE), CONSUMERS AND PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //   1 The latch has to be a pass through for arrive() callers.
-        //   2 The latch has to be a barrier for arriveAndWait()/wait()
-        //     callers.
-        //   3 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'arrive()' callers.
+        //:
+        //: 2 The latch must be a barrier for 'arriveAndWait()' and 'wait()'
+        //:   callers.
+        //:
+        //: 3 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create three groups of threads (from 1 to X concurrent
-        //     threads on each group).
-        //   2 First group will call arrive().
-        //   3 Second group will call wait().
-        //   4 Third group will call arriveWait().
-        //   5 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create three groups of threads (from 1 to 'X' concurrent threads
+        //:   in each group).
+        //:
+        //: 2 The first group will call 'arrive()'.
+        //:
+        //: 3 The second group will call 'wait()'.
+        //:
+        //: 4 The third group will call 'arriveWait()'.
+        //:
+        //: 5 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //    arrive();
-        //    wait();
-        //    arriveAndWait();
+        //   void arrive();
+        //   void wait();
+        //   void arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -990,197 +1008,215 @@ int main(int argc, char *argv[])
                  << endl
                  << "===================================================="
                  << endl;
-        for (int i = 1; i <= threadsAmount/3; ++i)
-        {
-            for (int j = 1; j <= threadsAmount/3; ++j)
-            {
-                for (int z = 1; z <= threadsAmount/3; ++z)
-                {
+
+        for (int i = 1; i <= threadsAmount/3; ++i) {
+            for (int j = 1; j <= threadsAmount/3; ++j) {
+                for (int k = 1; k <= threadsAmount/3; ++k) {
                     groups::test<groups::ThreadProducerArrive,
                                  groups::ThreadConsumer,
-                                 groups::ThreadProducerConsumer>(i, j, z);
+                                 groups::ThreadProducerConsumer>(i, j, k);
                 }
             }
         }
+
       } break;
       case 10: {
         // --------------------------------------------------------------------
         // PRODUCERS(COUNT DOWN) AND CONSUMERS
         //
         // Concerns:
-        //   1 The latch has to be a pass through for countDown() callers.
-        //   2 The latch has to be a barrier for wait() callers.
-        //   3 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'countDown(n)' callers.
+        //:
+        //: 2 The latch must be a barrier for 'wait()' callers.
+        //:
+        //: 3 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create two groups of threads (from 1 to X concurrent
-        //     threads on each group).
-        //   2 First group will call countDown().
-        //   3 Second group will call wait().
-        //   4 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create two groups of threads (from 1 to 'X' concurrent threads in
+        //:   each group).
+        //:
+        //: 2 The first group will call 'countDown()'.
+        //:
+        //: 3 The second group will call 'wait()'.
+        //:
+        //: 4 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //   countDown(int n);
-        //   wait();
+        //   void countDown(int n);
+        //   void wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRODUCERS(COUNT DOWN) AND CONSUMERS" << endl
                           << "===================================" << endl;
-        for (int i = 1; i <= threadsAmount/2; ++i)
-        {
-            for (int j = 1; j <= threadsAmount/2; ++j)
-            {
+
+        for (int i = 1; i <= threadsAmount/2; ++i) {
+            for (int j = 1; j <= threadsAmount/2; ++j) {
                 groups::test<groups::ThreadProducerCountDown,
                              groups::ThreadConsumer,
                              groups::ThreadProducerConsumer>(i, j, 0);
             }
         }
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE) AND CONSUMERS
         //
         // Concerns:
-        //   1 The latch has to be a pass through for arrive() callers.
-        //   2 The latch has to be a barrier for wait() callers.
-        //   3 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'arrive()' callers.
+        //:
+        //: 2 The latch must be a barrier for 'wait()' callers.
+        //:
+        //: 3 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create two groups of threads (from 1 to X concurrent
-        //     threads on each group).
-        //   2 First group will call arrive().
-        //   3 Second group will call wait().
-        //   4 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create two groups of threads (from 1 to 'X' concurrent threads in
+        //:   each group).
+        //:
+        //: 2 The first group will call 'arrive()'.
+        //:
+        //: 3 The second group will call 'wait()'.
+        //:
+        //: 4 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //    arrive();
-        //    wait();
+        //   void arrive();
+        //   void wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRODUCERS(ARRIVE) AND CONSUMERS" << endl
                           << "===============================" << endl;
-        for (int i = 1; i <= threadsAmount/2; ++i)
-        {
-            for (int j = 1; j <= threadsAmount/2; ++j)
-            {
+
+        for (int i = 1; i <= threadsAmount/2; ++i) {
+            for (int j = 1; j <= threadsAmount/2; ++j) {
                 groups::test<groups::ThreadProducerArrive,
                              groups::ThreadConsumer,
                              groups::ThreadProducerConsumer>(i, j, 0);
             }
         }
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
         // PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //   1 The latch has to be a barrier for arriveAndWait() callers.
-        //   2 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a barrier for 'arriveAndWait()' callers.
+        //:
+        //: 2 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create one groups of threads (from 1 to X concurrent
-        //     threads) calling the arriveAndWait().
-        //   2 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
+        //:   calling 'arriveAndWait()'.
+        //:
+        //: 2 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //    arriveAndWait();
+        //   void arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRODUCERS-CONSUMERS" << endl
                           << "===================" << endl;
-        for (int i = 1; i <= threadsAmount; ++i)
-        {
+
+        for (int i = 1; i <= threadsAmount; ++i) {
             groups::test<groups::ThreadProducerArrive,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(0, 0, i);
 
         }
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // PRODUCERS(COUNT DOWN)
         //
         // Concerns:
-        //   1 The latch has to be a pass through for countDown(1) callers.
-        //   2 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'countDown(1)' callers.
+        //:
+        //: 2 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create one groups of threads (from 1 to X concurrent
-        //     threads) calling the countDown(1).
-        //   2 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
+        //:   calling 'countDown(1)'.
+        //:
+        //: 2 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //    countDown(int n);
+        //   void countDown(int n);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRODUCERS(COUNT DOWN)" << endl
                           << "=====================" << endl;
 
-        for (int i = 1; i <= threadsAmount; ++i)
-        {
+        for (int i = 1; i <= threadsAmount; ++i) {
             groups::test<groups::ThreadProducerCountDown,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(i, 0, 0);
 
         }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
         // PRODUCERS(ARRIVE)
         //
         // Concerns:
-        //   1 The latch has to be a pass through for arrive() callers.
-        //   2 At the end of the test the latch has reached the
-        //     synchronization point.
+        //: 1 The latch must be a pass-through for 'arrive()' callers.
+        //:
+        //: 2 At the end of the test the latch has reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create one groups of threads (from 1 to X concurrent
-        //     threads) calling the arrive().
-        //   2 Check that the operation will produce the expected result (see
-        //     the test plan overview).
+        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
+        //:   calling 'arrive()'.
+        //:
+        //: 2 Verify that the operation produces the expected result (see the
+        //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //    arrive();
+        //   void arrive();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRODUCERS(ARRIVE)" << endl
                           << "=================" << endl;
 
-        for (int i = 1; i <= threadsAmount; ++i)
-        {
+        for (int i = 1; i <= threadsAmount; ++i) {
             groups::test<groups::ThreadProducerArrive,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(i, 0, 0);
 
         }
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // WAIT
         //
         // Concerns:
-        //   1 A latch built with 0 has already reached the synchronization
-        //     point.
+        //: 1 A latch built with 0 has already reached the synchronization
+        //:   point.
         //
         // Plan:
-        //   1 Create a latch passing 0 to the constructor.
-        //   2 Check that wait() calls doesn't block the test execution.
+        //: 1 Create a latch with an initial count of 0.
+        //:
+        //: 2 Verify that 'wait()' calls do not block the test execution.
+        //:   (C-1)
         //
         // Testing:
-        //    wait();
+        //   void wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1189,22 +1225,25 @@ int main(int argc, char *argv[])
 
         bslmt::Latch myLatch(0);
         myLatch.wait();
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // ARRIVE AND WAIT
         //
         // Concerns:
-        //   1 A latch built with 1 will permit a single thread to not block
-        //     on a arriveAndWait() call.
+        //: 1 A latch built with 1 will permit a single thread to not block
+        //:   on an 'arriveAndWait()' call.
         //
         // Plan:
-        //   1 Build a latch with count == 1 and verify that the
-        //     arriveAndWait() call is not a blocking call.
-        //   2 The current count is then 0.
+        //: 1 Create a latch with an initial count of 1 and verify that an
+        //:   'arriveAndWait()' call is not a blocking call.
+        //:
+        //: 2 Verify that the current count is 0 following the
+        //:   'arriveAndWait()' call.  (C-1)
         //
         // Testing:
-        //    arriveAndWait();
+        //   void arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1217,6 +1256,7 @@ int main(int argc, char *argv[])
             const int myCount = myLatch.currentCount();
             ASSERTV(0, myCount, 0 == myCount);
         }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1229,10 +1269,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Perform a brute force test setting a latch to a variety of counts
-        //:   and verifying the result of 'tryWait'.
+        //:   and verifying the result of 'tryWait'.  (C-1..2)
         //
         // Testing:
-        //    countDown(int n);
+        //   void countDown(int n);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1241,7 +1281,7 @@ int main(int argc, char *argv[])
 
         {
             {
-                Obj x(5); const Obj& X = x;
+                Obj x(5);  const Obj& X = x;
 
                 ASSERT(false == X.tryWait());
                 x.countDown(1);
@@ -1250,31 +1290,30 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.tryWait());
             }
             {
-                Obj x(0); const Obj& X = x;
+                Obj x(0);  const Obj& X = x;
 
                 ASSERT(true == X.tryWait());
-
             }
         }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // ARRIVE
         //
         // Concerns:
-        //: 1 A latch built with 'x' will need (at least) a sequence of
-        //:   'x' 'arrive()' calls in order to reach the synchronization
-        //:   point.
+        //: 1 A latch built with 'x' will need (at least) a sequence of 'x'
+        //:   'arrive()' calls in order to reach the synchronization point.
         //
         // Plan:
-        //: 1 Create a latch with a count of 3.
+        //: 1 Create a latch with an initial count of 3.
         //:
         //: 2 Call 'wait' 3 times.
         //:
-        //: 3 Check that the synchronization point has been reached.  (C-1)
+        //: 3 Verify that the synchronization point has been reached.  (C-1)
         //
         // Testing:
-        //    arrive();
+        //   void arrive();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1309,6 +1348,7 @@ int main(int argc, char *argv[])
             const bool myTryWait = myLatch.tryWait();
             ASSERTV(true, myTryWait, true == myTryWait);
         }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1316,10 +1356,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 That after construction the current count of a latch is the
-        //:   supplied count value
+        //:   supplied count value.
         //:
         //: 2 That 'countDown' decrements the supplied count by the indicated
-        //:   count
+        //:   count.
         //:
         //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -1333,15 +1373,14 @@ int main(int argc, char *argv[])
         //:   value.  (C-2)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-3)
+        //:   triggered for invalid argument values (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-3)
         //
         // Testing:
-        //    Latch(int count);
-        //    ~Latch();
-        //    countDown();
-        //    currentCount();
+        //   Latch(int count);
+        //   ~Latch();
+        //   void countDown(int n);
+        //   int currentCount() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -1361,7 +1400,7 @@ int main(int argc, char *argv[])
 
         for (int stepSize = 1; stepSize < 10; ++stepSize) {
             for (int initialCount = 1; initialCount < 100; ++initialCount) {
-                Obj x(initialCount); const Obj &X = x;
+                Obj x(initialCount);  const Obj &X = x;
                 int count = initialCount;
                 while (count > 0) {
                     int step = bsl::min(stepSize, count);
@@ -1393,8 +1432,8 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(x.countDown(-1));
                 ASSERT_FAIL(x.countDown(10));
             }
-
         }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
