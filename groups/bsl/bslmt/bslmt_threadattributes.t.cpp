@@ -9,7 +9,6 @@
 
 #include <bslmt_threadattributes.h>
 
-#include <bslmt_configuration.h>
 #include <bslmt_platform.h>
 
 #include <bslim_testutil.h>
@@ -140,10 +139,17 @@ void aSsErT(bool condition, const char *message, int line)
         int handle;
         myThreadCreate(&handle, attributes, &myThreadFunction);
     }
-//..
 // Finally, we define the thread creation function, and show how a thread
-// attributes object might be interpreted by it:
+// attributes object might be interpreted by it. This creation function
+// supplies its own default values for stack and thread guard sizes; a real
+// routine using 'ThreadAttributes' should base its defaults on the
+// 'bslmt_configuration' component.
 //..
+    enum {
+       MY_DEFAULT_STACK_SIZE = 512 * 1024,
+       MY_DEFAULT_GUARD_SIZE = 16384
+    };
+
     void myThreadCreate(int                             *threadHandle,
                         const bslmt::ThreadAttributes&   attributes,
                         void                           (*function)())
@@ -153,7 +159,7 @@ void aSsErT(bool condition, const char *message, int line)
     {
         int stackSize = attributes.stackSize();
         if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
-            stackSize = bslmt::Configuration::defaultThreadStackSize();
+            stackSize = MY_DEFAULT_STACK_SIZE;
         }
 
         // Add a "fudge factor" to 'stackSize' to ensure that the client can
@@ -171,7 +177,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         int guardSize = attributes.guardSize();
         if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
-            guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
+            guardSize = MY_DEFAULT_GUARD_SIZE;
         }
 
         int policy = attributes.schedulingPolicy();

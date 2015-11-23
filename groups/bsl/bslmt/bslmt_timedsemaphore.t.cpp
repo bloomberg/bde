@@ -15,6 +15,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
+#include <bsl_deque.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -86,76 +87,88 @@ void aSsErT(bool condition, const char *message, int line)
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
 // enforce exclusive access, and to allow resource sharing.
 //..
-//  class IntQueue {
-//      // FIFO queue of integer values.
-//
-//      // DATA
-//      bdlc::Queue<int>      d_queue;       // underlying queue
-//      bslmt::TimedSemaphore d_mutexSem;    // mutual-access semaphore
-//      bslmt::TimedSemaphore d_resourceSem; // resource-availability semaphore
-//
-//      // NOT IMPLEMENTED
-//      IntQueue(const IntQueue&);
-//      IntQueue& operator=(const IntQueue&);
-//
-//    public:
-//      // CREATORS
-//      explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-//          // Create an 'IntQueue' object.  Optionally specified a
-//          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//          // 0, the currently installed default allocator is used.
-//
-//      ~IntQueue();
-//          // Destroy this 'IntQueue' object.
-//
-//      // MANIPULATORS
-//      int getInt();
-//          // Retrieve an integer from this 'IntQueue' object.  Integer values
-//          // are obtained from the queue in FIFO order.
-//
-//      void pushInt(int value);
-//          // Push the specified 'value' to this 'IntQueue' object.
-//  };
+    class IntQueue {
+        // FIFO queue of integer values.
+
+        // DATA
+        bsl::deque<int>       d_queue;       // underlying queue
+        bslmt::TimedSemaphore d_resourceSem; // resource-availability semaphore
+        bslmt::TimedSemaphore d_mutexSem;    // mutual-access semaphore
+
+        // NOT IMPLEMENTED
+        IntQueue(const IntQueue&);
+        IntQueue& operator=(const IntQueue&);
+
+      public:
+        // CREATORS
+        explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+            // Create an 'IntQueue' object.  Optionally specified a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+
+        ~IntQueue();
+            // Destroy this 'IntQueue' object.
+
+        // MANIPULATORS
+        int getInt(int *result, int maxWaitSeconds = 0);
+            // Load the first integer in this queue into the specified 'result'
+            // and return 0 unless the operation takes more than the optionally
+            // specified 'maxWaitSeconds', in which case return a nonzero value
+            // and leave 'result' unmodified.
+
+        void pushInt(int value);
+            // Push the specified 'value' to this 'IntQueue' object.
+    };
 //..
 // Note that the 'IntQueue' constructor increments the count of the semaphore
 // to 1 so that values can be pushed into the queue immediately following
 // construction:
 //..
-//  // CREATORS
-//  IntQueue::IntQueue(bslma::Allocator *basicAllocator)
-//  : d_queue(basicAllocator)
-//  {
-//      d_mutexSem.post();
-//  }
-//
-//  IntQueue::~IntQueue()
-//  {
-//      d_mutexSem.wait();  // Wait for potential modifier.
-//  }
-//
-//  // MANIPULATORS
-//  int IntQueue::getInt()
-//  {
-//      // Waiting for resources.
-//      d_resourceSem.wait();    // TBD modify to use 'timedWait'
-//
-//      // 'd_mutexSem' is used for exclusive access.
-//      d_mutexSem.wait();       // lock
-//      const int ret = d_queue.back();
-//      d_queue.popBack();
-//      d_mutexSem.post();       // unlock
-//
-//      return ret;
-//  }
-//
-//  void IntQueue::pushInt(int value)
-//  {
-//      d_mutexSem.wait();
-//      d_queue.pushFront(value);
-//      d_mutexSem.post();
-//
-//      d_resourceSem.post();  // Signal that we have resources available.
-//  }
+    // CREATORS
+    IntQueue::IntQueue(bslma::Allocator *basicAllocator)
+    : d_queue(basicAllocator)
+    , d_resourceSem(bsls::SystemClockType::e_MONOTONIC)
+    {
+        d_mutexSem.post();
+    }
+
+    IntQueue::~IntQueue()
+    {
+        d_mutexSem.wait();  // Wait for potential modifier.
+    }
+
+    // MANIPULATORS
+    int IntQueue::getInt(int *result, int maxWaitSeconds)
+    {
+        // Waiting for resources.
+        if (0 == maxWaitSeconds) {
+            d_resourceSem.wait();
+        } else {
+            bsls::TimeInterval timeout = bsls::SystemTime::nowMonotonicClock()
+                .addSeconds(maxWaitSeconds);
+            int rc = d_resourceSem.timedWait(timeout);
+            if (0 != rc) {
+               return rc;
+            }
+        }
+
+        // 'd_mutexSem' is used for exclusive access.
+        d_mutexSem.wait();       // lock
+        *result = d_queue.back();
+        d_queue.pop_back();
+        d_mutexSem.post();       // unlock
+
+        return 0;
+    }
+
+    void IntQueue::pushInt(int value)
+    {
+        d_mutexSem.wait();
+        d_queue.push_front(value);
+        d_mutexSem.post();
+
+        d_resourceSem.post();  // Signal that we have resources available.
+    }
 //..
 
 // ============================================================================

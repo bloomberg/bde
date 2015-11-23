@@ -52,15 +52,16 @@ BSLS_IDENT("$Id: $")
 // This example illustrates a very simple queue where potential clients can
 // push integers to a queue, and later retrieve the integer values from the
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
-// enforce exclusive access, and to allow resource sharing.
+// enforce exclusive access, and to allow resource sharing.  This queue allows
+// clients to set a limit on how long they wait to retrieve values.
 //..
 //  class IntQueue {
 //      // FIFO queue of integer values.
 //
 //      // DATA
-//      bdlc::Queue<int>      d_queue;       // underlying queue
-//      bslmt::TimedSemaphore d_mutexSem;    // mutual-access semaphore
+//      bsl::deque<int>       d_queue;       // underlying queue
 //      bslmt::TimedSemaphore d_resourceSem; // resource-availability semaphore
+//      bslmt::TimedSemaphore d_mutexSem;    // mutual-access semaphore
 //
 //      // NOT IMPLEMENTED
 //      IntQueue(const IntQueue&);
@@ -77,9 +78,11 @@ BSLS_IDENT("$Id: $")
 //          // Destroy this 'IntQueue' object.
 //
 //      // MANIPULATORS
-//      int getInt();
-//          // Retrieve an integer from this 'IntQueue' object.  Integer values
-//          // are obtained from the queue in FIFO order.
+//      int getInt(int *result, int maxWaitSeconds = 0);
+//          // Load the first integer in this queue into the specified 'result'
+//          // and return 0 unless the operation takes more than the optionally
+//          // specified 'maxWaitSeconds', in which case return a nonzero value
+//          // and leave 'result' unmodified.
 //
 //      void pushInt(int value);
 //          // Push the specified 'value' to this 'IntQueue' object.
@@ -92,6 +95,7 @@ BSLS_IDENT("$Id: $")
 //  // CREATORS
 //  IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 //  : d_queue(basicAllocator)
+//  , d_resourceSem(bsls::SystemClockType::e_MONOTONIC)
 //  {
 //      d_mutexSem.post();
 //  }
@@ -102,18 +106,27 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // MANIPULATORS
-//  int IntQueue::getInt()
+//  int IntQueue::getInt(int *result, int maxWaitSeconds)
 //  {
 //      // Waiting for resources.
-//      d_resourceSem.wait();    // TBD modify to use 'timedWait'
+//      if (0 == maxWaitSeconds) {
+//          d_resourceSem.wait();
+//      } else {
+//          bsls::TimeInterval timeout = bsls::SystemTime::nowMonotonicClock()
+//              .addSeconds(maxWaitSeconds);
+//          int rc = d_resourceSem.timedWait(timeout);
+//          if (0 != rc) {
+//             return rc;
+//          }
+//      }
 //
 //      // 'd_mutexSem' is used for exclusive access.
 //      d_mutexSem.wait();       // lock
-//      const int ret = d_queue.back();
-//      d_queue.popBack();
+//      *result = d_queue.back();
+//      d_queue.pop_back();
 //      d_mutexSem.post();       // unlock
 //
-//      return ret;
+//      return 0;
 //  }
 //
 //  void IntQueue::pushInt(int value)

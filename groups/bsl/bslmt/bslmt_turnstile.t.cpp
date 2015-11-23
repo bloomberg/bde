@@ -15,10 +15,6 @@
 #include <bslmt_threadutil.h>
 #include <bsls_atomic.h>
 
-/* TBD -- bind
-#include <bdlf_bind.h>
-*/
-
 #include <bslim_testutil.h>
 
 #include <bsls_systemtime.h>
@@ -145,54 +141,83 @@ static int veryVeryVeryVerbose = 0;
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-static
-void waitTurnAndSleepCallback(bslmt::Turnstile          *turnstile,
-                              bsls::AtomicInt           *counter,
-                              bslmt::Barrier            *barrier,
-                              const bsls::TimeInterval&  sleepInterval,
-                              const bsls::TimeInterval&  stopTime)
-{
-    barrier->wait();
+class WaitTurnAndSleepCallbackJob {
 
-    do {
-        Int64 wt = turnstile->waitTurn();
+    bslmt::Turnstile  *d_turnstile;
+    bsls::AtomicInt   *d_counter;
+    bslmt::Barrier    *d_barrier;
+    bsls::TimeInterval d_sleepInterval;
+    bsls::TimeInterval d_stopTime;
 
-        int value = ++*counter;
+  public:
+    WaitTurnAndSleepCallbackJob(bslmt::Turnstile          *turnstile,
+                                bsls::AtomicInt           *counter,
+                                bslmt::Barrier            *barrier,
+                                const bsls::TimeInterval&  sleepInterval,
+                                const bsls::TimeInterval&  stopTime)
+    : d_turnstile(turnstile)
+    , d_counter(counter)
+    , d_barrier(barrier)
+    , d_sleepInterval(sleepInterval)
+    , d_stopTime(stopTime)
+    {}
 
-        bslmt::ThreadUtil::sleep(sleepInterval);
+    void operator()() {
+        d_barrier->wait();
 
-        ASSERT(0 < turnstile->lagTime());
+        do {
+            Int64 wt = d_turnstile->waitTurn();
 
-        if (veryVerbose) {
-            COUT << "wt = "      << wt    << ", "
-                    "counter = " << value
-                 << ENDL;
-        }
-    } while (bsls::SystemTime::nowRealtimeClock() < stopTime);
-}
+            int value = ++*d_counter;
 
-static
-void waitTurnCallback(bslmt::Turnstile          *turnstile,
-                      bsls::AtomicInt           *counter,
-                      bslmt::Barrier            *barrier,
-                      const bsls::TimeInterval&  stopTime)
-{
-    barrier->wait();
+            bslmt::ThreadUtil::sleep(d_sleepInterval);
 
-    do {
-        Int64 wt = turnstile->waitTurn();
+            ASSERT(0 < d_turnstile->lagTime());
 
-        int value = ++*counter;
+            if (veryVerbose) {
+                COUT << "wt = " << wt << ", counter = " << value
+                     << ENDL;
+            }
+        } while (bsls::SystemTime::nowRealtimeClock() < d_stopTime);
+    }
+};
 
-        ASSERT(0 == turnstile->lagTime());
+class WaitTurnCallbackJob {
 
-        if (veryVerbose) {
-            COUT << "wt = "      << wt    << ", "
-                    "counter = " << value
-                 << ENDL;
-        }
-    } while (bsls::SystemTime::nowRealtimeClock() < stopTime);
-}
+    bslmt::Turnstile   *d_turnstile;
+    bsls::AtomicInt    *d_counter;
+    bslmt::Barrier     *d_barrier;
+    bsls::TimeInterval  d_stopTime;
+
+  public:
+
+    WaitTurnCallbackJob(bslmt::Turnstile          *turnstile,
+                        bsls::AtomicInt           *counter,
+                        bslmt::Barrier            *barrier,
+                        const bsls::TimeInterval&  stopTime)
+    : d_turnstile(turnstile)
+    , d_counter(counter)
+    , d_barrier(barrier)
+    , d_stopTime(stopTime)
+    {}
+
+    void operator()() {
+        d_barrier->wait();
+
+        do {
+            Int64 wt = d_turnstile->waitTurn();
+
+            int value = ++*d_counter;
+
+            ASSERT(0 == d_turnstile->lagTime());
+
+            if (veryVerbose) {
+                COUT << "wt = " << wt << ", counter = " << value
+                     << ENDL;
+            }
+        } while (bsls::SystemTime::nowRealtimeClock() < d_stopTime);
+    }
+};
 
 static
 void processorWithTurnstile(
@@ -384,7 +409,6 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
-        /* TBD -- bind
         const bsls::TimeInterval OFFSET(1.0);        // turnstile start offset
         const double            RATE        = 50.0;
         const int               NUM_TURNS   = 50;
@@ -408,8 +432,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_THREADS; ++i) {
             bslmt::ThreadUtil::Handle handle;
             ASSERT(0 == bslmt::ThreadUtil::create(&handle,
-                                                 bdlf::BindUtil::bind(
-                                                     &waitTurnAndSleepCallback,
+                                                  WaitTurnAndSleepCallbackJob(
                                                      &mX,
                                                      &counter,
                                                      &barrier,
@@ -433,7 +456,6 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P_(sleepInterval); P_(NUM_TURNS); P(counter);
         }
-        */
       }  break;
       case 5: {
         // --------------------------------------------------------------------
@@ -461,7 +483,6 @@ int main(int argc, char *argv[])
                  << "=====================================" << endl;
         }
 
-        /* TBD -- bind
         const bsls::TimeInterval OFFSET(1.0);        // turnstile start offset
         const double            RATE        = 8;
         const int               NUM_TURNS   = 8;
@@ -480,12 +501,11 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_THREADS; ++i) {
             bslmt::ThreadUtil::Handle handle;
             ASSERT(0 == bslmt::ThreadUtil::create(&handle,
-                                                 bdlf::BindUtil::bind(
-                                                     &waitTurnCallback,
-                                                     &mX,
-                                                     &counter,
-                                                     &barrier,
-                                                     stopTime)));
+                                                  WaitTurnCallbackJob(
+                                                              &mX,
+                                                              &counter,
+                                                              &barrier,
+                                                              stopTime)));
             handles.push_back(handle);
         }
 
@@ -499,7 +519,6 @@ int main(int argc, char *argv[])
         Int64 lt = X.lagTime();
         LOOP_ASSERT(lt, 0 == lt);
         LOOP_ASSERT(counter, NUM_TURNS <= counter);
-        */
       }  break;
       case 4: {
         // --------------------------------------------------------------------

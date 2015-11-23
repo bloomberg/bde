@@ -96,6 +96,12 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -168,7 +174,7 @@ class HashCrossReference {
                                             // owned.
     size_t            d_numValues;          // Length of 'd_values'.
     const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
-    unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
+    size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
     bool              d_valid;              // Object was properly initialized.
     bslma::Allocator *d_allocator_p;        // held, not owned
@@ -714,7 +720,7 @@ int main(int argc, char *argv[])
             const size_t      HASHCODE  = DATA[i].d_hashCode;
 
             if(veryVerbose) {
-                printf("Testing that %c hashes to %u", VALUE, HASHCODE);
+                printf("Testing that %c hashes to " ZU, VALUE, HASHCODE);
             }
 
             LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
