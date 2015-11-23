@@ -1742,7 +1742,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
     char suffix[8];
     bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
     bsls::Types::Uint64 tid =
-                      bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::self());
+                    bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::selfId());
     using bslh::hashAppend;
     bslh::DefaultHashAlgorithm hashee;
     hashAppend(hashee, now);
