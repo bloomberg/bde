@@ -40,7 +40,6 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bdlt_date.h>
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
-#include <bdlt_serialdateimputil.h>
 #include <bdlt_time.h>
 
 #include <bsls_assert.h>
@@ -288,16 +287,6 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     }
     stream->clear();
     return 0;
-}
-
-
-static int toSerialDate(bdlt::Date date)
-    // Return the elapsed number of days between 01JAN0001 and the specified
-    // 'date'.
-{
-    return bdlt::SerialDateImpUtil::ymdToSerial(date.year(),
-                                                date.month(),
-                                                date.day());
 }
 
 static bdlt::Datetime computeNextRotationTime(
