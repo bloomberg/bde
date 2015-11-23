@@ -29,7 +29,11 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
+#   include <../ucrt/errno.h>  // MSVC 2015 or later
+#else 
 #   include <../include/errno.h>
+#endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -48,7 +52,11 @@ BSLS_IDENT("$Id: $")
 
 // Direct inclusion since 'errno' is a macro.
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
+#   include <../ucrt/errno.h>  // MSVC 2015 or later
+#else 
 #   include <../include/errno.h>
+#endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:

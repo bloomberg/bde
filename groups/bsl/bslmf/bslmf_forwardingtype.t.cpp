@@ -114,7 +114,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
-    // This was last tested with MSVC 2013, but the bug may persist in later
+    // This was last tested with MSVC 2015, but the bug may persist in later
     // versions, not yet released.  Update the version test accordingly.
 
 # define BSLMF_FORWARDINGTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF
