@@ -6,30 +6,22 @@
 #include <bslmt_threadgroup.h>    // for testing only
 #include <bslmt_threadutil.h>     // for testing only
 
-#include <bdef_bind.h>       // TBD
-#include <bdef_function.h>   // TBD
-
 #include <bslim_testutil.h>
-
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
-#include <bsls_timeutil.h>
 
+#include <bsl_algorithm.h>   // 'bsl::min'
+#include <bsl_cmath.h>       // 'bsl::pow'
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
-#include <bsl_limits.h>
 #include <bsl_iostream.h>
+#include <bsl_limits.h>
 #include <bsl_list.h>        // for usage example
 #include <bsl_vector.h>      // for usage example
-
-#include <math.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -253,7 +245,8 @@ class Thread {
         if (veryVeryVerbose) {
             if (rc < 0) {
                 cout << "Thread terminated with error: " << rc << endl;
-            } else {
+            }
+            else {
                 cout << "Thread terminated w/o error: "  << rc << endl;
             }
         }
@@ -270,10 +263,38 @@ class Thread {
         //:       the value returned.
 };
 
+class ThreadBinder {
+    // This class provides an invokable that binds a 'Thread' object to a
+    // 'Thread' member function.
+
+    // DATA
+    void (Thread::*d_memfn_p)();  // member function to invoke (not owned)
+    Thread *d_thread_p;           // object on which to invoke it (not owned)
+
+  public:
+    // CREATORS
+    ThreadBinder(void (Thread::*memfnPtr)(), Thread *threadPtr)
+    : d_memfn_p(memfnPtr)
+    , d_thread_p(threadPtr)
+    {
+    }
+
+    // MANIPULATORS
+    void operator()()
+    {
+        (d_thread_p->*d_memfn_p)();
+    }
+};
+
 class ThreadGroup {
 
     // DATA
     bslmt::ThreadGroup theGroup;
+
+  private:
+    // NOT IMPLEMENTED
+    ThreadGroup(const ThreadGroup&);
+    ThreadGroup& operator=(const ThreadGroup&);
 
   public:
     // CREATORS
@@ -285,7 +306,7 @@ class ThreadGroup {
     ~ThreadGroup()
     {
         if (theGroup.numThreads() > 0) {
-            std::cout << "Thread Group being destroyed while having active "
+            std::cout << "A 'ThreadGroup' is being destroyed with active "
                       << "threads.  Joining them." << std::endl;
             join();
         }
@@ -294,7 +315,7 @@ class ThreadGroup {
     // MANIPULATORS
     void createThread(Thread& aThread)
     {
-        theGroup.addThread(bdef_BindUtil::bind(&Thread::callable, &aThread));
+        theGroup.addThread(ThreadBinder(&Thread::callable, &aThread));
     }
 
     void join()
@@ -335,7 +356,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 // This function can easily be computed in parallel because the value for each
 // result index only depends on the input vectors.
 //
-// First, assume we have a class 'FixedThreadPool' providing the following
+// First, assume we have a class, 'FixedThreadPool', providing the following
 // public interface (for brevity, the details have been elided; see
 // 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread-pools):
 //..
@@ -344,7 +365,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
       public:
         //...
 
-        void enqueueJob(const bdef_Function<void(*)()>& job);
+        void enqueueJob(const bsl::function<void()>& job);
             // Enqueue the specified 'job' to be executed by the next available
             // thread.
     };
@@ -355,7 +376,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
     void parallelVectorSum(double          *result,
                            const double    *inputA,
                            const double    *inputB,
-                           const int        numElements,
+                           int              numElements,
                            FixedThreadPool *threadPool,
                            int              numJobs);
         // Load the specified 'result' array with the vector sum of the
@@ -374,7 +395,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
                       bslmt::Latch *completionSignal,
                       const double *inputA,
                       const double *inputB,
-                      const int     numElements)
+                      int           numElements)
         // Load the specified 'result' array with the vector sum of the
         // specified 'inputA', and 'inputB', each having at least
         // 'numElements', and when the operation is complete signal the
@@ -383,20 +404,67 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
         for (int i = 0; i < numElements; ++i) {
             result[i] = inputA[i] + inputB[i];
         }
+
         completionSignal->arrive();
     }
 //..
-// Notice that 'bslmt::Latch::arrive' does not block the current thread (unlike
-// 'bslmt::Barrier::wait', and within the context of a thread pool, this job
+// Note that 'bslmt::Latch::arrive' does not block the current thread (unlike
+// 'bslmt::Barrier::wait'), and within the context of a thread pool, this job
 // will complete and the thread will be returned to the pool to accept more
 // work.
+// TBD
+//..
+class UsageBinder {
+    // This class provides an invokable that binds a TBD
+
+  public:
+    // TYPES
+    typedef void FREE_FUNCTION(double       *,
+                               bslmt::Latch *,
+                               const double *,
+                               const double *,
+                               int);
+
+  private:
+    // DATA
+    FREE_FUNCTION *d_func_p;
+    double        *d_arg1;
+    bslmt::Latch  *d_arg2;
+    const double  *d_arg3;
+    const double  *d_arg4;
+    int            d_arg5;
+
+  public:
+    // CREATORS
+    UsageBinder(FREE_FUNCTION *funcPtr,
+                double        *arg1,
+                bslmt::Latch  *arg2,
+                const double  *arg3,
+                const double  *arg4,
+                int            arg5)
+    : d_func_p(funcPtr)
+    , d_arg1(arg1)
+    , d_arg2(arg2)
+    , d_arg3(arg3)
+    , d_arg4(arg4)
+    , d_arg5(arg5)
+    {
+    }
+
+    // MANIPULATORS
+    void operator()()
+    {
+        (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
+    }
+};
+//..
 //
-// Then we define 'parallelVectorSum':
+// Then, we define 'parallelVectorSum':
 //..
     void parallelVectorSum(double          *result,
                            const double    *inputA,
                            const double    *inputB,
-                           const int        numElements,
+                           int              numElements,
                            FixedThreadPool *threadPool,
                            int              numJobs)
     {
@@ -406,28 +474,29 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
             numJobs = numElements;
         }
 
-        int jobSize = numElements / numJobs;
+        const int jobSize = numElements / numJobs;
 //..
-// Here we define a 'bslmt::Latch' object, 'completionSignal', that we will
+// Now, we define a 'bslmt::Latch' object, 'completionSignal', that we will
 // use to track the completion of this work:
 //..
         bslmt::Latch completionSignal(numJobs);
+
         for (int i = 0; i < numJobs; ++i) {
-            // If 'numJobs' doesn't evenly divide 'numElements' the last job
-            // will process the remaining elements.  For simplicity, we've
+            // If 'numJobs' doesn't evenly divide 'numElements', the last job
+            // will process the remaining elements.  For simplicity, we have
             // chosen not distribute the elements between jobs as evenly as is
             // possible.
 
             int offset = i * jobSize;
-            int size   =  (i == numJobs - 1) ? jobSize + numElements % numJobs
-                                             : jobSize;
+            int size   = (i == numJobs - 1) ? jobSize + numElements % numJobs
+                                            : jobSize;
             if (0 != size) {
-                threadPool->enqueueJob(bdef_BindUtil::bind(vectorSumJob,
-                                                           result + offset,
-                                                           &completionSignal,
-                                                           inputA + offset,
-                                                           inputB + offset,
-                                                           size));
+                threadPool->enqueueJob(UsageBinder(vectorSumJob,
+                                                   result + offset,
+                                                   &completionSignal,
+                                                   inputA + offset,
+                                                   inputB + offset,
+                                                   size));
             }
         }
 //..
@@ -441,7 +510,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 // Implementation note:  The following code provides a fake implementation for
 // 'FixedThreadPool' sufficient for sanity testing this usage example:
 
-void FixedThreadPool::enqueueJob(const bdef_Function<void(*)()>& job)
+void FixedThreadPool::enqueueJob(const bsl::function<void()>& job)
 {
     bslmt::ThreadUtil::Handle handle;
 
@@ -465,33 +534,39 @@ class IndependentLinearValue {
     // consumers do not mix 'inc()' and 'mult()' calls.
 
     // DATA
-    bsls::SpinLock myLock;
-    int            myValue;
+    bsls::SpinLock d_lock;
+    int            d_value;
+
+  private:
+    // NOT IMPLEMENTED
+    IndependentLinearValue(const IndependentLinearValue&);
+    IndependentLinearValue& operator=(const IndependentLinearValue&);
 
   public:
     IndependentLinearValue()
-    : myValue(0)
+    : d_lock(bsls::SpinLock::s_unlocked)
+    , d_value(0)
     {
     }
 
     // MANIPULATORS
     void inc()
     {
-        myLock.lock();
-        ++myValue;
-        myLock.unlock();
+        bsls::SpinLockGuard guard(&d_lock);
+
+        ++d_value;
     }
 
     void mult()
     {
-        myLock.lock();
-        myValue *= 2;
-        myLock.unlock();
+        bsls::SpinLockGuard guard(&d_lock);
+
+        d_value *= 2;
     }
 
     int value() const
     {
-        return myValue;
+        return d_value;
     }
 };
 
@@ -606,9 +681,9 @@ class ThreadProducerConsumer : public ThreadTest {
 };
 
 template <class PRODUCER, class CONSUMER, class PRODUCERCONSUMER>
-void test(const int aProducersNumber,
-          const int aConsumersNumber,
-          const int aProducerConsumerNumber)
+void test(int aProducersNumber,
+          int aConsumersNumber,
+          int aProducerConsumerNumber)
 {
     if (veryVerbose) {
         cout << "Testing: "
@@ -617,7 +692,7 @@ void test(const int aProducersNumber,
              << aProducerConsumerNumber << " producers-consumer" << endl;
     }
 
-    IndependentLinearValue result;
+    IndependentLinearValue myInt;  // This will contain the result.
 
     const int myProducersAmount = aProducersNumber + aProducerConsumerNumber;
     const int myConsumersAmount = aConsumersNumber + aProducerConsumerNumber;
@@ -639,19 +714,19 @@ void test(const int aProducersNumber,
     // producers
 
     for (int i = 0; i < aProducersNumber; ++i) {
-        myThreads.push_back(new PRODUCER(myLatch, myBarrier, result));
+        myThreads.push_back(new PRODUCER(myLatch, myBarrier, myInt));
     }
 
     // consumers
 
     for (int i = 0; i < aConsumersNumber; ++i) {
-        myThreads.push_back(new CONSUMER(myLatch, myBarrier, result));
+        myThreads.push_back(new CONSUMER(myLatch, myBarrier, myInt));
     }
 
     // producer/consumers
 
     for (int i = 0; i < aProducerConsumerNumber; ++i) {
-        myThreads.push_back(new PRODUCERCONSUMER(myLatch, myBarrier, result));
+        myThreads.push_back(new PRODUCERCONSUMER(myLatch, myBarrier, myInt));
     }
 
     ThreadGroup myGroup;
@@ -669,10 +744,9 @@ void test(const int aProducersNumber,
         delete myThreads[i];
     }
 
-    const double result = myProducersAmount * pow(static_cast<const int>(2),
-                                                  myConsumersAmount);
+    const double result = myProducersAmount * pow(2, myConsumersAmount);
 
-    ASSERTV(result, result.value(), result == result.value());
+    ASSERTV(result, myInt.value(), result == myInt.value());
 
     const int myCount = myLatch.currentCount();
     ASSERTV(0, myCount, 0 == myCount);
@@ -688,6 +762,11 @@ class Job {
 
     // DATA
     bslmt::Latch d_latch;
+
+  private:
+    // NOT IMPLEMENTED
+    Job(const Job&);
+    Job& operator=(const Job&);
 
   public:
     // PUBLIC DATA
@@ -733,6 +812,11 @@ class Worker {
     bsl::list<Job *> d_jobs;
     bslmt::Condition d_condition;
     bslmt::Mutex     d_mutex;
+
+  private:
+    // NOT IMPLEMENTED
+    Worker(const Worker&);
+    Worker& operator=(const Worker&);
 
   public:
     // CREATORS
@@ -794,11 +878,39 @@ class Worker {
     }
 };
 
+class WorkerBinder {
+    // This class provides an invokable that binds a 'Worker' object to a
+    // 'Worker' member function.
+
+    // DATA
+    void (Worker::*d_memfn_p)();  // member function to invoke (not owned)
+    Worker *d_worker_p;           // object on which to invoke it (not owned)
+
+  public:
+    // CREATORS
+    WorkerBinder(void (Worker::*memfnPtr)(), Worker *workerPtr)
+    : d_memfn_p(memfnPtr)
+    , d_worker_p(workerPtr)
+    {
+    }
+
+    // MANIPULATORS
+    void operator()()
+    {
+        (d_worker_p->*d_memfn_p)();
+    }
+};
+
 class WorkerPool {
 
     // DATA
     bsl::vector<Worker *> d_workers;
     bslmt::ThreadGroup    d_threadGroup;
+
+  private:
+    // NOT IMPLEMENTED
+    WorkerPool(const WorkerPool&);
+    WorkerPool& operator=(const WorkerPool&);
 
   public:
     // CREATORS
@@ -809,9 +921,8 @@ class WorkerPool {
         d_workers.reserve(numberOfWorkers);
         for (int i = 0; i < numberOfWorkers; ++i) {
             d_workers.push_back(new Worker(i, numberOfWorkers));
-            d_threadGroup.addThread(bdef_BindUtil::bind(&Worker::mainLoop,
-                                                                d_workers[i]));
-
+            d_threadGroup.addThread(WorkerBinder(&Worker::mainLoop,
+                                                 d_workers[i]));
         }
     }
 
@@ -861,16 +972,6 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
-    // CONCERN: In no case does memory come from the default allocator.
-
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
-
     switch (test) { case 0:
       case 13: {
         // --------------------------------------------------------------------
@@ -898,19 +999,22 @@ int main(int argc, char *argv[])
 
         // Perform a sanity test on 'parallelVectorSum' (defined above).
 
-        double inputA[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
-        double inputB[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
-        double result[sizeof inputA / sizeof *inputA];
+        const double inputA[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
+        const double inputB[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
 
         const int NUM_ELEM = sizeof inputA / sizeof *inputA;
+
+        double result[NUM_ELEM];
+
         FixedThreadPool pool;
 
         for (int jobs = 1; jobs < NUM_ELEM + 1; ++jobs) {
             parallelVectorSum(result, inputA, inputB, NUM_ELEM, &pool, jobs);
-            for (int i = 0; i < NUM_ELEM; ++i) {
-                ASSERT(result[i] = inputA[i] + inputB[i]);
 
+            for (int i = 0; i < NUM_ELEM; ++i) {
+                ASSERT(result[i] == inputA[i] + inputB[i]);
             }
+
             if (veryVerbose) {
                 for (int i = 0; i < NUM_ELEM; ++i) {
                     cout << result[i] << " ";
@@ -959,9 +1063,9 @@ int main(int argc, char *argv[])
                  << "================================================="
                  << endl;
 
-        for (int i = 1; i <= threadsAmount 3; ++i) {
-            for (int j = 1; j <= threadsAmount 3; ++j) {
-                for (int k = 1; k <= threadsAmount 3; ++k) {
+        for (int i = 1; i <= threadsAmount / 3; ++i) {
+            for (int j = 1; j <= threadsAmount / 3; ++j) {
+                for (int k = 1; k <= threadsAmount / 3; ++k) {
                     groups::test<groups::ThreadProducerCountDown,
                                  groups::ThreadConsumer,
                                  groups::ThreadProducerConsumer>(i, j, k);
@@ -1131,7 +1235,6 @@ int main(int argc, char *argv[])
             groups::test<groups::ThreadProducerArrive,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(0, 0, i);
-
         }
 
       } break;
@@ -1164,7 +1267,6 @@ int main(int argc, char *argv[])
             groups::test<groups::ThreadProducerCountDown,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(i, 0, 0);
-
         }
 
       } break;
@@ -1197,7 +1299,6 @@ int main(int argc, char *argv[])
             groups::test<groups::ThreadProducerArrive,
                          groups::ThreadConsumer,
                          groups::ThreadProducerConsumer>(i, 0, 0);
-
         }
 
       } break;
@@ -1251,6 +1352,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         bslmt::Latch myLatch(1);
+
         myLatch.arriveAndWait();
         {
             const int myCount = myLatch.currentCount();
@@ -1276,21 +1378,23 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESITNG: 'tryWait'"
+                          << "TESITNG: 'tryWait'" << endl
                           << "==================" << endl;
 
         {
             {
-                Obj x(5);  const Obj& X = x;
+                Obj mX(5);  const Obj& X = mX;
 
                 ASSERT(false == X.tryWait());
-                x.countDown(1);
+
+                mX.countDown(1);
                 ASSERT(false == X.tryWait());
-                x.countDown(4);
+
+                mX.countDown(4);
                 ASSERT(true == X.tryWait());
             }
             {
-                Obj x(0);  const Obj& X = x;
+                const Obj X(0);
 
                 ASSERT(true == X.tryWait());
             }
@@ -1391,7 +1495,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCheck value constructor." << endl;
 
         for (int i = 0; i < 10; ++i) {
-            Obj x(i);  const Obj& X = x;
+            const Obj X(i);
 
             ASSERT(i == X.currentCount());
         }
@@ -1400,13 +1504,14 @@ int main(int argc, char *argv[])
 
         for (int stepSize = 1; stepSize < 10; ++stepSize) {
             for (int initialCount = 1; initialCount < 100; ++initialCount) {
-                Obj x(initialCount);  const Obj &X = x;
+                Obj mX(initialCount);  const Obj &X = mX;
+
                 int count = initialCount;
                 while (count > 0) {
                     int step = bsl::min(stepSize, count);
                     count -= step;
-                    x.countDown(step);
 
+                    mX.countDown(step);
                     ASSERT(count == X.currentCount());
                 }
             }
@@ -1419,18 +1524,18 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'CTOR'" << endl;
             {
-                ASSERT_PASS(Obj(1));
-                ASSERT_PASS(Obj(0));
+                ASSERT_PASS(Obj(     1));
+                ASSERT_PASS(Obj(     0));
                 ASSERT_FAIL_RAW(Obj(-1));
             }
 
             if (veryVerbose) cout << "\t'countDown'" << endl;
             {
-                Obj x(10);  const Obj& X = x;
+                Obj mX(10);
 
-                ASSERT_PASS(x.countDown(1));
-                ASSERT_FAIL(x.countDown(-1));
-                ASSERT_FAIL(x.countDown(10));
+                ASSERT_PASS(mX.countDown( 1));
+                ASSERT_FAIL(mX.countDown(-1));
+                ASSERT_FAIL(mX.countDown(10));
             }
         }
 
@@ -1440,16 +1545,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
-
-    // CONCERN: In no case does memory come from the default allocator.
-
-    LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
-                0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
