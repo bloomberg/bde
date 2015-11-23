@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(wctype.h)
+#   include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#   include BSL_NATIVE_C_LIB_HEADER(wctype.h)
+#   include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
