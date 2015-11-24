@@ -288,8 +288,7 @@ UserFieldsSchema::UserFieldsSchema(const UserFieldsSchema&  original,
     d_names.resize(d_types.size());
     NameToIndex::const_iterator it = d_nameToIndex.begin();
     for (; it != d_nameToIndex.end(); ++it) {
-        d_names[it->second] = bslstl::StringRef(it->first.data(),
-                                                it->first.size());
+        d_names[it->second] = bslstl::StringRef(it->first);
     }
 }
 
@@ -310,12 +309,13 @@ int UserFieldsSchema::appendFieldDescription(bslstl::StringRef         name,
         return -1;                                                    // RETURN
     }
     bsl::pair<NameToIndex::iterator, bool> result =
-        d_nameToIndex.insert(NameToIndex::value_type(name, d_names.size()));
+        d_nameToIndex.insert(NameToIndex::value_type(
+                                            name,
+                                            static_cast<int>(d_names.size())));
 
     BSLS_ASSERT(true == result.second);
 
-    d_names.push_back(bslstl::StringRef(result.first->first.data(),
-                                        result.first->first.size()));
+    d_names.push_back(bslstl::StringRef(result.first->first));
     d_types.push_back(type);
 
     return 0;
