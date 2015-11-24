@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsl_cmath.h>
+#include <bsl_cstring.h>
 #include <errno.h>
 #include <math.h>  // For the  FP_* macros
 
@@ -36,9 +37,43 @@ extern "C" {
 
 #include <errno.h>
 
-
 namespace BloombergLP {
 namespace bdldfp {
+
+
+namespace {
+
+bool isNanString(const char *str) {
+    // Return 'true' if the specified 'str' represents a NaN value, and 'false'
+    // otherwise.
+
+    // The IEEE 754 standard specifies sequence of characters equivalent to
+    // "NaN" or "sNaN" except for case is a valid representation of
+    // NaN. Therefore, we only need to check the first 5 characters (4 + 1)
+    // of the input string.
+
+    char lowercaseStr[6];
+    int len = bsl::strlen(str);
+    if (len > 5) {
+        len = 5;
+    }
+    bsl::strncpy(lowercaseStr, str, len);
+    int (*tolower) (int) = &bsl::tolower;
+    bsl::transform(lowercaseStr,
+                   lowercaseStr + len,
+                   lowercaseStr,
+                   tolower);
+
+    if (bsl::strcmp(lowercaseStr, "nan") == 0 ||
+        bsl::strcmp(lowercaseStr, "snan") == 0) {
+        return true;
+    }
+
+    return false;
+}
+
+}  // close unnamed namespace
+
 
                              // Creator functions
 
@@ -48,7 +83,11 @@ int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
-    *out = DecimalImpUtil::parse32(str);
+    Decimal32 d = DecimalImpUtil::parse32(str);
+    if (isNan(d) and !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
     return 0;
 }
 
@@ -58,7 +97,11 @@ int DecimalUtil::parseDecimal64(Decimal64 *out, const char *str)
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
-    *out = DecimalImpUtil::parse64(str);
+    Decimal64 d = DecimalImpUtil::parse64(str);
+    if (isNan(d) and !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
     return 0;
 }
 
@@ -67,7 +110,12 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
-    *out = DecimalImpUtil::parse128(str);
+    Decimal128 d = DecimalImpUtil::parse128(str);
+
+    if (isNan(d) and !isNanString(str)) {
+        return -1;
+    }
+    *out = d;
     return 0;
 }
 
