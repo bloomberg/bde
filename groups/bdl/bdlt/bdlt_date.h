@@ -307,8 +307,6 @@ class Date {
         // with Legacy POSIX-Based Date} has further details.
 
     static int convertPosixDateToProleptic(int serialDate);
-        // Return the serial date in the proleptic Gregorian calendar
-        // representing the same year-month-day as the specified 'serialDate'
         // Return the serial date in the proleptic Gregorian calendar having
         // the same year-month-day representation as the specified 'serialDate'
         // represents in the POSIX calendar.  The behavior is undefined if
