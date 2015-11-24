@@ -142,13 +142,10 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_DLADDR = 0 };
 
 # if   defined(BSLS_PLATFORM_OS_SOLARIS)
-    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_LINUX)
-    enum { FORMAT_DWARF = 1 };
     enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 # elif defined(BSLS_PLATFORM_OS_HPUX)
-    enum { FORMAT_DWARF = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
 # else
 #   error unknown platform
@@ -168,6 +165,12 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
 # error unknown object file format
+#endif
+
+#ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
+    enum { FORMAT_DWARF = 1 };
+#else
+    enum { FORMAT_DWARF = 0 };
 #endif
 
 #ifdef BDE_BUILD_TARGET_DBG

@@ -467,6 +467,9 @@ int main(int argc, char *argv[])
 
                 const char *name = stackTrace[i].sourceFileName().c_str();
                 LOOP_ASSERT(i, !e_IS_DWARF || '/' == *name);
+                LOOP2_ASSERT(i, name, !e_IS_DWARF ||
+                                           bdls::FilesystemUtil::exists(name));
+
                 const char *pc = name + bsl::strlen(name);
                 while (pc > name && '/' != pc[-1]) {
                     --pc;
@@ -481,8 +484,6 @@ int main(int argc, char *argv[])
                            3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
                          : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
                                   : "balst_stacktraceresolverimpl_elf.t.cpp"));
-
-                LOOP2_ASSERT(i, name, bdls::FilesystemUtil::exists(name));
             }
 
 #undef  SM

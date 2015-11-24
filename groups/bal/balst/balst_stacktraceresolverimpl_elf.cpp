@@ -408,12 +408,26 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 //     // value otherwise.  Note that an 'index' value of 0 refers to the main
 //     // program itself and -1 refers to the dynamic loader.
 //..
-// DWARF: Bill's Notes
-// ----------------------------------------------------------------------------
+// ============================================================================
+//
+//                                  // -----
+//                                  // DWARF
+//                                  // -----
+//
+// The information in ELF format only tells us:
+//: o function names
+//: o source file names, but only in the case of file-scope static functions,
+//:   and only the base names of those few source files.
+//
+// Line number information and full source file information, if available at
+// all, is present in other formats.  On Linux, that information is in the
+// DWARF format.
+//
 // The DWARF document is at: http://www.dwarfstd.org/Download.php and various
-// enums are provided in the file '/usr/include/dwarf.h'.  Note that the
-// include file was version 3, but the executables this was developed with was
-// were DWARF version 4.  Thus some symbols had to be added in the enum type
+// enums are provided in the file '/usr/include/dwarf.h'.  Note that on the
+// platform this was developed on, the include file was version 3, but the
+// executables this was developed with was were DWARF version 4.  Thus some
+// symbols had to be added in the enum type
 // 'StackTraceResolver_DwarfReader::Dwarf4Enums'.
 //
 // In general, the spec is 255 pages long and not very well organized.  It
@@ -453,10 +467,12 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // .debug_aranges:     Specifies addresses ranges, and for each range, the
 //                     offset of the compilation unit for addresss within those
 //                     ranges in the .debug_info section.
-// .debug_info:        Various information about the compilation, including the
-//                     source file directory and name and the offset in the
-//                     .debug_line section of the line number information.
-// .debug_line:        Line number information.
+// .debug_info:        Various information about the compilation unit,
+//                     including the source file directory and name and the
+//                     offset in the .debug_line section of the line number
+//                     information.  Also contains information about the
+//                     address range to which the compilation unit applies.
+// .debug_line:        Line number and source file information.
 // .debug_ranges:      When one compilation unit (described in the .debug_info
 //                     and .debug_abbrev sections) applies to multiple address
 //                     ranges, they refer to a sequence of ranges in the
@@ -502,14 +518,14 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // example, an 'attr' or 'DW_AT_name' indicates that the information is a
 // string indicating the base name of the source file.  In that case, the form
 // can be of two types -- a 'DW_FORM_string', in which case the name is a null
-// terminated string store in the .debug_info section, or a 'DW_FORM_strp',
+// terminated string stored in the .debug_info section, or a 'DW_FORM_strp',
 // which indicates the .debug_info section contains a section offset into
 // the .debug_str section where the null terminated string resides.
 //
-// One piece of information we are interested in is the offset in .debug_line
-// where our line number information is located.  This will be found where
-// 'DW_AT_stmt_list == attr', and we use 'form' to interpret how to read that
-// offset.
+// One piece of information we are interested in is the offset
+// in .debug_line where our line number information and most of the file name
+// information is located.  This will be found where 'DW_AT_stmt_list == attr',
+// and we use 'form' to interpret how to read that offset.
 //
 //                              // .debug_line
 //
@@ -518,8 +534,11 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // for the given compile unit.  It begins with the header, which includes,
 // among other things:
 //: o A table of all directories that source files (including include files)
-//:   are in.
-//: o A table of all source files, and what directories they're in.
+//:   are in, though not including the directory where the compilation was
+//:   run (which was in the .debug_info section).
+//: o A table of all source files, and what directories they're in, (but not
+//:   including the .cpp file that was compiled, which was in the .debug_info
+//:   section).
 //: o Initialization of some variables, including, among others:
 //:   1 'lineBase'
 //:   2 'lineRange'
@@ -539,12 +558,28 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 //
 // If '0 == opcode', it is followed by an extended opcode of the form
 // 'DW_LNE_*' defined in dwarf.h and in the DWARF doc.  Often the 0 is followed
-// by a 5 or a 9 which has no meaning and is to be skipped (this is not
+// by a 5 or a 9 which has no meaning and is to be skipped (and which is not
 // described in the spec).
 //
 // Once the address is greater than the address from the stack trace, then the
 // current line number is the line number to be reported for the stack frame,
 // and the current file name is the source file name to be reported.
+//
+//                          // clang support for DWARF
+//
+// Doing line number information with DWARF on Linux using the clang compiler
+// is problematic.  There are two ways the DWARF information can tell you
+// which compile unit an address is in -- either in the .debug_aranges section,
+// or in address information in the compile unit itself.  The clang compiler
+// produces no .debug_aranges, and does not put the address information into
+// the compile unit information. gdb is able to function anyway, examination of
+// the gdb code determined that they were building huge datastructure in RAM
+// based on the voluminous .debug_line information, which we don't want to do
+// because in a large 32-bit executable we would exhaust the address space.  We
+// also decided that, for the time being, clang is not a very important
+// platform for us.  It might be possible to support clang by traversing all
+// in the .debug_line information and resolving all addresses at once, but this
+// might be very slow.
 
 // ============================================================================
 //              Debugging trace macros: 'eprintf' and 'zprintf'
@@ -555,12 +590,14 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
                     // 1 == debugging traces on, eprintf is like zprintf
                     // 2 == debugging traces on, eprintf exits
 
-// Checking addresses in dwarf compile units is probably redundant, but it may
-// turn out that we want to re-enable it someday, which will be possible by
-// setting u_DWARF_CHECK_ADDRESSES to 1.
+// If the .debug_aranges section is present, the code guarded by
+// '#ifdef u_DWARF_CHECK_ADDRESSES' is not necessary.  But plan to eventually
+// port to a Solaris platform that uses DWARF, and we don't know if the
+// .debug_aranges section will be present there, so keep this already tested
+// and debugged code around as it may become useful.
 
 #undef  u_DWARF_CHECK_ADDRESSES
-#define u_DWARF_CHECK_ADDRESSES 1
+#define u_DWARF_CHECK_ADDRESSES 0
 
 // zprintf: For non-error debug traces.  0 == u_TRACES:  0: null function
 //                                       0 <  u_TRACES:   : like printf
@@ -773,7 +810,6 @@ BSLMF_ASSERT(u_maxOffset > INT_MAX);
 BSLMF_ASSERT(static_cast<u_Offset>(static_cast<u_Uint64>(u_maxOffset) + 1) <
                                                                             0);
 
-
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
                                                           u_StackTraceResolver;
 
@@ -873,113 +909,6 @@ typedef u_SPLICE(Shdr)  u_ElfSectionHeader;  // Section headers are located
 typedef u_SPLICE(Sym)   u_ElfSymbol;         // Describes one symbol in the
                                              // symbol table.
 #undef u_SPLICE
-
-static int u_cleanupString(bsl::string *str, bslma::Allocator *alloc)
-    // Eliminate all instances of "/./" from the specified '*str', and also as
-    // many instances of "/../" as possible.  Do not resolve symlinks.  Use the
-    // specified 'alloc' for memory allocation of temporaries.  Return 0 unless
-    // "*str" does not represent an acceptable full path for a source file, and
-    // a non-zero value otherwise.
-{
-    static const char rn[] = { "cleanupString:" };
-
-    const bsl::size_t npos = bsl::string::npos;
-
-    if (str->empty() || '/' != (*str)[0] ||
-                                         !bdls::FilesystemUtil::exists(*str)) {
-        return -1;                                                    // RETURN
-    }
-
-    // First eliminate all "/./" sequences.
-
-    bsl::size_t pos;
-    while (npos != (pos = str->find("/./"))) {
-        str->erase(pos, 2);
-    }
-
-    bsl::string preDir(alloc);
-
-    // Next, eliminate as many instances of  "/../" as possible.
-
-    while (npos != (pos = str->find("/../"))) {
-        // u_zprintf("%s found '/../' in %s\n", rn, str->c_str());
-
-        u_ASSERT_BAIL(pos >= 1);
-
-        // Abandon cleanup unless the path prior to '/../' is not a symlink and
-        // is a directory.  Note that if the path is "/a/b/c/../d.cpp" and "c"
-        // is a symlink to "/e/f", the correct cleanup would be "/e/d.cpp" and
-        // "/a/b/d.cpp" would be completely wrong.  By default, stack traces
-        // only display the leaf name of the path, so it's not worth the effort
-        // to dereference symlinks, just clean up in the obvious case when
-        // we're sure we're not introducing inaccuracies.
-
-        preDir.assign(str->begin(), str->begin() + pos);
-        struct stat s;
-        int rc = ::lstat(preDir.c_str(), &s);
-        if (0 != rc || (s.st_mode & S_IFLNK) || !S_ISDIR(s.st_mode)) {
-            // It's possible the file is not there or is not a directory, which
-            // could mean that we are not running on the machine the code was
-            // compiled on, which will frequently happen and is not worth
-            // returning an error code over.
-
-            u_TRACES && u_zprintf(
-                          "%s difficulty cleaning up, but not an error\n", rn);
-
-            return 0;                                                 // RETURN
-        }
-
-        bsl::size_t rpos = str->rfind('/', pos - 1);
-        u_ASSERT_BAIL(npos != rpos && ".. below root directory");
-        u_ASSERT_BAIL(rpos < pos - 1 && '/' == (*str)[rpos]);
-
-        str->erase(rpos, pos + 3 - rpos);
-
-        // u_zprintf("%s optimized to %s\n", rn, str->c_str());
-    }
-
-    return 0;
-}
-
-#ifdef u_DWARF
-static int u_dumpBinary(u_Reader *reader, int numRows)
-    // Dump out the specified 'numRows' of 16 byte rows of the binary about to
-    // be read by the specified 'reader'.  Note that this function is called
-    // for debugging when we encounter unexpected things in the binary.
-{
-    static const char rn[] = { "u_dumpBinary:" };    (void) rn;
-
-    if (0 == u_TRACES) {
-        return -1;                                                    // RETURN
-    }
-
-    int rc;
-
-    u_Offset o = reader->offset();
-    for (int ii = 0; ii < numRows; ++ii) {
-        for (int jj = 0; jj < 16; ++jj) {
-            unsigned char uc;
-            rc = reader->readValue(&uc);
-            if (0 != rc) {
-                // We probably just bumped into the end of the section.
-                // Recover reasonably well.
-
-                rc = reader->skipTo(o);
-                u_ASSERT_BAIL(0 == rc);
-
-                return -1;                                            // RETURN
-            }
-
-            u_zprintf("%s%x", (jj ? " " : ""), uc);
-        }
-        u_zprintf("\n");
-    }
-    rc = reader->skipTo(o);
-    u_ASSERT_BAIL(0 == rc);
-
-    return 0;
-}
-#endif
 
                                     // --------
                                     // FrameRec
@@ -1277,6 +1206,113 @@ bool u_AddressRange::overlaps(const u_AddressRange& other) const
                               // ----------------
                               // static functions
                               // ----------------
+
+static int u_cleanupString(bsl::string *str, bslma::Allocator *alloc)
+    // Eliminate all instances of "/./" from the specified '*str', and also as
+    // many instances of "/../" as possible.  Do not resolve symlinks.  Use the
+    // specified 'alloc' for memory allocation of temporaries.  Return 0 unless
+    // "*str" does not represent an acceptable full path for a source file, and
+    // a non-zero value otherwise.
+{
+    static const char rn[] = { "cleanupString:" };
+
+    const bsl::size_t npos = bsl::string::npos;
+
+    if (str->empty() || '/' != (*str)[0] ||
+                                         !bdls::FilesystemUtil::exists(*str)) {
+        return -1;                                                    // RETURN
+    }
+
+    // First eliminate all "/./" sequences.
+
+    bsl::size_t pos;
+    while (npos != (pos = str->find("/./"))) {
+        str->erase(pos, 2);
+    }
+
+    bsl::string preDir(alloc);
+
+    // Next, eliminate as many instances of  "/../" as possible.
+
+    while (npos != (pos = str->find("/../"))) {
+        // u_zprintf("%s found '/../' in %s\n", rn, str->c_str());
+
+        u_ASSERT_BAIL(pos >= 1);
+
+        // Abandon cleanup unless the path prior to '/../' is not a symlink and
+        // is a directory.  Note that if the path is "/a/b/c/../d.cpp" and "c"
+        // is a symlink to "/e/f", the correct cleanup would be "/e/d.cpp" and
+        // "/a/b/d.cpp" would be completely wrong.  By default, stack traces
+        // only display the leaf name of the path, so it's not worth the effort
+        // to dereference symlinks, just clean up in the obvious case when
+        // we're sure we're not introducing inaccuracies.
+
+        preDir.assign(str->begin(), str->begin() + pos);
+        struct stat s;
+        int rc = ::lstat(preDir.c_str(), &s);
+        if (0 != rc || (s.st_mode & S_IFLNK) || !S_ISDIR(s.st_mode)) {
+            // It's possible the file is not there or is not a directory, which
+            // could mean that we are not running on the machine the code was
+            // compiled on, which will frequently happen and is not worth
+            // returning an error code over.
+
+            u_TRACES && u_zprintf(
+                          "%s difficulty cleaning up, but not an error\n", rn);
+
+            return 0;                                                 // RETURN
+        }
+
+        bsl::size_t rpos = str->rfind('/', pos - 1);
+        u_ASSERT_BAIL(npos != rpos && ".. below root directory");
+        u_ASSERT_BAIL(rpos < pos - 1 && '/' == (*str)[rpos]);
+
+        str->erase(rpos, pos + 3 - rpos);
+
+        // u_zprintf("%s optimized to %s\n", rn, str->c_str());
+    }
+
+    return 0;
+}
+
+#ifdef u_DWARF
+static int u_dumpBinary(u_Reader *reader, int numRows)
+    // Dump out the specified 'numRows' of 16 byte rows of the binary about to
+    // be read by the specified 'reader'.  Note that this function is called
+    // for debugging when we encounter unexpected things in the binary.
+{
+    static const char rn[] = { "u_dumpBinary:" };    (void) rn;
+
+    if (0 == u_TRACES) {
+        return -1;                                                    // RETURN
+    }
+
+    int rc;
+
+    u_Offset o = reader->offset();
+    for (int ii = 0; ii < numRows; ++ii) {
+        for (int jj = 0; jj < 16; ++jj) {
+            unsigned char uc;
+            rc = reader->readValue(&uc);
+            if (0 != rc) {
+                // We probably just bumped into the end of the section.
+                // Recover reasonably well.
+
+                rc = reader->skipTo(o);
+                u_ASSERT_BAIL(0 == rc);
+
+                return -1;                                            // RETURN
+            }
+
+            u_zprintf("%s%x", (jj ? " " : ""), uc);
+        }
+        u_zprintf("\n");
+    }
+    rc = reader->skipTo(o);
+    u_ASSERT_BAIL(0 == rc);
+
+    return 0;
+}
+#endif
 
 static
 int checkElfHeader(u_ElfHeader *elfHeader)
@@ -1600,18 +1636,21 @@ int u_StackTraceResolver::HiddenRec::dwarfReadAll()
 
     u_TRACES && u_zprintf("%s starting\n", rn);
 
-    if (0 == d_arangesSec.d_offset || 0 == d_infoSec.d_offset ||
-                                                     0 == d_lineSec.d_offset) {
+    if (0 == d_infoSec.d_size || 0 == d_lineSec.d_size) {
         u_TRACES && u_zprintf("%s Not enough information to find file names"
                                                     " or line numbers.\n", rn);
         return -1;                                                    // RETURN
     }
 
-    int rc = dwarfReadAranges();  // Get the locations of the compile unit info
-    u_ASSERT_BAIL(rc >= 0 && ".debug_aranges failed");
-    if (0 == rc) {
-        u_TRACES && u_zprintf("%s .debug_aranges did not match\n", rn);
-        return -1;                                                    // RETURN
+    int rc;
+    if (d_arangesSec.d_size) {
+        rc = dwarfReadAranges();  // Get the locations of the compile unit info
+        if (rc < 0) {
+            u_TRACES && u_zprintf(".debug_aranges failed");
+        }
+        else if (0 == rc) {
+            u_TRACES && u_zprintf(".debug_aranges did not match anything");
+        }
     }
 
     rc = dwarfReadDebugInfo();   // Get the location of the line number info,
@@ -1989,7 +2028,11 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                 (obtained | k_OBTAINED_LINE_OFFSET) ? "found" : "not found");
     }
 
-    u_ASSERT_BAIL((k_OBTAINED_ADDRESS_MATCH & obtained) || u_P(index));
+    *addressMatched = !!(obtained & k_OBTAINED_ADDRESS_MATCH);
+    if (!*addressMatched) {
+        return 0;                                                     // RETURN
+    }
+
     u_ASSERT_BAIL((k_OBTAINED_LINE_OFFSET & obtained) || u_P(index));
     u_ASSERT_BAIL(!baseName.empty());
     u_ASSERT_BAIL(!dirName.empty());
@@ -1997,56 +2040,6 @@ int u_StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     (void) u_cleanupString(&dirName, d_allocator_p);
     frameRec->setCompileUnitDir(     dirName);
     frameRec->setCompileUnitFileName(baseName);
-
-    *addressMatched = !!(obtained & k_OBTAINED_ADDRESS_MATCH);
-
-#if 0
-    // The file name info we have is for the file that was compiled, and if the
-    // address refers to code in an include file, that will be the wrong file.
-    // We will get the right filename when we're reading the line numbers.
-
-    bsl::string sfn(d_allocator_p);
-    sfn.reserve(dirName.length() + 1 + baseName.length());
-    if ('/' == baseName.c_str()[0]) {
-        // 'baseName' is a full path, ignore dirName.
-
-        u_TRACES && u_zprintf("Source file name: base name \"%s\" is"
-                                         " full path\n", baseName.c_str());
-
-        sfn = baseName;
-    }
-    else {
-        if (u_TRACES && baseName.empty()) {
-            u_zprintf("Source file name: dir name, no base name\n");
-        }
-
-        sfn = dirName;
-
-        if (!sfn.empty() && '/' != sfn[dirName.length() - 1]) {
-            sfn += '/';
-        }
-
-        sfn += baseName;
-    }
-
-
-    if (frameRec->frame().isSourceFileNameKnown()) {
-        u_TRACES && u_zprintf("%s source file name found twice for frame %d,"
-                    " expected if static.  Old sfn: %s, new sfn: %s\n", rn,
-                             index, frameRec->frame().sourceFileName().c_str(),
-                                                                  sfn.c_str());
-    }
-    else {
-        u_TRACES && u_zprintf(
-                            "%s source file name found for frame %d sfn: %s\n",
-                                                       rn, index, sfn.c_str());
-        rc = u_cleanupString(&sfn, d_allocator_p);
-        if (0 == rc) {
-            frameRec->frame().setSourceFileName(sfn);
-        }
-    }
-#endif
-
     frameRec->setLineNumberOffset(lineNumberInfoOffset);
 
     return 0;
@@ -2062,27 +2055,25 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfo()
         // Because the 'u_FrameRec's are sorted by address, those referring to
         // the same compilation unit are going to be adjacent.
 
-#if !u_DWARF_CHECK_ADDRESSES || 0 == TRACES
-        // Disable this shortcut if checking addressses with traces on so we
-        // can observe trace matching for each symbol.
-
-        if (end != prev &&
+        if (end != prev && d_arangesSec.d_size &&
+                        u_maxOffset != it->compileUnitOffset() &&
                         prev->compileUnitOffset() == it->compileUnitOffset()) {
             u_TRACES && u_zprintf("%s frames %d and %d are from the same"
                                                      " compilation unit\n", rn,
                                                    prev->index(), it->index());
 
             if (!it->frame().isSourceFileNameKnown()) {
+                // This is the name of the file that was compiled, which might
+                // not be the right file.  If reading line number information
+                // is successful, it will be overwritten by the right file.
+
                 it->frame().setSourceFileName(prev->frame().sourceFileName());
             }
-            it->setCompileUnitDir(        prev->compileUnitDir());
-            it->setCompileUnitFileName(   prev->compileUnitFileName());
-            it->setLineNumberOffset(      prev->lineNumberOffset());
+            it->setCompileUnitDir(            prev->compileUnitDir());
+            it->setCompileUnitFileName(       prev->compileUnitFileName());
+            it->setLineNumberOffset(          prev->lineNumberOffset());
             continue;
         }
-#else
-        (void) prev;
-#endif
 
         int rc = dwarfReadDebugInfoFrameRec(&*it);
         if (0 != rc) {
@@ -2105,12 +2096,6 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     int rc;
     const int index = frameRec->index(); (void) index;
 
-    if (u_maxOffset == frameRec->compileUnitOffset()) {
-        u_TRACES && u_zprintf("%s no compile unit offset for frame %d,"
-                                                " can't proceed\n", rn, index);
-        return -1;                                                    // RETURN
-    }
-
     u_ASSERT_BAIL(0 < d_infoSec  .d_size);
     u_ASSERT_BAIL(0 < d_abbrevSec.d_size);
     u_ASSERT_BAIL(0 < d_rangesSec.d_size);
@@ -2132,71 +2117,97 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
 
-    rc = d_infoReader.skipTo(
-                           d_infoSec.d_offset + frameRec->compileUnitOffset());
-    u_ASSERT_BAIL(0 == rc && "skipTo failed");
-
-    u_Offset compileUnitLength;
-    rc = d_infoReader.readInitialLength(&compileUnitLength);
-    u_ASSERT_BAIL(0 == rc);
-
-    {
-        unsigned short version;
-        rc = d_infoReader.readValue(&version);
-        u_ASSERT_BAIL(0 == rc && "read version failed");
-        u_ASSERT_BAIL(4 == version || u_P(version));
-    }
-
-    // This is the compilation unit headers as outlined in 7.5.1.1
-
-    u_Offset abbrevOffset;
-    rc = d_infoReader.readSectionOffset(&abbrevOffset);
-    u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
-
-    rc = d_abbrevReader.skipTo(d_abbrevSec.d_offset + abbrevOffset);
-    u_ASSERT_BAIL(0 == rc);
-
-    rc = d_infoReader.readAddressSize();
-    u_ASSERT_BAIL(0 == rc && "read address size failed");
-
-    d_rangesReader.setAddressSize(d_infoReader.addressSize());
-
-    {
-        u_Offset readTagIdx;
-
-        // These tag indexes were barely, vaguely mentioned by the doc, with
-        // some implication that they'd be '1' before the first tag we
-        // encounter.  If they turn out not to be '1' in production it's
-        // certainly not worth abandoning DWARF decoding over.
-
-        rc = d_infoReader.readULEB128(&readTagIdx);
-        u_ASSERT_BAIL(0 == rc);
-        (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-                "%s strange .debug_info tag idx %llx\n", rn, u_ll(readTagIdx));
-
-        rc = d_abbrevReader.readULEB128(&readTagIdx);
-        u_ASSERT_BAIL(0 == rc);
-        (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-              "%s strange .debug_abbrev tag idx %llx\n", rn, u_ll(readTagIdx));
-    }
-
-    unsigned int tag;
-    rc = d_abbrevReader.readULEB128(&tag);
-    u_ASSERT_BAIL(0 == rc);
-
-    u_ASSERT_BAIL(DW_TAG_compile_unit == tag || DW_TAG_partial_unit == tag ||
-                                                                    u_PH(tag));
-
-    BSLMF_ASSERT(0 == DW_CHILDREN_no && 1 == DW_CHILDREN_yes);
-    unsigned int hasChildren;
-    rc = d_abbrevReader.readULEB128(&hasChildren);
-    u_ASSERT_BAIL(0 == rc);
-    u_ASSERT_BAIL(hasChildren <= 1);    // other than that, we don't care
-
     bool addressMatched;
-    rc = dwarfReadCompileOrPartialUnit(frameRec, &addressMatched);
-    u_ASSERT_BAIL(0 == rc);
-    u_ASSERT_BAIL(addressMatched);
+
+    u_Offset nextCompileUnitOffset = d_infoSec.d_offset;
+    if (d_arangesSec.d_size && u_maxOffset != frameRec->compileUnitOffset()) {
+        nextCompileUnitOffset += frameRec->compileUnitOffset();
+    }
+
+    do {
+        rc = d_infoReader.skipTo(nextCompileUnitOffset);
+        u_ASSERT_BAIL(0 == rc && "skipTo failed");
+
+        {
+            u_Offset compileUnitLength;
+            rc = d_infoReader.readInitialLength(&compileUnitLength);
+            u_ASSERT_BAIL(0 == rc);
+
+            nextCompileUnitOffset = d_infoReader.offset() + compileUnitLength;
+        }
+
+        {
+            unsigned short version;
+            rc = d_infoReader.readValue(&version);
+            u_ASSERT_BAIL(0 == rc && "read version failed");
+            u_ASSERT_BAIL((2 <= version && version <= 4) || u_P(version));
+        }
+
+        // This is the compilation unit headers as outlined in 7.5.1.1
+
+        {
+            u_Offset abbrevOffset;
+            rc = d_infoReader.readSectionOffset(&abbrevOffset);
+            u_ASSERT_BAIL(0 == rc && "read abbrev offset failed");
+
+            rc = d_abbrevReader.skipTo(d_abbrevSec.d_offset + abbrevOffset);
+            u_ASSERT_BAIL(0 == rc);
+        }
+
+        rc = d_infoReader.readAddressSize();
+        u_ASSERT_BAIL(0 == rc && "read address size failed");
+
+        d_rangesReader.setAddressSize(d_infoReader.addressSize());
+
+        {
+            u_Offset readTagIdx;
+
+            // These tag indexes were barely, vaguely mentioned by the doc,
+            // with some implication that they'd be '1' before the first tag we
+            // encounter.  If they turn out not to be '1' in production it's
+            // certainly not worth abandoning DWARF decoding over.
+
+            rc = d_infoReader.readULEB128(&readTagIdx);
+            u_ASSERT_BAIL(0 == rc);
+            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
+                                       "%s strange .debug_info tag idx %llx\n",
+                                                         rn, u_ll(readTagIdx));
+
+            rc = d_abbrevReader.readULEB128(&readTagIdx);
+            u_ASSERT_BAIL(0 == rc);
+            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
+                                     "%s strange .debug_abbrev tag idx %llx\n",
+                                                         rn, u_ll(readTagIdx));
+        }
+
+        unsigned int tag;
+        rc = d_abbrevReader.readULEB128(&tag);
+        u_ASSERT_BAIL(0 == rc);
+
+        u_ASSERT_BAIL(DW_TAG_compile_unit == tag ||
+                                      DW_TAG_partial_unit == tag || u_PH(tag));
+
+        BSLMF_ASSERT(0 == DW_CHILDREN_no && 1 == DW_CHILDREN_yes);
+        unsigned int hasChildren;
+        rc = d_abbrevReader.readULEB128(&hasChildren);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(hasChildren <= 1);    // other than that, we don't care
+
+        rc = dwarfReadCompileOrPartialUnit(frameRec, &addressMatched);
+        u_ASSERT_BAIL(0 == rc);
+        u_ASSERT_BAIL(!d_arangesSec.d_size || addressMatched);
+    } while (!d_arangesSec.d_size && !addressMatched &&
+                nextCompileUnitOffset < d_infoSec.d_offset + d_infoSec.d_size);
+
+    if (u_TRACES && !addressMatched) {
+        // Sometimes there's a frame, like the routine that calls 'main', for
+        // which no debug info is available.  This will also happen if a file
+        // was compiled with the debug switch on.  A disappointment, but not an
+        // error.
+
+        u_zprintf("%s failed to match address for symbol \"%s\"\n", rn,
+                                       frameRec->frame().symbolName().c_str());
+    }
 
     d_infoReader.  disable();
     d_abbrevReader.disable();
@@ -2205,253 +2216,6 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
     return 0;
 }
-
-#if 0
-// When I started this, I misunderstood that 'DW_AT_decl_file' would give a
-// file name, when in fact it gives the index into a table of file names in
-// the line number information header.  Apparently, we'll get the file name
-// for free when we parse the line number inforation, so it isn't worth the
-// trouble to get this function compiling and debugged.
-
-int u_StackTraceResolver::HiddenRec::dwarfReadForeignFunction(
-                                                          u_FrameRec *frameRec)
-{
-    static const char rn[] = { "dwarfReadForeignFunction:" };    (void) rn;
-
-    StackTraceFrame& frame = frameRef->frame();
-    unsigned int hasChildren = 0;
-    bsl::string linkageName(d_allocator_p);
-
-    int depth = 0;
-    for (int ii = 2;; ++ii) {
-        depth += hasChildren;
-
-        unsigned int tagIdx;
-        {
-            rc = d_infoReader.readULEB128(&tagIdx);
-            u_ASSERT_BAIL(0 == rc);
-
-            unsigned int abbrevIdx;
-            rc = d_abbrevReader.readULEB128(&abbrevIdx);
-            u_ASSERT_BAIL(0 == rc);
-
-            u_ASSERT_BAIL(tagIdx == abbrevIdx);
-
-            if (0 == tagIdx) {
-                if (depth-- <= 0) {
-                    u_TRACES && u_eprintf("%s completed child traversal, no"
-                                                " routine name match found\n");
-
-                    return 0;
-                }
-            }
-
-            // We aren't sure what to expect from the tagIdx -- it's only
-            // mentioned in one example in the doc, and it's a tiny example
-            // that doesn't cover a lot of cases.
-
-            u_TRACES && ii != tagIdx && u_eprintf("%s unexpected tagIdx %u\n",
-                                                                       tagIdx);
-        }
-
-        unsigned int tag;
-        rc = d_abbrevReader.readULEB128(&tag);
-        u_ASSERT_BAIL(0 == rc);
-
-        BSLMF_ASSERT(0 == DW_CHILDREN_no && 1 == DW_CHILDREN_yes);
-        rc = d_abbrevReader.readULEB128(&hasChildren);
-        u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(hasChildren <= 1);
-
-        u_TRACES && u_zprintf("%s tag: %s children: %u tagIdx: %u\n", rn,
-                             u_Reader::stringForTag(tag), hasChildren, tagIdx);
-
-        if (DW_TAG_subprogram == tag) {
-            declFile.clear();
-            linkageName.clear();
-            u_Offset declFile = u_maxOffset;
-            u_Offset declLine = u_maxOffset;
-            u_Offset lineNumberInfoOffset = u_maxOffset;
-            unsigned char inlineState = 0xff;
-            bool knownMatch = false, knownMisMatch = false;
-
-            bool foundZeroes = false;
-            for (;;) {
-                unsigned int attr;
-                rc = d_abbrevReader.readULEB128(&attr);
-                u_ASSERT_BAIL(0 == rc && "reading attr");
-
-                unsigned int form;
-                rc = d_abbrevReader.readULEB128(&form);
-                u_ASSERT_BAIL(0 == rc && "reading form");
-
-                if (0 == attr) {
-                    u_ASSERT_BAIL(0 == form);
-                    foundZeroes = true;
-                    break;
-                }
-
-                u_zprintf("%s%s attr: %s form: %s\n", rn,
-                                              knownMisMatch ? " skipping" : "",
-                                                   u_Reader::stringForAt(attr),
-                                                u_Reader::stringForFrom(form));
-
-                if (knownMisMatch) {
-                    rc = d_infoReader.skipForm(form);
-                    u_ASSERT_BAIL(0 == rc);
-
-                    continue;
-                }
-
-                switch (attr) {
-                  case DW_AT_decl_file: {
-                    u_ASSERT_BAIL(u_maxOffset == declFile);
-
-                    rc = d_infoReader.readOffsetFromForm(&declFile, form);
-                    u_ASSERT_BAIL(0 == rc);
-                    u_ASSERT_BAIL(0 <= declFile);
-                    u_ASSERT_BAIL(     declFile < INT_MAX);
-
-                    u_TRACES && u_zprintf("%s declFile %llu found\n",
-                                                           rn, u_ll(declFile));
-                  } break;
-                  case DW_AT_decl_line: {
-                    u_ASSERT_BAIL(u_maxOffset == declLine);
-
-                    d_infoReader.readOffsetFromForm(&declLine, form);
-                    u_ASSERT_BAIL(0 < declLine);
-                    u_ASSERT_BAIL(    declLine < INT_MAX);
-                  } break;
-                  case DW_AT_inline: {
-                    u_ASSERT_BAIL(DW_FORM_udata = form ||
-                                                         DW_FORM_data1 = form);
-
-                    rc = d_infoReader.readULEB128(&inlineState);
-                    u_ASSERT_BAIL(0 == rc);
-                    u_ASSERT_BAIL(inlineState < 4);
-                  } break;
-                  case DW_AT_linkage_name: {
-                    u_ASSERT_BAIL(linkageName.empty());
-                    u_ASSERT_BAIL(!knownMatch && !knownMisMatch);
-
-                    rc = d_infoReader.readStringFromForm(&linkageName,
-                                                         &d_strReader,
-                                                         form);
-                    u_ASSERT_BAIL(0 == rc);
-
-                    if (linkageName == frame.mangledSymbolName()) {
-                        knownMatch = true;
-                    }
-                    else {
-                        knownMisMatch = true;
-                    }
-
-                    u_TRACES && u_zprintf("%s routine %s\n", rn, knownMatch
-                                                               ? "match!!!!!"
-                                                               : "misMatch");
-                  } break;
-                  case DW_AT_stmt_list: {    // This is not in the doc, but it
-                                             // would be *VERY* useful if it
-                                             // turns out to be there.
-                    rc = d_infoReader.readOffsetFromForm(&lineNumberOffset,
-                                                         form);
-                    u_ASSERT_BAIL(0 == rc);
-
-                    u_TRACES && u_zprintf("%s found statement list\n", rn);
-                  } break;
-                  default: {
-                    rc = d_infoReader.skipForm(form);
-                    u_ASSERT_BAIL(0 == rc || u_PH(attr) || u_PH(form));
-                  }
-                }
-            }
-
-            BSLS_ASSERT(foundZeroes);
-
-            if (knownMatch) {
-                if (declFile.empty()) {
-                    // No declFile statement, probebly means the decl file is
-                    // the compile unit file.
-
-                    return 0;
-                }
-
-                if (0 == declFile) {
-                    // The routine is in the compile unit file, we already have
-                    // the right file name and the line number info should turn
-                    // out correct when we look it up.
-
-                    return 0;                                         // RETURN
-                }
-
-                u_zprintf("%s found foreign function %s in file %llu,"
-                                          " line %llu, inlineState 0x%s\n", rn,
-                        frame.symbolName().c_str(),
-                        u_ll(declFile),
-                        u_ll(declLine),
-                        0xff == inlineState
-                                ? "0xff"
-                                : u_Reader::stringForInlineState(inlineState));
-
-                frameRec.setDeclFile(static_cast<unsigned int>(declFile));
-                frame.setSourceFileName(declFile);
-
-                u_ASSERT_BAIL(-1 == frame.lineNumber());
-
-                if (u_maxOffset != lineNumberInfoOffset) {
-                    frameRec->setLineNumberOffset(lineNumberInfoOffset);
-                }
-                else if (u_maxOffset != declLine) {
-                    // Set the line number to the function declaration line,
-                    // better than nothing.
-
-                    frame.setLineNumber(static_cast<int>(declLine));
-
-                    // At the time of this writing, we don't know whether the
-                    // line number info in the compile unit will yield the
-                    // correct line number for a function in a file other than
-                    // the compile unit file.
-                    //
-                    // frameRec->setLineNumberOffset(u_maxoffset);
-                }
-
-                return 0;                                             // RETURN
-            }
-        }
-        else {
-            // It's not a subprogram tag.  Just go through what we find.
-
-            bool foundZeroes = false;
-            for (;;) {
-                unsigned int attr;
-                rc = d_abbrevReader.readULEB128(&attr);
-                u_ASSERT_BAIL(0 == rc && "reading attr");
-
-                unsigned int form;
-                rc = d_abbrevReader.readULEB128(&form);
-                u_ASSERT_BAIL(0 == rc && "reading form");
-
-                if (0 == attr) {
-                    u_ASSERT_BAIL(0 == form);
-                    foundZeroes = true;
-                    break;
-                }
-
-                u_TRACES && u_zprintf("%s skipping child: attr: %s form: %s\n",
-                                               rn, u_Reader::stringForAt(attr),
-                                                u_Reader::stringForForm(form));
-
-                rc = d_infoReader.skipForm(form);
-                u_ASSERT_BAIL(0 == rc);
-            }
-
-            u_ASSERT_BAIL(foundZeroes);
-        }
-    }
-
-    u_ASSERT_BAIL(0 && "unreachable statement");
-}
-#endif // 0
 
 int u_StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 {
@@ -2464,8 +2228,8 @@ int u_StackTraceResolver::HiddenRec::dwarfReadDebugLine()
         // the same address are going to be adjacent.
 
         if (end != prev && prev->frame().address() == it->frame().address()) {
-            u_TRACES && u_zprintf("%s frames %d and %d are from the same"
-                                                     " compilation unit\n", rn,
+            u_TRACES && u_zprintf("%s recursion: frames %d and %d are from"
+                                            " the same compilation unit\n", rn,
                                                    prev->index(), it->index());
             // Recursion on the stack -- file name, line # info will be
             // identical.
