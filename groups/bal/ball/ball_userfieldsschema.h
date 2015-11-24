@@ -371,7 +371,7 @@ ball::UserFieldType::Enum UserFieldsSchema::type(int index) const
 inline
 int UserFieldsSchema::length() const
 {
-    return d_names.size();
+    return static_cast<int>(d_names.size());
 }
 
 }  // close package namespace
