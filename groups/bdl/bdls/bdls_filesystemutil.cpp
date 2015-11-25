@@ -45,22 +45,22 @@ BSLS_IDENT_RCSID(bdls_filesystemutil_cpp,"$Id$ $CSID$")
 #define snprintf _snprintf
 
 #else // !BSLS_PLATFORM_OS_WINDOWS
-#include <bsl_c_errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <glob.h>
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS
 #endif
+#include <bsl_c_errno.h>
 #include <bsl_c_limits.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <glob.h>
 #include <dirent.h>
 #include <utime.h> // for testing only ... for now
-#include <sys/uio.h>
+#include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/uio.h>
 #endif
 
 // PRIVATE CONSTANTS
@@ -69,6 +69,60 @@ enum {
 };
 
 // STATIC HELPER FUNCTIONS
+
+namespace {
+
+struct NameRec {
+    // This 'struct' is for maintaining file names and whether they are
+    // matched as patterns or not.  It is used only by 'visitTree'.
+
+    bsl::string d_basename;
+    bool        d_foundAsPattern;
+
+    // CREATORS
+    NameRec(const bsl::string& basename, bool foundAsPattern)
+    : d_basename(basename)
+    , d_foundAsPattern(foundAsPattern)
+        // Create a 'NameRec' object having the specified 'basename' and the
+        // the specified 'foundAsPattern'.
+    {
+    }
+
+    NameRec(const char *basename, bool foundAsPattern)
+    : d_basename()
+    , d_foundAsPattern(foundAsPattern)
+        // Create a 'NameRec' object having the specified 'basename' and the
+        // the specified 'foundAsPattern'.
+    {
+        BSLS_ASSERT(0 != basename);
+
+        d_basename = basename;
+    }
+
+    // ACCESSOR
+    bool operator<(const NameRec& rhs) const
+        // Return 'true' if the 'fullName' of this object is less than the
+        // the 'fullName' of the specified 'rhs'.
+    {
+        const int rc = bsl::strcmp(d_basename.c_str(), rhs.d_basename.c_str());
+
+        if      (rc < 0) {
+            return true;                                              // RETURN
+        }
+        else if (rc > 0) {
+            return false;                                             // RETURN
+        }
+
+        // The file names match.  Exactly one of them will have been found as
+        // a pattern, and we want that one to be sorted first.
+
+        BSLS_ASSERT_SAFE(d_foundAsPattern != rhs.d_foundAsPattern);
+
+        return d_foundAsPattern;    // found as pattern comes first
+    }
+};
+
+}  // close unnamed namespace
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
@@ -268,29 +322,69 @@ void invokeCloseDir(void *dir, void *)
 {
     BSLS_ASSERT_SAFE(dir);
 
-    closedir(static_cast<DIR *>(dir));
+    // Note also that 'closedir' was observed sometimes returning a non-zero
+    // value for no particular reason.  Hopefully we'll capture 'errno' in the
+    // nightly build.
+
+    int rc = closedir(static_cast<DIR *>(dir));
+    int myErrno = errno;        // 'errno' is a function, get the value into
+                                // a veriable where we can see it when the
+                                // assert fails and we debug the core file.
+    (void) rc;    (void) myErrno;
+
+    BSLS_ASSERT_SAFE(0 == rc);
 }
 
-static
+static inline
 bool isDotOrDots(const char *path)
     // Return 'true' if the specified 'path' is "." or ".." or ends in
     // "/." or "/..", and 'false' otherwise.
 {
     BSLS_ASSERT(path);
 
-    const int length = static_cast<int>(bsl::strlen(path));
+    const char *end = path;
+    while (*end) {
+        ++end;
+    }
+    const long length = end - path;
 
-    return  (2 <= length && '/' == path[length - 2] &&
-                            '.' == path[length - 1]) ||
+    if (0 == length) {
+        return false;                                                 // RETURN
+    }
+    BSLS_ASSERT_SAFE(length >= 1);
 
-            (3 <= length && '/' == path[length - 3] &&
-                            '.' == path[length - 2] &&
-                            '.' == path[length - 1]) ||
+    if ('.' != end[-1]) {
+        return false;                                                 // RETURN
+    }
 
-            (1 == length && '.' == path[0]) ||
+    if (1 == length) {
+        return true;                                                  // RETURN
+    }
+    BSLS_ASSERT_SAFE(length >= 2);
 
-            (2 == length && '.' == path[0] &&
-                            '.' == path[1]);
+    if ('/' == end[-2]) {
+        return true;                                                  // RETURN
+    }
+    if ('.' != end[-2]) {
+        return false;                                                 // RETURN
+    }
+
+    if (2 == length) {
+        return true;                                                  // RETURN
+    }
+    BSLS_ASSERT_SAFE(length >= 3);
+
+    return '/' == end[-3];
+}
+
+static inline
+bool shortIsDotOrDots(const char *path)
+    // Return 'true' if the specified 'path' is "." or ".." and 'false'
+    // otherwise.  This is equivalent to 'isDotOrDots', except it is called in
+    // the case where we know there are no '/'s in the file name, making the
+    // check simpler and faster.
+{
+    return '.' == *path && (!path[1] || ('.' == path[1] && !path[2]));
 }
 
 static inline
@@ -756,7 +850,7 @@ void FilesystemUtil::visitPaths(
             for (bsl::vector<bsl::string>::iterator it = paths.begin();
                                                      it != paths.end(); ++it) {
                 PathUtil::appendRaw(&(*it), leaves.back().c_str(),
-                                                   leaves.back().length(), -1);
+                                             (int) leaves.back().length(), -1);
             }
             if (bsl::string::npos != leaves.back().find_first_of("*?")) {
                 // We just put a leaf pattern onto each path.  Need to expand
@@ -794,7 +888,12 @@ void FilesystemUtil::visitPaths(
             return;                                                   // RETURN
         }
 
-        handle = FindFirstFileW(widePattern.c_str(), &findDataW);
+        handle = FindFirstFileExW(widePattern.c_str(),
+                                  FindExInfoBasic,
+                                  &findDataW,
+                                  FindExSearchNameMatch,
+                                  NULL,
+                                  FIND_FIRST_EX_CASE_SENSITIVE);
 
         if (INVALID_HANDLE_VALUE == handle) {
             return;                                                   // RETURN
@@ -802,35 +901,173 @@ void FilesystemUtil::visitPaths(
 
         bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
 
-        bool next;
-
-        do {
-            static const bsl::string dot    = ".";
-            static const bsl::string dotdot = "..";
-
+        for (bool sts = true; sts; sts = FindNextFileW(handle, &findDataW)) {
             if (!wideToNarrow(&narrowName, findDataW.cFileName)) {
                 // Can't happen: wideToNarrow won't fail.
 
-                BSLS_ASSERT(!"Wide-to-narrow conversion failed.");
+                BSLS_ASSERT_OPT(0 && "Wide-to-narrow conversion failed.");
             }
 
-            if (dot == narrowName || dotdot == narrowName) {
-                // Do nothing
-            }
-            else if (0 != PathUtil::appendIfValid(&dirNamePath, narrowName)) {
-                // Can't happen: 'findData.cFileName' will never be an absolute
-                // path.
+            const char *pc = narrowName.c_str();
+            if (shortIsDotOrDots(path)) {
+                // 'narrowName is "." or "..".
 
-                BSLS_ASSERT(!"FindFirstFileW returned an absolute path.");
-            }
-            else {
-                visitor(dirNamePath.c_str());
-                PathUtil::popLeaf(&dirNamePath);
+                continue;
             }
 
-            next = FindNextFileW(handle, &findDataW);
-        } while (next);
+            if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath, narrowName)) {
+                // Can't happen: 'findDataW.cFileName' will never be an
+                // absolute path.
+
+                BSLS_ASSERT_OPT(0 &&
+                                  "FindFirstFileW returned an absolute path.");
+            }
+
+            visitor(dirNamePath.c_str());
+            bdesu_PathUtil::popLeaf(&dirNamePath);
+        }
     }
+}
+
+int FilesystemUtil::visitTree(
+                        const bsl::string&                            root,
+                        const bsl::string&                            pattern,
+                        const bsl::function<void (const char *path)>& visitor,
+                        bool                                          sortFlag)
+{
+    bsl::string rootDir;
+    rootDir.reserve(root.length() + 1);
+    rootDir = root;
+    if (!isDirectory(rootDir)) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT_SAFE(!rootDir.empty());    // 'isDirectory' would have been
+                                           // 'false' otherwise.
+    if (bsl::string::npos != pattern.find('\\')) {
+        return -1;                                                    // RETURN
+    }
+
+    if ('\\' != rootDir.back()) {
+        rootDir += '\\';
+    }
+    bsl::size_t truncTo = rootDir.length();
+
+    bsl::vector<NameRec> nameRecs;
+
+    bsl::string fullPattern;
+    fullPattern.reserve(rootDir.length() + pattern.length());
+    fullPattern = rootDir;
+    fullPattern += pattern;
+
+    bsl::wstring widePattern;
+    WIN32_FIND_DATAW foundData;
+    const wchar_t wdot = L'.';
+    bsl::string narrowLeafName;
+
+    // We can't use 'wideToNarrow' or 'narrowToWide' because they insert
+    // '?' chars for errors in input, which, being a wild card, will
+    // confuse us when we recurse.  Instead we use '-' as an error char,
+    // which will be less problematic.
+
+    (void) bdlde::CharConvertUtf16::utf8ToUtf16(&widePattern,
+                                                fullPattern.c_str(),
+                                                0,
+                                                '-');
+    FileDescriptor handle = FindFirstFileExW(widePattern.c_str(),
+                                             FindExInfoBasic,
+                                             &foundData,
+                                             FindExSearchNameMatch,
+                                             NULL,
+                                             FIND_FIRST_EX_CASE_SENSITIVE);
+    if (INVALID_HANDLE_VALUE != handle) {
+        bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
+        for (bool sts = true; sts; sts = FindNextFileW(handle, &foundData)) {
+            const wchar_t *wfn = foundData.cFileName;
+
+            if (wdot == *wfn && (!wfn[1] || (wdot == wfn[1] && !wfn[2]))) {
+                continue;
+            }
+
+            narrowLeafName.clear();
+            (void) bdlde::CharConvertUtf16::utf16ToUtf8(&narrowLeafName,
+                                                        wfn,
+                                                        0,
+                                                        '-');
+
+            nameRecs.push_back(NameRec(narrowLeafName, true));
+        }
+    }
+
+    fullPattern.resize(truncTo);
+    fullPattern += '*';
+
+    widePattern.clear();
+    (void) bdlde::CharConvertUtf16::utf8ToUtf16(&widePattern,
+                                                fullPattern.c_str(),
+                                                0,
+                                                '-');
+    handle = FindFirstFileExW(widePattern.c_str(),
+                              FindExInfoBasic,
+                              &foundData,
+                              FindExSearchLimitToDirectories,
+                              NULL,
+                              FIND_FIRST_EX_CASE_SENSITIVE);
+    if (INVALID_HANDLE_VALUE != handle) {
+        bslma::ManagedPtr<HANDLE> handleGuard(&handle, 0, &invokeFindClose);
+        for (bool sts = true; sts; sts = FindNextFileW(handle, &foundData)) {
+            if (! (foundData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+                continue;
+            }
+
+            const wchar_t *wfn = foundData.cFileName;
+
+            // Skip "." or "..".  See above.
+
+            if (wdot == *wfn && (!wfn[1] || (wdot == wfn[1] && !wfn[2]))) {
+                continue;
+            }
+
+            narrowLeafName.clear();
+            (void) bdlde::CharConvertUtf16::utf16ToUtf8(&narrowLeafName,
+                                                        wfn,
+                                                        0,
+                                                        '-');
+
+            nameRecs.push_back(NameRec(narrowLeafName, false));
+        }
+    }
+
+    // Sort base names, with names found in pattern match preceding directory
+    // names not found as pattern.
+
+    if (sortFlag) {
+        bsl::sort(nameRecs.begin(), nameRecs.end());
+    }
+
+    bsl::string       fullName(rootDir);
+
+    typedef bsl::vector<NameRec>::const_iterator CIt;
+
+    const CIt end = nameRecs.end();
+    for  (CIt it  = nameRecs.begin(); end != it; ++it) {
+        fullName.resize(truncTo);
+        fullName += it->d_basename;
+
+        if (it->d_foundAsPattern) {
+            visitor(fullName.c_str());
+        }
+        else {
+            int rc = visitTree(fullName, pattern, visitor, sortFlag);
+            (void) rc;    // silence 'unused' warning
+
+            // Note that if '0 != rc', it means there's a logic error in this
+            // function.
+
+            BSLS_ASSERT_SAFE(0 == rc);
+        }
+    }
+
+    return 0;
 }
 
 bool FilesystemUtil::isRegularFile(const char *path, bool)
@@ -976,7 +1213,7 @@ int FilesystemUtil::getWorkingDirectory(bsl::string *path)
     if (buffer == retval && wideToNarrow(path, bsl::wstring(buffer))) {
         //our contract requires an absolute path
 
-        return PathUtil::isRelative(*path);                     // RETURN
+        return PathUtil::isRelative(*path);                           // RETURN
     }
     return -1;
 }
@@ -1144,67 +1381,71 @@ FilesystemUtil::Offset FilesystemUtil::seek(FileDescriptor descriptor,
 
 int FilesystemUtil::remove(const char *path, bool recursiveFlag)
 {
-   BSLS_ASSERT(path);
+    BSLS_ASSERT(path);
 
-   if (isDirectory(path)) {
-      if (recursiveFlag) {
-         // What we'd LIKE to do here is findMatchingPaths("path/*") and delete
-         // each one.  But glob(), on which findMatchingPaths() is built, will
-         // not include the name of a symbolic link if there is no file
-         // attached.  Thus a bad link would prevent a directory from being
-         // removed.  So instead we must open and read the directory ourselves
-         // and remove everything that's not "." or "..", checking for
-         // directories (*without* following links) and recursing as necessary.
-         DIR *dir = opendir(path);
-         if (0 == dir) {
-            return -1;                                                // RETURN
-         }
-         bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
+    if (isDirectory(path)) {
+        if (recursiveFlag) {
+            // What we'd LIKE to do here is findMatchingPaths("path/*") and
+            // delete each one.  But glob(), on which findMatchingPaths() is
+            // built, will not include the name of a symbolic link if there is
+            // no file attached.  Thus a bad link would prevent a directory
+            // from being removed.  So instead we must open and read the
+            // directory ourselves and remove everything that's not "." or
+            // "..", checking for directories (*without* following links) and
+            // recursing as necessary.
 
-         bsl::string workingPath = path;
-
-         // The amount of space available in the 'd_name' member of the dirent
-         // struct is apparently "implementation-defined" and in particular is
-         // allowed to be less than the maximum path length (!).  The very
-         // C-style way to fix this is to make sure that there's lots of extra
-         // space available at the end of the struct (d_name is always the last
-         // member) so that strcpy can happily copy into it without instigating
-         // a buffer overrun attack against us =)
-
-         enum {OVERFLOW_SIZE = 2048}; //probably excessive, but it's just stack
-         union {
-            struct dirent d_entry;
-            char d_overflow[OVERFLOW_SIZE];
-         } entryHolder;
-
-         struct dirent& entry = entryHolder.d_entry;
-         struct dirent *entry_p;
-         StatResult dummy;
-         int rc;
-         do {
-            rc = readdir_r(dir, &entry, &entry_p);
-            if (0 != rc) {
-               break;
+            DIR *dir = opendir(path);
+            if (0 == dir) {
+                return -1;                                            // RETURN
             }
+            bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
-            if (isDotOrDots(entry.d_name)) {
-               continue;
-            }
+            bsl::string workingPath = path;
 
-            PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == ::performStat(workingPath.c_str(), &dummy, false) &&
-                0 != remove(workingPath.c_str(), true)) {
-               return -1;                                             // RETURN
-            }
-            PathUtil::popLeaf(&workingPath);
-         } while (&entry == entry_p);
-      }
+            // The amount of space available in the 'd_name' member of the
+            // dirent struct is apparently "implementation-defined" and in
+            // particular is allowed to be less than the maximum path length
+            // (!).  The very C-style way to fix this is to make sure that
+            // there's lots of extra space available at the end of the struct
+            // (d_name is always the last member) so that strcpy can happily
+            // copy into it without instigating a buffer overrun attack against
+            // us =)
 
-      return removeDirectory(path);                                   // RETURN
-   }
-   else {
-      return removeFile(path);                                        // RETURN
-   }
+            enum { OVERFLOW_SIZE = 2048 };    // probably excessive, but it's
+                                              // just stack
+            union {
+                struct dirent d_entry;
+                char d_overflow[OVERFLOW_SIZE];
+            } entryHolder;
+
+            struct dirent& entry = entryHolder.d_entry;
+            struct dirent *entry_p;
+            StatResult dummy;
+            int rc;
+            do {
+               rc = readdir_r(dir, &entry, &entry_p);
+               if (0 != rc) {
+                  break;
+               }
+
+               if (isDotOrDots(entry.d_name)) {
+                  continue;
+               }
+
+               PathUtil::appendRaw(&workingPath, entry.d_name);
+               if (0 == ::performStat(workingPath.c_str(), &dummy, false) &&
+                   0 != remove(workingPath.c_str(), true)) {
+                  return -1;                                          // RETURN
+               }
+               PathUtil::popLeaf(&workingPath);
+            } while (&entry == entry_p);
+        }
+
+        return removeDirectory(path);                                 // RETURN
+    }
+    else {
+        return removeFile(path);                                      // RETURN
+    }
 }
 
 int FilesystemUtil::read(FileDescriptor descriptor, void *buffer, int numBytes)
@@ -1395,6 +1636,151 @@ void FilesystemUtil::visitPaths(
     }
 }
 
+int FilesystemUtil::visitTree(
+                        const bsl::string&                            root,
+                        const bsl::string&                            pattern,
+                        const bsl::function<void (const char *path)>& visitor,
+                        bool                                          sortFlag)
+{
+    bsl::string rootDir;
+    rootDir.reserve(root.length() + 1);
+    rootDir = root;
+    if (!isDirectory(rootDir)) {
+        return -1;                                                    // RETURN
+    }
+    BSLS_ASSERT_SAFE(!rootDir.empty());    // 'isDirectory' would have been
+                                           // 'false' otherwise.
+    if (bsl::string::npos != pattern.find('/')) {
+        return -1;                                                    // RETURN
+    }
+
+    if ('/' != rootDir.back()) {
+        rootDir += '/';
+    }
+    bsl::string       fullFn(rootDir);
+    const bsl::size_t truncTo = rootDir.length();
+
+    bsl::vector<NameRec> nameRecs;
+
+    {
+        glob_t pglob;
+
+        bsl::string fullPattern;
+        fullPattern.reserve(rootDir.length() + pattern.length());
+        fullPattern =  rootDir;
+        fullPattern += pattern;
+
+        int rc = ::glob(fullPattern.c_str(), GLOB_NOSORT, 0, &pglob);
+        bslma::ManagedPtr<glob_t> globGuard(&pglob, 0, &invokeGlobFree);
+        if (GLOB_NOSPACE == rc) {
+            bsls::BslExceptionUtil::throwBadAlloc();
+        }
+        const int numFound = GLOB_NOMATCH == rc
+                                        ? 0 : static_cast<int>(pglob.gl_pathc);
+
+        nameRecs.reserve(2 * numFound);    // worst case is they're all
+                                           // directories
+
+        for (int ii = 0; ii < numFound; ++ii) {
+            const char *fullPath = pglob.gl_pathv[ii];
+            BSLS_ASSERT_SAFE(fullPath);
+            const char *basename = fullPath + truncTo;
+            BSLS_ASSERT_SAFE('/' == basename[-1]);
+
+            // Ignore '.', '..', symlinks and any other weird files that aren't
+            // directories or plain files.
+
+            if (!shortIsDotOrDots(basename)) {
+                StatResult fileStats;
+
+                if (0 == ::performStat(fullPath, &fileStats, false) &&
+                                                (S_ISREG(fileStats.st_mode) ||
+                                                 S_ISDIR(fileStats.st_mode))) {
+                    nameRecs.push_back(NameRec(basename, true));
+                }
+            }
+        }
+    }
+
+    {
+        DIR *dir = opendir(rootDir.c_str());
+        if (0 == dir) {
+            return -1;                                                // RETURN
+        }
+        bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
+
+        // The amount of space available in the 'd_name' member of the dirent
+        // struct is apparently "implementation-defined" and in particular is
+        // allowed to be less than the maximum path length (!).  The very
+        // C-style way to fix this is to make sure that there's lots of extra
+        // space available at the end of the struct (d_name is always the last
+        // member) so that strcpy can happily copy into it without instigating
+        // a buffer overrun attack against us =)
+
+        enum {OVERFLOW_SIZE = 2048}; //probably excessive, but it's just stack
+        union {
+            struct dirent d_entry;
+            char d_overflow[OVERFLOW_SIZE];
+        } entryHolder;
+
+        struct dirent& entry = entryHolder.d_entry;
+        struct dirent *entry_p;
+        int rc;
+        while (true) {
+            rc = readdir_r(dir, &entry, &entry_p);
+            if (0 != rc || &entry != entry_p) {
+                break;
+            }
+
+            const char *basename = entry.d_name;
+            if (!*basename) {
+                continue;
+            }
+
+            if (shortIsDotOrDots(basename)) {
+                continue;
+            }
+
+            fullFn.resize(truncTo);
+            fullFn += basename;
+
+            if (isDirectory(fullFn)) {
+                nameRecs.push_back(NameRec(basename, false));
+            }
+        }
+    }
+
+    // Sort base names, with names found in pattern match preceding directory
+    // names not found as pattern.
+
+    if (sortFlag) {
+        bsl::sort(nameRecs.begin(), nameRecs.end());
+    }
+
+    typedef bsl::vector<NameRec>::const_iterator CIt;
+
+    const CIt end = nameRecs.end();
+    for  (CIt it  = nameRecs.begin(); end != it; ++it) {
+        fullFn.resize(truncTo);
+        fullFn += it->d_basename;
+
+        if (it->d_foundAsPattern) {
+            visitor(fullFn.c_str());
+        }
+        else {
+            int rc = visitTree(fullFn, pattern, visitor, sortFlag);
+            (void) rc;    // suppress 'unused' warnings.
+
+            // Note that if '0 != rc', it means there's a logic error in this
+            // function.
+
+            BSLS_ASSERT_SAFE(0 == rc);
+        }
+    }
+
+    return 0;
+}
+
 FilesystemUtil::Offset
 FilesystemUtil::getAvailableSpace(const char *path)
 {
@@ -1414,6 +1800,7 @@ FilesystemUtil::getAvailableSpace(const char *path)
     else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields can
         // be 32-bits, leading to overflow on even small disks.
+
         return Offset(buffer.f_bavail) * Offset(buffer.f_frsize);     // RETURN
     }
 }
@@ -1435,6 +1822,7 @@ FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
     else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields can
         // be 32-bits, leading to overflow on even small disks.
+
         return Offset(buffer.f_bavail) * Offset(buffer.f_frsize);     // RETURN
     }
 }
@@ -1622,6 +2010,7 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
         }
         else {
             // Undo the seek to 'size'.
+
             if (currentSize != seek(descriptor, 0, e_SEEK_FROM_END)) {
                 return -1;                                            // RETURN
             }
@@ -1637,6 +2026,7 @@ int FilesystemUtil::growFile(FileDescriptor         descriptor,
 #endif
     if (reserveFlag) {
         // Reserve space the old-fashioned way.
+
         char *buffer = static_cast<char*>(allocator_p->allocate(increment));
         bsl::memset(buffer, 1, increment);
         Offset bytesToGrow = size - currentSize;
@@ -1700,6 +2090,7 @@ FilesystemUtil::createTemporaryFile(bsl::string             *outPath,
                                     const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
+
     FileDescriptor result;
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
@@ -1719,6 +2110,7 @@ FilesystemUtil::createTemporaryDirectory(bsl::string             *outPath,
                                          const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
+
     int result;
     bsl::string localOutPath = *outPath;
     for (int i = 0; i < 10; ++i) {
@@ -1737,6 +2129,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
                                             const bslstl::StringRef& prefix)
 {
     BSLS_ASSERT(outPath);
+
     char suffix[8];
     bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
     bsls::Types::Uint64 tid =
