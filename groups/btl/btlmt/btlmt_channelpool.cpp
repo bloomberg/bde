@@ -293,7 +293,7 @@ class Channel {
     bsls::TimeInterval               d_creationTime;     // time this object
                                                          // was created
 
-    volatile bsls::Types::Int64      d_numBytesRead;     // bytes read from
+    bsls::AtomicInt64                d_numBytesRead;     // bytes read from
                                                          // channel, should
                                                          // only be updated by
                                                          // callbacks
@@ -301,7 +301,7 @@ class Channel {
                                                          // event manager
                                                          // thread
 
-    volatile bsls::Types::Int64      d_numBytesWritten;  // bytes written to
+    bsls::AtomicInt64                d_numBytesWritten;  // bytes written to
                                                          // channel,
                                                          // modification
                                                          // synchronized with
@@ -310,7 +310,7 @@ class Channel {
                                                          // 'd_writeMutex' and
                                                          // 'd_isWriteActive')
 
-    volatile bsls::Types::Int64      d_numBytesRequestedToBeWritten;
+    bsls::AtomicInt64                d_numBytesRequestedToBeWritten;
                                                          // bytes requested to
                                                          // be written to
                                                          // channel;
@@ -719,19 +719,19 @@ const btlso::IPv4Address& Channel::peerAddress() const
 inline
 bsls::Types::Int64 Channel::numBytesRead() const
 {
-    return d_numBytesRead;
+    return d_numBytesRead.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 Channel::numBytesWritten() const
 {
-    return d_numBytesWritten;
+    return d_numBytesWritten.loadRelaxed();
 }
 
 inline
 bsls::Types::Int64 Channel::numBytesRequestedToBeWritten() const
 {
-    return d_numBytesRequestedToBeWritten;
+    return d_numBytesRequestedToBeWritten.loadRelaxed();
 }
 
 inline
@@ -1289,10 +1289,10 @@ void Channel::notifyChannelDown(ChannelHandle             self,
                                     &d_channelPool_p->d_metricAdjustmentMutex);
 
             d_channelPool_p->d_totalBytesWrittenAdjustment +=
-                                                             d_numBytesWritten;
-            d_channelPool_p->d_totalBytesReadAdjustment    += d_numBytesRead;
+                                                             numBytesWritten();
+            d_channelPool_p->d_totalBytesReadAdjustment    += numBytesRead();
             d_channelPool_p->d_totalBytesRequestedWrittenAdjustment +=
-                                               d_numBytesRequestedToBeWritten;
+                                                numBytesRequestedToBeWritten();
 
             int rc = d_channelPool_p->d_channels.remove(d_channelId);
 
@@ -1441,7 +1441,7 @@ void Channel::readCb(ChannelHandle self)
         // Note that 'd_numBytesRead' is only updated by this callback, which
         // executes in the (single) event manager thread.
 
-        d_numBytesRead += readRet;
+        d_numBytesRead.addRelaxed(readRet);
 
         if (d_useReadTimeout) {
             lastRead = bdlt::CurrentTime::now();
@@ -1672,7 +1672,7 @@ void Channel::writeCb(ChannelHandle self)
         { // Lock, just for updating the stats.
             bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
 
-            d_numBytesWritten += writeRet;
+            d_numBytesWritten.addRelaxed(writeRet);
             d_writeActiveCacheSize.addRelaxed(-writeRet);
 
             if (d_hiWatermarkHitFlag
@@ -1956,7 +1956,7 @@ int Channel::writeMessage(const MessageType&   msg,
 
     bslmt::LockGuard<bslmt::Mutex> oGuard(&d_writeMutex);
 
-    d_numBytesRequestedToBeWritten += dataLength;
+    d_numBytesRequestedToBeWritten.addRelaxed(dataLength);
 
     const int writeCacheSize = currentWriteCacheSize();
 
@@ -2038,7 +2038,7 @@ int Channel::writeMessage(const MessageType&   msg,
             // 'notifyChannelDown' which will run only in the dispatcher thread
             // and when 'd_isWriteActive' is 'true'.
 
-            d_numBytesWritten += writeRet;
+            d_numBytesWritten.addRelaxed(writeRet);
         }
         else if (btlso::SocketHandle::e_ERROR_WOULDBLOCK == writeRet) {
             // In case writeRet < 0, then either the socket is dead, or would
