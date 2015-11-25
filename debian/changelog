@@ -1,8 +1,9 @@
 bsl-internal (2.24.5.0.icbeta) unstable; urgency=low
 
+  * 394e10f Changelog for version 2.24.5.0.icbeta
   * f637a13 add defines to enable ICBETA assertions
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 Nov 2015 13:47:15 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 Nov 2015 12:40:20 -0500
 
 bsl-internal (2.24.5.0) git; urgency=low
 
