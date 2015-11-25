@@ -774,7 +774,7 @@ native_std::streamsize
         native_std::streamsize readChars = native_std::min(available,
                                                            numCharacters);
 
-        traits_type::copy(result, this->gptr(), size_t(readChars));
+        traits_type::copy(result, this->gptr(), native_std::size_t(readChars));
         this->gbump(int(readChars));
 
         return readChars;                                             // RETURN
