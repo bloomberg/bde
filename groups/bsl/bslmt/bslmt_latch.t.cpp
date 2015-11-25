@@ -339,7 +339,7 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 // In the following example we use a 'bslmt::Latch' object to help implement an
 // operation that can be parallelized across a series of sub-tasks (or "jobs").
 // The "parent" operation enqueue's the jobs and blocks on a thread pool, and
-// uses the latch as a signalling mechanism to indicate when all of the jobs
+// uses the latch as a signaling mechanism to indicate when all of the jobs
 // have been completed and return to the caller.
 //
 // The use of a 'bslmt::Latch', rather than a 'bslmt::Barrier', is important to

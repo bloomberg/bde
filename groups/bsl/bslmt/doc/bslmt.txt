@@ -246,7 +246,7 @@
  'bslmt::RecursiveMutex' is similar to 'bslmt::Mutex', except that it can be
  'lock'ed multiple times *in* *a* *single* *thread*.  A corresponding number of
  calls to 'unlock()' are required to unlock the mutex.  'bslmt::RecursiveMutex'
- is also defined in component 'bslmt_recursivemutex'.
+ is defined in component 'bslmt_recursivemutex'.
 
 /Inter-thread Condition Variables: 'bslmt::Condition'
 /- - - - - - - - - - - - - - - - - - - - - - - - - -
