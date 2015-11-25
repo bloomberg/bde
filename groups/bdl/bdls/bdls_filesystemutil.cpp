@@ -124,6 +124,16 @@ struct NameRec {
 
 }  // close unnamed namespace
 
+static inline
+bool shortIsDotOrDots(const char *path)
+    // Return 'true' if the specified 'path' is "." or ".." and 'false'
+    // otherwise.  This is equivalent to 'isDotOrDots', except it is called in
+    // the case where we know there are no '/'s in the file name, making the
+    // check simpler and faster.
+{
+    return '.' == *path && (!path[1] || ('.' == path[1] && !path[2]));
+}
+
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN) || \
@@ -375,16 +385,6 @@ bool isDotOrDots(const char *path)
     BSLS_ASSERT_SAFE(length >= 3);
 
     return '/' == end[-3];
-}
-
-static inline
-bool shortIsDotOrDots(const char *path)
-    // Return 'true' if the specified 'path' is "." or ".." and 'false'
-    // otherwise.  This is equivalent to 'isDotOrDots', except it is called in
-    // the case where we know there are no '/'s in the file name, making the
-    // check simpler and faster.
-{
-    return '.' == *path && (!path[1] || ('.' == path[1] && !path[2]));
 }
 
 static inline
@@ -909,13 +909,13 @@ void FilesystemUtil::visitPaths(
             }
 
             const char *pc = narrowName.c_str();
-            if (shortIsDotOrDots(path)) {
+            if (shortIsDotOrDots(pc)) {
                 // 'narrowName is "." or "..".
 
                 continue;
             }
 
-            if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath, narrowName)) {
+            if (0 != PathUtil::appendIfValid(&dirNamePath, narrowName)) {
                 // Can't happen: 'findDataW.cFileName' will never be an
                 // absolute path.
 
@@ -924,7 +924,7 @@ void FilesystemUtil::visitPaths(
             }
 
             visitor(dirNamePath.c_str());
-            bdesu_PathUtil::popLeaf(&dirNamePath);
+            PathUtil::popLeaf(&dirNamePath);
         }
     }
 }
