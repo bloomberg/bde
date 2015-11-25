@@ -1,12 +1,19 @@
-bsl-internal (2.24.5.0) unstable; urgency=low
+bsl-internal (2.24.5.0.icbeta) unstable; urgency=low
 
+  * f637a13 add defines to enable ICBETA assertions
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 19 Nov 2015 13:47:15 -0500
+
+bsl-internal (2.24.5.0) git; urgency=low
+
+  * 9c83142 Changelog for version 2.24.5.0
   * 82dec07 bump patchversion to 2.24.5
   * 157aaef Merge pull request #22 from ameredit/patch_2.24/typelist_workaround_for_vc2015
   * e6c3ff2 Merge pull request #20 from mgiroux/remove-merge-conflict-namespace-close
   * f42a0de Merge pull request #17 from nmyers12/allocator-rewind-drqs-61957786
   * e1fb878 Merge pull request #11 from hversche/update-C++11-library-feature-detection-drqs-72948281-rebase-2.24
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Nov 2015 12:11:34 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Nov 2015 12:13:20 -0500
 
 bsl-internal (2.24.4.0) git; urgency=low
 
