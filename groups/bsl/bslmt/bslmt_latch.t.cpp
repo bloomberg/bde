@@ -332,24 +332,24 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 
 ///Usage
 ///-----
-// This section illustrates intended use of this component
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing a Parallelizable Algorithm
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bslmt::Latch' object to help implement an
 // operation that can be parallelized across a series of sub-tasks (or "jobs").
-// The "parent" operation enqueue's the jobs and blocks on a thread-pool, and
+// The "parent" operation enqueue's the jobs and blocks on a thread pool, and
 // uses the latch as a signalling mechanism to indicate when all of the jobs
 // have been completed and return to the caller.
 //
 // The use of a 'bslmt::Latch', rather than a 'bslmt::Barrier', is important to
-// ensure that jobs in the thread-pool do not block until the entire task is
-// completed (preventing the thread-pool from processing additional work).
+// ensure that jobs in the thread pool do not block until the entire task is
+// completed (preventing the thread pool from processing additional work).
 //
 // Suppose, for example, we want to provide a C++ type for computing a vector
-// sum (vector in the mathematical sense).  That is, for two input vectors, A,
-// and B, each of length N, the result is a vector, R, of length N, where each
-// element at index i has the value:
+// sum (vector in the mathematical sense).  That is, for two input vectors, 'A'
+// and 'B', each of length 'N', the result is a vector, 'R', of length 'N',
+// where each element at index 'i' has the value:
 //..
 //  R[i] = A[i] + B[i];
 //..
@@ -358,12 +358,12 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 //
 // First, assume we have a class, 'FixedThreadPool', providing the following
 // public interface (for brevity, the details have been elided; see
-// 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread-pools):
+// 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread pools):
 //..
     class FixedThreadPool {
 
       public:
-        //...
+        // ...
 
         void enqueueJob(const bsl::function<void()>& job);
             // Enqueue the specified 'job' to be executed by the next available
@@ -380,16 +380,17 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
                            FixedThreadPool *threadPool,
                            int              numJobs);
         // Load the specified 'result' array with the vector sum of the
-        // specified 'inputA', and 'inputB', each having at least
+        // specified 'inputA' and 'inputB', each having at least the specified
         // 'numElements', using the specified 'threadPool' to perform the
         // operation in parallel using the specified 'numJobs' parallel jobs.
-        // The behavior is undefined unless 'numJobs > 0' and 'result',
-        // 'inputA', and 'inputB' each contain at least 'numElements'.
+        // The behavior is undefined unless 'numElements > 0', 'numJobs > 0',
+        // and 'result', 'inputA', and 'inputB' each contain at least
+        // 'numElements'.
 //..
-// Now, we declare a helper function, 'vectorSumJob', which will be used as a
-// sub-task by 'parallelVectorSum'.  'vectorSumJob' computes a single threaded
+// Now, we declare a helper function, 'vectorSumJob', that will be used as a
+// sub-task by 'parallelVectorSum'.  'vectorSumJob' computes a single-threaded
 // vector sum and uses a 'bslmt::Latch' object, 'completionSignal', to indicate
-// to the parent task that the computation has been completed.
+// to the parent task that the computation has been completed:
 //..
     void vectorSumJob(double       *result,
                       bslmt::Latch *completionSignal,
@@ -397,9 +398,11 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
                       const double *inputB,
                       int           numElements)
         // Load the specified 'result' array with the vector sum of the
-        // specified 'inputA', and 'inputB', each having at least
+        // specified 'inputA' and 'inputB', each having at least the specified
         // 'numElements', and when the operation is complete signal the
-        // specified 'completionSignal'.
+        // specified 'completionSignal'.  The behavior is undefined unless
+        // 'numElements > 0' and 'result', 'inputA', and 'inputB' each contain
+        // at least 'numElements'.
     {
         for (int i = 0; i < numElements; ++i) {
             result[i] = inputA[i] + inputB[i];
@@ -412,53 +415,56 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 // 'bslmt::Barrier::wait'), and within the context of a thread pool, this job
 // will complete and the thread will be returned to the pool to accept more
 // work.
-// TBD
-//..
-class UsageBinder {
-    // This class provides an invokable that binds a TBD
-
-  public:
-    // TYPES
-    typedef void FREE_FUNCTION(double       *,
-                               bslmt::Latch *,
-                               const double *,
-                               const double *,
-                               int);
-
-  private:
-    // DATA
-    FREE_FUNCTION *d_func_p;
-    double        *d_arg1;
-    bslmt::Latch  *d_arg2;
-    const double  *d_arg3;
-    const double  *d_arg4;
-    int            d_arg5;
-
-  public:
-    // CREATORS
-    UsageBinder(FREE_FUNCTION *funcPtr,
-                double        *arg1,
-                bslmt::Latch  *arg2,
-                const double  *arg3,
-                const double  *arg4,
-                int            arg5)
-    : d_func_p(funcPtr)
-    , d_arg1(arg1)
-    , d_arg2(arg2)
-    , d_arg3(arg3)
-    , d_arg4(arg4)
-    , d_arg5(arg5)
-    {
-    }
-
-    // MANIPULATORS
-    void operator()()
-    {
-        (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
-    }
-};
-//..
 //
+// Next, we provide a rudimentary function argument binder (specific to this
+// usage example) in view of the fact that such a facility is not available at
+// this level in the BDE hierarchy:
+//..
+    class UsageBinder {
+        // This class provides an invokable that is tailored to bind the
+        // 'vectorSumJob' (defined above) to its requisite five arguments.
+
+      public:
+        // TYPES
+        typedef void FREE_FUNCTION(double       *,
+                                   bslmt::Latch *,
+                                   const double *,
+                                   const double *,
+                                   int);
+
+      private:
+        // DATA
+        FREE_FUNCTION *d_func_p;
+        double        *d_arg1;
+        bslmt::Latch  *d_arg2;
+        const double  *d_arg3;
+        const double  *d_arg4;
+        int            d_arg5;
+
+      public:
+        // CREATORS
+        UsageBinder(FREE_FUNCTION *funcPtr,
+                    double        *arg1,
+                    bslmt::Latch  *arg2,
+                    const double  *arg3,
+                    const double  *arg4,
+                    int            arg5)
+        : d_func_p(funcPtr)
+        , d_arg1(arg1)
+        , d_arg2(arg2)
+        , d_arg3(arg3)
+        , d_arg4(arg4)
+        , d_arg5(arg5)
+        {
+        }
+
+        // MANIPULATORS
+        void operator()()
+        {
+            (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
+        }
+    };
+//..
 // Then, we define 'parallelVectorSum':
 //..
     void parallelVectorSum(double          *result,
@@ -490,14 +496,14 @@ class UsageBinder {
             int offset = i * jobSize;
             int size   = (i == numJobs - 1) ? jobSize + numElements % numJobs
                                             : jobSize;
-            if (0 != size) {
-                threadPool->enqueueJob(UsageBinder(vectorSumJob,
-                                                   result + offset,
-                                                   &completionSignal,
-                                                   inputA + offset,
-                                                   inputB + offset,
-                                                   size));
-            }
+            ASSERT(0 != size);
+
+            threadPool->enqueueJob(UsageBinder(vectorSumJob,
+                                               result + offset,
+                                               &completionSignal,
+                                               inputA + offset,
+                                               inputB + offset,
+                                               size));
         }
 //..
 // Finally, calling 'wait' on the latch will block this function from returning
@@ -507,8 +513,8 @@ class UsageBinder {
     }
 //..
 
-// Implementation note:  The following code provides a fake implementation for
-// 'FixedThreadPool' sufficient for sanity testing this usage example:
+// Implementation Note:  The following code provides a stub implementation for
+// 'FixedThreadPool' sufficient for sanity testing the usage example:
 
 void FixedThreadPool::enqueueJob(const bsl::function<void()>& job)
 {
@@ -750,209 +756,10 @@ void test(int aProducersNumber,
 
     const int myCount = myLatch.currentCount();
     ASSERTV(0, myCount, 0 == myCount);
+
     const bool myTryWait = myLatch.tryWait();
     ASSERTV(true, myTryWait, true == myTryWait);
 }
-
-// ============================================================================
-//                         CASE 13 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-class Job {
-
-    // DATA
-    bslmt::Latch d_latch;
-
-  private:
-    // NOT IMPLEMENTED
-    Job(const Job&);
-    Job& operator=(const Job&);
-
-  public:
-    // PUBLIC DATA
-    const double *const d_input_a;     // owned
-    const double *const d_input_b;     // owned
-    double *const       d_result;      // owned
-    const int           d_input_size;
-
-    // CREATORS
-    Job(const double *a, const double *b, double *r, int size, int workers)
-    : d_input_a(a)
-    , d_input_b(b)
-    , d_result(r)
-    , d_input_size(size)
-    , d_latch(workers)
-    {
-    }
-
-    ~Job()
-    {
-        delete [] d_input_a;
-        delete [] d_input_b;
-        delete [] d_result;
-    }
-
-    // MANIPULATORS
-    void slice_done()
-    {
-        d_latch.arrive();
-    }
-
-    void wait()
-    {
-        d_latch.wait();
-    }
-};
-
-class Worker {
-
-    // DATA
-    const int        d_workerIndex;
-    const int        d_workersAmount;
-    bsl::list<Job *> d_jobs;
-    bslmt::Condition d_condition;
-    bslmt::Mutex     d_mutex;
-
-  private:
-    // NOT IMPLEMENTED
-    Worker(const Worker&);
-    Worker& operator=(const Worker&);
-
-  public:
-    // CREATORS
-    Worker(int workerIndex, int workersAmount)
-    : d_workerIndex(workerIndex)
-    , d_workersAmount(workersAmount)
-    , d_jobs()
-    , d_condition()
-    , d_mutex()
-    {
-    }
-
-    // MANIPULATORS
-    void mainLoop()
-    {
-        while (true) {
-            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-            while (d_jobs.empty()) {
-                d_condition.wait(&d_mutex);
-            }
-
-            Job *job = d_jobs.front();
-            d_jobs.pop_front();
-
-            if (0 == job) {
-                return;                                               // RETURN
-            }
-
-            const int localSize  = job->d_input_size / d_workersAmount;
-            const int localIndex = localSize * d_workerIndex;
-
-            const double *const a = job->d_input_a;
-            const double *const b = job->d_input_b;
-            double *const       r = job->d_result;
-
-            for (int i = 0; i < localSize; ++i) {
-                r[localIndex + i] = a[localIndex + i] + b[localIndex + i];
-            }
-
-            job->slice_done();
-        }
-    }
-
-    void submit(Job *job)
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-        d_jobs.push_back(job);
-        d_condition.signal();
-    }
-
-    void terminate()
-    {
-        bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-        d_jobs.push_front(0);
-        d_condition.signal();
-    }
-};
-
-class WorkerBinder {
-    // This class provides an invokable that binds a 'Worker' object to a
-    // 'Worker' member function.
-
-    // DATA
-    void (Worker::*d_memfn_p)();  // member function to invoke (not owned)
-    Worker *d_worker_p;           // object on which to invoke it (not owned)
-
-  public:
-    // CREATORS
-    WorkerBinder(void (Worker::*memfnPtr)(), Worker *workerPtr)
-    : d_memfn_p(memfnPtr)
-    , d_worker_p(workerPtr)
-    {
-    }
-
-    // MANIPULATORS
-    void operator()()
-    {
-        (d_worker_p->*d_memfn_p)();
-    }
-};
-
-class WorkerPool {
-
-    // DATA
-    bsl::vector<Worker *> d_workers;
-    bslmt::ThreadGroup    d_threadGroup;
-
-  private:
-    // NOT IMPLEMENTED
-    WorkerPool(const WorkerPool&);
-    WorkerPool& operator=(const WorkerPool&);
-
-  public:
-    // CREATORS
-    explicit WorkerPool(int numberOfWorkers)
-    : d_workers()
-    , d_threadGroup()
-    {
-        d_workers.reserve(numberOfWorkers);
-        for (int i = 0; i < numberOfWorkers; ++i) {
-            d_workers.push_back(new Worker(i, numberOfWorkers));
-            d_threadGroup.addThread(WorkerBinder(&Worker::mainLoop,
-                                                 d_workers[i]));
-        }
-    }
-
-    ~WorkerPool()
-    {
-        for (size_t i = 0; i < d_workers.size(); ++i) {
-            d_workers[i]->terminate();
-        }
-
-        d_threadGroup.joinAll();
-
-        for (size_t i = 0; i < d_workers.size(); ++i) {
-            delete d_workers[i];
-        }
-    }
-
-    // MANIPULATORS
-    void submit(Job *aJob)
-    {
-        for (size_t i = 0; i < d_workers.size(); ++i) {
-            d_workers[i]->submit(aJob);
-        }
-    }
-
-    // ACCESSORS
-    bsl::size_t size() const
-    {
-        return d_workers.size();
-    }
-};
 
 }  // close namespace groups
 
@@ -1009,6 +816,10 @@ int main(int argc, char *argv[])
         FixedThreadPool pool;
 
         for (int jobs = 1; jobs < NUM_ELEM + 1; ++jobs) {
+            for (int i = 0; i < NUM_ELEM; ++i) {
+                result[i] = 0.0;
+            }
+
             parallelVectorSum(result, inputA, inputB, NUM_ELEM, &pool, jobs);
 
             for (int i = 0; i < NUM_ELEM; ++i) {

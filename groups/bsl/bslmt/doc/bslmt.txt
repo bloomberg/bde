@@ -210,7 +210,7 @@
 /Thread Management
 /-----------------
  Thread management is done via the utility class 'bslmt::ThreadUtil' in the
- 'bslmt_thread' component.  This component presents a platform-independent
+ 'bslmt_threadutil' component.  This component presents a platform-independent
  protocol whose operations nonetheless correspond closely to native operations
  on platform-specific threads.  'bslmt::ThreadUtil' presents a procedural
  interface -- that is, clients do not instantiate 'bslmt::ThreadUtil' objects,
@@ -224,10 +224,10 @@
 
  'bslmt::ThreadUtil' supports two 'create()' functions.  The first function
  simply takes a pointer to a 'bslmt::ThreadUtil::Handle'; the second function
- takes a 'bslmt::Attribute' object that defines component-specific and
+ takes a 'bslmt::ThreadAttributes' object that defines component-specific and
  platform-specific attributes of the created thread.  Platform-specific
  attributes include scheduling policy and priority, and thread stack size.  See
- the 'bslmt_thread' component documentation for details.
+ the 'bslmt_threadattributes' component documentation for details.
 
 /Thread Synchronization
 /----------------------
@@ -237,7 +237,7 @@
 /Basic Mutexes: 'bslmt::Mutex' and 'bslmt::RecursiveMutex'
 /- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  At the lowest level, synchronization between threads is done with
- 'bslmt::Mutex', a type defined in component 'bslmt_thread'.  Locks are
+ 'bslmt::Mutex', a type defined in component 'bslmt_mutex'.  Locks are
  acquired with 'bslmt::Mutex::lock()' or 'bslmt::Mutex::tryLock()', and
  released with 'bslmt::Mutex::unlock()'.  The 'bslmt' package provides several
  other mechanisms for synchronization and communication, which suit specific
@@ -246,16 +246,16 @@
  'bslmt::RecursiveMutex' is similar to 'bslmt::Mutex', except that it can be
  'lock'ed multiple times *in* *a* *single* *thread*.  A corresponding number of
  calls to 'unlock()' are required to unlock the mutex.  'bslmt::RecursiveMutex'
- is also defined in component 'bslmt_thread'.
+ is also defined in component 'bslmt_recursivemutex'.
 
 /Inter-thread Condition Variables: 'bslmt::Condition'
 /- - - - - - - - - - - - - - - - - - - - - - - - - -
- The 'bslmt::Condition' class, defined in component 'bslmt_thread', implements
- a "condition variable" that can be used by multiple threads to communicate
- changes in the condition.  Multiple threads wait on the condition by calling
- 'myCondition->wait(bslmt::Mutex*)', suspending their execution and waiting.
- An individual thread then signals when the condition is met by calling either
- 'myCondition->signal()' (waking up a single waiting thread) or
+ The 'bslmt::Condition' class, defined in component 'bslmt_condition',
+ implements a "condition variable" that can be used by multiple threads to
+ communicate changes in the condition.  Multiple threads wait on the condition
+ by calling 'myCondition->wait(bslmt::Mutex*)', suspending their execution and
+ waiting.  An individual thread then signals when the condition is met by
+ calling either 'myCondition->signal()' (waking up a single waiting thread) or
  'myCondition->broadcast()' (waking up all waiting threads).  Waits with
  timeouts are supported through 'bslmt::Condition::timedWait()'.
 
@@ -271,20 +271,20 @@
 ..
   static void myThreadsafeFunction(myObject *obj, bslmt::Mutex *mutex)
   {
-      // creating the LockGuard calls mutex->lock()
+      // creating the 'LockGuard', 'guard', calls 'mutex->lock()'
       bslmt::LockGuard<bslmt::Mutex> guard(mutex);
       if (someCondition) {
           obj->someMethod();
           return;
-          // LockGuard is destroyed; this calls mutex->unlock()
+          // 'guard' is destroyed; this calls 'mutex->unlock()'
       } else if (someOtherCondition) {
           obj->someOtherMethod();
           return;
-          // LockGuard is destroyed; this calls mutex->unlock()
+          // 'guard' is destroyed; this calls 'mutex->unlock()'
       }
       obj->defaultMethod();
       return;
-      // LockGuard is destroyed; this calls mutex->unlock()
+      // 'guard' is destroyed; this calls 'mutex->unlock()'
   }
 ..
 
@@ -292,10 +292,10 @@
 /- - - - - - - - - - - -
  Thread-specific storage (also known as thread-local storage, or TLS) is a
  mechanism for referring to a single variable (identified by its 'Key' in
- 'bslmt::ThreadUtil', provided by the 'bslmt_thread' component) whose content
- varies according to the thread it is observed in.  This is useful for status
- variables such as 'errno', which is implemented by the system as a TLS, since
- otherwise it would be impossible to use 'errno' values in a thread, not
+ 'bslmt::ThreadUtil', provided by the 'bslmt_threadutil' component) whose
+ content varies according to the thread it is observed in.  This is useful for
+ status variables such as 'errno', which is implemented by the system as a TLS,
+ since otherwise it would be impossible to use 'errno' values in a thread, not
  knowing if another thread had modified it after the last system call in this
  thread.
 
@@ -338,7 +338,7 @@
  singleton) can be achieved by using the 'bslmt_once' component.  The
  'bslmt_qlock' component ensures thread-safe static initialization of shared
  resources by providing a light-weight, statically initializable lock.  Note
- that the classic 'bslmt::Mutex' provided by the 'bslmt_thread' component
+ that the classic 'bslmt::Mutex' provided by the 'bslmt_mutex' component
  cannot safely be used in static initializations because some platforms (e.g.,
  Windows XP) do not have a native statically-initializable mutex type.
 
@@ -349,14 +349,12 @@
  primitives.  The following components provide platform-specific
  implementations:
 ..
-            Package          |  Purpose
-  +==========================+===========================================+
-  |         bslmt_threadimpl | Template declarations used by             |
-  |                          | component 'bslmt_thread'                  |
-  | bslmt_threadimpl_pthread | Template specialization for POSIX threads |
-  |   bslmt_threadimpl_win32 | Template specialization for MS-Windows    |
-  +--------------------------+-------------------------------------------+
+             Component           |                 Purpose
+  +==============================+===========================================+
+  | bslmt_threadutilimpl_pthread | Template specialization for POSIX threads |
+  | bslmt_threadutilimpl_win32   | Template specialization for MS-Windows    |
+  +------------------------------+-------------------------------------------+
 ..
  These components are visible and documented.  However, their intended use is
- to support component 'bslmt_thread'.  Clients should not expect to use them
- directly.
+ to support component 'bslmt_threadutil'.  Clients should not expect to use
+ them directly.

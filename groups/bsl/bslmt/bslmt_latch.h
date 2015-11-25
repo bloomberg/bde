@@ -82,40 +82,40 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing a Parallelizable Algorithm
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we use a 'bslmt::Latch' object to help implement an
 // operation that can be parallelized across a series of sub-tasks (or "jobs").
-// The "parent" operation enqueues jobs on a thread-pool and then waits on a
-// latch for it to be signaled when all the jobs have been completed.
+// The "parent" operation enqueue's the jobs and blocks on a thread pool, and
+// uses the latch as a signalling mechanism to indicate when all of the jobs
+// have been completed and return to the caller.
 //
-// The use of a 'bslmt::Latch' in this example, rather than a 'bslmt::Barrier',
-// is important to ensure that jobs in the thread-pool do not block until the
-// entire task is completed (preventing the thread-pool from processing
-// additional work).
+// The use of a 'bslmt::Latch', rather than a 'bslmt::Barrier', is important to
+// ensure that jobs in the thread pool do not block until the entire task is
+// completed (preventing the thread pool from processing additional work).
 //
-// Suppose we want to provide a C++ type for computing a vector sum (vector in
-// the mathematical sense).  That is, for two input vectors, A and B, each of
-// length N, the result is a vector, R, of length N, where each element at
-// index i has the value:
+// Suppose, for example, we want to provide a C++ type for computing a vector
+// sum (vector in the mathematical sense).  That is, for two input vectors, 'A'
+// and 'B', each of length 'N', the result is a vector, 'R', of length 'N',
+// where each element at index 'i' has the value:
 //..
 //  R[i] = A[i] + B[i];
 //..
 // This function can easily be computed in parallel because the value for each
 // result index only depends on the input vectors.
 //
-// First, assume we have a class 'FixedThreadPool' providing the following
+// First, assume we have a class, 'FixedThreadPool', providing the following
 // public interface (for brevity, the details have been elided; see
-// 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread-pools):
+// 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread pools):
 //..
 //  class FixedThreadPool {
 //
 //    public:
-//      //...
+//      // ...
 //
-//      void enqueueJob(const bdef_Function<void(*)()>& job);
+//      void enqueueJob(const bsl::function<void()>& job);
 //          // Enqueue the specified 'job' to be executed by the next available
 //          // thread.
 //  };
@@ -126,18 +126,19 @@ BSLS_IDENT("$Id: $")
 //  void parallelVectorSum(double          *result,
 //                         const double    *inputA,
 //                         const double    *inputB,
-//                         const int        numElements,
+//                         int              numElements,
 //                         FixedThreadPool *threadPool,
 //                         int              numJobs);
 //      // Load the specified 'result' array with the vector sum of the
-//      // specified 'inputA' and 'inputB', each having at least
+//      // specified 'inputA' and 'inputB', each having at least the specified
 //      // 'numElements', using the specified 'threadPool' to perform the
 //      // operation in parallel using the specified 'numJobs' parallel jobs.
-//      // The behavior is undefined unless 'numJobs > 0' and 'result',
-//      // 'inputA', and 'inputB' each contain at least 'numElements'.
+//      // The behavior is undefined unless 'numElements > 0', 'numJobs > 0',
+//      // and 'result', 'inputA', and 'inputB' each contain at least
+//      // 'numElements'.
 //..
-// Now, we declare a helper function, 'vectorSumJob', which will be used as a
-// sub-task by 'parallelVectorSum'.  'vectorSumJob' computes a single threaded
+// Now, we declare a helper function, 'vectorSumJob', that will be used as a
+// sub-task by 'parallelVectorSum'.  'vectorSumJob' computes a single-threaded
 // vector sum and uses a 'bslmt::Latch' object, 'completionSignal', to indicate
 // to the parent task that the computation has been completed:
 //..
@@ -145,30 +146,81 @@ BSLS_IDENT("$Id: $")
 //                    bslmt::Latch *completionSignal,
 //                    const double *inputA,
 //                    const double *inputB,
-//                    const int     numElements)
+//                    int           numElements)
 //      // Load the specified 'result' array with the vector sum of the
-//      // specified 'inputA', and 'inputB', each having at least
+//      // specified 'inputA' and 'inputB', each having at least the specified
 //      // 'numElements', and when the operation is complete signal the
-//      // specified 'completionSignal'.
+//      // specified 'completionSignal'.  The behavior is undefined unless
+//      // 'numElements > 0' and 'result', 'inputA', and 'inputB' each contain
+//      // at least 'numElements'.
 //  {
-//      BSLS_ASSERT(0 <= numElements);
-//
 //      for (int i = 0; i < numElements; ++i) {
 //          result[i] = inputA[i] + inputB[i];
 //      }
+//
 //      completionSignal->arrive();
 //  }
 //..
-// Notice that 'bslmt::Latch::arrive' does not block the current thread (unlike
-// 'bslmt::Barrier::wait'), and within the context of a thread pool, allows the
-// thread to be returned to the thread pool to accept more work.
+// Note that 'bslmt::Latch::arrive' does not block the current thread (unlike
+// 'bslmt::Barrier::wait'), and within the context of a thread pool, this job
+// will complete and the thread will be returned to the pool to accept more
+// work.
 //
-// Then, we define the implementation for 'parallelVectorSum':
+// Next, we provide a rudimentary function argument binder (specific to this
+// usage example) in view of the fact that such a facility is not available at
+// this level in the BDE hierarchy:
+//..
+//  class UsageBinder {
+//      // This class provides an invokable that is tailored to bind the
+//      // 'vectorSumJob' (defined above) to its requisite five arguments.
+//
+//    public:
+//      // TYPES
+//      typedef void FREE_FUNCTION(double       *,
+//                                 bslmt::Latch *,
+//                                 const double *,
+//                                 const double *,
+//                                 int);
+//
+//    private:
+//      // DATA
+//      FREE_FUNCTION *d_func_p;
+//      double        *d_arg1;
+//      bslmt::Latch  *d_arg2;
+//      const double  *d_arg3;
+//      const double  *d_arg4;
+//      int            d_arg5;
+//
+//    public:
+//      // CREATORS
+//      UsageBinder(FREE_FUNCTION *funcPtr,
+//                  double        *arg1,
+//                  bslmt::Latch  *arg2,
+//                  const double  *arg3,
+//                  const double  *arg4,
+//                  int            arg5)
+//      : d_func_p(funcPtr)
+//      , d_arg1(arg1)
+//      , d_arg2(arg2)
+//      , d_arg3(arg3)
+//      , d_arg4(arg4)
+//      , d_arg5(arg5)
+//      {
+//      }
+//
+//      // MANIPULATORS
+//      void operator()()
+//      {
+//          (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
+//      }
+//  };
+//..
+// Then, we define 'parallelVectorSum':
 //..
 //  void parallelVectorSum(double          *result,
 //                         const double    *inputA,
 //                         const double    *inputB,
-//                         const int        numElements,
+//                         int              numElements,
 //                         FixedThreadPool *threadPool,
 //                         int              numJobs)
 //  {
@@ -178,35 +230,34 @@ BSLS_IDENT("$Id: $")
 //          numJobs = numElements;
 //      }
 //
-//      int jobSize = numElements / numJobs;
+//      const int jobSize = numElements / numJobs;
 //..
-// Here, we define a 'bslmt::Latch' object, 'completionSignal', that we will
+// Now, we define a 'bslmt::Latch' object, 'completionSignal', that we will
 // use to track the completion of this work:
 //..
 //      bslmt::Latch completionSignal(numJobs);
 //
 //      for (int i = 0; i < numJobs; ++i) {
-//          // If 'numJobs' doesn't evenly divide 'numElements' the last job
-//          // will process the remaining elements.  For simplicity, we've
+//          // If 'numJobs' doesn't evenly divide 'numElements', the last job
+//          // will process the remaining elements.  For simplicity, we have
 //          // chosen not distribute the elements between jobs as evenly as is
 //          // possible.
 //
 //          int offset = i * jobSize;
 //          int size   = (i == numJobs - 1) ? jobSize + numElements % numJobs
 //                                          : jobSize;
-//          if (0 != size) {
-//              threadPool->enqueueJob(bdef_BindUtil::bind(vectorSumJob,
-//                                                         result + offset,
-//                                                         &completionSignal,
-//                                                         inputA + offset,
-//                                                         inputB + offset,
-//                                                         size));
-//          }
+//          assert(0 != size);
+//
+//          threadPool->enqueueJob(UsageBinder(vectorSumJob,
+//                                             result + offset,
+//                                             &completionSignal,
+//                                             inputA + offset,
+//                                             inputB + offset,
+//                                             size));
 //      }
 //..
-// Finally, we call 'wait' on the latch, which will block the current thread
-// so that this function will not return until all the queued jobs computing
-// the vector sum have completed their work:
+// Finally, calling 'wait' on the latch will block this function from returning
+// until all the queued jobs computing the vector sum have been completed:
 //..
 //      completionSignal.wait();
 //  }
