@@ -1331,7 +1331,20 @@ struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
 
-}
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+template <>
+struct IsBitwiseMoveable<BitwiseEqComparableTestType> : bsl::true_type
+{
+    // The 'BitwiseEqComparableTestType' type falls into a special category
+    // where its size is 1, but its copy constructor is non-trivial (which is
+    // detectable with C++11).  In a C++11-enabled, the bitwise-movable library
+    // guards against surprising sematincs with a 'static_assert', forcing us
+    // to explicitly state the desired behavior.
+};
+#endif
+
+
+}  // close namespace bslmf
 
 }  // namespace BloombergLP
 
