@@ -35,18 +35,37 @@ void Latch::arriveAndWait()
 
 void Latch::countDown(int numEvents)
 {
-    BSLS_ASSERT(numEvents  > 0);
-    BSLS_ASSERT(d_sigCount >= numEvents);
+    BSLS_ASSERT(numEvents > 0);
 
     // Point 1: The following operation requires release semantics to ensure
     // memory visibility for other threads using 'currentCount' and 'tryWait'
     // (see Points 2 and 3 below, respectively).
 
-    if (0 == d_sigCount.addAcqRel(-numEvents)) {
-        LockGuard<Mutex> lock(&d_mutex);
+    do {
+        int current  = d_sigCount.loadRelaxed();
+        int expected = current - numEvents;
+        BSLS_ASSERT(0 <= expected);
 
-        d_cond.broadcast();
-    }
+        if (0 == expected) {
+            // 0 is a special case: by contract, only 1 thread can ever believe
+            // it is about to decrement the count to 0 (because if there were
+            // two threads in that situation, one of them would take the count
+            // to 0 and then the other would illegally make the count
+            // negative).  Thus, we can simply save a 0 under the lock,
+            // broadcast on the condition variable, and exit the function.
+            //
+            // We want to save the 0 under the lock because in typical usage,
+            // the waiting thread owns this structure and may destroy it once
+            // it observes a 0.
+
+            LockGuard<Mutex> lock(&d_mutex);
+
+            d_sigCount.storeRelease(0);
+            d_cond.broadcast();
+
+            return;                                                   // RETURN
+        }
+    } while (current != d_sigCount.testAndSwapAcqRel(current, expected));
 }
 
 void Latch::wait()
