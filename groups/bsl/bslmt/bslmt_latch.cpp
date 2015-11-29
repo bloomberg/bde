@@ -41,9 +41,10 @@ void Latch::countDown(int numEvents)
     // memory visibility for other threads using 'currentCount' and 'tryWait'
     // (see Points 2 and 3 below, respectively).
 
+    int current, expected;
     do {
-        int current  = d_sigCount.loadRelaxed();
-        int expected = current - numEvents;
+        current  = d_sigCount.loadRelaxed();
+        expected = current - numEvents;
         BSLS_ASSERT(0 <= expected);
 
         if (0 == expected) {
