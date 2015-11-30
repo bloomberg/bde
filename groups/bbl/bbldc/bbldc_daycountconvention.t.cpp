@@ -62,6 +62,11 @@ using namespace bsl;
 // [ 4] STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
 // [ 4] STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
 // [ 4] int maxSupportedBdexVersion(const Enum *, int versionSelector);
+//
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+// DEPRECATED METHODS
+// int maxSupportedBdexVersion();
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -288,6 +293,9 @@ int main(int argc, char *argv[])
         //   STREAM& bdexStreamIn(STREAM& s, Enum& variable, int v);
         //   STREAM& bdexStreamOut(STREAM& s, const Enum& value, int v) const;
         //   int maxSupportedBdexVersion(const Enum *, int versionSelector);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+        //   int maxSupportedBdexVersion();
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         // Allocator to use instead of the default allocator.
@@ -317,6 +325,10 @@ int main(int argc, char *argv[])
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
             ASSERT(1 == Obj::maxSupportedBdexVersion(VERSION_SELECTOR));
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
             using bslx::VersionFunctions::maxSupportedBdexVersion;
 

@@ -103,7 +103,36 @@ struct DayCountConvention {
         e_SIA_30_360_NEOM           =  8,
         e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
         e_CALENDAR_BUS_252          = 10
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BBEDC_ACTUAL_360         = e_ACTUAL_360,
+        BBEDC_ACTUAL_365_FIXED   = e_ACTUAL_365_FIXED,
+        BBEDC_ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED = 2,
+        BBEDC_ISDA_ACTUAL_ACTUAL = e_ISDA_ACTUAL_ACTUAL,
+        BBEDC_ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED = 4,
+        BBEDC_ISMA_30_360        = e_ISMA_30_360,
+        BBEDC_PSA_30_360_EOM     = e_PSA_30_360_EOM,
+        BBEDC_SIA_30_360_EOM     = e_SIA_30_360_EOM,
+        BBEDC_SIA_30_360_NEOM    = e_SIA_30_360_NEOM,
+        
+        ACTUAL_360         = BBEDC_ACTUAL_360,
+        ACTUAL_365_FIXED   = BBEDC_ACTUAL_365_FIXED,
+        ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
+                                      BBEDC_ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED,
+        ISDA_ACTUAL_ACTUAL = BBEDC_ISDA_ACTUAL_ACTUAL,
+        ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
+                                      BBEDC_ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED,
+        ISMA_30_360        = BBEDC_ISMA_30_360,
+        PSA_30_360_EOM     = BBEDC_PSA_30_360_EOM,
+        SIA_30_360_EOM     = BBEDC_SIA_30_360_EOM,
+        SIA_30_360_NEOM    = BBEDC_SIA_30_360_NEOM
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    typedef Enum Type;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     template <class STREAM>
@@ -181,6 +210,17 @@ struct DayCountConvention {
         // enumerators will result in an unspecified string representation
         // being returned that is distinct from the values returned for any
         // valid enumerator.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+    // DEPRECATED METHODS
+    static int maxSupportedBdexVersion();
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
+        //
+        // Return the most current BDEX streaming version number supported by
+        // this class.
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 };
 
 // FREE OPERATORS
@@ -296,6 +336,17 @@ int DayCountConvention::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+// DEPRECATED METHODS
+inline
+int DayCountConvention::maxSupportedBdexVersion()
+{
+    return 1;
+}
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

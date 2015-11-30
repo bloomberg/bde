@@ -15,9 +15,6 @@
 #include <bslim_testutil.h>
 
 #include <bsls_timeinterval.h>
-/* TBD -- bind
-#include <bdlf_bind.h>
-*/
 #include <bsls_atomic.h>
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
@@ -164,11 +161,24 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bslmt::Semaphore Obj;
 
-void waitAndSet(bslmt::Semaphore *obj, bsls::AtomicInt *val)
-{
-    obj->wait();
-    (*val) = 1;
-}
+class WaitAndSetJob {
+
+    bslmt::Semaphore *d_obj;
+    bsls::AtomicInt *d_val;
+
+  public:
+    WaitAndSetJob(bslmt::Semaphore *obj,
+                  bsls::AtomicInt *val)
+    : d_obj(obj)
+    , d_val(val)
+    {
+    }
+
+    void operator()() const {
+        d_obj->wait();
+        (*d_val) = 1;
+    }
+};
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -205,18 +215,16 @@ int main(int argc, char *argv[])
                  << "=============" << endl;
         }
         {
-            /* TBD -- bind
             Obj X;
             bslmt::ThreadUtil::Handle h;
             bsls::AtomicInt flag;
-            ASSERT(0 == bslmt::ThreadUtil::create(
-                            &h, bdlf::BindUtil::bind(&waitAndSet, &X, &flag)));
+            ASSERT(0 == bslmt::ThreadUtil::create(&h,
+                                                  WaitAndSetJob(&X, &flag)));
             bslmt::ThreadUtil::sleep(bsls::TimeInterval(1));
             ASSERT(0 == flag);
             X.post();
             bslmt::ThreadUtil::join(h);
             ASSERT(1 == flag);
-            */
         }
       } break;
       case 1: {

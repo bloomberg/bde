@@ -1232,17 +1232,38 @@ class Calendar {
         // 'level').  If 'stream' is not valid on entry, this operation has no
         // effect.
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
     // DEPRECATED METHODS
-
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
 
-#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+
+    Date getNextBusinessDay(const Date& initialDate) const;
+        // Return the date of the first business day following the specified
+        // 'initialDate'.  For dates outside of the range of this calendar,
+        // only weekend days are considered non-business days.  The behavior
+        // is undefined if every day of the week is a weekend day, or if the
+        // resulting date would otherwise exceed the value
+        // 'Date(9999, 12, 31)'.
+
+    Date getNextBusinessDay(const Date& initialDate, int nth) const;
+        // Return the date of the specified 'nth' business day following the
+        // specified 'initialDate'.  For dates outside of the range of this
+        // calendar, only weekend days are considered non-business days.  The
+        // behavior is undefined unless 'initialDate' is within the valid
+        // range and '1 <= nth' (or if every day of the week is a weekend day,
+        // or if the resulting date would otherwise exceed the value
+        // 'Date(9999, 12, 31)').
+    
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
 };
 
 // FREE OPERATORS
@@ -1961,17 +1982,16 @@ bsl::ostream& Calendar::print(bsl::ostream& stream,
     return d_packedCalendar.print(stream, level, spacesPerLevel);
 }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
 // DEPRECATED METHODS
-
 inline
 int Calendar::maxSupportedBdexVersion()
 {
     return 1;
 }
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

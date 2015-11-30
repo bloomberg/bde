@@ -9,7 +9,6 @@
 
 #include <bslmt_threadattributes.h>
 
-#include <bslmt_configuration.h>
 #include <bslmt_platform.h>
 
 #include <bslim_testutil.h>
@@ -140,10 +139,17 @@ void aSsErT(bool condition, const char *message, int line)
         int handle;
         myThreadCreate(&handle, attributes, &myThreadFunction);
     }
-//..
 // Finally, we define the thread creation function, and show how a thread
-// attributes object might be interpreted by it:
+// attributes object might be interpreted by it. This creation function
+// supplies its own default values for stack and thread guard sizes; a real
+// routine using 'ThreadAttributes' should base its defaults on the
+// 'bslmt_configuration' component.
 //..
+    enum {
+       MY_DEFAULT_STACK_SIZE = 512 * 1024,
+       MY_DEFAULT_GUARD_SIZE = 16384
+    };
+
     void myThreadCreate(int                             *threadHandle,
                         const bslmt::ThreadAttributes&   attributes,
                         void                           (*function)())
@@ -153,7 +159,7 @@ void aSsErT(bool condition, const char *message, int line)
     {
         int stackSize = attributes.stackSize();
         if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
-            stackSize = bslmt::Configuration::defaultThreadStackSize();
+            stackSize = MY_DEFAULT_STACK_SIZE;
         }
 
         // Add a "fudge factor" to 'stackSize' to ensure that the client can
@@ -171,7 +177,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         int guardSize = attributes.guardSize();
         if (bslmt::ThreadAttributes::e_UNSET_GUARD_SIZE == guardSize) {
-            guardSize = bslmt::Configuration::nativeDefaultThreadGuardSize();
+            guardSize = MY_DEFAULT_GUARD_SIZE;
         }
 
         int policy = attributes.schedulingPolicy();
@@ -471,66 +477,6 @@ int main(int argc, char *argv[])
 #undef MINPRI
 #endif
       } break;
-      case -2: {
-        // --------------------------------------------------------------------
-        // DEFAULT VALUES FROM THREADATTRIBUTES
-        //
-        // Results:
-        //   Sg: Solaris gcc
-        //   SC: Solaris CC
-        //   AI: AIX
-        //   HP: HPUX
-        //   Li: Linux
-        //
-        //   Sg 32: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
-        //   Sg 64: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
-        //
-        //   Sc 32: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
-        //   Sc 64: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
-        //
-        //   AI 32: Other (1, 1, 60), Fifo (1, 1, 60), Rr (1, 1, 60)
-        //   AI 64: Other (1, 1, 60), Fifo (1, 1, 60), Rr (1, 1, 60)
-        //
-        //   HP 32: Other (-256, -256, -129), Fifo (0, 0, 31), Rr (0, 0, 31)
-        //   HP 64: Other (-256, -256, -129), Fifo (0, 0, 31), Rr (0, 0, 31)
-        //
-        //   Li 32: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
-        //   Li 64: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
-        // --------------------------------------------------------------------
-
-        bslmt::ThreadAttributes attr;
-
-#define MAXPRI(policy)  (bslmt::ThreadAttributes::getMaxSchedPriority(policy))
-#define MINPRI(policy)  (bslmt::ThreadAttributes::getMinSchedPriority(policy))
-
-        typedef bslmt::ThreadAttributes::SchedulingPolicy Policy;
-
-        const Policy OTHER = bslmt::ThreadAttributes::e_SCHED_OTHER;
-        const Policy FIFO  = bslmt::ThreadAttributes::e_SCHED_FIFO;
-        const Policy RR    = bslmt::ThreadAttributes::e_SCHED_RR;
-
-        attr.setSchedulingPolicy(OTHER);
-
-        cout << "Other ("   << MINPRI(OTHER) <<
-                ", "        << attr.schedulingPriority() <<
-                ", "        << MAXPRI(OTHER);
-
-        attr.setSchedulingPolicy(FIFO);
-
-        cout << "), Fifo (" << MINPRI(FIFO) <<
-                ", "        << attr.schedulingPriority() <<
-                ", "        << MAXPRI(FIFO);
-
-        attr.setSchedulingPolicy(RR);
-
-        cout << "), Rr ("   << MINPRI(RR) <<
-                ", "        << attr.schedulingPriority() <<
-                ", "        << MAXPRI(RR) <<
-
-                ")\n";
-#undef MAXPRI
-#undef MINPRI
-      }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -2109,7 +2109,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2163,6 +2163,69 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING CLOCKTYPE ACCESSOR
+        //
+        // Concern:
+        //   That the 'clockType' accessor correctly return the clock type the
+        //   object was constructed with.
+        //
+        // Plan:
+        //   Run all c'tors with all values of 'clockType', and verify that
+        //   the value returned by the 'clockType' accessor is as expected.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING CLOCKTYPE ACCESSOR\n"
+                             "==========================\n";
+
+        using namespace EVENTSCHEDULER_TEST_CASE_20;
+        using namespace bdlf::PlaceHolders;
+
+        const bsls::SystemClockType::Enum realTime =
+                                            bsls::SystemClockType::e_REALTIME;
+        const bsls::SystemClockType::Enum monotonic =
+                                            bsls::SystemClockType::e_MONOTONIC;
+
+        ASSERT(realTime != monotonic);
+
+        bdlmt::EventScheduler::Dispatcher dispatcher =
+                                 bdlf::BindUtil::bind(&dispatcherFunction, _1);
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) cout << "Default c'tor\n";
+        {
+            Obj x(&ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Explicit clock type, no dispatcher\n";
+        {
+            Obj x(realTime,  &ta);    const Obj& X = x;
+            Obj y(monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, clock type defaults\n";
+        {
+            Obj x(dispatcher, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+        }
+
+        if (verbose) cout << "Dispatcher, explicit clock type\n";
+        {
+            Obj x(dispatcher, realTime,  &ta);    const Obj& X = x;
+            Obj y(dispatcher, monotonic, &ta);    const Obj& Y = y;
+
+            ASSERT(realTime  == X.clockType());
+            ASSERT(monotonic == Y.clockType());
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------

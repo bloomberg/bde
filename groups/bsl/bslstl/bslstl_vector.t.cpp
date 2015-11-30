@@ -9610,13 +9610,13 @@ int main(int argc, char *argv[])
 
             HI<int, 2> iter = b;
             for (size_t i = 0; i < bh.size(); ++i, ++iter) {
-                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                if (veryVerbose) printf(ZU " %d %d\n", i, bh[i], *iter);
                 ASSERTV(i, bh[i] == *iter);
             }
 
             bh.assign(b, e);
             for (size_t i = 0; i < bh.size(); ++i, ++iter) {
-                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                if (veryVerbose) printf(ZU " %d %d\n", i, bh[i], *iter);
                 ASSERTV(i, bh[i] == *iter);
             }
         }
@@ -9626,7 +9626,7 @@ int main(int argc, char *argv[])
             bh.insert(bh.begin(), b, e);
             HI<int, 2> iter = b;
             for (size_t i = 0; i < bh.size(); ++i, ++iter) {
-                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                if (veryVerbose) printf(ZU " %d %d\n", i, bh[i], *iter);
                 ASSERTV(i, bh[i] == *iter);
             }
         }

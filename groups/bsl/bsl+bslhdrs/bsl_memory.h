@@ -25,6 +25,25 @@ BSLS_IDENT("$Id: $")
 
 #include <memory>
 
+// 'std::unique_ptr' is available:
+//:  o GCC 4.4+, C++11 builds.
+//:    https://gcc.gnu.org/gcc-4.4/changes.html
+//:  o Clang, libc++, C++11 builds that have <forward_list> available
+//:    http://stackoverflow.com/questions/31655462/
+//:  o MSVC 2010+
+//:    https://msdn.microsoft.com/en-us/library/ee410601(v=vs.100).aspx
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__) &&  \
+    BSLS_PLATFORM_CMP_VERSION >= 40400
+#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
+#elif defined(BSLS_PLATFORM_CMP_CLANG) && __cplusplus >= 201103L
+#if __has_include(<forward_list>)
+#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
+#endif
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1600
+#define BSL_MEMORY_SUPPORT_UNIQUE_PTR
+#endif
+
 namespace bsl
 {
     // Import selected symbols into bsl namespace
@@ -42,11 +61,7 @@ namespace bsl
     using native_std::uninitialized_fill;
     using native_std::uninitialized_fill_n;
 
-// Note that __cplusplus does not have a conforming value for g++ versions
-// before 4.7.  See http://stackoverflow.com/questions/7530047/ .
-#if (__cplusplus >= 201103L)        \
- && defined(BSLS_PLATFORM_CMP_GNU)  \
- && BSLS_PLATFORM_CMP_VERSION >= 40800
+#if defined(BSL_MEMORY_SUPPORT_UNIQUE_PTR)
     using native_std::unique_ptr;
 #endif
 

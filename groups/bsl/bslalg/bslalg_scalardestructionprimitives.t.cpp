@@ -1,8 +1,6 @@
 // bslalg_scalardestructionprimitives.t.cpp                           -*-C++-*-
-
 #include <bslalg_scalardestructionprimitives.h>
 
-#include <bslalg_scalarprimitives.h>             // for testing only
 #include <bslma_usesbslmaallocator.h>            // for testing only
 #include <bslmf_istriviallycopyable.h>           // for testing only
 
@@ -20,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>     // 'atoi'
 #include <string.h>     // 'strlen'
+#include <new>
 
 using namespace BloombergLP;
 

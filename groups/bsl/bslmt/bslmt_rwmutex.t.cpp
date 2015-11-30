@@ -20,10 +20,6 @@
 
 #include <bslim_testutil.h>
 
-/* TBD -- bind
-#include <bdlf_bind.h>
-*/
-
 #include <bsls_atomic.h>
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
@@ -141,7 +137,7 @@ struct WriteThread
         d_releaseBarrier(releaseBarrier)
    {}
 
-   void operator() () {
+   void operator()() {
       d_startSema->post();
       d_lock->lockWrite();
       d_releaseBarrier->wait();
@@ -167,7 +163,7 @@ struct ReadThread
         d_doneSema(doneSema)
    {}
 
-   void operator() () {
+   void operator()() {
       d_lock->lockRead();
       d_holdBarrier->wait();
       d_releaseBarrier->wait();
@@ -749,13 +745,28 @@ int benchmarkRecursion (LOCK* lock, const char* lockName)
    return 0;
 }
 
-void readerThread (bslmt::Barrier* start, bslmt::Barrier* end, Obj* mutex)
-{
-   ASSERT(0 == mutex->tryLockRead());
-   start->wait();
-   end->wait();
-   mutex->unlock();
-}
+class ReaderThread {
+    bslmt::Barrier *d_start;
+    bslmt::Barrier *d_end;
+    Obj            *d_mutex;
+
+  public:
+    ReaderThread(bslmt::Barrier *start,
+                 bslmt::Barrier *end,
+                 Obj            *mutex)
+    : d_start(start)
+    , d_end(end)
+    , d_mutex(mutex)
+    {
+    }
+
+    void operator()() {
+        ASSERT(0 == d_mutex->tryLockRead());
+        d_start->wait();
+        d_end->wait();
+        d_mutex->unlock();
+    }
+};
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -840,21 +851,16 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: breathing test" << endl
                           << "=========================="
                           << endl;
-        /* TBD -- bind
         Obj mutex;
         bslmt::Barrier startBarrier(3), endBarrier(3);
 
         bslmt::ThreadUtil::Handle t1, t2;
 
-        if (0 != bslmt::ThreadUtil::create
-            (&t1, bdlf::BindUtil::bind(&readerThread,
-                                      &startBarrier, &endBarrier,
-                                      &mutex)) ||
-            0 != bslmt::ThreadUtil::create
-            (&t2, bdlf::BindUtil::bind(&readerThread,
-                                      &startBarrier, &endBarrier,
-                                      &mutex))) {
-           ASSERT(!"Could not create threads!! Bad state! Failing test.");
+        ReaderThread readerThread(&startBarrier, &endBarrier, &mutex);
+
+        if (0 != bslmt::ThreadUtil::create(&t1, readerThread) ||
+            0 != bslmt::ThreadUtil::create(&t2, readerThread)) {
+            ASSERT(!"Could not create threads!! Bad state! Failing test.");
         }
         else {
            startBarrier.wait();
@@ -864,7 +870,6 @@ int main(int argc, char *argv[])
            ASSERT(0 == bslmt::ThreadUtil::join(t1));
            ASSERT(0 == bslmt::ThreadUtil::join(t2));
         }
-        */
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

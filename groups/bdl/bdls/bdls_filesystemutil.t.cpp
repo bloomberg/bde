@@ -31,6 +31,7 @@
 #include <bsl_map.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
+#include <bsl_string.h>
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <sys/un.h>
@@ -76,13 +77,19 @@ using namespace bsl;
 // [12] int tryLock(FileDescriptor, bool ) (Windows)
 // [13] int sync(char *, int , bool )
 // [14] int close(FileDescriptor )
+// [21] createTemporaryFile(string *, const StringRef&)
+// [22] createTemporaryDirectory(string *, const StringRef&)
+// [20] makeUnsafeTemporaryFilename(string *, const StringRef&)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
-// [15] CONCERN: Open in append-mode behavior (particularly on windows)
-// [16] CONCERN: Unix File Permissions for 'open'
-// [17] CONCERN: Unix File Permissions for 'createDirectories'
-// [18] CONCERN: UTF-8 Filename handling
+// [14] CONCERN: Open in append-mode behavior (particularly on windows)
+// [15] CONCERN: Unix File Permissions for 'open'
+// [16] CONCERN: Unix File Permissions for 'createDirectories' et al
+// [17] CONCERN: UTF-8 Filename handling
+// [20] CONCERN: entropy in temp file name generation
+// [21] CONCERN: file permissions
+// [22] CONCERN: directory permissions
 // [19] USAGE EXAMPLE 1
 // [20] USAGE EXAMPLE 2
 
@@ -523,6 +530,200 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING 'createTemporaryDirectory' METHOD
+        //
+        // Concerns:
+        //: 1 It actually creates a new directory.
+        //: 2 A directory created has a different name than a previous one.
+        //: 3 Files can be created in the directory.
+        //: 4 The created directory has the correct permissions.
+        //
+        // Plan:
+        //: 1 Create directories and a subdirectory. (C-1,3)
+        //: 2 Check names, types, and permission. (C-2,4)
+        //
+        // Testing:
+        //   createTemporaryDirectory(string *, const StringRef&)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTesting 'createTemporaryDirectory' METHOD"
+                    "\n=========================================\n";
+        }
+
+        bsl::string prefix = "name_prefix_";
+        bsl::string dirName;
+        int madeDir = Obj::createTemporaryDirectory(&dirName, prefix);
+        ASSERT(madeDir == 0);
+        if (madeDir == 0) {
+            if (veryVerbose) {
+                cout << ":" << dirName << ":\n";
+            }
+            ASSERT(Obj::isDirectory(dirName));
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            if (verbose) {
+                cout << "DIR PERMISSIONS CHECK SKIPPED ON WINDOWS\n";
+            }
+#else
+            struct stat info;
+            memset(&info, 0, sizeof(info));
+            ASSERT(0 == ::stat(dirName.c_str(), &info));
+            info.st_mode &= 0777;
+            ASSERT((S_IRUSR|S_IWUSR|S_IXUSR) == info.st_mode);
+            if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
+                                                          || veryVeryVerbose) {
+                cout.flush(); fflush(stdout);
+                printf("Temp file permissions 0%o\n", info.st_mode);
+                fflush(stdout);
+            }
+#endif
+            ASSERT(0 == Obj::remove(dirName));
+
+            bsl::string dirName2, dirName3;
+            int madeDir2 = Obj::createTemporaryDirectory(&dirName2, prefix);
+            ASSERT(madeDir2 == 0);
+            int madeDir3 = Obj::createTemporaryDirectory(&dirName3, dirName2);
+            ASSERT(madeDir3 == 0);
+            if (madeDir2 == 0) {
+                if (veryVerbose) {
+                    cout << ":" << dirName2 << ": :" << dirName3 << ":\n";
+                }
+                ASSERT(Obj::isDirectory(dirName2));
+                ASSERT(Obj::isDirectory(dirName3));
+                ASSERT(dirName2 != dirName);
+                ASSERT(0 == Obj::remove(dirName2));
+            }
+        }
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING 'createTemporaryFile' METHOD
+        //
+        // Concerns:
+        //: 1 It actually creates a new file.
+        //: 2 A file created has a different name than a previous one.
+        //: 3 The created file has the correct permissions.
+        //: 4 The created file is open for writing.
+        //
+        // Plan:
+        //: 1 Create files. (C-1)
+        //: 2 Check names, types, and permissions. (C-2,3,4)
+        //
+        // Testing:
+        //   createTemporaryFile(string *, const StringRef&)
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTesting 'createTemporaryFile' METHOD"
+                    "\n====================================\n";
+        }
+
+        bsl::string prefix = "name_prefix_";
+        bsl::string fileName;
+        Obj::FileDescriptor fd = Obj::createTemporaryFile(&fileName, prefix);
+        if (veryVerbose) {
+            cout << ":" << fileName << ":\n";
+        }
+        ASSERT(fd != Obj::k_INVALID_FD);
+        ASSERT(fileName.size() >= prefix.size() + 6);
+        ASSERT(prefix == fileName.substr(0, prefix.size()));
+        if (fd != Obj::k_INVALID_FD) {
+            static const char hello[] = "hello, world\n";
+            int wrote = Obj::write(fd, hello, sizeof(hello) - 1);
+            ASSERT(wrote == sizeof(hello) - 1);
+            Obj::close(fd);
+            ASSERT(Obj::isRegularFile(fileName));
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            if (verbose) {
+                cout << "FILE PERMISSIONS CHECK SKIPPED ON WINDOWS\n";
+            }
+#else
+            struct stat info;
+            memset(&info, 0, sizeof(info));
+            ASSERT(0 == ::stat(fileName.c_str(), &info));
+            info.st_mode &= 0777;
+            ASSERT((S_IRUSR|S_IWUSR) == info.st_mode);
+            if ((verbose && (S_IRUSR|S_IWUSR|S_IXUSR) != info.st_mode)
+                                                          || veryVeryVerbose) {
+                cout.flush(); fflush(stdout);
+                printf("Temp file permissions 0%o\n", info.st_mode);
+                fflush(stdout);
+            }
+#endif
+            bsl::string fileName2;
+            Obj::FileDescriptor fd2 =
+                                  Obj::createTemporaryFile(&fileName2, prefix);
+            if (veryVerbose) {
+                cout << ":" << fileName2 << ":\n";
+            }
+            ASSERT(fd2 != Obj::k_INVALID_FD);
+            if (fd2 != Obj::k_INVALID_FD) {
+                ASSERT(fileName2 != fileName);
+                Obj::close(fd2);
+                ASSERT(Obj::isRegularFile(fileName2));
+                Obj::remove(fileName2);
+            }
+
+            int removedFile = Obj::remove(fileName);
+            ASSERT(removedFile == 0);
+        }
+
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeUnsafeTemporaryFilename' METHOD
+        //
+        // Concerns:
+        //: 1 Prefix is copied to output with stuff appended.
+        //: 2 Stuff appended is enough to make it unique.
+        //: 3 Stuff appended is different from previous calls.
+        //
+        // Plan:
+        //: 1 Create names. (C-1)
+        //: 2 Check invariant and variant parts. (C-1,2)
+        //: 3 Sample entropy. (C-3)
+        //
+        // Testing:
+        //   makeUnsafeTemporaryFilename(string *, const StringRef&)
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "\nTesting 'makeUnsafeTemporaryFilename' METHOD"
+                    "\n============================================\n";
+        }
+
+        const bsl::string prefix = "name_prefix_";
+        for (int check = 0; check < 100; ++check) {
+            bsl::string name1;
+            Obj::makeUnsafeTemporaryFilename(&name1, prefix);
+            bsl::string name2 = name1;
+            Obj::makeUnsafeTemporaryFilename(&name2, prefix);
+            if ((check == 0 && veryVerbose) || veryVeryVerbose) {
+                cout << ":" << name1 << ": :" << name2 << ":\n";
+            }
+            const size_t p1 = prefix.size();
+            ASSERT(name1.size() >= p1 + 8);
+            ASSERT(name2.size() >= p1 + 8);
+            ASSERT(name1.size() > p1 && prefix == name1.substr(0,p1));
+            ASSERT(name2.size() > p1 && prefix == name2.substr(0,p1));
+            ASSERT(name1.size() == name2.size());
+            ASSERT(name1.substr(p1) != name2.substr(p1));
+            int sum = 0, diffs = 0;
+            for (size_t i = p1; i < name1.size(); ++i) {
+                int diff = name1[i] - name2[i];
+                diffs += diff != 0;
+                sum += bsl::abs(diff);
+            }
+            ASSERT(sum >= 40);
+            ASSERT(diffs >= 4);
+        }
+
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
@@ -626,7 +827,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdls::FilesystemUtil::remove("bdls_filesystemutil.temp.temp.1");
+        Obj::remove("bdls_filesystemutil.temp.temp.1");
 
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
@@ -646,9 +847,9 @@ int main(int argc, char *argv[])
     bsl::string oldPath(logPath), newPath(logPath);
     bdls::PathUtil::appendRaw(&oldPath, "old");
     bdls::PathUtil::appendRaw(&newPath, "new");
-    int rc = bdls::FilesystemUtil::createDirectories(oldPath.c_str(), true);
+    int rc = bdls::FilesystemUtil::createDirectories(oldPath, true);
     ASSERT(0 == rc);
-    rc = bdls::FilesystemUtil::createDirectories(newPath.c_str(), true);
+    rc = bdls::FilesystemUtil::createDirectories(newPath, true);
     ASSERT(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -656,7 +857,7 @@ int main(int argc, char *argv[])
 //..
     bdls::PathUtil::appendRaw(&logPath, "*.log");
     bsl::vector<bsl::string> logFiles;
-    bdls::FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
+    Obj::findMatchingPaths(&logFiles, logPath.c_str());
 //..
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
@@ -666,7 +867,7 @@ int main(int argc, char *argv[])
     bsl::string   fileName;
     for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
                                                   it != logFiles.end(); ++it) {
-      ASSERT(0 == bdls::FilesystemUtil::getLastModificationTime(&modTime,
+      ASSERT(0 == Obj::getLastModificationTime(&modTime,
                                                                 *it));
       ASSERT(0 == bdls::PathUtil::getLeaf(&fileName, *it));
       bsl::string *whichDirectory =
@@ -674,7 +875,7 @@ int main(int argc, char *argv[])
                   ? &oldPath
                   : &newPath;
       bdls::PathUtil::appendRaw(whichDirectory, fileName.c_str());
-      ASSERT(0 == bdls::FilesystemUtil::move(it->c_str(),
+      ASSERT(0 == Obj::move(it->c_str(),
                                              whichDirectory->c_str()));
       bdls::PathUtil::popLeaf(whichDirectory);
     }
@@ -684,28 +885,28 @@ int main(int argc, char *argv[])
         // file i/o
 
         // create a new file
-        bdls::FilesystemUtil::FileDescriptor fd = bdls::FilesystemUtil::open(
+        Obj::FileDescriptor fd = Obj::open(
                                                          "tempfile",.
                                                          Obj::e_OPEN_OR_CREATE,
                                                          Obj::e_READ_WRITE);
-        ASSERT(fd != bdls::FilesystemUtil::k_INVALID_FD);
+        ASSERT(fd != Obj::k_INVALID_FD);
         // allocate a buffer with the size equal to memory page size and
         // fill with some data
-        int size = bdls::FilesystemUtil::pageSize();
+        int size = Obj::pageSize();
         char* buf = new char[size];
         for(int i=0; i<size; ++i) {
             buf[i] = i & 0xFF;
         }
 
         // write data to the file
-        bdls::FilesystemUtil::seek(fd, size,
-                                         bdls::FilesystemUtil::FROM_BEGINNING);
-        int rc = bdls::FilesystemUtil::write(fd, buf, size);
+        Obj::seek(fd, size,
+                                         Obj::FROM_BEGINNING);
+        int rc = Obj::write(fd, buf, size);
         ASSERT(rc == size);
 
         // map the data page into memory
         char* data;
-        rc = bdls::FilesystemUtil::map(fd, (void**)&data, 0, size, true);
+        rc = Obj::map(fd, (void**)&data, 0, size, true);
         ASSERT(0 == rc);
 
         // verify the data is equal to what we have written
@@ -713,10 +914,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == memcmp(buf, data, size));
 
         // unmap the page, delete the buffer and close the file
-        rc = bdls::FilesystemUtil::unmap(data, size);
+        rc = Obj::unmap(data, size);
         ASSERT(0 == rc);
         delete[] buf;
-        bdls::FilesystemUtil::close(fd);
+        Obj::close(fd);
 #endif
 
         // NOT IN USAGE EXAMPLE: CLEAN UP
@@ -738,7 +939,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 We can convert from wchar_t to utf-8 filenames and then back
         //:   again, getting back the original wchar_t name.  Note that this
-        //:   does not test 'bdls::FilesystemUtil' functionality, but is
+        //:   does not test 'Obj' functionality, but is
         //:   necessary for further testing.
         //:
         //: 2 We can create files using the utf-8 names.
@@ -754,7 +955,7 @@ int main(int argc, char *argv[])
         //: 2 Create each of the files using its utf-8 name, write to it, and
         //:   close it, checking for failures.  (C-2)
         //:
-        //: 3 Use 'bdls::FilesystemUtil::findMatchingPaths' to look up the
+        //: 3 Use 'Obj::findMatchingPaths' to look up the
         //:   names we just created and verify that the returned names are the
         //:   full set of utf-8 names we created.  (C-3)
         //:
@@ -1040,7 +1241,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING: Unix File Permissions for 'createDirectories'
+        // TESTING: Unix File Permissions for 'createDirectories' et al
         //
         // Concerns:
         //: 1 The permissions of a file created with 'createDirectories' on
@@ -1055,8 +1256,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                     "TESTING: Unix File Permissions for 'createDirectories\n"
-                     "=====================================================\n";
+            "TESTING: Unix File Permissions for 'createDirectories et al\n"
+            "===========================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
@@ -1122,6 +1323,41 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
+
+        if (verbose) cout << "Testing 'createPrivateDirectory'\n";
+        {
+            const bsl::string& fullPath = ::tempFileName(test,
+                                         "tmp.bdls_filesystemutil_16.mkdir1");
+
+            if (veryVerbose) { P(fullPath); }
+
+            (void) Obj::remove(fullPath, true);  // just a file
+
+            int rc = Obj::createPrivateDirectory(fullPath);
+            ASSERT(0 == rc);
+            ASSERT(Obj::exists(fullPath));
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+            struct stat info;
+            ASSERT(0 == ::stat(  fullPath.c_str(), &info));
+# else
+            struct stat64 info;
+            ASSERT(0 == ::stat64(fullPath.c_str(), &info));
+# endif
+            info.st_mode &= 0777;
+
+            enum { EXPECTED_PERMS = S_IRUSR|S_IWUSR|S_IXUSR };
+            const bool eqLeafDir = EXPECTED_PERMS == info.st_mode;
+
+            if (veryVeryVerbose || !eqLeafDir) {
+                bsl::ios_base::fmtflags flags = cout.flags();
+                cout << bsl::oct << "Leaf dir: ";
+                P_(EXPECTED_PERMS);    P(info.st_mode);
+                cout.flags(flags);
+            }
+            ASSERT(eqLeafDir);
+            ASSERT(0 == Obj::remove(fullPath, true));
+        }
 #endif
       } break;
       case 15: {
@@ -1180,6 +1416,48 @@ int main(int argc, char *argv[])
             const bool eq =
                           (S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH)
                                                                == info.st_mode;
+            if (veryVerbose || !eq) {
+                bsl::ios_base::fmtflags flags = cout.flags();
+                cout << bsl::oct;
+                P_((S_IRUSR|S_IWUSR | S_IRGRP|S_IWGRP | S_IROTH|S_IWOTH));
+                P(info.st_mode);
+                cout.flags(flags);
+            }
+            ASSERT(eq);
+
+            ASSERT(0 == Obj::remove(testFile, false));
+        }
+
+        if (verbose) cout << "Testing private 'open'\n";
+        {
+            typedef Obj::FileDescriptor FD;
+
+            const bsl::string& testFile = ::tempFileName(test,
+                                     "tmp.bdls_filesystemutil_15_pv.open.txt");
+            if (veryVerbose) P(testFile);
+
+            (void) Obj::remove(testFile, false);
+
+            FD fd = Obj::open(testFile,
+                              Obj::e_CREATE_PRIVATE,
+                              Obj::e_READ_WRITE);
+            ASSERT(Obj::k_INVALID_FD != fd);
+
+            const char *str = "To be or not to be\n";
+            const int len = static_cast<int>(bsl::strlen(str));
+            ASSERT(len == Obj::write(fd, str, len));
+
+            ASSERT(0 == Obj::close(fd));
+
+# ifdef BSLS_PLATFORM_OS_CYGWIN
+            struct stat info;
+            ASSERT(0 == ::stat(  testFile.c_str(), &info));
+# else
+            struct stat64 info;
+            ASSERT(0 == ::stat64(testFile.c_str(), &info));
+# endif
+            info.st_mode &= 0777;
+            const bool eq = (S_IRUSR|S_IWUSR) == info.st_mode;
             if (veryVerbose || !eq) {
                 bsl::ios_base::fmtflags flags = cout.flags();
                 cout << bsl::oct;
@@ -1909,10 +2187,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        // Unix "glob()", which is called by bdls::FilesystemUtil::visitPaths,
-        // is failing on ibm 64 bit, unfortunately the test driver has not
-        // detected or reproduced this error.  This test case is an attempt to
-        // get this test driver reproducing the problem.
+        // Unix "glob()", which is called by Obj::visitPaths, is failing on IBM
+        // 64 bit, unfortunately the test driver has not detected or reproduced
+        // this error.  This test case is an attempt to get this test driver
+        // reproducing the problem.
         //
         // Plan:
         //   Run the usage example 1
@@ -4489,6 +4767,31 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
             ASSERT(0 == Obj::remove(logPath.c_str(), true));
+
+            // exercise temp name, file, directory
+
+            bsl::string fixedPrefix = "name_prefix_";
+            bsl::string varPrefix;
+            Obj::makeUnsafeTemporaryFilename(&varPrefix, fixedPrefix);
+
+            bsl::string dirName;
+            int madeDir = Obj::createTemporaryDirectory(&dirName, varPrefix);
+            ASSERT(madeDir == 0);
+            if (madeDir) {
+                bsl::string subDirName = dirName + "/file_base";
+                bsl::string fileName;
+                Obj::FileDescriptor fd =
+                               Obj::createTemporaryFile(&fileName, subDirName);
+                if (fd != Obj::k_INVALID_FD) {
+                    static const char hello[] = "hello, world\n";
+                    Obj::write(fd, hello, sizeof(hello) - 1);
+                    Obj::close(fd);
+                    int removedFile = Obj::remove(fileName);
+                    ASSERT(removedFile == 0);
+                }
+                int removedDir = Obj::remove(subDirName);
+                ASSERT(removedDir == 0);
+            }
         }
       } break;
       case -1: {
@@ -4575,8 +4878,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                bdls::FilesystemUtilMapping fm =
-                                    Obj::map(fd, i * pageSize, pageSize, true);
+                ObjMapping fm = Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);
             }
@@ -4595,7 +4897,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "SIMPLE 5 GIGABYTE FILE TEST CASE\n"
                              "================================\n";
 
-        typedef bdls::FilesystemUtil Util;
+        typedef Obj Util;
 
 #if 1
         const bsls::Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;

@@ -749,6 +749,12 @@ struct Variant_ReturnValueHelper {
     enum {
         value =
          sizeof(match<VISITOR>(0)) == sizeof(Variant_ReturnValueHelper_YesType)
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE3.0
+      , VALUE =
+         sizeof(match<VISITOR>(0)) == sizeof(Variant_ReturnValueHelper_YesType)
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
+
     };
         // A 'value' of 'true' indicates 'VISITOR::ResultType' exists, and
         // 'false' otherwise.

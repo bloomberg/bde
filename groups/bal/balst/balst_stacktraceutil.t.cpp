@@ -325,13 +325,16 @@ const char *nullGuard(const char *string)
                                 // --------------
 
 static
-void testStackTrace(const balst::StackTrace& st)
-    // Verify that the specified StackTrace 'st' is sane.
+void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
+    // Verify that the specified StackTrace 'st' is sane.  Tolerate up to
+    // 'tolerateMisses' frames without line numbers, as xcoff fails to give
+    // line numbers when the code is in an inlined function.
 {
     LOOP_ASSERT(st.length(), st.length() > 0);
 
     bool reachedMain = false;   // all the routines above 'main' are pretty
                                 // small
+    int numMisses = 0;
     for (int i = 0; i < st.length(); ++i) {
         const Frame& frame = st[i];
 
@@ -359,13 +362,21 @@ void testStackTrace(const balst::StackTrace& st)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!FORMAT_ELF && !FORMAT_DLADDR && DEBUG_ON && !reachedMain) {
+        if (!FORMAT_ELF && !FORMAT_DLADDR && !FORMAT_XCOFF && DEBUG_ON &&
+                                                                !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
             ASSERT(frame.lineNumber() > 0);
         }
+        else if (FORMAT_XCOFF) {
+            ASSERT(frame.isSourceFileNameKnown());
 
-//#endif
+            // There may be one stack frame that had inlined code in it.
+
+            numMisses += frame.lineNumber() < 0;
+        }
     }
+
+    ASSERT(numMisses <= tolerateMisses);
 }
 
                                 // -------
@@ -637,11 +648,17 @@ void case_8_top()
     }
 }
 
+static inline
+void inclineCallCase8Top()
+{
+    case_8_top();
+}
+
 static
 void case_8_recurse(int *depth)
 {
     if (--*depth <= 0) {
-        case_8_top();
+        inclineCallCase8Top();
     }
     else {
         case_8_recurse(depth);
@@ -834,7 +851,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
     LOOP_ASSERT(rc, 0 == rc);
     sw.stop();
     if (0 == rc) {
-        testStackTrace(st);
+        testStackTrace(st, FORMAT_XCOFF);
 
         Util::printFormatted(*out_p, st);
         *out_p << cc("User time: ") << sw.accumulatedUserTime() <<
