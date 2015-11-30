@@ -74,6 +74,15 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #endif
 
+// 'u_' PREFIX:
+// We have many types, static functions and macros defined in this file.  Prior
+// to when we were using package namespaces, all global types and functions
+// began with the package prefix, so the reader saw a type, macro, or function
+// without the package prefix they knew it was probably local to the file.  Now
+// that we have package prefixes, this is no longer the case, leading to
+// confusion.  Hence, local definitions at file scope begin with 'u_', lending
+// considerable clarity.
+//
 // Rohan's:
 // IMPLEMENTATION NOTES:
 //
@@ -565,7 +574,44 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // current line number is the line number to be reported for the stack frame,
 // and the current file name is the source file name to be reported.
 //
-//                          // clang support for DWARF
+//            // Subset of DWARF Doc to Read to Parse DWARF for g++
+//
+// The DWARF 4 doc is 311 pages wrong.  A key part of tackling this task was
+// determining the subset of it necessary to deliver line number and source
+// file name information.
+//
+// To understand how to find the compilation unit based on the stack address
+// from the .debug_aranges section, read chapter 6.1.2, which is not very long.
+// The .debug_aranges section will tell us the offset of the compile unit
+// information in the .debug_info section.
+//
+// To understand how to read the compilation unit, one must gather information
+// from several parts of the doc.  The compilation unit will tell us 3 things:
+//: o The directory in which the compilation was run.
+//: o The source file that was compiled.  Note that if the address was in a
+//:   function in an include file (an inline called out-of-line, or a template
+//:   function), then this will not be the right source file name.
+//: o The offset into the .debug_line section where the line number information
+//:   for the compile unit resides.
+// The compilation unit information will begin with the compile unit header,
+// which is described in chapter 7.5.1.1, which is not very long.  This header
+// will tell us the offset of the information in the .debug_abbrev section that
+// we will want to read together with the .debug_info section.  Figure 48
+// explains how the .debug_info and .debug_abbrev sections are read together to
+// describe a compilation unit.  This figure mentions a few things not
+// mentioned in the prose in other parts of the doc.  Chapter 3.1.1 explains
+// some of how to parse the .debug_info information, explaining which 'DW_AT_*'
+// identifiers will be encountered while parsing a compile unit.  Note that
+// since we don't want to parse information about types or variables, the
+// number of 'DW_AT_*' id's we will have to understand is a very small subset
+// of the total number described in 'dwarf.h'.
+//
+// Once we get to the line number information in .debug_line, we simply follow
+// the directions in chapter 6.2, which must be read in its entirety, but it's
+// only about 15 pages.  The .debug_line entry begins with a header
+// described in 6.2.4.
+//
+//                          // Clang Support For DWARF
 //
 // Doing line number information with DWARF on Linux using the clang compiler
 // is problematic.  There are two ways the DWARF information can tell you
@@ -580,6 +626,19 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // platform for us.  It might be possible to support clang by traversing all
 // in the .debug_line information and resolving all addresses at once, but this
 // might be very slow.
+//
+//                          // Proposed Clang Support
+//
+// A proposed way to provide clang support without having to use large amounts
+// of memory, which has not been coded, would be to traverse all the compile
+// units in the .debug_info section, and for each one go to its corresponding
+// section in the .debug_line inforation, then parse the .debug line
+// information in such a way to determine which ranges of addresses are
+// described, and for each range, use the STL 'lower_bound' function to
+// determine which of the stack addresses, if any, apply to that range.  If
+// any do apply, assign the compile unit offset of the compile unit to those
+// frame records.  Then go back in a later pass and use the existing Linux
+// code to traverse those compile units and line number information.
 
 // ============================================================================
 //              Debugging trace macros: 'eprintf' and 'zprintf'

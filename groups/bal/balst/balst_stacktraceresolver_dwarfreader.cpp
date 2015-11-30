@@ -994,6 +994,10 @@ int StackTraceResolver_DwarfReader::setEndOffset(Offset newOffset)
 
 int StackTraceResolver_DwarfReader::skipForm(unsigned form)
 {
+    // The values of the 'DW_FORM_*' identifiers are described in Figure 21 of
+    // the DWARF version 4 document.  The meanings of the different values
+    // 'DW_FORM_*' are described in section 7.5.4.
+
     static const char rn[] = { "Reader::skipForm:" };    (void) rn;
 
     int    rc;
