@@ -58,6 +58,8 @@ bool isNanString(const char *str) {
         len = 5;
     }
     bsl::strncpy(lowercaseStr, str, len);
+    lowercaseStr[len] = '\0';
+
     int (*tolower) (int) = &bsl::tolower;
     bsl::transform(lowercaseStr,
                    lowercaseStr + len,
