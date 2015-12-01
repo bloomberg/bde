@@ -462,7 +462,7 @@ int readVersion2FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     // Add default transition.
 
     const bsls::Types::Int64 firstTransitionTime =
-                   baltzo::Zoneinfo::convertToTimeT64(bdlt::Datetime(1, 1, 1));
+                    bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
 
     zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
 
@@ -608,7 +608,7 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
 
     // Add default transition.
     const bsls::Types::Int64 firstTransitionTime =
-                     Zoneinfo::convertToTimeT64(bdlt::Datetime(1, 1, 1));
+                    bdlt::EpochUtil::convertToTimeT64(bdlt::Datetime(1, 1, 1));
     zoneinfoResult->addTransition(firstTransitionTime, descriptors.front());
 
     // Convert the 'Raw' transitions information into

@@ -112,7 +112,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 //: 5 The bias value is added to the exponent to get its final value.
 //: 6 Assemble the double value from the mantissa, exponent, and sign values.
 
-#include <bdlt_serialdateimputil.h>
+#include <bdlt_prolepticdateimputil.h>
 
 #include <bdlt_iso8601util.h>
 
@@ -385,9 +385,10 @@ bsls::Types::Int64 getSerialDateValue(const bdlt::Date& value)
     // serial value could be negative if 'value' occurs before the predefined
     // epoch date.
 {
-    const int serialDate = bdlt::SerialDateImpUtil::ymdToSerial(value.year(),
-                                                                value.month(),
-                                                                value.day());
+    const int serialDate = bdlt::ProlepticDateImpUtil::ymdToSerial(
+                                                                 value.year(),
+                                                                 value.month(),
+                                                                 value.day());
 
     const bsls::Types::Int64 dateOffset = serialDate - EPOCH_SERIAL_DATE;
 
@@ -567,7 +568,8 @@ int BerUtil_Imp::getBinaryDateValue(bsl::streambuf  *streamBuf,
     getIntegerValue(streamBuf, &serialDate, length);
 
     int year, month, day;
-    bdlt::SerialDateImpUtil::serialToYmd(&year,
+    bdlt::ProlepticDateImpUtil::serialToYmd(
+                                         &year,
                                          &month,
                                          &day,
                                          static_cast<int>(
@@ -642,7 +644,8 @@ int BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
     }
 
     int year, month, day;
-    bdlt::SerialDateImpUtil::serialToYmd(&year,
+    bdlt::ProlepticDateImpUtil::serialToYmd(
+                                         &year,
                                          &month,
                                          &day,
                                          static_cast<int>(

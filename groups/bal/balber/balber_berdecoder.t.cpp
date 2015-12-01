@@ -29,7 +29,7 @@
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
-#include <bdlt_serialdateimputil.h>
+#include <bdlt_prolepticdateimputil.h>
 #include <bdlt_time.h>
 
 #include <bdlb_chartype.h>
@@ -10746,9 +10746,9 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[k];
 
                 if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
-                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
-                                                                 MONTH,
-                                                                 DAY)) {
+                 && bdlt::ProlepticDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                    MONTH,
+                                                                    DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
 
@@ -11086,9 +11086,9 @@ int main(int argc, char *argv[])
                 const int DAY   = DAYS[dk];
 
                 if (bdlt::Date::isValidYearMonthDay(YEAR, MONTH, DAY)
-                 && bdlt::SerialDateImpUtil::isValidYearMonthDay(YEAR,
-                                                                 MONTH,
-                                                                 DAY)) {
+                 && bdlt::ProlepticDateImpUtil::isValidYearMonthDay(YEAR,
+                                                                    MONTH,
+                                                                    DAY)) {
 
                     const int HOURS[] = { 0, 12, 23 };
                     const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;

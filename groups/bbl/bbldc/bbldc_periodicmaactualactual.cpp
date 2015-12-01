@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bbldc_periodicmaactualactual_cpp,"$Id$ $CSID$")
 
-#include <bdlt_serialdateimputil.h>
-
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>

@@ -2004,8 +2004,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'operator+='" << endl;
             {
-//              Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0 += (-oneMsec));
-//              ProlepticGregorianMode assert squelched
+                Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0 += (-oneMsec));
 
                 Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1 += (    zero));
                 Obj x2(startOfEpoch); ASSERT_SAFE_PASS(x2 += ( oneMsec));
@@ -2019,8 +2018,7 @@ if (veryVerbose)
             {
                 Obj x0(startOfEpoch); ASSERT_SAFE_PASS(x0 -= (-oneMsec));
                 Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1 -= (    zero));
-//              Obj x2(startOfEpoch); ASSERT_SAFE_FAIL(x2 -= ( oneMsec));
-//              ProlepticGregorianMode assert squelched
+                Obj x2(startOfEpoch); ASSERT_SAFE_FAIL(x2 -= ( oneMsec));
 
                 Obj y0(  endOfEpoch); ASSERT_SAFE_FAIL(y0 -= (-oneMsec));
                 Obj y1(  endOfEpoch); ASSERT_SAFE_PASS(y1 -= (    zero));
@@ -2401,8 +2399,7 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'addTime'" << endl;
             {
-//              Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0.addTime(0,0,0, -1));
-//              ProlepticGregorianMode assert squelched
+                Obj x0(startOfEpoch); ASSERT_SAFE_FAIL(x0.addTime(0,0,0, -1));
 
                 Obj x1(startOfEpoch); ASSERT_SAFE_PASS(x1.addTime(0,0,0,  0));
                 Obj x2(startOfEpoch); ASSERT_SAFE_PASS(x2.addTime(0,0,0,  1));

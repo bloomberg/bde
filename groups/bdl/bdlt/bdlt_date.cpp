@@ -6,17 +6,12 @@ BSLS_IDENT_RCSID(bdlt_date_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
 #include <bsl_ostream.h>
 
 #include <bsl_c_stdio.h>   // 'snprintf'
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bdlb_bitutil.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {
@@ -31,157 +26,6 @@ static const char *const months[] = {
                                   // class Date
                                   // ----------
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-
-// In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
-// 639798 for the "magic" serial date value, '>' is the appropriate comparison
-// operator to use in the various 'logIfProblematicDate*' functions.
-
-const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
-                                  // 1752/09/15 proleptic Gregorian
-
-// To limit spewing to 'stderr', log an occurrence of a problematic date value
-// or operation only if the associated logging context count is 1, 8, or 256.
-
-const int LOG_THROTTLE_MASK = 1 | 8 | 256;
-
-// CLASS DATA
-bool Date::s_loggingEnabledFlag = false;  // *off* by default
-
-// PRIVATE CLASS METHODS
-void Date::logIfProblematicDateAddition(const char *fileName,
-                                        int         lineNumber,
-                                        int         locationId,
-                                        int         serialDate,
-                                        int         numDays)
-{
-    if (!Date::isLoggingEnabled()
-     || (serialDate > MAGIC_SERIAL && (serialDate + numDays) > MAGIC_SERIAL)) {
-        return;                                                       // RETURN
-    }
-
-    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
-
-    if (locationId < 0 || locationId > 31) {
-        return;                                                       // RETURN
-    }
-
-    const int tmpCount
-             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
-
-    if ((LOG_THROTTLE_MASK & tmpCount)
-     && 1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
-
-        int year, month, day;
-        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
-
-        bsls::Log::logFormattedMessage(
-                              fileName, lineNumber,
-                              "WARNING: bad 'Date' addition: "
-                              "%d/%d/%d + %d [%d] "
-                              "(see {TEAM 481627583<GO>})",
-                              year, month, day, numDays,
-                              tmpCount);
-    }
-}
-
-void Date::logIfProblematicDateDifference(const char *fileName,
-                                          int         lineNumber,
-                                          int         locationId,
-                                          int         lhsSerialDate,
-                                          int         rhsSerialDate)
-{
-    if (!Date::isLoggingEnabled()
-     || (lhsSerialDate > MAGIC_SERIAL && rhsSerialDate > MAGIC_SERIAL)) {
-        return;                                                       // RETURN
-    }
-
-    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
-
-    if (locationId < 0 || locationId > 31) {
-        return;                                                       // RETURN
-    }
-
-    const int tmpCount
-             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
-
-    if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
-     && (LOG_THROTTLE_MASK & tmpCount)) {
-
-        int lhsYear, lhsMonth, lhsDay;
-        DelegatingDateImpUtil::serialToYmd(&lhsYear, &lhsMonth, &lhsDay,
-                                           lhsSerialDate);
-
-        int rhsYear, rhsMonth, rhsDay;
-        DelegatingDateImpUtil::serialToYmd(&rhsYear, &rhsMonth, &rhsDay,
-                                           rhsSerialDate);
-
-        bsls::Log::logFormattedMessage(
-                            fileName, lineNumber,
-                            "WARNING: bad 'Date' difference: "
-                            "%d/%d/%d - %d/%d/%d [%d] "
-                            "(see {TEAM 481627583<GO>})",
-                            lhsYear, lhsMonth, lhsDay,
-                            rhsYear, rhsMonth, rhsDay,
-                            tmpCount);
-    }
-}
-
-void Date::logIfProblematicDateValue(const char *fileName,
-                                     int         lineNumber,
-                                     int         locationId,
-                                     int         serialDate)
-{
-    if (!Date::isLoggingEnabled()
-     || (serialDate > MAGIC_SERIAL || 1 == serialDate)) {
-        return;                                                       // RETURN
-    }
-
-    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
-
-    if (locationId < 0 || locationId > 31) {
-        return;                                                       // RETURN
-    }
-
-    const int tmpCount
-             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
-
-    if (1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))
-     && (LOG_THROTTLE_MASK & tmpCount)) {
-
-        int year, month, day;
-        DelegatingDateImpUtil::serialToYmd(&year, &month, &day, serialDate);
-
-        bsls::Log::logFormattedMessage(
-                                 fileName, lineNumber,
-                                 "WARNING: bad 'Date' value: "
-                                 "%d/%d/%d [%d] "
-                                 "(see {TEAM 481627583<GO>})",
-                                 year, month, day,
-                                 tmpCount);
-    }
-}
-
-// CLASS METHODS
-void Date::disableLogging()
-{
-    s_loggingEnabledFlag = false;
-
-    BSLS_LOG_SIMPLE("'bdlt::Date' logging disabled");
-}
-
-void Date::enableLogging()
-{
-    s_loggingEnabledFlag = true;
-
-    BSLS_LOG_SIMPLE("'bdlt::Date' logging enabled");
-}
-
-#endif
-
 // MANIPULATORS
 int Date::addDaysIfValid(int numDays)
 {
@@ -192,16 +36,6 @@ int Date::addDaysIfValid(int numDays)
     if (!Date::isValidSerial(tmpSerialDate)) {
         return k_FAILURE;                                             // RETURN
     }
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    // Using maximum location 31 to minimize chance of a conflict with header
-    // location values.
-    enum { locationId = 31 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       d_serialDate, numDays);
-#endif
 
     d_serialDate = tmpSerialDate;
 
@@ -240,9 +74,6 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  this,
                  d_serialDate);
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        BSLS_LOG("'bdlt::Date' precondition violated: %s.", buffer);
-#endif
         BSLS_ASSERT_SAFE(
                  !"'bdlt::Date::print' attempted on date with invalid state.");
     }
