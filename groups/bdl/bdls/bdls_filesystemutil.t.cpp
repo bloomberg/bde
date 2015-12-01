@@ -816,12 +816,18 @@ int main(int argc, char *argv[])
         // it would match the root pattern, because pattern matching is
         // not performed on the root.
 
+        bsl::string ossStr;
         bsl::ostringstream oss, ossB;
         for (int ii = 0; ii < 5; ++ii) {
             oss.str("");
             oss << root << PS << "woof." << ii;
 
-            bsl::string ossStr = oss.str();
+            ossStr = oss.str();
+
+            bool dontHide = true;
+            if (4 == ii) {
+                dontHide = false;
+            }
 
             woofExpVec.push_back(ossStr);
             ASSERT(0 == Obj::createDirectories(ossStr, 1));
@@ -832,17 +838,31 @@ int main(int argc, char *argv[])
 
                 const bsl::string& ossBStr = ossB.str();
 
-                meowExpVec.push_back(ossBStr);
+                if (dontHide) {
+                    meowExpVec.push_back(ossBStr);
+                }
                 ::localTouch(ossBStr);
             }
 
             oss << PS << "woof";
 
-            ossStr = oss.str();
+            const bsl::string& ossCStr = oss.str();
 
-            woofExpVec.     push_back(ossStr);
-            woofPathsExpVec.push_back(ossStr);
-            ::localTouch(ossStr);
+            if (dontHide) {
+                woofExpVec.     push_back(ossCStr);
+                woofPathsExpVec.push_back(ossCStr);
+            }
+            ::localTouch(ossCStr);
+
+            if (!dontHide) {
+#ifdef BSLS_PLATFORM_OS_UNIX
+                ::chmod(ossStr.c_str(), 0177);    // not readable or writable
+                                                  // by user
+#else
+                _chmod(ossStr.c_str(), 0);        // not readable or writable
+                                                  // by user
+#endif
+            }
         }
 
         for (int flags = 0; flags < 4; ++flags) {
@@ -858,9 +878,14 @@ int main(int argc, char *argv[])
                      ? Obj::visitTree(rootStr, "woof*", woofVisitor, sortFlag)
                      : Obj::visitTree(root,    "woof*", woofVisitor, sortFlag);
             ASSERT(0 == rc);
-            ASSERT(10 == woofTravVec.size());
+            ASSERT( 9 == woofTravVec.size());
 
             if (verbose) {
+                cout << "woofExpVec:\n";
+                for (FileNameVec::iterator it = woofExpVec.begin();
+                                                woofExpVec.end() != it; ++it) {
+                    cout << *it << endl;
+                }
                 cout << "woofTravVec:\n";
                 for (FileNameVec::iterator it = woofTravVec.begin();
                                                woofTravVec.end() != it; ++it) {
@@ -880,7 +905,7 @@ int main(int argc, char *argv[])
                  ? Obj::visitTree(rootStr, "meow*", meowVisitor, sortFlag)
                  : Obj::visitTree(root,    "meow*", meowVisitor, sortFlag);
             ASSERT(0 == rc);
-            ASSERT(25 == meowTravVec.size());
+            ASSERT(20 == meowTravVec.size());
 
             if (verbose) {
                 cout << "meowTravVec:\n";
@@ -913,7 +938,12 @@ int main(int argc, char *argv[])
             ASSERT(woofPathsExpVec == woofPathsVec);
         }
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        _chmod(ossStr.c_str(), _S_IWRITE | _S_IREAD);  // readable and writable
+                                                       // so we can delete
+#else
+        ::chmod(ossStr.c_str(), 0777);    // writeable so we can delete
+
         // Windows remove has some strange problem here.  Everything will be
         // cleaned up at the end of 'main' anyway, and this code is just
         // intended to test some changes made to Unix 'remove'.

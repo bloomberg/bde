@@ -1768,13 +1768,13 @@ int FilesystemUtil::visitTree(
             visitor(fullFn.c_str());
         }
         else {
+            // Note that 'visitTree' returns non-zero, it may mean the
+            // subdirectory didn't have read or execute permission for us.
+
             int rc = visitTree(fullFn, pattern, visitor, sortFlag);
             (void) rc;    // suppress 'unused' warnings.
 
-            // Note that if '0 != rc', it means there's a logic error in this
-            // function.
-
-            BSLS_ASSERT_SAFE(0 == rc);
+            BSLS_ASSERT_SAFE(0 == rc || EACCES == errno);
         }
     }
 
