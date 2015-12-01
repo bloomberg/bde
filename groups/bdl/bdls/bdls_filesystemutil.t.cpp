@@ -48,6 +48,8 @@
 #include <windows.h>  // for Sleep, GetLastError
 #include <fcntl.h>    // for _O_U16TEXT
 #include <io.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #endif
 
 using namespace BloombergLP;
@@ -189,6 +191,12 @@ static const size_t NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
 static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
 #else
 static const size_t NUM_VALID_NAMES = NUM_NAMES;
+#endif
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+enum { e_IS_UNIX = 1 };
+#else
+enum { e_IS_UNIX = 0 };
 #endif
 
 // ============================================================================
@@ -767,6 +775,9 @@ int main(int argc, char *argv[])
         //:   tree.
         //: o That if 'sortFlag' is specified, nodes will be visited in sorted
         //:   order, with directories visited before their contents.
+        //: o That 'visitPaths' and 'visitTree' respond approriately to
+        //:   non-readable directories on Unix (it did not seem to be possible
+        //:   to make a directory non-readable on Windows).
         //
         // Plan:
         //: o Create a tree with two types of nodes, 'woof*' nodes and 'meow*'
@@ -782,6 +793,8 @@ int main(int argc, char *argv[])
         //:   searches, one for 'woof*' nodes and one for 'meow*' nodes.
         //:   Verify after that the vector matches the sorted expected value
         //:   vector without itself having had to be sorted.
+        //: o Make one of the directories temporarily non-readable on Unix,
+        //:   and observe that the functions perform appropriately.
         //
         // TESTING
         // int visitTree(
@@ -825,7 +838,7 @@ int main(int argc, char *argv[])
             ossStr = oss.str();
 
             bool dontHide = true;
-            if (4 == ii) {
+            if (e_IS_UNIX && 4 == ii) {
                 dontHide = false;
             }
 
@@ -855,13 +868,8 @@ int main(int argc, char *argv[])
             ::localTouch(ossCStr);
 
             if (!dontHide) {
-#ifdef BSLS_PLATFORM_OS_UNIX
                 ::chmod(ossStr.c_str(), 0177);    // not readable or writable
                                                   // by user
-#else
-                _chmod(ossStr.c_str(), 0);        // not readable or writable
-                                                  // by user
-#endif
             }
         }
 
@@ -878,7 +886,7 @@ int main(int argc, char *argv[])
                      ? Obj::visitTree(rootStr, "woof*", woofVisitor, sortFlag)
                      : Obj::visitTree(root,    "woof*", woofVisitor, sortFlag);
             ASSERT(0 == rc);
-            ASSERT( 9 == woofTravVec.size());
+            ASSERT((e_IS_UNIX ? 9 : 10) == woofTravVec.size());
 
             if (verbose) {
                 cout << "woofExpVec:\n";
@@ -905,7 +913,7 @@ int main(int argc, char *argv[])
                  ? Obj::visitTree(rootStr, "meow*", meowVisitor, sortFlag)
                  : Obj::visitTree(root,    "meow*", meowVisitor, sortFlag);
             ASSERT(0 == rc);
-            ASSERT(20 == meowTravVec.size());
+            ASSERT((e_IS_UNIX ? 20 : 25) == meowTravVec.size());
 
             if (verbose) {
                 cout << "meowTravVec:\n";
@@ -938,10 +946,7 @@ int main(int argc, char *argv[])
             ASSERT(woofPathsExpVec == woofPathsVec);
         }
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        _chmod(ossStr.c_str(), _S_IWRITE | _S_IREAD);  // readable and writable
-                                                       // so we can delete
-#else
+#ifndef BSLS_PLATFORM_OS_WINDOWS
         ::chmod(ossStr.c_str(), 0777);    // writeable so we can delete
 
         // Windows remove has some strange problem here.  Everything will be
