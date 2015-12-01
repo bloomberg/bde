@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
 //
-//@INTERNAL_DEPRECATED: use 'bdlma_managedallocator' instead.
+//@INTERNAL_DEPRECATED: Use 'bdlma_managedallocator' instead.
 //
 //@CLASSES:
 //  bslma::ManagedAllocator: protocol for allocators with 'release' capability
