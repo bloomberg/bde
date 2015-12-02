@@ -1423,21 +1423,21 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
             StatResult dummy;
             int rc;
             do {
-               rc = readdir_r(dir, &entry, &entry_p);
-               if (0 != rc) {
-                  break;
-               }
+                rc = readdir_r(dir, &entry, &entry_p);
+                if (0 != rc) {
+                    break;
+                }
 
-               if (isDotOrDots(entry.d_name)) {
-                  continue;
-               }
+                if (shortIsDotOrDots(entry.d_name)) {
+                    continue;
+                }
 
-               PathUtil::appendRaw(&workingPath, entry.d_name);
-               if (0 == ::performStat(workingPath.c_str(), &dummy, false) &&
-                   0 != remove(workingPath.c_str(), true)) {
-                  return -1;                                          // RETURN
-               }
-               PathUtil::popLeaf(&workingPath);
+                PathUtil::appendRaw(&workingPath, entry.d_name);
+                if   (0 == ::performStat(workingPath.c_str(), &dummy, false)
+                   && 0 != remove(workingPath.c_str(), true)) {
+                    return -1;                                        // RETURN
+                }
+                PathUtil::popLeaf(&workingPath);
             } while (&entry == entry_p);
         }
 
