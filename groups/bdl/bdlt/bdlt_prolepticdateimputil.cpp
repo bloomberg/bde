@@ -1,8 +1,8 @@
-// bdlt_posixdateimputil.cpp                                          -*-C++-*-
-#include <bdlt_posixdateimputil.h>
+// bdlt_prolepticdateimputil.cpp                                      -*-C++-*-
+#include <bdlt_prolepticdateimputil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_posixdateimputil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlt_prolepticdateimputil_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {
@@ -10,232 +10,236 @@ namespace bdlt {
 namespace {
 
 enum {
-    // years used in the implementation
-
-    k_YEAR_1601 = 1601,
-    k_YEAR_1701 = 1701,
-    k_YEAR_1752 = 1752,  // exceptional year with September having only 19 days
-    k_YEAR_1800 = 1800,
-    k_YEAR_2000 = 2000
-};
-
-enum {
     // months of the year used in the implementation
 
-    k_JANUARY   =  1,
-    k_FEBRUARY  =  2,
-    k_SEPTEMBER =  9,
-    k_DECEMBER  = 12
-};
+    k_JAN                   =     1,
+    k_FEB                   =     2,
+    k_DEC                   =    12,
 
-enum {
-    // days of the week used in the implementation
-
-    k_WEDNESDAY = 4,
-    k_SATURDAY  = 7
-};
-
-enum {
-    // serial dates used in the implementation
-
-    k_JAN_01_0001 =       1,  // first day of the value range for serial days
-    k_JAN_01_1601 =  584401,  // first day of the 17th century
-    k_SEP_02_1752 =  639798,  // last day before the 11-day gap
-    k_JAN_01_1753 =  639908   // first day of the year following the 11-day gap
-};
-
-enum {
     // other useful constants
 
-    k_MIN_DAY                     = 1,
-    k_MAX_DAY                     = 31,
-    k_MIN_MONTH                   = 1,
-    k_MAX_MONTH                   = 12,
-    k_MIN_YEAR                    = 1,
-    k_MAX_YEAR                    = 9999,
-    k_MAX_SERIAL_DAY              = 3652061,
-    k_YEAR_1752_FIRST_MISSING_DAY = 3,
-    k_YEAR_1752_LAST_MISSING_DAY  = 13,
-    k_YEAR_1752_NUM_MISSING_DAYS  = 11,
-    k_DAYS_IN_NON_LEAP_YEAR       = 365,
-    k_DAYS_IN_LEAP_YEAR           = 366,
-    k_DAYS_IN_4_YEARS             = k_DAYS_IN_NON_LEAP_YEAR * 4 + 1, //   1,461
-    k_DAYS_IN_100_YEARS           =  25 * k_DAYS_IN_4_YEARS     - 1, //  36,524
-    k_DAYS_IN_400_YEARS           =   4 * k_DAYS_IN_100_YEARS   + 1  // 146,097
+    k_MIN_DAY               =     1,
+
+    k_MIN_MONTH             = k_JAN,
+    k_MAX_MONTH             = k_DEC,
+
+    k_MIN_YEAR              =     1,
+    k_MAX_YEAR              =  9999,
+
+    k_MIN_DAY_OF_YEAR       =     1,
+
+    k_DAYS_IN_NON_LEAP_YEAR =   365,
+    k_DAYS_IN_LEAP_YEAR     =   366,
+
+    k_DAYS_IN_4_YEARS       = k_DAYS_IN_NON_LEAP_YEAR * 4 + 1,  //   1,461
+    k_DAYS_IN_100_YEARS     =  25 * k_DAYS_IN_4_YEARS     - 1,  //  36,524
+
+    k_DAYS_IN_400_YEAR_ERA  =   4 * k_DAYS_IN_100_YEARS   + 1   // 146,097
 };
 
 // Note that, in each of the following arrays, the element at index position 0
-// is always the value of 0 (in order to facilitate asking questions involving
-// all months up through the *previous* one).
+// is always the value 0 (in order to facilitate asking questions involving all
+// months up through the *previous* one).
 
-static const int normDaysThroughMonth[] = { 0,
-// Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-    31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+static const int normDaysThroughMonth[] = {
+    // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+    0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365
 };
 
-static const int leapDaysThroughMonth[] = { 0,
-// Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-    31,  60,  91, 121, 152, 182, 213, 244, 274, 305, 335, 366
+static const int leapDaysThroughMonth[] = {
+    // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+    0,  31,  60,  91, 121, 152, 182, 213, 244, 274, 305, 335, 366
 };
 
-static int y1752DaysThroughMonth[] = { 0,
-// Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-    31,  60,  91, 121, 152, 182, 213, 244, 263, 294, 324, 355
+static const int normDaysPerMonth[] = {
+    // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+    0,  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
 };
 
-static const int normDaysPerMonth[] = { 0,
-// Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-    31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30, 31
+static const int leapDaysPerMonth[] = {
+    // Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+    0,  31,  29,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
 };
 
-static const int leapDaysPerMonth[] = { 0,
-// Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-    31,  29,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
+static const unsigned char dayOfYear2Month[2][k_DAYS_IN_LEAP_YEAR] = {
+    // used for 365-day years
+    {
+         1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+         1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+
+         2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+         2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,          // 28 days
+
+         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+
+         4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+         4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+
+         5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+         5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,
+
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+
+         9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,
+         9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,
+
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
+
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+
+        255  // should never be accessed
+    },
+
+    // used for 366-day years
+    {
+         1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+         1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+
+         2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+         2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,      // 29 days
+
+         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+         3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+
+         4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+         4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,
+
+         5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+         5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,
+
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+         6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,
+
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,
+         7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,
+
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+         8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,
+
+         9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,
+         9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,
+
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+        10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
+        11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
+
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12
+    }
 };
+
+// FORWARD DECLARATIONS OF STATIC HELPER FUNCTIONS
+
+static inline
+const int *getArrayDaysThroughMonth(int);
+
+static inline
+int numLeapYearsSoFar(int);
+
+// STATIC HELPER FUNCTIONS
+
+static inline
+int calendarDaysThroughMonth(int year, int month)
+    // Return the number of calendar days since the start of the specified
+    // 'year' and including the days in the specified 'month'.  The behavior is
+    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR' and
+    // '0 <= month <= k_MAX_MONTH'.
+{
+    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
+    BSLS_ASSERT_SAFE(              year  <= k_MAX_YEAR);
+    BSLS_ASSERT_SAFE(         0 <= month);
+    BSLS_ASSERT_SAFE(              month <= k_MAX_MONTH);
+
+    return getArrayDaysThroughMonth(year)[month];
+}
 
 static inline
 const int *getArrayDaysThroughMonth(int year)
     // Return the address of a static array that, for the specified 'year', can
     // be used to determine the number of days up to and including the month
-    // indicated by an integer index in the range '[ 0 .. k_MAX_MONTH ]', where
+    // indicated by an integer index in the range '[0 .. k_MAX_MONTH]', where
     // an index of 0 always results in the value 0.  The behavior is undefined
     // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
     BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
 
-    return bdlt::PosixDateImpUtil::isLeapYear(year)
-           ? k_YEAR_1752 == year
-             ? y1752DaysThroughMonth
-             : leapDaysThroughMonth
+    return bdlt::ProlepticDateImpUtil::isLeapYear(year)
+           ? leapDaysThroughMonth
            : normDaysThroughMonth;
 }
 
-static
+static inline
 int numDaysInPreviousYears(int year)
     // Return the total number of days in all years, beginning with the year 1,
     // up to but not including the specified 'year'.  The behavior is undefined
     // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT(k_MIN_YEAR <= year);
-    BSLS_ASSERT(              year <= k_MAX_YEAR);
+    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
+    BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
 
     const int y = year - 1;
-    int numDays = y * k_DAYS_IN_NON_LEAP_YEAR + y / 4;
-                                // days; initially, 1 out of 4 had an extra day
 
-    // After 1752, centuries are no longer leap years unless the year is also
-    // divisible by 400.  Hence, 1600 and 1700 are leap years, 1800 and 1900
-    // are not, 2000 is, 2100, 2200, and 2300 are not, but 2400 is.
-
-    if (year > k_YEAR_1752) {
-        numDays -= k_YEAR_1752_NUM_MISSING_DAYS;    // September 1752 has
-                                                    // missing days.
-        if (year > k_YEAR_1800) {                   // Adjust for
-                                                    // Post-Gregorian dates:
-            numDays -= (year - k_YEAR_1701) / 100;  // Reduce by 1 day for each
-                                                    // century,
-            numDays += (year - k_YEAR_1601) / 400;  // but add 1 for each
-                                                    // 400-year block.
-        }
-    }
-
-    return numDays;
+    return y * k_DAYS_IN_NON_LEAP_YEAR + numLeapYearsSoFar(y);
 }
 
-static
+static inline
 int numLeapYearsSoFar(int year)
     // Return the number of leap years from year 1 to the specified 'year'.
     // The behavior is undefined unless '0 <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT(0 <= year);
-    BSLS_ASSERT(     year <= k_MAX_YEAR);
+    BSLS_ASSERT_SAFE(0 <= year);
+    BSLS_ASSERT_SAFE(     year <= k_MAX_YEAR);
 
-    enum {
-        k_NUM_LEAP_YEARS_UNTIL_YEAR_2000 = 498,
-        k_NUM_LEAP_YEARS_UNTIL_YEAR_1800 = 449
-    };
-
-    if (year >= k_YEAR_2000) {
-        const int delta = year - k_YEAR_2000;
-        return k_NUM_LEAP_YEARS_UNTIL_YEAR_2000
-             + delta / 4
-             - delta / 100
-             + delta / 400;                                           // RETURN
-    }
-    else if (year >= k_YEAR_1800) {
-        const int delta = year - k_YEAR_1800;
-        return k_NUM_LEAP_YEARS_UNTIL_YEAR_1800
-             + delta / 4
-             - delta / 100;                                           // RETURN
-    }
-    else {
-        return year / 4;                                              // RETURN
-    }
+    return year / 4 - year / 100 + year / 400;
 }
 
 }  // close unnamed namespace
 
-                           // -----------------------
-                           // struct PosixDateImpUtil
-                           // -----------------------
+                           // ---------------------------
+                           // struct ProlepticDateImpUtil
+                           // ---------------------------
 
 // CLASS METHODS
-int PosixDateImpUtil::lastDayOfMonth(int year, int month)
+int ProlepticDateImpUtil::lastDayOfMonth(int year, int month)
 {
     BSLS_ASSERT(k_MIN_YEAR  <= year);
     BSLS_ASSERT(               year  <= k_MAX_YEAR);
     BSLS_ASSERT(k_MIN_MONTH <= month);
     BSLS_ASSERT(               month <= k_MAX_MONTH);
 
-    return normDaysPerMonth[month] + (k_FEBRUARY == month && isLeapYear(year));
+    return normDaysPerMonth[month] + (k_FEB == month && isLeapYear(year));
 }
 
-int PosixDateImpUtil::numLeapYears(int year1, int year2)
+int ProlepticDateImpUtil::numLeapYears(int year1, int year2)
 {
-    BSLS_ASSERT(year1 <= year2);
     BSLS_ASSERT(k_MIN_YEAR <= year1);
     BSLS_ASSERT(              year1 <= k_MAX_YEAR);
     BSLS_ASSERT(k_MIN_YEAR <= year2);
     BSLS_ASSERT(              year2 <= k_MAX_YEAR);
+    BSLS_ASSERT(year1 <= year2);
 
     return numLeapYearsSoFar(year2) - numLeapYearsSoFar(year1 - 1);
 }
 
                         // Is Valid Date
 
-bool PosixDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
-{
-    if (year < k_MIN_YEAR || year > k_MAX_YEAR) {
-        return false;                                                 // RETURN
-    }
-
-    if (month < k_JANUARY || month > k_DECEMBER) {
-        return false;                                                 // RETURN
-    }
-
-    int daysInMonth;
-
-    if (isLeapYear(year)) {
-        if (k_YEAR_1752 == year && k_SEPTEMBER == month
-         && day >= k_YEAR_1752_FIRST_MISSING_DAY
-         && day <= k_YEAR_1752_LAST_MISSING_DAY) {
-            return false;                                             // RETURN
-        }
-        daysInMonth = leapDaysPerMonth[month];
-    }
-    else {
-        daysInMonth = normDaysPerMonth[month];
-    }
-
-    if (day < k_MIN_DAY || day > daysInMonth) {
-        return false;                                                 // RETURN
-    }
-
-    return true;
-}
-
-bool PosixDateImpUtil::isValidYearDay(int year, int dayOfYear)
+bool ProlepticDateImpUtil::isValidYearDay(int year, int dayOfYear)
 {
     if (year < k_MIN_YEAR || year > k_MAX_YEAR) {
         return false;                                                 // RETURN
@@ -243,20 +247,36 @@ bool PosixDateImpUtil::isValidYearDay(int year, int dayOfYear)
 
     const int *daysThroughMonth = getArrayDaysThroughMonth(year);
 
-    return k_JAN_01_0001 <= dayOfYear
-                         && dayOfYear <= daysThroughMonth[k_DECEMBER];
+    return k_MIN_DAY_OF_YEAR <= dayOfYear
+        && dayOfYear         <= daysThroughMonth[k_DEC];
+}
+
+bool
+ProlepticDateImpUtil::isValidYearMonthDayNoCache(int year, int month, int day)
+{
+    if (year < k_MIN_YEAR || month < k_MIN_MONTH || day < k_MIN_DAY
+     || year > k_MAX_YEAR || month > k_MAX_MONTH) {
+
+        return false;                                                 // RETURN
+    }
+
+    const int daysInMonth = isLeapYear(year)
+                            ? leapDaysPerMonth[month]
+                            : normDaysPerMonth[month];
+
+    return day <= daysInMonth;
 }
 
                         // To Serial Date (s)
 
-int PosixDateImpUtil::ydToSerial(int year, int dayOfYear)
+int ProlepticDateImpUtil::ydToSerial(int year, int dayOfYear)
 {
     BSLS_ASSERT(isValidYearDay(year, dayOfYear));
 
     return numDaysInPreviousYears(year) + dayOfYear;
 }
 
-int PosixDateImpUtil::ymdToSerial(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToSerial(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
@@ -269,136 +289,71 @@ int PosixDateImpUtil::ymdToSerial(int year, int month, int day)
     }
 }
 
-int PosixDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
-    const int totalDaysInPreviousMonths = normDaysThroughMonth[month - 1];
+    const int y = year - 1;
 
-    if (year > k_YEAR_1752) {
-        const int n = year - k_YEAR_1601;    // number of years since year 1601
-
-        return k_JAN_01_1601                 // serial date for 1601/1/1
-             + n * 365                       // add'l days for each year
-             + n / 4 - n / 100 + n / 400     // add'l leap days
-             + totalDaysInPreviousMonths     // add'l days before this month
-             + day                           // add'l days within this month
-             - k_YEAR_1752_NUM_MISSING_DAYS  // September 1752 has missing days
-             + (isLeapYear(year)             // if a leap year
-                && month > 2);               //  & day after Feb29    // RETURN
-    }
-
-    BSLS_ASSERT_SAFE(year <= k_YEAR_1752);
-
-    const int n = year - 1;  // number of full years since 0001/01/01
-
-    int result = n * k_DAYS_IN_NON_LEAP_YEAR + n / 4
-                 + totalDaysInPreviousMonths + day;
-
-    if (month > k_FEBRUARY && 0 == year % 4) {
-        ++result;                                // Add a day for 2/29.
-    }
-
-    if (result > k_SEP_02_1752) {
-        BSLS_ASSERT_SAFE(k_YEAR_1752 == year);
-        BSLS_ASSERT_SAFE(month >= k_SEPTEMBER);
-
-        result -= k_YEAR_1752_NUM_MISSING_DAYS;  // Account for the missing
-                                                 // days.
-    }
-
-    return result;
+    return y * k_DAYS_IN_NON_LEAP_YEAR     // standard days for each year
+           + numLeapYearsSoFar(y)          // additional leap days
+           + calendarDaysThroughMonth(year, month - 1)
+                                           // additional days before this month
+           + day;                          // additional days this month
 }
 
                         // To Day-Of-Year Date (yd)
 
-void PosixDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
+void ProlepticDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(dayOfYear);
     BSLS_ASSERT(isValidSerial(serialDay));
 
-    if (serialDay >= k_JAN_01_1753) {
-        int y = k_YEAR_1601;                    // base year
-        int n = serialDay - k_JAN_01_1601;      // num actual days since
-                                                // 1601/1/1
+    // 'sm1': serial day minus 1
 
-        int m = n                               // Compensate for the 11
-              + k_YEAR_1752_NUM_MISSING_DAYS    // missing days in September of
-              - 1;                              // 1752, and the additional
-                                                // leap day in 1700.
+    const unsigned sm1 = static_cast<unsigned>(serialDay - 1);
 
-        int z400 = m / k_DAYS_IN_400_YEARS;     // num 400-year blocks
-        y += z400 * 400;
-        m -= z400 * k_DAYS_IN_400_YEARS;        // num days since y/1/1 (400)
+    // 'era': 0-based 400-year "era"
 
-        int z100 = m / k_DAYS_IN_100_YEARS;     // num 100-year blocks
-        y += z100 * 100;
-        m -= z100 * k_DAYS_IN_100_YEARS;        // num days since y/1/1 (100)
+    const unsigned era = sm1 / k_DAYS_IN_400_YEAR_ERA;
 
-        int z4 = m / k_DAYS_IN_4_YEARS;         // num 4-year blocks
-        y += z4 * 4;
-        m -= z4 * k_DAYS_IN_4_YEARS;            // num days since y/1/1 (4)
+    // 'doe': 0-based day of the era
 
-        int z = m / k_DAYS_IN_NON_LEAP_YEAR;    // num whole years
-        y += z;
-        m -= z * k_DAYS_IN_NON_LEAP_YEAR;       // num days since y/1/1 (1)
+    const unsigned doe = sm1 - era * k_DAYS_IN_400_YEAR_ERA;   // [0 .. 146096]
 
-        if (0 == m && (4 == z || 4 == z100)) {  // last day in a leap year or
-                                                // a leap year every 400 years
-            *year      = y - 1;
-            *dayOfYear = k_DAYS_IN_LEAP_YEAR;
-        }
-        else {
-            *year      = y;
-            *dayOfYear = m + 1;
-        }
-    }
-    else {
-        BSLS_ASSERT_SAFE(serialDay < k_JAN_01_1753);
+    // 'yoe': 0-based year of the era
 
-        int y = 1;                              // base year
-        int n = serialDay - 1;                  // num actual days since 1/1/1
+    const unsigned yoe =
+     (doe - doe / 1460 + doe / 36524 - doe / 146096) / k_DAYS_IN_NON_LEAP_YEAR;
+                                                               // [0 .. 399]
 
-        int z4 = n / k_DAYS_IN_4_YEARS;         // num 4-year blocks
-        y += z4 * 4;
-        n -= z4 * k_DAYS_IN_4_YEARS;            // num days since y/1/1 (4)
+    // 'ym1': year minus 1
 
-        int z = n / k_DAYS_IN_NON_LEAP_YEAR;    // num whole years
-        y += z;
-        n -= z * k_DAYS_IN_NON_LEAP_YEAR;       // num days since y/1/1 (1)
+    const unsigned ym1 = era * 400 + yoe;
 
-        if (4 == z && 0 == n) {                 // last day in a leap year
-            *year      = y - 1;
-            *dayOfYear = k_DAYS_IN_LEAP_YEAR;
-        }
-        else {
-            *year      = y;
-            *dayOfYear = n + 1;
-        }
-    }
+    // 'doy': 0-based day of the year
+
+    const unsigned doy =
+                sm1 - (ym1 * k_DAYS_IN_NON_LEAP_YEAR + numLeapYearsSoFar(ym1));
+
+    *year      = static_cast<int>(ym1 + 1);
+
+    *dayOfYear = static_cast<int>(doy + 1);
 }
 
-int PosixDateImpUtil::ymdToDayOfYear(int year, int month, int day)
+int ProlepticDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 {
     BSLS_ASSERT(isValidYearMonthDay(year, month, day));
 
     const int *daysThroughMonth = getArrayDaysThroughMonth(year);
 
-    int d = day;
-
-    if (k_YEAR_1752 == year
-     && k_SEPTEMBER == month
-     && day >= k_YEAR_1752_FIRST_MISSING_DAY) {
-        d -= k_YEAR_1752_NUM_MISSING_DAYS;
-    }
-
-    return daysThroughMonth[month - 1] + d;
+    return daysThroughMonth[month - 1] + day;
 }
 
                         // To Calendar Date (ymd)
 
-int PosixDateImpUtil::serialToDay(int serialDay)
+int ProlepticDateImpUtil::serialToDay(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -412,7 +367,7 @@ int PosixDateImpUtil::serialToDay(int serialDay)
     }
 }
 
-int PosixDateImpUtil::serialToMonth(int serialDay)
+int ProlepticDateImpUtil::serialToMonth(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -427,7 +382,7 @@ int PosixDateImpUtil::serialToMonth(int serialDay)
     }
 }
 
-int PosixDateImpUtil::serialToYear(int serialDay)
+int ProlepticDateImpUtil::serialToYear(int serialDay)
 {
     BSLS_ASSERT_SAFE(isValidSerial(serialDay));
 
@@ -442,10 +397,10 @@ int PosixDateImpUtil::serialToYear(int serialDay)
     }
 }
 
-void PosixDateImpUtil::serialToYmd(int *year,
-                                   int *month,
-                                   int *day,
-                                   int  serialDay)
+void ProlepticDateImpUtil::serialToYmd(int *year,
+                                       int *month,
+                                       int *day,
+                                       int  serialDay)
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
@@ -456,6 +411,7 @@ void PosixDateImpUtil::serialToYmd(int *year,
                                 && serialDay <= s_lastCachedSerialDate) {
         const YearMonthDay *ymd =
                     s_cachedYearMonthDay + serialDay - s_firstCachedSerialDate;
+
         *year  = ymd->d_year;
         *month = ymd->d_month;
         *day   = ymd->d_day;
@@ -465,60 +421,37 @@ void PosixDateImpUtil::serialToYmd(int *year,
     }
 }
 
-void PosixDateImpUtil::ydToMd(int *month, int *day, int year, int dayOfYear)
+void ProlepticDateImpUtil::ydToMd(int *month,
+                                  int *day,
+                                  int  year,
+                                  int  dayOfYear)
 {
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
     BSLS_ASSERT(isValidYearDay(year, dayOfYear));
 
-    const int *daysThroughMonth = getArrayDaysThroughMonth(year);
+    const bool isLeapFlag = isLeapYear(year);
 
-    int m = 0;
+    *month = dayOfYear2Month[isLeapFlag][dayOfYear - 1];
 
-    while (daysThroughMonth[++m] < dayOfYear) {
-        // Do nothing.
-    }
+    const int *daysThroughMonth = isLeapFlag
+                                  ? leapDaysThroughMonth
+                                  : normDaysThroughMonth;
 
-    *month = m;
-
-    int d = dayOfYear - daysThroughMonth[m - 1];
-
-    if (k_YEAR_1752 == year
-     && k_SEPTEMBER == m
-     && d >= k_YEAR_1752_FIRST_MISSING_DAY) {
-        d += k_YEAR_1752_NUM_MISSING_DAYS;
-    }
-
-    *day = d;
-    return;
-}
-
-                        // To Day of Week '[ SUN = 1, MON .. SAT ]'
-
-int PosixDateImpUtil::serialToDayOfWeek(int serialDay)
-{
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
-
-    int d = serialDay - 1;
-
-    d += serialDay > k_SEP_02_1752
-         ? k_WEDNESDAY - k_SEP_02_1752   // 1752/09/02 was a Wednesday.
-         : k_SATURDAY  - k_JAN_01_0001;  // 0001/01/01 was a Saturday.
-
-    return 1 + d % 7;
+    *day = dayOfYear - daysThroughMonth[*month - 1];
 }
 
 // ============================================================================
 //                    MACHINE-GENERATED DATA GOES HERE
 // ============================================================================
 
-const int PosixDateImpUtil::s_firstCachedYear       = 1980;
-const int PosixDateImpUtil::s_lastCachedYear        = 2040;
-const int PosixDateImpUtil::s_firstCachedSerialDate = 722817;
-const int PosixDateImpUtil::s_lastCachedSerialDate  = 745097;
+const int ProlepticDateImpUtil::s_firstCachedYear       = 1980;
+const int ProlepticDateImpUtil::s_lastCachedYear        = 2040;
+const int ProlepticDateImpUtil::s_firstCachedSerialDate = 722815;
+const int ProlepticDateImpUtil::s_lastCachedSerialDate  = 745095;
 
-const PosixDateImpUtil::YearMonthDay
-    PosixDateImpUtil::s_cachedYearMonthDay[] = {
+const ProlepticDateImpUtil::YearMonthDay
+    ProlepticDateImpUtil::s_cachedYearMonthDay[] = {
   { 1980,  1,  1 },  { 1980,  1,  2 },  { 1980,  1,  3 },  { 1980,  1,  4 },
   { 1980,  1,  5 },  { 1980,  1,  6 },  { 1980,  1,  7 },  { 1980,  1,  8 },
   { 1980,  1,  9 },  { 1980,  1, 10 },  { 1980,  1, 11 },  { 1980,  1, 12 },
@@ -6092,132 +6025,132 @@ const PosixDateImpUtil::YearMonthDay
   { 2040, 12, 31 },
 };
 
-const int PosixDateImpUtil::s_cachedSerialDate[61][13] = {
-  { 0, 722816, 722847, 722876, 722907, 722937, 722968,
-       722998, 723029, 723060, 723090, 723121, 723151,   },
-  { 0, 723182, 723213, 723241, 723272, 723302, 723333,
-       723363, 723394, 723425, 723455, 723486, 723516,   },
-  { 0, 723547, 723578, 723606, 723637, 723667, 723698,
-       723728, 723759, 723790, 723820, 723851, 723881,   },
-  { 0, 723912, 723943, 723971, 724002, 724032, 724063,
-       724093, 724124, 724155, 724185, 724216, 724246,   },
-  { 0, 724277, 724308, 724337, 724368, 724398, 724429,
-       724459, 724490, 724521, 724551, 724582, 724612,   },
-  { 0, 724643, 724674, 724702, 724733, 724763, 724794,
-       724824, 724855, 724886, 724916, 724947, 724977,   },
-  { 0, 725008, 725039, 725067, 725098, 725128, 725159,
-       725189, 725220, 725251, 725281, 725312, 725342,   },
-  { 0, 725373, 725404, 725432, 725463, 725493, 725524,
-       725554, 725585, 725616, 725646, 725677, 725707,   },
-  { 0, 725738, 725769, 725798, 725829, 725859, 725890,
-       725920, 725951, 725982, 726012, 726043, 726073,   },
-  { 0, 726104, 726135, 726163, 726194, 726224, 726255,
-       726285, 726316, 726347, 726377, 726408, 726438,   },
-  { 0, 726469, 726500, 726528, 726559, 726589, 726620,
-       726650, 726681, 726712, 726742, 726773, 726803,   },
-  { 0, 726834, 726865, 726893, 726924, 726954, 726985,
-       727015, 727046, 727077, 727107, 727138, 727168,   },
-  { 0, 727199, 727230, 727259, 727290, 727320, 727351,
-       727381, 727412, 727443, 727473, 727504, 727534,   },
-  { 0, 727565, 727596, 727624, 727655, 727685, 727716,
-       727746, 727777, 727808, 727838, 727869, 727899,   },
-  { 0, 727930, 727961, 727989, 728020, 728050, 728081,
-       728111, 728142, 728173, 728203, 728234, 728264,   },
-  { 0, 728295, 728326, 728354, 728385, 728415, 728446,
-       728476, 728507, 728538, 728568, 728599, 728629,   },
-  { 0, 728660, 728691, 728720, 728751, 728781, 728812,
-       728842, 728873, 728904, 728934, 728965, 728995,   },
-  { 0, 729026, 729057, 729085, 729116, 729146, 729177,
-       729207, 729238, 729269, 729299, 729330, 729360,   },
-  { 0, 729391, 729422, 729450, 729481, 729511, 729542,
-       729572, 729603, 729634, 729664, 729695, 729725,   },
-  { 0, 729756, 729787, 729815, 729846, 729876, 729907,
-       729937, 729968, 729999, 730029, 730060, 730090,   },
-  { 0, 730121, 730152, 730181, 730212, 730242, 730273,
-       730303, 730334, 730365, 730395, 730426, 730456,   },
-  { 0, 730487, 730518, 730546, 730577, 730607, 730638,
-       730668, 730699, 730730, 730760, 730791, 730821,   },
-  { 0, 730852, 730883, 730911, 730942, 730972, 731003,
-       731033, 731064, 731095, 731125, 731156, 731186,   },
-  { 0, 731217, 731248, 731276, 731307, 731337, 731368,
-       731398, 731429, 731460, 731490, 731521, 731551,   },
-  { 0, 731582, 731613, 731642, 731673, 731703, 731734,
-       731764, 731795, 731826, 731856, 731887, 731917,   },
-  { 0, 731948, 731979, 732007, 732038, 732068, 732099,
-       732129, 732160, 732191, 732221, 732252, 732282,   },
-  { 0, 732313, 732344, 732372, 732403, 732433, 732464,
-       732494, 732525, 732556, 732586, 732617, 732647,   },
-  { 0, 732678, 732709, 732737, 732768, 732798, 732829,
-       732859, 732890, 732921, 732951, 732982, 733012,   },
-  { 0, 733043, 733074, 733103, 733134, 733164, 733195,
-       733225, 733256, 733287, 733317, 733348, 733378,   },
-  { 0, 733409, 733440, 733468, 733499, 733529, 733560,
-       733590, 733621, 733652, 733682, 733713, 733743,   },
-  { 0, 733774, 733805, 733833, 733864, 733894, 733925,
-       733955, 733986, 734017, 734047, 734078, 734108,   },
-  { 0, 734139, 734170, 734198, 734229, 734259, 734290,
-       734320, 734351, 734382, 734412, 734443, 734473,   },
-  { 0, 734504, 734535, 734564, 734595, 734625, 734656,
-       734686, 734717, 734748, 734778, 734809, 734839,   },
-  { 0, 734870, 734901, 734929, 734960, 734990, 735021,
-       735051, 735082, 735113, 735143, 735174, 735204,   },
-  { 0, 735235, 735266, 735294, 735325, 735355, 735386,
-       735416, 735447, 735478, 735508, 735539, 735569,   },
-  { 0, 735600, 735631, 735659, 735690, 735720, 735751,
-       735781, 735812, 735843, 735873, 735904, 735934,   },
-  { 0, 735965, 735996, 736025, 736056, 736086, 736117,
-       736147, 736178, 736209, 736239, 736270, 736300,   },
-  { 0, 736331, 736362, 736390, 736421, 736451, 736482,
-       736512, 736543, 736574, 736604, 736635, 736665,   },
-  { 0, 736696, 736727, 736755, 736786, 736816, 736847,
-       736877, 736908, 736939, 736969, 737000, 737030,   },
-  { 0, 737061, 737092, 737120, 737151, 737181, 737212,
-       737242, 737273, 737304, 737334, 737365, 737395,   },
-  { 0, 737426, 737457, 737486, 737517, 737547, 737578,
-       737608, 737639, 737670, 737700, 737731, 737761,   },
-  { 0, 737792, 737823, 737851, 737882, 737912, 737943,
-       737973, 738004, 738035, 738065, 738096, 738126,   },
-  { 0, 738157, 738188, 738216, 738247, 738277, 738308,
-       738338, 738369, 738400, 738430, 738461, 738491,   },
-  { 0, 738522, 738553, 738581, 738612, 738642, 738673,
-       738703, 738734, 738765, 738795, 738826, 738856,   },
-  { 0, 738887, 738918, 738947, 738978, 739008, 739039,
-       739069, 739100, 739131, 739161, 739192, 739222,   },
-  { 0, 739253, 739284, 739312, 739343, 739373, 739404,
-       739434, 739465, 739496, 739526, 739557, 739587,   },
-  { 0, 739618, 739649, 739677, 739708, 739738, 739769,
-       739799, 739830, 739861, 739891, 739922, 739952,   },
-  { 0, 739983, 740014, 740042, 740073, 740103, 740134,
-       740164, 740195, 740226, 740256, 740287, 740317,   },
-  { 0, 740348, 740379, 740408, 740439, 740469, 740500,
-       740530, 740561, 740592, 740622, 740653, 740683,   },
-  { 0, 740714, 740745, 740773, 740804, 740834, 740865,
-       740895, 740926, 740957, 740987, 741018, 741048,   },
-  { 0, 741079, 741110, 741138, 741169, 741199, 741230,
-       741260, 741291, 741322, 741352, 741383, 741413,   },
-  { 0, 741444, 741475, 741503, 741534, 741564, 741595,
-       741625, 741656, 741687, 741717, 741748, 741778,   },
-  { 0, 741809, 741840, 741869, 741900, 741930, 741961,
-       741991, 742022, 742053, 742083, 742114, 742144,   },
-  { 0, 742175, 742206, 742234, 742265, 742295, 742326,
-       742356, 742387, 742418, 742448, 742479, 742509,   },
-  { 0, 742540, 742571, 742599, 742630, 742660, 742691,
-       742721, 742752, 742783, 742813, 742844, 742874,   },
-  { 0, 742905, 742936, 742964, 742995, 743025, 743056,
-       743086, 743117, 743148, 743178, 743209, 743239,   },
-  { 0, 743270, 743301, 743330, 743361, 743391, 743422,
-       743452, 743483, 743514, 743544, 743575, 743605,   },
-  { 0, 743636, 743667, 743695, 743726, 743756, 743787,
-       743817, 743848, 743879, 743909, 743940, 743970,   },
-  { 0, 744001, 744032, 744060, 744091, 744121, 744152,
-       744182, 744213, 744244, 744274, 744305, 744335,   },
-  { 0, 744366, 744397, 744425, 744456, 744486, 744517,
-       744547, 744578, 744609, 744639, 744670, 744700,   },
-  { 0, 744731, 744762, 744791, 744822, 744852, 744883,
-       744913, 744944, 744975, 745005, 745036, 745066,   },
+const int ProlepticDateImpUtil::s_cachedSerialDate[61][13] = {
+  { 0, 722814, 722845, 722874, 722905, 722935, 722966,
+       722996, 723027, 723058, 723088, 723119, 723149,   },
+  { 0, 723180, 723211, 723239, 723270, 723300, 723331,
+       723361, 723392, 723423, 723453, 723484, 723514,   },
+  { 0, 723545, 723576, 723604, 723635, 723665, 723696,
+       723726, 723757, 723788, 723818, 723849, 723879,   },
+  { 0, 723910, 723941, 723969, 724000, 724030, 724061,
+       724091, 724122, 724153, 724183, 724214, 724244,   },
+  { 0, 724275, 724306, 724335, 724366, 724396, 724427,
+       724457, 724488, 724519, 724549, 724580, 724610,   },
+  { 0, 724641, 724672, 724700, 724731, 724761, 724792,
+       724822, 724853, 724884, 724914, 724945, 724975,   },
+  { 0, 725006, 725037, 725065, 725096, 725126, 725157,
+       725187, 725218, 725249, 725279, 725310, 725340,   },
+  { 0, 725371, 725402, 725430, 725461, 725491, 725522,
+       725552, 725583, 725614, 725644, 725675, 725705,   },
+  { 0, 725736, 725767, 725796, 725827, 725857, 725888,
+       725918, 725949, 725980, 726010, 726041, 726071,   },
+  { 0, 726102, 726133, 726161, 726192, 726222, 726253,
+       726283, 726314, 726345, 726375, 726406, 726436,   },
+  { 0, 726467, 726498, 726526, 726557, 726587, 726618,
+       726648, 726679, 726710, 726740, 726771, 726801,   },
+  { 0, 726832, 726863, 726891, 726922, 726952, 726983,
+       727013, 727044, 727075, 727105, 727136, 727166,   },
+  { 0, 727197, 727228, 727257, 727288, 727318, 727349,
+       727379, 727410, 727441, 727471, 727502, 727532,   },
+  { 0, 727563, 727594, 727622, 727653, 727683, 727714,
+       727744, 727775, 727806, 727836, 727867, 727897,   },
+  { 0, 727928, 727959, 727987, 728018, 728048, 728079,
+       728109, 728140, 728171, 728201, 728232, 728262,   },
+  { 0, 728293, 728324, 728352, 728383, 728413, 728444,
+       728474, 728505, 728536, 728566, 728597, 728627,   },
+  { 0, 728658, 728689, 728718, 728749, 728779, 728810,
+       728840, 728871, 728902, 728932, 728963, 728993,   },
+  { 0, 729024, 729055, 729083, 729114, 729144, 729175,
+       729205, 729236, 729267, 729297, 729328, 729358,   },
+  { 0, 729389, 729420, 729448, 729479, 729509, 729540,
+       729570, 729601, 729632, 729662, 729693, 729723,   },
+  { 0, 729754, 729785, 729813, 729844, 729874, 729905,
+       729935, 729966, 729997, 730027, 730058, 730088,   },
+  { 0, 730119, 730150, 730179, 730210, 730240, 730271,
+       730301, 730332, 730363, 730393, 730424, 730454,   },
+  { 0, 730485, 730516, 730544, 730575, 730605, 730636,
+       730666, 730697, 730728, 730758, 730789, 730819,   },
+  { 0, 730850, 730881, 730909, 730940, 730970, 731001,
+       731031, 731062, 731093, 731123, 731154, 731184,   },
+  { 0, 731215, 731246, 731274, 731305, 731335, 731366,
+       731396, 731427, 731458, 731488, 731519, 731549,   },
+  { 0, 731580, 731611, 731640, 731671, 731701, 731732,
+       731762, 731793, 731824, 731854, 731885, 731915,   },
+  { 0, 731946, 731977, 732005, 732036, 732066, 732097,
+       732127, 732158, 732189, 732219, 732250, 732280,   },
+  { 0, 732311, 732342, 732370, 732401, 732431, 732462,
+       732492, 732523, 732554, 732584, 732615, 732645,   },
+  { 0, 732676, 732707, 732735, 732766, 732796, 732827,
+       732857, 732888, 732919, 732949, 732980, 733010,   },
+  { 0, 733041, 733072, 733101, 733132, 733162, 733193,
+       733223, 733254, 733285, 733315, 733346, 733376,   },
+  { 0, 733407, 733438, 733466, 733497, 733527, 733558,
+       733588, 733619, 733650, 733680, 733711, 733741,   },
+  { 0, 733772, 733803, 733831, 733862, 733892, 733923,
+       733953, 733984, 734015, 734045, 734076, 734106,   },
+  { 0, 734137, 734168, 734196, 734227, 734257, 734288,
+       734318, 734349, 734380, 734410, 734441, 734471,   },
+  { 0, 734502, 734533, 734562, 734593, 734623, 734654,
+       734684, 734715, 734746, 734776, 734807, 734837,   },
+  { 0, 734868, 734899, 734927, 734958, 734988, 735019,
+       735049, 735080, 735111, 735141, 735172, 735202,   },
+  { 0, 735233, 735264, 735292, 735323, 735353, 735384,
+       735414, 735445, 735476, 735506, 735537, 735567,   },
+  { 0, 735598, 735629, 735657, 735688, 735718, 735749,
+       735779, 735810, 735841, 735871, 735902, 735932,   },
+  { 0, 735963, 735994, 736023, 736054, 736084, 736115,
+       736145, 736176, 736207, 736237, 736268, 736298,   },
+  { 0, 736329, 736360, 736388, 736419, 736449, 736480,
+       736510, 736541, 736572, 736602, 736633, 736663,   },
+  { 0, 736694, 736725, 736753, 736784, 736814, 736845,
+       736875, 736906, 736937, 736967, 736998, 737028,   },
+  { 0, 737059, 737090, 737118, 737149, 737179, 737210,
+       737240, 737271, 737302, 737332, 737363, 737393,   },
+  { 0, 737424, 737455, 737484, 737515, 737545, 737576,
+       737606, 737637, 737668, 737698, 737729, 737759,   },
+  { 0, 737790, 737821, 737849, 737880, 737910, 737941,
+       737971, 738002, 738033, 738063, 738094, 738124,   },
+  { 0, 738155, 738186, 738214, 738245, 738275, 738306,
+       738336, 738367, 738398, 738428, 738459, 738489,   },
+  { 0, 738520, 738551, 738579, 738610, 738640, 738671,
+       738701, 738732, 738763, 738793, 738824, 738854,   },
+  { 0, 738885, 738916, 738945, 738976, 739006, 739037,
+       739067, 739098, 739129, 739159, 739190, 739220,   },
+  { 0, 739251, 739282, 739310, 739341, 739371, 739402,
+       739432, 739463, 739494, 739524, 739555, 739585,   },
+  { 0, 739616, 739647, 739675, 739706, 739736, 739767,
+       739797, 739828, 739859, 739889, 739920, 739950,   },
+  { 0, 739981, 740012, 740040, 740071, 740101, 740132,
+       740162, 740193, 740224, 740254, 740285, 740315,   },
+  { 0, 740346, 740377, 740406, 740437, 740467, 740498,
+       740528, 740559, 740590, 740620, 740651, 740681,   },
+  { 0, 740712, 740743, 740771, 740802, 740832, 740863,
+       740893, 740924, 740955, 740985, 741016, 741046,   },
+  { 0, 741077, 741108, 741136, 741167, 741197, 741228,
+       741258, 741289, 741320, 741350, 741381, 741411,   },
+  { 0, 741442, 741473, 741501, 741532, 741562, 741593,
+       741623, 741654, 741685, 741715, 741746, 741776,   },
+  { 0, 741807, 741838, 741867, 741898, 741928, 741959,
+       741989, 742020, 742051, 742081, 742112, 742142,   },
+  { 0, 742173, 742204, 742232, 742263, 742293, 742324,
+       742354, 742385, 742416, 742446, 742477, 742507,   },
+  { 0, 742538, 742569, 742597, 742628, 742658, 742689,
+       742719, 742750, 742781, 742811, 742842, 742872,   },
+  { 0, 742903, 742934, 742962, 742993, 743023, 743054,
+       743084, 743115, 743146, 743176, 743207, 743237,   },
+  { 0, 743268, 743299, 743328, 743359, 743389, 743420,
+       743450, 743481, 743512, 743542, 743573, 743603,   },
+  { 0, 743634, 743665, 743693, 743724, 743754, 743785,
+       743815, 743846, 743877, 743907, 743938, 743968,   },
+  { 0, 743999, 744030, 744058, 744089, 744119, 744150,
+       744180, 744211, 744242, 744272, 744303, 744333,   },
+  { 0, 744364, 744395, 744423, 744454, 744484, 744515,
+       744545, 744576, 744607, 744637, 744668, 744698,   },
+  { 0, 744729, 744760, 744789, 744820, 744850, 744881,
+       744911, 744942, 744973, 745003, 745034, 745064,   },
 };
 
-const char PosixDateImpUtil::s_cachedDaysInMonth[61][13] = {
+const char ProlepticDateImpUtil::s_cachedDaysInMonth[61][13] = {
   { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
   { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
   { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
