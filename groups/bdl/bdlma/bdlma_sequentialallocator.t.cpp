@@ -73,6 +73,7 @@ using namespace bsl;
 // [ 5] void *allocateAndExpand(size_type *size);
 // [ 3] void deallocate(void *address);
 // [ 4] void release();
+// [ 5] void rewind();
 // [ 7] void reserveCapacity(int numBytes);
 // [ 6] int truncate(void *address, int originalSize, int newSize);
 //-----------------------------------------------------------------------------
@@ -1633,6 +1634,10 @@ int main(int argc, char *argv[])
             ASSERT(oldNumBytesInUse < objectAllocator.numBytesInUse());
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
+
+            mX.rewind();
+            ASSERT(objectAllocator.numBytesInUse() != 0);
+            ASSERT(objectAllocator.numBlocksTotal() == 2);
         }
 
         if (verbose) cout << "\nTesting destruction." << endl;
