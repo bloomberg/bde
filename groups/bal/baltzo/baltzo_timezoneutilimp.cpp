@@ -15,11 +15,10 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlt_epochutil.h>
-
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 #include <bdlt_datetimeinterval.h>
+#include <bdlt_epochutil.h>
 
 #include <bslmf_assert.h>
 
@@ -351,7 +350,7 @@ void baltzo::TimeZoneUtilImp::resolveLocalTime(
     // at 'resolvedUtcTime'.
 
     const bdlt::EpochUtil::TimeT64 resolvedUtcTimeT =
-                            Zoneinfo::convertToTimeT64(resolvedUtcTime);
+                            bdlt::EpochUtil::convertToTimeT64(resolvedUtcTime);
     *transitionIter = resolvedUtcTimeT < iter2->utcTime()
                     ? iter1
                     : iter2;
@@ -389,7 +388,7 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     // representable by 'bdlt::Datetime'.
 
     bdlt::Datetime utcStartTime(1, 1, 1, 0, 0, 0);
-    Zoneinfo::convertFromTimeT64(
+    bdlt::EpochUtil::convertFromTimeT64(
                               &utcStartTime, transition->utcTime());
 
     Zoneinfo::TransitionConstIterator next = transition;
@@ -399,7 +398,7 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     // after the last transition.
 
     bdlt::Datetime nextUtcTime;
-    Zoneinfo::convertFromTimeT64(&nextUtcTime, next->utcTime());
+    bdlt::EpochUtil::convertFromTimeT64(&nextUtcTime, next->utcTime());
 
     bdlt::Datetime utcEndTime = (next == timeZone.endTransitions())
        ? bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999)

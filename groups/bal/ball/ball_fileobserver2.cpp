@@ -38,11 +38,6 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bdlt_delegatingdateimputil.h>
-#else
-#include <bdlt_serialdateimputil.h>
-#endif
 #include <bdlt_intervalconversionutil.h>
 #include <bdlt_localtimeoffset.h>
 #include <bdlt_time.h>
@@ -294,23 +289,6 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     return 0;
 }
 
-
-static int toSerialDate(bdlt::Date date)
-    // Return the elapsed number of days between 01JAN0001 and the specified
-    // 'date'.
-{
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    return bdlt::DelegatingDateImpUtil::ymdToSerial(date.year(),
-                                                    date.month(),
-                                                    date.day());
-#else
-    return bdlt::SerialDateImpUtil::ymdToSerial(date.year(),
-                                                date.month(),
-                                                date.day());
-#endif
-}
-
-
 static bdlt::Datetime computeNextRotationTime(
                      const bdlt::Datetime&          referenceStartTimeLocal,
                      const bdlt::DatetimeInterval&  interval,
@@ -327,36 +305,11 @@ static bdlt::Datetime computeNextRotationTime(
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
-
-    // Notice that the logic for computing the next time interval must
-    // currently be expressed using 'bdlt::DelegatingDateImpUtil' to avoid
-    // possible use of 'bsls::Log' to report warnings about date math.  Such
-    // warnings, when issued from within a function in BALL cause an attempt
-    // to recursively re-enter the file-observer (and a dead-lock).  Once
-    // 'bdlt' no longer uses bsls log to report date arithmetic this logic can
-    // be returned to:
-    //..
-    //  bsls::Types::Int64 timeLeft =
-    //      (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
-    //                    totalMilliseconds() % interval.totalMilliseconds();
-    //..
-
     bdlt::DatetimeInterval localTimeOffset =
                                   localTimeOffsetInterval(fileCreationTimeUtc);
-
-    bdlt::Datetime fileCreationTimeLocal = fileCreationTimeUtc +
-                                           localTimeOffset;
-
-    int creation  = toSerialDate(fileCreationTimeLocal.date());
-    int reference = toSerialDate(referenceStartTimeLocal.date());
-
-    bdlt::DatetimeInterval fileCreationInterval(creation - reference, 0, 0);
-    fileCreationInterval += bdlt::DatetimeInterval(
-               fileCreationTimeLocal.time() - referenceStartTimeLocal.time());
-
-
-    bsls::Types::Int64 timeLeft = fileCreationInterval.totalMilliseconds() %
-                                  interval.totalMilliseconds();
+    bsls::Types::Int64 timeLeft            =
+        (fileCreationTimeUtc + localTimeOffset - referenceStartTimeLocal).
+                      totalMilliseconds() % interval.totalMilliseconds();
 
     // The modulo operator may return a negative number depending on
     // implementation.

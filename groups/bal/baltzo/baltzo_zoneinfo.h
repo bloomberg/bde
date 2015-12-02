@@ -451,6 +451,7 @@ class Zoneinfo {
 
   public:
     // CLASS METHODS
+#ifndef BDE_OPENSOURCE_PUBLICATION
     static bdlt::EpochUtil::TimeT64 convertToTimeT64(
                                                const bdlt::Datetime& datetime);
         // [!DEPRECATED!]: Do not use.  This method is provided in BDE 2.23 to
@@ -470,6 +471,7 @@ class Zoneinfo {
         // Load into the specified 'result' the absolute datetime computed as
         // the sum of the specified relative 'time' and the epoch.  Return 0 on
         // success, and a non-zero value otherwise.
+#endif
 
     // TYPES
     typedef TransitionSequence::const_iterator TransitionConstIterator;
