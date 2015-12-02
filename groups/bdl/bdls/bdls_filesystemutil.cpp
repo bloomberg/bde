@@ -1769,12 +1769,13 @@ int FilesystemUtil::visitTree(
         }
         else {
             // Note that 'visitTree' returns non-zero, it may mean the
-            // subdirectory didn't have read or execute permission for us.
+            // subdirectory didn't have read or execute permission for us, in
+            // which case 'EACCES == errno'.
 
             int rc = visitTree(fullFn, pattern, visitor, sortFlag);
-            (void) rc;    // suppress 'unused' warnings.
-
-            BSLS_ASSERT_SAFE(0 == rc || EACCES == errno);
+            if (0 != rc && EACCES != errno) {
+                return -1;                                            // RETURN
+            }
         }
     }
 
