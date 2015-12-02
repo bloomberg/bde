@@ -245,8 +245,12 @@ class InfrequentDeleteBlockList {
         // object, and has not already been released.
 
     void release();
-        // Deallocate all memory blocks currently managed by this object,
-        // returning it to its default-constructed state.
+        // Deallocate all memory blocks managed by this object, returning it to
+        // its default-constructed state.
+
+    void rewind();
+        // Deallocate all except the most-recently obtained of the memory
+        // blocks managed by this object.
 };
 
 // ============================================================================
