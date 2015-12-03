@@ -185,6 +185,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+#  if defined nullptr
+#  error Some earlier header has defined the keyword 'nullptr' as a macro.
+    // Occasionally we encounter code-bases predating C++11 that define a macro
+    // named 'nullptr', possible trying to mimic the expected interface when
+    // ported to a C++11 world.  However, it is undefined behavior to redefine
+    // a keyword of the language, and typically breaks the implementation of
+    // the type alias 'nullptr_t' in unusual ways, that (wrongly) report this
+    // header file as the source of the problem, rather than the point at which
+    // it is first observed.
+#  endif
+
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports 'nullptr' and does not
     // also support 'decltype'.  We conservatively error should such a
