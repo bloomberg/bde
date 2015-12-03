@@ -354,6 +354,11 @@ void hexDumpFullLine(char *dst, const char *src, int length)
                             hexDumpChars[static_cast<unsigned char>(src[13])],
                             hexDumpChars[static_cast<unsigned char>(src[14])],
                             hexDumpChars[static_cast<unsigned char>(src[15])]);
+
+    // Suppress unused variable warnings for variables used in asserts.
+    (void)ret;
+    (void)length;
+
     BSLS_ASSERT(ret == length - 1);
 }
 
