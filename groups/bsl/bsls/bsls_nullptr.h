@@ -10,26 +10,26 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a distinct type for null pointer literals.
 //
 //@CLASSES:
-//   bsls::Nullptr: namespace for a type matching only null pointer literals
+//   bsl::nullptr_t: type for function parameter to match null pointer literals
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@DESCRIPTION: This component provides a limited emulation of the C++11 type,
-// 'std::nullptr_t', which can be used as a function parameter type to create
-// an overload set where null pointer literals are handled specially.  Note
-// that this component will be deprecated, and ultimately removed, once BDE
-// code can assume support for a C++11 compiler.  On a platform that supports
-// the language feature, a fully-conforming 'typedef' is supplied rather than
-// using the emulation layer.
+//@DESCRIPTION: This component provides 'bsl::nullptr_t' as a limited emulation
+// of the C++11 type, 'std::nullptr_t', which can be used as a function
+// parameter type to create an overload set where null pointer literals are
+// handled specially.  Note that this component will be deprecated, and
+// ultimately removed, once BDE code can assume support for a C++11 compiler.
+// On a platform that supports the language feature, a fully-conforming
+// 'typedef' is supplied rather than using the emulation layer.
 //
 ///Limitations
 ///-----------
 // This component provides a simple emulation of the C++11 facility, which
 // cannot be expressed with a pure library solution.  As such it comes with a
-// number of limitations.  The most obvious is that C++11 provides a new
-// null pointer literal, 'nullptr', which is not emulated by this component.
-// The new null pointer literal is an object of a new type, expressed by the
-// alias 'nullptr_t', which this component emulates.  However, as this is a
+// number of limitations.  The most obvious is that C++11 provides a new null
+// pointer literal, 'nullptr', which is not emulated by this component.  The
+// new null pointer literal is an object of a new type, expressed by the alias
+// 'nullptr_t', which this component emulates.  However, as this is a
 // library-only emulation, it does not have any preference in the overloading
 // rules, so will be an equal-rank ambiguous match.  For example, given the
 // following overload set, a call to 'myFunction' with a null pointer literal
@@ -61,9 +61,9 @@ BSLS_IDENT("$Id: $")
 //  std::nullptr_t nullLiteral = std::nullptr_t();
 //  int *pI = nullLiteral;
 //..
-// The type of a 'bsl::nullptr_t' object cannot be used in such assignments
-// or initializations, unless compiled on a platform that natively supports
-// this C++11 language feature.
+// The type of a 'bsl::nullptr_t' object cannot be used in such assignments or
+// initializations, unless compiled on a platform that natively supports this
+// C++11 language feature.
 //
 ///Usage
 ///-----
@@ -185,6 +185,17 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+#  if defined nullptr
+#  error Some earlier header has defined the keyword 'nullptr' as a macro.
+    // Occasionally we encounter code-bases predating C++11 that define a macro
+    // named 'nullptr', possible trying to mimic the expected interface when
+    // ported to a C++11 world.  However, it is undefined behavior to redefine
+    // a keyword of the language, and typically breaks the implementation of
+    // the type alias 'nullptr_t' in unusual ways, that (wrongly) report this
+    // header file as the source of the problem, rather than the point at which
+    // it is first observed.
+#  endif
+
 #  if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
     // We currently know of no platform that supports 'nullptr' and does not
     // also support 'decltype'.  We conservatively error should such a
@@ -236,9 +247,9 @@ struct Nullptr_Impl {
 
 namespace bsl
 {
-    typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
-        // Alias for a type that can match a null pointer literal, but is not a
-        // pointer type itself.
+typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
+    // Alias for a type that can match a null pointer literal, but is not a
+    // pointer type itself.
 }  // close namespace bsl
 #endif
 
