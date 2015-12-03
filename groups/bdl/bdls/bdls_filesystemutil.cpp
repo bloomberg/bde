@@ -1433,7 +1433,7 @@ int FilesystemUtil::remove(const char *path, bool recursiveFlag)
                 }
 
                 PathUtil::appendRaw(&workingPath, entry.d_name);
-                if   (0 == ::performStat(workingPath.c_str(), &dummy, false)
+                if (0 == ::performStat(workingPath.c_str(), &dummy, false)
                    && 0 != remove(workingPath.c_str(), true)) {
                     return -1;                                        // RETURN
                 }
