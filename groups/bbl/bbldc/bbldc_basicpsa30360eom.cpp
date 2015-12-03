@@ -20,8 +20,7 @@ static bool isLastDayOfFebruary(int year, int month, int day)
     // 'false' otherwise.  The behavior is undefined unless 'year', 'month',
     // and 'day' represent a valid 'bdlt::Date' value.
 {
-    BSLS_ASSERT_SAFE(bdlt::SerialDateImpUtil::
-                                        isValidYearMonthDay(year, month, day));
+    BSLS_ASSERT_SAFE(bdlt::Date::isValidYearMonthDay(year, month, day));
 
     return 2 == month
         && (   29 == day
@@ -75,9 +74,9 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
     return result;
 }
 
-                           // ------------------
-                           // struct Psa30360Eom
-                           // ------------------
+                            // ------------------
+                            // struct Psa30360Eom
+                            // ------------------
 
 // CLASS METHODS
 int BasicPsa30360Eom::daysDiff(const bdlt::Date& beginDate,

@@ -24,12 +24,6 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-// TBD Extra inclusions needed temporarily for testing 'logIfProblematicDate*'.
-#include <bsls_log.h>
-#include <bsl_string.h>
-#endif
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -133,11 +127,6 @@ using namespace bsl;
 // [13] static bool isValid(int year, int dayOfYear);
 // [13] static bool isValid(int year, int month, int day);
 // [10] static int maxSupportedBdexVersion();
-// TRANSITIONAL
-// [22] static void logIfProblematicDate*(args);
-// [23] static void disableLogging();
-// [23] static void enableLogging();
-// [23] static bool isLoggingEnabled();
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 // [10] static int maxSupportedVersion();
@@ -228,32 +217,6 @@ typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
 
 #define VERSION_SELECTOR 20140601
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-
-// TBD stuff needed temporarily for testing 'logIfProblematicDate*'
-
-namespace {
-
-ostringstream *globalLogPtr;  // set in case 21
-
-void logMessageHandler(const char *file, int line, const char *message)
-    // Write the specified 'file', 'line', and 'message' to '*globalLogPtr' in
-    // a single-line format.  The behavior is undefined unless 'line >= 0'.
-    // Note that this function need not be thread-safe since it is only called
-    // in case 21, which is single-threaded.
-{
-    BSLS_ASSERT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT(message);
-    BSLS_ASSERT(globalLogPtr);
-
-    *globalLogPtr << file << ':' << line << ' ' << message << '\n';
-}
-
-}  // close unnamed namespace
-
-#endif
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -350,7 +313,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2000,   58,       364 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
     { L_,    1000,    1,   1001,    1,       365 },
 #endif
     { L_,    1998,   59,   1999,   59,       365 },
@@ -362,7 +325,7 @@ const AltDataRow ALT_DATA[] =
 
     { L_,    1999,   59,   2002,   59,      1096 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
     { L_,       1,    1,   9999,  365,   3652058 },
 #endif
 };
@@ -395,715 +358,6 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      case 23: {
-        // --------------------------------------------------------------------
-        // TESTING LOGGING SWITCH
-        //
-        // Concerns:
-        //: 1 Logging is disabled by default.
-        //:
-        //: 2 The 'disableLogging' function disables logging regardless of its
-        //:   current setting.
-        //:
-        //: 3 The 'enableLogging' function enables logging regardless of its
-        //:   current setting.
-        //:
-        //: 4 The value returned by the 'isLoggingEnabled' function is 'true'
-        //:   if logging is enabled, and 'false' otherwise.
-        //
-        // Plan:
-        //: 1 Verify logging is initially disabled.  (C-1)
-        //:
-        //: 2 Cycle through a sequence of calls to the "disable" and "enable"
-        //:   functions ensuring that each function is called at least once
-        //:   when the current logging state is off and at least once when the
-        //:   state is on.  Follow each call with a call to 'isLoggingEnabled'
-        //:   to verify that the expected logging state is in effect.  (C-2..4)
-        //
-        // Testing:
-        //   static void disableLogging();
-        //   static void enableLogging();
-        //   static bool isLoggingEnabled();
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING LOGGING SWITCH" << endl
-                          << "======================" << endl;
-
-        // Logging is disabled by default.
-        ASSERT(false == bdlt::Date::isLoggingEnabled());
-
-        bdlt::Date::disableLogging();
-        ASSERT(false == bdlt::Date::isLoggingEnabled());
-
-        bdlt::Date::disableLogging();
-        ASSERT(false == bdlt::Date::isLoggingEnabled());
-
-        bdlt::Date::enableLogging();
-        ASSERT(true  == bdlt::Date::isLoggingEnabled());
-
-        bdlt::Date::enableLogging();
-        ASSERT(true  == bdlt::Date::isLoggingEnabled());
-
-        bdlt::Date::disableLogging();
-        ASSERT(false == bdlt::Date::isLoggingEnabled());
-
-      } break;
-      case 22: {
-        // --------------------------------------------------------------------
-        // TESTING 'logIfProblematicDate*'
-        //
-        // Concerns:
-        //: 1 Each 'Date' method or free operator that is expected to be
-        //:   instrumented with an appropriate 'logIfProblematicDate*' function
-        //:   is so instrumented.
-        //:
-        //: 2 Edge cases at which logging to 'stderr' should or should not
-        //:   occur are handled as expected.
-        //:
-        //: 3 Log message throttling works as expected to prevent spew to
-        //:   'stderr'.
-        //
-        // Plan:
-        //: 1 Using 'bsls::Log::setLogMessageHandler', install a log message
-        //:   handler that writes to an 'ostringstream' named 'log'.  For each
-        //:   instrumented method, perform an action that should *not* incur a
-        //:   log message to 'log' followed by an action that *should*.  Verify
-        //:   the expected behavior by examining whether or not 'log' is empty.
-        //:   (Note that the actual contents of the log messages should be
-        //:   inspected manually using test case -1, or by running this test
-        //:   case in 'veryVerbose' mode.)  Edge cases are tested via the
-        //:   'setYearMonthDay' manipulator and the two free 'operator-'
-        //:   functions.  (C-1..2)
-        //:
-        //: 2 Test throttling on each of the three logging functions
-        //:   separately.  (C-3)
-        //
-        // Testing:
-        //   void logIfProblematicDate*(args); (indirectly)
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING 'logIfProblematicDate*'"
-                          << "\n===============================" << endl;
-
-        if (!bdlt::Date::isLoggingEnabled()) {
-            if (verbose) cout << "\nLogging is disabled.  Skipping..." << endl;
-
-            break;
-        }
-
-        bslma::TestAllocator da("case21", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
-        ostringstream log;  // 'log' to which 'logMessageHandler' writes
-        globalLogPtr = &log;
-
-        bsls::Log::setLogMessageHandler(&logMessageHandler);
-
-        const string EMPTY;
-
-        if (verbose) cout << "\n'Obj(y, d)'." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 98);
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            const Obj Y(1700, 98);
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 10, 31);
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            const Obj Y(1700, 10, 31);
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX;
-
-            mX.setYearDay(1800, 98);
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            mX.setYearDay(1700, 98);
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
-        if (verbose) cout << "\tTest edge cases." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 11, 11);
-
-            mX.setYearMonthDay(1, 1, 1);
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            mX.setYearMonthDay(1, 1, 2);
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                log.str(EMPTY);
-
-                mX.setYearMonthDay(1752, 9, 16);
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    mX.setYearMonthDay(1752, 9, 15);
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX.setYearMonthDay(1752, 9, 15);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-            else {
-                log.str(EMPTY);
-
-                mX.setYearMonthDay(1752, 9, 14);
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    mX.setYearMonthDay(1752, 9,  2);
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX.setYearMonthDay(1752, 9,  2);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-        }
-
-        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
-        {
-            // Allocator to use instead of the default allocator.
-            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
-
-            const int VERSION = Obj::maxSupportedBdexVersion(0);
-
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
-
-            {
-                log.str(EMPTY);
-
-                Out out(VERSION_SELECTOR, &ta);
-                bdexStreamOut(out, Obj(1800, 200), VERSION);
-
-                In in(out.data(), out.length());
-
-                Obj mX;
-
-                bdexStreamIn(in, mX, VERSION);
-
-                ASSERT(EMPTY == log.str());  // nothing logged
-            }
-
-            {
-                log.str(EMPTY);
-
-                Out out(VERSION_SELECTOR, &ta);
-                bdexStreamOut(out, Obj(1700, 200), VERSION);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                In in(out.data(), out.length());
-
-                Obj mX;
-                log.str(EMPTY);
-                bdexStreamIn(in, mX, VERSION);
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-        }
-
-        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
-                          << endl;
-
-        if (verbose) cout << "\n'operator+=(n)'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 10, 31);
-            mX += 1000;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY;
-            mY += 700000;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'operator-=(n)'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 10, 31);
-
-            mX -= 1000;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            mX -= 500000;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\nMember 'operator++'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 200);
-            ++mX;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY(1700, 200);
-            log.str(EMPTY);
-            ++mY;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\nMember 'operator--'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 200);
-            --mX;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY(1700, 200);
-            log.str(EMPTY);
-            --mY;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 10, 31);
-            mX.addDaysIfValid(1000);
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY;
-            log.str(EMPTY);
-            mY.addDaysIfValid(700000);
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\nFree 'operator++'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 200);
-            mX++;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY(1700, 200);
-            log.str(EMPTY);
-
-            // account for log throttling
-            for (int i = 0; i < 6; ++i) {
-                mY++;
-                ASSERT(EMPTY == log.str());
-            }
-
-            mY++;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\nFree 'operator--'." << endl;
-        {
-            log.str(EMPTY);
-
-            Obj mX(1800, 200);
-            mX--;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj mY(1700, 200);
-            log.str(EMPTY);
-
-            // account for log throttling
-            for (int i = 0; i < 6; ++i) {
-                mY--;
-                ASSERT(EMPTY == log.str());
-            }
-
-            mY--;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 10, 31);
-            X + 1000;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            const Obj Y;
-            Y + 700000;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 10, 31);
-            1000 + X;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            Obj Y;
-            700000 + Y;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-        }
-
-        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
-        if (verbose) cout << "\tTest edge cases." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 10, 31);
-
-            X - 1000;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            X - 500000;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                log.str(EMPTY);
-
-                Obj mX(1752, 9, 17);
-
-                mX - 1;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    mX - 2;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX - 2;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                mX.setYearMonthDay(1752, 9, 16);
-                mX - 0;
-                mX - 0;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                mX.setYearMonthDay(1752, 9, 15);
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 247; ++i) {
-                    mX - 0;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX - 0;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-            else {
-                log.str(EMPTY);
-
-                Obj mX(1752, 9, 15);
-
-                mX - 1;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    mX - 2;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX - 2;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                mX.setYearMonthDay(1752, 9, 14);
-                mX - 0;
-                mX - 0;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                mX.setYearMonthDay(1752, 9,  2);
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 247; ++i) {
-                    mX - 0;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                mX - 0;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-        }
-
-        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
-                          << endl;
-
-        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
-        if (verbose) cout << "\tTest edge cases." << endl;
-        {
-            log.str(EMPTY);
-
-            const Obj X(1800, 200);
-            const Obj Y(1900, 200);
-
-            Y - X;
-            ASSERT(EMPTY == log.str());  // nothing logged
-
-            const Obj Z(1700, 200);
-            log.str(EMPTY);
-            Y - Z;
-            ASSERT(EMPTY != log.str());  // something logged
-
-            if (veryVerbose) cout << log.str();
-
-            if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                log.str(EMPTY);
-
-                const Obj X(1752, 9, 16);
-
-                X - X;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                Obj mY;  const Obj &Y = mY;
-                mY.setYearMonthDay(1752, 9, 15);
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    X - Y;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                X - Y;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 247; ++i) {
-                    Y - X;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                Y - X;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-            else {
-                log.str(EMPTY);
-
-                const Obj X(1752, 9, 14);
-
-                X - X;
-                ASSERT(EMPTY == log.str());  // nothing logged
-
-                Obj mY;  const Obj &Y = mY;
-                mY.setYearMonthDay(1752, 9,  2);
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 6; ++i) {
-                    X - Y;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                X - Y;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                // account for log throttling
-                for (int i = 0; i < 247; ++i) {
-                    Y - X;
-                    ASSERT(EMPTY == log.str());
-                }
-
-                Y - X;
-                ASSERT(EMPTY != log.str());  // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-        }
-
-        if (verbose) cout << "\nTest log throttling." << endl;
-
-        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
-        {
-            // Test throttling using 'Obj(y, m, d)'.  Note that the first
-            // occurrence was logged earlier in this test case.
-
-            // log the 8th occurrence, but not the 2nd through 7th
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 6; ++i) {
-                    const Obj X(1700, 10, 31);
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-
-                const Obj Y(1700, 10, 31);
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 247; ++i) {
-                    const Obj X(1700, 10, 31);
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-
-                const Obj Y(1700, 10, 31);
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                for (int i = 0; i < 20000; ++i) {
-                    const Obj X(1700, 10, 31);
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-            }
-        }
-
-        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
-        {
-            // Test throttling using 'operator+(Date, n)'.  Note that the first
-            // occurrence was logged earlier in this test case.
-
-            const Obj X;
-
-            // log the 8th occurrence, but not the 2nd through 7th
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 6; ++i) {
-                    X + 700000;
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-
-                X + 700000;
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
-            }
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 247; ++i) {
-                    X + 700000;
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-
-                X + 700000;
-                ASSERT(EMPTY != log.str());      // something logged
-
-                if (veryVerbose) cout << log.str();
-
-                log.str(EMPTY);
-
-                for (int i = 0; i < 20000; ++i) {
-                    X + 700000;
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-            }
-        }
-
-        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
-        {
-            // Test throttling using 'operator-(Date, Date)'.  Note that the
-            // first three occurrences were logged earlier in this test case.
-
-            const Obj X(2015, 1, 1);
-            const Obj Y;
-
-            // nothing further should be logged
-            {
-                log.str(EMPTY);
-
-                for (int i = 0; i < 20000; ++i) {
-                    X - Y;
-                    ASSERT(EMPTY == log.str());  // nothing logged
-                }
-            }
-        }
-
-      } break;
-#endif
       case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1414,7 +668,7 @@ if (verbose)
                 { L_,       1,     1,    INT_MIN },
                 { L_,    9999,   365,    INT_MIN },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    9999,   365,   -3652059 },
 #endif
 
@@ -1439,7 +693,7 @@ if (verbose)
 
                 { L_,    9998,   365,        366 },
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1,     1,    3652059 },
 #endif
 
@@ -1580,9 +834,8 @@ if (verbose)
                 T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(EXP_DOW) P(EXP_MOY)
             }
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            if (!bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()
-             && YEAR <= 1752) {
+#ifndef BDE_USE_PROLEPTIC_DATES
+            if (YEAR <= 1752) {
                 continue;
             }
 #endif
@@ -2274,21 +1527,13 @@ if (verbose)
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=        0);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=       -1);
                 }
-
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652058);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652059);
-                    }
-                    else {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652060);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652061);
-                    }
+                    Obj mX(V);  ASSERT_SAFE_PASS(mX +=  3652060);
+                    Obj mY(V);  ASSERT_SAFE_FAIL(mY +=  3652061);
 #endif
                 }
 
@@ -2299,19 +1544,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652058);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652059);
-                    }
-                    else {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652060);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652061);
-                    }
+                    Obj mX(W);  ASSERT_SAFE_PASS(mX += -3652060);
+                    Obj mY(W);  ASSERT_SAFE_FAIL(mY += -3652061);
 #endif
                 }
             }
@@ -2325,19 +1563,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
                     Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652058);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652059);
-                    }
-                    else {
-                        Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652060);
-                        Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652061);
-                    }
+                    Obj mX(V);  ASSERT_SAFE_PASS(mX -= -3652060);
+                    Obj mY(V);  ASSERT_SAFE_FAIL(mY -= -3652061);
 #endif
                 }
 
@@ -2348,19 +1579,12 @@ if (verbose)
                 }
 
                 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                     Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
                     Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
 #else
-                    if (
-                     bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652058);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652059);
-                    }
-                    else {
-                        Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652060);
-                        Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652061);
-                    }
+                    Obj mX(W);  ASSERT_SAFE_PASS(mX -=  3652060);
+                    Obj mY(W);  ASSERT_SAFE_FAIL(mY -=  3652061);
 #endif
                 }
             }
@@ -2372,18 +1596,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(V +        0);
                 ASSERT_SAFE_FAIL(V +       -1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(V +  3652058);
                 ASSERT_SAFE_FAIL(V +  3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(V +  3652058);
-                    ASSERT_SAFE_FAIL(V +  3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(V +  3652060);
-                    ASSERT_SAFE_FAIL(V +  3652061);
-                }
+                ASSERT_SAFE_PASS(V +  3652060);
+                ASSERT_SAFE_FAIL(V +  3652061);
 #endif
 
                 const Obj W(9999, 365);
@@ -2391,18 +1609,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(W +        0);
                 ASSERT_SAFE_FAIL(W +        1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(W + -3652058);
                 ASSERT_SAFE_FAIL(W + -3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(W + -3652058);
-                    ASSERT_SAFE_FAIL(W + -3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(W + -3652060);
-                    ASSERT_SAFE_FAIL(W + -3652061);
-                }
+                ASSERT_SAFE_PASS(W + -3652060);
+                ASSERT_SAFE_FAIL(W + -3652061);
 #endif
             }
 
@@ -2413,18 +1625,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + V);
                 ASSERT_SAFE_FAIL(      -1 + V);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS( 3652058 + V);
                 ASSERT_SAFE_FAIL( 3652059 + V);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS( 3652058 + V);
-                    ASSERT_SAFE_FAIL( 3652059 + V);
-                }
-                else {
-                    ASSERT_SAFE_PASS( 3652060 + V);
-                    ASSERT_SAFE_FAIL( 3652061 + V);
-                }
+                ASSERT_SAFE_PASS( 3652060 + V);
+                ASSERT_SAFE_FAIL( 3652061 + V);
 #endif
 
                 const Obj W(9999, 365);
@@ -2432,18 +1638,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(       0 + W);
                 ASSERT_SAFE_FAIL(       1 + W);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(-3652058 + W);
                 ASSERT_SAFE_FAIL(-3652059 + W);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(-3652058 + W);
-                    ASSERT_SAFE_FAIL(-3652059 + W);
-                }
-                else {
-                    ASSERT_SAFE_PASS(-3652060 + W);
-                    ASSERT_SAFE_FAIL(-3652061 + W);
-                }
+                ASSERT_SAFE_PASS(-3652060 + W);
+                ASSERT_SAFE_FAIL(-3652061 + W);
 #endif
             }
 
@@ -2454,18 +1654,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(V -        0);
                 ASSERT_SAFE_FAIL(V -        1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(V - -3652058);
                 ASSERT_SAFE_FAIL(V - -3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(V - -3652058);
-                    ASSERT_SAFE_FAIL(V - -3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(V - -3652060);
-                    ASSERT_SAFE_FAIL(V - -3652061);
-                }
+                ASSERT_SAFE_PASS(V - -3652060);
+                ASSERT_SAFE_FAIL(V - -3652061);
 #endif
 
                 const Obj W(9999, 365);
@@ -2473,18 +1667,12 @@ if (verbose)
                 ASSERT_SAFE_PASS(W -        0);
                 ASSERT_SAFE_FAIL(W -       -1);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 ASSERT_SAFE_PASS(W -  3652058);
                 ASSERT_SAFE_FAIL(W -  3652059);
 #else
-                if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                    ASSERT_SAFE_PASS(W -  3652058);
-                    ASSERT_SAFE_FAIL(W -  3652059);
-                }
-                else {
-                    ASSERT_SAFE_PASS(W -  3652060);
-                    ASSERT_SAFE_FAIL(W -  3652061);
-                }
+                ASSERT_SAFE_PASS(W -  3652060);
+                ASSERT_SAFE_FAIL(W -  3652061);
 #endif
             }
         }
@@ -2654,7 +1842,7 @@ if (verbose)
                 { L_,       4,  366,      5,    1 },
                 { L_,      10,   59,     10,   60 },
                 { L_,     100,   90,    100,   91 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,     100,  365,    101,    1 },
 #endif
                 { L_,     400,   59,    400,   60 },
@@ -3014,7 +2202,7 @@ if (verbose)
                 { L_,        100,        0,     0 },
                 { L_,        100,        1,     1 },
                 { L_,        100,      365,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,        100,      366,     0 },
 #endif
 
@@ -3026,7 +2214,7 @@ if (verbose)
                 { L_,       1000,        0,     0 },
                 { L_,       1000,        1,     1 },
                 { L_,       1000,      365,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1000,      366,     0 },
 #endif
 
@@ -3147,7 +2335,7 @@ if (verbose)
                 { L_,          4,        2,       30,     0 },
 
                 { L_,        100,        2,       28,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,        100,        2,       29,     0 },
 #endif
 
@@ -3156,7 +2344,7 @@ if (verbose)
                 { L_,        400,        2,       30,     0 },
 
                 { L_,       1000,        2,       28,     1 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,       1000,        2,       29,     0 },
 #endif
 
@@ -3414,20 +2602,20 @@ if (verbose)
                 { L_,       2,    1,      1,        1 },
                 { L_,      10,   95,      4,        5 },
                 { L_,      10,  284,     10,       11 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,     100,  158,      6,        7 },
                 { L_,     100,  316,     11,       12 },
                 { L_,    1000,  221,      8,        9 },
 #endif
                 { L_,    1100,   31,      1,       31 },
                 { L_,    1200,   60,      2,       29 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1300,   90,      3,       31 },
                 { L_,    1400,  120,      4,       30 },
                 { L_,    1500,  151,      5,       31 },
 #endif
                 { L_,    1600,  182,      6,       30 },
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
                 { L_,    1700,  212,      7,       31 },
 #endif
                 { L_,    1800,  243,      8,       31 },
@@ -3885,11 +3073,6 @@ if (verbose)
         //:
         //: 9 The initial value of the object has no affect on
         //:   unexternalization.
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        //:
-        //:10 Streaming version 1 provides the expected compatibility between
-        //:   the two calendar modes.
-#endif
         //
         // Plan:
         //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
@@ -3942,13 +3125,6 @@ if (verbose)
         //:
         //:11 In all cases, verify the return value of the tested method.
         //:   (C-8)
-#ifndef BDE_OPENSOURCE_PUBLICATION
-        //:
-        //:12 Let 'M' be the ordered set of calendar modes { POSIX, proleptic
-        //:   Gregorian }.  For each '(u, v)' in the set 'M x M', verify that
-        //:   dates streamed out in calendar mode 'u' are streamed in as
-        //:   expected in calendar mode 'v'.  (C-10)
-#endif
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -4276,17 +3452,10 @@ if (verbose)
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
+#ifdef BDE_USE_PROLEPTIC_DATES
         const int SERIAL_Y = 733;   // streamed rep. of 'Y'
 #else
-        int SERIAL_Y;               // streamed rep. of 'Y'
-
-        if (bdlt::DelegatingDateImpUtil::isProlepticGregorianMode()) {
-            SERIAL_Y = 733;
-        }
-        else {
-            SERIAL_Y = 731;
-        }
+        const int SERIAL_Y = 731;   // streamed rep. of 'Y'
 #endif
 
         if (verbose) {
@@ -4519,357 +3688,6 @@ if (verbose)
                 }
             }
         }
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-
-        if (verbose) cout << "\nCompatibility of the two calendar modes."
-                          << endl;
-
-        // Save the current calendar mode, so that it can be restored at the
-        // end of the test case.  This is necessary to ensure the safe
-        // destruction of 'VG' in both modes.
-
-        const bool isPGModeOnEntry =
-                       bdlt::DelegatingDateImpUtil::isProlepticGregorianMode();
-
-        // Note that 'VC', used throughout this compatibility testing section,
-        // is known to be distinct from any test datum.  It is immaterial in
-        // which calendar mode it was created.
-
-        // The first two test blocks verify that:
-        //: 1 [POSIX --> POSIX] A date streamed out in POSIX mode is streamed
-        //:   in as expected in POSIX mode.
-        //:
-        //: 2 [proleptic Gregorian --> proleptic Gregorian] A date streamed out
-        //:   in proleptic Gregorian mode is streamed in as expected in
-        //:   proleptic Gregorian mode.
-        //
-        // These identity tests are provided for completeness and help further
-        // ensure sanity of the streaming functions.
-
-        if (verbose) cout << "\tPOSIX --> POSIX." << endl;
-        {
-            static const struct {
-                int d_line;    // source line number
-                int d_oYear;   // output year
-                int d_oMonth;  // output month
-                int d_oDay;    // output day
-                int d_iYear;   // input year
-                int d_iMonth;  // input month
-                int d_iDay;    // input day
-            } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
-                //----  -----  ------  ----  -----  ------  ----
-                { L_,       1,      1,    1,     1,      1,    1,  },
-                { L_,       1,      1,    2,     1,      1,    2,  },
-                { L_,       1,      1,    3,     1,      1,    3,  },
-                { L_,       1,      1,    4,     1,      1,    4,  },
-
-                { L_,     101,      4,    1,   101,      4,    1,  },
-                { L_,     202,      5,    1,   202,      5,    1,  },
-                { L_,     303,      6,    1,   303,      6,    1,  },
-
-                { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                { L_,    1752,      9,   14,  1752,      9,   14,  },
-                { L_,    1899,     12,   26,  1899,     12,   26,  },
-                { L_,    2015,      3,   15,  2015,      3,   15,  },
-
-                { L_,    9999,     12,   31,  9999,     12,   31,  },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_line;
-                const int OYEAR  = DATA[ti].d_oYear;
-                const int OMONTH = DATA[ti].d_oMonth;
-                const int ODAY   = DATA[ti].d_oDay;
-                const int IYEAR  = DATA[ti].d_iYear;
-                const int IMONTH = DATA[ti].d_iMonth;
-                const int IDAY   = DATA[ti].d_iDay;
-
-                if (veryVerbose) {
-                    T_ P_(LINE)
-                    P_(OYEAR) P_(OMONTH) P_(ODAY)
-                    P_(IYEAR) P_(IMONTH) P(IDAY)
-                }
-
-                // BDEX stream out: POSIX mode
-
-                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
-
-                const Obj X(OYEAR, OMONTH, ODAY);
-
-                Out out(VERSION_SELECTOR, &allocator);
-                X.bdexStreamOut(out, VERSION);
-
-                // BDEX stream in: POSIX mode
-
-                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
-
-                const Obj Z(IYEAR, IMONTH, IDAY);
-
-                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
-
-                In in(out.data(), out.length());
-                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
-
-                LOOP3_ASSERT(LINE, T, Z, Z == T);
-            }
-        }
-
-        if (verbose) cout << "\tproleptic Gregorian --> proleptic Gregorian."
-                          << endl;
-        {
-            static const struct {
-                int d_line;    // source line number
-                int d_oYear;   // output year
-                int d_oMonth;  // output month
-                int d_oDay;    // output day
-                int d_iYear;   // input year
-                int d_iMonth;  // input month
-                int d_iDay;    // input day
-            } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
-                //----  -----  ------  ----  -----  ------  ----
-                { L_,       1,      1,    1,     1,      1,    1,  },
-                { L_,       1,      1,    2,     1,      1,    2,  },
-                { L_,       1,      1,    3,     1,      1,    3,  },
-                { L_,       1,      1,    4,     1,      1,    4,  },
-
-                { L_,     101,      4,    1,   101,      4,    1,  },
-                { L_,     202,      5,    1,   202,      5,    1,  },
-                { L_,     303,      6,    1,   303,      6,    1,  },
-
-                { L_,    1752,      9,    2,  1752,      9,    2,  },
-
-                { L_,    1752,      9,   14,  1752,      9,   14,  },
-                { L_,    1899,     12,   26,  1899,     12,   26,  },
-                { L_,    2015,      3,   15,  2015,      3,   15,  },
-
-                { L_,    9999,     12,   31,  9999,     12,   31,  },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_line;
-                const int OYEAR  = DATA[ti].d_oYear;
-                const int OMONTH = DATA[ti].d_oMonth;
-                const int ODAY   = DATA[ti].d_oDay;
-                const int IYEAR  = DATA[ti].d_iYear;
-                const int IMONTH = DATA[ti].d_iMonth;
-                const int IDAY   = DATA[ti].d_iDay;
-
-                if (veryVerbose) {
-                    T_ P_(LINE)
-                    P_(OYEAR) P_(OMONTH) P_(ODAY)
-                    P_(IYEAR) P_(IMONTH) P(IDAY)
-                }
-
-                // BDEX stream out: proleptic Gregorian mode
-
-                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
-
-                const Obj X(OYEAR, OMONTH, ODAY);
-
-                Out out(VERSION_SELECTOR, &allocator);
-                X.bdexStreamOut(out, VERSION);
-
-                // BDEX stream in: proleptic Gregorian mode
-
-                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
-
-                const Obj Z(IYEAR, IMONTH, IDAY);
-
-                Obj mT(VC);  const Obj& T = mT;  ASSERT(X != T);
-
-                In in(out.data(), out.length());
-                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
-
-                LOOP3_ASSERT(LINE, T, Z, Z == T);
-            }
-        }
-
-        // The next two test blocks verify the compatibility that is expected
-        // between the two calendar modes.  In particular, they verify that:
-        //: 1 [POSIX --> proleptic Gregorian] A date streamed out in POSIX mode
-        //:   is streamed in as expected in proleptic Gregorian mode.
-        //:
-        //: 2 [proleptic Gregorian --> POSIX] A date streamed out in proleptic
-        //:   Gregorian mode is streamed in as expected in POSIX mode.
-        //
-        // Note that for the range of dates '[1752/09/14 .. 9999/12/31]', the
-        // ymd attributes corresponding to the serial values that are actually
-        // streamed are identical in both calendar modes.  The "// **" comment
-        // indicates cases in the test data where the ymd attributes differ
-        // between the two calendar modes.
-
-        if (verbose) cout << "\tPOSIX --> proleptic Gregorian." << endl;
-        {
-            static const struct {
-                int d_line;    // source line number
-                int d_oYear;   // output year
-                int d_oMonth;  // output month
-                int d_oDay;    // output day
-                int d_iYear;   // input year
-                int d_iMonth;  // input month
-                int d_iDay;    // input day
-            } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
-                //----  -----  ------  ----  -----  ------  ----
-                { L_,       1,      1,    1,     1,      1,    1,  },
-                { L_,       1,      1,    2,     1,      1,    1,  },  // **
-                { L_,       1,      1,    3,     1,      1,    1,  },  // **
-                { L_,       1,      1,    4,     1,      1,    2,  },  // **
-
-                { L_,     101,      4,    1,   101,      3,   31,  },  // **
-                { L_,     202,      5,    1,   202,      5,    1,  },
-                { L_,     303,      6,    1,   303,      6,    2,  },  // **
-
-                { L_,    1752,      9,    2,  1752,      9,   13,  },  // **
-
-                { L_,    1752,      9,   14,  1752,      9,   14,  },
-                { L_,    1899,     12,   26,  1899,     12,   26,  },
-                { L_,    2015,      3,   15,  2015,      3,   15,  },
-
-                // The next vector is deliberately *not* 9999/12/31 (see the
-                // comment regarding 'X' below).
-
-                { L_,    9999,     12,   29,  9999,     12,   29,  },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_line;
-                const int OYEAR  = DATA[ti].d_oYear;
-                const int OMONTH = DATA[ti].d_oMonth;
-                const int ODAY   = DATA[ti].d_oDay;
-                const int IYEAR  = DATA[ti].d_iYear;
-                const int IMONTH = DATA[ti].d_iMonth;
-                const int IDAY   = DATA[ti].d_iDay;
-
-                if (veryVerbose) {
-                    T_ P_(LINE)
-                    P_(OYEAR) P_(OMONTH) P_(ODAY)
-                    P_(IYEAR) P_(IMONTH) P(IDAY)
-                }
-
-                // BDEX stream out: POSIX mode
-
-                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
-
-                const Obj X(OYEAR, OMONTH, ODAY);
-
-                // Note that 'X' is created in POSIX mode, but destroyed in
-                // proleptic Gregorian mode.  This is a problem for 9999/12/30
-                // and 9999/12/31 due to the 'BSLS_ASSERT_SAFE' in the 'Date'
-                // destructor.
-
-                Out out(VERSION_SELECTOR, &allocator);
-                X.bdexStreamOut(out, VERSION);
-
-                // BDEX stream in: proleptic Gregorian mode
-
-                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
-
-                const Obj Z(IYEAR, IMONTH, IDAY);
-
-                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
-
-                In in(out.data(), out.length());
-                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
-
-                LOOP3_ASSERT(LINE, T, Z, Z == T);
-            }
-        }
-
-        if (verbose) cout << "\tproleptic Gregorian --> POSIX." << endl;
-        {
-            static const struct {
-                int d_line;    // source line number
-                int d_oYear;   // output year
-                int d_oMonth;  // output month
-                int d_oDay;    // output day
-                int d_iYear;   // input year
-                int d_iMonth;  // input month
-                int d_iDay;    // input day
-            } DATA[] = {
-                //LINE  OYEAR  OMONTH  ODAY  IYEAR  IMONTH  IDAY
-                //----  -----  ------  ----  -----  ------  ----
-                { L_,       1,      1,    1,     1,      1,    1,  },
-                { L_,       1,      1,    2,     1,      1,    4,  },  // **
-                { L_,       1,      1,    3,     1,      1,    5,  },  // **
-                { L_,       1,      1,    4,     1,      1,    6,  },  // **
-
-                { L_,     101,      4,    1,   101,      4,    2,  },  // **
-                { L_,     202,      5,    1,   202,      5,    1,  },
-                { L_,     303,      6,    1,   303,      5,   31,  },  // **
-
-                { L_,    1752,      9,    2,  1752,      8,   22,  },  // **
-
-                { L_,    1752,      9,   14,  1752,      9,   14,  },
-                { L_,    1899,     12,   26,  1899,     12,   26,  },
-                { L_,    2015,      3,   15,  2015,      3,   15,  },
-
-                { L_,    9999,     12,   31,  9999,     12,   31,  },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE   = DATA[ti].d_line;
-                const int OYEAR  = DATA[ti].d_oYear;
-                const int OMONTH = DATA[ti].d_oMonth;
-                const int ODAY   = DATA[ti].d_oDay;
-                const int IYEAR  = DATA[ti].d_iYear;
-                const int IMONTH = DATA[ti].d_iMonth;
-                const int IDAY   = DATA[ti].d_iDay;
-
-                if (veryVerbose) {
-                    T_ P_(LINE)
-                    P_(OYEAR) P_(OMONTH) P_(ODAY)
-                    P_(IYEAR) P_(IMONTH) P(IDAY)
-                }
-
-                // BDEX stream out: proleptic Gregorian mode
-
-                bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
-
-                const Obj X(OYEAR, OMONTH, ODAY);
-
-                // Note that 'X' is created in proleptic Gregorian mode, but
-                // destroyed in POSIX mode.  However, it is not an issue as it
-                // was for testing "POSIX --> proleptic Gregorian" (above).
-
-                Out out(VERSION_SELECTOR, &allocator);
-                X.bdexStreamOut(out, VERSION);
-
-                // BDEX stream in: POSIX mode
-
-                bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
-
-                const Obj Z(IYEAR, IMONTH, IDAY);
-
-                Obj mT(VC);  const Obj& T = mT;  ASSERT(Z != T);
-
-                In in(out.data(), out.length());
-                mT.bdexStreamIn(in, VERSION);    ASSERT(in);
-
-                LOOP3_ASSERT(LINE, T, Z, Z == T);
-            }
-        }
-
-        // Restore the calendar mode to what it was on entry to the test case,
-        // so that 'VG' (defined near the beginning of case 10) can be safely
-        // destroyed.
-
-        if (isPGModeOnEntry) {
-            bdlt::DelegatingDateImpUtil::enableProlepticGregorianMode();
-        }
-        else {
-            bdlt::DelegatingDateImpUtil::disableProlepticGregorianMode();
-        }
-
-#endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 
@@ -6013,241 +4831,6 @@ if (verbose)
         ASSERT(0 == (X == Z));        ASSERT(1 == (X != Z));
 
       } break;
-#ifndef BDE_OPENSOURCE_PUBLICATION
-      case -1: {
-        // --------------------------------------------------------------------
-        // 'logIfProblematicDate*' Log Messages
-        //
-        // Testing:
-        //   Manual inspection of log message content.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\n'logIfProblematicDate*' Log Messages"
-                          << "\n====================================" << endl;
-
-        if (verbose) cout << "\n*** 'logIfProblematicDateValue' ***" << endl;
-
-        if (verbose) cout << "\n'Obj(y, d)'." << endl;
-        {
-            const Obj X(1700, 98);
-        }
-
-        if (verbose) cout << "\n'Obj(y, m, d)'." << endl;
-        {
-            const Obj X(1700, 10, 31);
-        }
-
-        if (verbose) cout << "\n'setYearDay(y, d)'." << endl;
-        {
-            Obj mX;
-
-            mX.setYearDay(1700, 98);
-        }
-
-        if (verbose) cout << "\n'setYearMonthDay(y, m, d)'." << endl;
-        {
-            Obj mX;
-
-            mX.setYearMonthDay(1700, 11, 11);
-        }
-
-        if (verbose) cout << "\n'bdexStreamIn' and 'bdexStreamOut'." << endl;
-        {
-            // Allocator to use instead of the default allocator.
-            bslma::TestAllocator ta("bslx", veryVeryVeryVerbose);
-
-            const int VERSION = Obj::maxSupportedBdexVersion(0);
-
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
-
-            {
-                Out out(VERSION_SELECTOR, &ta);
-                bdexStreamOut(out, Obj(1700, 200), VERSION);
-
-                In in(out.data(), out.length());
-
-                Obj mX;
-
-                bdexStreamIn(in, mX, VERSION);
-            }
-        }
-
-        if (verbose) cout << "\n*** 'logIfProblematicDateAddition' ***"
-                          << endl;
-
-        if (verbose) cout << "\n'operator+=(n)'." << endl;
-        {
-            Obj mX;
-
-            mX += 700000;
-        }
-
-        if (verbose) cout << "\n'operator-=(n)'." << endl;
-        {
-            Obj mX(1800, 10, 31);
-
-            mX -= 500000;
-        }
-
-        if (verbose) cout << "\nMember 'operator++'." << endl;
-        {
-            Obj mX(1700, 200);
-
-            ++mX;
-        }
-
-        if (verbose) cout << "\nMember 'operator--'." << endl;
-        {
-            Obj mX(1700, 200);
-
-            --mX;
-        }
-
-        if (verbose) cout << "\n'addDaysIfValid(n)'." << endl;
-        {
-            Obj mX;
-
-            mX.addDaysIfValid(700000);
-        }
-
-        if (verbose) cout << "\nFree 'operator++'." << endl;
-        {
-            Obj mX(1700, 200);
-
-            // account for log throttling
-            for (int i = 0; i < 6; ++i) {
-                mX++;  // nothing logged
-            }
-
-            mX++;
-        }
-
-        if (verbose) cout << "\nFree 'operator--'." << endl;
-        {
-            Obj mX(1700, 200);
-
-            // account for log throttling
-            for (int i = 0; i < 6; ++i) {
-                mX--;  // nothing logged
-            }
-
-            mX--;
-        }
-
-        if (verbose) cout << "\n'operator+(Date, n)'." << endl;
-        {
-            const Obj X;
-
-            X + 700000;
-        }
-
-        if (verbose) cout << "\n'operator+(n, Date)'." << endl;
-        {
-            Obj X;
-
-            700000 + X;
-        }
-
-        if (verbose) cout << "\n'operator-(Date, n)'." << endl;
-        {
-            const Obj X(1800, 10, 31);
-
-            X - 500000;
-        }
-
-        if (verbose) cout << "\n*** 'logIfProblematicDateDifference' ***"
-                          << endl;
-
-        if (verbose) cout << "\n'operator-(Date, Date)'." << endl;
-        {
-            const Obj X(1900, 200);
-            const Obj Y(1700, 200);
-
-            X - Y;
-        }
-
-        if (verbose) cout << "\nTest log throttling." << endl;
-
-        if (verbose) cout << "\t'logIfProblematicDateValue'." << endl;
-        {
-            // Test throttling using 'Obj(y, m, d)'.  Note that the first
-            // occurrence was logged earlier in this test case.
-
-            // log the 8th occurrence, but not the 2nd through 7th
-            {
-                for (int i = 0; i < 6; ++i) {
-                    const Obj X(1700, 10, 31);  // nothing logged
-                }
-
-                const Obj X(1700, 10, 31);
-            }
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-                for (int i = 0; i < 247; ++i) {
-                    const Obj X(1700, 10, 31);  // nothing logged
-                }
-
-                const Obj X(1700, 10, 31);
-            }
-        }
-
-        if (verbose) cout << "\t'logIfProblematicDateAddition'." << endl;
-        {
-            // Test throttling using 'operator+(Date, n)'.  Note that the first
-            // occurrence was logged earlier in this test case.
-
-            const Obj X;
-
-            // log the 8th occurrence, but not the 2nd through 7th
-            {
-               for (int i = 0; i < 6; ++i) {
-                  X + 700000;  // nothing logged
-               }
-
-               X + 700000;
-            }
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-               for (int i = 0; i < 247; ++i) {
-                  X + 700000;  // nothing logged
-               }
-
-               X + 700000;
-            }
-        }
-
-        if (verbose) cout << "\t'logIfProblematicDateDifference'." << endl;
-        {
-            // Test throttling using 'operator-(Date, Date)'.  Note that the
-            // first occurrence was logged earlier in this test case.
-
-            const Obj X(2015, 1, 1);
-            const Obj Y;
-
-            // log the 8th occurrence, but not the 2nd through 7th
-            {
-               for (int i = 0; i < 6; ++i) {
-                  X - Y;  // nothing logged
-               }
-
-               X - Y;
-            }
-
-            // next (and last) to be logged is the 256th occurrence
-            {
-               for (int i = 0; i < 247; ++i) {
-                  X - Y;  // nothing logged
-               }
-
-               X - Y;
-            }
-        }
-
-      } break;
-#endif
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

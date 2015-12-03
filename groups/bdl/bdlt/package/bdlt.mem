@@ -8,12 +8,12 @@ bdlt_datetz
 bdlt_dateutil
 bdlt_dayofweek
 bdlt_dayofweekset
-bdlt_delegatingdateimputil
 bdlt_epochutil
 bdlt_intervalconversionutil
 bdlt_localtimeoffset
 bdlt_monthofyear
 bdlt_posixdateimputil
+bdlt_prolepticdateimputil
 bdlt_serialdateimputil
 bdlt_time
 bdlt_timetz

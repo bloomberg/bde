@@ -136,16 +136,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimeinterval.h>
 #endif
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-#include <bdlt_delegatingdateimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
-#endif
-#endif
-
 #ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
 #endif
@@ -181,30 +171,6 @@ struct EpochUtil {
     // alias-safe, thread-safe, and exception-neutral.  Functions are provided
     // for returning converted values by value or through a result pointer.
 
-  private:
-    // CLASS DATA
-    static const Datetime *s_epoch_p;  // pointer to epoch time value
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    static const Datetime *s_posixEpoch_p;
-                                       // pointer to POSIX epoch time value
-
-    // PRIVATE CLASS METHODS
-    static void logIfProblematicDateValue(const char  *fileName,
-                                          int          lineNumber,
-                                          int          locationId,
-                                          const Date&  date);
-        // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the internal 'count' associated with the
-        // specified unique 'locationId', if the specified 'date' is deemed to
-        // represent a problematic date value.  A date value is problematic if
-        // it is prior to 1752/09/14 when in POSIX mode (1752/09/16 when in
-        // proleptic Gregorian mode).  The behavior is undefined unless
-        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
-        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
-        // log messages may be throttled to limit spew to 'stderr', but the
-        // internal count for the 'locationId' is always incremented.
-#endif
-
   public:
     // TYPES
     typedef bsls::Types::Int64 TimeT64;
@@ -214,6 +180,13 @@ struct EpochUtil {
         // 'Datetime' values that are less than the epoch (corresponding to
         // negative 'TimeT64' values).
 
+  private:
+    // CLASS DATA
+    static const Datetime *s_epoch_p;            // pointer to epoch time value
+    static const TimeT64   s_earliestAsTimeT64;  // January   1, 0001 00:00:00
+    static const TimeT64   s_latestAsTimeT64;    // December 31, 9999 23:59:59
+
+  public:
     // CLASS METHODS
     static const Datetime& epoch();
         // Return a reference providing non-modifiable access to the epoch
@@ -380,13 +353,7 @@ struct EpochUtil {
 inline
 const Datetime& EpochUtil::epoch()
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return *s_epoch_p;
-#else
-    return DelegatingDateImpUtil::isProlepticGregorianMode()
-           ? *s_epoch_p
-           : *s_posixEpoch_p;
-#endif
 }
 
                            // 'time_t'-Based Methods
@@ -449,28 +416,11 @@ int EpochUtil::convertToTimeT(bsl::time_t     *result,
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
-    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
-#else
-    if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
-    BSLS_ASSERT_SAFE(-62135596800LL <= time);  // January    1, 0001 00:00:00
-    }
-    else {
-    BSLS_ASSERT_SAFE(-62135769600LL <= time);  // January    1, 0001 00:00:00
-    }
-#endif
-    BSLS_ASSERT_SAFE(253402300799LL >= time);  // December  31, 9999 23:59:59
+    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time);
+    BSLS_ASSERT_SAFE(                       time <= s_latestAsTimeT64);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 0 };
-
-    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         static_cast<int>(locationId),
-                                         datetime.date());
-#endif
 
     return datetime;
 }
@@ -480,28 +430,12 @@ int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
     BSLS_ASSERT_SAFE(result);
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    if (( DelegatingDateImpUtil::isProlepticGregorianMode() &&
-                                                      -62135596800LL > time)
-     || (!DelegatingDateImpUtil::isProlepticGregorianMode() &&
-                                                      -62135769600LL > time) ||
-#else
-    if (-62135596800LL > time ||  // January    1, 0001 00:00:00
-#endif
-        253402300799LL < time) {  // December  31, 9999 23:59:59
+    if (time < s_earliestAsTimeT64 || time > s_latestAsTimeT64) {
         return 1;                                                     // RETURN
     }
 
     *result = epoch();
     result->addSeconds(time);
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 1 };
-
-    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         static_cast<int>(locationId),
-                                         result->date());
-#endif
 
     return 0;
 }
@@ -510,13 +444,6 @@ inline
 EpochUtil::TimeT64
 EpochUtil::convertToTimeT64(const Datetime& datetime)
 {
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 2 };
-
-    EpochUtil::logIfProblematicDateValue(__FILE__, __LINE__,
-                                         static_cast<int>(locationId),
-                                         datetime.date());
-#endif
     return TimeT64(((datetime - epoch()).totalMilliseconds()
                                              - datetime.millisecond()) / 1000);
 }
