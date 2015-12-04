@@ -955,7 +955,8 @@ int StringRefImp<CHAR_TYPE>::compare(
                     other.data(),
                     native_std::min(this->length(), other.length()));
 
-    return result != 0 ? result : this->length() - other.length();
+    return result != 0 ? result
+                       : static_cast<int>(this->length() - other.length());
 }
 
 }  // close package namespace
