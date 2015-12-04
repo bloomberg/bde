@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // these calls is strongly dependent on the underlying system.  On UNIX-like
 // platforms 'genRandomBytes()' reads from '/dev/random' and
 // 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
-// methods use 'CrypGenRandom'.
+// methods use 'CryptGenRandom'.
 //
 // Note that it is not appropriate to use these functions to generate many
 // random numbers, because they are likely to exhaust available entropy and
