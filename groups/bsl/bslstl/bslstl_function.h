@@ -94,6 +94,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_functionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISEMPTY
 #include <bslmf_isempty.h>
 #endif
@@ -23175,6 +23179,20 @@ void bsl::swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 
 // }}} END GENERATED CODE
 #endif
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class FUNC>
+struct IsBitwiseMoveable<bsl::Function_NothrowWrapper<FUNC> >
+   : IsBitwiseMoveable<FUNC>::type
+{
+};
+
+} // close namespace bslmf
+} // close namespace BloombergLP
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 
