@@ -770,7 +770,7 @@ void test(int aProducersNumber,
 int main(int argc, char *argv[])
 {
     const int test          = argc > 1 ? atoi(argv[1]) : 0;
-    const int threadsAmount = argc > 2 ? atoi(argv[2]) : 24;
+    const int threadsAmount = argc > 2 ? atoi(argv[2]) : 18;
 
     verbose = argc > 2;
     veryVerbose = argc > 3;
