@@ -1,9 +1,15 @@
-bsl-internal (2.24.5.0.icbeta) unstable; urgency=low
+bsl-internal (2.24.5.1.icbeta) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 5 Dec 2015 11:46:49 -0500
+
+bsl-internal (2.24.5.0.icbeta) git; urgency=low
+
+  * e8b1f21 Changelog for version 2.24.5.0.icbeta
   * 394e10f Changelog for version 2.24.5.0.icbeta
   * f637a13 add defines to enable ICBETA assertions
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 Nov 2015 12:40:20 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 25 Nov 2015 12:40:33 -0500
 
 bsl-internal (2.24.5.0) git; urgency=low
 
@@ -146,7 +152,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * efe82c0 [APPROVAL] pending/master/gets-14_drqs-64932703 to master
   * 9c2c49f [APPROVAL] INTERNAL pending/master/stdexcept-exception_drqs-66864749 to master
   * 0df81d8 [APPROVAL] pending/master/stdexcept-exception_drqs-66864749 to master
-  * 525a41a [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
+  * 525a41aa [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * 8d90399 [APPROVAL] pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * bfec9c2 [APPROVAL] INTERNAL fix-bad-git-merge-bslmf_typelist.h to master
   * 34d4b32 [APPROVAL] fix-bad-git-merge-bslmf_typelist.h to master
@@ -658,7 +664,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * d1e6a5d [APPROVAL] pending/master/resolve_ambiguous_assign_drqs57251422 to master
   * e9cc3b8 [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
   * 179bd32 [APPROVAL] undef-P7-in-bdldfp-drqs-57209949 to master
-  * b8af7e6 Merge remote-tracking branch 'oss/master'
   * 4cb746e [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to master
   * 9c70541 [APPROVAL] OSS bump-version-to-2.22 to master
   * 0f470a3 [APPROVAL] bump-version-to-2.22 to master
@@ -736,7 +741,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * eb009cd Conversion changes.
   * 743f361 [APPROVAL] OSS vector_of_function_ptrs_drqs34693876 to master
   * 0182100 [APPROVAL] vector_of_function_ptrs_drqs34693876 to master
-  * ac22b73 Merge remote-tracking branch 'origin/review/correct_std_string_usage_to_bsl-drqs52854327' into decimal-new-impl-design
   * 24a9765 [APPROVAL] OSS pending/master/ericvw-waf-configure-doc-update to master
   * 9e7b316 [APPROVAL] pending/master/ericvw-waf-configure-doc-update to master
   * 0a5697d [APPROVAL] INTERNAL merge-fix-bdldfp-stlport-build-drqs-54236699 to master
@@ -832,7 +836,6 @@ bsl-internal (2.21.0.0.beta.1) git; urgency=low
   * 0f5b302 [APPROVAL] bump-version-to-2.21 to master
   * ab26257 Make version 2.21.0
   * 91d767d Conversions to call getQuantum and getExponent in hardware mode.
-  * 508cfee Merge remote-tracking branch 'remotes/origin/dev/amartin172/decimal-util-include-fix' into hardware_code_3
   * 91644cd [APPROVAL] INTERNAL pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
   * 0bf678a [APPROVAL] pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
   * 712114c [APPROVAL] OSS fix-bsl+stdhdrs-dep-file-drqs50570497 to master
@@ -899,8 +902,6 @@ bsl-internal (2.20.0.1) git; urgency=low
   * ab39609 [APPROVAL] OSS pending/master/remove-windows.h-include2 to master
   * 5a03fea [APPROVAL] pending/master/remove-windows.h-include2 to master
   * acfa60d [APPROVAL] pending/master/waf-build-support-bde-bb-drqs-48413481 to master
-  * e7ac046 Merge remote-tracking branch 'origin/review/fix-bdls_testutil-test-driver-aix-drqs-48513817' into pending/bdl-fixes-drqs-48513817
-  * 802c4c5 Merge remote-tracking branch 'origin/review/fix-bdlma_buffermanager-test-sun-drqs-48513817' into pending/bdl-fixes-drqs-48513817
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 14:12:46 -0500
 
@@ -1062,7 +1063,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 5a87563 [APPROVAL] OSS bump-version-to-2.18-drqs-41339858 to master
   * 8285cf6 [APPROVAL] bump-version-to-2.18-drqs-41339858 to master
   * 46bd7a8 bump version to 2.18.0
-  * 5e25613 Merge remote-tracking branch 'oss/master'
   * 66ea7d6 [APPROVAL] pending/master/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
   * 85116d4 [APPROVAL] OSS pending/master/const-cast-qual-drqs40473559 to master
   * ea47c05 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
@@ -1101,8 +1101,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * b0edd54 [APPROVAL] OSS review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
   * c92e96f [APPROVAL] OSS master to master
   * 27f3348 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
-  * d92586e Merge remote-tracking branch 'github/master'
-  * c8dc1e4 Merge remote-tracking branch 'oss/master' into import
   * 6734b02 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * afd9b76 Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
   * e2140fb Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
@@ -1143,9 +1141,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 81b7d17 Import internal commit 018b110162ce1bb470001fa0c50d46cf9a03a85e : [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
   * b9e8a04 Import internal commit 90e91784ee3e86697cbfccd9ca0ab88680eb7d7a : [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
   * e7a6ea0 Import internal commit 414edb6e54182def7d25aa540cdcfe70818d92ee : [APPROVAL] pending/master/fix-bdeut_variant-warning-drqs-37689270 to master
-  * 6f02da8 Merge remote-tracking branch 'oss/master'
-  * 79f4021 Merge remote-tracking branch 'oss/master'
-  * 2778b53 Merge remote-tracking branch 'oss/master'
   * 1f5eebf Import internal commit 49a9b029b9417d6b4bfe8ff366c554d82e4fb7d8 : [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
   * 8783b88 Import internal commit de0473a297248668b55a3385ba5eda7b73184ff3 : [APPROVAL] pending/master/restore_non_standard_bsl_hash_for_strings_drqs37540921 to master
   * e3755a0 Import internal commit e02418a7deff5f08ca6cd1d9ff425c3ddb0da679 : [APPROVAL] pending/master/bslmf-tests-msvc-drqs37446628 to master
