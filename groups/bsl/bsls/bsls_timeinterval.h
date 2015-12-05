@@ -657,7 +657,8 @@ TimeInterval& TimeInterval::operator+=(double rhs)
 inline
 TimeInterval& TimeInterval::operator-=(const TimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(LLONG_MIN < rhs.seconds());
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MIN < rhs.seconds());
 
     addInterval(-rhs.d_seconds, -rhs.d_nanoseconds);
     return *this;
@@ -675,8 +676,9 @@ TimeInterval& TimeInterval::operator-=(double rhs)
 inline
 TimeInterval& TimeInterval::addDays(bsls::Types::Int64 days)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
-                     LLONG_MIN / k_SECONDS_PER_DAY <= days);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
+    //                 LLONG_MIN / k_SECONDS_PER_DAY <= days);
 
     return addSeconds(days * k_SECONDS_PER_DAY);
 }
@@ -684,8 +686,9 @@ TimeInterval& TimeInterval::addDays(bsls::Types::Int64 days)
 inline
 TimeInterval& TimeInterval::addHours(bsls::Types::Int64 hours)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
-                     LLONG_MIN / k_SECONDS_PER_HOUR <= hours);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
+    //                 LLONG_MIN / k_SECONDS_PER_HOUR <= hours);
 
     return addSeconds(hours * k_SECONDS_PER_HOUR);
 }
@@ -693,8 +696,9 @@ TimeInterval& TimeInterval::addHours(bsls::Types::Int64 hours)
 inline
 TimeInterval& TimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
-                     LLONG_MIN / k_SECONDS_PER_MINUTE <= minutes);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
+    //                 LLONG_MIN / k_SECONDS_PER_MINUTE <= minutes);
 
     return addSeconds(minutes * k_SECONDS_PER_MINUTE);
 }
@@ -731,8 +735,9 @@ TimeInterval& TimeInterval::addNanoseconds(bsls::Types::Int64 nanoseconds)
 inline
 void TimeInterval::setTotalDays(bsls::Types::Int64 days)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
-                     LLONG_MIN / k_SECONDS_PER_DAY <= days);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_DAY >= days &&
+    //                 LLONG_MIN / k_SECONDS_PER_DAY <= days);
 
     return setTotalSeconds(days * k_SECONDS_PER_DAY);
 }
@@ -740,8 +745,9 @@ void TimeInterval::setTotalDays(bsls::Types::Int64 days)
 inline
 void TimeInterval::setTotalHours(bsls::Types::Int64 hours)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
-                     LLONG_MIN / k_SECONDS_PER_HOUR <= hours);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_HOUR >= hours &&
+    //                 LLONG_MIN / k_SECONDS_PER_HOUR <= hours);
 
     return setTotalSeconds(hours * k_SECONDS_PER_HOUR);
 }
@@ -749,8 +755,9 @@ void TimeInterval::setTotalHours(bsls::Types::Int64 hours)
 inline
 void TimeInterval::setTotalMinutes(bsls::Types::Int64 minutes)
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
-                     LLONG_MIN / k_SECONDS_PER_MINUTE <= minutes);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_SECONDS_PER_MINUTE >= minutes &&
+    //                 LLONG_MIN / k_SECONDS_PER_MINUTE <= minutes);
 
     return setTotalSeconds(minutes * k_SECONDS_PER_MINUTE);
 }
@@ -871,8 +878,9 @@ bsls::Types::Int64 TimeInterval::totalSeconds() const
 inline
 bsls::Types::Int64 TimeInterval::totalMilliseconds() const
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_MILLISECS_PER_SEC >= d_seconds &&
-                     LLONG_MIN / k_MILLISECS_PER_SEC <= d_seconds);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_MILLISECS_PER_SEC >= d_seconds &&
+    //                 LLONG_MIN / k_MILLISECS_PER_SEC <= d_seconds);
     BSLS_ASSERT_SAFE(isSumValidInt64(d_seconds * k_MILLISECS_PER_SEC,
                                      d_nanoseconds / k_NANOSECS_PER_MILLISEC));
 
@@ -884,8 +892,9 @@ bsls::Types::Int64 TimeInterval::totalMilliseconds() const
 inline
 bsls::Types::Int64 TimeInterval::totalMicroseconds() const
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_MICROSECS_PER_SEC >= d_seconds &&
-                     LLONG_MIN / k_MICROSECS_PER_SEC <= d_seconds);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_MICROSECS_PER_SEC >= d_seconds &&
+    //                 LLONG_MIN / k_MICROSECS_PER_SEC <= d_seconds);
     BSLS_ASSERT_SAFE(isSumValidInt64(d_seconds     * k_MICROSECS_PER_SEC,
                                      d_nanoseconds / k_NANOSECS_PER_MICROSEC));
 
@@ -896,8 +905,9 @@ bsls::Types::Int64 TimeInterval::totalMicroseconds() const
 inline
 bsls::Types::Int64 TimeInterval::totalNanoseconds() const
 {
-    BSLS_ASSERT_SAFE(LLONG_MAX / k_NANOSECS_PER_SEC >= d_seconds &&
-                     LLONG_MIN / k_NANOSECS_PER_SEC <= d_seconds);
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MAX / k_NANOSECS_PER_SEC >= d_seconds &&
+    //                 LLONG_MIN / k_NANOSECS_PER_SEC <= d_seconds);
     BSLS_ASSERT_SAFE(isSumValidInt64(d_seconds * k_NANOSECS_PER_SEC,
                                      d_nanoseconds));
 
@@ -986,7 +996,8 @@ bsls::TimeInterval bsls::operator-(const TimeInterval& lhs,
                                    const TimeInterval& rhs)
 
 {
-    BSLS_ASSERT_SAFE(LLONG_MIN != rhs.seconds());
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MIN != rhs.seconds());
 
     TimeInterval result(lhs);
     result.addInterval(-rhs.seconds(), -rhs.nanoseconds());
@@ -1008,7 +1019,8 @@ bsls::TimeInterval bsls::operator-(double lhs, const TimeInterval& rhs)
 inline
 bsls::TimeInterval bsls::operator-(const TimeInterval& rhs)
 {
-    BSLS_ASSERT_SAFE(LLONG_MIN != rhs.seconds());
+    //{DRQS 75078266<GO>}
+    //BSLS_ASSERT_SAFE(LLONG_MIN != rhs.seconds());
 
     return TimeInterval(-rhs.seconds(), -rhs.nanoseconds());
 }
