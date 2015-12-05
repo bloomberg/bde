@@ -1,7 +1,9 @@
 bsl-internal (2.24.5.1.icbeta) unstable; urgency=low
 
+  * 342a85e Changelog for version 2.24.5.1.icbeta
+  * e475e51 remove references to LLONG_MIN/MAX from bsls_timeinterval.h to work around bug caused by bvalfoundation_shared_memory.cpp (see {DRQS 75078266<GO>})
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 5 Dec 2015 11:46:49 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 5 Dec 2015 11:47:56 -0500
 
 bsl-internal (2.24.5.0.icbeta) git; urgency=low
 
