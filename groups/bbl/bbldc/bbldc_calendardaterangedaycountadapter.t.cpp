@@ -1,14 +1,18 @@
-// bbldc_basicdaterangedaycountadapter.t.cpp                          -*-C++-*-
+// bbldc_calendardaterangedaycountadapter.t.cpp                       -*-C++-*-
 
-#include <bbldc_basicdaterangedaycountadapter.h>
+#include <bbldc_calendardaterangedaycountadapter.h>
 
-#include <bbldc_basicisdaactualactual.h>
-#include <bbldc_basicisma30360.h>
+#include <bbldc_calendarbus252.h>
 
+#include <bdlt_calendar.h>
 #include <bdlt_date.h>
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -30,10 +34,13 @@ using namespace bsl;
 // forwarding methods forward correctly and the other methods return the
 // expected value.
 // ----------------------------------------------------------------------------
+// [ 1] CalendarDateRangeDayCountAdapter(calendar, basicAllocator);
+// [ 1] ~CalendarDateRangeDayCountAdapter();
 // [ 1] int daysDiff(beginDate, endDate) const;
 // [ 1] const bdlt::Date& firstDate() const;
 // [ 1] const bdlt::Date& lastDate() const;
 // [ 1] double yearsDiff(beginDate, endDate) const;
+// [ 1] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -82,16 +89,36 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
+    int  test        = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose     = argc > 2;
+    bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslma::TestAllocator defaultAllocator("default", veryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
       case 2: {
@@ -120,38 +147,45 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::BasicIsma30360'
+///Example 1: Adapting 'bbldc::CalendarBus252'
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::BasicDateRangeDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
-// day-count convention to the 'bbldc::DateRangeDayCount' protocol, and then
-// the use of the day-count methods.  First, we define an instance of the
-// adapted day-count convention and obtain a reference to the
-// 'bbldc::DateRangeDayCount':
+// 'bbldc::CalendarDateRangeDayCountAdapter' to adapt the
+// 'bbldc::CalendarBus252' day-count convention to the
+// 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
+// methods.  First, we create a 'calendar' with a valid range spanning 2003 and
+// typical weekend days:
 //..
-    const bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> myDcc =
-                 bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360>();
-
-    const bbldc::DateRangeDayCount& dcc = myDcc;
+    bdlt::Calendar calendar;
+    calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
+    calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
+    calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
 //..
-// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// Then, we define an instance of the adapted day-count convention and obtain a
+// reference to the 'bbldc::DateRangeDayCount':
+//..
+    const bbldc::CalendarDateRangeDayCountAdapter<bbldc::CalendarBus252>
+                                                               myDcc(calendar);
+    const bbldc::DateRangeDayCount&                            dcc = myDcc;
+//..
+// Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
 // the day-count convention methods:
 //..
-    const bdlt::Date d1(2003, 10, 18);
+    const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
 //..
 // Now, use the base-class reference to compute the day count between the two
 // dates:
 //..
     const int daysDiff = dcc.daysDiff(d1, d2);
-    ASSERT(72 == daysDiff);
+    ASSERT(52 == daysDiff);
 //..
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
 //..
     const double yearsDiff = dcc.yearsDiff(d1, d2);
     // Need fuzzy comparison since 'yearsDiff' is a 'double'.
-    ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
+    ASSERT(yearsDiff > 0.2063 && yearsDiff < 0.2064);
 //..
       } break;
       case 1: {
@@ -165,6 +199,18 @@ int main(int argc, char *argv[])
         //:
         //: 2 The functions are in fact virtual and accessible from the
         //:  'bbldc::DateRangeDayCount' base class.
+        //:
+        //: 3 The values bound at construction are correctly forwarded to the
+        //:   methods.
+        //:
+        //: 4 The destructor works as expected.
+        //:
+        //: 5 The constructor has the internal memory management system hooked
+        //:   up properly so that *all* internally allocated memory draws from
+        //:   the same user-supplied allocator whenever one is specified and
+        //:   the 'allocator' accessor return value is as expected.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Construct an adapted object of a class (which is derived from
@@ -172,94 +218,134 @@ int main(int argc, char *argv[])
         //:  reference to the object.  Using the base class reference, invoke
         //:  the 'daysDiff', 'firstDate', 'lastDate', and 'yearsDiff' methods.
         //:  Verify that the correct implementations of the methods are called.
-        //:  (C-1..2)
+        //:  (C-1..3)
+        //:
+        //: 2 The destructor is empty so the concern is trivially satisfied.
+        //:   (C-4)
+        //:
+        //: 3 Create an object using the constructor with and without passing
+        //:   in an allocator and verify the allocator is stored using the
+        //:   'allocator' accessor.
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-6)
         //
         // Testing:
+        //   CalendarDateRangeDayCountAdapter(calendar, basicAllocator);
+        //   ~CalendarDateRangeDayCountAdapter();
         //   int daysDiff(beginDate, endDate) const;
         //   const bdlt::Date& firstDate() const;
         //   const bdlt::Date& lastDate() const;
         //   double yearsDiff(beginDate, endDate) const;
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "INHERITANCE MECHANISM" << endl
                           << "=====================" << endl;
 
-        bdlt::Date DATE1(1993, 12, 15);
-        bdlt::Date DATE2(1993, 12, 31);
-        bdlt::Date DATE3(2003,  2, 28);
-        bdlt::Date DATE4(2004,  2, 29);
+        bdlt::Calendar        mCalendar;
+        const bdlt::Calendar& CALENDAR = mCalendar;
+        mCalendar.setValidRange(bdlt::Date(1990,  1,  1),
+                                bdlt::Date(1999, 12, 31));
 
-        if (verbose) cout << "\nTesting 'daysDiff(date1, date2)'" << endl;
+        bdlt::Date DATE1(1992, 2, 1);
+        bdlt::Date DATE2(1993, 3, 1);
+        bdlt::Date DATE3(1993, 2, 1);
+        bdlt::Date DATE4(1996, 2, 1);
+
+        if (verbose) cout << "\nTesting 'daysDiff'" << endl;
         {
             {
-                bbldc::BasicDateRangeDayCountAdapter<
-                                              bbldc::BasicIsdaActualActual> mX;
+                bbldc::CalendarDateRangeDayCountAdapter<
+                                           bbldc::CalendarBus252> mX(CALENDAR);
 
                 const bbldc::DateRangeDayCount& protocol = mX;
 
-                ASSERT( 16 == protocol.daysDiff(DATE1, DATE2));
-                ASSERT(366 == protocol.daysDiff(DATE3, DATE4));
-            }
-
-            {
-                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> mX;
-
-                const bbldc::DateRangeDayCount& protocol = mX;
-
-                ASSERT( 15 == protocol.daysDiff(DATE1, DATE2));
-                ASSERT(361 == protocol.daysDiff(DATE3, DATE4));
+                ASSERT( 394 == protocol.daysDiff(DATE1, DATE2));
+                ASSERT(1095 == protocol.daysDiff(DATE3, DATE4));
             }
         }
 
         if (verbose) cout << "\nTesting 'firstDate' and 'lastDate'" << endl;
         {
             {
-                bbldc::BasicDateRangeDayCountAdapter<
-                                              bbldc::BasicIsdaActualActual> mX;
+                bbldc::CalendarDateRangeDayCountAdapter<
+                                           bbldc::CalendarBus252> mX(CALENDAR);
 
                 const bbldc::DateRangeDayCount& protocol = mX;
 
-                ASSERT(bdlt::Date(   1,  1,  1)  == protocol.firstDate());
-                ASSERT(bdlt::Date(9999, 12, 31)  == protocol.lastDate());
-            }
-
-            {
-                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> mX;
-
-                const bbldc::DateRangeDayCount& protocol = mX;
-
-                ASSERT(bdlt::Date(   1,  1,  1)  == protocol.firstDate());
-                ASSERT(bdlt::Date(9999, 12, 31)  == protocol.lastDate());
+                ASSERT(CALENDAR.firstDate() == protocol.firstDate());
+                ASSERT(CALENDAR.lastDate()  == protocol.lastDate());
             }
         }
 
-        if (verbose) cout << "\nTesting 'yearsDiff(date1, date2)'" << endl;
+        if (verbose) cout << "\nTesting 'yearsDiff'" << endl;
         {
             {
-                bbldc::BasicDateRangeDayCountAdapter<
-                                              bbldc::BasicIsdaActualActual> mX;
+                bbldc::CalendarDateRangeDayCountAdapter<
+                                           bbldc::CalendarBus252> mX(CALENDAR);
 
-                bbldc::DateRangeDayCount& protocol = mX;
+                const bbldc::DateRangeDayCount& protocol = mX;
 
-                double diff1 = 0.0438 - protocol.yearsDiff(DATE1, DATE2);
+                double diff1 = 1.5635 - protocol.yearsDiff(DATE1, DATE2);
                 ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
 
-                double diff2 = 1.0023 - protocol.yearsDiff(DATE3, DATE4);
+                double diff2 = 4.3452 - protocol.yearsDiff(DATE3, DATE4);
                 ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
             }
+        }
 
+        if (verbose) cout << "\nTesting 'allocator'" << endl;
+        {
             {
-                bbldc::BasicDateRangeDayCountAdapter<bbldc::BasicIsma30360> mX;
+                bbldc::CalendarDateRangeDayCountAdapter<
+                                           bbldc::CalendarBus252> mX(CALENDAR);
 
-                bbldc::DateRangeDayCount& protocol = mX;
+                const bbldc::CalendarDateRangeDayCountAdapter<
+                                        bbldc::CalendarBus252>& X = mX;
 
-                double diff1 = 0.0417 - protocol.yearsDiff(DATE1, DATE2);
-                ASSERT(-0.00005 <= diff1 && diff1 <= 0.00005);
-
-                double diff2 = 1.0028 - protocol.yearsDiff(DATE3, DATE4);
-                ASSERT(-0.00005 <= diff2 && diff2 <= 0.00005);
+                ASSERT(&defaultAllocator == X.allocator());
             }
+            {
+                bslma::TestAllocator sa("supplied", veryVerbose);
+
+                bbldc::CalendarDateRangeDayCountAdapter<
+                                      bbldc::CalendarBus252> mX(CALENDAR, &sa);
+
+                const bbldc::CalendarDateRangeDayCountAdapter<
+                                        bbldc::CalendarBus252>& X = mX;
+
+                ASSERT(&sa == X.allocator());
+            }
+        }
+
+        { // negative testing
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            bbldc::CalendarDateRangeDayCountAdapter<
+                                           bbldc::CalendarBus252> mX(CALENDAR);
+
+            const bbldc::CalendarDateRangeDayCountAdapter<
+                                        bbldc::CalendarBus252>& X = mX;
+
+            ASSERT_SAFE_PASS(X.daysDiff(bdlt::Date(1990,  1,  1),
+                                        bdlt::Date(1999, 12, 31)));
+
+            ASSERT_SAFE_FAIL(X.daysDiff(bdlt::Date(1989, 12, 31),
+                                        bdlt::Date(1999, 12, 31)));
+
+            ASSERT_SAFE_FAIL(X.daysDiff(bdlt::Date(1990,  1,  1),
+                                        bdlt::Date(2000,  1,  1)));
+
+            ASSERT_SAFE_PASS(X.yearsDiff(bdlt::Date(1990,  1,  1),
+                                         bdlt::Date(1999, 12, 31)));
+
+            ASSERT_SAFE_FAIL(X.yearsDiff(bdlt::Date(1989, 12, 31),
+                                         bdlt::Date(1999, 12, 31)));
+
+            ASSERT_SAFE_FAIL(X.yearsDiff(bdlt::Date(1990,  1,  1),
+                                         bdlt::Date(2000,  1,  1)));
         }
       } break;
       default: {
@@ -267,6 +353,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

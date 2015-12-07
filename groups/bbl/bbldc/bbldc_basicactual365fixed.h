@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicActual365Fixed' methods.  First, create four 'bdlt::Date'
 // variables:
@@ -74,9 +74,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bbldc {
 
-                         // ==========================
-                         // struct BasicActual365Fixed
-                         // ==========================
+                        // ==========================
+                        // struct BasicActual365Fixed
+                        // ==========================
 
 struct BasicActual365Fixed {
     // This 'struct' provides a namespace for a suite of pure functions that
@@ -104,12 +104,12 @@ struct BasicActual365Fixed {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                         // --------------------------
-                         // struct BasicActual365Fixed
-                         // --------------------------
+                        // --------------------------
+                        // struct BasicActual365Fixed
+                        // --------------------------
 
 // CLASS METHODS
 inline

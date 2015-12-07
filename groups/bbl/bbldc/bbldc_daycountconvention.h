@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 //  e_SIA_30_360_EOM             Convention is SIA 30/360 end-of-month.
 //  e_SIA_30_360_NEOM            Convention is SIA 30/360 no-end-of-month.
 //  e_PERIOD_ICMA_ACTUAL_ACTUAL  Convention is period-based ICMA Actual/Actual.
+//  e_CALENDAR_BUS_252           Convention is calendar-based BUS-252.
 //..
 //
 ///Usage
@@ -91,17 +92,47 @@ struct DayCountConvention {
     enum Enum {
         // Enumerated 'bbldc' day-count conventions.
 
-        e_ACTUAL_360                = 0,
-        e_ACTUAL_365_FIXED          = 1,
+        e_ACTUAL_360                =  0,
+        e_ACTUAL_365_FIXED          =  1,
         // 2 is deprecated
-        e_ISDA_ACTUAL_ACTUAL        = 3,
+        e_ISDA_ACTUAL_ACTUAL        =  3,
         // 4 is deprecated
-        e_ISMA_30_360               = 5,
-        e_PSA_30_360_EOM            = 6,
-        e_SIA_30_360_EOM            = 7,
-        e_SIA_30_360_NEOM           = 8,
-        e_PERIOD_ICMA_ACTUAL_ACTUAL = 9
+        e_ISMA_30_360               =  5,
+        e_PSA_30_360_EOM            =  6,
+        e_SIA_30_360_EOM            =  7,
+        e_SIA_30_360_NEOM           =  8,
+        e_PERIOD_ICMA_ACTUAL_ACTUAL =  9,
+        e_CALENDAR_BUS_252          = 10
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BBEDC_ACTUAL_360         = e_ACTUAL_360,
+        BBEDC_ACTUAL_365_FIXED   = e_ACTUAL_365_FIXED,
+        BBEDC_ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED = 2,
+        BBEDC_ISDA_ACTUAL_ACTUAL = e_ISDA_ACTUAL_ACTUAL,
+        BBEDC_ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED = 4,
+        BBEDC_ISMA_30_360        = e_ISMA_30_360,
+        BBEDC_PSA_30_360_EOM     = e_PSA_30_360_EOM,
+        BBEDC_SIA_30_360_EOM     = e_SIA_30_360_EOM,
+        BBEDC_SIA_30_360_NEOM    = e_SIA_30_360_NEOM,
+        
+        ACTUAL_360         = BBEDC_ACTUAL_360,
+        ACTUAL_365_FIXED   = BBEDC_ACTUAL_365_FIXED,
+        ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
+                                      BBEDC_ICMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED,
+        ISDA_ACTUAL_ACTUAL = BBEDC_ISDA_ACTUAL_ACTUAL,
+        ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED =
+                                      BBEDC_ISMA_ACTUAL_ACTUAL_NOT_IMPLEMENTED,
+        ISMA_30_360        = BBEDC_ISMA_30_360,
+        PSA_30_360_EOM     = BBEDC_PSA_30_360_EOM,
+        SIA_30_360_EOM     = BBEDC_SIA_30_360_EOM,
+        SIA_30_360_NEOM    = BBEDC_SIA_30_360_NEOM
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
     };
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    typedef Enum Type;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CLASS METHODS
     template <class STREAM>
@@ -158,8 +189,8 @@ struct DayCountConvention {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  The behavior is
         // undefined unless 'value' is in the range
-        // '[e_ACTUAL_360 .. e_PERIOD_ICMA_ACTUAL_ACTUAL]'.   See 'toAscii' for
-        // what constitutes the string representation of a
+        // '[e_ACTUAL_360 .. e_CALENDAR_BUS_252]'.  See 'toAscii' for what
+        // constitutes the string representation of a
         // 'bbldc::DayCountConvention::Enum' value.
 
     static const char *toAscii(Enum convention);
@@ -179,6 +210,17 @@ struct DayCountConvention {
         // enumerators will result in an unspecified string representation
         // being returned that is distinct from the values returned for any
         // valid enumerator.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+    // DEPRECATED METHODS
+    static int maxSupportedBdexVersion();
+        // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
+        //
+        // Return the most current BDEX streaming version number supported by
+        // this class.
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 };
 
 // FREE OPERATORS
@@ -236,7 +278,7 @@ int maxSupportedBdexVersion(const DayCountConvention::Enum *,
     // value-semantic types and containers.
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                         // -------------------------
@@ -255,8 +297,8 @@ STREAM& DayCountConvention::bdexStreamIn(STREAM&                   stream,
             char newValue;
             stream.getInt8(newValue);
             if (   stream
-                && e_ACTUAL_360                <= newValue
-                && e_PERIOD_ICMA_ACTUAL_ACTUAL >= newValue) {
+                && e_ACTUAL_360       <= newValue
+                && e_CALENDAR_BUS_252 >= newValue) {
                 variable = static_cast<DayCountConvention::Enum>(newValue);
             }
             else {
@@ -295,6 +337,16 @@ int DayCountConvention::maxSupportedBdexVersion(int /* versionSelector */)
     return 1;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+
+// DEPRECATED METHODS
+inline
+int DayCountConvention::maxSupportedBdexVersion()
+{
+    return 1;
+}
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 
 }  // close package namespace
 

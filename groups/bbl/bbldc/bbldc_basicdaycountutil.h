@@ -15,10 +15,10 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bbldc_daycountconvention
 //
 //@DESCRIPTION: This component provides a 'struct', 'bbldc::BasicDayCountUtil',
-// that defines a suite of date-related functions used to compute the day
-// count and the year fraction between two dates as prescribed by an
-// enumerated day-count convention.  Specifically, the 'daysDiff' and
-// 'yearsDiff' methods defined in 'bbldc::BasicDayCountUtil' take a trailing
+// that defines a suite of date-related functions used to compute the day count
+// and the year fraction between two dates as prescribed by an enumerated
+// day-count convention.  Specifically, the 'daysDiff' and 'yearsDiff' methods
+// defined in 'bbldc::BasicDayCountUtil' take a trailing
 // 'DayCountConvention::Enum' argument indicating which particular day-count
 // convention to apply.
 //
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicDayCountUtil' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
@@ -64,14 +64,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt { class Date; }
-
 namespace bbldc {
 
-                       // ========================
-                       // struct BasicDayCountUtil
-                       // ========================
+                         // ========================
+                         // struct BasicDayCountUtil
+                         // ========================
 
 struct BasicDayCountUtil {
     // This 'struct' provides a namespace for a suite of pure functions that

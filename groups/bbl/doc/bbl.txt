@@ -4,9 +4,9 @@
 
 @MNEMONIC: Basic Business Library (bbl)
 
-@DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains
- a package that provides a solution for computing day count and year fraction
- for various day-count conventions.
+@DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains a
+ package that provides a solution for computing day count and year fraction for
+ various day-count conventions.
 
 /Hierarchical Synopsis
 /---------------------
@@ -28,23 +28,20 @@
 
 /Package Overview
 /----------------
- The following provides a brief overview of the packages within the 'bbl'
- package group, arranged in alphabetical order.  The descriptions here are
- still very brief; see the respective Package Level documents for more details
- and usage examples.
+ This section a brief introduction to the packages of the 'bbl' package group.
+ See the respective Package Level documents for more details.
 
 /'bbldc'
-/ - - - -
- {'bbldc'} provides day-count convention implementations, an enumeration-based
- set of dispatch components, and two abstract interfaces with parameterized
- adapters for the day-count convention implementations.
+/- - - -
+ The {'bbldc'} package provides day-count convention implementations, an
+ enumeration-based set of dispatch components, and two abstract interfaces with
+ parameterized adapters for the day-count convention implementations.
 
 /'bblscm'
 / - - - -
- {'bblscm'} is a special source control management package containing only two
- components, 'bblscm_version' and 'bblscm_versiontag'.  The first of these
- components is included by every other component in 'bbl', and provides
- versioning information for the package group.  Users may use the
- 'bblscm_version' facilities to query a particular 'bbl' library for its
- version information.  The second component defines macros that can be used for
- conditional-compilation based on 'bbl' version information.
+ The {'bblscm'} package contains only two components, 'bblscm_version' and
+ 'bblscm_versiontag'.  The first of these components is included by every other
+ component in 'bbl', and provides versioning information for the package group.
+ Users may use the 'bblscm_version' facilities to query a particular 'bbl'
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on 'bbl' version information.

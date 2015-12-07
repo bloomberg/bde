@@ -1,22 +1,11 @@
-// bbldc_basicactual360.cpp                                           -*-C++-*-
-#include <bbldc_basicactual360.h>
+// bbldc_calendardaterangedaycountadapter.cpp                         -*-C++-*-
+#include <bbldc_calendardaterangedaycountadapter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bbldc_basicactual360_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bbldc_calendardaterangedaycountadapter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bbldc {
-
-                          // ---------------------
-                          // struct BasicActual360
-                          // ---------------------
-
-// CLASS METHODS
-double BasicActual360::yearsDiff(const bdlt::Date& beginDate,
-                                 const bdlt::Date& endDate)
-{
-    return (endDate - beginDate) / 360.0;
-}
 
 }  // close package namespace
 }  // close enterprise namespace

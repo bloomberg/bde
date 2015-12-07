@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use 'bbldc::BasicIsma30360'
 // methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
 //..
@@ -71,7 +71,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {
 
 class Date;
@@ -80,9 +79,9 @@ class Date;
 
 namespace bbldc {
 
-                         // =====================
-                         // struct BasicIsma30360
-                         // =====================
+                          // =====================
+                          // struct BasicIsma30360
+                          // =====================
 
 struct BasicIsma30360 {
     // This 'struct' provides a namespace for a suite of pure functions that

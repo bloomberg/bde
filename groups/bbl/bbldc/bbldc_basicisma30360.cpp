@@ -33,9 +33,9 @@ static int computeDaysDiff(const bdlt::Date& beginDate,
     return (yEnd - yBegin) * 360 + (mEnd - mBegin) * 30 + dEnd - dBegin;
 }
 
-                           // ----------------
-                           // struct Isma30360
-                           // ----------------
+                             // ----------------
+                             // struct Isma30360
+                             // ----------------
 
 // CLASS METHODS
 int BasicIsma30360::daysDiff(const bdlt::Date& beginDate,
