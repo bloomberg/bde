@@ -45,33 +45,32 @@ namespace {
 
 bool isNanString(const char *str) {
     // Return 'true' if the specified 'str' represents a NaN value, and 'false'
-    // otherwise.
+    // otherwise.  Note that the IEEE 754 standard specifies sequence of
+    // characters equivalent to "NaN" or "sNaN" except for case is a valid
+    // representation of NaN.
 
-    // The IEEE 754 standard specifies sequence of characters equivalent to
-    // "NaN" or "sNaN" except for case is a valid representation of
-    // NaN. Therefore, we only need to check the first 5 characters (4 + 1)
-    // of the input string.
+    // For the sake of efficiency, we rely on the trick that any alphabetic
+    // character [a-zA-Z] in ASCII encoding can be bit-wise 'or'ed with '_'
+    // (0x20) to get the corresponding lower case character.
 
-    char lowercaseStr[6];
     int len = bsl::strlen(str);
-    if (len > 5) {
-        len = 5;
-    }
-    bsl::strncpy(lowercaseStr, str, len);
-    lowercaseStr[len] = '\0';
-
-    int (*tolower) (int) = &bsl::tolower;
-    bsl::transform(lowercaseStr,
-                   lowercaseStr + len,
-                   lowercaseStr,
-                   tolower);
-
-    if (bsl::strcmp(lowercaseStr, "nan") == 0 ||
-        bsl::strcmp(lowercaseStr, "snan") == 0) {
-        return true;
+    if (len < 3) {
+        return false;
     }
 
-    return false;
+    if ((str[0] | ' ') == 's') {
+        ++str;
+        if (len != 4) {
+            return false;
+        }
+    }
+    else if (len != 3) {
+        return false;
+    }
+
+    return ((str[0] | ' ') == 'n' &&
+            (str[1] | ' ') == 'a' &&
+            (str[2] | ' ') == 'n');
 }
 
 }  // close unnamed namespace
