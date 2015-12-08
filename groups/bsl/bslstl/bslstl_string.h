@@ -3878,7 +3878,8 @@ inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
 {
-    BSLS_ASSERT_SAFE(!empty());
+    //Suppressed temporarily due to {DRQS 75239970<GO>}
+    //BSLS_ASSERT_SAFE(!empty());
 
     return *begin();
 }
