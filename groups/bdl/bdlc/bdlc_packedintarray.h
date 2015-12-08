@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: 'Temperature Map'
-///- - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - -
 // There exist many applications in which the range of 'int' data that a
 // container will hold is not known at design time.  This means in order to
 // build a robust component one must default to 'bsl::vector<int>', which for
@@ -253,9 +253,9 @@ struct PackedIntArrayImp_Signed {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
-    // 'int64_t'.  Specifically, it defines the types used to store the array's
-    // data, methods needed to externalize and unexternalize the array, and a
-    // method to determine the storage size to use for a given value.
+    // 'bsl::int64_t'.  Specifically, it defines the types used to store the
+    // array's data, methods needed to externalize and unexternalize the array,
+    // and a method to determine the storage size to use for a given value.
 
     // PUBLIC TYPES
     typedef bsl::int8_t  OneByteStorageType;
@@ -316,7 +316,7 @@ struct PackedIntArrayImp_Unsigned {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
     // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
-    // 'uint64_t'.  Specifically, it defines the types used to store the
+    // 'bsl::uint64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
 
@@ -699,9 +699,9 @@ class PackedIntArrayImp {
 };
 
 
-                       // ============================
-                       // struct PackedIntArrayImpType
-                       // ============================
+                        // ============================
+                        // struct PackedIntArrayImpType
+                        // ============================
 
 template <class TYPE>
 struct PackedIntArrayImpType {
@@ -725,9 +725,9 @@ struct PackedIntArrayImpType {
                                                                 ::Type Type;
 };
 
-                       // =================================
-                       // class PackedIntArrayConstIterator
-                       // =================================
+                     // =================================
+                     // class PackedIntArrayConstIterator
+                     // =================================
 
 template <class TYPE>
 class PackedIntArrayConstIterator {
@@ -1336,7 +1336,7 @@ void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b);
     // allocator.
 
 // ============================================================================
-//                           INLINE DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
                       // -------------------------------
@@ -1466,9 +1466,9 @@ void PackedIntArrayImp_Unsigned::bdexPut64(STREAM& stream, bsl::uint64_t value)
     stream.putUint64(static_cast<bsls::Types::Uint64>(value));
 }
 
-                         // ------------------------
-                         // struct PackedIntArrayImp
-                         // ------------------------
+                          // ------------------------
+                          // struct PackedIntArrayImp
+                          // ------------------------
 
 // PRIVATE CLASS METHODS
 template <class STORAGE>
@@ -1897,9 +1897,9 @@ bsl::size_t PackedIntArrayImp<STORAGE>::length() const {
     return d_length;
 }
 
-                    // ---------------------------------
-                    // class PackedIntArrayConstIterator
-                    // ---------------------------------
+                     // ---------------------------------
+                     // class PackedIntArrayConstIterator
+                     // ---------------------------------
 
 // PRIVATE CREATORS
 template <class TYPE>
@@ -2069,10 +2069,12 @@ PackedIntArrayConstIterator<TYPE>
     return PackedIntArrayConstIterator<TYPE>(d_array_p, d_index - offset);
 }
 
+}  // close package namespace
+
 // FREE FUNCTIONS
 template <class TYPE>
 inline
-PackedIntArrayConstIterator<TYPE> operator++(
+bdlc::PackedIntArrayConstIterator<TYPE> bdlc::operator++(
                                        PackedIntArrayConstIterator<TYPE>& iter,
                                        int)
 {
@@ -2086,7 +2088,7 @@ PackedIntArrayConstIterator<TYPE> operator++(
 
 template <class TYPE>
 inline
-PackedIntArrayConstIterator<TYPE> operator--(
+bdlc::PackedIntArrayConstIterator<TYPE> bdlc::operator--(
                                        PackedIntArrayConstIterator<TYPE>& iter,
                                        int)
 {
@@ -2100,41 +2102,41 @@ PackedIntArrayConstIterator<TYPE> operator--(
 
 template <class TYPE>
 inline
-bool operator==(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator==(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p == rhs.d_array_p && lhs.d_index == rhs.d_index;
 }
 
 template <class TYPE>
 inline
-bool operator!=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator!=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p != rhs.d_array_p || lhs.d_index != rhs.d_index;
 }
 
 template <class TYPE>
 inline
-bsl::ptrdiff_t operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
-                         const PackedIntArrayConstIterator<TYPE>& rhs)
+bsl::ptrdiff_t bdlc::operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
+                               const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
     BSLS_ASSERT_SAFE(
           lhs.d_index >= rhs.d_index
         ? lhs.d_index - rhs.d_index <=
-                        bsl::size_t(std::numeric_limits<bsl::ptrdiff_t>::max())
+                        bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::max())
         : rhs.d_index - lhs.d_index <=
-                      bsl::size_t(std::numeric_limits<bsl::ptrdiff_t>::min()));
+                      bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::min()));
 
     return static_cast<bsl::ptrdiff_t>(lhs.d_index - rhs.d_index);
 }
 
 template <class TYPE>
 inline
-bool operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
-               const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
+                     const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2143,8 +2145,8 @@ bool operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2153,8 +2155,8 @@ bool operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
-               const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
+                     const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -2163,13 +2165,15 @@ bool operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 inline
-bool operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
-                const PackedIntArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
+                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index >= rhs.d_index;
 }
+
+namespace bdlc {
 
                     // --------------------
                     // class PackedIntArray
@@ -2541,27 +2545,29 @@ bsl::ostream& PackedIntArray<TYPE>::print(bsl::ostream& stream,
     return d_imp.print(stream, level, spacesPerLevel);
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 template <class TYPE>
 inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const PackedIntArray<TYPE>& array)
+bsl::ostream& bdlc::operator<<(bsl::ostream&               stream,
+                               const PackedIntArray<TYPE>& array)
 {
     return array.print(stream);
 }
 
 template <class TYPE>
 inline
-bool operator==(const PackedIntArray<TYPE>& lhs,
-                const PackedIntArray<TYPE>& rhs)
+bool bdlc::operator==(const PackedIntArray<TYPE>& lhs,
+                      const PackedIntArray<TYPE>& rhs)
 {
     return lhs.isEqual(rhs);
 }
 
 template <class TYPE>
 inline
-bool operator!=(const PackedIntArray<TYPE>& lhs,
-                const PackedIntArray<TYPE>& rhs)
+bool bdlc::operator!=(const PackedIntArray<TYPE>& lhs,
+                      const PackedIntArray<TYPE>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -2569,14 +2575,13 @@ bool operator!=(const PackedIntArray<TYPE>& lhs,
 // FREE FUNCTIONS
 template <class TYPE>
 inline
-void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
+void bdlc::swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
 {
     BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
 
     a.swap(b);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // TRAITS
@@ -2594,7 +2599,6 @@ struct UsesBslmaAllocator<bdlc::PackedIntArray<TYPE> > : bsl::true_type {};
 }  // close enterprise namespace
 
 #endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
