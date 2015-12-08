@@ -1,4 +1,7 @@
 bdlb_bitutil
+bdlb_bitmaskutil
+bdlb_bitstringutil
+bdlb_bitstringimputil
 bdlb_cstringequalto
 bdlb_cstringless
 bdlb_guid

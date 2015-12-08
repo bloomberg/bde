@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
@@ -76,9 +76,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bbldc {
 
-                       // =============================
-                       // struct PeriodIcmaActualActual
-                       // =============================
+                      // =============================
+                      // struct PeriodIcmaActualActual
+                      // =============================
 
 struct PeriodIcmaActualActual {
     // This 'struct' provides a namespace for a suite of pure functions that
@@ -116,12 +116,12 @@ struct PeriodIcmaActualActual {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                       // -----------------------------
-                       // struct PeriodIcmaActualActual
-                       // -----------------------------
+                      // -----------------------------
+                      // struct PeriodIcmaActualActual
+                      // -----------------------------
 
 // CLASS METHODS
 inline

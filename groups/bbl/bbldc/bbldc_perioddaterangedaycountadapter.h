@@ -55,8 +55,8 @@ BSLS_IDENT("$Id: $")
 //  sched.push_back(bdlt::Date(2003, 10, 1));
 //  sched.push_back(bdlt::Date(2004,  1, 1));
 //..
-// Then, we define an instance of the adapted day-count convention and obtain
-// a reference to the 'bbldc::DateRangeDayCount':
+// Then, we define an instance of the adapted day-count convention and obtain a
+// reference to the 'bbldc::DateRangeDayCount':
 //..
 //  const bbldc::PeriodDateRangeDayCountAdapter<bbldc::PeriodIcmaActualActual>
 //                                                                 myDcc(sched,
@@ -147,6 +147,8 @@ class PeriodDateRangeDayCountAdapter : public DateRangeDayCount {
 
     // NOT IMPLEMENTED
     PeriodDateRangeDayCountAdapter(const PeriodDateRangeDayCountAdapter&);
+    PeriodDateRangeDayCountAdapter& operator=(
+                                        const PeriodDateRangeDayCountAdapter&);
 
   public:
     // CREATORS
@@ -312,6 +314,7 @@ bslma::Allocator *PeriodDateRangeDayCountAdapter<CONVENTION>::allocator() const
 }  // close enterprise namespace
 
 // TRAITS
+
 namespace BloombergLP {
 namespace bslma {
 

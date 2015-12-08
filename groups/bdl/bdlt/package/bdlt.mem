@@ -1,3 +1,5 @@
+bdlt_calendar
+bdlt_calendarreverseiteratoradapter
 bdlt_currenttime
 bdlt_date
 bdlt_datetime
@@ -12,6 +14,7 @@ bdlt_epochutil
 bdlt_intervalconversionutil
 bdlt_localtimeoffset
 bdlt_monthofyear
+bdlt_packedcalendar
 bdlt_posixdateimputil
 bdlt_prolepticdateimputil
 bdlt_serialdateimputil

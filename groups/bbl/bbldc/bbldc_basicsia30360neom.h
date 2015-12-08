@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Computing Day Count and Year Fraction
-///- - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
 // 'bbldc::BasicSia30360Neom' methods.  First, create two 'bdlt::Date'
 // variables, 'd1' and 'd2':
@@ -72,7 +72,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlt {
 
 class Date;
@@ -87,8 +86,8 @@ namespace bbldc {
 
 struct BasicSia30360Neom {
     // This 'struct' provides a namespace for a suite of pure functions that
-    // compute values based on dates according to the SIA-30/360-neom
-    // day-count convention.
+    // compute values based on dates according to the SIA-30/360-neom day-count
+    // convention.
 
     // CLASS METHODS
     static int daysDiff(const bdlt::Date& beginDate,
