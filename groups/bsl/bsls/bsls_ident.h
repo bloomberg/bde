@@ -100,7 +100,8 @@
  */
 #define Z_BAELU_ASSERTION_REPORTER_ENABLE 1
 
-#if !(defined(__SUNPRO_CC) && (defined(__sparc64) || defined(__sparcv9)))
+//#if !(defined(__SUNPRO_CC) && (defined(__sparc64) || defined(__sparcv9)))
+#if !defined(__SUNPRO_CC)
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE     1
 #endif
 
