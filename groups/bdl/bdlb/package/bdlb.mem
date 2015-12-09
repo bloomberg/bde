@@ -6,7 +6,4 @@ bdlb_cstringequalto
 bdlb_cstringless
 bdlb_guid
 bdlb_guidutil
-bdlb_nullablevalue
-bdlb_print
-bdlb_printmethods
 bdlb_randomdevice
