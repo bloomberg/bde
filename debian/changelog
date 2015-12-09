@@ -1,10 +1,39 @@
-bsl-internal (2.24.4.0) unstable; urgency=low
+bsl-internal (2.25.0.0) unstable; urgency=low
 
+  * d63113c Merge pull request #81 from hversche/fix-bslmf_typelist-2.x
+  * 9ece826 Merge pull request #80 from hversche/merge-vc2015-rebase
+  * 8845b1b Merge pull request #79 from mgiroux/remove-bdlb_nullablevalue-from-2.25
+  * 01ef3ae Remove bdlb_print, bdlb_printmethods, and bdlb_nullablevalue, accidentally merged to this release
+  * 6ec9fec Merge pull request #77 from ameredit/patch_2.x/transitive_nullable_test_driver_drqs75238644
+  * a44fdd8 Merge pull request #74 from jmendelsohn4/add-bbl-package-group
+  * f7a83c8 Merge pull request #63 from hversche/remove_gcc_warning
+  * c7655cc Merge pull request #72 from mgiroux/bump-version-to-2.25.0
+  * cecb1a1 Drop patch version to 0 for 2.25.0
+  * c4eff9a Merge pull request #70 from hrosen4/emplace-10_drqs-75029872
+  * 5f64412 Merge pull request #69 from abeels/bbgithub-transition-update-arcconfig-drqs-74968186
+  * 21efec5 Merge pull request #62 from sbreitst/posix_not_proleptic-bde-675-onto_2.x
+  * 5f34bef Merge pull request #60 from mgiroux/review/merge-2.24.x-into-2.x
+  * 3673aef Merge releases/2.24.x into releases/2.x
+  * 7802428 Merge pull request #59 from sbreitst/bdlb_nullablevalue_inplace-drqs-65641404-onto_2.x
+  * 04d87ff Merge pull request #29 from ameredit/feature/movable_string_for_2.25
+  * e6c3ff2 Merge pull request #20 from mgiroux/remove-merge-conflict-namespace-close
+  * f35d6ad Merge pull request #19 from hversche/pending/future_conforming_shared_from_this_drqs73409000
+  * f42a0de Merge pull request #17 from nmyers12/allocator-rewind-drqs-61957786
+  * e1fb878 Merge pull request #11 from hversche/update-C++11-library-feature-detection-drqs-72948281-rebase-2.24
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Wed, 9 Dec 2015 14:24:16 -0500
+
+bsl-internal (2.24.4.0) git; urgency=low
+
+  * d3abc1c Changelog for version 2.24.4.0
   * f143d3d Merge pull request #13 from mgiroux/review/bump-patchlevel-to-2.24.4
   * c481093 bump bslscm_patchversion to 2.24.4
   * 6647ae1 Changelog for version 2.24.4.0
+  * 0552cfc Merge pull request #10 from hversche/update-C++11-library-feature-detection-drqs-72948281-rebase
+  * d4f36c1 Merge pull request #7 from hversche/rebased-bill-fix-2.24.x
+  * 576a7a9 Merge pull request #6 from hversche/rebased-bill-fix-2.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 9 Nov 2015 11:46:23 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 Nov 2015 11:48:03 -0500
 
 bsl-internal (2.24.2.0) git; urgency=low
 
@@ -12,23 +41,50 @@ bsl-internal (2.24.2.0) git; urgency=low
   * 0b458d3 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 344f7d2 [APPROVAL] INTERNAL pending/releases/2.24.x/deprecate-bslma-types-drqs-73220711 to releases/2.24.x
   * cd4ce16 [APPROVAL] pending/releases/2.24.x/deprecate-bslma-types-drqs-73220711 to releases/2.24.x
+  * 111037a Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * bad3230 [APPROVAL] INTERNAL pending/releases/2.x/deprecate-bslma-types-drqs-73220711 to releases/2.x
+  * 2b32f5f [APPROVAL] pending/releases/2.x/deprecate-bslma-types-drqs-73220711 to releases/2.x
   * fdfb62c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 3729213 [APPROVAL] INTERNAL bump-version-to-2.24.2 to releases/2.24.x
   * 2af34c8 [APPROVAL] bump-version-to-2.24.2 to releases/2.24.x
   * 25aab8e bump patchversion for 2.24.2
+  * d7971c5 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 050f8b0 [APPROVAL] INTERNAL revert-patchlevel-to-0 to releases/2.x
+  * 037d36c [APPROVAL] revert-patchlevel-to-0 to releases/2.x
+  * 345a31c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 8bbfc08 [APPROVAL] INTERNAL gchassiakos-typos-correct-base to releases/2.x
+  * 487054b [APPROVAL] gchassiakos-typos-correct-base to releases/2.x
   * d0a42e2 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 726c9be [APPROVAL] INTERNAL gchassiakos-typos-correct-base to releases/2.24.x
   * 499f986 [APPROVAL] gchassiakos-typos-correct-base to releases/2.24.x
+  * 1dad75b Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * ba5ff40 [APPROVAL] INTERNAL pending/releases/2.x/add-bslcstdlib-export-drqs-69830273 to releases/2.x
+  * e7aea3f [APPROVAL] pending/releases/2.x/add-bslcstdlib-export-drqs-69830273 to releases/2.x
   * eb67a75 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * c025680 [APPROVAL] INTERNAL pending/releases/2.24.x/add-bslcstdlib-export-drqs-69830273 to releases/2.24.x
   * 6745217 [APPROVAL] pending/releases/2.24.x/add-bslcstdlib-export-drqs-69830273 to releases/2.24.x
+  * 98a95e3 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 0a7f2fd [APPROVAL] INTERNAL pending/releases/2.x/memset-0-tm-drqs-72395152 to releases/2.x
+  * 5abac75 [APPROVAL] pending/releases/2.x/memset-0-tm-drqs-72395152 to releases/2.x
+  * 3e8f678 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * def01d0 [APPROVAL] INTERNAL releases/2.24.x to releases/2.x
+  * 1e2df26 [APPROVAL] releases/2.24.x to releases/2.x
+  * abf8fd0 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 7f9db05 [APPROVAL] INTERNAL pending/releases/2.x/fix_enable_shared_from_this_drqs72349245 to releases/2.x
+  * d7b5449 [APPROVAL] pending/releases/2.x/fix_enable_shared_from_this_drqs72349245 to releases/2.x
   * 6575b91 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * c02800d [APPROVAL] INTERNAL pending/releases/2.24.x/fix_enable_shared_from_this_drqs72349245 to releases/2.24.x
   * b48231c [APPROVAL] pending/releases/2.24.x/fix_enable_shared_from_this_drqs72349245 to releases/2.24.x
   * 5f169ed [APPROVAL] review/remove-vestigial-third-party-dep-files to releases/2.24.x
+  * 2b336df Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 3b0baa8 [APPROVAL] INTERNAL pending/releases/2.x/windows_patches_for_2_24_drqs70498681 to releases/2.x
+  * 1bb8190 [APPROVAL] pending/releases/2.x/windows_patches_for_2_24_drqs70498681 to releases/2.x
   * 7b1347c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 6c07456 [APPROVAL] INTERNAL pending/releases/2.24.x/windows_patches_for_2_24_drqs70498681 to releases/2.24.x
   * b9acb15 [APPROVAL] pending/releases/2.24.x/windows_patches_for_2_24_drqs70498681 to releases/2.24.x
+  * 2db440c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.x
+  * 229243e [APPROVAL] INTERNAL pending/releases/2.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.x
+  * f87ff6f [APPROVAL] pending/releases/2.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.x
   * 7bd0055 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 4244c19 [APPROVAL] INTERNAL pending/releases/2.24.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.24.x
   * f1d9877 [APPROVAL] pending/releases/2.24.x/bslstl_string-assign-efficiency-drqs-71437343 to releases/2.24.x
@@ -40,41 +96,84 @@ bsl-internal (2.24.2.0) git; urgency=low
   * df36970 [APPROVAL] add-missing-cpp11-imports-drqs-72488687 to releases/2.24.x
   * ce8b118 [APPROVAL] OSS review/change-third-party-to-thirdparty-drqs-71112272 to releases/2.24.x
   * acbdd80 [APPROVAL] review/change-third-party-to-thirdparty-drqs-71112272 to releases/2.24.x
+  * c70bc27 Sync releases/2.x after manual OSS commit.
+  * 66302ec bump BSL version to 2.25
+  * 8624ad7 bump BSL version to 2.25
   * 3540d61 [APPROVAL] pending/releases/2.24.x/fix-bdldfp-runtime-failures_cherrypick to releases/2.24.x
+  * b720f7b [APPROVAL] pending/master/fix-bdldfp-runtime-failures to master
+  * d0ed16d [APPROVAL] OSS review/remove-bigobj-vs-drqs-49025948 to master
+  * e6b8814 [APPROVAL] review/remove-bigobj-vs-drqs-49025948 to master
+  * f14f11d [APPROVAL] OSS review/clean-up-opts-drqs-71253375 to master
+  * 35482df [APPROVAL] review/clean-up-opts-drqs-71253375 to master
+  * 4b68f77 [APPROVAL] INTERNAL fix-bslim-bsltf-dependency-decl to master
+  * af3420c [APPROVAL] fix-bslim-bsltf-dependency-decl to master
   * c66dd1d Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * c66cb27 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
   * b71857f [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to releases/2.24.x
+  * 06bb698 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to master
+  * 37f5ab2 [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to master
   * 2df1620 drqs-71737205: Fixes for 'doxygen' conversion.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 27 Oct 2015 15:56:03 -0400
+
+bsl-internal (2.24.1.0) git; urgency=low
+
   * 9f63e7e Changelog for version 2.24.1.0
+  * e4270ac [APPROVAL] INTERNAL review/siphash-endian_drqs-64939495 to master
+  * c5cdce1 [APPROVAL] review/siphash-endian_drqs-64939495 to master
   * d6ac94c Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 13b9d7f [APPROVAL] INTERNAL bump-version-to-2.24.1 to releases/2.24.x
   * 4612338 [APPROVAL] bump-version-to-2.24.1 to releases/2.24.x
   * 6e58c55 bump patchversion for 2.24.1
   * 3ad0c16 [APPROVAL] OSS bdlt_datetimeinterval-min-max-drqs-69539058 to releases/2.24.x
   * fe6776c [APPROVAL] bdlt_datetimeinterval-min-max-drqs-69539058 to releases/2.24.x
+  * 08a40e6 [APPROVAL] OSS bdlt_datetimeinterval-min-max-drqs-69539058 to master
+  * 312eed4 [APPROVAL] bdlt_datetimeinterval-min-max-drqs-69539058 to master
   * e795bc4 Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * 0fc23b3 [APPROVAL] INTERNAL review/remove-simplepool-warnings-drqs-68505358 to releases/2.24.x
   * cd7f7d4 [APPROVAL] review/remove-simplepool-warnings-drqs-68505358 to releases/2.24.x
+  * b2bb1a5 [APPROVAL] INTERNAL review/remove-simplepool-warnings-drqs-68505358 to master
+  * 6c24ea9 [APPROVAL] review/remove-simplepool-warnings-drqs-68505358 to master
+  * 1d7a25f [APPROVAL] OSS pending/master/bslalg_arrayprimitives_forward_issue-drqs-42974542 to master
+  * 6b029ce [APPROVAL] pending/master/bslalg_arrayprimitives_forward_issue-drqs-42974542 to master
   * e6d4116 [APPROVAL] OSS pending/releases/2.24.x/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to releases/2.24.x
   * 6b44e5d [APPROVAL] pending/releases/2.24.x/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to releases/2.24.x
+  * 133e517 [APPROVAL] OSS pending/master/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to master
+  * 4a694ff [APPROVAL] pending/master/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to master
   * 86a9134 [APPROVAL] pending/releases/2.24.x/drqs70802736 to releases/2.24.x
+  * b645d0e [APPROVAL] pending/master/drqs70802736 to master
+  * 096bb7c [APPROVAL] OSS pending/master/merge_pull_192 to master
+  * 4768084 [APPROVAL] pending/master/merge_pull_192 to master
   * 20cad88 [APPROVAL] OSS pending/master/merge_pull_191 to releases/2.24.x
   * f565fb3 [APPROVAL] pending/master/merge_pull_191 to releases/2.24.x
+  * ba223bf [APPROVAL] OSS pending/master/merge_pull_191 to master
+  * 26a2141 [APPROVAL] pending/master/merge_pull_191 to master
   * 7773de8 [APPROVAL] OSS review/update-wscripts-drqs-70793850 to releases/2.24.x
   * ae85bad [APPROVAL] review/update-wscripts-drqs-70793850 to releases/2.24.x
+  * fdc4cdd [APPROVAL] OSS review/update-wscripts-drqs-70793850 to master
+  * 1f71b70 [APPROVAL] review/update-wscripts-drqs-70793850 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 27 Oct 2015 15:56:03 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 21 Sep 2015 14:18:50 -0400
 
 bsl-internal (2.24.0.4) git; urgency=low
 
   * a86fd35 Changelog for version 2.24.0.4
   * af5c333 [APPROVAL] OSS review/fix_gcc_intializer_list_header_drqs70629193 to releases/2.24.x
   * 3d314b1 [APPROVAL] review/fix_gcc_intializer_list_header_drqs70629193 to releases/2.24.x
+  * ca704d9 [APPROVAL] OSS review/fix_gcc_intializer_list_header_drqs70629193 to master
+  * 211f8ee [APPROVAL] review/fix_gcc_intializer_list_header_drqs70629193 to master
   * cb066bd Merge branch 'workflow/internalcheckin/oss-destination' into releases/2.24.x
   * dd0b3c6 [APPROVAL] INTERNAL remove-a-trailing-space-to-update-oss-2.24-branch to releases/2.24.x
   * c83f1dc [APPROVAL] remove-a-trailing-space-to-update-oss-2.24-branch to releases/2.24.x
   * 01fe448 [APPROVAL] INTERNAL review/bslim_testutil-create-component-drqs-68761302 to master
+  * 2070973 [APPROVAL] review/bslim_testutil-create-component-drqs-68761302 to master
   * 1b1d730 [APPROVAL] INTERNAL review/ajm_reviews_pablos_bsl_allocatorargt to master
+  * 10d240f [APPROVAL] review/ajm_reviews_pablos_bsl_allocatorargt to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 1 Sep 2015 14:52:58 -0400
+
+bsl-internal (2.24.0.3) git; urgency=low
+
   * 96deef8 Changelog for version 2.24.0.3
   * 90726a1 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 9bc2166 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
@@ -116,7 +215,7 @@ bsl-internal (2.24.0.4) git; urgency=low
   * efe82c0 [APPROVAL] pending/master/gets-14_drqs-64932703 to master
   * 9c2c49f [APPROVAL] INTERNAL pending/master/stdexcept-exception_drqs-66864749 to master
   * 0df81d8 [APPROVAL] pending/master/stdexcept-exception_drqs-66864749 to master
-  * 525a41a [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
+  * 525a41aa [APPROVAL] OSS pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * 8d90399 [APPROVAL] pending/master/bslstl_vector-minor-doc-fixes-drqs-49416420 to master
   * bfec9c2 [APPROVAL] INTERNAL fix-bad-git-merge-bslmf_typelist.h to master
   * 34d4b32 [APPROVAL] fix-bad-git-merge-bslmf_typelist.h to master
@@ -186,6 +285,8 @@ bsl-internal (2.24.0.4) git; urgency=low
   * a054b0a [APPROVAL] review/bdlb_cstringless-drqs-66481827 to master
   * 4c27fb1 [APPROVAL] OSS review/bdlb_cstringequalto-drqs-66663821 to master
   * b295482 [APPROVAL] review/bdlb_cstringequalto-drqs-66663821 to master
+  * 835449e Merge pull request #183 from osubboo/review/bdlb_cstringequalto-drqs-66663821
+  * b89be90 Merge pull request #182 from densokolov/review/bdlb_cstringless-drqs-66481827
   * fc72f1c [APPROVAL] OSS review/bdlb_cstringless-drqs-66481827 to master
   * 6017b42 [APPROVAL] review/bdlb_cstringless-drqs-66481827 to master
   * 4012e81 [APPROVAL] OSS review/bdlb_cstringequalto-drqs-66663821 to master
@@ -196,6 +297,7 @@ bsl-internal (2.24.0.4) git; urgency=low
   * a84a3e0 [APPROVAL] OSS remerge-math.h-changes to master
   * b95feb0 [APPROVAL] remerge-math.h-changes to master
   * c6e8481 [APPROVAL] origin/review/add_missing_math.h_drqs44022886 to master
+  * cac8cd8 Merge pull request #178 from densokolov/review/bdlb_cstringless-drqs-66481827
   * 2cb4477 [APPROVAL] INTERNAL fix-availible-typo-drqs-66755548 to master
   * ceed3c2 [APPROVAL] fix-availible-typo-drqs-66755548 to master
   * 7142a66 [APPROVAL] OSS readme-md-typo-bdlb-guidutil-drqs-66724320 to master
@@ -729,14 +831,34 @@ bsl-internal (2.24.0.4) git; urgency=low
   * e8200eb [APPROVAL] OSS pending/master/bdlb_bitutil to master
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 18 Aug 2015 10:03:00 -0400
+
+bsl-internal (2.20.2.2) git; urgency=low
+
   * 3fad9bb bump changelog
   * 9a2dddd [APPROVAL] origin/review/fix-debian-sed-command to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:20:18 -0400
+
+bsl-internal (2.20.2.1) git; urgency=low
+
   * df69f71 bump changelog
   * e43c367 [APPROVAL] INTERNAL review/windows_fixes_bde2.20_drqs51901280 to review/repair-merge-drqs51901280
   * faac267 [APPROVAL] pending/master/windows_fixes_bde2.20_drqs51901280 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Apr 2014 19:37:51 -0400
+
+bsl-internal (2.20.2.0.beta.2) git; urgency=low
+
   * 8cf270c bump changelog
   * a517e40 [APPROVAL] revert-remove-string-transitive-includes-drqs-49354375 to master
   * 94e8c30 Use BDLDFP_DECIMAL_DF to avoid conflicts with how hardware handles numeric conversions.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Apr 2014 21:00:16 -0400
+
+bsl-internal (2.20.2.0.beta.1) git; urgency=low
+
   * facbc58 Bump changelog
   * 1e431dd [APPROVAL] OSS revert-version-to-2.20 to master
   * 35579d2 [APPROVAL] revert-version-to-2.20 to master
@@ -760,8 +882,18 @@ bsl-internal (2.24.0.4) git; urgency=low
   * 71358cd [APPROVAL] pending/master/remove_allocator_shadow_warnings_drqs44156923 to master
   * 48e517e [APPROVAL] OSS pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
   * 6edc064 [APPROVAL] pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2014 10:57:50 -0400
+
+bsl-internal (2.21.0.0.beta.1.1) git; urgency=low
+
   * de9b1e6 Bump changelog to 2.21.0.0.beta.1.1
   * 06095d0 [APPROVAL] correct-debian-control-for-bdl to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 13:39:05 -0400
+
+bsl-internal (2.21.0.0.beta.1) git; urgency=low
+
   * a880836 bump changelog to 2.21.0.0.beta.1
   * 2df857e [APPROVAL] INTERNAL bump-version-to-2.21 to master
   * 0f5b302 [APPROVAL] bump-version-to-2.21 to master
@@ -819,7 +951,7 @@ bsl-internal (2.24.0.4) git; urgency=low
   * 83bb915 [APPROVAL] pending/master/hash_unicode_compiling_fix-drqs-47609953 to master
   * b3abe41 [APPROVAL] pending/master/waf-fix-bdx-drqs-48940992 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 1 Sep 2015 14:52:58 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 09:58:36 -0400
 
 bsl-internal (2.20.0.1) git; urgency=low
 
@@ -833,6 +965,11 @@ bsl-internal (2.20.0.1) git; urgency=low
   * ab39609 [APPROVAL] OSS pending/master/remove-windows.h-include2 to master
   * 5a03fea [APPROVAL] pending/master/remove-windows.h-include2 to master
   * acfa60d [APPROVAL] pending/master/waf-build-support-bde-bb-drqs-48413481 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 14:12:46 -0500
+
+bsl-internal (2.20.0.0.bsl.freeze.2) git; urgency=low
+
   * a5af7c9 [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
   * 90fb9cc debian/changelog update for 2.20.0.0.bsl.freeze.2
   * ff16483 [APPROVAL] pending/master/debian-rules-cp-default-internal-opts-drqs-48667615 to master
@@ -844,6 +981,11 @@ bsl-internal (2.20.0.1) git; urgency=low
   * 18500d4 [APPROVAL] review/fix-bdls_testutil-tests-windows-drqs-48410889 to master
   * a5e7b96 [APPROVAL] OSS issue-109-update-contributing.md to master
   * 8f86423 [APPROVAL] issue-109-update-contributing.md to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 22 Jan 2014 16:40:37 -0500
+
+bsl-internal (2.20.0.0.bsl.freeze) git; urgency=low
+
   * e9317a6 [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
   * 68e561b [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
   * 1f80926 bump changelog to 2.20.0.0.bsl-freeze
@@ -904,6 +1046,11 @@ bsl-internal (2.20.0.1) git; urgency=low
   * 3aba9d9 [APPROVAL] fix_bslma_managedptr_pairproxy_usage_drqs_44868895 to master
   * 6ac9c52 [APPROVAL] OSS pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
   * a4dea43 [APPROVAL] pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 22 Jan 2014 12:11:02 -0500
+
+bsl-internal (2.19.0.0) git; urgency=low
+
   * 5b16158 [APPROVAL] INTERNAL version-2.19.0 to master
   * 6a21a90 [APPROVAL] version-2.19.0 to master
   * c84e0c9 bump changelog
@@ -967,6 +1114,11 @@ bsl-internal (2.20.0.1) git; urgency=low
   * 503b0c1 [APPROVAL] review/bsl-platform-namespace-drqs41495060 to master
   * 83cdc4d [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
   * 1d1ade6 [APPROVAL] review/bsl-stringref-drqs41338618 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Sep 2013 12:05:09 -0400
+
+bsl-internal (2.18.0.0) git; urgency=low
+
   * 1787de3 [APPROVAL] bump-changelog-to-2.18.0.0 to master
   * 2fe62c6 bump changelog for 2.18.0.0 release
   * a0d8927 [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
@@ -1093,4 +1245,4 @@ bsl-internal (2.20.0.1) git; urgency=low
   * d470f6a Import internal commit 8c1178da0c021dc693be14177f14bb495fcb8adf : [APPROVAL] pending/master/type-traits-update to master
   * 4feb220 Import internal commit 41e7710c4310430d4e068635e41d3db5673adb32 : [APPROVAL] pending/master/include_next-drqs36057057-merge to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 14:12:46 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 May 2013 10:31:10 -0400
