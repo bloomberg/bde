@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stddef.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#     include BSL_NATIVE_OS_RTL_HEADER(stddef.h)
 #   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stddef.h>
 #   else
-#     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
+#     include BSL_NATIVE_OS_RTL_HEADER(stddef.h)
 #   endif
 
 // On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
