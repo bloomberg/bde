@@ -10,15 +10,15 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a value-semantic type to represent dates.
 //
 //@CLASSES:
-//  bdlt::Date: value-semantic date type using the proleptic Gregorian calendar
+//  bdlt::Date: value-semantic date type consistent with the Unix calendar
 //
 //@SEE_ALSO: bdlt_dayofweek, bdlt_serialdateimputil
 //
 //@DESCRIPTION: This component defines a value-semantic class, 'bdlt::Date',
-// capable of representing any valid date that is consistent with the proleptic
-// Gregorian calendar restricted to the years 1 through 9999 (inclusive):
+// capable of representing any valid date that is consistent with the Unix
+// (POSIX) calendar restricted to the years 1 through 9999 (inclusive):
 //..
-//  http://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
+//  http://pubs.opengroup.org/onlinepubs/9699919799/utilities/cal.html
 //..
 // "Actual" (i.e., natural) day and date calculations are supported directly by
 // 'bdlt::Date' and its associated free operators.  Calculations involving
@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 ///Valid Date Values and Their Representations
 ///-------------------------------------------
 // A 'bdlt::Date' object *always* represents a valid date value as defined by
-// the proleptic Gregorian calendar.  The value of a 'bdlt::Date' object can be
+// the standard Unix calendar.  The value of a 'bdlt::Date' object can be
 // expressed in the interface as either '(year, month, day)', the canonical
 // representation of dates, or '(year, dayOfYear)'.  For example,
 // '(1959, 3, 8)' represents the same valid 'bdlt::Date' value as '(1959, 67)'
@@ -45,21 +45,26 @@ BSLS_IDENT("$Id: $")
 // 'year' is not a leap year, then the representation is not valid unless
 // '1 <= dayOfYear <= 365'.
 //
-// Note that, in a leap year, February has 29 days instead of the usual 28.
-// (Thus, leap years have 366 days instead of the usual 365.)  The proleptic
-// Gregorian calendar retroactively applies the leap year rules instituted by
-// the Gregorian Reformation to *all* years.  In particular, a year in the
-// range '[1 .. 9999]' is a leap year if it is divisible by 4, but *not*
-// divisible by 100, *unless* it is *also* divisible by 400.
-//
-// A '(year, month, day)' triple does *not* represent a valid 'bdlt::Date'
-// value unless '1 <= year <= 9999', '1 <= month <= 12', and '1 <= day <= 31'.
-// Also, when 'month' is 4, 6, 9, or 11 (April, June, September, or November),
-// the representation is not valid unless '1 <= day <= 30', and, when 'month'
-// is 2 (February), unless '1 <= day <= 29'.  Finally, when 'month' is 2 and
-// 'year' is not a leap year, then the representation is not valid unless
-// '1 <= day <= 28'.
-//
+// In a leap year, February has 29 days instead of the usual 28.  (Thus, leap
+// years have 366 days instead of the usual 365.)  Prior to 1752, the Unix
+// calendar follows the convention of the Julian calendar: every year divisible
+// by 4 is a leap year.  After 1752, the Unix calendar follows the (more
+// accurate) Gregorian calendar: a year is leap year if it is divisible by 4,
+// but *not* divisible by 100, *unless* it is *also* divisible by 400.  Note
+// that 1752 is the year that Britain and its empire (including the colonies
+// that later became the United States) switched from the Julian to the
+// Gregorian calendar.  See:
+//..
+//  http://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar
+//  https://en.wikipedia.org/wiki/Calendar_(New_Style)_Act_1750
+//..
+// Moreover, the Unix calendar lacks the dates '[3 .. 13]' in September 1752,
+// days that were dropped to align British dates with those used on the
+// European continent.  Thus:
+//..
+//  assert(++bdlt::Date(1752, 9, 2) ==   bdlt::Date(1752, 9, 14));
+//  assert(  bdlt::Date(1752, 9, 2) == --bdlt::Date(1715, 9, 14));
+//..
 // Note that two 'static' (class) methods:
 //..
 //  bool isValidYearDay(int year, int dayOfYear);
@@ -109,16 +114,24 @@ BSLS_IDENT("$Id: $")
 ///BDEX Compatibility with Legacy POSIX-Based Date
 ///-----------------------------------------------
 // The version 1 format supported by 'bdlt::Date' for BDEX streaming is
-// expressly intended for maintaining some degree of "compatibility" with a
-// legacy date class that uses a (non-proleptic) Gregorian calendar matching
-// the POSIX 'cal' command.  Over the range of dates supported by 'bdlt::Date'
-// ('[0001JAN01 .. 9999DEC31']), the proleptic Gregorian calendar (used by
+// expressly intended for maintaining some degree of "compatibility" with
+// versions of this date class that are built to use the proleptic Gregorian
+// calendar.
+//
+#ifndef BDE_OPENSOURCE_PUBLICATION
+// !WARNING!: Use of the proleptic Gregorian version of this class is
+// *disallowed* in Bloomberg code.
+//
+#endif
+// Over the range of dates supported by 'bdlt::Date'
+// ('[0001JAN01 .. 9999DEC31]'), the proleptic Gregorian calendar (used by
 // 'bdlt::Date') has two fewer days than 'cal', and some dates that exist in
 // one calendar do not exist in the other; therefore, true compatibility is not
 // possible.  The compatibility guaranteed by BDEX streaming version 1 is such
 // that all dates in the range '[1752SEP14 .. 9999DEC31]', as well as the
 // default value ('0001JAN01'), can be successfully exchanged, via BDEX,
-// between 'bdlt::Date' and the legacy date class.
+// between 'bdlt::Date' classes built to use the POSIX calendar and those built
+// to use the proleptic Gregorian calendar.
 //
 ///Usage
 ///-----
@@ -180,7 +193,7 @@ BSLS_IDENT("$Id: $")
 //                           assert(  10 == d2.day());
 //..
 // Now, we subtract 'd1' from 'd2', storing the (signed) difference in days
-// (a.k.a. *Actual* difference) in 'daysDiff':
+// (a.k.a. *actual* difference) in 'daysDiff':
 //..
 //  int daysDiff = d2 - d1;  assert(   6 == daysDiff);
 //..
@@ -206,18 +219,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_monthofyear.h>
 #endif
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
-#endif
-#else
-#ifndef INCLUDED_BDLT_DELEGATINGDATEIMPUTIL
-#include <bdlt_delegatingdateimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
-#endif
 #endif
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
@@ -240,6 +243,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -249,18 +253,13 @@ namespace bdlt {
 
 class Date {
     // This class implements a complex-constrained, value-semantic type for
-    // representing dates according to the proleptic Gregorian calendar.  Each
-    // object of this class *always* represents a *valid* date value in the
-    // range '[0001JAN01 .. 9999DEC31]' inclusive.  The interface of this class
+    // representing dates according to the Unix (POSIX) calendar.  Each object
+    // of this class *always* represents a *valid* date value in the range
+    // '[0001JAN01 .. 9999DEC31]' inclusive.  The interface of this class
     // supports 'Date' values expressed in terms of either year/month/day (the
     // canonical representation) or year/day-of-year (an alternate
     // representation).  See {Valid Date Values and Their Representations} for
     // details.
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    // CLASS DATA
-    static bool s_loggingEnabledFlag;  // 'true' iff logging is enabled
-#endif
 
     // DATA
     int d_serialDate;  // absolute serial date (1 == 1/1/1, 2 == 1/1/2, ...)
@@ -285,64 +284,36 @@ class Date {
         // Return 'true' if the specified 'serialDate' represents a valid value
         // for a 'Date' object, and 'false' otherwise.  'serialDate' represents
         // a valid 'Date' value if it corresponds to a valid date as defined by
-        // the proleptic Gregorian calendar confined to the year range
-        // '[1 .. 9999]' inclusive, where serial date 1 corresponds to
-        // '0001/01/01' and each successive day has a serial date value that is
-        // 1 greater than that of the previous day.  See {Valid Date Values and
-        // Their Representations} for details.
+        // the Unix (POSIX) calendar confined to the year range '[1 .. 9999]'
+        // inclusive, where serial date 1 corresponds to '0001/01/01' and each
+        // successive day has a serial date value that is 1 greater than that
+        // of the previous day.  See {Valid Date Values and Their
+        // Representations} for details.
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
-    // PRIVATE CLASS METHODS
-    static void logIfProblematicDateAddition(const char *fileName,
-                                             int         lineNumber,
-                                             int         locationId,
-                                             int         serialDate,
-                                             int         numDays);
-        // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the internal 'count' associated with the
-        // specified unique 'locationId', if the addition of the specified
-        // 'numDays' to the date represented by the specified 'serialDate' is
-        // deemed to be problematic.  A date addition is problematic if
-        // *either* the initial date *or* the final date is prior to 1752/09/14
-        // when in POSIX mode (1752/09/16 when in proleptic Gregorian mode).
-        // The behavior is undefined unless '0 <= locationId <= 31' and
-        // 'locationId' is uniquely associated with the 'fileName'/'lineNumber'
-        // pair.  Note that actual generation of log messages may be throttled
-        // to limit spew to 'stderr', but the internal count for the
-        // 'locationId' is always incremented.
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
+#endif
 
-    static void logIfProblematicDateDifference(const char *fileName,
-                                               int         lineNumber,
-                                               int         locationId,
-                                               int         lhsSerialDate,
-                                               int         rhsSerialDate);
-        // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the internal 'count' associated with the
-        // specified unique 'locationId', if the difference between the dates
-        // represented by the specified 'lhsSerialDate' and 'rhsSerialDate' is
-        // deemed to be problematic.  A date difference is problematic if
-        // *either* date is prior to 1752/09/14 when in POSIX mode (1752/09/16
-        // when in proleptic Gregorian mode).  The behavior is undefined unless
-        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
-        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
-        // log messages may be throttled to limit spew to 'stderr', but the
-        // internal count for the 'locationId' is always incremented.
+#ifdef BDE_USE_PROLEPTIC_DATES
+    static int convertProlepticDateToPosix(int serialDate);
+        // Return the serial date in the POSIX calendar having the same
+        // year-month-day representation as the specified 'serialDate'
+        // represents in the proleptic Gregorian calendar.  The behavior is
+        // undefined if 'Date' is using a proleptic Gregorian representation
+        // and 'serialDate' has a year-month-day representation earlier than
+        // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
+        // with Legacy POSIX-Based Date} has further details.
 
-    static void logIfProblematicDateValue(const char *fileName,
-                                          int         lineNumber,
-                                          int         locationId,
-                                          int         serialDate);
-        // Log a message to 'stderr' that includes the specified 'fileName' and
-        // 'lineNumber', and increment the internal 'count' associated with the
-        // specified unique 'locationId', if the specified 'serialDate' is
-        // deemed to represent a problematic date value.  A date value is
-        // problematic if it is prior to 1752/09/14 when in POSIX mode
-        // (1752/09/16 when in proleptic Gregorian mode) and is *not*
-        // 0001/01/01.  The behavior is undefined unless
-        // '0 <= locationId <= 31' and 'locationId' is uniquely associated with
-        // the 'fileName'/'lineNumber' pair.  Note that actual generation of
-        // log messages may be throttled to limit spew to 'stderr', but the
-        // internal count for the 'locationId' is always incremented.
+    static int convertPosixDateToProleptic(int serialDate);
+        // Return the serial date in the proleptic Gregorian calendar having
+        // the same year-month-day representation as the specified 'serialDate'
+        // represents in the POSIX calendar.  The behavior is undefined if
+        // 'Date' is using a proleptic Gregorian representation and
+        // 'serialDate' has a year-month-day representation earlier than
+        // 1752/09/14 that is not 0001/01/01.  Note that {BDEX Compatibility
+        // with Legacy POSIX-Based Date} has further details.
 #endif
 
     // PRIVATE CREATORS
@@ -357,17 +328,17 @@ class Date {
         // Return 'true' if the specified 'year' and 'dayOfYear' represent a
         // valid value for a 'Date' object, and 'false' otherwise.  'year' and
         // 'dayOfYear' represent a valid 'Date' value if they correspond to a
-        // valid date as defined by the proleptic Gregorian calendar confined
-        // to the year range '[1 .. 9999]' inclusive.  See {Valid Date Values
-        // and Their Representations} for details.
+        // valid date as defined by the Unix (POSIX) calendar confined to the
+        // year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
+        // Their Representations} for details.
 
     static bool isValidYearMonthDay(int year, int month, int day);
         // Return 'true' if the specified 'year', 'month', and 'day' represent
         // a valid value for a 'Date' object, and 'false' otherwise.  'year',
         // 'month', and 'day' represent a valid 'Date' value if they correspond
-        // to a valid date as defined by the proleptic Gregorian calendar
-        // confined to the year range '[1 .. 9999]' inclusive.  See {Valid Date
-        // Values and Their Representations} for details.
+        // to a valid date as defined by the Unix (POSIX) calendar confined to
+        // the year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
+        // Their Representations} for details.
 
                                   // Aspects
 
@@ -552,9 +523,9 @@ class Date {
         // Return 'true' if the specified 'year' and 'dayOfYear' represent a
         // valid value for a 'Date' object, and 'false' otherwise.  'year' and
         // 'dayOfYear' represent a valid 'Date' value if they correspond to a
-        // valid date as defined by the proleptic Gregorian calendar confined
-        // to the year range '[1 .. 9999]' inclusive.  See {Valid Date Values
-        // and Their Representations} for details.
+        // valid date as defined by the Unix (POSIX) calendar confined to the
+        // year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
+        // Their Representations} for details.
 
     static bool isValid(int year, int month, int day);
         // !DEPRECATED!: Use 'isValidYearMonthDay' instead.
@@ -562,31 +533,15 @@ class Date {
         // Return 'true' if the specified 'year', 'month', and 'day' represent
         // a valid value for a 'Date' object, and 'false' otherwise.  'year',
         // 'month', and 'day' represent a valid 'Date' value if they correspond
-        // to a valid date as defined by the proleptic Gregorian calendar
-        // confined to the year range '[1 .. 9999]' inclusive.  See {Valid Date
-        // Values and Their Representations} for details.
+        // to a valid date as defined by the Unix (POSIX) calendar confined to
+        // the year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
+        // Their Representations} for details.
 
     static int maxSupportedBdexVersion();
         // !DEPRECATED!: Use 'maxSupportedBdexVersion(int)' instead.
         //
         // Return the most current BDEX streaming version number supported by
         // this class.
-
-    // TRANSITIONAL METHODS
-    static void disableLogging();
-        // Disable the logging of potential issues pertaining to the transition
-        // to proleptic Gregorian.  This function has no effect if logging is
-        // already disabled.  Do *not* call this method unless you know what
-        // you are doing.
-
-    static void enableLogging();
-        // Enable the logging of potential issues pertaining to the transition
-        // to proleptic Gregorian.  This function has no effect if logging is
-        // already enabled.  Do *not* call this method unless you know what you
-        // are doing.
-
-    static bool isLoggingEnabled();
-        // Return 'true' if logging is enabled, and 'false' otherwise.
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
@@ -714,12 +669,35 @@ void hashAppend(HASHALG& hashAlg, const Date& date);
 inline
 bool Date::isValidSerial(int serialDate)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::isValidSerial(serialDate);
-#else
-    return DelegatingDateImpUtil::isValidSerial(serialDate);
-#endif
 }
+
+
+#ifdef BDE_USE_PROLEPTIC_DATES
+inline
+int Date::convertProlepticDateToPosix(int serialDate)
+{
+    if (1 != serialDate) { // Preserve the default value.
+
+        serialDate += 2;   // Ensure that serial values for 1752SEP14 and later
+                           // dates "align".
+    }
+    return serialDate;
+}
+
+inline
+int Date::convertPosixDateToProleptic(int serialDate)
+{
+    if (serialDate > 3) {
+        serialDate -= 2;  // ensure that serial values for 1752SEP14
+                          // and later dates "align"
+    }
+    else if (serialDate > 0) {
+        serialDate = 1;   // "fuzzy" default value '[1 .. 3]'
+    }
+    return serialDate;
+}
+#endif
 
 // PRIVATE CREATORS
 inline
@@ -733,21 +711,13 @@ Date::Date(int serialDate)
 inline
 bool Date::isValidYearDay(int year, int dayOfYear)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::isValidYearDay(year, dayOfYear);
-#else
-    return DelegatingDateImpUtil::isValidYearDay(year, dayOfYear);
-#endif
 }
 
 inline
 bool Date::isValidYearMonthDay(int year, int month, int day)
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::isValidYearMonthDay(year, month, day);
-#else
-    return DelegatingDateImpUtil::isValidYearMonthDay(year, month, day);
-#endif
 }
 
                                   // Aspects
@@ -767,40 +737,16 @@ Date::Date()
 
 inline
 Date::Date(int year, int dayOfYear)
-#ifdef BDE_OPENSOURCE_PUBLICATION
 : d_serialDate(SerialDateImpUtil::ydToSerial(year, dayOfYear))
-#else
-: d_serialDate(DelegatingDateImpUtil::ydToSerial(year, dayOfYear))
-#endif
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 0 };
-
-    Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                    static_cast<int>(locationId),
-                                    d_serialDate);
-#endif
 }
 
 inline
 Date::Date(int year, int month, int day)
-#ifdef BDE_OPENSOURCE_PUBLICATION
 : d_serialDate(SerialDateImpUtil::ymdToSerial(year, month, day))
-#else
-: d_serialDate(DelegatingDateImpUtil::ymdToSerial(year, month, day))
-#endif
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 1 };
-
-    Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                    static_cast<int>(locationId),
-                                    d_serialDate);
-#endif
 }
 
 inline
@@ -828,14 +774,6 @@ Date& Date::operator+=(int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate + numDays));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 2 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       d_serialDate, numDays);
-#endif
-
     d_serialDate += numDays;
     return *this;
 }
@@ -844,14 +782,6 @@ inline
 Date& Date::operator-=(int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate - numDays));
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 3 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       d_serialDate, -numDays);
-#endif
 
     d_serialDate -= numDays;
     return *this;
@@ -862,14 +792,6 @@ Date& Date::operator++()
 {
     BSLS_ASSERT_SAFE(*this != Date(9999, 12, 31));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 4 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       d_serialDate, 1);
-#endif
-
     ++d_serialDate;
     return *this;
 }
@@ -878,14 +800,6 @@ inline
 Date& Date::operator--()
 {
     BSLS_ASSERT_SAFE(*this != Date(1, 1, 1));
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 5 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       d_serialDate, -1);
-#endif
 
     --d_serialDate;
     return *this;
@@ -896,17 +810,7 @@ void Date::setYearDay(int year, int dayOfYear)
 {
     BSLS_ASSERT_SAFE(isValidYearDay(year, dayOfYear));
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
     d_serialDate = SerialDateImpUtil::ydToSerial(year, dayOfYear);
-#else
-    d_serialDate = DelegatingDateImpUtil::ydToSerial(year, dayOfYear);
-
-    enum { locationId = 6 };
-
-    Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                    static_cast<int>(locationId),
-                                    d_serialDate);
-#endif
 }
 
 inline
@@ -927,17 +831,7 @@ void Date::setYearMonthDay(int year, int month, int day)
 {
     BSLS_ASSERT_SAFE(isValidYearMonthDay(year, month, day));
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
     d_serialDate = SerialDateImpUtil::ymdToSerial(year, month, day);
-#else
-    d_serialDate = DelegatingDateImpUtil::ymdToSerial(year, month, day);
-
-    enum { locationId = 7 };
-
-    Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                    static_cast<int>(locationId),
-                                    d_serialDate);
-#endif
 }
 
 inline
@@ -965,33 +859,12 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 
             stream.getInt24(tmpSerialDate);
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            if (DelegatingDateImpUtil::isProlepticGregorianMode()) {
-#endif
-            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
-            // component-level documentation.
-
-            if (tmpSerialDate > 3) {
-                tmpSerialDate -= 2;  // ensure that serial values for 1752SEP14
-                                     // and later dates "align"
-            }
-            else if (tmpSerialDate > 0) {
-                tmpSerialDate = 1;   // "fuzzy" default value '[1 .. 3]'
-            }
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            }
+#ifdef BDE_USE_PROLEPTIC_DATES
+            tmpSerialDate = convertPosixDateToProleptic(tmpSerialDate);
 #endif
 
             if (stream && Date::isValidSerial(tmpSerialDate)) {
                 d_serialDate = tmpSerialDate;
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-                enum { locationId = 8 };
-
-                Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                                static_cast<int>(locationId),
-                                                d_serialDate);
-#endif
             }
             else {
                 stream.invalidate();
@@ -1010,54 +883,33 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
 inline
 int Date::day() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::serialToDay(d_serialDate);
-#else
-    return DelegatingDateImpUtil::serialToDay(d_serialDate);
-#endif
 }
 
 inline
 int Date::dayOfYear() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
-#else
-    return DelegatingDateImpUtil::serialToDayOfYear(d_serialDate);
-#endif
 }
 
 inline
 int Date::month() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::serialToMonth(d_serialDate);
-#else
-    return DelegatingDateImpUtil::serialToMonth(d_serialDate);
-#endif
 }
 
 inline
 int Date::year() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return SerialDateImpUtil::serialToYear(d_serialDate);
-#else
-    return DelegatingDateImpUtil::serialToYear(d_serialDate);
-#endif
 }
 
 // ACCESSORS
 inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
-#ifdef BDE_OPENSOURCE_PUBLICATION
     return static_cast<DayOfWeek::Enum>(
                            SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
-#else
-    return static_cast<DayOfWeek::Enum>(
-                       DelegatingDateImpUtil::serialToDayOfWeek(d_serialDate));
-#endif
 }
 
 inline
@@ -1066,11 +918,7 @@ void Date::getYearDay(int *year, int *dayOfYear) const
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(dayOfYear);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
     SerialDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
-#else
-    DelegatingDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
-#endif
 }
 
 inline
@@ -1080,11 +928,7 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
     BSLS_ASSERT_SAFE(month);
     BSLS_ASSERT_SAFE(day);
 
-#ifdef BDE_OPENSOURCE_PUBLICATION
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
-#else
-    DelegatingDateImpUtil::serialToYmd(year, month, day, d_serialDate);
-#endif
 }
 
 inline
@@ -1108,29 +952,12 @@ STREAM& Date::bdexStreamOut(STREAM& stream, int version) const
             BSLS_ASSERT_OPT(Date::isValidSerial(d_serialDate));
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-            enum { locationId = 9 };
-
-            Date::logIfProblematicDateValue(__FILE__, __LINE__,
-                                            static_cast<int>(locationId),
-                                            d_serialDate);
-
-            if (!DelegatingDateImpUtil::isProlepticGregorianMode()) {
-                stream.putInt24(d_serialDate);
-                break;
-            }
+#ifdef BDE_USE_PROLEPTIC_DATES
+            stream.putInt24(convertProlepticDateToPosix(d_serialDate));
+#else
+            stream.putInt24(d_serialDate);
 #endif
-            // See {BDEX Compatibility with Legacy POSIX-Based 'Date'} in the
-            // component-level documentation.
 
-            if (1 == d_serialDate) {  // preserve default value
-                stream.putInt24(d_serialDate);
-            }
-            else {
-                stream.putInt24(d_serialDate + 2);
-                                      // ensure that serial values for
-                                      // 1752SEP14 and later dates "align"
-            }
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -1159,13 +986,6 @@ inline
 int Date::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
-}
-
-// TRANSITIONAL METHODS
-inline
-bool Date::isLoggingEnabled()
-{
-    return s_loggingEnabledFlag;
 }
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
@@ -1266,14 +1086,6 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate + numDays));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 10 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       date.d_serialDate, numDays);
-#endif
-
     return Date(date.d_serialDate + numDays);
 }
 
@@ -1281,14 +1093,6 @@ inline
 bdlt::Date bdlt::operator+(int numDays, const Date& date)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(numDays + date.d_serialDate));
-
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 11 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       date.d_serialDate, numDays);
-#endif
 
     return Date(numDays + date.d_serialDate);
 }
@@ -1298,28 +1102,12 @@ bdlt::Date bdlt::operator-(const Date& date, int numDays)
 {
     BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate - numDays));
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 12 };
-
-    Date::logIfProblematicDateAddition(__FILE__, __LINE__,
-                                       static_cast<int>(locationId),
-                                       date.d_serialDate, -numDays);
-#endif
-
     return Date(date.d_serialDate - numDays);
 }
 
 inline
 int bdlt::operator-(const Date& lhs, const Date& rhs)
 {
-#ifndef BDE_OPENSOURCE_PUBLICATION
-    enum { locationId = 13 };
-
-    Date::logIfProblematicDateDifference(__FILE__, __LINE__,
-                                         static_cast<int>(locationId),
-                                         lhs.d_serialDate, rhs.d_serialDate);
-#endif
-
     return lhs.d_serialDate - rhs.d_serialDate;
 }
 

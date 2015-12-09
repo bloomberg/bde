@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
                           << "==================================="
                           << endl;
 
-
+#ifndef BDE_OPENSOURCE_PUBLICATION
         static const struct {
             int              d_line;           // source line number
             bdlt::EpochUtil::TimeT64 d_timet;
@@ -503,6 +503,9 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, expected, result, expected == result);
             }
         }
+#else
+        if (verbose) cout << "Not applicable." << endl;
+#endif
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -521,6 +524,7 @@ int main(int argc, char *argv[])
         //   bdlt::EpochUtil::TimeT64 convertToTimeT64(const bdlt::Datetime& );
         // --------------------------------------------------------------------
 
+#ifndef BDE_OPENSOURCE_PUBLICATION
         if (verbose) cout << endl
                           << "'baltzo::Zoneinfo' 'convertToTimeT64"
                           << endl
@@ -567,6 +571,9 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE, EXPECTED, result, EXPECTED == result);
         }
+#else
+        if (verbose) cout << "Not applicable." << endl;
+#endif
       } break;
       case 15: {
         // --------------------------------------------------------------------

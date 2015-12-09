@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level support functions for date-value manipulation.
 //
-//@INTERNAL_DEPRECATED: Do *NOT* use.
-//
 //@CLASSES:
 // bdlt::PosixDateImpUtil: suite of low-level date-related stateless functions
 //
@@ -18,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component implements a utility class,
 // 'bdlt::PosixDateImpUtil', that provides a suite of low-level, date-related
-// functions that can be used to validate, manipulate, and convert among
-// values in three different formats:
+// functions that can be used to validate, manipulate, and convert among values
+// in three different formats:
 //..
 //  YMD: year/month/day
 //   YD: year/dayOfYear
@@ -63,7 +61,7 @@ BSLS_IDENT("$Id: $")
 // component reserve the right to be implemented using statically cached (i.e.,
 // tabulated) values (which is inherently thread-safe).  In all cases where a
 // cache may be used, 'bdlt::PosixDateImpUtil' explicitly provides a 'NoCache'
-// version (e.g., 'ymd2serialNoCache') that is guaranteed NOT to use a cache.
+// version (e.g., 'ymdToSerialNoCache') that is guaranteed NOT to use a cache.
 // Although the "normal" (potentially cached) functions typically gain huge
 // performance advantages, the 'NoCache' versions may conceivably be preferred
 // by the performance-minded user who is *reasonably* *certain* that the vast
@@ -87,7 +85,7 @@ BSLS_IDENT("$Id: $")
 //
 // What day of the week was January 3, 2010?
 //..
-//  assert(2 == bdlt::PosixDateImpUtil::ymd2weekday(2010, 3, 1));
+//  assert(2 == bdlt::PosixDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
 //                                                           // 2 means Monday.
 //..
 // Was the year 2000 a leap year?
@@ -97,7 +95,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Was February 29, 1900, a valid date in history?
 //..
-//  assert(false == bdlt::PosixDateImpUtil::isValidCalendarDate(1900, 2, 29));
+//  assert(false == bdlt::PosixDateImpUtil::isValidYearMonthDay(1900, 2, 29));
 //                                                           // No, it was not.
 //..
 // What was the last day of February in 1600?
@@ -112,12 +110,12 @@ BSLS_IDENT("$Id: $")
 //..
 // On what day of the year does February 29, 2020 fall?
 //..
-//  assert(60 == bdlt::PosixDateImpUtil::ymd2dayOfYear(2020, 2, 29));
+//  assert(60 == bdlt::PosixDateImpUtil::ymdToDayOfYear(2020, 2, 29));
 //                                                           // The 60th one.
 //..
 // In what month does the 120th day of 2011 fall?
 //..
-//  assert(4 == bdlt::PosixDateImpUtil::yd2month(2011, 120));
+//  assert(4 == bdlt::PosixDateImpUtil::ydToMonth(2011, 120));
 //                                                           // 4 means April.
 //..
 //
@@ -218,7 +216,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  bool MyDate::isValid(int year, int month, int day)
 //  {
-//      return bdlt::PosixDateImpUtil::isValidCalendarDate(year, month, day);
+//      return bdlt::PosixDateImpUtil::isValidYearMonthDay(year, month, day);
 //  }
 //
 //  // CREATORS
@@ -251,8 +249,7 @@ BSLS_IDENT("$Id: $")
 //  MyDate& MyDate::operator++()
 //  {
 //      ++d_serialDate;
-//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-//                                                              d_serialDate));
+//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
 //      return *this;
 //  }
 //
@@ -260,8 +257,7 @@ BSLS_IDENT("$Id: $")
 //  MyDate& MyDate::operator--()
 //  {
 //      --d_serialDate;
-//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-//                                                              d_serialDate));
+//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
 //      return *this;
 //  }
 //
@@ -269,8 +265,7 @@ BSLS_IDENT("$Id: $")
 //  MyDate& MyDate::operator+=(int numDays)
 //  {
 //      d_serialDate += numDays;
-//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-//                                                              d_serialDate));
+//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
 //      return *this;
 //  }
 //
@@ -278,25 +273,24 @@ BSLS_IDENT("$Id: $")
 //  MyDate& MyDate::operator-=(int numDays)
 //  {
 //      d_serialDate -= numDays;
-//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-//                                                              d_serialDate));
+//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
 //      return *this;
 //  }
 //
 //  inline
 //  void MyDate::setYearMonthDay(int year, int month, int day)
 //  {
-//      d_serialDate = bdlt::PosixDateImpUtil::ymd2serial(year, month, day);
-//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerialDate(
-//                                                              d_serialDate));
+//      d_serialDate = bdlt::PosixDateImpUtil::ymdToSerial(year, month, day);
+//      BSLS_ASSERT_SAFE(bdlt::PosixDateImpUtil::isValidSerial(d_serialDate));
 //  }
 //
 //  inline
 //  bool MyDate::setYearMonthDayIfValid(int year, int month, int day)
 //  {
-//      const int newDate =
-//                        bdlt::PosixDateImpUtil::ymd2serial(year, month, day);
-//      if (bdlt::PosixDateImpUtil::isValidSerialDate(newDate)) {
+//      const int newDate = bdlt::PosixDateImpUtil::ymdToSerial(year,
+//                                                              month,
+//                                                              day);
+//      if (bdlt::PosixDateImpUtil::isValidSerial(newDate)) {
 //          d_serialDate = newDate;
 //          return true;                                              // RETURN
 //      }
@@ -307,31 +301,31 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  void MyDate::getYearMonthDay(int *year, int *month, int *day) const
 //  {
-//      bdlt::PosixDateImpUtil::serial2ymd(year, month, day, d_serialDate);
+//      bdlt::PosixDateImpUtil::serialToYmd(year, month, day, d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::year() const
 //  {
-//      return bdlt::PosixDateImpUtil::serial2year(d_serialDate);
+//      return bdlt::PosixDateImpUtil::serialToYear(d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::month() const
 //  {
-//      return bdlt::PosixDateImpUtil::serial2month(d_serialDate);
+//      return bdlt::PosixDateImpUtil::serialToMonth(d_serialDate);
 //  }
 //
 //  inline
 //  int MyDate::day() const
 //  {
-//      return bdlt::PosixDateImpUtil::serial2day(d_serialDate);
+//      return bdlt::PosixDateImpUtil::serialToDay(d_serialDate);
 //  }
 //
 //  inline
 //  MyDate::Day MyDate::dayOfWeek() const
 //  {
-//      return MyDate::Day(bdlt::PosixDateImpUtil::serial2weekday(
+//      return MyDate::Day(bdlt::PosixDateImpUtil::serialToDayOfWeek(
 //                                                              d_serialDate));
 //  }
 //
@@ -415,7 +409,7 @@ BSLS_IDENT("$Id: $")
 //      char buf[SIZE];
 //
 //      int y, m, d;
-//      bdlt::PosixDateImpUtil::serial2ymd(&y, &m, &d, d_serialDate);
+//      bdlt::PosixDateImpUtil::serialToYmd(&y, &m, &d, d_serialDate);
 //
 //      buf[0] = d / 10 + '0';
 //      buf[1] = d % 10 + '0';
@@ -528,7 +522,7 @@ struct PosixDateImpUtil {
 
                         // Is Valid Date
 
-    static bool isValidCalendarDate(int year, int month, int day);
+    static bool isValidYearMonthDay(int year, int month, int day);
         // Return 'true' if the specified 'year', 'month', and 'day' represents
         // a valid date value, and 'false' otherwise.  Note that valid date
         // values are (as fully defined in the component-level documentation)
@@ -536,22 +530,22 @@ struct PosixDateImpUtil {
         // '[ 1752/09/03 .. 1752/09/13 ]' are not valid for historical
         // reasons).
 
-    static bool isValidCalendarDateNoCache(int year, int month, int day);
+    static bool isValidYearMonthDayNoCache(int year, int month, int day);
         // Return 'true' if the specified 'year', 'month', and 'day' represents
-        // a valid date value,  and 'false' otherwise.  Note that valid date
+        // a valid date value, and 'false' otherwise.  Note that valid date
         // values are (as fully defined in the component-level documentation)
         // in the range '[ 0001/01/01 .. 9999/12/31 ]' (except that
         // '[ 1752/09/03 .. 1752/09/13 ]' are not valid for historical
         // reasons).  Also note that this function is guaranteed not to use any
         // date-cache optimizations.
 
-    static bool isValidSerialDate(int serialDay);
+    static bool isValidSerial(int serialDay);
         // Return 'true' if the specified 'serialDay' represents a valid date
         // value, and 'false' otherwise.  Note that valid date values are (as
         // fully defined in the component-level documentation) in the range
         // '[ 1 .. 3652061 ]'.
 
-    static bool isValidYearDayDate(int year, int dayOfYear);
+    static bool isValidYearDay(int year, int dayOfYear);
         // Return 'true' if the specified 'year' and 'dayOfYear' represents a
         // valid date value, and 'false' otherwise.  Note that valid date
         // values are (as fully defined in the component-level documentation)
@@ -560,125 +554,124 @@ struct PosixDateImpUtil {
 
                         // To Serial Date (s)
 
-    static int yd2serial(int year, int dayOfYear);
-        // Return the serial date representation of the date value indicated
-        // by the specified 'year' and 'dayOfYear'.  The behavior is undefined
-        // unless 'true == isValidYearDayDate(year, dayOfYear)'.
+    static int ydToSerial(int year, int dayOfYear);
+        // Return the serial date representation of the date value indicated by
+        // the specified 'year' and 'dayOfYear'.  The behavior is undefined
+        // unless 'true == isValidYearDay(year, dayOfYear)'.
 
-    static int ymd2serial(int year, int month, int day);
+    static int ymdToSerial(int year, int month, int day);
         // Return the serial date representation of the date value indicated by
         // the specified 'year', 'month', and 'day'.  The behavior is undefined
-        // unless 'true == isValidCalendarDate(year, month, day)'.
+        // unless 'true == isValidYearMonthDay(year, month, day)'.
 
-    static int ymd2serialNoCache(int year, int month, int day);
-        // Return the serial date representation of the date value indicated
-        // by the specified 'year', 'month', and 'day'.  The behavior is
-        // undefined unless 'true == isValidCalendarDate(year, month, day)'.
-        // Note that this function is guaranteed not to use any date-cache
-        // optimizations.
+    static int ymdToSerialNoCache(int year, int month, int day);
+        // Return the serial date representation of the date value indicated by
+        // the specified 'year', 'month', and 'day'.  The behavior is undefined
+        // unless 'true == isValidYearMonthDay(year, month, day)'.  Note that
+        // this function is guaranteed not to use any date-cache optimizations.
 
                         // To Day-Of-Year Date (yd)
 
-    static int serial2dayOfYear(int serialDay);
+    static int serialToDayOfYear(int serialDay);
         // Return the day of the year of the date value indicated by the
         // specified 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static void serial2yd(int *year, int *dayOfYear, int serialDay);
+    static void serialToYd(int *year, int *dayOfYear, int serialDay);
         // Load, into the specified 'year' and 'dayOfYear', the year-day
         // representation of the date value indicated by the specified
         // 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static int ymd2dayOfYear(int year, int month, int day);
+    static int ymdToDayOfYear(int year, int month, int day);
         // Return the day of the year of the date value indicated by the
         // specified 'year', 'month', and 'day'.  The behavior is undefined
-        // unless 'true == isValidCalendarDate(year, month, day)'.
+        // unless 'true == isValidYearMonthDay(year, month, day)'.
 
                         // To Calendar Date (ymd)
 
-    static int serial2day(int serialDay);
+    static int serialToDay(int serialDay);
         // Return the day (of the month) of the date value indicated by the
         // specified 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static int serial2dayNoCache(int serialDay);
+    static int serialToDayNoCache(int serialDay);
         // Return the day (of the month) of the date value indicated by the
         // specified 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.  Note that this function is
+        // 'true == isValidSerial(serialDay)'.  Note that this function is
         // guaranteed not to use any date-cache optimizations.
 
-    static int serial2month(int serialDay);
+    static int serialToMonth(int serialDay);
         // Return the month of the date value indicated by the specified
         // 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static int serial2monthNoCache(int serialDay);
+    static int serialToMonthNoCache(int serialDay);
         // Return the month of the date value indicated by the specified
         // 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.  Note that this function is
+        // 'true == isValidSerial(serialDay)'.  Note that this function is
         // guaranteed not to use any date-cache optimizations.
 
-    static int serial2year(int serialDay);
+    static int serialToYear(int serialDay);
         // Return the year of the date value indicated by the specified
         // 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static int serial2yearNoCache(int serialDay);
+    static int serialToYearNoCache(int serialDay);
         // Return the year of the date value indicated by the specified
         // 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.  Note that this function is
+        // 'true == isValidSerial(serialDay)'.  Note that this function is
         // guaranteed not to use any date-cache optimizations.
 
-    static void serial2ymd(int *year, int *month, int *day, int serialDay);
+    static void serialToYmd(int *year, int *month, int *day, int serialDay);
         // Load, into the specified 'year', 'month', and 'day', the date value
         // indicated by the specified 'serialDay'.  The behavior is undefined
-        // unless 'true == isValidSerialDate(serialDay)'.
+        // unless 'true == isValidSerial(serialDay)'.
 
-    static void serial2ymdNoCache(int *year,
-                                  int *month,
-                                  int *day,
-                                  int  serialDay);
+    static void serialToYmdNoCache(int *year,
+                                   int *month,
+                                   int *day,
+                                   int  serialDay);
         // Load, into the specified 'year', 'month', and 'day', the date value
         // indicated by the specified 'serialDay'.  The behavior is undefined
-        // unless 'true == isValidSerialDate(serialDay)'.  Note that this
-        // function is guaranteed not to use any date-cache-optimizations.
+        // unless 'true == isValidSerial(serialDay)'.  Note that this function
+        // is guaranteed not to use any date-cache-optimizations.
 
-    static int yd2day(int year, int dayOfYear);
+    static int ydToDay(int year, int dayOfYear);
         // Return the day (of the month) of the date value indicated by the
         // specified 'year' and 'dayOfYear'.  The behavior is undefined unless
-        // 'true == isValidYearDayDate(year, dayOfYear)'.
+        // 'true == isValidYearDay(year, dayOfYear)'.
 
-    static void yd2md(int *month, int *day, int year, int dayOfYear);
+    static void ydToMd(int *month, int *day, int year, int dayOfYear);
         // Load, into the specified 'month' and 'day', the (partial) calendar
         // date representation of the date value indicated by the specified
         // 'year' and 'dayOfYear'.  The behavior is undefined unless
-        // 'true == isValidYearDayDate(year, dayOfYear)'.
+        // 'true == isValidYearDay(year, dayOfYear)'.
 
-    static int yd2month(int year, int dayOfYear);
+    static int ydToMonth(int year, int dayOfYear);
         // Return the month of the date value indicated by the specified 'year'
         // and 'dayOfYear'.  The behavior is undefined unless
-        // 'true == isValidYearDayDate(year, dayOfYear)'.
+        // 'true == isValidYearDay(year, dayOfYear)'.
 
                         // To Day of Week '[ SUN = 1, MON .. SAT ]'
 
-    static int serial2weekday(int serialDay);
+    static int serialToDayOfWeek(int serialDay);
         // Return, as an integer (with '1 = SUN', '2 = MON', ..., and
         // '7 = SAT'), the day (of the week) of the date value indicated by the
         // specified 'serialDay'.  The behavior is undefined unless
-        // 'true == isValidSerialDate(serialDay)'.
+        // 'true == isValidSerial(serialDay)'.
 
-    static int yd2weekday(int year, int dayOfYear);
+    static int ydToDayOfWeek(int year, int dayOfYear);
         // Return, as an integer (with '1 = SUN', '2 = MON', ..., and
         // '7 = SAT'), the day (of the week) of the date value indicated by the
         // specified 'year' and 'dayOfYear'.  The behavior is undefined unless
-        // 'true == isValidYearDayDate(year, dayOfYear)'.
+        // 'true == isValidYearDay(year, dayOfYear)'.
 
-    static int ymd2weekday(int year, int month, int day);
+    static int ymdToDayOfWeek(int year, int month, int day);
         // Return, as an integer (with '1 = SUN', '2 = MON', ..., and
         // '7 = SAT'), the day (of the week) of the date value indicated by the
         // specified 'year', 'month', and 'day'.  The behavior is undefined
-        // unless 'true == isValidCalendarDate(year, month, day)'.
+        // unless 'true == isValidYearMonthDay(year, month, day)'.
 };
 
 // ============================================================================
@@ -707,7 +700,7 @@ bool PosixDateImpUtil::isLeapYear(int year)
                         // Is Valid Date
 
 inline
-bool PosixDateImpUtil::isValidCalendarDate(int year, int month, int day)
+bool PosixDateImpUtil::isValidYearMonthDay(int year, int month, int day)
 {
     // Check month and day; the cache cannot catch out-of-range issues.
 
@@ -720,12 +713,12 @@ bool PosixDateImpUtil::isValidCalendarDate(int year, int month, int day)
                                                                       // RETURN
     }
     else {
-        return isValidCalendarDateNoCache(year, month, day);          // RETURN
+        return isValidYearMonthDayNoCache(year, month, day);          // RETURN
     }
 }
 
 inline
-bool PosixDateImpUtil::isValidSerialDate(int serialDay)
+bool PosixDateImpUtil::isValidSerial(int serialDay)
 {
     return (static_cast<unsigned>(serialDay) - 1) < 3652061; // # == 9999/12/31
 }
@@ -733,99 +726,99 @@ bool PosixDateImpUtil::isValidSerialDate(int serialDay)
                         // To Day-Of-Year Date (yd)
 
 inline
-int PosixDateImpUtil::serial2dayOfYear(int serialDay)
+int PosixDateImpUtil::serialToDayOfYear(int serialDay)
 {
-    BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(true == isValidSerial(serialDay));
 
     int dayOfYear, year;
-    serial2yd(&year, &dayOfYear, serialDay);
+    serialToYd(&year, &dayOfYear, serialDay);
     return dayOfYear;
 }
 
                         // To Calendar Date (ymd)
 
 inline
-int PosixDateImpUtil::serial2dayNoCache(int serialDay)
+int PosixDateImpUtil::serialToDayNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(true == isValidSerial(serialDay));
 
     int year, month, day;
-    serial2ymdNoCache(&year, &month, &day, serialDay);
+    serialToYmdNoCache(&year, &month, &day, serialDay);
     return day;
 }
 
 inline
-int PosixDateImpUtil::serial2monthNoCache(int serialDay)
+int PosixDateImpUtil::serialToMonthNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(true == isValidSerial(serialDay));
 
     int year, month, day;
-    serial2ymdNoCache(&year, &month, &day, serialDay);
+    serialToYmdNoCache(&year, &month, &day, serialDay);
     return month;
 }
 
 inline
-int PosixDateImpUtil::serial2yearNoCache(int serialDay)
+int PosixDateImpUtil::serialToYearNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(true == isValidSerial(serialDay));
 
     int year, month, day;
-    serial2ymdNoCache(&year, &month, &day, serialDay);
+    serialToYmdNoCache(&year, &month, &day, serialDay);
     return year;
 }
 
 inline
-void PosixDateImpUtil::serial2ymdNoCache(int *year,
-                                         int *month,
-                                         int *day,
-                                         int  serialDay)
+void PosixDateImpUtil::serialToYmdNoCache(int *year,
+                                          int *month,
+                                          int *day,
+                                          int  serialDay)
 {
     BSLS_ASSERT_SAFE(year);
     BSLS_ASSERT_SAFE(month);
     BSLS_ASSERT_SAFE(day);
-    BSLS_ASSERT_SAFE(true == isValidSerialDate(serialDay));
+    BSLS_ASSERT_SAFE(true == isValidSerial(serialDay));
 
     int dayOfYear;
-    serial2yd(year, &dayOfYear, serialDay);
-    yd2md(month, day, *year, dayOfYear);
+    serialToYd(year, &dayOfYear, serialDay);
+    ydToMd(month, day, *year, dayOfYear);
 }
 
 inline
-int PosixDateImpUtil::yd2day(int year, int dayOfYear)
+int PosixDateImpUtil::ydToDay(int year, int dayOfYear)
 {
-    BSLS_ASSERT_SAFE(true == isValidYearDayDate(year, dayOfYear));
+    BSLS_ASSERT_SAFE(true == isValidYearDay(year, dayOfYear));
 
     int month, day;
-    yd2md(&month, &day, year, dayOfYear);
+    ydToMd(&month, &day, year, dayOfYear);
     return day;
 }
 
 inline
-int PosixDateImpUtil::yd2month(int year, int dayOfYear)
+int PosixDateImpUtil::ydToMonth(int year, int dayOfYear)
 {
-    BSLS_ASSERT_SAFE(true == isValidYearDayDate(year, dayOfYear));
+    BSLS_ASSERT_SAFE(true == isValidYearDay(year, dayOfYear));
 
     int month, day;
-    yd2md(&month, &day, year, dayOfYear);
+    ydToMd(&month, &day, year, dayOfYear);
     return month;
 }
 
                         // To Day of Week '[ SUN = 1, MON .. SAT ]'
 
 inline
-int PosixDateImpUtil::yd2weekday(int year, int dayOfYear)
+int PosixDateImpUtil::ydToDayOfWeek(int year, int dayOfYear)
 {
-    BSLS_ASSERT_SAFE(true == isValidYearDayDate(year, dayOfYear));
+    BSLS_ASSERT_SAFE(true == isValidYearDay(year, dayOfYear));
 
-    return serial2weekday(yd2serial(year, dayOfYear));
+    return serialToDayOfWeek(ydToSerial(year, dayOfYear));
 }
 
 inline
-int PosixDateImpUtil::ymd2weekday(int year, int month, int day)
+int PosixDateImpUtil::ymdToDayOfWeek(int year, int month, int day)
 {
-    BSLS_ASSERT_SAFE(true == isValidCalendarDate(year, month, day));
+    BSLS_ASSERT_SAFE(true == isValidYearMonthDay(year, month, day));
 
-    return serial2weekday(ymd2serial(year, month, day));
+    return serialToDayOfWeek(ymdToSerial(year, month, day));
 }
 
 }  // close package namespace

@@ -241,16 +241,12 @@ int removeFile(const char *path)
 static
 int localFcntlLock(int descriptor, int cmd, int type)
 {
-    int rc;
-    do {
-        struct flock flk;
-        flk.l_type = static_cast<short>(type);
-        flk.l_whence = SEEK_SET;
-        flk.l_start = 0;
-        flk.l_len = 0;
-        rc = fcntl(descriptor, cmd, &flk);
-    } while (EINTR == rc);
-    return rc;
+    struct flock flk;
+    flk.l_type = static_cast<short>(type);
+    flk.l_whence = SEEK_SET;
+    flk.l_start = 0;
+    flk.l_len = 0;
+    return fcntl(descriptor, cmd, &flk);
 }
 
 static inline
@@ -1306,7 +1302,9 @@ int FilesystemUtil::lock(FileDescriptor descriptor, bool lockWriteFlag)
     int rc = localFcntlLock(descriptor,
                             F_SETLKW,
                             lockWriteFlag ? F_WRLCK : F_RDLCK);
-    return -1 == rc ? -1 : 0;
+    return -1 != rc       ? 0
+         : EINTR == errno ? k_ERROR_LOCKING_INTERRUPTED
+         :                  -1;
 }
 
 int FilesystemUtil::unlock(FileDescriptor descriptor)
@@ -1742,7 +1740,7 @@ FilesystemUtil::makeUnsafeTemporaryFilename(bsl::string             *outPath,
     char suffix[8];
     bsls::Types::Int64 now = bsls::TimeUtil::getTimer();
     bsls::Types::Uint64 tid =
-                      bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::self());
+                    bslmt::ThreadUtil::idAsUint64(bslmt::ThreadUtil::selfId());
     using bslh::hashAppend;
     bslh::DefaultHashAlgorithm hashee;
     hashAppend(hashee, now);

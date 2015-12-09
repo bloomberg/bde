@@ -4,12 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_epochutil_cpp,"$Id$ $CSID$")
 
-#ifndef BDE_OPENSOURCE_PUBLICATION
-#include <bdlt_date.h>
-#include <bdlb_bitutil.h>
-#include <bsls_log.h>
-#endif
-
 namespace BloombergLP {
 namespace bdlt {
 
@@ -28,13 +22,29 @@ namespace bdlt {
 // that adheres to those restrictions without C++11 'constexpr' constructors.
 // (In C, a union can be used to type pun, but not in C++.)
 
+
+#ifndef BDE_OPENSOURCE_PUBLICATION
+    #ifdef BDE_USE_PROLEPTIC_DATES
+    #error 'BDE_USE_PROLEPTIC_DATES' option disallowed for Bloomberg code.
+    #endif
+#endif
+
+#ifdef BDE_USE_PROLEPTIC_DATES
 static const int epochData[2] = { 719163, 0 };
                                  // 719163 is 1970/01/01 in Proleptic Gregorian
-#ifndef BDE_OPENSOURCE_PUBLICATION
-static const int posixEpochData[2]
-                              = { 719165, 0 };
+
+const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135596800LL;
+                                                 // January    1, 0001 00:00:00
+#else
+static const int epochData[2] = { 719165, 0 };
                                  // 719165 is 1970/01/01 in POSIX
+
+const EpochUtil::TimeT64 EpochUtil::s_earliestAsTimeT64 = -62135769600LL;
+                                                 // January    1, 0001 00:00:00
 #endif
+
+const EpochUtil::TimeT64 EpochUtil::s_latestAsTimeT64   = 253402300799LL;
+                                                 // December  31, 9999 23:59:59
 
                             // ----------------
                             // struct EpochUtil
@@ -44,56 +54,6 @@ static const int posixEpochData[2]
 
 const bdlt::Datetime *EpochUtil::s_epoch_p =
                            reinterpret_cast<const bdlt::Datetime *>(epochData);
-#ifndef BDE_OPENSOURCE_PUBLICATION
-const bdlt::Datetime *EpochUtil::s_posixEpoch_p =
-                      reinterpret_cast<const bdlt::Datetime *>(posixEpochData);
-
-// In the POSIX calendar, the first day after 1752/09/02 is 1752/09/14.  With
-// 639798 for the "magic" serial date value, '>' is the appropriate comparison
-// operator to use in the 'logIfProblematicDateValue' function.
-
-const int MAGIC_SERIAL = 639798;  // 1752/09/02 POSIX
-                                  // 1752/09/15 proleptic Gregorian
-
-// To limit spewing to 'stderr', log an occurrence of a problematic date value
-// only if the associated logging context count is 1, 8, or 256.
-
-const int LOG_THROTTLE_MASK = 1 | 8 | 256;
-
-// PRIVATE CLASS METHODS
-void EpochUtil::logIfProblematicDateValue(const char  *fileName,
-                                          int          lineNumber,
-                                          int          locationId,
-                                          const Date&  date)
-{
-    if (!Date::isLoggingEnabled()
-     || (date > *reinterpret_cast<const Date *>(&MAGIC_SERIAL))) {
-        return;                                                       // RETURN
-    }
-
-    static bsls::AtomicOperations::AtomicTypes::Int counts[32] = { 0 };
-
-    if (locationId < 0 || locationId > 31) {
-        return;                                                       // RETURN
-    }
-
-    const int tmpCount
-             = bsls::AtomicOperations::addIntNvRelaxed(&counts[locationId], 1);
-
-    if ((LOG_THROTTLE_MASK & tmpCount)
-     && 1 == bdlb::BitUtil::numBitsSet(
-                             static_cast<bdlb::BitUtil::uint32_t>(tmpCount))) {
-
-        bsls::Log::logFormattedMessage(fileName, lineNumber,
-                                       "WARNING: bad 'Date' value: "
-                                       "%d/%d/%d [%d] "
-                                       "(see {TEAM 481627583<GO>})",
-                                       date.year(), date.month(), date.day(),
-                                       tmpCount);
-    }
-}
-
-#endif
 
 }  // close package namespace
 }  // close enterprise namespace

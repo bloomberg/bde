@@ -9,9 +9,8 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 
 #include <ball_log.h>
 
-#include <bdlt_epochutil.h>
-
 #include <bdlt_datetimeinterval.h>
+#include <bdlt_epochutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
@@ -125,7 +124,7 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
     typedef Zoneinfo::TransitionConstIterator TransitionConstIter;
 
     bdlt::EpochUtil::TimeT64 localTimeT =
-                                  Zoneinfo::convertToTimeT64(localTime);
+                                  bdlt::EpochUtil::convertToTimeT64(localTime);
     const bdlt::Datetime& utcTimeApproximation = localTime;
 
     bdlt::DatetimeTz     dummy;
@@ -251,7 +250,7 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
 
     bdlt::Datetime firstDatetime(1, 1, 1);
     bdlt::EpochUtil::TimeT64 firstDatetimeT =
-                            Zoneinfo::convertToTimeT64(firstDatetime);
+                              bdlt::EpochUtil::convertToTimeT64(firstDatetime);
 
     if (firstDatetimeT != timeZone.beginTransitions()->utcTime()) {
         BALL_LOG_WARN << "Time zone '" << timeZone.identifier() << "' does "

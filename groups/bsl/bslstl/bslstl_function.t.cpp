@@ -556,6 +556,17 @@ struct EmptyFunctor : FunctorBase
     // - Bitwise movable
     // - Nothrow move constructible
 
+    // PUBLIC TRAITS
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+    BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
+        // As this class has a non-trivial copy constructor, it is not
+        // implcitly bitwise movable in C++11, where constructor triviality is
+        // taken into account for the implicitly deduced trait value.  A static
+        // assert test in 'bslmf::IsBitwiseMoveable' forces us to specialize
+        // the trait, either as movable or not, where the meaning would change
+        // between dialect.
+#endif
+
     EmptyFunctor(const EmptyFunctor&) : FunctorBase()
         { --copyLimit; memset(this, 0xdd, sizeof(*this)); }
 

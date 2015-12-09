@@ -1088,7 +1088,7 @@ void blobBasedReadCb(int            *needed,
     msg->removeAll();
 }
 
-const int NT = 5;
+const int NT = 2;
 
 bsl::vector<btlso::StreamSocket<btlso::IPv4Address> *> clientSockets(NT);
 btlso::InetStreamSocketFactory<btlso::IPv4Address>     factory;
@@ -8041,7 +8041,6 @@ void TestDriver::testCase35()
         //:
         //: 7 Invoke 'stopAndRemoveAllChannels' and confirm that no channels
         //:   or threads are outstanding.
-        //:
         //
         // Testing:
         //   int stopAndRemoveAllChannels();
@@ -8100,6 +8099,10 @@ void TestDriver::testCase35()
             ASSERT(0 == bslmt::ThreadUtil::join(connectThreads[i]));
         }
 
+        if (veryVerbose) {
+            MTCOUT << "Listening threads connected." << MTENDL;
+        }
+
         bslmt::ThreadUtil::Handle listenThreads[NT];
         ListenData                listenData[NT];
 
@@ -8130,6 +8133,10 @@ void TestDriver::testCase35()
             ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
         }
 
+        if (veryVerbose) {
+            MTCOUT << "Connecting threads connected." << MTENDL;
+        }
+
         for (int i = 0; i < NT; ++i) {
             btlso::StreamSocket<btlso::IPv4Address> *socket = clientSockets[i];
 
@@ -8144,6 +8151,10 @@ void TestDriver::testCase35()
             ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
                                                   &dataFunction,
                                                   (void *) socket));
+        }
+
+        if (veryVerbose) {
+            MTCOUT << "Started data threads." << MTENDL;
         }
 
         bslmt::ThreadUtil::microSleep(0, 1);
@@ -8166,12 +8177,20 @@ void TestDriver::testCase35()
         }
         mapMutex.unlock();
 
+        if (veryVerbose) {
+            MTCOUT << "Data written from main thread." << MTENDL;
+        }
+
         ASSERT(0 != mX.numChannels());
         ASSERT(0 != mX.numThreads());
 
         bsls::Types::Int64 numRead = 0, numWritten = 0;
         mX.totalBytesRead(&numRead);
         mX.totalBytesWritten(&numWritten);
+
+        if (veryVerbose) {
+            P(numRead) P(numWritten)
+        }
 
         ASSERT(0 == mX.stopAndRemoveAllChannels());
 

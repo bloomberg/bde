@@ -15,8 +15,6 @@
 #include <bslmt_mutex.h>       // for testing only
 #include <bslmt_threadutil.h>  // for testing only
 
-#include <bslmt_semaphoreimpl_counted.h>
-
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
@@ -110,7 +108,7 @@ static bslmt::Mutex coutMutex;
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bslmt::SemaphoreImpl<bslmt::Platform::SemaphorePolicy> Obj;
+typedef bslmt::SemaphoreImpl<bslmt::Platform::DarwinSemaphore> Obj;
 
 class MyCondition {
     // This class defines a platform-independent condition variable.  Using

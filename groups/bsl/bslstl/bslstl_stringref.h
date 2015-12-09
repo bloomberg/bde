@@ -16,10 +16,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Vladimir Kliatchko (vkliatch), Anthony Comerico (acomeric)
 //
-//@DESCRIPTION: This component defines two classes, 'bsls::StringRef' and
-// 'bsls::StringRefWide', each providing a reference to a non-modifiable string
-// value having an external representation.  The type of characters in the
-// string value can be either 'char' (for 'bslstl::StringRef') or 'wchar_t'
+//@DESCRIPTION: This component defines two classes, 'bslstl::StringRef' and
+// 'bslstl::StringRefWide', each providing a reference to a non-modifiable
+// string value having an external representation.  The type of characters in
+// the string value can be either 'char' (for 'bslstl::StringRef') or 'wchar_t'
 // (for 'bslstl::StringRefWide').
 //
 // The invariant of 'bslstl::StringRef' is that it always has a valid
@@ -955,7 +955,8 @@ int StringRefImp<CHAR_TYPE>::compare(
                     other.data(),
                     native_std::min(this->length(), other.length()));
 
-    return result != 0 ? result : this->length() - other.length();
+    return result != 0 ? result
+                       : static_cast<int>(this->length() - other.length());
 }
 
 }  // close package namespace
