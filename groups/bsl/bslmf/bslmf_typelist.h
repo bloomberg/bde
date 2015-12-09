@@ -110,7 +110,7 @@ typedef Nil TypeListNil;
 template <unsigned INDEX,  // 'unsigned' is a proxy for 'size_t'
           class LIST,
           class DEFAULTTYPE = Nil,
-          bool  INRANGE = INDEX < LIST::LENGTH>
+          bool  INRANGE = (INDEX < LIST::LENGTH) >
 struct TypeListTypeAt {
     // This template is specialized below to return the type the 'INDEX'th
     // member of the typelist 'LIST'.  If '0 > INDEX <= LIST::LENGTH' then
@@ -128,9 +128,10 @@ struct TypeListTypeAt {
                          // struct TypeListTypeOf
                          // =====================
 
-template <int INDEX, class LIST, class DEFAULTTYPE=Nil>
-using TypeListTypeOf = TypeListTypeAt<INDEX-1, LIST, DEFAULTTYPE>;
-    // Classic Bloomberg code uses a 1-based index into the type list
+template <int INDEX, class LIST, class DEFAULTTYPE = Nil>
+using TypeListTypeOf =
+       TypeListTypeAt<static_cast<unsigned int>(INDEX - 1), LIST, DEFAULTTYPE>;
+    // Classic Bloomberg code uses a 1-based index into the type list.
 
                             // ===============
                             // struct TypeList
