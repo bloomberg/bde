@@ -85,7 +85,7 @@ int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
     BSLS_ASSERT(str != 0);
 
     Decimal32 d = DecimalImpUtil::parse32(str);
-    if (isNan(d) and !isNanString(str)) {
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
@@ -99,7 +99,7 @@ int DecimalUtil::parseDecimal64(Decimal64 *out, const char *str)
     BSLS_ASSERT(str != 0);
 
     Decimal64 d = DecimalImpUtil::parse64(str);
-    if (isNan(d) and !isNanString(str)) {
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
@@ -113,7 +113,7 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
 
     Decimal128 d = DecimalImpUtil::parse128(str);
 
-    if (isNan(d) and !isNanString(str)) {
+    if (isNan(d) && !isNanString(str)) {
         return -1;
     }
     *out = d;
