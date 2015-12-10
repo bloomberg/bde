@@ -1491,8 +1491,8 @@ class basic_string
     void resize(size_type newLength);
         // Change the length of this string to the specified 'newLength',
         // erasing characters at the end if 'newLength < length()' or appending
-        // the appropriate number of copies of the specified 'character' at the
-        // end if 'length() < newLength'.
+        // the appropriate number of copies of 'CHAR_TYPE()' at the end if
+        // 'length() < newLength'.
 
     void reserve(size_type newCapacity = 0);
         // Change the capacity of this string to the specified 'newCapacity'.
