@@ -579,7 +579,8 @@ int main(int argc, char* argv[])
             Type inf  = bsl::numeric_limits<Type>::infinity();
             Type qnan = bsl::numeric_limits<Type>::quiet_NaN();
             Type snan = bsl::numeric_limits<Type>::signaling_NaN();
-            Type max  = BDLDFP_DECIMAL_DD(9.999999999999999e+384);
+            Type max  = bdldfp::DecimalImpUtil::parse64(
+                                                     "9.999999999999999e+384");
             Type min  = BDLDFP_DECIMAL_DD(1e-383);
 
             static const struct {
@@ -666,7 +667,8 @@ int main(int argc, char* argv[])
                 {  L_,          "-0.1",    BDLDFP_DECIMAL_DF(-0.1),  true },
 
                 {  L_,   "9.999999999999999e+500",
-                         BDLDFP_DECIMAL_DL(9.999999999999999e+500),  true },
+                   bdldfp::DecimalImpUtil::parse128(
+                                         "9.999999999999999e+500"),  true },
                 {  L_,       "-1e-500", BDLDFP_DECIMAL_DL(-1e-500),  true },
 
                 {  L_,           "NaN",                       qnan,  true },
