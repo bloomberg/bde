@@ -424,7 +424,7 @@ void hashAppend(HASHALG& hashAlg, const Time& time);
     // Pass the specified 'time' to the specified 'hashAlg'.  Note that this
     // function is intended to integrate with the 'bslh' modular hashing
     // system, and effectively provides a 'bsl::hash' specialization for
-    // 'date'.
+    // 'time'.
 
 Time operator+(const Time& lhs, const DatetimeInterval& rhs);
     // Return a 'Time' value that is the sum of the specified 'lhs' time and
