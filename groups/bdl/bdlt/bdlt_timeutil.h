@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide common non-primitive operations on 'bdlt::Time'.
 //
 //@CLASSES:
-//   bdlt::TimeUtil: namespace for static functions operating on 'bdlt::Time'
+//  bdlt::TimeUtil: namespace for static functions operating on 'bdlt::Time'
 //
 //@SEE_ALSO: bdlt_time
 //
@@ -30,12 +30,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1
 ///- - - - -
-// The following snippet of code demonstrates how to use 'bdlt::TimeUtil' to
+// First, we demonstrate how to use 'bdlt::TimeUtil' to
 // convert from an integer representation of time in "HHMMSSmmm" format to a
-// 'bdlt::Time':
+// 'bdlt::Time'.  Our first time will be around 3:45 pm.
 //..
 //  //      format: HHMMSSmmm
-//  int timeValue =  34502789;
+//  int timeValue = 154502789;
 //
 //  bdlt::Time result = bdlt::TimeUtil::convertFromHHMMSSmmm(timeValue);
 //
@@ -43,16 +43,33 @@ BSLS_IDENT("$Id: $")
 //..
 // The code above produces the following on 'stdout':
 //..
-//  03:45:02.789
+//  15:45:02.789
 //..
-// Note that 'bdlt::TimeUtil' provides methods that can be used to validate
-// integral time values before passing them to the various "convert" methods.
-// For example:
+// Then, we demonstrate a different time, 3:32:24.832 am.  Note that we do not
+// lead the integer value with '0':
+//..
+//  //  format: HHMMSSmmm
+//  timeValue =  33224832;      // Do not start with leading '0' as that would
+//                              // make the value octal and incorrect.
+//
+//  result = bdlt::TimeUtil::convertFromHHMMSSmmm(timeValue);
+//
+//  bsl::cout << result << bsl::endl;
+//..
+// The code above produces the following on 'stdout':
+//..
+//  03:32:24.832
+//..
+// Now, we demonstrate how 'bdlt::TimeUtil' provides methods that can be used
+// to validate integral time values before passing them to the various
+// "convert" methods.  For example:
 //..
 //  assert( bdlt::TimeUtil::isValidHHMMSSmmm(timeValue));
-//
+//..
+// Finally, we demonstrate catching an invalid time value, 12:61:02.789 pm:
+//..
 //  //         format: HHMMSSmmm
-//  int badTimeValue =  36102789;
+//  int badTimeValue = 126102789;
 //
 //  assert(!bdlt::TimeUtil::isValidHHMMSSmmm(badTimeValue));
 //..
@@ -63,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // convert from a 'bdlt::Time' to an integer representation of time in "HHMM",
 // "HHMMSS", and "HHMMSSmmm" formats:
 //..
-//  bdlt::Time time(3, 45, 2, 789);
+//  bdlt::Time time(12, 45, 2, 789);
 //  int        timeHHMM      = bdlt::TimeUtil::convertToHHMM(time);
 //  int        timeHHMMSS    = bdlt::TimeUtil::convertToHHMMSS(time);
 //  int        timeHHMMSSmmm = bdlt::TimeUtil::convertToHHMMSSmmm(time);
@@ -74,9 +91,9 @@ BSLS_IDENT("$Id: $")
 //..
 // The code above produces the following on 'stdout':
 //..
-//  Time in HHMM:      345
-//  Time in HHMMSS:    34502
-//  Time in HHMMSSmmm: 34502789
+//  Time in HHMM:      1245
+//  Time in HHMMSS:    124502
+//  Time in HHMMSSmmm: 124502789
 //..
 // Note that the millisecond and/or second fields of 'bdlt::Time' are ignored
 // depending on the conversion method that is called.

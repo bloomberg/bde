@@ -4,14 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_timeutil_cpp,"$Id$ $CSID$")
 
-#include <bslmf_assert.h>
-
-namespace BloombergLP {
-
-BSLMF_ASSERT(4 == sizeof(int));
-
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //
