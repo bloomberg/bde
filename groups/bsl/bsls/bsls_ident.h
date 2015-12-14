@@ -100,8 +100,10 @@
  */
 #define Z_BAELU_ASSERTION_REPORTER_ENABLE 1
 
-//#if !(defined(__SUNPRO_CC) && (defined(__sparc64) || defined(__sparcv9)))
-#if !defined(__SUNPRO_CC)
+// Disable on AIX to avoid text segment overflow.  Disable on Sun 64-bit
+// for reasons lost in the past.
+#if !(defined(__SUNPRO_CC) && (defined(__sparc64) || defined(__sparcv9))) \
+  && !defined(_AIX)
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE     1
 #endif
 
