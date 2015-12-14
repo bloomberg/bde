@@ -1,8 +1,14 @@
-bsl-internal (2.24.5.3.icbeta) unstable; urgency=low
+bsl-internal (2.24.5.4.icbeta) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Dec 2015 09:01:06 -0500
+
+bsl-internal (2.24.5.3.icbeta) git; urgency=low
+
+  * bb097e7 Changelog for version 2.24.5.3.icbeta
   * fb75d65 Changelog for version 2.24.5.3.icbeta
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Dec 2015 17:02:37 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Dec 2015 17:03:58 -0500
 
 bsl-internal (2.24.5.2.icbeta) git; urgency=low
 
