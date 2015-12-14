@@ -1,9 +1,10 @@
 bsl-internal (2.25.0.1) unstable; urgency=low
 
+  * 4bce6d8 Changelog for version 2.25.0.1
   * 556681c Merge pull request #87 from mgiroux/review/add-missing-bsls-compilerfeatures-includes-drqs-75487826
   * 5667f4d Merge pull request #86 from mgiroux/review/add-delegatingdateimputil-stubs-drqs-75487826
 
- -- Henry Verschell <hverschell@bloomberg.net>  Mon, 14 Dec 2015 16:54:42 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Dec 2015 16:59:51 -0500
 
 bsl-internal (2.25.0.0) git; urgency=low
 
