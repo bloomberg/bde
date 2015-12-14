@@ -601,6 +601,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
