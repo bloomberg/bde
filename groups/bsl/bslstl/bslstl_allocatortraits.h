@@ -410,6 +410,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
