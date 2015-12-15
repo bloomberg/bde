@@ -1,12 +1,4 @@
 // bslmt_latch.h                                                      -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLMT_LATCH
 #define INCLUDED_BSLMT_LATCH
 
@@ -180,38 +172,43 @@ BSLS_IDENT("$Id: $")
 //                                 bslmt::Latch *,
 //                                 const double *,
 //                                 const double *,
-//                                 int);
+//                                 int           );
 //
 //    private:
 //      // DATA
 //      FREE_FUNCTION *d_func_p;
-//      double        *d_arg1;
-//      bslmt::Latch  *d_arg2;
-//      const double  *d_arg3;
-//      const double  *d_arg4;
+//      double        *d_arg1_p;
+//      bslmt::Latch  *d_arg2_p;
+//      const double  *d_arg3_p;
+//      const double  *d_arg4_p;
 //      int            d_arg5;
 //
 //    public:
 //      // CREATORS
-//      UsageBinder(FREE_FUNCTION *funcPtr,
-//                  double        *arg1,
-//                  bslmt::Latch  *arg2,
-//                  const double  *arg3,
-//                  const double  *arg4,
+//      UsageBinder(FREE_FUNCTION *functionPtr,
+//                  double        *arg1Ptr,
+//                  bslmt::Latch  *arg2Ptr,
+//                  const double  *arg3Ptr,
+//                  const double  *arg4Ptr,
 //                  int            arg5)
-//      : d_func_p(funcPtr)
-//      , d_arg1(arg1)
-//      , d_arg2(arg2)
-//      , d_arg3(arg3)
-//      , d_arg4(arg4)
+//          // Create a 'UsageBinder' object that binds the specified
+//          // 'functionPtr' to the specified 'arg1Ptr', 'arg2Ptr', 'arg3Ptr',
+//          // 'arg4Ptr', and 'arg5' arguments.
+//      : d_func_p(functionPtr)
+//      , d_arg1_p(arg1Ptr)
+//      , d_arg2_p(arg2Ptr)
+//      , d_arg3_p(arg3Ptr)
+//      , d_arg4_p(arg4Ptr)
 //      , d_arg5(arg5)
 //      {
 //      }
 //
 //      // MANIPULATORS
 //      void operator()()
+//          // Invoke the function that was supplied at construction on the
+//          // arguments that were supplied at construction.
 //      {
-//          (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
+//          (*d_func_p)(d_arg1_p, d_arg2_p, d_arg3_p, d_arg4_p, d_arg5);
 //      }
 //  };
 //..

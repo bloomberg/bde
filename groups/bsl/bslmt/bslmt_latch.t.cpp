@@ -44,13 +44,15 @@ using namespace bsl;
 // as Producers, some acting as Consumers, and some acting as both Producers
 // and Consumers.
 //
-// Producer Threads call:         'arrive()' or 'countDown(n)'
-// Consumer Threads call:         'wait()'
-// ProducerConsumer Threads call: 'arriveAndWait()'
+//: o Producer Threads call:         'arrive()' or 'countDown(n)'
+//:
+//: o Consumer Threads call:         'wait()'
+//:
+//: o ProducerConsumer Threads call: 'arriveAndWait()'
 //
 // In order to test that not a single thread in a "consumer group" passes the
-// latch before the synchronization point is reached the following strategy
-// is performed:
+// latch before the synchronization point is reached the following strategy is
+// performed:
 //
 // All threads will share the latch under test and an "atomic int".
 //
@@ -82,21 +84,17 @@ using namespace bsl;
 // [ 1] Latch(int count);
 // [ 1] ~Latch();
 //
-// MANIPULATORS
-// [  ] void tryWait();
+// MANIPULATORS (breathing tests, non-concurrent usage)
+// [ 2] void arrive();
+// [ 4] void arriveAndWait();
+// [ 1] void countDown(int n);
+// [ 5] void wait();
 //
 // ACCESSORS
 // [ 1] int currentCount() const;
+// [ 3] bool tryWait() const;
 //
-// Breathing tests and non-concurrent usage:
-// MANIPULATORS - MAIN PROCESS
-// [ 5] void wait();
-// [ 4] void arriveAndWait();
-// [ 1] void countDown(int n);
-// [ 2] void arrive();
-//
-// Interactions between manipulators:
-// MANIPULATORS - CONCURRENT USAGE
+// Interactions between manipulators, concurrent usage:
 // [12] countDown(int n); wait(); arriveAndWait();
 // [11] arrive();         wait(); arriveAndWait();
 // [10] countDown(int n); wait();
@@ -105,6 +103,7 @@ using namespace bsl;
 // [ 7] countDown(int n);
 // [ 6] arrive();
 // ----------------------------------------------------------------------------
+// [13] USAGE EXAMPLE
 
 // The following table shows how the three groups of threads described are
 // mixed together in each test case, where:
@@ -136,11 +135,6 @@ using namespace bsl;
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-
-bool verbose             = false;
-bool veryVerbose         = false;
-bool veryVeryVerbose     = false;
-bool veryVeryVeryVerbose = false;
 
 namespace {
 
@@ -210,10 +204,15 @@ typedef bslmt::Latch Obj;
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+bool verbose             = false;
+bool veryVerbose         = false;
+bool veryVeryVerbose     = false;
+bool veryVeryVeryVerbose = false;
+
 class Thread {
-    // This class is used to facilitate the launch of a thread.  Derived
-    // classes must implement the 'mainLoop' 'virtual' function.  See its
-    // contract below.
+    // This class facilitates the launching of a thread.  Derived classes must
+    // implement the (pure) 'virtual' 'mainLoop' function.  See the contract
+    // of 'mainLoop' below.
 
   private:
     // NOT IMPLEMENTED
@@ -235,6 +234,11 @@ class Thread {
 
     // MANIPULATORS
     void callable()
+        // Invoke the ('virtual') 'mainLoop' method repeatedly until 'mainLoop'
+        // returns a non-zero value.  Note that this method serves as the entry
+        // point for this 'Thread' object.  Also note that this method prints
+        // the exit status of 'mainLoop' to 'bsl::cout' in 'veryVeryVerbose'
+        // mode.
     {
         int rc = -1;
 
@@ -268,28 +272,33 @@ class ThreadBinder {
     // 'Thread' member function.
 
     // DATA
-    void (Thread::*d_memfn_p)();  // member function to invoke (not owned)
-    Thread *d_thread_p;           // object on which to invoke it (not owned)
+    void (Thread::*d_memFunc)();  // member function to invoke (not owned)
+    Thread        *d_thread_p;    // object on which to invoke it (not owned)
 
   public:
     // CREATORS
-    ThreadBinder(void (Thread::*memfnPtr)(), Thread *threadPtr)
-    : d_memfn_p(memfnPtr)
+    ThreadBinder(void (Thread::*memberFunction)(), Thread *threadPtr)
+        // Create a 'ThreadBinder' object that binds the specified
+        // 'memberFunction' and 'threadPtr'.
+    : d_memFunc(memberFunction)
     , d_thread_p(threadPtr)
     {
     }
 
     // MANIPULATORS
     void operator()()
+        // Invoke the member function on the 'Thread' object that were supplied
+        // at construction.
     {
-        (d_thread_p->*d_memfn_p)();
+        (d_thread_p->*d_memFunc)();
     }
 };
 
 class ThreadGroup {
+    // This class provides a simple wrapper around 'bslmt::ThreadGroup'.
 
     // DATA
-    bslmt::ThreadGroup theGroup;
+    bslmt::ThreadGroup d_theGroup;
 
   private:
     // NOT IMPLEMENTED
@@ -299,13 +308,16 @@ class ThreadGroup {
   public:
     // CREATORS
     ThreadGroup()
-    : theGroup()
+        // Create a 'ThreadGroup' object.
+    : d_theGroup()
     {
     }
 
     ~ThreadGroup()
+        // Destroy this object after first joining all threads of this
+        // 'ThreadGroup' that are still active (if any).
     {
-        if (theGroup.numThreads() > 0) {
+        if (d_theGroup.numThreads() > 0) {
             std::cout << "A 'ThreadGroup' is being destroyed with active "
                       << "threads.  Joining them." << std::endl;
             join();
@@ -313,14 +325,18 @@ class ThreadGroup {
     }
 
     // MANIPULATORS
-    void createThread(Thread& aThread)
+    void addThread(Thread& thread)
+        // Add to this thread group the specified 'thread' whose entry point is
+        // the 'Thread::callable' member function.
     {
-        theGroup.addThread(ThreadBinder(&Thread::callable, &aThread));
+        d_theGroup.addThread(ThreadBinder(&Thread::callable, &thread));
     }
 
     void join()
+        // Join all threads of this 'ThreadGroup' that are still active (if
+        // any).
     {
-        theGroup.joinAll();
+        d_theGroup.joinAll();
     }
 };
 
@@ -430,38 +446,43 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
                                    bslmt::Latch *,
                                    const double *,
                                    const double *,
-                                   int);
+                                   int           );
 
       private:
         // DATA
         FREE_FUNCTION *d_func_p;
-        double        *d_arg1;
-        bslmt::Latch  *d_arg2;
-        const double  *d_arg3;
-        const double  *d_arg4;
+        double        *d_arg1_p;
+        bslmt::Latch  *d_arg2_p;
+        const double  *d_arg3_p;
+        const double  *d_arg4_p;
         int            d_arg5;
 
       public:
         // CREATORS
-        UsageBinder(FREE_FUNCTION *funcPtr,
-                    double        *arg1,
-                    bslmt::Latch  *arg2,
-                    const double  *arg3,
-                    const double  *arg4,
+        UsageBinder(FREE_FUNCTION *functionPtr,
+                    double        *arg1Ptr,
+                    bslmt::Latch  *arg2Ptr,
+                    const double  *arg3Ptr,
+                    const double  *arg4Ptr,
                     int            arg5)
-        : d_func_p(funcPtr)
-        , d_arg1(arg1)
-        , d_arg2(arg2)
-        , d_arg3(arg3)
-        , d_arg4(arg4)
+            // Create a 'UsageBinder' object that binds the specified
+            // 'functionPtr' to the specified 'arg1Ptr', 'arg2Ptr', 'arg3Ptr',
+            // 'arg4Ptr', and 'arg5' arguments.
+        : d_func_p(functionPtr)
+        , d_arg1_p(arg1Ptr)
+        , d_arg2_p(arg2Ptr)
+        , d_arg3_p(arg3Ptr)
+        , d_arg4_p(arg4Ptr)
         , d_arg5(arg5)
         {
         }
 
         // MANIPULATORS
         void operator()()
+            // Invoke the function that was supplied at construction on the
+            // arguments that were supplied at construction.
         {
-            (*d_func_p)(d_arg1, d_arg2, d_arg3, d_arg4, d_arg5);
+            (*d_func_p)(d_arg1_p, d_arg2_p, d_arg3_p, d_arg4_p, d_arg5);
         }
     };
 //..
@@ -527,7 +548,7 @@ void FixedThreadPool::enqueueJob(const bsl::function<void()>& job)
     bslmt::ThreadUtil::detach(handle);
 }
 
-}  // namespace BSLMT_USAGE_EXAMPLE_1
+}  // close namespace BSLMT_USAGE_EXAMPLE_1
 
 // ----------------------------------------------------------------------------
 //                              HELPER FUNCTIONS
@@ -550,6 +571,7 @@ class IndependentLinearValue {
 
   public:
     IndependentLinearValue()
+        // Create an 'IndependentLinearValue' object having the default value.
     : d_lock(bsls::SpinLock::s_unlocked)
     , d_value(0)
     {
@@ -557,6 +579,8 @@ class IndependentLinearValue {
 
     // MANIPULATORS
     void inc()
+        // Atomically increment the value of this 'IndependentLinearValue'
+        // object.
     {
         bsls::SpinLockGuard guard(&d_lock);
 
@@ -564,6 +588,8 @@ class IndependentLinearValue {
     }
 
     void mult()
+        // Atomically multiply the value of this 'IndependentLinearValue'
+        // object by a factor of 2.
     {
         bsls::SpinLockGuard guard(&d_lock);
 
@@ -571,6 +597,7 @@ class IndependentLinearValue {
     }
 
     int value() const
+        // Return the current value of this 'IndependentLinearValue' object.
     {
         return d_value;
     }
@@ -578,160 +605,223 @@ class IndependentLinearValue {
 
 class ThreadTest : public Thread {
 
-  protected:
     // DATA
-    bslmt::Latch&           theLatch;
-    bslmt::Barrier&         theBarrier;
-    IndependentLinearValue& theValue;
+    bslmt::Latch&           d_theLatch;
+    bslmt::Barrier&         d_theBarrier;
+    IndependentLinearValue& d_theValue;
+
+    // FRIENDS
+    friend class ThreadProducerArrive;
+    friend class ThreadProducerCountDown;
+    friend class ThreadConsumer;
+    friend class ThreadProducerConsumer;
 
   public:
     // CREATORS
-    ThreadTest(bslmt::Latch&           aLatch,
-               bslmt::Barrier&         aBarrier,
-               IndependentLinearValue& aValue)
+    ThreadTest(bslmt::Latch&           latch,
+               bslmt::Barrier&         barrier,
+               IndependentLinearValue& value)
+        // Create a 'ThreadTest' object that uses the specified 'latch',
+        // 'barrier', and 'value'.
     : Thread()
-    , theLatch(aLatch)
-    , theBarrier(aBarrier)
-    , theValue(aValue)
+    , d_theLatch(latch)
+    , d_theBarrier(barrier)
+    , d_theValue(value)
     {
     }
 };
 
 class ThreadProducerArrive : public ThreadTest {
+    // Instances of this class execute the following operations (in the order
+    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
+    // supplied at construction:
+    //..
+    //  barrier.wait();
+    //  value.inc();
+    //  latch.arrive();
+    //..
+    // This sequence of operations is intended to be run concurrently with
+    // those of other test objects.
 
   public:
     // CREATORS
-    ThreadProducerArrive(bslmt::Latch&           aLatch,
-                         bslmt::Barrier&         aBarrier,
-                         IndependentLinearValue& aValue)
-    : ThreadTest(aLatch, aBarrier, aValue)
+    ThreadProducerArrive(bslmt::Latch&           latch,
+                         bslmt::Barrier&         barrier,
+                         IndependentLinearValue& value)
+        // Create a 'ThreadProducerArrive' object that uses the specified
+        // 'latch', 'barrier', and 'value'.
+    : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
     virtual int mainLoop()
+        // Execute the sequence of operations specific to a
+        // 'ThreadProducerArrive' object, and return 1.
     {
-        theBarrier.wait();
-        theValue.inc();
-        theLatch.arrive();
+        d_theBarrier.wait();
+        d_theValue.inc();
+        d_theLatch.arrive();
 
         return 1;
     }
 };
 
 class ThreadProducerCountDown : public ThreadTest {
+    // Instances of this class execute the following operations (in the order
+    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
+    // supplied at construction:
+    //..
+    //  barrier.wait();
+    //  value.inc();
+    //  latch.countDown(1);
+    //..
+    // This sequence of operations is intended to be run concurrently with
+    // those of other test objects.
 
   public:
     // CREATORS
-    ThreadProducerCountDown(bslmt::Latch&           aLatch,
-                            bslmt::Barrier&         aBarrier,
-                            IndependentLinearValue& aValue)
-    : ThreadTest(aLatch, aBarrier, aValue)
+    ThreadProducerCountDown(bslmt::Latch&           latch,
+                            bslmt::Barrier&         barrier,
+                            IndependentLinearValue& value)
+        // Create a 'ThreadProducerCountDown' object that uses the specified
+        // 'latch', 'barrier', and 'value'.
+    : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
     virtual int mainLoop()
+        // Execute the sequence of operations specific to a
+        // 'ThreadProducerCountDown' object, and return 1.
     {
-        theBarrier.wait();
-        theValue.inc();
-        theLatch.countDown(1);
+        d_theBarrier.wait();
+        d_theValue.inc();
+        d_theLatch.countDown(1);
 
         return 1;
     }
 };
 
 class ThreadConsumer : public ThreadTest {
+    // Instances of this class execute the following operations (in the order
+    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
+    // supplied at construction:
+    //..
+    //  barrier.wait();
+    //  latch.wait();
+    //  value.mult();
+    //..
+    // This sequence of operations is intended to be run concurrently with
+    // those of other test objects.
 
   public:
     // CREATORS
-    ThreadConsumer(bslmt::Latch&           aLatch,
-                   bslmt::Barrier&         aBarrier,
-                   IndependentLinearValue& aValue)
-    : ThreadTest(aLatch, aBarrier, aValue)
+    ThreadConsumer(bslmt::Latch&           latch,
+                   bslmt::Barrier&         barrier,
+                   IndependentLinearValue& value)
+        // Create a 'ThreadConsumer' object that uses the specified 'latch',
+        // 'barrier', and 'value'.
+    : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
     virtual int mainLoop()
+        // Execute the sequence of operations specific to a 'ThreadConsumer'
+        // object, and return 1.
     {
-        theBarrier.wait();
-        theLatch.wait();
-        theValue.mult();
+        d_theBarrier.wait();
+        d_theLatch.wait();
+        d_theValue.mult();
 
         return 1;
     }
 };
 
 class ThreadProducerConsumer : public ThreadTest {
+    // Instances of this class execute the following operations (in the order
+    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
+    // supplied at construction:
+    //..
+    //  barrier.wait();
+    //  value.inc();
+    //  latch.arriveAndWait();
+    //  value.mult();
+    //..
+    // This sequence of operations is intended to be run concurrently with
+    // those of other test objects.
 
   public:
     // CREATORS
-    ThreadProducerConsumer(bslmt::Latch&           aLatch,
-                           bslmt::Barrier&         aBarrier,
-                           IndependentLinearValue& aValue)
-    : ThreadTest(aLatch, aBarrier, aValue)
+    ThreadProducerConsumer(bslmt::Latch&           latch,
+                           bslmt::Barrier&         barrier,
+                           IndependentLinearValue& value)
+        // Create a 'ThreadProducerConsumer' object that uses the specified
+        // 'latch', 'barrier', and 'value'.
+    : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
     virtual int mainLoop()
+        // Execute the sequence of operations specific to a
+        // 'ThreadProducerConsumer' object, and return 1.
     {
-        theBarrier.wait();
-        theValue.inc();
-        theLatch.arriveAndWait();
-        theValue.mult();
+        d_theBarrier.wait();
+        d_theValue.inc();
+        d_theLatch.arriveAndWait();
+        d_theValue.mult();
 
         return 1;
     }
 };
 
 template <class PRODUCER, class CONSUMER, class PRODUCERCONSUMER>
-void test(int aProducersNumber,
-          int aConsumersNumber,
-          int aProducerConsumerNumber)
+void test(int numProducers, int numConsumers, int numProducerConsumers)
+    // Execute, concurrently, the specified 'numProducers' of type 'PRODUCER',
+    // the specified 'numConsumers' of type 'CONSUMER', and the specified
+    // 'numProducerConsumers' of type 'PRODUCERCONSUMER'.
 {
     if (veryVerbose) {
         cout << "Testing: "
-             << aConsumersNumber << " consumers vs. "
-             << aProducersNumber << " producers vs. "
-             << aProducerConsumerNumber << " producers-consumer" << endl;
+             << numConsumers         << " consumers vs. "
+             << numProducers         << " producers vs. "
+             << numProducerConsumers << " producer-consumers" << endl;
     }
 
     IndependentLinearValue myInt;  // This will contain the result.
 
-    const int myProducersAmount = aProducersNumber + aProducerConsumerNumber;
-    const int myConsumersAmount = aConsumersNumber + aProducerConsumerNumber;
+    const int myProducersAmount = numProducers + numProducerConsumers;
+    const int myConsumersAmount = numConsumers + numProducerConsumers;
 
     // Latch under test.
     bslmt::Latch myLatch(myProducersAmount);
 
     // This barrier enables all threads to start at the same time to maximize
     // parallelism.
-    bslmt::Barrier myBarrier(aProducersNumber +
-                             aConsumersNumber +
-                             aProducerConsumerNumber);
+    bslmt::Barrier myBarrier(numProducers
+                           + numConsumers
+                           + numProducerConsumers);
 
     bsl::vector<Thread *> myThreads;
-    myThreads.reserve(aProducersNumber +
-                      aConsumersNumber +
-                      aProducerConsumerNumber);
+    myThreads.reserve(numProducers + numConsumers + numProducerConsumers);
 
-    // producers
+    // create producers
 
-    for (int i = 0; i < aProducersNumber; ++i) {
+    for (int i = 0; i < numProducers; ++i) {
         myThreads.push_back(new PRODUCER(myLatch, myBarrier, myInt));
     }
 
-    // consumers
+    // create consumers
 
-    for (int i = 0; i < aConsumersNumber; ++i) {
+    for (int i = 0; i < numConsumers; ++i) {
         myThreads.push_back(new CONSUMER(myLatch, myBarrier, myInt));
     }
 
-    // producer/consumers
+    // create producer-consumers
 
-    for (int i = 0; i < aProducerConsumerNumber; ++i) {
+    for (int i = 0; i < numProducerConsumers; ++i) {
         myThreads.push_back(new PRODUCERCONSUMER(myLatch, myBarrier, myInt));
     }
 
@@ -741,7 +831,7 @@ void test(int aProducersNumber,
     // doing their job until the last one is started.
 
     for (size_t i = 0; i < myThreads.size(); ++i) {
-        myGroup.createThread(*myThreads[i]);
+        myGroup.addThread(*myThreads[i]);
     }
 
     myGroup.join();
@@ -837,7 +927,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // PRODUCERS(C-D), CONSUMERS AND PRODUCERS-CONSUMERS
+        // PRODUCERS(C-D), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
         // Concerns:
         //: 1 The latch must be a pass-through for 'countDown(n)' callers.
@@ -856,22 +946,20 @@ int main(int argc, char *argv[])
         //:
         //: 3 The second group will call 'wait()'.
         //:
-        //: 3 The third group will call 'arriveWait()'.
+        //: 3 The third group will call 'arriveAndWait()'.
         //:
         //: 4 Verify that the operation produces the expected result (see the
         //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //   void countDown(int n);
-        //   void wait();
-        //   void arriveAndWait();
+        //   countDown(int n); wait(); arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PRODUCERS(C-D), CONSUMERS AND PRODUCERS-CONSUMERS"
+                 << "PRODUCERS(C-D), CONSUMERS, AND PRODUCERS-CONSUMERS"
                  << endl
-                 << "================================================="
+                 << "=================================================="
                  << endl;
 
         for (int i = 1; i <= threadsAmount / 3; ++i) {
@@ -887,7 +975,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // PRODUCERS(ARRIVE), CONSUMERS AND PRODUCERS-CONSUMERS
+        // PRODUCERS(ARRIVE), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
         // Concerns:
         //: 1 The latch must be a pass-through for 'arrive()' callers.
@@ -906,22 +994,20 @@ int main(int argc, char *argv[])
         //:
         //: 3 The second group will call 'wait()'.
         //:
-        //: 4 The third group will call 'arriveWait()'.
+        //: 4 The third group will call 'arriveAndWait()'.
         //:
         //: 5 Verify that the operation produces the expected result (see the
         //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //   void arrive();
-        //   void wait();
-        //   void arriveAndWait();
+        //   arrive();         wait(); arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "PRODUCERS(ARRIVE), CONSUMERS AND PRODUCERS-CONSUMERS"
+                 << "PRODUCERS(ARRIVE), CONSUMERS, AND PRODUCERS-CONSUMERS"
                  << endl
-                 << "===================================================="
+                 << "====================================================="
                  << endl;
 
         for (int i = 1; i <= threadsAmount/3; ++i) {
@@ -959,8 +1045,7 @@ int main(int argc, char *argv[])
         //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //   void countDown(int n);
-        //   void wait();
+        //   countDown(int n); wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1000,8 +1085,7 @@ int main(int argc, char *argv[])
         //:   test plan overview).  (C-1..3)
         //
         // Testing:
-        //   void arrive();
-        //   void wait();
+        //   arrive();         wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1035,7 +1119,7 @@ int main(int argc, char *argv[])
         //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //   void arriveAndWait();
+        //   arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1067,7 +1151,7 @@ int main(int argc, char *argv[])
         //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //   void countDown(int n);
+        //   countDown(int n);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1099,7 +1183,7 @@ int main(int argc, char *argv[])
         //:   test plan overview).  (C-1..2)
         //
         // Testing:
-        //   void arrive();
+        //   arrive();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1115,7 +1199,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // WAIT
+        // TESTING 'wait'
         //
         // Concerns:
         //: 1 A latch built with 0 has already reached the synchronization
@@ -1132,8 +1216,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "WAIT" << endl
-                          << "====" << endl;
+                          << "TESTING 'wait'" << endl
+                          << "==============" << endl;
 
         bslmt::Latch myLatch(0);
         myLatch.wait();
@@ -1141,7 +1225,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // ARRIVE AND WAIT
+        // TESTING 'arriveAndWait'
         //
         // Concerns:
         //: 1 A latch built with 1 will permit a single thread to not block
@@ -1159,8 +1243,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ARRIVE AND WAIT" << endl
-                          << "===============" << endl;
+                          << "TESTING 'arriveAndWait'" << endl
+                          << "=======================" << endl;
 
         bslmt::Latch myLatch(1);
 
@@ -1173,7 +1257,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'tryWait'
+        // TESTING 'tryWait'
         //
         // Concerns:
         //: 1 'tryWait' returns 'false' if the latch has not been released.
@@ -1185,12 +1269,12 @@ int main(int argc, char *argv[])
         //:   and verifying the result of 'tryWait'.  (C-1..2)
         //
         // Testing:
-        //   void countDown(int n);
+        //   bool tryWait() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESITNG: 'tryWait'" << endl
-                          << "==================" << endl;
+                          << "TESTING 'tryWait'" << endl
+                          << "=================" << endl;
 
         {
             {
@@ -1214,7 +1298,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // ARRIVE
+        // TESTING 'arrive'
         //
         // Concerns:
         //: 1 A latch built with 'x' will need (at least) a sequence of 'x'
@@ -1232,8 +1316,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ARRIVE" << endl
-                          << "======" << endl;
+                          << "TESTING 'arrive'" << endl
+                          << "================" << endl;
 
         bslmt::Latch myLatch(3);
         {
@@ -1267,7 +1351,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING: DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS
+        // DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS
         //
         // Concerns:
         //: 1 That after construction the current count of a latch is the
@@ -1300,12 +1384,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
              << endl
-             << "TESTING DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS" << endl
-             << "====================================================" << endl;
+             << "DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS" << endl
+             << "============================================" << endl;
 
         if (verbose) cout << "\nCheck value constructor." << endl;
 
         for (int i = 0; i < 10; ++i) {
+            if (veryVerbose) { T_ P(i); }
+
             const Obj X(i);
 
             ASSERT(i == X.currentCount());
@@ -1314,11 +1400,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nCheck 'countDown'." << endl;
 
         for (int stepSize = 1; stepSize < 10; ++stepSize) {
+            if (veryVerbose) { T_ P(stepSize); }
+
             for (int initialCount = 1; initialCount < 100; ++initialCount) {
+                if (veryVeryVerbose) { T_ T_ P(initialCount); }
+
                 Obj mX(initialCount);  const Obj &X = mX;
 
                 int count = initialCount;
                 while (count > 0) {
+                    if (veryVeryVeryVerbose) { T_ T_ T_ P(count); }
+
                     int step = bsl::min(stepSize, count);
                     count -= step;
 
