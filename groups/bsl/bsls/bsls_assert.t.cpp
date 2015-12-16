@@ -102,6 +102,21 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 
+// 64 bytes on sun dbg_exc_mt_safe
+// 60 bytes on sun opt_exc_mt_safe
+void fnWithAssertOpt()
+{
+    BSLS_ASSERT_OPT(testStatus == 0);
+}
+
+// 48 bytes on sun dbg_exc_mt_safe
+// 48 bytes on sun opt_exc_mt_safe
+void fnWithAssertSafe()
+{
+    BSLS_ASSERT_SAFE(testStatus == 0);
+}
+
+
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
@@ -226,7 +241,22 @@ static void testDriverHandler(const char *text, const char *file, int line)
     // defined; otherwise, abort the program.
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** testDriverHandler: "; P_(text) P_(file) P(line)
+        cout << "*** testDriverHandler: ";
+        if(text) {
+            P_(text)
+        }
+        else {
+            P_("(***unspecified text***)")
+        }
+
+        if(file) {
+            P_(file)
+        }
+        else {
+            P_("(***unspecified file***)")
+        }
+
+        P(line)
     }
 
     globalAssertFiredFlag = true;
@@ -1986,6 +2016,22 @@ int main(int argc, char *argv[])
         bsls::Assert::failSleep("0 != 0", "myfile.cpp", 123);
 
         ASSERT(0 && "Should not be reached");
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // CALL 'fnWithAssertOpt' AND 'fnWithAssertSafe'
+        //
+        // Concerns:
+        //   1. That 'fnWithAssertOpt' and 'fnWithAssertSafe' are called.
+        //
+        // Plan:
+        //   Call 'fnWithAssertOpt' and 'fnWithAssertSafe' so they wind up in
+        //   the object for disassembly.
+        //
+        // --------------------------------------------------------------------
+
+        fnWithAssertOpt();
+        fnWithAssertSafe();
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

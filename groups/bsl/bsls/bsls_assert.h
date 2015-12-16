@@ -1225,6 +1225,11 @@ BSLS_IDENT("$Id: $")
         }                                                                    \
     } while (false)
 
+#define BSLS_ASSERT_ASSERT_SAFE(X)                                           \
+        if (!(X)) {                                                          \
+            BloombergLP::bsls::Assert::invokeHandler(0, 0, __LINE__);        \
+        }
+
                         // ================
                         // BSLS_ASSERT_SAFE
                         // ================
@@ -1242,7 +1247,7 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT_SAFE' accordingly.
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT_SAFE(X)
 #else
     #define BSLS_ASSERT_SAFE(X)
 #endif
