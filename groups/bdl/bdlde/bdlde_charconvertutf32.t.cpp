@@ -35,6 +35,7 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+using bsl::size_t;
 
 // ============================================================================
 //                                TEST PLAN
@@ -2128,7 +2129,7 @@ class PaddedStringRef {
         // Create a 'PaddedStringRef' referring to an internal copy of the
         // specified null-terminated 'zStr'.
     {
-        int len = bsl::strlen(zStr);
+        bsl::size_t len = bsl::strlen(zStr);
         d_str.reserve(len + 4);
         d_str.assign(bslstl::StringRef(zStr, zStr + len));
         d_str += "woof";
@@ -2733,113 +2734,114 @@ int main(int argc, char **argv)
         if (verbose) cout << "USAGE EXAMPLE\n"
                              "=============\n";
 
-        // The following snippets of code illustrate a typical use of the
-        // 'bdlde::CharConvertUtf32' struct's utility functions, first
-        // converting from UTF-8 to UTF-32, and then converting back to make
-        // sure the round trip returns the same value.
-
-        // First, we declare a string of UTF-8 containing single-, double-,
-        // triple-, and quadruple-octet characters:
-
-        const char utf8MultiLang[] = {
-            "Hello"                                         // -- ASCII
-            "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
-            "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
-            "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
-            "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
-
-        // Then, we declare an enum summarizing the counts of characters in the
-        // string and verify that the counts add up to the length of the
-        // string:
-
-        enum { NUM_ASCII_CHARS   = 5,
-               NUM_GREEK_CHARS   = 3,
-               NUM_CHINESE_CHARS = 2,
-               NUM_HINDI_CHARS   = 2,
-               NUM_QUAD_CHARS    = 2 };
-
-        ASSERT(1 * NUM_ASCII_CHARS +
-               2 * NUM_GREEK_CHARS +
-               3 * NUM_CHINESE_CHARS +
-               3 * NUM_HINDI_CHARS +
-               4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
-
-        // Next, we declare the vector where our UTF-32 output will go, and a
-        // variable into which the number of characters (characters, not bytes
-        // or words) written will be stored.  It is not necessary to initialize
-        // 'utf32CharsWritten':
-
-        bsl::vector<unsigned int> v32;
-
-        // Note that it is a waste of time to
-        // 'v32.reserve(sizeof(utf8MultiLang))', it is entirely redundant --
-        // 'v32' will automatically be grown to the correct size.  Also note
-        // that if 'v32' were not empty, that would not be a problem -- any
-        // contents will be discarded.
-
-        // Then, we do the translation to 'UTF-32':
-
-        int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
-                                                          utf8MultiLang);
-
-        ASSERT(0 == retVal);        // verify success
-        ASSERT(0 == v32.back());    // verify null terminated
-
-        // Next, we verify that the number of characters (characters, not bytes
-        // or words) that was returned is correct.  Note that in UTF-32, the
-        // number of Unicode characters written is the same as the number of
-        // 32-bit words written:
-
-        enum { EXPECTED_CHARS_WRITTEN =
-                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
-                        NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
-        ASSERT(EXPECTED_CHARS_WRITTEN == v32.size());
-
-        // Next, we calculate and confirm the difference between the number of
-        // UTF-32 words output and the number of bytes input.  The ASCII
-        // characters will take 1 32-bit word apiece, the Greek characters are
-        // double octets that will become single 'unsigned int' values, the
-        // Chinese characters are encoded as UTF-8 triple octets that will turn
-        // into single 32-bit words, the same for the Hindi characters, and the
-        // quad characters are quadruple octets that will turn into single
-        // 'unsigned int' words:
-
-        enum { SHRINKAGE =
-                          NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
-                          NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
-                          NUM_QUAD_CHARS    * (4-1) };
-
-        ASSERT(v32.size() == sizeof(utf8MultiLang) - SHRINKAGE);
-
-        // Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it
-        // back into UTF-8, and we should get a result identical to our
-        // original input.  Declare a 'bsl::string' for our output, and a
-        // variable to count the number of characters (characters, not bytes or
-        // words) translated:
-
-        bsl::string s;
-        bsl::size_t utf8CharsWritten;
-
-        // Again, note that it would be a waste of time for the caller to
-        // 'resize' or 'reserve' 'v32', it will be automatically 'resize'd by
-        // the translator to the right length.
-
-        // Now, we do the reverse transform:
-
-        retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
-                                                      v32.begin(),
-                                                      &utf8CharsWritten);
-
-        // Finally, we verify that a successful status was returned, that the
-        // output of the reverse transform was identical to the original input,
-        // and that the number of chars translated was as expected:
-
-        ASSERT(0 == retVal);
-        ASSERT(utf8MultiLang == s);
-        ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
-
-        ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
-        ASSERT(v32.size()             == utf8CharsWritten);
+// The following snippets of code illustrate a typical use of the
+// 'bdlde::CharConvertUtf32' struct's utility functions, first converting from
+// UTF-8 to UTF-32, and then converting back to make sure the round trip
+// returns the same value.
+//
+// First, we declare a string of UTF-8 containing single-, double-, triple-,
+// and quadruple-octet characters:
+//..
+    const char utf8MultiLang[] = {
+        "Hello"                                         // -- ASCII
+        "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+        "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+        "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+        "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
+//..
+// Then, we declare an enum summarizing the counts of characters in the string
+// and verify that the counts add up to the length of the string:
+//..
+    enum { NUM_ASCII_CODE_POINTS   = 5,
+           NUM_GREEK_CODE_POINTS   = 3,
+           NUM_CHINESE_CODE_POINTS = 2,
+           NUM_HINDI_CODE_POINTS   = 2,
+           NUM_QUAD_CODE_POINTS    = 2 };
+//
+    ASSERT(1 * NUM_ASCII_CODE_POINTS +
+           2 * NUM_GREEK_CODE_POINTS +
+           3 * NUM_CHINESE_CODE_POINTS +
+           3 * NUM_HINDI_CODE_POINTS +
+           4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
+//..
+// Next, we declare the vector where our UTF-32 output will go, and a variable
+// into which the number of characters (characters, not bytes or words) written
+// will be stored.  It is not necessary to initialize 'utf32CharsWritten':
+//..
+    bsl::vector<unsigned int> v32;
+//..
+// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))', it
+// is entirely redundant -- 'v32' will automatically be grown to the correct
+// size.  Also note that if 'v32' were not empty, that would not be a problem
+// -- any contents will be discarded.
+//
+// Then, we do the translation to 'UTF-32':
+//..
+    int retVal = bdlde::CharConvertUtf32::utf8ToUtf32(&v32,
+                                                      utf8MultiLang);
+//
+    ASSERT(0 == retVal);        // verify success
+    ASSERT(0 == v32.back());    // verify null terminated
+//..
+// Next, we verify that the number of characters (characters, not bytes or
+// words) that was returned is correct.  Note that in UTF-32, the number of
+// Unicode characters written is the same as the number of 32-bit words
+// written:
+//..
+    enum { EXPECTED_CODE_POINTS_WRITTEN =
+                    NUM_ASCII_CODE_POINTS +
+                    NUM_GREEK_CODE_POINTS +
+                    NUM_CHINESE_CODE_POINTS +
+                    NUM_HINDI_CODE_POINTS +
+                    NUM_QUAD_CODE_POINTS  + 1 };
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == v32.size());
+//..
+// Next, we calculate and confirm the difference between the number of UTF-32
+// words output and the number of bytes input.  The ASCII characters will take
+// 1 32-bit word apiece, the Greek characters are double octets that will
+// become single 'unsigned int' values, the Chinese characters are encoded as
+// UTF-8 triple octets that will turn into single 32-bit words, the same for
+// the Hindi characters, and the quad characters are quadruple octets that will
+// turn into single 'unsigned int' words:
+//..
+    enum { SHRINKAGE =
+                      NUM_ASCII_CODE_POINTS   * (1-1) +
+                      NUM_GREEK_CODE_POINTS   * (2-1) +
+                      NUM_CHINESE_CODE_POINTS * (3-1) +
+                      NUM_HINDI_CODE_POINTS   * (3-1) +
+                      NUM_QUAD_CODE_POINTS    * (4-1) };
+//
+    ASSERT(v32.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+//..
+// Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it back
+// into UTF-8, and we should get a result identical to our original input.
+// Declare a 'bsl::string' for our output, and a variable to count the number
+// of characters (characters, not bytes or words) translated:
+//..
+    bsl::string s;
+    bsl::size_t codePointsWritten;
+//..
+// Again, note that it would be a waste of time for the caller to 'resize' or
+// 'reserve' 'v32', it will be automatically 'resize'd by the translator to the
+// right length.
+//
+// Now, we do the reverse transform:
+//..
+    retVal = bdlde::CharConvertUtf32::utf32ToUtf8(&s,
+                                                  v32.begin(),
+                                                  &codePointsWritten);
+//..
+// Finally, we verify that a successful status was returned, that the output of
+// the reverse transform was identical to the original input, and that the
+// number of chars translated was as expected:
+//..
+    ASSERT(0 == retVal);
+    ASSERT(utf8MultiLang  == s);
+    ASSERT(s.length() + 1 == sizeof(utf8MultiLang));
+//
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == codePointsWritten);
+    ASSERT(v32.size()                   == codePointsWritten);
+//..
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -3294,7 +3296,7 @@ int main(int argc, char **argv)
                         else {
                             const char *utf8Seq =
                                                utf8Table[idx].d_utf8String + 1;
-                            unsigned seqlen = bsl::strlen(utf8Seq) - 1;
+                            bsl::size_t seqlen = bsl::strlen(utf8Seq) - 1;
                             ASSERT(seqlen <= 5);
                             ASSERT(seqlen >= 1);
                             bsl::memcpy(pc, utf8Seq, seqlen);
@@ -3606,7 +3608,7 @@ int main(int argc, char **argv)
                     ASSERT(ncw <= len);
                     ASSERT(nbw <= MAX_UTF8_BYTES_WRITTEN);
                     ASSERT(nbw <= len);
-                    ASSERT(nbw >= (unsigned) bsl::max<int>(len - 4, 0));
+                    ASSERT(nbw >= (unsigned) bsl::max<IntPtr>(len - 4, 0));
                     ASSERT(utf8OutBuf + sizeof(utf8OutBuf) ==
                                   bsl::find_if(utf8OutBuf + nbw,
                                                utf8OutBuf + sizeof(utf8OutBuf),
@@ -3723,7 +3725,7 @@ int main(int argc, char **argv)
 
             if (veryVerbose) Q(UTF-32 -> UTF-8 Buffer);
 
-            for (int len = utf8OutVec.size() + 1; len >= 0; --len) {
+            for (IntPtr len = utf8OutVec.size() + 1; len >= 0; --len) {
                 bufferVec.clear();
                 bufferVec.resize(utf8OutVec.size() + 4, fillByte);
 
@@ -3865,7 +3867,7 @@ int main(int argc, char **argv)
 
             if (veryVerbose) Q(UTF-32 -> UTF-8 Buffer);
 
-            for (int len = utf8OutVec.size() + 1; len >= 2; --len) {
+            for (IntPtr len = utf8OutVec.size() + 1; len >= 2; --len) {
                 bufferVec.clear();
                 bufferVec.resize(utf8OutVec.size() + 4, fillByte);
 
@@ -3926,7 +3928,7 @@ int main(int argc, char **argv)
         if (verbose) cout << "REAL PROSE TEST\n"
                              "===============\n";
 
-        const unsigned origLen = bsl::strlen(charUtf8MultiLang);
+        const bsl::size_t origLen = bsl::strlen(charUtf8MultiLang);
         ASSERT(origLen > 1000);
 
         if (verbose) P(origLen);
@@ -4457,11 +4459,11 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                const unsigned int cvs = compareVec.size();
-                const unsigned enc = len >= cvs   ? expectedNumChars
-                                   : len == cvs-1 ? expectedNumChars - 1
-                                   : len >= 2     ? 2
-                                   :                len;
+                const bsl::size_t cvs = compareVec.size();
+                const bsl::size_t enc = len >= cvs   ? expectedNumChars
+                                      : len == cvs-1 ? expectedNumChars - 1
+                                      : len >= 2     ? 2
+                                      :                len;
                 ASSERT(expectedNumChars <= 4);
                 const bsl::size_t expectedNumBytes =
                                    enc <= 2                    ? enc
@@ -4578,10 +4580,10 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                const unsigned int cvs = compareVec.size();
-                const unsigned enc = len >= cvs     ? expectedNumChars
-                                   : len == cvs - 1 ? expectedNumChars - 1
-                                   :                  !!len;
+                const bsl::size_t cvs = compareVec.size();
+                const bsl::size_t enc = len >= cvs     ? expectedNumChars
+                                      : len == cvs - 1 ? expectedNumChars - 1
+                                      :                  !!len;
                 ASSERT(expectedNumChars <= 3);
                 const bsl::size_t expectedNumBytes =
                                           enc == expectedNumChars     ? cvs
@@ -4703,11 +4705,11 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                const unsigned int cvs = compareVec.size();
-                const unsigned enc = len >= cvs   ? expectedNumChars
-                                   : len == cvs-1 ? expectedNumChars - 1
-                                   : len >= 2     ? 2
-                                   :                len;
+                const bsl::size_t cvs = compareVec.size();
+                const bsl::size_t enc = len >= cvs   ? expectedNumChars
+                                      : len == cvs-1 ? expectedNumChars - 1
+                                      : len >= 2     ? 2
+                                      :                len;
                 ASSERT(expectedNumChars <= 3);
                 const bsl::size_t expectedNumBytes =
                                    enc <= 2                    ? enc
@@ -4827,9 +4829,9 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                const unsigned int cvs = compareVec.size();
-                const unsigned enc = len >= cvs   ? expectedNumChars
-                                   :                !!len;
+                const bsl::size_t cvs = compareVec.size();
+                const bsl::size_t enc = len >= cvs   ? expectedNumChars
+                                      :                !!len;
                 ASSERT(expectedNumChars <= 2);
                 const bsl::size_t expectedNumBytes =
                                                enc <  expectedNumChars ? !!enc
@@ -5009,7 +5011,7 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                const unsigned int cvs = compareVec.size();
+                const bsl::size_t cvs = compareVec.size();
                 const bsl::size_t expectedNumChars = len >= cvs   ? 4
                                                    : len == cvs-1 ? 3
                                                    : len >= 2     ? 2
@@ -5152,7 +5154,7 @@ int main(int argc, char **argv)
                 expectedRet |= len < compareVec.size()
                                           ? Status::k_OUT_OF_SPACE_BIT : 0;
 
-                const unsigned int cvs = compareVec.size();
+                const bsl::size_t cvs = compareVec.size();
                 const bsl::size_t expectedNumChars = len >= cvs   ? 3
                                                    : len == cvs-1 ? 2
                                                    : len >= 1     ? 1
@@ -5296,7 +5298,7 @@ int main(int argc, char **argv)
                                            ? Status::k_OUT_OF_SPACE_BIT
                                            : 0;
 
-                const unsigned int cvs = compareVec.size();
+                const bsl::size_t cvs = compareVec.size();
                 const bsl::size_t expectedNumChars = len >= cvs ? 3
                                                    : len >= 2   ? 2
                                                    :              len;
@@ -5448,7 +5450,7 @@ int main(int argc, char **argv)
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
-                    const unsigned int cvs = compareVec.size();
+                    const bsl::size_t cvs = compareVec.size();
                     const bsl::size_t expectedNumChars = len >= cvs   ? 2
                                                        : len >= 1     ? 1
                                                        :                0;
@@ -5576,7 +5578,7 @@ int main(int argc, char **argv)
                 ASSERT(expectedChars == outVec.size());
                 ASSERT(0 == outVec.back());
 
-                const int expectedMatch = 4 * sizeof(unsigned int);
+                const bsl::size_t expectedMatch = 4 * sizeof(unsigned int);
 
                 ASSERT(0 == bsl::memcmp(outVec.begin(), expectedOut,
                                                                expectedMatch));
@@ -5671,7 +5673,7 @@ int main(int argc, char **argv)
             LOOP3_ASSERT(LINE, expectedChars, outVec.size(),
                                                expectedChars == outVec.size());
             LOOP2_ASSERT(LINE, expectedChars, 0 == outVec.back());
-            int expectedMatch = expectedChars * sizeof(unsigned int);
+            bsl::size_t expectedMatch = expectedChars * sizeof(unsigned int);
             ASSERT(0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
 
@@ -5729,7 +5731,8 @@ int main(int argc, char **argv)
             ASSERT(expectedChars == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const int expectedMatch = expectedChars * sizeof(unsigned int);
+            const bsl::size_t expectedMatch = expectedChars *
+                                                          sizeof(unsigned int);
             ASSERT(0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
 
@@ -5789,7 +5792,7 @@ int main(int argc, char **argv)
             ASSERT(expectedChars == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const int expectedMatch = expectedChars * sizeof(unsigned int);
+            const size_t expectedMatch = expectedChars * sizeof(unsigned int);
             LOOP4_ASSERT(useStringRef, opposite, LINE, IS_ERROR,
                      0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
@@ -5828,7 +5831,7 @@ int main(int argc, char **argv)
             const bool fiveOctet = (UTF8_STRING[1] & 0xf8) == 0xf8;
             int expectedRet;
             unsigned expectedChars;
-            int expectedMatch;
+            size_t expectedMatch;
 
             switch (TRUNC_BY) {
               case 0: {
@@ -6086,7 +6089,7 @@ int main(int argc, char **argv)
                                bsl::find_if(out32Buf + expectedChars,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
-                const int expectedMatch = (3 == expectedChars ? 3 :
+                const size_t expectedMatch = (3 == expectedChars ? 3 :
                   bsl::max(0, (int) expectedChars - 1)) * sizeof(unsigned int);
 
                 ASSERT(0 == bsl::memcmp(out32Buf, expectedOut, expectedMatch));
@@ -6164,7 +6167,7 @@ int main(int argc, char **argv)
                                bsl::find_if(out32Buf + expectedChars,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
-                const int expectedMatch = (3 == expectedChars ? 3 :
+                const size_t expectedMatch = (3 == expectedChars ? 3 :
                   bsl::max(0, (int) expectedChars - 1)) * sizeof(unsigned int);
 
                 ASSERT(0 == bsl::memcmp(out32Buf, expectedOut, expectedMatch));
@@ -6232,7 +6235,7 @@ int main(int argc, char **argv)
                   }
                 }
 
-                int expectedMatch = bsl::max(0,
+                size_t expectedMatch = bsl::max(0,
                        (!TRUNC_BY ? ((int) expectedChars -
                        !!(expectedRet & Status::k_OUT_OF_SPACE_BIT)) :
                     bsl::min(len - 1, 1))) * sizeof(unsigned int);
@@ -6340,7 +6343,7 @@ int main(int argc, char **argv)
                                                expectedChars == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const int expectedMatch = 4 * sizeof(unsigned int);
+            const size_t expectedMatch = 4 * sizeof(unsigned int);
 
             ASSERT(0 == bsl::memcmp(outVec.begin(), expectedOut,
                                                                expectedMatch));
@@ -6390,7 +6393,7 @@ int main(int argc, char **argv)
             ASSERT(expectedChars == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const int expectedMatch = 3 * sizeof(unsigned int);
+            const size_t expectedMatch = 3 * sizeof(unsigned int);
 
             ASSERT(0 == bsl::memcmp(outVec.begin(),
                                     expectedOut,
@@ -6441,7 +6444,7 @@ int main(int argc, char **argv)
             ASSERT(expectedChars == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const int expectedMatch = 3 * sizeof(unsigned int);
+            const size_t expectedMatch = 3 * sizeof(unsigned int);
 
             ASSERT(0 == bsl::memcmp(outVec.begin(),
                                     expectedOut,
@@ -6480,7 +6483,7 @@ int main(int argc, char **argv)
             bsl::vector<unsigned int> outVec;
             int expectedRet;
             unsigned expectedChars;
-            int expectedMatch;
+            size_t expectedMatch;
 
             switch (TRUNC_BY) {
               case 0: {
@@ -6659,7 +6662,7 @@ int main(int argc, char **argv)
                     ASSERT(!checkNumChars || expectedChars == numChars);
                     ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
 
-                    const int expectedMatch =
+                    const size_t expectedMatch =
                                           (len >= 4 ? 4 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
 
@@ -6757,7 +6760,7 @@ int main(int argc, char **argv)
                     ASSERT(!checkNumChars || expectedChars == numChars);
                     ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
 
-                    const int expectedMatch =
+                    const size_t expectedMatch =
                                           (len >= 3 ? 3 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
 
@@ -6857,7 +6860,7 @@ int main(int argc, char **argv)
                     ASSERT(!checkNumChars || expectedChars == numChars);
                     ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
 
-                    const int expectedMatch =
+                    const size_t expectedMatch =
                                           (len >= 3 ? 3 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
 
@@ -6920,7 +6923,7 @@ int main(int argc, char **argv)
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet;
                     unsigned expectedChars;
-                    int expectedMatch;
+                    size_t expectedMatch;
 
                     switch (TRUNC_BY) {
                       case 0: {

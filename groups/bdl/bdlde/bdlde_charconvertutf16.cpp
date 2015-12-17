@@ -1010,8 +1010,8 @@ bsl::size_t utf16BufferLength(const char  *srcBuffer,
     // which case it will either still return exactly the right value, or a
     // slight over estimation.  The two cases where this routine will
     // overestimate the size required are:
-    //: o There are errors and the 'errorCharacter' is 0.  This routine assumes
-    //:   that 'errorCharacter' is non-zero.
+    //: o There are errors and the 'errorWord' is 0.  This routine assumes that
+    //:   'errorWord' is non-zero.
     //: o if a four byte sequence is a non-minimal encoding.  This would be
     //:   translated as a single error character, while we don't decode it so
     //:   we just assume it will result in 2 words output.
@@ -1077,20 +1077,20 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
                      const char       *srcBuffer,
                      END_FUNCTOR       endFunctor,
                      SWAPPER           swapper,
-                     bsl::size_t      *numCharsWritten,
+                     bsl::size_t      *numCodePointsWritten,
                      bsl::size_t      *numWordsWritten,
-                     UTF16_CHAR        errorCharacter)
+                     UTF16_CHAR        errorWord)
     // Translate from the specified null-terminated UTF-8 buffer 'srcBuffer' to
     // the specified null-terminated UTF-16 buffer 'dstBuffer' whose capacity
     // is evaluated by the specified 'dstCapacity', using the specified
     // 'endFunctor' to evaluate end of input and continuation bytes.  Use the
     // specified 'swapper' to either swap UTF-16 words (if it is 'Swapper') or
     // not swap them (if it is 'NoopSwapper').  Return the number of Unicode
-    // characters in the specified '*numCharsWritten' and the number of
+    // characters in the specified '*numCodePointsWritten' and the number of
     // 'UTF16_CHAR's written in the specified '*numWordsWritten'.  The
-    // specified 'errorCharacter' is output in place of any error sequences
-    // encountered, or nothing is output in their place if
-    // '0 == errorCharacter'.  Return a bit-wise or of the flags specified by
+    // specified 'errorWord' is output in place of any error sequences
+    // encountered, or nothing is output in their place if '0 == errorWord'.
+    // Return a bit-wise or of the flags specified by
     // 'bdlde::CharConvertStatus::Enum' to indicate whether error sequences
     // were encountered and/or whether the translation ran out of space.  Use
     // type 'CAPACITY_FUNCTOR' to check if there is enough room.  If the caller
@@ -1104,7 +1104,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     // it has; we take it as an argument to avoid having to explicitly specify
     // template arguments every time this function is called.
 {
-    BSLS_ASSERT(Utf16::isValidOneWord(errorCharacter));
+    BSLS_ASSERT(Utf16::isValidOneWord(errorWord));
 
     // Note that 'dstCapacity', 'endFunctor', and 'swapper' are passed by
     // value, not by reference -- they're at most one pointer in size, so
@@ -1116,8 +1116,8 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     // We need at least room for a null character in the output.
 
     if (dstCapacity < 1) {
-        if (numCharsWritten) {
-            *numCharsWritten = 0;
+        if (numCodePointsWritten) {
+            *numCodePointsWritten = 0;
         }
         if (numWordsWritten) {
             *numWordsWritten = 0;
@@ -1130,7 +1130,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     int returnStatus = 0;
     UTF16_CHAR swappedErrorCharacter;
 
-    swappedErrorCharacter = SWAPPER::encodeSingleWord(errorCharacter);
+    swappedErrorCharacter = SWAPPER::encodeSingleWord(errorWord);
 
     // Working in unsigned makes bit manipulation with widening simpler;
     // changing the type here keeps the low-level routines short.
@@ -1324,8 +1324,8 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     *dstBuffer++ = 0;
     ++nChars;
 
-    if (numCharsWritten) {
-        *numCharsWritten = nChars;
+    if (numCodePointsWritten) {
+        *numCodePointsWritten = nChars;
     }
     if (numWordsWritten) {
         *numWordsWritten = dstBuffer - dstStart;
@@ -1354,11 +1354,11 @@ bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
     // null-terminated UTF-16 string 'srcBuffer', using the specified
     // 'endFunctor' to evaluate end of input, and using the specified 'swapper'
     // to swap or not swap bytes.  Note that the method will get the length
-    // exactly right unless there are errors and the 'errorCharacter' is 0, in
-    // which case it will slightly over estimate the necessary length.  Also
-    // note that 'SWAPPER' is a stateless type containing only static
-    // functions; we take it as an argument to avoid having to explicitly
-    // specify template arguments when calling this function.
+    // exactly right unless there are errors and the 'errorByte' is 0, in which
+    // case it will slightly over estimate the necessary length.  Also note
+    // that 'SWAPPER' is a stateless type containing only static functions; we
+    // take it as an argument to avoid having to explicitly specify template
+    // arguments when calling this function.
 {
     (void) swapper;    // suppress 'unused' warning
 
@@ -1401,19 +1401,19 @@ int localUtf16ToUtf8(char             *dstBuffer,
                      const UTF16_CHAR *srcBuffer,
                      END_FUNCTOR       endFunctor,
                      SWAPPER           swapper,
-                     bsl::size_t      *numCharsWritten,
+                     bsl::size_t      *numCodePointsWritten,
                      bsl::size_t      *numBytesWritten,
-                     char              errorCharacter)
+                     char              errorByte)
     // Translate from the specified null-terminated UTF-16 buffer 'srcBuffer',
     // using the specified 'endFunctor' to determine end of input, to the
     // specified null-terminated UTF-8 buffer 'dstBuffer' using the specified
     // 'dstCapacity'; to evaluate the size of 'dstBuffer'.  Use the specified
     // 'swapper' to swap bytes (using type 'Swapper') or not swap them (using
     // type 'NoopSwapper') as the caller desires.  Return the number of Unicode
-    // characters translated in the specified '*numCharsWritten' and the number
-    // of bytes written in the specified '*numBytesWritten'.  Return a bit-wise
-    // or of the flags specified by 'bdlde::CharConvertStatus::Enum' to
-    // indicate whether error sequences were encountered and/or whether the
+    // characters translated in the specified '*numCodePointsWritten' and the
+    // number of bytes written in the specified '*numBytesWritten'.  Return a
+    // bit-wise or of the flags specified by 'bdlde::CharConvertStatus::Enum'
+    // to indicate whether error sequences were encountered and/or whether the
     // translation ran out of space.  Use type 'CAPACITY_FUNCTOR' to check if
     // there is enough room.  If the caller isn't certain the output buffer
     // will be big enough, 'CAPACITY_FUNCTOR' should be 'Capacity' defined in
@@ -1428,8 +1428,8 @@ int localUtf16ToUtf8(char             *dstBuffer,
     (void) swapper;    // suppress 'unused' warning
 
     if (dstCapacity < 1) {
-        if (numCharsWritten) {
-            *numCharsWritten = 0;
+        if (numCodePointsWritten) {
+            *numCodePointsWritten = 0;
         }
         if (numBytesWritten) {
             *numBytesWritten = 0;
@@ -1528,14 +1528,14 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
             ++srcBuffer;
 
-            if (0 != errorCharacter) {
+            if (0 != errorByte) {
                 if (dstCapacity < 2) {
                     // One for the character, one for the null.
 
                     returnStatus |= OUT_OF_SPACE_BIT;
                     break;
                 }
-                *dstBuffer = errorCharacter;
+                *dstBuffer = errorByte;
                 ++dstBuffer;
                 --dstCapacity;
                 ++nChars;
@@ -1571,8 +1571,8 @@ int localUtf16ToUtf8(char             *dstBuffer,
         *numBytesWritten = dstBuffer - dstStart;
     }
 
-    if (numCharsWritten) {
-        *numCharsWritten = nChars;
+    if (numCodePointsWritten) {
+        *numCodePointsWritten = nChars;
     }
 
     return returnStatus;
@@ -1583,18 +1583,18 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                            const UTF16_CHAR *srcBuffer,
                            END_FUNCTOR       endFunctor,
                            SWAPPER           swapper,
-                           bsl::size_t      *numCharsWritten,
-                           char              errorCharacter)
+                           bsl::size_t      *numCodePointsWritten,
+                           char              errorByte)
     // Translate the UTF-16 encoded sequence in the specified 'srcBuffer' to
     // the specified 'dstString', using the specified 'endFunctor' to evaluate
     // end of input.  Any pre-existing contents of 'dstString' are discarded.
     // Use the specified 'swapper' to swap bytes ('Swapper' type) or not swap
     // them ('NoopSwapper' type).  Return the number of characters (not words
-    // or bytes) translated to the specified '*numCharsWritten'.  If error
-    // sequences are encountered, substitute the specified 'errorCharacter', or
-    // eliminate the sequence entirely if '0 == errorCharacter'.  The behavior
-    // is undefined if 'srcBuffer' is not null-terminated when it is expected
-    // to be, or if 'errorCharacter >= 0x80'.
+    // or bytes) translated to the specified '*numCodePointsWritten'.  If error
+    // sequences are encountered, substitute the specified 'errorByte', or
+    // eliminate the sequence entirely if '0 == errorByte'.  The behavior is
+    // undefined if 'srcBuffer' is not null-terminated when it is expected to
+    // be, or if 'errorByte >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength(srcBuffer,
                                              endFunctor,
@@ -1617,14 +1617,14 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                               srcBuffer,
                               endFunctor,
                               swapper,
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numBytesWritten,
-                              errorCharacter);
+                              errorByte);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
         BSLS_ASSERT(INVALID_CHARS_BIT & rc);
-        BSLS_ASSERT(0 == errorCharacter);
+        BSLS_ASSERT(0 == errorByte);
     }
     BSLS_ASSERT(numBytesWritten <= dstString->length());
     BSLS_ASSERT(0 == (*dstString)[numBytesWritten - 1]);
@@ -1642,18 +1642,18 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                            const UTF16_CHAR  *srcBuffer,
                            END_FUNCTOR        endFunctor,
                            SWAPPER            swapper,
-                           bsl::size_t       *numCharsWritten,
-                           char               errorCharacter)
+                           bsl::size_t       *numCodePointsWritten,
+                           char               errorByte)
     // Translate the UTF-16 encoded sequence in the specified 'srcBuffer' to
     // the specified 'dstString', using the specified 'endFunctor' to evaluate
     // end of input and null-terminating the result.  Use the specified
     // 'swapper' to swap bytes (using 'Swapper' type) or not swap them (using
     // 'NoopSwapper' type).  Any pre-existing contents of 'dstString' are
     // discarded.  Return the number of characters (not words or bytes)
-    // translated to the specified '*numCharsWritten'.  If error sequences are
-    // encountered, substitute the specified 'errorCharacter', or eliminate the
-    // sequence entirely if '0 == errorCharacter'.  The behavior is undefined
-    // if 'srcBuffer' is not null-terminated, or if 'errorCharacter >= 0x80'.
+    // translated to the specified '*numCodePointsWritten'.  If error sequences
+    // are encountered, substitute the specified 'errorByte', or eliminate the
+    // sequence entirely if '0 == errorByte'.  The behavior is undefined if
+    // 'srcBuffer' is not null-terminated, or if 'errorByte >= 0x80'.
 {
     bsl::size_t estLength = utf8BufferLength(srcBuffer,
                                              endFunctor,
@@ -1671,14 +1671,14 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                               srcBuffer,
                               endFunctor,
                               swapper,
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numBytesWritten,
-                              errorCharacter);
+                              errorByte);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
         BSLS_ASSERT(INVALID_CHARS_BIT & rc);
-        BSLS_ASSERT(0 == errorCharacter);
+        BSLS_ASSERT(0 == errorByte);
     }
     BSLS_ASSERT(0 == (*dstVector)[numBytesWritten - 1]);
 
@@ -1717,11 +1717,12 @@ namespace bdlde {
 
                         // -- UTF-8 to UTF-16 Methods
 
-int CharConvertUtf16::utf8ToUtf16(bsl::wstring             *dstWstring,
-                                  const bslstl::StringRef&  srcString,
-                                  bsl::size_t              *numCharsWritten,
-                                  wchar_t                   errorCharacter,
-                                  ByteOrder::Enum           byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                                bsl::wstring             *dstWstring,
+                                const bslstl::StringRef&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                wchar_t                   errorWord,
+                                ByteOrder::Enum           byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -1746,17 +1747,17 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring             *dstWstring,
                               srcString.data(),
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstWstring->begin(),
                               NoOpCapacity(),
                               srcString.data(),
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter);
+                              errorWord);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
@@ -1776,8 +1777,8 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring             *dstWstring,
 
 int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
                                   const char         *srcString,
-                                  bsl::size_t        *numCharsWritten,
-                                  wchar_t             errorCharacter,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  wchar_t             errorWord,
                                   ByteOrder::Enum     byteOrder)
 {
     Utf8::ZeroBasedEnd endFunctor;
@@ -1803,17 +1804,17 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
                               srcString,
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstWstring->begin(),
                               NoOpCapacity(),
                               srcString,
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter);
+                              errorWord);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
@@ -1831,11 +1832,12 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
     return rc;
 }
 
-int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
-                                  const bslstl::StringRef&     srcString,
-                                  bsl::size_t                 *numCharsWritten,
-                                  unsigned short               errorCharacter,
-                                  ByteOrder::Enum              byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                             bsl::vector<unsigned short> *dstVector,
+                             const bslstl::StringRef&     srcString,
+                             bsl::size_t                 *numCodePointsWritten,
+                             unsigned short               errorWord,
+                             ByteOrder::Enum              byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -1855,17 +1857,17 @@ int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
                               srcString.data(),
                               endFunctor,
                               NoOpSwapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstVector->begin(),
                               NoOpCapacity(),
                               srcString.data(),
                               endFunctor,
                               Swapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter);
+                              errorWord);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
@@ -1882,11 +1884,12 @@ int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
     return rc;
 }
 
-int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
-                                  const char                  *srcString,
-                                  bsl::size_t                 *numCharsWritten,
-                                  unsigned short               errorCharacter,
-                                  ByteOrder::Enum              byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                             bsl::vector<unsigned short> *dstVector,
+                             const char                  *srcString,
+                             bsl::size_t                 *numCodePointsWritten,
+                             unsigned short               errorWord,
+                             ByteOrder::Enum              byteOrder)
 {
     Utf8::ZeroBasedEnd endFunctor;
 
@@ -1906,17 +1909,17 @@ int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
                               srcString,
                               endFunctor,
                               NoOpSwapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstVector->begin(),
                               NoOpCapacity(),
                               srcString,
                               endFunctor,
                               Swapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               &numWordsWritten,
-                              errorCharacter);
+                              errorWord);
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
@@ -1933,13 +1936,14 @@ int CharConvertUtf16::utf8ToUtf16(bsl::vector<unsigned short> *dstVector,
     return rc;
 }
 
-int CharConvertUtf16::utf8ToUtf16(unsigned short           *dstBuffer,
-                                  bsl::size_t               dstCapacity,
-                                  const bslstl::StringRef&  srcString,
-                                  bsl::size_t              *numCharsWritten,
-                                  bsl::size_t              *numWordsWritten,
-                                  unsigned short            errorCharacter,
-                                  ByteOrder::Enum           byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                                unsigned short           *dstBuffer,
+                                bsl::size_t               dstCapacity,
+                                const bslstl::StringRef&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                bsl::size_t              *numWordsWritten,
+                                unsigned short            errorWord,
+                                ByteOrder::Enum           byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -1949,26 +1953,27 @@ int CharConvertUtf16::utf8ToUtf16(unsigned short           *dstBuffer,
                               srcString.data(),
                               endFunctor,
                               NoOpSwapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstBuffer,
                               Capacity(dstCapacity),
                               srcString.data(),
                               endFunctor,
                               Swapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter);
+                              errorWord);
 }
 
-int CharConvertUtf16::utf8ToUtf16(unsigned short           *dstBuffer,
-                                  bsl::size_t               dstCapacity,
-                                  const char               *srcString,
-                                  bsl::size_t              *numCharsWritten,
-                                  bsl::size_t              *numWordsWritten,
-                                  unsigned short            errorCharacter,
-                                  ByteOrder::Enum           byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                                unsigned short           *dstBuffer,
+                                bsl::size_t               dstCapacity,
+                                const char               *srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                bsl::size_t              *numWordsWritten,
+                                unsigned short            errorWord,
+                                ByteOrder::Enum           byteOrder)
 {
     Utf8::ZeroBasedEnd endFunctor;
 
@@ -1978,26 +1983,27 @@ int CharConvertUtf16::utf8ToUtf16(unsigned short           *dstBuffer,
                               srcString,
                               endFunctor,
                               NoOpSwapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstBuffer,
                               Capacity(dstCapacity),
                               srcString,
                               endFunctor,
                               Swapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter);
+                              errorWord);
 }
 
-int CharConvertUtf16::utf8ToUtf16(wchar_t                  *dstBuffer,
-                                  bsl::size_t               dstCapacity,
-                                  const bslstl::StringRef&  srcString,
-                                  bsl::size_t              *numCharsWritten,
-                                  bsl::size_t              *numWordsWritten,
-                                  wchar_t                   errorCharacter,
-                                  ByteOrder::Enum           byteOrder)
+int CharConvertUtf16::utf8ToUtf16(
+                                wchar_t                  *dstBuffer,
+                                bsl::size_t               dstCapacity,
+                                const bslstl::StringRef&  srcString,
+                                bsl::size_t              *numCodePointsWritten,
+                                bsl::size_t              *numWordsWritten,
+                                wchar_t                   errorWord,
+                                ByteOrder::Enum           byteOrder)
 {
     Utf8::PtrBasedEnd endFunctor(srcString.end());
 
@@ -2007,25 +2013,25 @@ int CharConvertUtf16::utf8ToUtf16(wchar_t                  *dstBuffer,
                               srcString.data(),
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstBuffer,
                               Capacity(dstCapacity),
                               srcString.data(),
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter);
+                              errorWord);
 }
 
 int CharConvertUtf16::utf8ToUtf16(wchar_t         *dstBuffer,
                                   bsl::size_t      dstCapacity,
                                   const char      *srcString,
-                                  bsl::size_t     *numCharsWritten,
+                                  bsl::size_t     *numCodePointsWritten,
                                   bsl::size_t     *numWordsWritten,
-                                  wchar_t          errorCharacter,
+                                  wchar_t          errorWord,
                                   ByteOrder::Enum  byteOrder)
 {
     Utf8::ZeroBasedEnd endFunctor;
@@ -2036,25 +2042,25 @@ int CharConvertUtf16::utf8ToUtf16(wchar_t         *dstBuffer,
                               srcString,
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter)
+                              errorWord)
            : localUtf8ToUtf16(dstBuffer,
                               Capacity(dstCapacity),
                               srcString,
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numWordsWritten,
-                              errorCharacter);
+                              errorWord);
 }
 
                         // -- UTF-16 to UTF-8 Methods
 
 int CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
                                   const unsigned short *srcString,
-                                  bsl::size_t          *numCharsWritten,
-                                  char                  errorCharacter,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
     Utf16::ZeroBasedEnd<unsigned short> endFunctor;
@@ -2064,22 +2070,22 @@ int CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
                                     srcString,
                                     endFunctor,
                                     NoOpSwapper<unsigned short>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8String(dstString,
                                     srcString,
                                     endFunctor,
                                     Swapper<unsigned short>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                                 bsl::string                  *dstString,
-                                 const bslstl::StringRefWide&  srcString,
-                                 bsl::size_t                  *numCharsWritten,
-                                 char                          errorCharacter,
-                                 ByteOrder::Enum               byteOrder)
+                            bsl::string                  *dstString,
+                            const bslstl::StringRefWide&  srcString,
+                            bsl::size_t                  *numCodePointsWritten,
+                            char                          errorByte,
+                            ByteOrder::Enum               byteOrder)
 {
     Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
 
@@ -2088,20 +2094,20 @@ int CharConvertUtf16::utf16ToUtf8(
                                     srcString.data(),
                                     endFunctor,
                                     NoOpSwapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8String(dstString,
                                     srcString.data(),
                                     endFunctor,
                                     Swapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(bsl::string     *dstString,
                                   const wchar_t   *srcString,
-                                  bsl::size_t     *numCharsWritten,
-                                  char             errorCharacter,
+                                  bsl::size_t     *numCodePointsWritten,
+                                  char             errorByte,
                                   ByteOrder::Enum  byteOrder)
 {
     Utf16::ZeroBasedEnd<wchar_t> endFunctor;
@@ -2111,20 +2117,20 @@ int CharConvertUtf16::utf16ToUtf8(bsl::string     *dstString,
                                     srcString,
                                     endFunctor,
                                     NoOpSwapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8String(dstString,
                                     srcString,
                                     endFunctor,
                                     Swapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                   const unsigned short *srcString,
-                                  bsl::size_t          *numCharsWritten,
-                                  char                  errorCharacter,
+                                  bsl::size_t          *numCodePointsWritten,
+                                  char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
     Utf16::ZeroBasedEnd<unsigned short> endFunctor;
@@ -2134,22 +2140,22 @@ int CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
                                     srcString,
                                     endFunctor,
                                     NoOpSwapper<unsigned short>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8Vector(dstVector,
                                     srcString,
                                     endFunctor,
                                     Swapper<unsigned short>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                                 bsl::vector<char>            *dstVector,
-                                 const bslstl::StringRefWide&  srcString,
-                                 bsl::size_t                  *numCharsWritten,
-                                 char                          errorCharacter,
-                                 ByteOrder::Enum               byteOrder)
+                            bsl::vector<char>            *dstVector,
+                            const bslstl::StringRefWide&  srcString,
+                            bsl::size_t                  *numCodePointsWritten,
+                            char                          errorByte,
+                            ByteOrder::Enum               byteOrder)
 {
     Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
 
@@ -2158,20 +2164,20 @@ int CharConvertUtf16::utf16ToUtf8(
                                     srcString.data(),
                                     endFunctor,
                                     NoOpSwapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8Vector(dstVector,
                                     srcString.data(),
                                     endFunctor,
                                     Swapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(bsl::vector<char> *dstVector,
                                   const wchar_t     *srcString,
-                                  bsl::size_t       *numCharsWritten,
-                                  char               errorCharacter,
+                                  bsl::size_t       *numCodePointsWritten,
+                                  char               errorByte,
                                   ByteOrder::Enum    byteOrder)
 {
     Utf16::ZeroBasedEnd<wchar_t> endFunctor;
@@ -2181,22 +2187,22 @@ int CharConvertUtf16::utf16ToUtf8(bsl::vector<char> *dstVector,
                                     srcString,
                                     endFunctor,
                                     NoOpSwapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter)
+                                    numCodePointsWritten,
+                                    errorByte)
            : localUtf16ToUtf8Vector(dstVector,
                                     srcString,
                                     endFunctor,
                                     Swapper<wchar_t>(),
-                                    numCharsWritten,
-                                    errorCharacter);
+                                    numCodePointsWritten,
+                                    errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
                                   bsl::size_t           dstCapacity,
                                   const unsigned short *srcString,
-                                  bsl::size_t          *numCharsWritten,
+                                  bsl::size_t          *numCodePointsWritten,
                                   bsl::size_t          *numBytesWritten,
-                                  char                  errorCharacter,
+                                  char                  errorByte,
                                   ByteOrder::Enum       byteOrder)
 {
     Utf16::ZeroBasedEnd<unsigned short> endFunctor;
@@ -2207,27 +2213,27 @@ int CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
                               srcString,
                               endFunctor,
                               NoOpSwapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter)
+                              errorByte)
            : localUtf16ToUtf8(dstBuffer,
                               Capacity(dstCapacity),
                               srcString,
                               endFunctor,
                               Swapper<unsigned short>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter);
+                              errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(
-                                 char                         *dstBuffer,
-                                 bsl::size_t                   dstCapacity,
-                                 const bslstl::StringRefWide&  srcString,
-                                 bsl::size_t                  *numCharsWritten,
-                                 bsl::size_t                  *numBytesWritten,
-                                 char                          errorCharacter,
-                                 ByteOrder::Enum               byteOrder)
+                            char                         *dstBuffer,
+                            bsl::size_t                   dstCapacity,
+                            const bslstl::StringRefWide&  srcString,
+                            bsl::size_t                  *numCodePointsWritten,
+                            bsl::size_t                  *numBytesWritten,
+                            char                          errorByte,
+                            ByteOrder::Enum               byteOrder)
 {
     Utf16::PtrBasedEnd<wchar_t> endFunctor(srcString.end());
 
@@ -2237,25 +2243,25 @@ int CharConvertUtf16::utf16ToUtf8(
                               srcString.data(),
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter)
+                              errorByte)
            : localUtf16ToUtf8(dstBuffer,
                               Capacity(dstCapacity),
                               srcString.data(),
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter);
+                              errorByte);
 }
 
 int CharConvertUtf16::utf16ToUtf8(char            *dstBuffer,
                                   bsl::size_t      dstCapacity,
                                   const wchar_t   *srcString,
-                                  bsl::size_t     *numCharsWritten,
+                                  bsl::size_t     *numCodePointsWritten,
                                   bsl::size_t     *numBytesWritten,
-                                  char             errorCharacter,
+                                  char             errorByte,
                                   ByteOrder::Enum  byteOrder)
 {
     Utf16::ZeroBasedEnd<wchar_t> endFunctor;
@@ -2266,17 +2272,17 @@ int CharConvertUtf16::utf16ToUtf8(char            *dstBuffer,
                               srcString,
                               endFunctor,
                               NoOpSwapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter)
+                              errorByte)
            : localUtf16ToUtf8(dstBuffer,
                               Capacity(dstCapacity),
                               srcString,
                               endFunctor,
                               Swapper<wchar_t>(),
-                              numCharsWritten,
+                              numCodePointsWritten,
                               numBytesWritten,
-                              errorCharacter);
+                              errorByte);
 }
 }  // close package namespace
 

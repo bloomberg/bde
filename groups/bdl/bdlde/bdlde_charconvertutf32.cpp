@@ -612,7 +612,7 @@ unsigned int decodeFourOctets(const OctetType *octBuf)
 }
 
 static inline
-int lookaheadContinuations(const OctetType * const octBuf, int n)
+bsl::size_t lookaheadContinuations(const OctetType * const octBuf, int n)
     // Return the number of continuation octets beginning at the specified
     // 'octBuf', up to but not greater than the specified 'n'.  Note that a
     // null octet is not a continuation and is taken to end the scan.
@@ -736,12 +736,12 @@ const OctetType *skipUtf8Character(const OctetType *input)
     }
 
     int expected = isTwoOctetHeader(uc)
-                   ? 1
-                   : isThreeOctetHeader(uc)
-                     ? 2
-                     : isFourOctetHeader(uc)
-                       ? 3
-                       : 4;
+                 ? 1
+                 : isThreeOctetHeader(uc)
+                   ? 2
+                   : isFourOctetHeader(uc)
+                     ? 3
+                     : 4;
     ++input;
     return input + lookaheadContinuations(input, expected);
 }

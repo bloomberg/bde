@@ -2564,7 +2564,7 @@ CHAR_TYPE *vEnd(  bsl::vector<CHAR_TYPE>& v)
     return &v.front() + v.size();
 }
 
-template <class UTF16_CHAR, unsigned UTF16_CHAR_SIZE = sizeof(UTF16_CHAR)>
+template <class UTF16_CHAR, bsl::size_t UTF16_CHAR_SIZE = sizeof(UTF16_CHAR)>
 struct SwapInPlace_Helper;
 
 template <>
@@ -2601,7 +2601,7 @@ void swapInPlace(UTF16_CHAR *word)
 
 //-----------------------------------------------------------------------------
 // The following is a sample of Multilingual UTF-8.  It is an amalgamation of
-// prose in Chinese, Hindi, French, and Greek, taken from Wikipedia pages.
+// prose in Chinese, Hindi, French, and Greek.
 //     It was discovered that none of this natural language sample contained
 // any four byte utf-8 encodings, so several were added on the end by hand.
 //-----------------------------------------------------------------------------
@@ -4538,111 +4538,118 @@ int main(int argc, char**argv)
 // 'bdlde::CharConvertUtf16' struct's utility functions, first converting from
 // UTF-8 to UTF-16, and then converting back to make sure the round trip
 // returns the same value, translating to STL containers in both directions.
-
+//
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
-// and quadruple-octet characters:
-
+// and quadruple-octet code points:
+//..
     const char utf8MultiLang[] = {
         "Hello"                                         // -- ASCII
         "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
         "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
-
-// Then, we declare an 'enum' summarizing the counts of characters in the
+//..
+// Then, we declare an 'enum' summarizing the counts of code points in the
 // string and verify that the counts add up to the length of the string:
-
-    enum { NUM_ASCII_CHARS   = 5,
-           NUM_GREEK_CHARS   = 3,
-           NUM_CHINESE_CHARS = 2,
-           NUM_HINDI_CHARS   = 2,
-           NUM_QUAD_CHARS    = 2 };
-
-    ASSERT(1 * NUM_ASCII_CHARS +
-           2 * NUM_GREEK_CHARS +
-           3 * NUM_CHINESE_CHARS +
-           3 * NUM_HINDI_CHARS +
-           4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
-
+//..
+    enum { NUM_ASCII_CODE_POINTS   = 5,
+           NUM_GREEK_CODE_POINTS   = 3,
+           NUM_CHINESE_CODE_POINTS = 2,
+           NUM_HINDI_CODE_POINTS   = 2,
+           NUM_QUAD_CODE_POINTS    = 2 };
+//
+    ASSERT(1 * NUM_ASCII_CODE_POINTS +
+           2 * NUM_GREEK_CODE_POINTS +
+           3 * NUM_CHINESE_CODE_POINTS +
+           3 * NUM_HINDI_CODE_POINTS +
+           4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
+//..
 // Next, we declare the vector where our UTF-16 output will go, and a variable
-// into which the number of characters (characters, not bytes or words) written
-// will be stored.  It is not necessary to initialize 'utf16CharsWritten':
-
+// into which the number of code points (code points, not bytes or words)
+// written will be stored.  It is not necessary to initialize
+// 'utf16CodePointsWritten':
+//..
     bsl::vector<unsigned short> v16;
-    bsl::size_t utf16CharsWritten;
-
+    bsl::size_t utf16CodePointsWritten;
+//..
 // Note that for performance, we should 'v16.reserve(sizeof(utf8MultiLang))',
 // but it's not strictly necessary -- the vector will automatically be grown to
 // the correct size.  Also note that if 'v16' were not empty, that wouldn't be
 // a problem -- any contents will be discarded.
-
+//
 // Then, we do the translation to UTF-16:
-
+//..
     int retVal = bdlde::CharConvertUtf16::utf8ToUtf16(&v16,
-                                                     utf8MultiLang,
-                                                     &utf16CharsWritten);
-
+                                                      utf8MultiLang,
+                                                      &utf16CodePointsWritten);
+//
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v16.back());    // verify null terminated
-
-// Next, we verify that the number of characters (characters, not bytes or
+//..
+// Next, we verify that the number of code points (code points, not bytes or
 // words) that was returned is correct:
-
-    enum { EXPECTED_CHARS_WRITTEN =
-                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
-                        NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
-    ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
-
+//..
+    enum { EXPECTED_CODE_POINTS_WRITTEN =
+                        NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
+                        NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
+                        NUM_QUAD_CODE_POINTS  + 1 };
+//
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == utf16CodePointsWritten);
+//..
 // Then, we verify that the number of 16-bit words written was correct.  The
-// quad octet characters each require 2 'short' words of output:
-
+// quad octet code points each require 2 'short' words of output:
+//..
     enum { EXPECTED_UTF16_WORDS_WRITTEN =
-                        NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
-                        NUM_HINDI_CHARS + NUM_QUAD_CHARS * 2 + 1 };
-
+                        NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
+                        NUM_CHINESE_CODE_POINTS + NUM_HINDI_CODE_POINTS +
+                        NUM_QUAD_CODE_POINTS * 2 + 1 };
+//
     ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
-
+//..
 // Next, we calculate and confirm the difference between the number of UTF-16
-// words output and the number of bytes input.  The ASCII characters will take
-// 1 16-bit word apiece, the Greek characters are double octets that will
-// become single 'short' values, the Chinese characters are encoded as UTF-8
+// words output and the number of bytes input.  The ASCII code points will take
+// 1 16-bit word apiece, the Greek code points are double octets that will
+// become single 'short' values, the Chinese code points are encoded as UTF-8
 // triple octets that will turn into single 16-bit words, the same for the
-// Hindi characters, and the quad characters are quadruple octets that will
+// Hindi code points, and the quad code points are quadruple octets that will
 // turn into double 'short' values:
-
-    enum { SHRINKAGE = NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
-                       NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
-                       NUM_QUAD_CHARS    * (4-2) };
-
+//..
+    enum { SHRINKAGE = NUM_ASCII_CODE_POINTS   * (1-1) +
+                       NUM_GREEK_CODE_POINTS   * (2-1) +
+                       NUM_CHINESE_CODE_POINTS * (3-1) +
+                       NUM_HINDI_CODE_POINTS   * (3-1) +
+                       NUM_QUAD_CODE_POINTS    * (4-2) };
+//
     ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
-
+//..
 // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.  We
 // declare a 'bsl::string' for our output, and a variable to count the number
-// of characters (characters, not bytes or words) translated:
-
+// of code points (code points, not bytes or words) translated:
+//..
     bsl::string s;
     bsl::size_t utf8CharsWritten;
-
+//..
 // Again, note that for performance, we should ideally
 // 's.reserve(3 * v16.size())' but it's not really necessary.
-
+//
 // Now, we do the reverse transform:
-
+//..
     retVal = bdlde::CharConvertUtf16::utf16ToUtf8(&s,
-                                                 v16.begin(),
-                                                 &utf8CharsWritten);
-
+                                                  v16.begin(),
+                                                  &utf8CharsWritten);
+//..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
-// number of characters translated was as expected:
-
+// number of code points translated was as expected:
+//..
     ASSERT(0 == retVal);
     ASSERT(utf8MultiLang == s);
-    ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
-
-    ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
-    ASSERT(utf16CharsWritten      == utf8CharsWritten);
+    ASSERT(s.length() + 1               == sizeof(utf8MultiLang));
+//
+    ASSERT(EXPECTED_CODE_POINTS_WRITTEN == utf8CharsWritten);
+    ASSERT(utf16CodePointsWritten       == utf8CharsWritten);
+//..
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -4654,41 +4661,41 @@ int main(int argc, char**argv)
 
 // In this example, we will translate a string containing a non-ASCII character
 // from UTF-16 to UTF-8 and back using fixed-length buffers.
-
+//
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
 // with '0xc9', a non-ASCII 'e' with an accent over it:
-
+//..
     unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
-
+//..
 // Then, we create a byte buffer to store the UTF-8 result of the translation
-// in, and variables to monitor counts of characters and bytes translated:
-
+// in, and variables to monitor counts of code points and bytes translated:
+//..
     char utf8String[7];
-    bsl::size_t numChars, numBytes;
-    numChars = numBytes = -1;    // garbage
-
+    bsl::size_t numCodePoints, numBytes;
+    numCodePoints = numBytes = -1;    // garbage
+//..
 // Next, we call 'utf16ToUtf8' to do the translation:
-
+//..
     int rc = bdlde::CharConvertUtf16::utf16ToUtf8(utf8String,
-                                                 sizeof(utf8String),
-                                                 utf16String,
-                                                 &numChars,
-                                                 &numBytes);
-
+                                                  sizeof(utf8String),
+                                                  utf16String,
+                                                  &numCodePoints,
+                                                  &numBytes);
+//..
 // Then, we observe that no errors or warnings occurred, and that the numbers
-// of characters and bytes were as expected.  Note that both 'numChars' and
-// 'numBytes' include the terminating 0:
-
+// of code points and bytes were as expected.  Note that both 'numCodePoints'
+// and 'numBytes' include the terminating 0:
+//..
     ASSERT(0 == rc);
-    ASSERT(6 == numChars);
+    ASSERT(6 == numCodePoints);
     ASSERT(7 == numBytes);
-
+//..
 // Next, we examine the length of the translated string:
-
+//..
     ASSERT(numBytes - 1 == bsl::strlen(utf8String));
-
+//..
 // Then, we examine the individual bytes of the translated UTF-8:
-
+//..
     ASSERT((char)0xc3 == utf8String[0]);
     ASSERT((char)0x89 == utf8String[1]);
     ASSERT('c' ==        utf8String[2]);
@@ -4696,45 +4703,46 @@ int main(int argc, char**argv)
     ASSERT('l' ==        utf8String[4]);
     ASSERT('e' ==        utf8String[5]);
     ASSERT(0   ==        utf8String[6]);
-
+//..
 // Next, in preparation for translation back to UTF-16, we create a buffer of
 // 'short' values and the variable 'numWords' to track the number of UTF-16
 // words occupied by the result:
-
+//..
     unsigned short secondUtf16String[6];
     bsl::size_t numWords;
-    numChars = numWords = -1;    // garbage
-
+    numCodePoints = numWords = -1;    // garbage
+//..
 // Then, we do the reverse translation:
-
+//..
     rc = bdlde::CharConvertUtf16::utf8ToUtf16(secondUtf16String,
-                                             6,
-                                             utf8String,
-                                             &numChars,
-                                             &numWords);
-
+                                              6,
+                                              utf8String,
+                                              &numCodePoints,
+                                              &numWords);
+//..
 // Next, we observe that no errors or warnings were reported, and that the
-// number of characters and words were as expected.  Note that 'numChars' and
-// 'numWords' both include the terminating 0:
-
+// number of characters and words were as expected.  Note that 'numCodePoints'
+// and 'numWords' both include the terminating 0:
+//..
     ASSERT(0 == rc);
-    ASSERT(6 == numChars);
+    ASSERT(6 == numCodePoints);
     ASSERT(6 == numWords);
-
+//..
 // Now, we observe that our output is identical to the original UTF-16 string:
-
+//..
     ASSERT(0 == bsl::memcmp(utf16String,
                             secondUtf16String,
                             sizeof(utf16String)));
-
+//..
 // Finally, we examine the individual words of the reverse translation:
-
+//..
     ASSERT(0xc9 == secondUtf16String[0]);
     ASSERT('c'  == secondUtf16String[1]);
     ASSERT('o'  == secondUtf16String[2]);
     ASSERT('l'  == secondUtf16String[3]);
     ASSERT('e'  == secondUtf16String[4]);
     ASSERT(0    == secondUtf16String[5]);
+//..
       } break;
       case 13: {
         // --------------------------------------------------------------------

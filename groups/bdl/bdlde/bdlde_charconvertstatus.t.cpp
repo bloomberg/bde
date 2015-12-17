@@ -22,7 +22,12 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::flush;
+using bsl::endl;
+using bsl::ends;
+using bsl::size_t;
 
 // ============================================================================
 //                                  TEST PLAN
@@ -134,7 +139,7 @@ const int NUM_ENUMERATORS = 2;
 
 int main(int argc, char *argv[])
 {
-    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     bool         verbose = argc > 2;
     bool     veryVerbose = argc > 3;
     bool veryVeryVerbose = argc > 4;
@@ -183,13 +188,13 @@ int main(int argc, char *argv[])
 // 'enum'.
 //..
         bdlde::CharConvertStatus::Enum value =
-                                 bdlde::CharConvertStatus::k_INVALID_CHARS_BIT;
+                                 bdlde::CharConvertStatus::k_INVALID_INPUT_BIT;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
 //..
         const char *asciiValue = bdlde::CharConvertStatus::toAscii(value);
-        ASSERT(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_BIT"));
+        ASSERT(0 == bsl::strcmp(asciiValue, "INVALID_INPUT_BIT"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
 //..
@@ -253,37 +258,37 @@ int main(int argc, char *argv[])
             int         d_lineNum;  // source line number
             int         d_level;    // level
             int         d_spl;      // spaces per level
-            Enum        d_value;    // enumerator value
+            int         d_value;    // enumerator value
             const char *d_exp;      // expected result
         } DATA[] = {
 #define NL "\n"
-#define ICM "INVALID_CHARS_BIT"
+#define ICM "INVALID_INPUT_BIT"
 
             //line level spl    enumerator value           expected result
             //---- ----- --- ----------------------       -----------------
-            { L_,    0,   4, Obj::k_INVALID_CHARS_BIT, "INVALID_CHARS_BIT\n" },
+            { L_,    0,   4, Obj::k_INVALID_INPUT_BIT, "INVALID_INPUT_BIT\n" },
             { L_,    0,   4, Obj::k_OUT_OF_SPACE_BIT,  "OUT_OF_SPACE_BIT\n" },
 
-            { L_,    0,   4, (Enum)(NUM_ENUMERATORS + 1), UNKNOWN_FORMAT NL },
-            { L_,    0,   4, (Enum)-1,                    UNKNOWN_FORMAT NL },
-            { L_,    0,   4, (Enum)-5,                    UNKNOWN_FORMAT NL },
-            { L_,    0,   4, (Enum)99,                    UNKNOWN_FORMAT NL },
+            { L_,    0,   4, NUM_ENUMERATORS + 1,         UNKNOWN_FORMAT NL },
+            { L_,    0,   4, -1,                          UNKNOWN_FORMAT NL },
+            { L_,    0,   4, -5,                          UNKNOWN_FORMAT NL },
+            { L_,    0,   4, 99,                          UNKNOWN_FORMAT NL },
 
-            { L_,    0,  -1, Obj::k_INVALID_CHARS_BIT,    ICM },
-            { L_,    0,   0, Obj::k_INVALID_CHARS_BIT,    ICM NL },
-            { L_,    0,   2, Obj::k_INVALID_CHARS_BIT,    ICM NL },
-            { L_,    1,   1, Obj::k_INVALID_CHARS_BIT,    " " ICM NL },
-            { L_,    1,   2, Obj::k_INVALID_CHARS_BIT,    "  " ICM NL },
-            { L_,   -1,   2, Obj::k_INVALID_CHARS_BIT,    ICM NL },
-            { L_,   -2,   1, Obj::k_INVALID_CHARS_BIT,    ICM NL },
-            { L_,    2,   1, Obj::k_INVALID_CHARS_BIT,    "  " ICM NL },
-            { L_,    1,   3, Obj::k_INVALID_CHARS_BIT,    "   " ICM NL },
+            { L_,    0,  -1, Obj::k_INVALID_INPUT_BIT,    ICM },
+            { L_,    0,   0, Obj::k_INVALID_INPUT_BIT,    ICM NL },
+            { L_,    0,   2, Obj::k_INVALID_INPUT_BIT,    ICM NL },
+            { L_,    1,   1, Obj::k_INVALID_INPUT_BIT,    " " ICM NL },
+            { L_,    1,   2, Obj::k_INVALID_INPUT_BIT,    "  " ICM NL },
+            { L_,   -1,   2, Obj::k_INVALID_INPUT_BIT,    ICM NL },
+            { L_,   -2,   1, Obj::k_INVALID_INPUT_BIT,    ICM NL },
+            { L_,    2,   1, Obj::k_INVALID_INPUT_BIT,    "  " ICM NL },
+            { L_,    1,   3, Obj::k_INVALID_INPUT_BIT,    "   " ICM NL },
 #undef ICM
 #undef NL
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const int   SIZE = 128;         // big enough to hold output string
+        enum { SIZE = 128 };            // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
 
               char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
@@ -295,18 +300,18 @@ int main(int argc, char *argv[])
             const int   LINE  = DATA[ti].d_lineNum;
             const int   LEVEL = DATA[ti].d_level;
             const int   SPL   = DATA[ti].d_spl;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             const char *EXP   = DATA[ti].d_exp;
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostringstream out(std::string(CTRL, SIZE));
+            bsl::ostringstream out(std::string(CTRL, SIZE));
             Obj::print(out, VALUE, LEVEL, SPL) << ends;
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << out.str() << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const size_t SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE,
@@ -323,7 +328,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose)
                     cout << "\tRepeat for 'print' default arguments." << endl;
 
-                ostringstream out(std::string(CTRL, SIZE));
+                bsl::ostringstream out(std::string(CTRL, SIZE));
                 Obj::print(out, VALUE) << ends;
 
                 if (veryVerbose) {
@@ -346,13 +351,13 @@ int main(int argc, char *argv[])
             const int   LINE  = DATA[ti].d_lineNum;
             const int   LEVEL = DATA[ti].d_level;
             const int   SPL   = DATA[ti].d_spl;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             // const char *EXP   = DATA[ti].d_exp;
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostringstream out(bsl::string(CTRL, SIZE));
-            out.setstate(ios::badbit);
+            bsl::ostringstream out(bsl::string(CTRL, SIZE));
+            out.setstate(bsl::ios::badbit);
             Obj::print(out, VALUE, LEVEL, SPL);
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
@@ -364,7 +369,7 @@ int main(int argc, char *argv[])
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
             const FuncPtr FP = &Obj::print;
-            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_CHARS_BIT, 0, 0);
+            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_INPUT_BIT, 0, 0);
         }
 
       } break;
@@ -404,20 +409,20 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_lineNum;  // source line number
-            Enum        d_value;    // enumerator value
+            int         d_value;    // enumerator value
             const char *d_exp;      // expected result
         } DATA[] = {
             //line       enumerator value              expected result
             //----    ----------------------          -----------------
-            { L_,     Obj::k_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
-            { L_,     Obj::k_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
+            { L_,     Obj::k_INVALID_INPUT_BIT,       "INVALID_INPUT_BIT" },
+            { L_,     Obj::k_OUT_OF_SPACE_BIT,        "OUT_OF_SPACE_BIT"  },
 
-            { L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
-            { L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
-            { L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
-            { L_,     (Enum)99,                       UNKNOWN_FORMAT     },
+            { L_,     NUM_ENUMERATORS + 1,            UNKNOWN_FORMAT      },
+            { L_,     -1,                             UNKNOWN_FORMAT      },
+            { L_,     -5,                             UNKNOWN_FORMAT      },
+            { L_,     99,                             UNKNOWN_FORMAT      },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         const int   SIZE = 128;         // big enough to hold output string
         const char  XX   = (char)0xFF;  // value of an unset 'char'
@@ -429,18 +434,18 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             const char *EXP   = DATA[ti].d_exp;
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
             if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-            ostringstream out(bsl::string(CTRL, SIZE));
+            bsl::ostringstream out(bsl::string(CTRL, SIZE));
             out << VALUE << ends;
 
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << out.str() << endl;
 
-            const int SZ = strlen(EXP) + 1;
+            const size_t SZ = strlen(EXP) + 1;
             LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
                                                           // enough.
             LOOP2_ASSERT(LINE,
@@ -455,13 +460,13 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             // const char *EXP   = DATA[ti].d_exp;
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-            ostringstream out(bsl::string(CTRL, SIZE));
-            out.setstate(ios::badbit);
+            bsl::ostringstream out(bsl::string(CTRL, SIZE));
+            out.setstate(bsl::ios::badbit);
             out << VALUE;
 
             LOOP2_ASSERT(LINE, ti, 0 == memcmp(out.str().c_str(), CTRL, SIZE));
@@ -475,7 +480,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &operator<<;
 
-            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_CHARS_BIT);
+            if (veryVerbose) (*FP)(cout, Obj::k_INVALID_INPUT_BIT);
         }
       } break;
       case 1: {
@@ -512,20 +517,20 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_lineNum;  // source line number
-            Enum        d_value;    // enumerator value
+            int         d_value;    // enumerator value
             const char *d_exp;      // expected result
         } DATA[] = {
             // line         enumerator value            expected result
             // ----    ---------------------------     -----------------
-            {  L_,     Obj::k_INVALID_CHARS_BIT,   "INVALID_CHARS_BIT" },
-            {  L_,     Obj::k_OUT_OF_SPACE_BIT,    "OUT_OF_SPACE_BIT"  },
+            {  L_,     Obj::k_INVALID_INPUT_BIT,       "INVALID_INPUT_BIT" },
+            {  L_,     Obj::k_OUT_OF_SPACE_BIT,        "OUT_OF_SPACE_BIT"  },
 
-            {  L_,     (Enum)(NUM_ENUMERATORS + 1),    UNKNOWN_FORMAT     },
-            {  L_,     (Enum)-1,                       UNKNOWN_FORMAT     },
-            {  L_,     (Enum)-5,                       UNKNOWN_FORMAT     },
-            {  L_,     (Enum)99,                       UNKNOWN_FORMAT     }
+            {  L_,     NUM_ENUMERATORS + 1,            UNKNOWN_FORMAT     },
+            {  L_,     -1,                             UNKNOWN_FORMAT     },
+            {  L_,     -5,                             UNKNOWN_FORMAT     },
+            {  L_,     99,                             UNKNOWN_FORMAT     }
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         bsls::Types::Int64 numBlocksTotal = defaultAllocator.numBlocksTotal();
 
@@ -533,7 +538,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
-            const Enum VALUE = DATA[ti].d_value;
+            const Enum VALUE = static_cast<Enum>(DATA[ti].d_value);
 
             if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
@@ -544,7 +549,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
-            const Enum  VALUE = DATA[ti].d_value;
+            const Enum  VALUE = static_cast<Enum>(DATA[ti].d_value);
             const char *EXP   = DATA[ti].d_exp;
 
             const char *result = Obj::toAscii(VALUE);
@@ -562,7 +567,7 @@ int main(int argc, char *argv[])
 
             const FuncPtr FP = &Obj::toAscii;
 
-            (*FP)(Obj::k_INVALID_CHARS_BIT);
+            (*FP)(Obj::k_INVALID_INPUT_BIT);
         }
 
         ASSERT(numBlocksTotal == defaultAllocator.numBlocksTotal());
