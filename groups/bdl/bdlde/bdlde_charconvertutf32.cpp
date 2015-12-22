@@ -108,7 +108,7 @@ BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
 /////////////////////////// END VERBATIM RFC TEXT ///////////////////////////
 
 // UTF-32 encoding is straightforward -- one 'unsigned int' *word* of UTF-32
-// corresponds to one *character* of Unicode.  Values must be in the range
+// corresponds to one code point of Unicode.  Values must be in the range
 // '[0 .. 0xd7ff]' or in the range '[ 0xe000 .. 0x10ffff ]'.
 
 namespace {
@@ -130,8 +130,8 @@ enum {
     // container rather than a fixed-length buffer, the 'k_OUT_OF_SPACE_BIT' is
     // never set.
 
-    k_INVALID_CHARS_BIT =
-                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
+    k_INVALID_INPUT_BIT =
+                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_INPUT_BIT,
     k_OUT_OF_SPACE_BIT  =
                     BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
@@ -714,7 +714,7 @@ bool isIllegalFourOctetValue(unsigned int uc)
 }
 
 static inline
-bool isLegalUtf32ErrorChar(unsigned int uc)
+bool isLegalUtf32ErrorWord(unsigned int uc)
     // Return 'true' if the specified 32-bit value 'uc' is legal to be
     // represented in unicode and 'false' otherwise.
 {
@@ -722,7 +722,7 @@ bool isLegalUtf32ErrorChar(unsigned int uc)
 }
 
 static inline
-const OctetType *skipUtf8Character(const OctetType *input)
+const OctetType *skipUtf8CodePoint(const OctetType *input)
     // Return a pointer to the next Unicode character after the character in
     // the sequence beginning at the specified 'input'.  Note that an
     // incomplete sequence is skipped as a single char, and that any first byte
@@ -773,7 +773,7 @@ bsl::size_t utf32BufferLengthNeeded(const char  *input,
 
     bsl::size_t ret = 0;
     for (; ! endFunctor.isFinished(octets); ++ret) {
-        octets = skipUtf8Character(octets);
+        octets = skipUtf8CodePoint(octets);
     }
 
     return ret + 1;
@@ -782,10 +782,10 @@ bsl::size_t utf32BufferLengthNeeded(const char  *input,
 template <class SWAPPER>
 static
 bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
-                                   const OctetType     errorCharacter)
+                                   const OctetType     errorByte)
     // Return the length, in bytes, of the UTF-8 sequence required to store the
     // translation of the UTF-32 sequence pointed at by the specified 'input',
-    // including the terminating 0, when using the specified 'errorCharacter'.
+    // including the terminating 0, when using the specified 'errorByte'.
     // Use the specified 'SWAPPER' to perform swapping, or not perform
     // swapping, as desired (see detailed doc in 'Utf8ToUtf32Translator' and
     // 'Utf32ToUtf8Translator' below).  Note that this estimate will always be
@@ -794,7 +794,7 @@ bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
     BSLMF_ASSERT((bsl::is_same<SWAPPER,     Swapper>::value ||
                   bsl::is_same<SWAPPER, NoopSwapper>::value));
 
-    unsigned errorCharSize = !!errorCharacter;
+    unsigned errorByteSize = !!errorByte;
 
     unsigned int uc;
     bsl::size_t ret = 0;
@@ -805,13 +805,13 @@ bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
                  ? 2
                  : fitsInThreeOctets(uc)
                    ? (isIllegal16BitValue(uc)
-                      ? errorCharSize
+                      ? errorByteSize
                       : 3)
                    : fitsInFourOctets(uc)
                      ? (isIllegalFourOctetValue(uc)
-                        ? errorCharSize
+                        ? errorByteSize
                         : 4)
-                     : errorCharSize;
+                     : errorByteSize;
     }
 
     return ret + 1;
@@ -870,11 +870,11 @@ class Utf8ToUtf32Translator {
     CAPACITY          d_capacity;
     END_FUNCTOR       d_endFunctor;
     const OctetType  *d_input;
-    unsigned int      d_swappedErrorChar;   // 'SWAPPER::swap' is applied to
-                                            // the 'errorChar' arg to the c'tor
+    unsigned int      d_swappedErrorWord;   // 'SWAPPER::swap' is applied to
+                                            // the 'errorWord' arg to the c'tor
                                             // and the result stored to this
                                             // variable.
-    bool              d_invalidChars;
+    bool              d_invalidSequences;
 
   private:
     // PRIVATE CREATORS
@@ -882,15 +882,15 @@ class Utf8ToUtf32Translator {
                           bsl::size_t      capacity,
                           END_FUNCTOR      endFunctor,
                           const OctetType *input,
-                          unsigned int     errorChar);
+                          unsigned int     errorWord);
         // Create a 'Utf8ToUtf32Translator' object to translate UTF-8 from the
         // specified 'input' to be written as UTF-32 to the specified 'output',
         // that has the specified 'capacity' 'unsigned int's of room in it.
         // Use the specified 'endFunctor' for evaluating continuation octets
         // and determining end of input.  When an error is encountered in the
-        // input, output the specified 'errorChar' to the output unless
-        // 'errorChar' is 0, in which case no output corresponding to the error
-        // sequence is generated.  Note that 'errorChar' is assumed to be in
+        // input, output the specified 'errorWord' to the output unless
+        // 'errorWord' is 0, in which case no output corresponding to the error
+        // sequence is generated.  Note that 'errorWord' is assumed to be in
         // host byte order.
 
     // PRIVATE MANIPULATORS
@@ -898,12 +898,12 @@ class Utf8ToUtf32Translator {
         // Update the output pointer and the capacity of this object to reflect
         // the fact that a word of output has been written.
 
-    void handleInvalidChar();
+    void handleInvalidSequence();
         // Update the state of this object and possibly the output to reflect
         // that an error sequence was encountered in the input.  The behavior
         // is undefined unless 'd_capacity >= 2'.
 
-    int decodeCharacter();
+    int decodeCodePoint();
         // Read one Unicode character of UTF-8 from the input stream 'd_input',
         // and update the output and the state of this object accordingly.
         // Return a non-zero value if there was insufficient capacity for the
@@ -917,8 +917,8 @@ class Utf8ToUtf32Translator {
                   bsl::size_t        capacity,
                   END_FUNCTOR        endFunctor,
                   const char        *input,
-                  bsl::size_t       *numCharsWritten,
-                  unsigned int       errorChar);
+                  bsl::size_t       *numWordsWritten,
+                  unsigned int       errorWord);
         // Translate a UTF-8 stream from the specified null-terminated 'input'
         // to a UTF-32 stream written to the buffer at the specified 'output',
         // always null-terminating the result.  If the template argument is
@@ -928,10 +928,10 @@ class Utf8ToUtf32Translator {
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-32 sequence is to be
         // translated.  Use the specified 'endFunctor' to determine end of
-        // input.  Write to the specified '*numCharsWritten' the number of
+        // input.  Write to the specified '*numWordsWritten' the number of
         // Unicode characters written, including the terminating null
-        // character.  If the specified 'errorChar' is non-zero, write
-        // 'errorChar' to the output every time an error character is
+        // character.  If the specified 'errorWord' is non-zero, write
+        // 'errorWord' to the output every time an error character is
         // encountered in the input; otherwise write no output corresponding to
         // error characters in the input.  The behavior is undefined unless
         // 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
@@ -949,13 +949,13 @@ Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::Utf8ToUtf32Translator(
                                                    bsl::size_t      capacity,
                                                    END_FUNCTOR      endFunctor,
                                                    const OctetType *input,
-                                                   unsigned int     errorChar)
+                                                   unsigned int     errorWord)
 : d_output(output)
 , d_capacity(capacity)
 , d_endFunctor(endFunctor)
 , d_input(input)
-, d_swappedErrorChar(SWAPPER::swapBytes(errorChar))
-, d_invalidChars(false)
+, d_swappedErrorWord(SWAPPER::swapBytes(errorWord))
+, d_invalidSequences(false)
 {}
 
 // PRIVATE MANIPULATORS
@@ -968,12 +968,12 @@ void Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::advanceOutput()
 }
 
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
-int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCharacter()
+int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCodePoint()
 {
     BSLS_ASSERT_SAFE(d_capacity >= 1);
 
     OctetType    firstOctet = *d_input;
-    unsigned int decodedChar;
+    unsigned int decodedCodePoint;
     int          len;
     bool         good;
 
@@ -984,24 +984,24 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCharacter()
     if      (isSingleOctet(     firstOctet)) {
         len = 1;
         good = true;
-        decodedChar = firstOctet;
+        decodedCodePoint = firstOctet;
     }
     else if (isTwoOctetHeader(  firstOctet)) {
         len = 2;
         good = d_endFunctor.verifyContinuations(d_input + 1, 1) &&
-              ! fitsInSingleOctet(decodedChar = decodeTwoOctets(d_input));
+              ! fitsInSingleOctet(decodedCodePoint = decodeTwoOctets(d_input));
     }
     else if (isThreeOctetHeader(firstOctet)) {
         len = 3;
         good = d_endFunctor.verifyContinuations(d_input + 1, 2) &&
-              ! fitsInTwoOctets(  decodedChar = decodeThreeOctets(d_input)) &&
-                                        ! isIllegal16BitValue(decodedChar);
+            ! fitsInTwoOctets(decodedCodePoint = decodeThreeOctets(d_input)) &&
+                                       ! isIllegal16BitValue(decodedCodePoint);
     }
     else if (isFourOctetHeader( firstOctet)) {
         len = 4;
         good = d_endFunctor.verifyContinuations(d_input + 1, 3) &&
-              ! fitsInThreeOctets(decodedChar = decodeFourOctets(d_input)) &&
-                                        ! isIllegalFourOctetValue(decodedChar);
+           ! fitsInThreeOctets(decodedCodePoint = decodeFourOctets(d_input)) &&
+                                   ! isIllegalFourOctetValue(decodedCodePoint);
     }
     else {
         len = 5;
@@ -1011,13 +1011,13 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCharacter()
     if (good) {
         d_input += len;
 
-        *d_output = SWAPPER::swapBytes(decodedChar);
+        *d_output = SWAPPER::swapBytes(decodedCodePoint);
         advanceOutput();
     }
     else {
         d_input = d_endFunctor.skipContinuations(d_input + 1, len - 1);
 
-        handleInvalidChar();
+        handleInvalidSequence();
     }
 
     return 0;
@@ -1025,14 +1025,15 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCharacter()
 
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
 inline
-void Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::handleInvalidChar()
+void
+Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::handleInvalidSequence()
 {
     BSLS_ASSERT_SAFE(d_capacity >= 2);
 
-    d_invalidChars = true;
+    d_invalidSequences = true;
 
-    if (d_swappedErrorChar) {
-        *d_output = d_swappedErrorChar;
+    if (d_swappedErrorWord) {
+        *d_output = d_swappedErrorWord;
         advanceOutput();
     }
 }
@@ -1044,20 +1045,20 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::translate(
                                                  bsl::size_t   capacity,
                                                  END_FUNCTOR   endFunctor,
                                                  const char   *input,
-                                                 bsl::size_t  *numCharsWritten,
-                                                 unsigned int  errorChar)
+                                                 bsl::size_t  *numWordsWritten,
+                                                 unsigned int  errorWord)
 {
     Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER> translator(
                                                          output,
                                                          capacity,
                                                          endFunctor,
                                                          constOctetCast(input),
-                                                         errorChar);
+                                                         errorWord);
     BSLS_ASSERT(translator.d_capacity >= 1);
 
     int ret = 0;
     while (!endFunctor.isFinished(translator.d_input)) {
-        if (0 != translator.decodeCharacter()) {
+        if (0 != translator.decodeCodePoint()) {
             BSLS_ASSERT((bsl::is_same<CAPACITY, Capacity>::value));
             ret = k_OUT_OF_SPACE_BIT;
             break;
@@ -1070,14 +1071,14 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::translate(
     translator.advanceOutput();
 
     bsl::size_t ncw = translator.d_output - output;
-    *numCharsWritten = ncw;
+    *numWordsWritten = ncw;
     BSLS_ASSERT((bsl::is_same<CAPACITY, NoopCapacity>::value) ||
                                                               ncw <= capacity);
     BSLS_ASSERT(ncw <=
                    (bsl::size_t) (translator.d_input - constOctetCast(input)));
 
-    if (translator.d_invalidChars) {
-        ret |= k_INVALID_CHARS_BIT;
+    if (translator.d_invalidSequences) {
+        ret |= k_INVALID_INPUT_BIT;
     }
 
     return ret;
@@ -1121,22 +1122,22 @@ class Utf32ToUtf8Translator {
     OctetType          *d_output;
     CAPACITY            d_capacity;
     const unsigned int *d_input;
-    const OctetType     d_errorChar;
-    bsl::size_t         d_numCharsWritten;
-    bool                d_invalidChars;
+    const OctetType     d_errorByte;
+    bsl::size_t         d_numCodePointsWritten;
+    bool                d_invalidSequences;
 
   private:
     // PRIVATE CREATOR
     Utf32ToUtf8Translator(OctetType          *output,
                           bsl::size_t         capacity,
                           const unsigned int *input,
-                          const OctetType     errorChar);
+                          const OctetType     errorByte);
         // Create a 'Utf32ToUtf8Translator' object to translate UTF-32 from the
         // specified 'input' to be written as UTF-8 to the specified 'output'
         // buffer that is the specified 'capacity' length in 'unsigned int's,
         // or is guaranteed to have adequate room for the translation if
-        // 'CAPACITY' is 'NoopCapacity'.  Initialize 'd_errorChar' to the
-        // specified 'errorChar'.
+        // 'CAPACITY' is 'NoopCapacity'.  Initialize 'd_errorByte' to the
+        // specified 'errorByte'.
 
     // PRIVATE MANIPULATORS
     void advance(unsigned delta);
@@ -1144,13 +1145,13 @@ class Utf32ToUtf8Translator {
         // Unicode character of the specified 'delta' bytes of UTF-8 output has
         // been written.
 
-    int handleInvalidChar();
+    int handleInvalidWord();
         // Update this object and the output, if appropriate, to reflect the
         // fact that an error sequence has been encountered in the input.
         // Return a non-zero value if there was insufficient capacity for the
         // output, and 0 otherwise.
 
-    int decodeCharacter(const unsigned int uc);
+    int decodeCodePoint(const unsigned int uc);
         // Translate the specified UTF-32 character 'uc' to UTF-8 in the output
         // stream, updating this object appropriately.  If insufficient space
         // exists in the output buffer for the character output plus a
@@ -1165,9 +1166,9 @@ class Utf32ToUtf8Translator {
     int translate(char               *output,
                   bsl::size_t         capacity,
                   const unsigned int *input,
-                  bsl::size_t        *numCharsWritten,
+                  bsl::size_t        *numCodePointsWritten,
                   bsl::size_t        *numBytesWritten,
-                  const char          errorChar);
+                  const char          errorByte);
         // Translate a UTF-32 stream from the specified null-terminated 'input'
         // to a UTF-8 stream written to the buffer at the specified 'output',
         // always null terminating the result.  If the template argument is
@@ -1176,14 +1177,15 @@ class Utf32ToUtf8Translator {
         // the terminating null character.  If the template argument is type
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-8 sequence is to be
-        // translated.  Write to the specified '*numCharsWritten' the number of
-        // Unicode characters written, including the terminating 0.  Write to
-        // the specified '*numBytesWritten' the number of bytes of output
-        // written, including the terminating null character.  If the specified
-        // 'errorChar' is non-zero, write 'errorChar' to the output every time
-        // an error sequence is encountered in the input, otherwise write no
-        // output corresponding to error sequences in the input.  The behavior
-        // is undefined unless 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
+        // translated.  Write to the specified '*numCodePointsWritten' the
+        // number of Unicode characters written, including the terminating 0.
+        // Write to the specified '*numBytesWritten' the number of bytes of
+        // output written, including the terminating null character.  If the
+        // specified 'errorByte' is non-zero, write 'errorByte' to the output
+        // every time an error sequence is encountered in the input, otherwise
+        // write no output corresponding to error sequences in the input.  The
+        // behavior is undefined unless 'CAPACITY' is 'NoopCapacity' or
+        // 'capacity > 0'.
 };
 
                      // ---------------------------------
@@ -1197,13 +1199,13 @@ Utf32ToUtf8Translator<CAPACITY, SWAPPER>::Utf32ToUtf8Translator(
                                                  OctetType          *output,
                                                  bsl::size_t         capacity,
                                                  const unsigned int *input,
-                                                 const OctetType     errorChar)
+                                                 const OctetType     errorByte)
 : d_output(output)
 , d_capacity(capacity)
 , d_input(input)
-, d_errorChar(errorChar)
-, d_numCharsWritten(0)
-, d_invalidChars(false)
+, d_errorByte(errorByte)
+, d_numCodePointsWritten(0)
+, d_invalidSequences(false)
 {}
 
 // PRIVATE MANIPULATORS
@@ -1213,21 +1215,21 @@ void Utf32ToUtf8Translator<CAPACITY, SWAPPER>::advance(unsigned delta)
 {
     d_capacity -= delta;
     d_output   += delta;
-    ++d_numCharsWritten;
+    ++d_numCodePointsWritten;
 }
 
 template <class CAPACITY, class SWAPPER>
 inline
-int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::handleInvalidChar()
+int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::handleInvalidWord()
 {
-    d_invalidChars = true;
+    d_invalidSequences = true;
 
-    if (0 == d_errorChar) {
+    if (0 == d_errorByte) {
         return 0;                                                     // RETURN
     }
 
     if (d_capacity >= 2) {
-        *d_output = d_errorChar;
+        *d_output = d_errorByte;
         advance(1);
         return 0;                                                     // RETURN
     }
@@ -1237,7 +1239,7 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::handleInvalidChar()
 }
 
 template <class CAPACITY, class SWAPPER>
-int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCharacter(
+int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCodePoint(
                                                          const unsigned int uc)
 {
     BSLS_ASSERT_SAFE(d_capacity >= 1);
@@ -1263,7 +1265,7 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCharacter(
     }
     else if (fitsInThreeOctets(uc)) {
         if (isIllegal16BitValue(uc)) {
-            return handleInvalidChar();                               // RETURN
+            return handleInvalidWord();                               // RETURN
         }
         else {
             if (d_capacity >= 4) {
@@ -1277,7 +1279,7 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCharacter(
     }
     else if (fitsInFourOctets(uc)) {
         if (isIllegalFourOctetValue(uc)) {
-            return handleInvalidChar();                               // RETURN
+            return handleInvalidWord();                               // RETURN
         }
         else if (d_capacity >= 5) {
             encodeFourOctets(d_output, uc);
@@ -1288,7 +1290,7 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCharacter(
         }
     }
     else {
-        return handleInvalidChar();                                   // RETURN
+        return handleInvalidWord();                                   // RETURN
     }
 
     return 0;
@@ -1297,25 +1299,25 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCharacter(
 // CLASS METHODS
 template <class CAPACITY, class SWAPPER>
 int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
-                                           char               *output,
-                                           bsl::size_t         capacity,
-                                           const unsigned int *input,
-                                           bsl::size_t        *numCharsWritten,
-                                           bsl::size_t        *numBytesWritten,
-                                           const char          errorChar)
+                                      char               *output,
+                                      bsl::size_t         capacity,
+                                      const unsigned int *input,
+                                      bsl::size_t        *numCodePointsWritten,
+                                      bsl::size_t        *numBytesWritten,
+                                      const char          errorByte)
 {
-    BSLS_ASSERT(0 == (0x80 & errorChar));
+    BSLS_ASSERT(0 == (0x80 & errorByte));
 
     Utf32ToUtf8Translator<CAPACITY, SWAPPER> translator(octetCast(output),
                                                         capacity,
                                                         input,
-                                                        errorChar);
+                                                        errorByte);
     BSLS_ASSERT_SAFE(translator.d_capacity >= 1);
 
     int          ret = 0;
     unsigned int uc;
     while ((uc = SWAPPER::swapBytes(*translator.d_input++))) {
-        if (0 != translator.decodeCharacter(uc)) {
+        if (0 != translator.decodeCodePoint(uc)) {
             BSLS_ASSERT((bsl::is_same<CAPACITY, Capacity>::value));
             ret |= k_OUT_OF_SPACE_BIT;
             break;
@@ -1326,19 +1328,19 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
     *translator.d_output = 0;
     translator.advance(1);
 
-    *numCharsWritten = translator.d_numCharsWritten;
+    *numCodePointsWritten = translator.d_numCodePointsWritten;
 
     *numBytesWritten = translator.d_output - octetCast(output);
     BSLS_ASSERT((bsl::is_same<CAPACITY, NoopCapacity>::value) ||
                                                  *numBytesWritten <= capacity);
-    BSLS_ASSERT_SAFE((*numCharsWritten) * 4 - 3 >= *numBytesWritten);
+    BSLS_ASSERT_SAFE((*numCodePointsWritten) * 4 - 3 >= *numBytesWritten);
 
     // Check for 0's in the middle of the output.
 
     BSLS_ASSERT_SAFE(bsl::strlen(output) == *numBytesWritten - 1);
 
-    if (translator.d_invalidChars) {
-        ret |= k_INVALID_CHARS_BIT;
+    if (translator.d_invalidSequences) {
+        ret |= k_INVALID_INPUT_BIT;
     }
 
     return ret;
@@ -1358,12 +1360,12 @@ namespace bdlde {
 // CLASS METHODS
 int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                                   const char                *srcString,
-                                  unsigned int               errorCharacter,
+                                  unsigned int               errorWord,
                                   ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString);
-    BSLS_ASSERT(isLegalUtf32ErrorChar(errorCharacter));
+    BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     typedef Utf8ToUtf32Translator<NoopCapacity,
                                   Utf8ZeroBasedEnd,
@@ -1386,13 +1388,13 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                                             endFunctor,
                                             srcString,
                                             &numWordsWritten,
-                                            errorCharacter)
+                                            errorWord)
               : SwapTranslator::translate(&dstVector->front(),
                                           0,
                                           endFunctor,
                                           srcString,
                                           &numWordsWritten,
-                                          errorCharacter);
+                                          errorWord);
 
     // All asserts after this point are internal consistency checks that should
     // never fail in production, so they are for testing purposes only.
@@ -1401,10 +1403,10 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     BSLS_ASSERT_SAFE(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
-        // '0 == errorCharacter' and invalid characters occurred.
+        // '0 == errorWord' and invalid characters occurred.
 
-        BSLS_ASSERT_SAFE(0 == errorCharacter);
-        BSLS_ASSERT_SAFE(ret & k_INVALID_CHARS_BIT);
+        BSLS_ASSERT_SAFE(0 == errorWord);
+        BSLS_ASSERT_SAFE(ret & k_INVALID_INPUT_BIT);
         dstVector->resize(numWordsWritten);
     }
     else {
@@ -1412,11 +1414,10 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 
         BSLS_ASSERT_SAFE(bufferLen == numWordsWritten);
 
-        // If the estimate was spot on, either 'errorCharacter' was non-zero,
+        // If the estimate was spot on, either 'errorWord' was non-zero,
         // or no invalid characters occurred.
 
-        BSLS_ASSERT_SAFE(0 != errorCharacter ||
-                                             0 == (ret & k_INVALID_CHARS_BIT));
+        BSLS_ASSERT_SAFE(0 != errorWord || 0 == (ret & k_INVALID_INPUT_BIT));
     }
 
     BSLS_ASSERT_SAFE(0 == dstVector->back());
@@ -1433,12 +1434,12 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 
 int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                                   const bslstl::StringRef&   srcString,
-                                  unsigned int               errorCharacter,
+                                  unsigned int               errorWord,
                                   ByteOrder::Enum            byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString.begin());
-    BSLS_ASSERT(isLegalUtf32ErrorChar(errorCharacter));
+    BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     typedef Utf8ToUtf32Translator<NoopCapacity,
                                   Utf8PtrBasedEnd,
@@ -1461,13 +1462,13 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
                                             endFunctor,
                                             srcString.begin(),
                                             &numWordsWritten,
-                                            errorCharacter)
+                                            errorWord)
               : SwapTranslator::translate(&dstVector->front(),
                                           0,
                                           endFunctor,
                                           srcString.begin(),
                                           &numWordsWritten,
-                                          errorCharacter);
+                                          errorWord);
 
     // All asserts after this point are internal consistency checks that should
     // never fail in production, so they are for testing purposes only.
@@ -1476,10 +1477,10 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     BSLS_ASSERT_SAFE(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
-        // '0 == errorCharacter' and invalid characters occurred.
+        // '0 == errorWord' and invalid characters occurred.
 
-        BSLS_ASSERT_SAFE(0 == errorCharacter);
-        BSLS_ASSERT_SAFE(ret & k_INVALID_CHARS_BIT);
+        BSLS_ASSERT_SAFE(0 == errorWord);
+        BSLS_ASSERT_SAFE(ret & k_INVALID_INPUT_BIT);
         dstVector->resize(numWordsWritten);
     }
     else {
@@ -1487,11 +1488,11 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 
         BSLS_ASSERT_SAFE(bufferLen == numWordsWritten);
 
-        // If the estimate was spot on, either 'errorCharacter' was non-zero,
+        // If the estimate was spot on, either 'errorWord' was non-zero,
         // or no invalid characters occurred.
 
-        BSLS_ASSERT_SAFE(0 != errorCharacter ||
-                                             0 == (ret & k_INVALID_CHARS_BIT));
+        BSLS_ASSERT_SAFE(0 != errorWord ||
+                                             0 == (ret & k_INVALID_INPUT_BIT));
     }
 
     BSLS_ASSERT_SAFE(0 == dstVector->back());
@@ -1502,13 +1503,13 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 int CharConvertUtf32::utf8ToUtf32(unsigned int          *dstBuffer,
                                   bsl::size_t            dstCapacity,
                                   const char            *srcString,
-                                  bsl::size_t           *numCharsWritten,
-                                  unsigned int           errorCharacter,
+                                  bsl::size_t           *numCodePointsWritten,
+                                  unsigned int           errorWord,
                                   ByteOrder::Enum        byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString);
-    BSLS_ASSERT(isLegalUtf32ErrorChar(errorCharacter));
+    BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     typedef Utf8ToUtf32Translator<Capacity,
                                   Utf8ZeroBasedEnd,
@@ -1517,12 +1518,12 @@ int CharConvertUtf32::utf8ToUtf32(unsigned int          *dstBuffer,
                                   Utf8ZeroBasedEnd,
                                   NoopSwapper> NoSwapTranslator;
 
-    bsl::size_t localNumCharsWritten;
-    if (0 == numCharsWritten) {
-        numCharsWritten = &localNumCharsWritten;
+    bsl::size_t localNumCodePointsWritten;
+    if (0 == numCodePointsWritten) {
+        numCodePointsWritten = &localNumCodePointsWritten;
     }
     if (0 == dstCapacity) {
-        *numCharsWritten = 0;
+        *numCodePointsWritten = 0;
         return k_OUT_OF_SPACE_BIT;                                    // RETURN
     }
 
@@ -1531,26 +1532,27 @@ int CharConvertUtf32::utf8ToUtf32(unsigned int          *dstBuffer,
                                          dstCapacity,
                                          Utf8ZeroBasedEnd(),
                                          srcString,
-                                         numCharsWritten,
-                                         errorCharacter)
+                                         numCodePointsWritten,
+                                         errorWord)
            : SwapTranslator::translate(dstBuffer,
                                        dstCapacity,
                                        Utf8ZeroBasedEnd(),
                                        srcString,
-                                       numCharsWritten,
-                                       errorCharacter);
+                                       numCodePointsWritten,
+                                       errorWord);
 }
 
-int CharConvertUtf32::utf8ToUtf32(unsigned int               *dstBuffer,
-                                  bsl::size_t                 dstCapacity,
-                                  const bslstl::StringRef&    srcString,
-                                  bsl::size_t                *numCharsWritten,
-                                  unsigned int                errorCharacter,
-                                  ByteOrder::Enum             byteOrder)
+int CharConvertUtf32::utf8ToUtf32(
+                              unsigned int               *dstBuffer,
+                              bsl::size_t                 dstCapacity,
+                              const bslstl::StringRef&    srcString,
+                              bsl::size_t                *numCodePointsWritten,
+                              unsigned int                errorWord,
+                              ByteOrder::Enum             byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString.begin());
-    BSLS_ASSERT(isLegalUtf32ErrorChar(errorCharacter));
+    BSLS_ASSERT(isLegalUtf32ErrorWord(errorWord));
 
     typedef Utf8ToUtf32Translator<Capacity,
                                   Utf8PtrBasedEnd,
@@ -1560,12 +1562,12 @@ int CharConvertUtf32::utf8ToUtf32(unsigned int               *dstBuffer,
                                   NoopSwapper> NoSwapTranslator;
     Utf8PtrBasedEnd endFunctor(srcString.end());
 
-    bsl::size_t localNumCharsWritten;
-    if (0 == numCharsWritten) {
-        numCharsWritten = &localNumCharsWritten;
+    bsl::size_t localNumCodePointsWritten;
+    if (0 == numCodePointsWritten) {
+        numCodePointsWritten = &localNumCodePointsWritten;
     }
     if (0 == dstCapacity) {
-        *numCharsWritten = 0;
+        *numCodePointsWritten = 0;
         return k_OUT_OF_SPACE_BIT;                                    // RETURN
     }
 
@@ -1574,64 +1576,63 @@ int CharConvertUtf32::utf8ToUtf32(unsigned int               *dstBuffer,
                                          dstCapacity,
                                          endFunctor,
                                          srcString.begin(),
-                                         numCharsWritten,
-                                         errorCharacter)
+                                         numCodePointsWritten,
+                                         errorWord)
            : SwapTranslator::translate(dstBuffer,
                                        dstCapacity,
                                        endFunctor,
                                        srcString.begin(),
-                                       numCharsWritten,
-                                       errorCharacter);
+                                       numCodePointsWritten,
+                                       errorWord);
 }
 
                                 // UTF32 to UTF8
 
 int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
                                   const unsigned int    *srcString,
-                                  bsl::size_t           *numCharsWritten,
-                                  unsigned char          errorCharacter,
+                                  bsl::size_t           *numCodePointsWritten,
+                                  unsigned char          errorByte,
                                   ByteOrder::Enum        byteOrder)
 {
     BSLS_ASSERT(dstString);
     BSLS_ASSERT(srcString);
-    BSLS_ASSERT(errorCharacter < 0x80);
+    BSLS_ASSERT(errorByte < 0x80);
 
     typedef Utf32ToUtf8Translator<NoopCapacity, NoopSwapper> NoSwapTranslator;
     typedef Utf32ToUtf8Translator<NoopCapacity,     Swapper>   SwapTranslator;
 
     bsl::size_t bufferLen = ByteOrder::e_HOST == byteOrder
-                            ? utf8BufferLengthNeeded<NoopSwapper>(
-                                                                srcString,
-                                                                errorCharacter)
-                            : utf8BufferLengthNeeded<Swapper>(srcString,
-                                                              errorCharacter);
+                               ? utf8BufferLengthNeeded<NoopSwapper>(srcString,
+                                                                     errorByte)
+                               : utf8BufferLengthNeeded<Swapper>(srcString,
+                                                                 errorByte);
     BSLS_ASSERT_SAFE(bufferLen > 0);
     dstString->resize(bufferLen);
     BSLS_ASSERT_SAFE(dstString->length() == bufferLen);
 
-    bsl::size_t numBytesWritten, localNumCharsWritten;
-    if (!numCharsWritten) {
-        numCharsWritten = &localNumCharsWritten;
+    bsl::size_t numBytesWritten, localNumCodePointsWritten;
+    if (!numCodePointsWritten) {
+        numCodePointsWritten = &localNumCodePointsWritten;
     }
     char *begin = &dstString->front();
     int   ret = ByteOrder::e_HOST == byteOrder
                 ? NoSwapTranslator::translate(begin,
                                               0,
                                               srcString,
-                                              numCharsWritten,
+                                              numCodePointsWritten,
                                               &numBytesWritten,
-                                              errorCharacter)
+                                              errorByte)
                 : SwapTranslator::translate(begin,
                                             0,
                                             srcString,
-                                            numCharsWritten,
+                                            numCodePointsWritten,
                                             &numBytesWritten,
-                                            errorCharacter);
+                                            errorByte);
 
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_ASSERT_SAFE(*numCharsWritten > 0);
+    BSLS_ASSERT_SAFE(*numCodePointsWritten > 0);
     BSLS_ASSERT_SAFE( numBytesWritten == bufferLen);
     BSLS_ASSERT_SAFE(!(ret & k_OUT_OF_SPACE_BIT));
     BSLS_ASSERT_SAFE(0 == (*dstString)[numBytesWritten - 1]);
@@ -1645,53 +1646,52 @@ int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
     return ret;
 }
 
-int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>        *dstVector,
-                                        const unsigned int *srcString,
-                                        bsl::size_t        *numCharsWritten,
-                                        unsigned char       errorCharacter,
-                                        ByteOrder::Enum     byteOrder)
+int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>  *dstVector,
+                                  const unsigned int *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  unsigned char       errorByte,
+                                  ByteOrder::Enum     byteOrder)
 {
     BSLS_ASSERT(dstVector);
     BSLS_ASSERT(srcString);
-    BSLS_ASSERT(errorCharacter < 0x80);
+    BSLS_ASSERT(errorByte < 0x80);
 
     typedef Utf32ToUtf8Translator<NoopCapacity,     Swapper>   SwapTranslator;
     typedef Utf32ToUtf8Translator<NoopCapacity, NoopSwapper> NoSwapTranslator;
 
     bsl::size_t bufferLen = ByteOrder::e_HOST == byteOrder
-                            ? utf8BufferLengthNeeded<NoopSwapper>(
-                                                                srcString,
-                                                                errorCharacter)
-                            : utf8BufferLengthNeeded<Swapper>(srcString,
-                                                              errorCharacter);
+                               ? utf8BufferLengthNeeded<NoopSwapper>(srcString,
+                                                                     errorByte)
+                               : utf8BufferLengthNeeded<Swapper>(srcString,
+                                                                 errorByte);
     BSLS_ASSERT_SAFE(bufferLen > 0);
     dstVector->resize(bufferLen);
 
-    bsl::size_t numBytesWritten, localNumCharsWritten;
-    if (!numCharsWritten) {
-        numCharsWritten = &localNumCharsWritten;
+    bsl::size_t numBytesWritten, localNumCodePointsWritten;
+    if (!numCodePointsWritten) {
+        numCodePointsWritten = &localNumCodePointsWritten;
     }
     char *begin = &dstVector->front();
     int   ret   = ByteOrder::e_HOST == byteOrder
                   ? NoSwapTranslator::translate(begin,
                                                 0,
                                                 srcString,
-                                                numCharsWritten,
+                                                numCodePointsWritten,
                                                 &numBytesWritten,
-                                                errorCharacter)
+                                                errorByte)
                   : SwapTranslator::translate(begin,
                                               0,
                                               srcString,
-                                              numCharsWritten,
+                                              numCodePointsWritten,
                                               &numBytesWritten,
-                                              errorCharacter);
+                                              errorByte);
 
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_ASSERT_SAFE(*numCharsWritten > 0);
+    BSLS_ASSERT_SAFE(*numCodePointsWritten > 0);
     BSLS_ASSERT_SAFE( numBytesWritten > 0);
-    BSLS_ASSERT_SAFE(*numCharsWritten <= numBytesWritten);
+    BSLS_ASSERT_SAFE(*numCodePointsWritten <= numBytesWritten);
     BSLS_ASSERT_SAFE(0 == (ret & k_OUT_OF_SPACE_BIT));
     BSLS_ASSERT_SAFE(numBytesWritten == bufferLen);
     BSLS_ASSERT_SAFE(0 == dstVector->back());
@@ -1699,28 +1699,28 @@ int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>        *dstVector,
     return ret;
 }
 
-int CharConvertUtf32::utf32ToUtf8(char                  *dstBuffer,
-                                  bsl::size_t            dstCapacity,
-                                  const unsigned int    *srcString,
-                                  bsl::size_t           *numCharsWritten,
-                                  bsl::size_t           *numBytesWritten,
-                                  unsigned char          errorCharacter,
-                                  ByteOrder::Enum        byteOrder)
+int CharConvertUtf32::utf32ToUtf8(char               *dstBuffer,
+                                  bsl::size_t         dstCapacity,
+                                  const unsigned int *srcString,
+                                  bsl::size_t        *numCodePointsWritten,
+                                  bsl::size_t        *numBytesWritten,
+                                  unsigned char       errorByte,
+                                  ByteOrder::Enum     byteOrder)
 {
     BSLS_ASSERT(dstBuffer);
     BSLS_ASSERT(srcString);
-    BSLS_ASSERT(errorCharacter < 0x80);
+    BSLS_ASSERT(errorByte < 0x80);
 
-    bsl::size_t localNumCharsWritten, localNumBytesWritten;
-    if (0 == numCharsWritten) {
-        numCharsWritten = &localNumCharsWritten;
+    bsl::size_t localNumCodePointsWritten, localNumBytesWritten;
+    if (0 == numCodePointsWritten) {
+        numCodePointsWritten = &localNumCodePointsWritten;
     }
     if (0 == numBytesWritten) {
         numBytesWritten = &localNumBytesWritten;
     }
 
     if (0 == dstCapacity) {
-        *numCharsWritten = 0;
+        *numCodePointsWritten = 0;
         *numBytesWritten = 0;
         return k_OUT_OF_SPACE_BIT;                                    // RETURN
     }
@@ -1732,22 +1732,22 @@ int CharConvertUtf32::utf32ToUtf8(char                  *dstBuffer,
               ? NoSwapTranslator::translate(dstBuffer,
                                             dstCapacity,
                                             srcString,
-                                            numCharsWritten,
+                                            numCodePointsWritten,
                                             numBytesWritten,
-                                            errorCharacter)
+                                            errorByte)
               : SwapTranslator::translate(dstBuffer,
                                           dstCapacity,
                                           srcString,
-                                          numCharsWritten,
+                                          numCodePointsWritten,
                                           numBytesWritten,
-                                          errorCharacter);
+                                          errorByte);
 
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_ASSERT_SAFE(*numCharsWritten > 0);
+    BSLS_ASSERT_SAFE(*numCodePointsWritten > 0);
     BSLS_ASSERT_SAFE(*numBytesWritten > 0);
-    BSLS_ASSERT_SAFE(*numCharsWritten <= *numBytesWritten);
+    BSLS_ASSERT_SAFE(*numCodePointsWritten <= *numBytesWritten);
     BSLS_ASSERT_SAFE(*numBytesWritten <= dstCapacity);
     BSLS_ASSERT_SAFE(0 == dstBuffer[*numBytesWritten - 1]);
 

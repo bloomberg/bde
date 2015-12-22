@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 //..
 // This statement produces the following output on 'stdout':
 //..
-// INVALID_CHARS_BIT
+// INVALID_INPUT_BIT
 //..
 
       } break;

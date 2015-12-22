@@ -267,7 +267,7 @@ BSLS_IDENT("$Id: $")
 // of code points (code points, not bytes or words) translated:
 //..
 //  bsl::string s;
-//  bsl::size_t utf8CharsWritten;
+//  bsl::size_t uf8CodePointsWritten;
 //..
 // Again, note that for performance, we should ideally
 // 's.reserve(3 * v16.size())' but it's not really necessary.
@@ -276,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  retVal = bdlde::CharConvertUtf16::utf16ToUtf8(&s,
 //                                                v16.begin(),
-//                                                &utf8CharsWritten);
+//                                                &uf8CodePointsWritten);
 //..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
@@ -286,8 +286,8 @@ BSLS_IDENT("$Id: $")
 //  assert(utf8MultiLang == s);
 //  assert(s.length() + 1               == sizeof(utf8MultiLang));
 //
-//  assert(EXPECTED_CODE_POINTS_WRITTEN == utf8CharsWritten);
-//  assert(utf16CodePointsWritten       == utf8CharsWritten);
+//  assert(EXPECTED_CODE_POINTS_WRITTEN == uf8CodePointsWritten);
+//  assert(utf16CodePointsWritten       == uf8CodePointsWritten);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -324,7 +324,7 @@ namespace bdlde {
 struct CharConvertUtf16 {
     // This 'struct' provides a namespace for a suite of static functions to
     // convert buffers or containers between UTF-8 and UTF-16.  Note that Byte
-    // Order Mark (BOM) characters are neither generated nor recognized as
+    // Order Mark (BOM) sequences are neither generated nor recognized as
     // special.  If a BOM is present in the input, it will be translated,
     // whether correct ('0xfeff') or incorrect ('0xfffe'), into the output
     // without any special handling.
@@ -356,7 +356,7 @@ struct CharConvertUtf16 {
         // 'byteOrder' to indicate the byte order of the UTF-16 output; if
         // 'byteOrder' is not specified, the output is assumed to be in host
         // byte order.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' otherwise.  Invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' otherwise.  Invalid
         // encodings are multi-byte encoding parts out of sequence, non-minimal
         // UTF-8 encodings of code points, or code points outside the ranges
         // which UTF-16 can validly encode (in the range '[ 1 .. 0xd7ff ]' or
@@ -397,7 +397,7 @@ struct CharConvertUtf16 {
         // specify 'byteOrder' to indicate the byte order of the UTF-16 output;
         // if 'byteOrder' is not specified, the output is assumed to be in host
         // byte order.  Any previous contents of the destination are discarded.
-        // Return 0 on success and 'CharConvertStatus::k_INVALID_CHARS_BIT'
+        // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT'
         // otherwise.  The behavior is undefined unless 'errorWord' is either 0
         // or a valid single-word encoded UTF-16 code point (in the range
         // '[ 1 .. 0xd7ff ]' or '[ 0xe000 .. 0xffff ]') and 'srcString' is
@@ -555,7 +555,7 @@ struct CharConvertUtf16 {
         // the byte order of the UTF-16 input; if 'byteOrder' is not specified,
         // the input is assumed to be in host byte order.  Any previous
         // contents of the destination are discarded.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // sequences were encountered in the input.  The behavior is undefined
         // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
         // a valid single-byte unicode code point ('0 < errorByte < 0x80').
@@ -592,7 +592,7 @@ struct CharConvertUtf16 {
         // specify 'byteOrder' to indicate the byte order of the UTF-16 input;
         // if 'byteOrder' is not specified, the input is assumed to be in host
         // byte order.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // sequences were encountered in the input.  The behavior is undefined
         // unless 'errorByte' is either 0 or a valid single-byte unicode code
         // point ('0 < errorByte < 0x80') and 'srcString' is null-terminated if
@@ -621,7 +621,7 @@ struct CharConvertUtf16 {
         // UTF-16 input; if 'byteOrder' is not specified, the input is assumed
         // to be in host byte order.  Any previous contents of the destination
         // are discarded.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // sequences were encountered in the input.  The behavior is undefined
         // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
         // a valid single-byte unicode code point ('0 < errorByte < 0x80').
@@ -654,7 +654,7 @@ struct CharConvertUtf16 {
         // 'byteOrder' to indicate the byte order of the UTF-16 input; if
         // 'byteOrder' is not specified, the input is assumed to be in host
         // byte order.  Any previous contents of the destination are discarded.
-        // Return 0 on success and 'CharConvertStatus::k_INVALID_CHARS_BIT' if
+        // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
         // one or more invalid sequences were encountered in the input.  The
         // behavior is undefined unless 'errorByte' is either 0 or a valid
         // single-byte unicode code point ('0 < errorByte < 0x80') and
@@ -690,7 +690,7 @@ struct CharConvertUtf16 {
         // 'byteOrder' is not specified, the input is assumed to be in host
         // byte order.  Return 0 on success and a bitwise-or of the masks
         // defined by 'CharConvertStatus::Enum' otherwise, where
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or more
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if one or more
         // invalid sequences were encountered in the input, and
         // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
         // space was exhausted before conversion was complete.  The behavior is
@@ -750,7 +750,7 @@ struct CharConvertUtf16 {
         // the byte order of the UTF-16 input; if 'byteOrder' is not specified,
         // the input is assumed to be in host byte order.  Return 0 on success
         // and a bitwise-or of the flags defined by 'CharConvertStatus::Enum'
-        // otherwise.  'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if
+        // otherwise.  'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if
         // one or more invalid sequences were encountered in the input, and
         // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
         // space was exhausted before conversion was complete.  The behavior is

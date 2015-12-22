@@ -34,9 +34,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  Name                      Description
 //  -------------------   ---------------------------------------------
-//  e_INVALID_INPUT_BIT   Invalid code points or sequences of bytes / words
+//  k_INVALID_INPUT_BIT   Invalid code points or sequences of bytes / words
 //                        were encountered in the input.
-//  e_OUT_OF_SPACE_BIT    The space provided for the output was
+//  k_OUT_OF_SPACE_BIT    The space provided for the output was
 //                        insufficient for the translation.
 //..
 //
@@ -54,13 +54,13 @@ BSLS_IDENT("$Id: $")
 // 'enum'.
 //..
 //      bdlde::CharConvertStatus::Enum value =
-//                               bdlde::CharConvertStatus::e_INVALID_CHARS_BIT;
+//                               bdlde::CharConvertStatus::k_INVALID_INPUT_BIT;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
 //..
 //      const char *asciiValue = bdlde::CharConvertStatus::toAscii(value);
-//      assert(0 == bsl::strcmp(asciiValue, "INVALID_CHARS_BIT"));
+//      assert(0 == bsl::strcmp(asciiValue, "INVALID_INPUT_BIT"));
 //..
 // Finally, we print 'value' to 'bsl::cout'.
 //..
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //..
 // This statement produces the following output on 'stdout':
 //..
-// INVALID_CHARS_BIT
+// INVALID_INPUT_BIT
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION

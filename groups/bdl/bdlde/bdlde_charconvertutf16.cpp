@@ -203,19 +203,19 @@ typedef BloombergLP::bdlde::CharConvertUtf16 Util;
 typedef BloombergLP::bslstl::StringRef      StringRef;
 
 enum {
-    INVALID_CHARS_BIT =
-                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_CHARS_BIT,
+    INVALID_INPUT_BIT =
+                    BloombergLP::bdlde::CharConvertStatus::k_INVALID_INPUT_BIT,
     OUT_OF_SPACE_BIT  =
                     BloombergLP::bdlde::CharConvertStatus::k_OUT_OF_SPACE_BIT
 };
 
-typedef unsigned int UnicodeChar;
+typedef unsigned int UnicodeCodePoint;
     // For storing uncompressed Unicode character (21 bit, 17 plane).
 
 // Portability check -- data type sizes.
 BSLMF_ASSERT(8 == CHAR_BIT);
 BSLMF_ASSERT(2 == sizeof(unsigned short));
-BSLMF_ASSERT(4 == sizeof(UnicodeChar));
+BSLMF_ASSERT(4 == sizeof(UnicodeCodePoint));
 BSLMF_ASSERT(4 == sizeof(unsigned int));
 BSLMF_ASSERT(2 == sizeof(wchar_t) || 4 == sizeof(wchar_t));
 
@@ -236,15 +236,15 @@ BSLMF_ASSERT(2 == sizeof(wchar_t) || 4 == sizeof(wchar_t));
 // When the words storing the UTF-16 content are 2 bytes long, a full swap is
 // necessary, and then we just call 'bsls::ByteOrderUtil::swapBytes'.
 
-template <class    UTF16_CHAR,
-          unsigned UTF16_CHAR_SIZE>
-UTF16_CHAR swappedToHost(UTF16_CHAR uc);
+template <class    UTF16_WORD,
+          unsigned UTF16_WORD_SIZE>
+UTF16_WORD swappedToHost(UTF16_WORD uc);
     // Return the value of the specified 'uc' in host byte order, where 'uc' is
     // assumed to be in a swapped state.
 
-template <class    UTF16_CHAR,
-          unsigned UTF16_CHAR_SIZE>
-UTF16_CHAR hostToSwapped(UTF16_CHAR uc);
+template <class    UTF16_WORD,
+          unsigned UTF16_WORD_SIZE>
+UTF16_WORD hostToSwapped(UTF16_WORD uc);
     // Return the value of the specified 'uc' with its bytes swapped, where
     // 'uc' is assumed to be in host byte order.
 
@@ -570,7 +570,7 @@ struct Utf8 {
     //:   provided to cover this trivial computation.
 
     static
-    UnicodeChar decodeTwoOctets(const OctetType *octBuf)
+    UnicodeCodePoint decodeTwoOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a two-octet
         // sequence, decode that sequence, and return the decoded Unicode
         // character.
@@ -580,7 +580,7 @@ struct Utf8 {
     }
 
     static
-    UnicodeChar decodeThreeOctets(const OctetType *octBuf)
+    UnicodeCodePoint decodeThreeOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a three-octet
         // sequence, decode that sequence, and return the decoded Unicode
         // character.
@@ -591,7 +591,7 @@ struct Utf8 {
     }
 
     static
-    UnicodeChar decodeFourOctets(const OctetType *octBuf)
+    UnicodeCodePoint decodeFourOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a four-octet
         // sequence, decode that sequence, and return the decoded Unicode
         // character.
@@ -615,28 +615,28 @@ struct Utf8 {
     //    range).
 
     static
-    bool fitsInSingleOctet(UnicodeChar uc)
+    bool fitsInSingleOctet(UnicodeCodePoint uc)
         // Return 'true' if the specified Unicode character 'uc' will fit in a
         // single octet of UTF-8, and 'false' otherwise.
     {
-        return 0 == (uc & ~UnicodeChar(0) << ONE_OCT_CONT_WID);
+        return 0 == (uc & ~UnicodeCodePoint(0) << ONE_OCT_CONT_WID);
     }
 
     static
-    bool fitsInTwoOctets(UnicodeChar uc)
+    bool fitsInTwoOctets(UnicodeCodePoint uc)
         // Return 'true' if the specified Unicode character 'uc' will fit in
         // two octets of UTF-8, and 'false' otherwise.
     {
-        return 0 == (uc & ~UnicodeChar(0) << (TWO_OCT_CONT_WID +
+        return 0 == (uc & ~UnicodeCodePoint(0) << (TWO_OCT_CONT_WID +
                                                           CONTINUE_CONT_WID));
     }
 
     static
-    bool fitsInThreeOctets(UnicodeChar uc)
+    bool fitsInThreeOctets(UnicodeCodePoint uc)
         // Return 'true' if the specified Unicode character 'uc' will fit in
         // three octets of UTF-8, and 'false' otherwise.
     {
-        return 0 == (uc & ~UnicodeChar(0) << (THREE_OCT_CONT_WID +
+        return 0 == (uc & ~UnicodeCodePoint(0) << (THREE_OCT_CONT_WID +
                                                       2 * CONTINUE_CONT_WID));
     }
 
@@ -653,7 +653,7 @@ struct Utf8 {
     //     direct copy, for which no function is provided here.
 
     static
-    void encodeTwoOctets(char *octBuf, UnicodeChar isoBuf)
+    void encodeTwoOctets(char *octBuf, UnicodeCodePoint isoBuf)
         // Assume the specified 'isoBuf' will fit in 2 octets of UTF-8 and
         // encode it at the position indicated by the specified 'octBuf'.
     {
@@ -664,7 +664,7 @@ struct Utf8 {
     }
 
     static
-    void encodeThreeOctets(char *octBuf, UnicodeChar isoBuf)
+    void encodeThreeOctets(char *octBuf, UnicodeCodePoint isoBuf)
         // Assume the specified 'isoBuf' will fit in 3 octets of UTF-8 and
         // encode it at the position indicated by the specified 'octBuf'.
     {
@@ -677,7 +677,7 @@ struct Utf8 {
     }
 
     static
-    void encodeFourOctets(char *octBuf, UnicodeChar isoBuf)
+    void encodeFourOctets(char *octBuf, UnicodeCodePoint isoBuf)
         // Assume the specified 'isoBuf' will fit in 4 octets of UTF-8 and
         // encode it at the position indicated by the specified 'octBuf'.
     {
@@ -706,30 +706,30 @@ struct Utf16 {
            FIRST_TAG        = 0xD800,  // Header of first two-word part
            SECOND_TAG       = 0xDC00,  // Header of second two-word part
            CONTENT_CONT_WID = 10,      // Ten content bits
-           CONTENT_MASK     = ~UnicodeChar(RESERVED_MASK),
+           CONTENT_MASK     = ~UnicodeCodePoint(RESERVED_MASK),
            RESERVE_OFFSET   = 0x10000, // Subtract this before coding two-part
                                        // characters, per rfc 2871.
            UPPER_LIMIT      = 0x110000 // Valid characters lie below this, and
                                        // outside the reserved range.
     };
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     class PtrBasedEnd {
         // The 'class' determines whether translation is at the end of input by
         // comparisons with an end pointer.
 
         // DATA
-        const UTF16_CHAR * const d_end;
+        const UTF16_WORD * const d_end;
 
       public:
         // CREATORS
         explicit
-        PtrBasedEnd(const UTF16_CHAR *end) : d_end(end) {}
+        PtrBasedEnd(const UTF16_WORD *end) : d_end(end) {}
             // Create a 'PtrBasedEnd' object with the end at the specified
             // 'end'.
 
         // ACCESSORS
-        bool isFinished(const UTF16_CHAR *utf16Buf) const
+        bool isFinished(const UTF16_WORD *utf16Buf) const
             // Return 'true' if the specified 'utf16Buf' is at the end of
             // input, and 'false' otherwise.
         {
@@ -744,13 +744,13 @@ struct Utf16 {
         }
     };
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     struct ZeroBasedEnd {
         // The 'class' determines whether translation is at the end of input by
         // evaluating whether the next word of input is 0.
 
         // ACCESSORS
-        bool isFinished(const UTF16_CHAR *u16Buf) const
+        bool isFinished(const UTF16_WORD *u16Buf) const
             // Return 'true' if the specified 'utf16Buf' is at the end of
             // input, and 'false' otherwise.
         {
@@ -771,39 +771,39 @@ struct Utf16 {
     //    two-word encoding, or the second word of a two-word encoding,
     //    respectively, and 'false' otherwise.
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     static
-    bool isSingleUtf8(UTF16_CHAR uc)
+    bool isSingleUtf8(UTF16_WORD uc)
         // Return 'true' if the specified 'uc' will fit in a single 'UTF-8'
         // character, and 'false' otherwise.
     {
         enum { HIGH_BITS =
-                        UTF16_CHAR(~UTF16_CHAR(0) << Utf8::ONE_OCT_CONT_WID) };
+                        UTF16_WORD(~UTF16_WORD(0) << Utf8::ONE_OCT_CONT_WID) };
 
         return 0 == (uc & HIGH_BITS);
     }
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     static
-    bool isSingleWord(UTF16_CHAR uc)
+    bool isSingleWord(UTF16_WORD uc)
         // Return 'true' if the specified 'uc' is a Unicode value that will fit
         // in a single UTF-16 character, and 'false' otherwise.
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     static
-    bool isFirstWord(UTF16_CHAR uc)
+    bool isFirstWord(UTF16_WORD uc)
         // Return 'true' if the specified 'uc' is the first word of a two-word
         // UTF-16 sequence, and 'false' otherwise.
     {
         return (uc & HEADER_MASK) == FIRST_TAG;
     }
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     static
-    bool isSecondWord(UTF16_CHAR uc)
+    bool isSecondWord(UTF16_WORD uc)
         // Return 'true' if the specified 'uc' is the second word of a two-word
         // UTF-16 sequence, and 'false' otherwise.
     {
@@ -828,9 +828,9 @@ struct Utf16 {
     //     words addressed by the second argument are a valid iso10646
     //     character in the specified encoding.
 
-    template <class UTF16_CHAR>
+    template <class UTF16_WORD>
     static
-    OctetType getUtf8Value(UTF16_CHAR uc)
+    OctetType getUtf8Value(UTF16_WORD uc)
         // Assuming the specified 'uc' is a Unicode value that can be
         // expressed as a single ASCII character, return it without
         // modification.
@@ -849,7 +849,7 @@ struct Utf16 {
     //     word.
 
     static
-    bool fitsInOneWord(UnicodeChar uc)
+    bool fitsInOneWord(UnicodeCodePoint uc)
         // Return 'true' if the specified 'uc' will fit in a single word of
         // UTF-16, and 'false' otherwise.
     {
@@ -857,7 +857,7 @@ struct Utf16 {
     }
 
     static
-    bool isValidOneWord(UnicodeChar uc)
+    bool isValidOneWord(UnicodeCodePoint uc)
         // Return 'true' if the specified 'uc' will fit in a single word of
         // UTF-16, and is not the first or second word of a double-word UTF-16
         // sequence, and 'false' otherwise.
@@ -866,7 +866,7 @@ struct Utf16 {
     }
 
     static
-    bool isValidTwoWords(UnicodeChar uc)
+    bool isValidTwoWords(UnicodeCodePoint uc)
         // Return 'true' if the specified 'uc' is not too large to be encoded
         // as two words of UTF-16, and 'false' otherwise.
     {
@@ -874,7 +874,8 @@ struct Utf16 {
     }
 
     static
-    UnicodeChar combineTwoWords(UnicodeChar first, UnicodeChar second)
+    UnicodeCodePoint combineTwoWords(UnicodeCodePoint first,
+                                     UnicodeCodePoint second)
         // Assume that the specified 'first' is a valid first word of a 2-word
         // UTF-16 sequence, and that the specified 'second' is a valid second
         // word of such a sequence; return the two words combined into a
@@ -885,61 +886,61 @@ struct Utf16 {
     }
 };
 
-template <class UTF16_CHAR>
+template <class UTF16_WORD>
 struct Swapper {
     // This 'struct' contains static functions that facilitate doing encoding
     // and decoding of swapped UTF-16 data.
 
-    enum { k_SIZE = sizeof(UTF16_CHAR) };
+    enum { k_SIZE = sizeof(UTF16_WORD) };
 
     // CLASS METHODS
     static
-    UnicodeChar decodeSingleWord(const UTF16_CHAR *u16Buf)
+    UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
         // 'utf16Buf' points to a swapped, single-word Unicode character.
         // Return the Unicode character version of the specified '*utf16Buf' in
         // host byte order.
     {
-        return swappedToHost<UTF16_CHAR, k_SIZE>(*u16Buf);
+        return swappedToHost<UTF16_WORD, k_SIZE>(*u16Buf);
     }
 
     static
-    UTF16_CHAR encodeSingleWord(UnicodeChar uc)
+    UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
         // The specified 'uc' is a Unicode character, in host byte order,
-        // encodable as a single 'UTF16_CHAR'.  Return the swapped single-word
+        // encodable as a single 'UTF16_WORD'.  Return the swapped single-word
         // encoding of the 'uc'.
     {
-        return hostToSwapped<UTF16_CHAR, k_SIZE>(static_cast<UTF16_CHAR>(uc));
+        return hostToSwapped<UTF16_WORD, k_SIZE>(static_cast<UTF16_WORD>(uc));
     }
 
     static
-    void encodeTwoWords(UTF16_CHAR *u16Buf, UnicodeChar uc)
+    void encodeTwoWords(UTF16_WORD *u16Buf, UnicodeCodePoint uc)
         // Write the specified 'uc' to two swapped words beginning at the
         // specified 'u16Buf', assuming that 'uc' is a Unicode value that
         // requires two words of UTF-16 to encode.
     {
-        UnicodeChar v = uc - Utf16::RESERVE_OFFSET;
-        UTF16_CHAR word = static_cast<UTF16_CHAR>(Utf16::FIRST_TAG  |
+        UnicodeCodePoint v = uc - Utf16::RESERVE_OFFSET;
+        UTF16_WORD word = static_cast<UTF16_WORD>(Utf16::FIRST_TAG  |
                                                (v >> Utf16::CONTENT_CONT_WID));
-        u16Buf[0] = hostToSwapped<UTF16_CHAR, k_SIZE>(word);
-        word =            static_cast<UTF16_CHAR>(Utf16::SECOND_TAG |
-                         (v & ~(~UnicodeChar(0) << Utf16::CONTENT_CONT_WID)));
-        u16Buf[1] = hostToSwapped<UTF16_CHAR, k_SIZE>(word);
+        u16Buf[0] = hostToSwapped<UTF16_WORD, k_SIZE>(word);
+        word =            static_cast<UTF16_WORD>(Utf16::SECOND_TAG |
+                     (v & ~(~UnicodeCodePoint(0) << Utf16::CONTENT_CONT_WID)));
+        u16Buf[1] = hostToSwapped<UTF16_WORD, k_SIZE>(word);
     }
 
     static
-    UTF16_CHAR swap32(UTF16_CHAR utf16Char)
-        // Return the value of the specified 'utf16Char' with its byte order
+    UTF16_WORD swap32(UTF16_WORD utf16Word)
+        // Return the value of the specified 'utf16Word' with its byte order
         // swapped.  Note that this function is never called unless
-        // 'UTF16_CHAR' is a 32-bit quantity, and it is not called in the
+        // 'UTF16_WORD' is a 32-bit quantity, and it is not called in the
         // critical path.
     {
-        BSLS_ASSERT_SAFE(4 == sizeof(UTF16_CHAR));
+        BSLS_ASSERT_SAFE(4 == sizeof(UTF16_WORD));
 
-        return BloombergLP::bsls::ByteOrderUtil::swapBytes(utf16Char);
+        return BloombergLP::bsls::ByteOrderUtil::swapBytes(utf16Word);
     }
 };
 
-template <class UTF16_CHAR>
+template <class UTF16_WORD>
 struct NoOpSwapper {
     // This 'struct' provides functions with the same names and interfaces as
     // the functions in 'Swapper', except that the functions here don't swap
@@ -948,7 +949,7 @@ struct NoOpSwapper {
 
     // CLASS METHODS
     static
-    UnicodeChar decodeSingleWord(const UTF16_CHAR *u16Buf)
+    UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
         // Return the Unicode character version of the specified '*utf16Buf' in
         // host byte order.  'utf16Buf' points to a single-word Unicode
         // character in host byte order.
@@ -957,34 +958,34 @@ struct NoOpSwapper {
     }
 
     static
-    UTF16_CHAR encodeSingleWord(UnicodeChar uc)
+    UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
         // Return the single-word encoding of the specified 'uc' in host byte
         // order.  The 'uc' is a Unicode character encodable as a single
-        // 'UTF16_CHAR' in host byte order.
+        // 'UTF16_WORD' in host byte order.
     {
-        return static_cast<UTF16_CHAR>(uc);
+        return static_cast<UTF16_WORD>(uc);
     }
 
     static
-    void encodeTwoWords(UTF16_CHAR *u16Buf, UnicodeChar uc)
+    void encodeTwoWords(UTF16_WORD *u16Buf, UnicodeCodePoint uc)
         // Write the specified 'uc', in host byte order, to two words beginning
         // at the specified 'u16Buf', assuming that 'uc' is a Unicode value
         // that requires two words of UTF-16 to encode.
     {
-        UnicodeChar v = uc - Utf16::RESERVE_OFFSET;
-        u16Buf[0] = static_cast<UTF16_CHAR>(Utf16::FIRST_TAG  |
+        UnicodeCodePoint v = uc - Utf16::RESERVE_OFFSET;
+        u16Buf[0] = static_cast<UTF16_WORD>(Utf16::FIRST_TAG  |
                                               (v >> Utf16::CONTENT_CONT_WID));
-        u16Buf[1] = static_cast<UTF16_CHAR>(Utf16::SECOND_TAG |
-                          (v & ~(~UnicodeChar(0) << Utf16::CONTENT_CONT_WID)));
+        u16Buf[1] = static_cast<UTF16_WORD>(Utf16::SECOND_TAG |
+                     (v & ~(~UnicodeCodePoint(0) << Utf16::CONTENT_CONT_WID)));
     }
 
     static
-    UTF16_CHAR swap32(UTF16_CHAR utf16Char)
-        // Return the value of the specified 'utf16Char' with its byte order
+    UTF16_WORD swap32(UTF16_WORD utf16Word)
+        // Return the value of the specified 'utf16Word' with its byte order
         // swapped.  Note that this function is never called unless
-        // 'UTF16_CHAR' is a 32-bit quantity.
+        // 'UTF16_WORD' is a 32-bit quantity.
     {
-        return utf16Char;
+        return utf16Word;
     }
 };
 
@@ -1068,18 +1069,18 @@ bsl::size_t utf16BufferLength(const char  *srcBuffer,
     return wordsNeeded + 1;
 }
 
-template <class UTF16_CHAR,
+template <class UTF16_WORD,
           class CAPACITY_FUNCTOR,
           class END_FUNCTOR,
           class SWAPPER>
-int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
+int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
                      CAPACITY_FUNCTOR  dstCapacity,
                      const char       *srcBuffer,
                      END_FUNCTOR       endFunctor,
                      SWAPPER           swapper,
                      bsl::size_t      *numCodePointsWritten,
                      bsl::size_t      *numWordsWritten,
-                     UTF16_CHAR        errorWord)
+                     UTF16_WORD        errorWord)
     // Translate from the specified null-terminated UTF-8 buffer 'srcBuffer' to
     // the specified null-terminated UTF-16 buffer 'dstBuffer' whose capacity
     // is evaluated by the specified 'dstCapacity', using the specified
@@ -1087,7 +1088,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     // specified 'swapper' to either swap UTF-16 words (if it is 'Swapper') or
     // not swap them (if it is 'NoopSwapper').  Return the number of Unicode
     // characters in the specified '*numCodePointsWritten' and the number of
-    // 'UTF16_CHAR's written in the specified '*numWordsWritten'.  The
+    // 'UTF16_WORD's written in the specified '*numWordsWritten'.  The
     // specified 'errorWord' is output in place of any error sequences
     // encountered, or nothing is output in their place if '0 == errorWord'.
     // Return a bit-wise or of the flags specified by
@@ -1125,12 +1126,12 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
         return OUT_OF_SPACE_BIT;                                      // RETURN
     }
 
-    UTF16_CHAR *const dstStart = dstBuffer;
-    bsl::size_t nChars = 0;
+    UTF16_WORD *const dstStart = dstBuffer;
+    bsl::size_t nCodePoints = 0;
     int returnStatus = 0;
-    UTF16_CHAR swappedErrorCharacter;
+    UTF16_WORD swappedErrorWord;
 
-    swappedErrorCharacter = SWAPPER::encodeSingleWord(errorWord);
+    swappedErrorWord = SWAPPER::encodeSingleWord(errorWord);
 
     // Working in unsigned makes bit manipulation with widening simpler;
     // changing the type here keeps the low-level routines short.
@@ -1142,7 +1143,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
         // no replacement character, we may consume input octets without using
         // any space.
 
-        if (swappedErrorCharacter && dstCapacity < 2) {
+        if (swappedErrorWord && dstCapacity < 2) {
             // If there is an error character, we'll need at least one output
             // slot.
 
@@ -1164,7 +1165,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             ++octets;
             ++dstBuffer;
             --dstCapacity;
-            ++nChars;
+            ++nCodePoints;
             continue;
         }
 
@@ -1173,16 +1174,16 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
         // The error cases have a lot of repetition.  With the optimizer on,
         // the repeated code should all get folded together.
 
-        UnicodeChar convBuf;
+        UnicodeCodePoint convBuf;
 
         if (Utf8::isTwoOctetHeader(*octets)) {
             if (!endFunctor.verifyContinuations(octets + 1, 1)) {
-                returnStatus |= INVALID_CHARS_BIT;
+                returnStatus |= INVALID_INPUT_BIT;
                 octets = endFunctor.skipContinuations(octets + 1);
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1190,23 +1191,23 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             convBuf = Utf8::decodeTwoOctets(octets);
             octets += 2;
             if (Utf8::fitsInSingleOctet(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= INVALID_CHARS_BIT;
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                returnStatus |= INVALID_INPUT_BIT;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
         }
         else if (Utf8::isThreeOctetHeader(*octets)) {
             if (!endFunctor.verifyContinuations(octets + 1, 2)) {
-                returnStatus |= INVALID_CHARS_BIT;
+                returnStatus |= INVALID_INPUT_BIT;
                 octets = endFunctor.skipContinuations(octets + 1);
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1214,23 +1215,23 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             convBuf = Utf8::decodeThreeOctets(octets);
             octets += 3;
             if (Utf8::fitsInTwoOctets(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= INVALID_CHARS_BIT;
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                returnStatus |= INVALID_INPUT_BIT;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
         }
         else if (Utf8::isFourOctetHeader(*octets)) {
             if (!endFunctor.verifyContinuations(octets + 1, 3)) {
-                returnStatus |= INVALID_CHARS_BIT;
+                returnStatus |= INVALID_INPUT_BIT;
                 octets = endFunctor.skipContinuations(octets + 1);
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1238,11 +1239,11 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             convBuf = Utf8::decodeFourOctets(octets);
             octets += 4;
             if (Utf8::fitsInThreeOctets(convBuf)) { // Miscoding!  Mischief?
-                returnStatus |= INVALID_CHARS_BIT;
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                returnStatus |= INVALID_INPUT_BIT;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1259,11 +1260,11 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
                 octets = endFunctor.skipContinuations(octets);
             }
 
-            returnStatus |= INVALID_CHARS_BIT;
-            if (swappedErrorCharacter) {
-                *dstBuffer++ = swappedErrorCharacter;
+            returnStatus |= INVALID_INPUT_BIT;
+            if (swappedErrorWord) {
+                *dstBuffer++ = swappedErrorWord;
                 --dstCapacity;
-                ++nChars;
+                ++nCodePoints;
             }
             continue;
         }
@@ -1278,11 +1279,11 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
 
         if (Utf16::fitsInOneWord(convBuf)) {
             if (!Utf16::isValidOneWord(convBuf)) {
-                returnStatus |= INVALID_CHARS_BIT;
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                returnStatus |= INVALID_INPUT_BIT;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1293,18 +1294,18 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             *dstBuffer = SWAPPER::encodeSingleWord(convBuf);
             ++dstBuffer;
             --dstCapacity;
-            ++nChars;
+            ++nCodePoints;
         }
         else {
             // An invalid character can be coded in the one space we are
             // guaranteed, so test that first.
 
             if (!Utf16::isValidTwoWords(convBuf)) {
-                returnStatus |= INVALID_CHARS_BIT;
-                if (swappedErrorCharacter) {
-                    *dstBuffer++ = swappedErrorCharacter;
+                returnStatus |= INVALID_INPUT_BIT;
+                if (swappedErrorWord) {
+                    *dstBuffer++ = swappedErrorWord;
                     --dstCapacity;
-                    ++nChars;
+                    ++nCodePoints;
                 }
                 continue;
             }
@@ -1315,28 +1316,28 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
             SWAPPER::encodeTwoWords(dstBuffer, convBuf);
             dstBuffer += 2;
             dstCapacity -= 2;
-            ++nChars;
+            ++nCodePoints;
         }
     }
     BSLS_ASSERT(endFunctor.isFinished(octets) ||
                                             (returnStatus & OUT_OF_SPACE_BIT));
 
     *dstBuffer++ = 0;
-    ++nChars;
+    ++nCodePoints;
 
     if (numCodePointsWritten) {
-        *numCodePointsWritten = nChars;
+        *numCodePointsWritten = nCodePoints;
     }
     if (numWordsWritten) {
         *numWordsWritten = dstBuffer - dstStart;
     }
 
 #ifdef BDE_BUILD_TARGET_SAFE
-    if (sizeof(UTF16_CHAR) > sizeof(unsigned short)) {
-        BSLS_ASSERT(4 == sizeof(UTF16_CHAR));
-        const UTF16_CHAR forbiddenMask = SWAPPER::swap32(
-                                          static_cast<UTF16_CHAR>(0xffff0000));
-        for (UTF16_CHAR *pwc = dstStart; pwc < dstBuffer; ++pwc) {
+    if (sizeof(UTF16_WORD) > sizeof(unsigned short)) {
+        BSLS_ASSERT(4 == sizeof(UTF16_WORD));
+        const UTF16_WORD forbiddenMask = SWAPPER::swap32(
+                                          static_cast<UTF16_WORD>(0xffff0000));
+        for (UTF16_WORD *pwc = dstStart; pwc < dstBuffer; ++pwc) {
             BSLS_ASSERT(0 == (forbiddenMask & *pwc));
         }
     }
@@ -1345,8 +1346,8 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     return returnStatus;
 }
 
-template <class UTF16_CHAR, class END_FUNCTOR, class SWAPPER>
-bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
+template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
+bsl::size_t utf8BufferLength(const UTF16_WORD *srcBuffer,
                              END_FUNCTOR       endFunctor,
                              SWAPPER           swapper)
     // Return the length needed in bytes, for a buffer to hold the
@@ -1364,7 +1365,7 @@ bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
 
     bsl::size_t bytesNeeded = 0;
     while (!endFunctor.isFinished(srcBuffer)) {
-        UnicodeChar word0, word1;
+        UnicodeCodePoint word0, word1;
         word0 = SWAPPER::decodeSingleWord(srcBuffer);
 
         if      (Utf16::isSingleUtf8(word0)) {
@@ -1392,13 +1393,13 @@ bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
     return bytesNeeded + 1;
 }
 
-template <class UTF16_CHAR,
+template <class UTF16_WORD,
           class CAPACITY_FUNCTOR,
           class END_FUNCTOR,
           class SWAPPER>
 int localUtf16ToUtf8(char             *dstBuffer,
                      CAPACITY_FUNCTOR  dstCapacity,
-                     const UTF16_CHAR *srcBuffer,
+                     const UTF16_WORD *srcBuffer,
                      END_FUNCTOR       endFunctor,
                      SWAPPER           swapper,
                      bsl::size_t      *numCodePointsWritten,
@@ -1439,16 +1440,16 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
     char *const dstStart = dstBuffer;
 
-    bsl::size_t nChars = 0;
+    bsl::size_t nCodePoints = 0;
 
     int returnStatus = 0;
     while (!endFunctor.isFinished(srcBuffer)) {
         // We don't do the out-of-room tests until we know that we can
-        // generate valid UnicodeChar characters from the UTF-16 string.
+        // generate valid UnicodeCodePoint characters from the UTF-16 string.
 
         // The single-byte case is the simplest.  It ought to be the fastest.
 
-        UnicodeChar word0;
+        UnicodeCodePoint word0;
         word0 = SWAPPER::decodeSingleWord(srcBuffer);
 
         if (Utf16::isSingleUtf8(word0)) {
@@ -1462,11 +1463,11 @@ int localUtf16ToUtf8(char             *dstBuffer,
             ++srcBuffer;
             ++dstBuffer;
             --dstCapacity;
-            ++nChars;
+            ++nCodePoints;
             continue;
         }
 
-        UnicodeChar convBuf;
+        UnicodeCodePoint convBuf;
 
         // Is it a single-word character?
 
@@ -1487,7 +1488,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
                 Utf8::encodeTwoOctets(dstBuffer, convBuf);
                 dstBuffer += 2;
                 dstCapacity -= 2;
-                ++nChars;
+                ++nCodePoints;
                 continue;
             }
 
@@ -1501,13 +1502,13 @@ int localUtf16ToUtf8(char             *dstBuffer,
             Utf8::encodeThreeOctets(dstBuffer, convBuf);
             dstBuffer += 3;
             dstCapacity -= 3;
-            ++nChars;
+            ++nCodePoints;
             continue;
         }
 
         // 'word0' was not a one-word UTF-16 sequence.  Look at the next word.
 
-        UnicodeChar word1;
+        UnicodeCodePoint word1;
         bool earlyFinish = endFunctor.isFinished(srcBuffer + 1);
         if (!earlyFinish) {
             word1 = SWAPPER::decodeSingleWord(srcBuffer + 1);
@@ -1538,9 +1539,9 @@ int localUtf16ToUtf8(char             *dstBuffer,
                 *dstBuffer = errorByte;
                 ++dstBuffer;
                 --dstCapacity;
-                ++nChars;
+                ++nCodePoints;
             }
-            returnStatus |= INVALID_CHARS_BIT;
+            returnStatus |= INVALID_INPUT_BIT;
             continue;
         }
 
@@ -1558,29 +1559,29 @@ int localUtf16ToUtf8(char             *dstBuffer,
         Utf8::encodeFourOctets(dstBuffer, convBuf);
         dstBuffer += 4;
         dstCapacity -= 4;
-        ++nChars;
+        ++nCodePoints;
     }
 
     BSLS_ASSERT(endFunctor.isFinished(srcBuffer) ||
                                             (returnStatus & OUT_OF_SPACE_BIT));
 
     *dstBuffer++ = 0;
-    ++nChars;
+    ++nCodePoints;
 
     if (numBytesWritten) {
         *numBytesWritten = dstBuffer - dstStart;
     }
 
     if (numCodePointsWritten) {
-        *numCodePointsWritten = nChars;
+        *numCodePointsWritten = nCodePoints;
     }
 
     return returnStatus;
 }
 
-template <class UTF16_CHAR, class END_FUNCTOR, class SWAPPER>
+template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
 int localUtf16ToUtf8String(bsl::string      *dstString,
-                           const UTF16_CHAR *srcBuffer,
+                           const UTF16_WORD *srcBuffer,
                            END_FUNCTOR       endFunctor,
                            SWAPPER           swapper,
                            bsl::size_t      *numCodePointsWritten,
@@ -1623,7 +1624,7 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
         BSLS_ASSERT(0 == errorByte);
     }
     BSLS_ASSERT(numBytesWritten <= dstString->length());
@@ -1637,9 +1638,9 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
     return rc;
 }
 
-template <class UTF16_CHAR, class END_FUNCTOR, class SWAPPER>
+template <class UTF16_WORD, class END_FUNCTOR, class SWAPPER>
 int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
-                           const UTF16_CHAR  *srcBuffer,
+                           const UTF16_WORD  *srcBuffer,
                            END_FUNCTOR        endFunctor,
                            SWAPPER            swapper,
                            bsl::size_t       *numCodePointsWritten,
@@ -1677,7 +1678,7 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
         BSLS_ASSERT(0 == errorByte);
     }
     BSLS_ASSERT(0 == (*dstVector)[numBytesWritten - 1]);
@@ -1761,7 +1762,7 @@ int CharConvertUtf16::utf8ToUtf16(
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstWstring)[numWordsWritten - 1]);
 
@@ -1818,7 +1819,7 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstWstring)[numWordsWritten - 1]);
 
@@ -1871,7 +1872,7 @@ int CharConvertUtf16::utf8ToUtf16(
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstVector)[numWordsWritten - 1]);
 
@@ -1923,7 +1924,7 @@ int CharConvertUtf16::utf8ToUtf16(
     BSLS_ASSERT_SAFE(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
-        BSLS_ASSERT(INVALID_CHARS_BIT & rc);
+        BSLS_ASSERT(INVALID_INPUT_BIT & rc);
     }
     BSLS_ASSERT(0 == (*dstVector)[numWordsWritten - 1]);
 

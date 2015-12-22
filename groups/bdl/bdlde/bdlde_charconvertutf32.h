@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // specified via the optional 'byteOrder' argument, which is assumed to be host
 // byte order if not specified.  The byte or word count and code point count
 // that are optionally returned through pointer arguments include the
-// terminating null character.
+// terminating null byte or word.
 //
 ///History and Motivation
 ///----------------------
@@ -60,10 +60,10 @@ BSLS_IDENT("$Id: $")
 // object to the output (including the terminating 0 for 'vector', not
 // including it for 'string').  The resizing will not affect the capacity.
 //
-// Non-minimal UTF-8 encodings of characters are reported as errors.  Octets
-// and post-conversion characters in the forbidden ranges are treated as errors
-// and removed if 0 is specified as 'errorCharacter', or replaced with
-// 'errorCharacter' otherwise.
+// Non-minimal UTF-8 encodings of code points are reported as errors.  Octets
+// and post-conversion code points in the forbidden ranges are treated as
+// errors and removed if 0 is specified as 'errorWord', or replaced with
+// 'errorWord' otherwise.
 //
 ///Usage
 ///-----
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // returns the same value.
 //
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
-// and quadruple-octet characters:
+// and quadruple-octet code points:
 //..
 //  const char utf8MultiLang[] = {
 //      "Hello"                                         // -- ASCII
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
 //      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of characters in the string
+// Then, we declare an enum summarizing the counts of code points in the string
 // and verify that the counts add up to the length of the string:
 //..
 //  enum { NUM_ASCII_CODE_POINTS   = 5,
@@ -102,8 +102,9 @@ BSLS_IDENT("$Id: $")
 //         4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
 //..
 // Next, we declare the vector where our UTF-32 output will go, and a variable
-// into which the number of characters (characters, not bytes or words) written
-// will be stored.  It is not necessary to initialize 'utf32CharsWritten':
+// into which the number of code points written will be stored.  It is not
+// necessary to create a 'utf32CodePointsWritten' variable, since the number of
+// code points will be the size of the vector when we are done.
 //..
 //  bsl::vector<unsigned int> v32;
 //..
@@ -120,10 +121,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == retVal);        // verify success
 //  assert(0 == v32.back());    // verify null terminated
 //..
-// Next, we verify that the number of characters (characters, not bytes or
-// words) that was returned is correct.  Note that in UTF-32, the number of
-// Unicode characters written is the same as the number of 32-bit words
-// written:
+// Next, we verify that the number of code points that was returned is correct.
+// Note that in UTF-32, the number of Unicode code points written is the same
+// as the number of 32-bit words written:
 //..
 //  enum { EXPECTED_CODE_POINTS_WRITTEN =
 //                  NUM_ASCII_CODE_POINTS +
@@ -134,11 +134,11 @@ BSLS_IDENT("$Id: $")
 //  assert(EXPECTED_CODE_POINTS_WRITTEN == v32.size());
 //..
 // Next, we calculate and confirm the difference between the number of UTF-32
-// words output and the number of bytes input.  The ASCII characters will take
-// 1 32-bit word apiece, the Greek characters are double octets that will
-// become single 'unsigned int' values, the Chinese characters are encoded as
-// UTF-8 triple octets that will turn into single 32-bit words, the same for
-// the Hindi characters, and the quad characters are quadruple octets that will
+// words output and the number of bytes input.  The ASCII bytes will take 1
+// 32-bit word apiece, the Greek code points are double octets that will become
+// single 'unsigned int' values, the Chinese code points are encoded as UTF-8
+// triple octets that will turn into single 32-bit words, the same for the
+// Hindi code points, and the quad code points are quadruple octets that will
 // turn into single 'unsigned int' words:
 //..
 //  enum { SHRINKAGE =
@@ -153,7 +153,7 @@ BSLS_IDENT("$Id: $")
 // Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.
 // Declare a 'bsl::string' for our output, and a variable to count the number
-// of characters (characters, not bytes or words) translated:
+// of code points translated:
 //..
 //  bsl::string s;
 //  bsl::size_t codePointsWritten;
@@ -170,7 +170,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
-// number of chars translated was as expected:
+// number of code points translated was as expected:
 //..
 //  assert(0 == retVal);
 //  assert(utf8MultiLang  == s);
@@ -238,7 +238,7 @@ struct CharConvertUtf32 {
         // encodings in the input string.  Optionally specify 'byteOrder' to
         // indicate the byte order of the UTF-32 output; if 'byteOrder' is not
         // specified, the output is assumed to be in host byte order.  Return 0
-        // on success and 'CharConvertStatus::k_INVALID_CHARS_BIT' otherwise.
+        // on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' otherwise.
         // Invalid encodings are multi-byte encoding parts out of sequence,
         // non-minimal UTF-8 encodings, UTF-8 encodings more than four bytes in
         // length, or code points outside the ranges which UTF-32 can validly
@@ -289,7 +289,7 @@ struct CharConvertUtf32 {
         // specified, the output is assumed to be in host byte order.  Return 0
         // on success and a bit-wise OR of the masks defined by
         // 'CharConvertStatus::Enum' otherwise, where
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or more
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if one or more
         // invalid sequences were encountered in the input, and
         // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
         // output space was exhausted before conversion was complete.  If
@@ -332,7 +332,7 @@ struct CharConvertUtf32 {
         // of the UTF-32 input; if 'byteOrder' is not specified, the input is
         // assumed to be in host byte order.  Any previous contents of the
         // destination are discarded.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // words were encountered in the input.  The behavior is undefined
         // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
         // a valid single-byte encoded UTF-8 code point
@@ -361,7 +361,7 @@ struct CharConvertUtf32 {
         // of the UTF-32 input; if 'byteOrder' is not specified, the input is
         // assumed to be in host byte order.  Any previous contents of the
         // destination are discarded.  Return 0 on success and
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' if one or more invalid
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // words were encountered in the input.  The behavior is undefined
         // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
         // a valid single-byte encoded UTF-8 code point
@@ -396,7 +396,7 @@ struct CharConvertUtf32 {
         // 'byteOrder' is not specified, the input is assumed to be in host
         // byte order.  Return 0 on success and a bit-wise OR of the masks
         // defined by 'CharConvertStatus::Enum' otherwise, where
-        // 'CharConvertStatus::k_INVALID_CHARS_BIT' will be set if one or more
+        // 'CharConvertStatus::k_INVALID_INPUT_BIT' will be set if one or more
         // invalid words were encountered in the input, and
         // 'CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT' will be set if the
         // output space was exhausted before conversion was complete.  The

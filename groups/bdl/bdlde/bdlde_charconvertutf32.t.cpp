@@ -55,43 +55,39 @@ using bsl::size_t;
 //: o If a fixed-length buffer is provided, the memory after the first
 //:   'capacity' bytes or words is never written to.
 //: o If a fixed-length buffer is provided and insufficient capacity is
-//:   provided, as many characters as will fit are written.  This means that if
-//:   the destination is UTF-32, exactly 'capacity' words will be written.
+//:   provided, as many code points as will fit are written.  This means that
+//:   if the destination is UTF-32, exactly 'capacity' words will be written.
 //:   1 If a fixed-length buffer is provided and a '0 == capacity', nothing is
 //:     written to the destination and the out of space bit is set in the
 //:     return value.
 //: o Preconditions are asserted before any modification of the output is
 //:   performed.
 //: o That every type of UTF-8 error is detected and appropriately handled.
-//: o That invalid UTF-32 characters are detected and appropriately handled.
+//: o That invalid UTF-32 code points are detected and appropriately handled.
 //: o All forms of valid input and all forms of errors should be handled the
 //:   same whether at the beginning, the end or in the middle of a sequence.
-//: o The invalid chars bit returned always properly reflects whether any
-//:   invalid characters were in the input (prior to running out of space).
+//: o The invalid input bit returned always properly reflects whether any
+//:   invalid input was encountered (prior to running out of space).
 //: o The out of space bit returned always properly reflects whether the
 //:   capacity specified was adequate, and is never set on translations with
 //:   STL container output destinations.
 // ----------------------------------------------------------------------------
 // [17] USAGE EXAMPLE
-// [16] UTF-32 <- UTF-8 Random garbage input, random error character
-// [15] UTF-32 <- UTF-8 Table generated random sequences, random error char
-// [14] UTF-8 <- UTF-32 Random garbage input, random error character
-// [13] UTF-8 <- UTF-32 Table generated random sequences, 0 error character
-// [12] UTF-8 <- UTF-32 Table generated random sequences, default error
-//                                                                    character
+// [16] UTF-32 <- UTF-8 Random garbage input, random error word
+// [15] UTF-32 <- UTF-8 Table generated random sequences, random error word
+// [14] UTF-8 <- UTF-32 Random garbage input, random error byte
+// [13] UTF-8 <- UTF-32 Table generated random sequences, 0 error byte
+// [12] UTF-8 <- UTF-32 Table generated random sequences, default error byte
 // [11] Translating real prose in 4 languages, both directions
 // [10] Negative testing, all functions, all conditions
-// [ 9] UTF-8 <- UTF-32 to vector, string, buffer, passing non-zero error
-//                                                                    character
-// [ 8] UTF-8 <- UTF-32 to vector, string, buffer, 0 error character
-// [ 7] UTF-8 <- UTF-32 to vector, string, buffer, default error character
-// [ 6] oUTF-32 <- UTF-8 Translation to vector, passing non-zero error
-//                                                                    character
-// [ 5] UTF-32 <- UTF-8 Translation to vector, 0 error character
-// [ 4] UTF-32 <- UTF-8 Translation to fixed-length buffers, 0 error character
-// [ 3] UTF-32 <- UTF-8 Translation to vector, default error character
-// [ 2] UTF-32 <- UTF-8 Translation to fixed-length buffers, default error
-//                                                                    character
+// [ 9] UTF-8 <- UTF-32 to vector, string, buffer, passing non-zero error byte
+// [ 8] UTF-8 <- UTF-32 to vector, string, buffer, 0 error byte
+// [ 7] UTF-8 <- UTF-32 to vector, string, buffer, default error byte
+// [ 6] UTF-32 <- UTF-8 Translation to vector, passing non-zero error word
+// [ 5] UTF-32 <- UTF-8 Translation to vector, 0 error word
+// [ 4] UTF-32 <- UTF-8 Translation to fixed-length buffers, 0 error word
+// [ 3] UTF-32 <- UTF-8 Translation to vector, default error word
+// [ 2] UTF-32 <- UTF-8 Translation to fixed-length buffers, default error word
 // [ 1] Breathing Test
 // ----------------------------------------------------------------------------
 
@@ -2411,7 +2407,7 @@ unsigned int myRand15()
 
 
 static
-unsigned int myRandUtf32Char()
+unsigned int myRandUtf32Word()
 {
     unsigned int typ = myRand15() & 15;
 
@@ -2489,28 +2485,28 @@ static const struct Utf32TableStruct {
     const bool    d_error;
 } utf32Table[] = {
 
-    // minimal valid values encoded for 1-4 character long UTF-8 sequences
+    // minimal valid values encoded for 1-4 byte long UTF-8 sequences
 
     { L_, 1,             "\x01",              0 },
     { L_, 0x80,          "\xc2\x80",          0 },
     { L_, 1<<11,         "\xe0\xa0\x80",      0 },
     { L_, 1<<16,         "\xf0\x90\x80\x80",  0 },
 
-    // medium, valid values encoded for 1-4 character long UTF-8 sequences
+    // medium, valid values encoded for 1-4 byte long UTF-8 sequences
 
-    { L_, 'H',           "\x48",              0 },  // 1 character
-    { L_, 0x2f1,         "\xcb\xb1",          0 },  // 2 character
-    { L_, 0x2710,        "\xe2\x9c\x90",      0 },  // 3 character
+    { L_, 'H',           "\x48",              0 },  // 1 byte
+    { L_, 0x2f1,         "\xcb\xb1",          0 },  // 2 byte
+    { L_, 0x2710,        "\xe2\x9c\x90",      0 },  // 3 byte
     { L_, 0xd7ff,        "\xed\x9f\xbf",      0 },  // 3 below UTF-16 bit plane
     { L_, 0xe000,        "\xee\x80\x80",      0 },  // 3 above UTF-16 bit plane
-    { L_, 0x186a0,       "\xf0\x98\x9a\xa0",  0 },  // 4 character
+    { L_, 0x186a0,       "\xf0\x98\x9a\xa0",  0 },  // 4 byte
 
-    // maximum valid values for 1-4 character long UTF-8 sequences
+    // maximum valid values for 1-4 byte long UTF-8 sequences
 
-    { L_, 0x7f,          "\x7f",              0 },  // 1 character max
-    { L_, (1<<11)-1,     "\xdf\xbf",          0 },  // 2 character max
-    { L_, (1<<16)-1,     "\xef\xbf\xbf",      0 },  // 3 character max
-    { L_, 0x10ffff,      "\xf4\x8f\xbf\xbf",  0 },  // 4 character max
+    { L_, 0x7f,          "\x7f",              0 },  // 1 byte max
+    { L_, (1<<11)-1,     "\xdf\xbf",          0 },  // 2 byte max
+    { L_, (1<<16)-1,     "\xef\xbf\xbf",      0 },  // 3 byte max
+    { L_, 0x10ffff,      "\xf4\x8f\xbf\xbf",  0 },  // 4 byte max
 
     // values that are not valid unicode because they are in the lower
     // UTF-16 bit plane.
@@ -2576,23 +2572,23 @@ static const struct Utf8TableStruct {
 
     // invalid UTF-8 encodings of zero of various lengths
 
-    { L_, "1\xc0\x80z",          '?',       1, 0 },  // 2 character zero
-    { L_, "1\xe0\x80\x80z",      '?',       1, 0 },  // 3 character zero
-    { L_, "1\xf0\x80\x80\x80z",  '?',       1, 0 },  // 4 character zero
-    { L_, "1\xf8\x80\x80\x80\x80z", '?',    1, 0 },  // 5 character zero
+    { L_, "1\xc0\x80z",          '?',       1, 0 },  // 2 byte zero
+    { L_, "1\xe0\x80\x80z",      '?',       1, 0 },  // 3 byte zero
+    { L_, "1\xf0\x80\x80\x80z",  '?',       1, 0 },  // 4 byte zero
+    { L_, "1\xf8\x80\x80\x80\x80z", '?',    1, 0 },  // 5 byte zero
 
     // non-minimal UTF-8 encodings
 
-    { L_, "1\xc1\xbfz",          '?',       1, 0 },  // 2 character 1 too small
-    { L_, "1\xe0\x9f\xbfz",      '?',       1, 0 },  // 3 character 1 too small
-    { L_, "1\xf0\x8f\xbf\xbfz",  '?',       1, 0 },  // 4 character 1 too small
+    { L_, "1\xc1\xbfz",          '?',       1, 0 },  // 2 byte 1 too small
+    { L_, "1\xe0\x9f\xbfz",      '?',       1, 0 },  // 3 byte 1 too small
+    { L_, "1\xf0\x8f\xbf\xbfz",  '?',       1, 0 },  // 4 byte 1 too small
 
-    // 4-char encodings with invalid values too high
+    // 4-byte encodings with invalid values too high
 
     { L_, "1\xf4\x90\x80\x80z",  '?',       1, 0 },  // 1 too much
     { L_, "1\xf7\xbf\xbf\xbfz",  '?',       1, 0 },  // WAY too much
 
-    // 5 character sequence (all 5 char sequences are invalid UTF-8)
+    // 5 byte sequence (all 5 byte sequences are invalid UTF-8)
 
     { L_, "1\xfb\xbf\xbf\xbf\xbfz", '?',    1, 0 },
 
@@ -2654,23 +2650,23 @@ static const struct BetterUtf8TableStruct {
 
     // invalid UTF-8 encodings of zero of various lengths
 
-    { L_, "\xc0\x80",          '?',       1, 0 },  // 2 character zero
-    { L_, "\xe0\x80\x80",      '?',       1, 0 },  // 3 character zero
-    { L_, "\xf0\x80\x80\x80",  '?',       1, 0 },  // 4 character zero
-    { L_, "\xf8\x80\x80\x80\x80", '?',    1, 0 },  // 5 character zero
+    { L_, "\xc0\x80",          '?',       1, 0 },  // 2 byte zero
+    { L_, "\xe0\x80\x80",      '?',       1, 0 },  // 3 byte zero
+    { L_, "\xf0\x80\x80\x80",  '?',       1, 0 },  // 4 byte zero
+    { L_, "\xf8\x80\x80\x80\x80", '?',    1, 0 },  // 5 byte zero
 
     // non-minimal UTF-8 encodings
 
-    { L_, "\xc1\xbf",          '?',       1, 0 },  // 2 character 1 too small
-    { L_, "\xe0\x9f\xbf",      '?',       1, 0 },  // 3 character 1 too small
-    { L_, "\xf0\x8f\xbf\xbf",  '?',       1, 0 },  // 4 character 1 too small
+    { L_, "\xc1\xbf",          '?',       1, 0 },  // 2 byte 1 too small
+    { L_, "\xe0\x9f\xbf",      '?',       1, 0 },  // 3 byte 1 too small
+    { L_, "\xf0\x8f\xbf\xbf",  '?',       1, 0 },  // 4 byte 1 too small
 
-    // 4-char encodings with invalid values too high
+    // 4-byte encodings with invalid values too high
 
     { L_, "\xf4\x90\x80\x80",  '?',       1, 0 },  // 1 too much
     { L_, "\xf7\xbf\xbf\xbf",  '?',       1, 0 },  // WAY too much
 
-    // 5 character sequence (all 5 char sequences are invalid UTF-8)
+    // 5 byte sequence (all 5 byte sequences are invalid UTF-8)
 
     { L_, "\xfb\xbf\xbf\xbf\xbf", '?',    1, 0 },
 
@@ -2740,7 +2736,7 @@ int main(int argc, char **argv)
 // returns the same value.
 //
 // First, we declare a string of UTF-8 containing single-, double-, triple-,
-// and quadruple-octet characters:
+// and quadruple-octet code points:
 //..
     const char utf8MultiLang[] = {
         "Hello"                                         // -- ASCII
@@ -2749,7 +2745,7 @@ int main(int argc, char **argv)
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of characters in the string
+// Then, we declare an enum summarizing the counts of code points in the string
 // and verify that the counts add up to the length of the string:
 //..
     enum { NUM_ASCII_CODE_POINTS   = 5,
@@ -2765,8 +2761,9 @@ int main(int argc, char **argv)
            4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
 //..
 // Next, we declare the vector where our UTF-32 output will go, and a variable
-// into which the number of characters (characters, not bytes or words) written
-// will be stored.  It is not necessary to initialize 'utf32CharsWritten':
+// into which the number of code points written will be stored.  It is not
+// necessary to create a 'utf32CodePointsWritten' variable, since the number of
+// code points will be the size of the vector when we are done.
 //..
     bsl::vector<unsigned int> v32;
 //..
@@ -2783,10 +2780,9 @@ int main(int argc, char **argv)
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v32.back());    // verify null terminated
 //..
-// Next, we verify that the number of characters (characters, not bytes or
-// words) that was returned is correct.  Note that in UTF-32, the number of
-// Unicode characters written is the same as the number of 32-bit words
-// written:
+// Next, we verify that the number of code points that was returned is correct.
+// Note that in UTF-32, the number of Unicode code points written is the same
+// as the number of 32-bit words written:
 //..
     enum { EXPECTED_CODE_POINTS_WRITTEN =
                     NUM_ASCII_CODE_POINTS +
@@ -2797,11 +2793,11 @@ int main(int argc, char **argv)
     ASSERT(EXPECTED_CODE_POINTS_WRITTEN == v32.size());
 //..
 // Next, we calculate and confirm the difference between the number of UTF-32
-// words output and the number of bytes input.  The ASCII characters will take
-// 1 32-bit word apiece, the Greek characters are double octets that will
-// become single 'unsigned int' values, the Chinese characters are encoded as
-// UTF-8 triple octets that will turn into single 32-bit words, the same for
-// the Hindi characters, and the quad characters are quadruple octets that will
+// words output and the number of bytes input.  The ASCII bytes will take 1
+// 32-bit word apiece, the Greek code points are double octets that will become
+// single 'unsigned int' values, the Chinese code points are encoded as UTF-8
+// triple octets that will turn into single 32-bit words, the same for the
+// Hindi code points, and the quad code points are quadruple octets that will
 // turn into single 'unsigned int' words:
 //..
     enum { SHRINKAGE =
@@ -2816,7 +2812,7 @@ int main(int argc, char **argv)
 // Then, we go on to do the reverse 'utf32ToUtf8' transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.
 // Declare a 'bsl::string' for our output, and a variable to count the number
-// of characters (characters, not bytes or words) translated:
+// of code points translated:
 //..
     bsl::string s;
     bsl::size_t codePointsWritten;
@@ -2833,7 +2829,7 @@ int main(int argc, char **argv)
 //..
 // Finally, we verify that a successful status was returned, that the output of
 // the reverse transform was identical to the original input, and that the
-// number of chars translated was as expected:
+// number of code points translated was as expected:
 //..
     ASSERT(0 == retVal);
     ASSERT(utf8MultiLang  == s);
@@ -2851,29 +2847,29 @@ int main(int argc, char **argv)
         //: 1 That the translator can handle embedded nulls in UTF-8 input.
         //:   o This component and previous test cases were all written under
         //:     the assumption that 0 was invalid Unicode, to be used only as
-        //:     as a terminating character.  So it was necessary to write a
-        //:     separate test case from scratch.o
+        //:     as a terminating byte or word.  So it was necessary to write a
+        //:     separate test case from scratch.
         //
         // Plan:
         //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
         //:   Linux.
-        //:   o Choose a length, in Unicode chars, of the UTF-8 input string
-        //:     (not counting the embedded nulls)
+        //:   o Choose a length, in Unicode code points, of the UTF-8 input
+        //:     string (not counting the embedded nulls)
         //:   o Choose 1 or 2 indexes where embedded '\0's will be embedded in
         //:     the input.
         //:   o Add randomly chosen UTF-8 sequences to the input string,
         //:     inserting embedded nulls at the appropriate places.  Make sure
-        //:     no truncated chars are immediately followed by continuation
-        //:     chars.  Simultaneously build the expected UTF-32 output, and
-        //:     keep track of whether any error sequences have occurred, thus
-        //:     anticipating the return value.
+        //:     no truncated code points are immediately followed by
+        //:     continuation bytes.  Simultaneously build the expected UTF-32
+        //:     output, and keep track of whether any error sequences have
+        //:     occurred, thus anticipating the return value.
         //:   o Call the function to convert a UTF-8 string to a UTF-32 vector.
         //:   o Verify that the output is as expected, and also the return
         //:     code.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-              "RANDOM TABLE DRIVEN UTF-8 -> UTF-32 TEST PLUS EMBEDDED NULLS\n"
+            "\nRANDOM TABLE DRIVEN UTF-8 -> UTF-32 TEST PLUS EMBEDDED NULLS\n"
               "============================================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
@@ -2888,10 +2884,11 @@ int main(int argc, char **argv)
         bsl::vector<unsigned int> utf32OutVec;
         bsl::vector<int>          idxVec;
 
-        enum { UNICODE_CHARS_MOD = 6 };
+        enum { UNICODE_CODE_POINTS_MOD = 6 };
 
         for (int ti = 0; ti < 50 * 1000; ++ti) {
-            const int numCharsIn = myRand15() % UNICODE_CHARS_MOD + 1;
+            const int  numCondPointsIn =
+                                      myRand15() % UNICODE_CODE_POINTS_MOD + 1;
             const bool opposite  = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
@@ -2904,12 +2901,12 @@ int main(int argc, char **argv)
 
             int nullIdx0, nullIdx1;
             do {
-                nullIdx0 = myRand15() % (numCharsIn + 2) - 1;
-                nullIdx1 = myRand15() % (numCharsIn + 2) - 1;
+                nullIdx0 = myRand15() % (numCondPointsIn + 2) - 1;
+                nullIdx1 = myRand15() % (numCondPointsIn + 2) - 1;
             } while (-1 == nullIdx0 && -1 == nullIdx1);
 
             ASSERT(bsl::max(nullIdx0, nullIdx1) >  -1);
-            ASSERT(bsl::max(nullIdx0, nullIdx1) <= numCharsIn);
+            ASSERT(bsl::max(nullIdx0, nullIdx1) <= numCondPointsIn);
             ASSERT(bsl::min(nullIdx0, nullIdx1) >= -1);
 
             bool prevTrunc = false;    // Was the prev char truncated?
@@ -2931,12 +2928,12 @@ int main(int argc, char **argv)
                     prevTrunc = false;
                 }
 
-                if (tj == numCharsIn) {
+                if (tj == numCondPointsIn) {
                     break;
                 }
 
-                // Select the next char, making sure no continuation chars
-                // immediately follow truncated chars (because that could
+                // Select the next char, making sure no continuation bytes
+                // immediately follow truncated sequences (because that could
                 // confuse our calculation of 'expRc').
 
                 int tableIdx;
@@ -2951,7 +2948,7 @@ int main(int argc, char **argv)
                 prevTrunc          =     betterUtf8Table[tableIdx].d_truncBy;
 
                 if (                     betterUtf8Table[tableIdx].d_error) {
-                    expRc = Status::k_INVALID_CHARS_BIT;
+                    expRc = Status::k_INVALID_INPUT_BIT;
                 }
 
                 idxVec.push_back(tableIdx);
@@ -2995,8 +2992,8 @@ int main(int argc, char **argv)
         //: 2 Generate 'numBytes', a length from 6-16, of bytes of input
         //:   that the test sequence is to be.
         //: 3 For each loop, iterate twice, once with a non-zero randomly
-        //:   generated legal UTF-32 'errorChar', and once with
-        //:   '0 == errorChar'.
+        //:   generated legal UTF-32 'errorWord', and once with
+        //:   '0 == errorWord'.
         //: 4 Generate an input buffer 'utf8InBuf' of 'numBytes' bytes of
         //:   values that are purely random except that only the last one is 0.
         //: 5 Translate the UTF-8 to a UTF-32 vector 'utf32OutVec'.  Observe
@@ -3009,8 +3006,8 @@ int main(int argc, char **argv)
         //:   word is 0.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "PURELY RANDOM UTF-8 -> UTF-32 TEST\n"
-                             "==================================\n";
+        if (verbose) cout << "\nPURELY RANDOM UTF-8 -> UTF-32 TEST\n"
+                               "==================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
@@ -3034,7 +3031,7 @@ int main(int argc, char **argv)
 
         for (int ti = 0; ti < 25 * 1000; ++ti) {
             const unsigned numBytesIn   = myRand15() % SEQ_LEN_MOD + 2;
-            const unsigned int fillWord = myRandUtf32Char();
+            const unsigned int fillWord = myRandUtf32Word();
             const bool opposite         = ti & 1;
 
             const bdlde::ByteOrder::Enum endian = opposite
@@ -3043,8 +3040,8 @@ int main(int argc, char **argv)
 
             char *pc = utf8InBuf;
             for (unsigned tj = 1; tj < numBytesIn; ++tj) {
-                char nextChar = static_cast<char>(myRand15() & 0xff);
-                *pc++ = nextChar ? nextChar : 'a';
+                char nextByte = static_cast<char>(myRand15() & 0xff);
+                *pc++ = nextByte ? nextByte : 'a';
             }
             *pc++ = 0;
             ASSERT(pc - utf8InBuf <= MAX_UTF8_BYTES_INPUT);
@@ -3053,16 +3050,16 @@ int main(int argc, char **argv)
 
             bsl::vector<char> utf8InVec(utf8InBuf + 0, pc);
 
-            for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
-                unsigned int errorChar;
-                if (zeroErrorChar) {
-                    errorChar = 0;
+            for (int zeroErrorWord = 0; zeroErrorWord < 2; ++zeroErrorWord) {
+                unsigned int errorWord;
+                if (zeroErrorWord) {
+                    errorWord = 0;
                 }
                 else {
                     int ret;
                     do {
-                        errorChar = myRandUtf32Char();
-                        unsigned int utf32ErrorSeq[] = { errorChar, 0 };
+                        errorWord = myRandUtf32Word();
+                        unsigned int utf32ErrorSeq[] = { errorWord, 0 };
 
                         // Note UTF-32 -> UTF-8 translation is already
                         // well-tested.
@@ -3071,7 +3068,7 @@ int main(int argc, char **argv)
                         ret = Util::utf32ToUtf8(&utf8ErrorSeq,
                                                 utf32ErrorSeq);
                     } while (0 != ret);
-                    ASSERT(errorChar);
+                    ASSERT(errorWord);
                 }
 
                 utf32OutVec.clear();
@@ -3079,9 +3076,9 @@ int main(int argc, char **argv)
 
                 int ret = Util::utf8ToUtf32(&utf32OutVec,
                                             utf8InBuf,
-                                            errorChar,
+                                            errorWord,
                                             endian);
-                ASSERT(0 == (ret & ~Status::k_INVALID_CHARS_BIT));
+                ASSERT(0 == (ret & ~Status::k_INVALID_INPUT_BIT));
                 ASSERT(bsl::find(utf32OutVec.begin(), utf32OutVec.end(), 0) ==
                                                           &utf32OutVec.back());
                 ASSERT(utf32OutVec.size() <= numBytesIn);
@@ -3097,8 +3094,8 @@ int main(int argc, char **argv)
                 ASSERT(utf32OutVec.size() == ncw);
                 ASSERT(bsl::find(utf8OutVec.begin(), utf8OutVec.end(), 0) ==
                                                            &utf8OutVec.back());
-                LOOP3_ASSERT(errorChar, utf8OutVec.size(), numBytesIn,
-                         errorChar >= 0x80 || utf8OutVec.size() <= numBytesIn);
+                LOOP3_ASSERT(errorWord, utf8OutVec.size(), numBytesIn,
+                         errorWord >= 0x80 || utf8OutVec.size() <= numBytesIn);
 
                 if (veryVeryVerbose) Q(Now do xlation to a UTF-8 buffer);
 
@@ -3116,7 +3113,7 @@ int main(int argc, char **argv)
                                             len,
                                             utf8InBuf,
                                             &ncw,
-                                            errorChar,
+                                            errorWord,
                                             endian);
                     LOOP6_ASSERT(ti, len, utf32OutVec.size(), ret,
                              dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32OutVec),
@@ -3136,14 +3133,14 @@ int main(int argc, char **argv)
                                             (ncw - 1) * sizeof(int)));
                     unsigned int *pos = bsl::find(utf32OutBuf + 0,
                                                   utf32OutBuf + ncw - 1,
-                                                  opposite ? sb(errorChar)
-                                                           :    errorChar);
+                                                  opposite ? sb(errorWord)
+                                                           :    errorWord);
                     LOOP8_ASSERT(ncw, pos - utf32OutBuf,
-                           hx(errorChar), hx(sb(errorChar)),
-                           (ret & Status::k_INVALID_CHARS_BIT), len,
+                           hx(errorWord), hx(sb(errorWord)),
+                           (ret & Status::k_INVALID_INPUT_BIT), len,
                            dumpUtf32Vec(utf32OutVec), opposite,
-                           0 == (ret & Status::k_INVALID_CHARS_BIT) ||
-                           0 == errorChar ||
+                           0 == (ret & Status::k_INVALID_INPUT_BIT) ||
+                           0 == errorWord ||
                            pos < utf32OutBuf + ncw - 1);
                 }
             }
@@ -3169,15 +3166,15 @@ int main(int argc, char **argv)
         // Plan:
         //: 1 Iterate thousands of time, enough time to take about 0.1 sec on
         //:   Linux.
-        //: 2 Generate 'numChars', a length from 2-7, of Unicode characters
-        //:   that our test sequence is to be.
+        //: 2 Generate 'numCodePoints', a length from 2-7, of Unicode
+        //:   code points that our test sequence is to be.
         //: 3 For each loop, iterate twice, once with a non-zero randomly
-        //:   generated legal UTF-32 'errorChar', and once with
-        //:   '0 == errorChar'.
-        //: 4 When '0 != errorChar', generate a corresponding UTF-8 sequence
+        //:   generated legal UTF-32 'errorWord', and once with
+        //:   '0 == errorWord'.
+        //: 4 When '0 != errorWord', generate a corresponding UTF-8 sequence
         //:   'errorSeq'.
         //: 5 Generate a sequence of bytes in buffer 'utf8InBuf' (and a copy in
-        //:   vector 'utf8InVec') of 'numChars' Unicode characters, but
+        //:   vector 'utf8InVec') of 'numCodePoints' Unicode characters, but
         //:   randomly selecting UTF-8 sequences from 'utf8Table' (and
         //:   eliminating the preceding '1' and trailing 'z'.  Simultaneously
         //:   construct vector 'utf32ExpVec' of what we expect the UTF-32
@@ -3196,7 +3193,8 @@ int main(int argc, char **argv)
         //:   word is 0.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TABLE-DRIVEN RANDOM UTF-8 -> UTF-32 SEQUENCES\n"
+        if (verbose) cout <<
+                           "\nTABLE-DRIVEN RANDOM UTF-8 -> UTF-32 SEQUENCES\n"
                              "=============================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
@@ -3214,19 +3212,19 @@ int main(int argc, char **argv)
 
         enum { MAX_SEQ_LEN             = 7,
                SEQ_LEN_MOD             = MAX_SEQ_LEN - 1,
-               MAX_UTF32_CHARS_WRITTEN = MAX_SEQ_LEN,
+               MAX_UTF32_WORDS_WRITTEN = MAX_SEQ_LEN,
                MAX_UTF8_BYTES_INPUT    = (MAX_SEQ_LEN - 1) * 5 + 1,
                UTF8_TABLE_MOD          = NUM_UTF8_TABLE + 1 };
 
         char utf8InBuf[          MAX_UTF8_BYTES_INPUT];
-        unsigned int utf32OutBuf[MAX_UTF32_CHARS_WRITTEN + 1];
+        unsigned int utf32OutBuf[MAX_UTF32_WORDS_WRITTEN + 1];
         enum { UTF32_OUT_BUF_LEN = sizeof(utf32OutBuf) / sizeof(int) };
 
         bsl::string utf8Seq;
 
         for (int ti = 0; ti < 8 * 1000; ++ti) {
-            const unsigned numCharsIn = myRand15() % SEQ_LEN_MOD + 2;
-            const unsigned int fillWord = myRandUtf32Char();
+            const unsigned     numCodePointsIn = myRand15() % SEQ_LEN_MOD + 2;
+            const unsigned int fillWord = myRandUtf32Word();
             const char fillByte = (char) (myRand15() % 0xff);
             const bool opposite = ti & 1;
 
@@ -3234,17 +3232,17 @@ int main(int argc, char **argv)
                                                 ? oppositeEndian
                                                 : bdlde::ByteOrder::e_HOST;
 
-            for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
-                unsigned int errorChar;
+            for (int zeroErrorWord = 0; zeroErrorWord < 2; ++zeroErrorWord) {
+                unsigned int errorWord;
                 bsl::string utf8ErrorSeq;
-                if (zeroErrorChar) {
-                    errorChar = 0;
+                if (zeroErrorWord) {
+                    errorWord = 0;
                 }
                 else {
                     int ret;
                     do {
-                        errorChar = myRandUtf32Char();
-                        unsigned int utf32ErrorSeq[] = { errorChar, 0 };
+                        errorWord = myRandUtf32Word();
+                        unsigned int utf32ErrorSeq[] = { errorWord, 0 };
 
                         // Note UTF-32 -> UTF-8 translation is already
                         // well-tested.
@@ -3252,7 +3250,7 @@ int main(int argc, char **argv)
                         ret = Util::utf32ToUtf8(&utf8ErrorSeq,
                                                 utf32ErrorSeq);
                     } while (0 != ret);
-                    ASSERT(errorChar);
+                    ASSERT(errorWord);
                     ASSERT(utf8ErrorSeq.length() >= 1);
                 }
 
@@ -3262,7 +3260,7 @@ int main(int argc, char **argv)
                 char *pc = utf8InBuf;
                 bool errorsPresent = false;
                 bool prevTrunc = false;
-                for (unsigned tj = 1; tj < numCharsIn; ++tj) {
+                for (unsigned tj = 1; tj < numCodePointsIn; ++tj) {
                     unsigned idx;
                     bool repeat = true;
                     for (; repeat;) {
@@ -3284,12 +3282,12 @@ int main(int argc, char **argv)
                                 errorsPresent = true;
                                 prevTrunc = seqlen < 5;
 
-                                if (errorChar) {
+                                if (errorWord) {
                                     utf8ExpVec.insert(utf8ExpVec.end(),
                                                       utf8ErrorSeq.begin(),
                                                       utf8ErrorSeq.end());
                                     utf32ExpVec.push_back(
-                                         opposite ? sb(errorChar) : errorChar);
+                                         opposite ? sb(errorWord) : errorWord);
                                 }
                             }
                         }
@@ -3307,12 +3305,12 @@ int main(int argc, char **argv)
                             if (utf8Table[idx].d_error) {
                                 errorsPresent = true;
 
-                                if (errorChar) {
+                                if (errorWord) {
                                     utf8ExpVec.insert(utf8ExpVec.end(),
                                                       utf8ErrorSeq.begin(),
                                                       utf8ErrorSeq.end());
                                     utf32ExpVec.push_back(
-                                         opposite ? sb(errorChar) : errorChar);
+                                         opposite ? sb(errorWord) : errorWord);
                                 }
                             }
                             else {
@@ -3331,33 +3329,35 @@ int main(int argc, char **argv)
                 utf32ExpVec.push_back(0);
                 ASSERT(pc <= utf8InBuf + MAX_UTF8_BYTES_INPUT);
                 LOOP4_ASSERT(ti, utf8ExpVec.size(), pc - utf8InBuf,
-                                                errorChar, errorChar >= 0x80 ||
+                                                errorWord, errorWord >= 0x80 ||
                                     (int) utf8ExpVec.size() <= pc - utf8InBuf);
                 bsl::vector<char> utf8InVec(
                             utf8InBuf, utf8InBuf + bsl::strlen(utf8InBuf) + 1);
 
                 utf32OutVec.clear();
-                utf32OutVec.resize(myRand15() % (2 * numCharsIn), fillWord);
+                utf32OutVec.resize(myRand15() % (2 * numCodePointsIn),
+                                                                     fillWord);
 
                 int ret = Util::utf8ToUtf32(&utf32OutVec,
                                             utf8InBuf,
-                                            errorChar,
+                                            errorWord,
                                             endian);
-                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_INPUT_BIT
                                              : 0));
                 LOOP3_ASSERT(ti, dumpUtf32Vec(utf32ExpVec),
                                                      dumpUtf32Vec(utf32OutVec),
                                                    utf32ExpVec == utf32OutVec);
                 ASSERT(bsl::find(utf32OutVec.begin(), utf32OutVec.end(), 0) ==
                                                          &utf32OutVec.back());
-                ASSERT((errorsPresent && !errorChar)
-                                           ? utf32OutVec.size() <  numCharsIn
-                                           : utf32OutVec.size() == numCharsIn);
+                ASSERT((errorsPresent && !errorWord)
+                                      ? utf32OutVec.size() <  numCodePointsIn
+                                      : utf32OutVec.size() == numCodePointsIn);
 
                 if (veryVeryVerbose) Q(Now do the return trip);
 
                 utf8OutVec.clear();
-                utf8OutVec.resize(myRand15() % (8 * numCharsIn), fillByte);
+                utf8OutVec.resize(myRand15() % (8 * numCodePointsIn),
+                                                                     fillByte);
 
                 bsl::size_t ncw = -1;
                 ret = Util::utf32ToUtf8(&utf8OutVec,
@@ -3387,14 +3387,14 @@ int main(int argc, char **argv)
                                             len,
                                             utf8InBuf,
                                             &ncw,
-                                            errorChar,
+                                            errorWord,
                                             endian);
                     LOOP6_ASSERT(ti, len, utf32ExpVec.size(), ret,
                              dumpUtf8Vec(utf8InVec), dumpUtf32Vec(utf32ExpVec),
                                  0 == (ret & Status::k_OUT_OF_SPACE_BIT) ||
                                                (len < utf32ExpVec.size() + 1));
                     ASSERT(errorsPresent || 0 ==
-                                      (ret & Status::k_INVALID_CHARS_BIT));
+                                      (ret & Status::k_INVALID_INPUT_BIT));
                     ASSERT(len > utf32ExpVec.size() ? utf32ExpVec.size() == ncw
                                                     : ncw == len);
                     ASSERT(bsl::find_if(utf32OutBuf + ncw,
@@ -3431,14 +3431,14 @@ int main(int argc, char **argv)
         //: 1 Iterate thousands of times, enough to take 0.1 seconds on Linux.
         //: 2 For each iteration, generate a sequence of 1 to 6 UTF-32
         //:   characters (not counting the 0), using the function
-        //:   'myRandUtf32Char', which has a possibility of generating any
+        //:   'myRandUtf32Word', which has a possibility of generating any
         //:   non-zero 32 bit value, weighted toward the more interesting
         //:   values.
-        //: 3 Iterate twice, once with a randomly generate ASCII 'errorChar'
-        //:   and once where 'errorChar' is 0.
+        //: 3 Iterate twice, once with a randomly generate ASCII 'errorByte'
+        //:   and once where 'errorByte' is 0.
         //: 4 For the random sequence generated in '2', anticipate the
         //:   corresponding UTF-8 output, given the input and the value of
-        //:   'errorChar'.  Also anticipate the UTF-32 that would result from
+        //:   'errorByte'.  Also anticipate the UTF-32 that would result from
         //:   a reverse translation of that output.
         //: 5 Translate the UTF-32 to a UTF-8 'bsl::vector', verify it against
         //:   the anticipated results.
@@ -3452,8 +3452,8 @@ int main(int argc, char **argv)
         //:   results are as they should be.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "PURELY RANDOM TEST UTF-32 -> UTF-8\n"
-                             "==================================\n";
+        if (verbose) cout << "\nPURELY RANDOM TEST UTF-32 -> UTF-8\n"
+                               "==================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
@@ -3476,7 +3476,7 @@ int main(int argc, char **argv)
         char utf8OutBuf[MAX_UTF8_BYTES_WRITTEN + 1];
 
         for (int ti = 0; ti < 5 * 1000; ++ti) {
-            const unsigned numCharsIn = myRand15() % SEQ_LEN_MOD + 2;
+            const unsigned numCodePointsIn = myRand15() % SEQ_LEN_MOD + 2;
             const char fillByte = (char) (myRand15() & 0xff);
             const bool opposite = ti & 1;
 
@@ -3485,8 +3485,8 @@ int main(int argc, char **argv)
                                                 : bdlde::ByteOrder::e_HOST;
 
             origUtf32InVec. clear();
-            for (unsigned tj = 1; tj < numCharsIn; ++tj) {
-                origUtf32InVec.push_back(myRandUtf32Char());
+            for (unsigned tj = 1; tj < numCodePointsIn; ++tj) {
+                origUtf32InVec.push_back(myRandUtf32Word());
             }
             origUtf32InVec.push_back(0);
 
@@ -3496,11 +3496,11 @@ int main(int argc, char **argv)
                                               :    origUtf32InVec[u]);
             }
 
-            for (int zeroErrorChar = 0; zeroErrorChar < 2; ++zeroErrorChar) {
-                char errorChar = 0;
-                if (!zeroErrorChar) {
-                    errorChar = myRand15() % 0x80;
-                    errorChar || (errorChar = '?');    // never zero
+            for (int zeroErrorByte = 0; zeroErrorByte < 2; ++zeroErrorByte) {
+                char errorByte = 0;
+                if (!zeroErrorByte) {
+                    errorByte = myRand15() % 0x80;
+                    errorByte || (errorByte = '?');    // never zero
                 }
 
                 utf8ExpVec. clear();
@@ -3514,7 +3514,7 @@ int main(int argc, char **argv)
                                                                  uc > 0x10ffff;
 
                     if (veryVeryVeryVerbose) {
-                        P_(numCharsIn); P_((int) errorChar); P(IS_ERROR);
+                        P_(numCodePointsIn); P_((int) errorByte); P(IS_ERROR);
                     }
 
                     if (! IS_ERROR) {
@@ -3525,20 +3525,21 @@ int main(int argc, char **argv)
                         utf8ExpVec.insert(utf8ExpVec.end(), buffer, pc);
                         utf32ExpVec.push_back(opposite ? sb(uc) : uc);
                     }
-                    else if (!zeroErrorChar) {
-                        utf8ExpVec. push_back(errorChar);
+                    else if (!zeroErrorByte) {
+                        utf8ExpVec. push_back(errorByte);
                         utf32ExpVec.push_back(
-                                        opposite ? sb((unsigned int) errorChar)
-                                                 : errorChar);
+                                        opposite ? sb((unsigned int) errorByte)
+                                                 : errorByte);
                     }
 
                     errorsPresent |= IS_ERROR;
                 }
                 utf8ExpVec. push_back(0);
                 utf32ExpVec.push_back(0);
-                LOOP3_ASSERT(zeroErrorChar, utf32ExpVec.size(), numCharsIn,
-                            !zeroErrorChar ? utf32ExpVec.size() == numCharsIn
-                                           : utf32ExpVec.size() <= numCharsIn);
+                LOOP3_ASSERT(zeroErrorByte, utf32ExpVec.size(),
+                                                               numCodePointsIn,
+                       !zeroErrorByte ? utf32ExpVec.size() == numCodePointsIn
+                                      : utf32ExpVec.size() <= numCodePointsIn);
                 ASSERT(utf8ExpVec.size() <= MAX_UTF8_BYTES_WRITTEN);
 
                 bsl::size_t ncw = -1;
@@ -3547,9 +3548,9 @@ int main(int argc, char **argv)
                 int ret = Util::utf32ToUtf8(&utf8OutVec,
                                             &utf32InVec.front(),
                                             &ncw,
-                                            errorChar,
+                                            errorByte,
                                             endian);
-                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_INPUT_BIT
                                              : 0));
                 ASSERT(ncw == utf32ExpVec.size());
 
@@ -3564,9 +3565,9 @@ int main(int argc, char **argv)
                 ret = Util::utf32ToUtf8(&utf8OutStr,
                                         &utf32InVec.front(),
                                         &ncw,
-                                        errorChar,
+                                        errorByte,
                                         endian);
-                ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
+                ASSERT(ret == (errorsPresent ? Status::k_INVALID_INPUT_BIT
                                              : 0));
                 ASSERT(ncw == utf32ExpVec.size());
                 ASSERT(! bsl::strcmp(utf8OutStr.c_str(), &utf8OutVec.front()));
@@ -3576,7 +3577,7 @@ int main(int argc, char **argv)
 
                 ret = Util::utf8ToUtf32(&utf32OutVec,
                                         utf8ExpVec.begin(),
-                                        zeroErrorChar ? 0 : '*',
+                                        zeroErrorByte ? 0 : '*',
                                         endian);
                 ASSERT(0 == ret);
                 ASSERT(utf32OutVec.size() == utf32ExpVec.size());
@@ -3587,7 +3588,7 @@ int main(int argc, char **argv)
                                                                      fillByte);
 
                     if (veryVeryVeryVerbose) {
-                        P_(numCharsIn); P_((int) errorChar); P(len);
+                        P_(numCodePointsIn); P_((int) errorByte); P(len);
                     }
 
                     ncw = -1;
@@ -3597,10 +3598,10 @@ int main(int argc, char **argv)
                                             &utf32InVec.front(),
                                             &ncw,
                                             &nbw,
-                                            errorChar,
+                                            errorByte,
                                             endian);
                     if (!errorsPresent) {
-                        ASSERT(0 == (ret & Status::k_INVALID_CHARS_BIT));
+                        ASSERT(0 == (ret & Status::k_INVALID_INPUT_BIT));
                     }
                     ASSERT((len < utf8ExpVec.size()) ==
                                      !!(ret & Status::k_OUT_OF_SPACE_BIT));
@@ -3640,7 +3641,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                 "RANDOM SEQUENCES TEST UTF-32 -> UTF-8 WITH ZERO ERRORCHAR\n"
+               "\nRANDOM SEQUENCES TEST UTF-32 -> UTF-8 WITH ZERO ERRORCHAR\n"
                  "=========================================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
@@ -3655,7 +3656,7 @@ int main(int argc, char **argv)
         bsl::vector<char> bufferVec;
 
         for (int ti = 0; ti < 15 * 1000; ++ti) {
-            const int numCharsIn = myRand32() % 4 + 1;
+            const int numCodePointsIn = myRand32() % 4 + 1;
             const char fillByte = (char) (myRand15() & 0xff);
             const bool opposite = ti & 1;
 
@@ -3668,13 +3669,13 @@ int main(int argc, char **argv)
             utf32ExpVec.clear();
 
             bool errorsPresent = false;
-            for (int tj = 1; tj < numCharsIn; ++tj) {
+            for (int tj = 1; tj < numCodePointsIn; ++tj) {
                 unsigned tr = myRand32() % NUM_UTF32_TABLE;
                 unsigned int uc      = utf32Table[tr].d_utf32Val;
                 const char *utf8Str  = utf32Table[tr].d_utf8String;
                 const bool  IS_ERROR = utf32Table[tr].d_error;
 
-                if (veryVeryVeryVerbose) { P_(numCharsIn); P(utf8Str); }
+                if (veryVeryVeryVerbose) { P_(numCodePointsIn); P(utf8Str); }
 
                 utf32InVec.push_back(opposite ? sb(uc) : uc);
                 if (! IS_ERROR) {
@@ -3690,8 +3691,8 @@ int main(int argc, char **argv)
             utf8ExpVec. push_back(0);
             utf32ExpVec.push_back(0);
 
-            ASSERT((int) utf32InVec.size() == numCharsIn);
-            bsl::size_t numCharsOut = utf32ExpVec.size();
+            ASSERT((int) utf32InVec.size() == numCodePointsIn);
+            bsl::size_t numCodePointsOut = utf32ExpVec.size();
 
             if (veryVerbose) Q(UTF-32 -> UTF-8);
 
@@ -3703,9 +3704,9 @@ int main(int argc, char **argv)
                                         &ncw,
                                         0,
                                         endian);
-            ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
+            ASSERT(ret == (errorsPresent ? Status::k_INVALID_INPUT_BIT
                                          : 0));
-            ASSERT(ncw == numCharsOut);
+            ASSERT(ncw == numCodePointsOut);
 
             ASSERT(utf8OutVec.size() == utf8ExpVec.size());
             ASSERT(utf8OutVec        == utf8ExpVec);
@@ -3718,7 +3719,7 @@ int main(int argc, char **argv)
                                     0,
                                     endian);
             ASSERT(0 == ret);
-            ASSERT(utf32OutVec.size() == numCharsOut);
+            ASSERT(utf32OutVec.size() == numCodePointsOut);
 
             ASSERT(utf32ExpVec.size() == utf32OutVec.size());
             ASSERT(utf32ExpVec        == utf32OutVec);
@@ -3743,9 +3744,11 @@ int main(int argc, char **argv)
                                         endian);
                 LOOP5_ASSERT(ti, len, utf8OutVec.size(), expectedRet, ret,
                         expectedRet == (ret & Status::k_OUT_OF_SPACE_BIT));
-                ASSERT(ncw <= numCharsOut);
-                ASSERT(len >= (int) utf8OutVec.size() || ncw <  numCharsOut);
-                ASSERT(len <  (int) utf8OutVec.size() || ncw == numCharsOut);
+                ASSERT(ncw <= numCodePointsOut);
+                ASSERT(len >= (int) utf8OutVec.size() ||
+                                                      ncw <  numCodePointsOut);
+                ASSERT(len <  (int) utf8OutVec.size() ||
+                                                      ncw == numCodePointsOut);
                 ASSERT(nbw <= utf8OutVec.size());
                 ASSERT(len >= (int) utf8OutVec.size() ||
                                                      nbw <  utf8OutVec.size());
@@ -3782,8 +3785,8 @@ int main(int argc, char **argv)
         //   verify the results.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "RANDOM SEQUENCES TEST UTF-32 -> UTF-8\n"
-                             "=====================================\n";
+        if (verbose) cout << "\nRANDOM SEQUENCES TEST UTF-32 -> UTF-8\n"
+                               "=====================================\n";
 
         // This test case is calibrated to run as many test cases as can be run
         // in 0.1 sec on Linux, which will be much faster than 30 sec on the
@@ -3797,7 +3800,7 @@ int main(int argc, char **argv)
         bsl::vector<char> bufferVec;
 
         for (int ti = 0; ti < 15 * 1000; ++ti) {
-            const int numChars = myRand32() % 6 + 2;
+            const int numCodePoints = myRand32() % 6 + 2;
             const char fillByte = (char) (myRand15() & 0xff);
             const bool opposite = ti & 1;
 
@@ -3810,13 +3813,13 @@ int main(int argc, char **argv)
             utf32ExpVec.clear();
 
             bool errorsPresent = false;
-            for (int tj = 1; tj < numChars; ++tj) {
+            for (int tj = 1; tj < numCodePoints; ++tj) {
                 unsigned tr = myRand32() % NUM_UTF32_TABLE;
                 unsigned int uc      = utf32Table[tr].d_utf32Val;
                 const char *utf8Str  = utf32Table[tr].d_utf8String;
                 const bool  IS_ERROR = utf32Table[tr].d_error;
 
-                if (veryVeryVeryVerbose) { P_(numChars); P(utf8Str); }
+                if (veryVeryVeryVerbose) { P_(numCodePoints); P(utf8Str); }
 
                 utf32InVec.push_back(opposite ? sb(uc) : uc);
                 utf8ExpVec.insert(utf8ExpVec.end(),
@@ -3831,7 +3834,7 @@ int main(int argc, char **argv)
             utf8ExpVec. push_back(0);
             utf32ExpVec.push_back(0);
 
-            ASSERT((int) utf32InVec.size() == numChars);
+            ASSERT((int) utf32InVec.size() == numCodePoints);
 
             if (veryVerbose) Q(UTF-32 -> UTF-8);
 
@@ -3844,9 +3847,9 @@ int main(int argc, char **argv)
                                         &ncw,
                                         '?',
                                         endian);
-            ASSERT(ret == (errorsPresent ? Status::k_INVALID_CHARS_BIT
+            ASSERT(ret == (errorsPresent ? Status::k_INVALID_INPUT_BIT
                                          : 0));
-            ASSERT((int) ncw == numChars);
+            ASSERT((int) ncw == numCodePoints);
 
             ASSERT(utf8OutVec.size() == utf8ExpVec.size());
             ASSERT(utf8OutVec        == utf8ExpVec);
@@ -3860,7 +3863,7 @@ int main(int argc, char **argv)
                                     '?',
                                     endian);
             ASSERT(0 == ret);
-            ASSERT((int) utf32OutVec.size() == numChars);
+            ASSERT((int) utf32OutVec.size() == numCodePoints);
 
             ASSERT(utf32ExpVec.size() == utf32OutVec.size());
             ASSERT(utf32ExpVec        == utf32OutVec);
@@ -3885,9 +3888,11 @@ int main(int argc, char **argv)
                                         endian);
                 LOOP5_ASSERT(ti, len, utf8OutVec.size(), expectedRet, ret,
                         expectedRet == (ret & Status::k_OUT_OF_SPACE_BIT));
-                ASSERT((int) ncw <= numChars);
-                ASSERT(len >= (int) utf8OutVec.size() ||(int) ncw <  numChars);
-                ASSERT(len <  (int) utf8OutVec.size() ||(int) ncw == numChars);
+                ASSERT((int) ncw <= numCodePoints);
+                ASSERT(len >= (int) utf8OutVec.size() ||
+                                                   (int) ncw <  numCodePoints);
+                ASSERT(len <  (int) utf8OutVec.size() ||
+                                                   (int) ncw == numCodePoints);
                 ASSERT(nbw <= utf8OutVec.size());
                 ASSERT(len >= (int) utf8OutVec.size() ||
                                                      nbw <  utf8OutVec.size());
@@ -3925,8 +3930,8 @@ int main(int argc, char **argv)
         //:   final result should be identical to the original.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "REAL PROSE TEST\n"
-                             "===============\n";
+        if (verbose) cout << "\nREAL PROSE TEST\n"
+                               "===============\n";
 
         const bsl::size_t origLen = bsl::strlen(charUtf8MultiLang);
         ASSERT(origLen > 1000);
@@ -4086,7 +4091,7 @@ int main(int argc, char **argv)
         //   Undefined behavior in this component is limited to
         //: 1 input strings not null terminated.
         //: 2 output buffer shorter than specified.
-        //: 3 Illegal values of 'errorCharacter'.
+        //: 3 Illegal values of 'errorWord' or 'errorByte'.
         //: 4 Pointers to input and output streams are null
         //   of these, only '3' and '4' are testable by the methods, so we will
         //   test that these are caught by using 'bsls_asserttest'.  Follow up
@@ -4095,8 +4100,8 @@ int main(int argc, char **argv)
         //   tests were performed before any output was written.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING PRECONDITION TESTS\n"
-                             "==========================\n";
+        if (verbose) cout << "\nTESTING PRECONDITION TESTS\n"
+                               "==========================\n";
 
         bsls::AssertFailureHandlerGuard guard(
                                              bsls::AssertTest::failTestDriver);
@@ -4174,19 +4179,19 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "Some illegal values of utf32 error character\n";
 
-        for (unsigned int errorChar = 0xd800; errorChar < 0xffffff;
-                              errorChar = errorChar < 0xdfff
-                                        ? errorChar + 1
-                                        : 0xdfff == errorChar
+        for (unsigned int errorWord = 0xd800; errorWord < 0xffffff;
+                              errorWord = errorWord < 0xdfff
+                                        ? errorWord + 1
+                                        : 0xdfff == errorWord
                                         ? 0X10ffff + 1
-                                        : errorChar + (errorChar - 0x10ffff)) {
+                                        : errorWord + (errorWord - 0x10ffff)) {
             bsl::vector<unsigned int> utf32DestVec;
             ASSERT_FAIL(Util::utf8ToUtf32(&utf32DestVec,
                                           utf8Input,
-                                          errorChar));
+                                          errorWord));
             ASSERT(utf32DestVec.empty());
 
-            if (veryVeryVeryVerbose) P(errorChar);
+            if (veryVeryVeryVerbose) P(errorWord);
 
             utf32DestVec.resize(10, fillWord);
             bsl::size_t ncw = minus1;
@@ -4194,7 +4199,7 @@ int main(int argc, char **argv)
                                           utf32DestVec.size(),
                                           utf8Input,
                                           &ncw,
-                                          errorChar));
+                                          errorWord));
             ASSERT(minus1 == ncw);
             ASSERT(fillWord == utf32DestVec.front());
 
@@ -4202,7 +4207,7 @@ int main(int argc, char **argv)
                                           utf32DestVec.size(),
                                           utf8Sr,
                                           &ncw,
-                                          errorChar));
+                                          errorWord));
             ASSERT(minus1 == ncw);
             ASSERT(fillWord == utf32DestVec.front());
         }
@@ -4231,22 +4236,22 @@ int main(int argc, char **argv)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorCharacter'
+        // TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorByte'
         //
         // Concerns:
         //   That non-zero values other than '?' can be substituted for
-        //   'errorCharacter'.
+        //   'errorByte'.
         //
         // Plan:
         //   Repeat the vector destination case from TC 7, substituting all
-        //   ASCII values for 'errorCharacter' and observe the output.
+        //   ASCII values for 'errorByte' and observe the output.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                    "TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorCharacter'\n"
+                    "TESTING UTF-32 -> UTF-8 WITH EXPLICIT 'errorByte'\n"
                     "======================================================\n";
 
-        if (verbose) Q(Passing non-zero 'errorCharacter');
+        if (verbose) Q(Passing non-zero 'errorByte');
 
         for (int tm = 0; tm < 2 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
@@ -4266,7 +4271,7 @@ int main(int argc, char **argv)
             }
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
             for (int errChr = 1; errChr < 0x80; ++errChr) {
@@ -4286,25 +4291,25 @@ int main(int argc, char **argv)
                 compareVec.push_back('z');
                 compareVec.push_back(0);
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 int ret = opposite
                         ? Util::utf32ToUtf8(&outVec,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             (char) errChr,
                                             oppositeEndian)
                         : Util::utf32ToUtf8(&outVec,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             (char) errChr);
-                ASSERT(4 == numChars);
+                ASSERT(4 == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
                 ASSERT(compareVec == outVec);
             }
         }
 
-        if (verbose) Q(Explicitly Passing '0 == errorCharacter');
+        if (verbose) Q(Explicitly Passing '0 == errorByte');
 
         for (int tm = 0; tm < 2 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
@@ -4324,7 +4329,7 @@ int main(int argc, char **argv)
             }
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
             bsl::vector<char> compareVec, outVec;
@@ -4337,18 +4342,18 @@ int main(int argc, char **argv)
             compareVec.push_back('z');
             compareVec.push_back(0);
 
-            bsl::size_t numChars = -1;
+            bsl::size_t numCodePoints = -1;
             int ret = opposite
                     ? Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0);
-            ASSERT((unsigned) 4 - IS_ERROR == numChars);
+            ASSERT((unsigned) 4 - IS_ERROR == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
@@ -4360,17 +4365,17 @@ int main(int argc, char **argv)
         //
         // Concerns:
         //: 1 That UTF-32 -> UTF-8 translation is performed correctly when
-        //:   0 is passed to 'errorCharacter'.
+        //:   0 is passed to 'errorByte'.
         //:   o When the destination is a 'bsl::vector<char>'.
         //:   o When the destination is a 'bsl::string'
         //:   o When the destination is a buffer of limited length.
         //
         // Plan:
         //: 1 Repeat the tests from TC 7, omitting the 'check' iteration
-        //:   and passing '0' to the 'errorCharacter' arguments.
+        //:   and passing '0' to the 'errorByte' arguments.
         //: 2 For the buffer test, calculate 'enc', which is the expected
         //:   number of characters output in the buffer test, derived from the
-        //:   previously calculated 'expectedNumChars' from the vector and
+        //:   previously calculated 'expectedNumCodePoints' from the vector and
         //:   string tests.
         // --------------------------------------------------------------------
 
@@ -4407,40 +4412,40 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            bsl::size_t expectedNumChars = 4 - IS_ERROR;
-            bsl::size_t numChars = -1;
+            bsl::size_t expectedNumCodePoints = 4 - IS_ERROR;
+            bsl::size_t numCodePoints = -1;
             int ret = opposite
                     ? Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
 
             bsl::string outStr;
-            numChars = -1;    ret = -1;
+            numCodePoints = -1;    ret = -1;
 
             ret = opposite
                 ? Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0,
                                     oppositeEndian)
                 : Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareStr == outStr);
@@ -4449,25 +4454,26 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t enc = len >= cvs   ? expectedNumChars
-                                      : len == cvs-1 ? expectedNumChars - 1
-                                      : len >= 2     ? 2
-                                      :                len;
-                ASSERT(expectedNumChars <= 4);
+                const bsl::size_t enc =
+                                       len >= cvs   ? expectedNumCodePoints
+                                     : len == cvs-1 ? expectedNumCodePoints - 1
+                                     : len >= 2     ? 2
+                                     :                len;
+                ASSERT(expectedNumCodePoints <= 4);
                 const bsl::size_t expectedNumBytes =
                                    enc <= 2                    ? enc
-                                 : enc == expectedNumChars - 1 ? cvs - 1
+                                 : enc == expectedNumCodePoints - 1 ? cvs - 1
                                  :                               cvs;
 
                 bsl::size_t numBytes = -1;
@@ -4475,19 +4481,19 @@ int main(int argc, char **argv)
                     ? Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                                  expectedNumBytes == numBytes);
-                ASSERT(enc == numChars);
+                ASSERT(enc == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -4528,40 +4534,40 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            bsl::size_t expectedNumChars = 3 - IS_ERROR;
-            bsl::size_t numChars = -1;
+            bsl::size_t expectedNumCodePoints = 3 - IS_ERROR;
+            bsl::size_t numCodePoints = -1;
             int ret = opposite
                     ? Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
 
             bsl::string outStr;
-            numChars = -1;    ret = -1;
+            numCodePoints = -1;    ret = -1;
 
             ret = opposite
                 ? Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0,
                                     oppositeEndian)
                 : Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareStr == outStr);
@@ -4570,29 +4576,30 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t enc = len >= cvs     ? expectedNumChars
-                                      : len == cvs - 1 ? expectedNumChars - 1
-                                      :                  !!len;
-                ASSERT(expectedNumChars <= 3);
+                const bsl::size_t enc =
+                                     len >= cvs     ? expectedNumCodePoints
+                                   : len == cvs - 1 ? expectedNumCodePoints - 1
+                                   :                  !!len;
+                ASSERT(expectedNumCodePoints <= 3);
                 const bsl::size_t expectedNumBytes =
-                                          enc == expectedNumChars     ? cvs
-                                        : enc == expectedNumChars - 1 ? cvs - 1
-                                        :                               !!enc;
+                                     enc == expectedNumCodePoints     ? cvs
+                                   : enc == expectedNumCodePoints - 1 ? cvs - 1
+                                   :                                    !!enc;
 
                 if (veryVeryVeryVerbose) {
-                    P_(LINE);    P_(len);    P_(cvs);    P_(expectedNumChars);
-                    P_(enc);     P(expectedNumBytes);
+                    P_(LINE);    P_(len);    P_(cvs);
+                    P_(expectedNumCodePoints);  P_(enc);  P(expectedNumBytes);
                 }
 
                 bsl::size_t numBytes = -1;
@@ -4600,19 +4607,20 @@ int main(int argc, char **argv)
                     ? Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                                  expectedNumBytes == numBytes);
-                LOOP4_ASSERT(LINE, len, enc, numChars, enc == numChars);
+                LOOP4_ASSERT(LINE, len, enc, numCodePoints,
+                                                         enc == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -4653,40 +4661,40 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            const bsl::size_t expectedNumChars = 3 - IS_ERROR;
-            bsl::size_t numChars = -1;
+            const bsl::size_t expectedNumCodePoints = 3 - IS_ERROR;
+            bsl::size_t numCodePoints = -1;
             int ret = opposite
                     ? Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
 
             bsl::string outStr;
-            numChars = -1;    ret = -1;
+            numCodePoints = -1;    ret = -1;
 
             ret = opposite
                 ? Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0,
                                     oppositeEndian)
                 : Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareStr == outStr);
@@ -4695,30 +4703,32 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(len); }
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t enc = len >= cvs   ? expectedNumChars
-                                      : len == cvs-1 ? expectedNumChars - 1
-                                      : len >= 2     ? 2
-                                      :                len;
-                ASSERT(expectedNumChars <= 3);
+                const bsl::size_t enc =
+                                       len >= cvs   ? expectedNumCodePoints
+                                     : len == cvs-1 ? expectedNumCodePoints - 1
+                                     : len >= 2     ? 2
+                                     :                len;
+                ASSERT(expectedNumCodePoints <= 3);
                 const bsl::size_t expectedNumBytes =
                                    enc <= 2                    ? enc
-                                 : enc == expectedNumChars - 1 ? cvs - 1
+                                 : enc == expectedNumCodePoints - 1 ? cvs - 1
                                  :                               cvs;
 
                 if (veryVeryVerbose) {
-                    P_(LINE);    P_(len);    P_(cvs);    P_(expectedNumChars);
-                    P_(enc);     P(expectedNumBytes);
+                    P_(LINE);    P_(len);    P_(cvs);
+                    P_(expectedNumCodePoints);    P_(enc);
+                    P(expectedNumBytes);
                 }
 
                 bsl::size_t numBytes = -1;
@@ -4726,19 +4736,19 @@ int main(int argc, char **argv)
                     ? Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                                  expectedNumBytes == numBytes);
-                ASSERT(enc == numChars);
+                ASSERT(enc == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -4779,40 +4789,40 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            const bsl::size_t expectedNumChars = 2 - IS_ERROR;
-            bsl::size_t numChars = -1;
+            const bsl::size_t expectedNumCodePoints = 2 - IS_ERROR;
+            bsl::size_t numCodePoints = -1;
             int ret = opposite
                     ? Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
 
             bsl::string outStr;
-            numChars = -1;    ret = -1;
+            numCodePoints = -1;    ret = -1;
 
             ret = opposite
                 ? Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0,
                                     oppositeEndian)
                 : Util::utf32ToUtf8(&outStr,
                                     utf32Seq,
-                                    &numChars,
+                                    &numCodePoints,
                                     0);
-            ASSERT(expectedNumChars == numChars);
+            ASSERT(expectedNumCodePoints == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareStr == outStr);
@@ -4821,24 +4831,25 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t enc = len >= cvs   ? expectedNumChars
+                const bsl::size_t enc = len >= cvs   ? expectedNumCodePoints
                                       :                !!len;
-                ASSERT(expectedNumChars <= 2);
+                ASSERT(expectedNumCodePoints <= 2);
                 const bsl::size_t expectedNumBytes =
-                                               enc <  expectedNumChars ? !!enc
-                                             :                           cvs;
+                                           enc <  expectedNumCodePoints ? !!enc
+                                                                        :  cvs;
 
                 if (veryVeryVerbose) {
-                    P_(LINE);    P_(len);    P_(cvs);    P_(expectedNumChars);
+                    P_(LINE);    P_(len);    P_(cvs);
+                    P_(expectedNumCodePoints);
                     P_(enc);     P(expectedNumBytes);
                 }
 
@@ -4847,19 +4858,19 @@ int main(int argc, char **argv)
                     ? Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0,
                                         oppositeEndian)
                     : Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq,
-                                        &numChars,
+                                        &numCodePoints,
                                         &numBytes,
                                         0);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                                  expectedNumBytes == numBytes);
-                ASSERT(enc == numChars);
+                ASSERT(enc == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -4893,14 +4904,14 @@ int main(int argc, char **argv)
         //:   o by itself
         //: 3 In all these tests, calculate and verify
         //:   o 'expectedRet', the expected return value of the call
-        //:   o 'expectedNumChars', the expected value to be returned by the
-        //:     'numCharactersWritten' arg, if passed
+        //:   o 'expectedNumCodePoints', the expected value to be returned by
+        //:     the 'numCodePointsWritten' arg, if passed
         //:   o 'expectedNumBytes', the expected value to be returned by the
         //:     'numBytesWritten' arg, if passed
         //:   o 'compareVec' and 'compareStr' containing the anticipated
         //:     UTF-8 output sequence
         //: 4 Iterate to test
-        //:   o check the number of chars returned (if returned)
+        //:   o check the number of code points returned (if returned)
         //:   o check the number of bytes returned (if returned)
         //:   o check running the test in opposite to host byte order
         //: 5 When calling the buffer output routine, iterate the variable
@@ -4917,10 +4928,10 @@ int main(int argc, char **argv)
         for (int tm = 0; tm < 8 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
             const bool          opposite    = (tm/NUM_UTF32_TABLE) & 1;
-            const bool          checkNChars = (tm/NUM_UTF32_TABLE) & 2;
+            const bool          checkNumCPs = (tm/NUM_UTF32_TABLE) & 2;
             const bool          checkNBytes = (tm/NUM_UTF32_TABLE) & 4;
 
-            if (!checkNChars && (checkNBytes || opposite)) {
+            if (!checkNumCPs && (checkNBytes || opposite)) {
                 continue;
             }
 
@@ -4946,53 +4957,53 @@ int main(int argc, char **argv)
             compareVec.push_back(0);
             const bsl::string compareStr = &compareVec[0];
 
-            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_INPUT_BIT : 0;
 
-            bsl::size_t numChars = -1;
+            bsl::size_t numCodePoints = -1;
             int ret;
 
             if (!checkNBytes) {
-                ret = checkNChars
+                ret = checkNumCPs
                     ? opposite
                       ? Util::utf32ToUtf8(&outVec,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           '?',
                                           oppositeEndian)
                       : Util::utf32ToUtf8(&outVec,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq);
 
-                ASSERT(!checkNChars || 4 == numChars);
+                ASSERT(!checkNumCPs || 4 == numCodePoints);
 
-                LOOP5_ASSERT(LINE, checkNChars, opposite, expectedRet, ret,
+                LOOP5_ASSERT(LINE, checkNumCPs, opposite, expectedRet, ret,
                                                            expectedRet == ret);
-                LOOP3_ASSERT(LINE, checkNChars, opposite,
+                LOOP3_ASSERT(LINE, checkNumCPs, opposite,
                                                          compareVec == outVec);
 
                 bsl::string outStr;
-                numChars = -1;    ret = -1;
+                numCodePoints = -1;    ret = -1;
 
-                ret = checkNChars
+                ret = checkNumCPs
                     ? opposite
                       ? Util::utf32ToUtf8(&outStr,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           '?',
                                           oppositeEndian)
                       : Util::utf32ToUtf8(&outStr,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                     : Util::utf32ToUtf8(&outStr,
                                         utf32Seq);
 
-                ASSERT(!checkNChars || 4 == numChars);
+                ASSERT(!checkNumCPs || 4 == numCodePoints);
 
-                LOOP5_ASSERT(LINE, checkNChars, opposite, expectedRet, ret,
+                LOOP5_ASSERT(LINE, checkNumCPs, opposite, expectedRet, ret,
                                                            expectedRet == ret);
-                LOOP3_ASSERT(LINE, checkNChars, opposite,compareStr == outStr);
+                LOOP3_ASSERT(LINE, checkNumCPs, opposite,compareStr == outStr);
             }
 
             if (!checkNBytes && opposite) {
@@ -5003,51 +5014,51 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 expectedRet = IS_ERROR && len >= 2
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t expectedNumChars = len >= cvs   ? 4
+                const bsl::size_t expectedNumCodePoints = len >= cvs   ? 4
                                                    : len == cvs-1 ? 3
                                                    : len >= 2     ? 2
                                                    :                len;
-                ASSERT(expectedNumChars <= 4);
+                ASSERT(expectedNumCodePoints <= 4);
                 const bsl::size_t expectedNumBytes =
-                                       expectedNumChars <= 2 ? expectedNumChars
-                                     : expectedNumChars == 3 ? cvs - 1
-                                     :                         cvs;
+                            expectedNumCodePoints <= 2 ? expectedNumCodePoints
+                          : expectedNumCodePoints == 3 ? cvs - 1
+                          :                              cvs;
 
                 bsl::size_t numBytes = -1;
 
-                ret = checkNChars
+                ret = checkNumCPs
                     ? checkNBytes
                       ? opposite
                         ? Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             &numBytes,
                                             '?',
                                             oppositeEndian)
                         : Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             &numBytes)
                       : Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                     : Util::utf32ToUtf8(outBuf,
                                         len,
                                         utf32Seq);
 
-                ASSERT(!checkNChars || expectedNumChars == numChars);
+                ASSERT(!checkNumCPs || expectedNumCodePoints == numCodePoints);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                  !checkNBytes || expectedNumBytes == numBytes);
 
@@ -5066,10 +5077,10 @@ int main(int argc, char **argv)
         for (int tm = 0; tm < 8 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
             const bool          opposite    = (tm/NUM_UTF32_TABLE) & 1;
-            const bool          checkNChars = (tm/NUM_UTF32_TABLE) & 2;
+            const bool          checkNumCPs = (tm/NUM_UTF32_TABLE) & 2;
             const bool          checkNBytes = (tm/NUM_UTF32_TABLE) & 4;
 
-            if (!checkNChars && (checkNBytes || opposite)) {
+            if (!checkNumCPs && (checkNBytes || opposite)) {
                 continue;
             }
 
@@ -5094,47 +5105,47 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            bsl::size_t numChars = -1;
+            bsl::size_t numCodePoints = -1;
             int ret;
 
-            ret = checkNChars
+            ret = checkNumCPs
                 ? opposite
                   ? Util::utf32ToUtf8(&outVec,
                                       utf32Seq,
-                                      &numChars,
+                                      &numCodePoints,
                                       '?',
                                       oppositeEndian)
                   : Util::utf32ToUtf8(&outVec,
                                       utf32Seq,
-                                      &numChars)
+                                      &numCodePoints)
                 : Util::utf32ToUtf8(&outVec,
                                     utf32Seq);
 
-            ASSERT(!checkNChars || 3 == numChars);
+            ASSERT(!checkNumCPs || 3 == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareVec == outVec);
 
             bsl::string outStr;
-            numChars = -1;    ret = -1;
+            numCodePoints = -1;    ret = -1;
 
-            ret = checkNChars
+            ret = checkNumCPs
                 ? opposite
                   ? Util::utf32ToUtf8(&outStr,
                                       utf32Seq,
-                                      &numChars,
+                                      &numCodePoints,
                                       '?',
                                       oppositeEndian)
                   : Util::utf32ToUtf8(&outStr,
                                       utf32Seq,
-                                      &numChars)
+                                      &numCodePoints)
                 : Util::utf32ToUtf8(&outStr,
                                     utf32Seq);
 
-            ASSERT(!checkNChars || 3 == numChars);
+            ASSERT(!checkNumCPs || 3 == numCodePoints);
 
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
             ASSERT(compareStr == outStr);
@@ -5147,23 +5158,23 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 expectedRet = IS_ERROR && len >= 1
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                           ? Status::k_OUT_OF_SPACE_BIT : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t expectedNumChars = len >= cvs   ? 3
+                const bsl::size_t expectedNumCodePoints = len >= cvs   ? 3
                                                    : len == cvs-1 ? 2
                                                    : len >= 1     ? 1
                                                    :                0;
-                ASSERT(expectedNumChars <= 3);
+                ASSERT(expectedNumCodePoints <= 3);
                 const bsl::size_t expectedNumBytes =
-                                   expectedNumChars <= 1 ? expectedNumChars
-                                 : expectedNumChars == 2 ? cvs - 1
-                                 :                         cvs;
+                            expectedNumCodePoints <= 1 ? expectedNumCodePoints
+                          : expectedNumCodePoints == 2 ? cvs - 1
+                          :                              cvs;
 
                 bsl::size_t numBytes = -1;
                 ret = -1;
@@ -5173,25 +5184,25 @@ int main(int argc, char **argv)
                       ? Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           &numBytes,
                                           '?',
                                           oppositeEndian)
                       : Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           &numBytes)
-                    : checkNChars
+                    : checkNumCPs
                       ? Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                       : Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq);
 
-                ASSERT(!checkNChars || expectedNumChars == numChars);
+                ASSERT(!checkNumCPs || expectedNumCodePoints == numCodePoints);
                 ASSERT(!checkNBytes || expectedNumBytes == numBytes);
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -5208,10 +5219,10 @@ int main(int argc, char **argv)
         for (int tm = 0; tm < 8 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
             const bool          opposite    = (tm/NUM_UTF32_TABLE) & 1;
-            const bool          checkNChars = (tm/NUM_UTF32_TABLE) & 2;
+            const bool          checkNumCPs = (tm/NUM_UTF32_TABLE) & 2;
             const bool          checkNBytes = (tm/NUM_UTF32_TABLE) & 4;
 
-            if (!checkNChars && (checkNBytes || opposite)) {
+            if (!checkNumCPs && (checkNBytes || opposite)) {
                 continue;
             }
 
@@ -5237,46 +5248,46 @@ int main(int argc, char **argv)
             const bsl::string compareStr = &compareVec[0];
 
             int expectedRet = IS_ERROR
-                            ? Status::k_INVALID_CHARS_BIT
+                            ? Status::k_INVALID_INPUT_BIT
                             : 0;
 
-            bsl::size_t numChars = -1;
+            bsl::size_t numCodePoints = -1;
             int ret;
 
             if (!checkNBytes) {
-                ret = checkNChars
+                ret = checkNumCPs
                     ? opposite
                       ? Util::utf32ToUtf8(&outVec,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           '?',
                                           oppositeEndian)
                       : Util::utf32ToUtf8(&outVec,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                     : Util::utf32ToUtf8(&outVec,
                                         utf32Seq);
-                ASSERT(!checkNChars || 3 == numChars);
+                ASSERT(!checkNumCPs || 3 == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
                 ASSERT(compareVec == outVec);
 
                 bsl::string outStr;
-                numChars = -1;    ret = -1;
+                numCodePoints = -1;    ret = -1;
 
-                ret = checkNChars
+                ret = checkNumCPs
                     ? opposite
                       ? Util::utf32ToUtf8(&outStr,
                                           utf32Seq,
-                                          &numChars,
+                                          &numCodePoints,
                                           '?',
                                           oppositeEndian)
                       : Util::utf32ToUtf8(&outStr,
                                           utf32Seq,
-                                          &numChars)
+                                          &numCodePoints)
                     : Util::utf32ToUtf8(&outStr,
                                         utf32Seq);
-                ASSERT(!checkNChars || 3 == numChars);
+                ASSERT(!checkNumCPs || 3 == numCodePoints);
 
                 LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
                 ASSERT(compareStr == outStr);
@@ -5290,48 +5301,48 @@ int main(int argc, char **argv)
                                           (bsl::size_t) -1 != len; --len) {
                 char outBuf[100];
                 bsl::memset(outBuf, -1, sizeof(outBuf));
-                numChars = -1;
+                numCodePoints = -1;
 
                 expectedRet = IS_ERROR && len >= 2
-                                     ? Status::k_INVALID_CHARS_BIT : 0;
+                                     ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < compareVec.size()
                                            ? Status::k_OUT_OF_SPACE_BIT
                                            : 0;
 
                 const bsl::size_t cvs = compareVec.size();
-                const bsl::size_t expectedNumChars = len >= cvs ? 3
+                const bsl::size_t expectedNumCodePoints = len >= cvs ? 3
                                                    : len >= 2   ? 2
                                                    :              len;
-                ASSERT(expectedNumChars <= 4);
+                ASSERT(expectedNumCodePoints <= 4);
                 const bsl::size_t expectedNumBytes =
-                                   expectedNumChars <= 2 ? expectedNumChars
-                                 :                         cvs;
+                            expectedNumCodePoints <= 2 ? expectedNumCodePoints
+                          :                              cvs;
 
                 bsl::size_t numBytes = -1;
-                ret = checkNChars
+                ret = checkNumCPs
                     ? checkNBytes
                       ? opposite
                         ? Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             &numBytes,
                                             '?',
                                             oppositeEndian)
                         : Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq,
-                                            &numChars,
+                                            &numCodePoints,
                                             &numBytes)
                       : Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq,
-                                            &numChars)
+                                            &numCodePoints)
                     : Util::utf32ToUtf8(outBuf,
                                           len,
                                           utf32Seq);
 
-                ASSERT(!checkNChars || expectedNumChars == numChars);
+                ASSERT(!checkNumCPs || expectedNumCodePoints == numCodePoints);
                 LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                  !checkNBytes || expectedNumBytes == numBytes);
 
@@ -5350,10 +5361,10 @@ int main(int argc, char **argv)
         for (int tm = 0; tm < 8 * NUM_UTF32_TABLE; ++tm) {
             const int           ti          = tm % NUM_UTF32_TABLE;
             const bool          opposite    = (tm/NUM_UTF32_TABLE) & 1;
-            const bool          checkNChars = (tm/NUM_UTF32_TABLE) & 2;
+            const bool          checkNumCPs = (tm/NUM_UTF32_TABLE) & 2;
             const bool          checkNBytes = (tm/NUM_UTF32_TABLE) & 4;
 
-            if (!checkNChars && (checkNBytes || opposite)) {
+            if (!checkNumCPs && (checkNBytes || opposite)) {
                 continue;
             }
 
@@ -5379,56 +5390,56 @@ int main(int argc, char **argv)
 
             for (int check = 0; check < 2; ++check) {
                 //..
-                // check == 0, check 'numChars' && 'numBytes'
-                // check == 1: check 'numChars'
+                // check == 0, check 'numCodePoints' && 'numBytes'
+                // check == 1: check 'numCodePoints'
                 // check == 2: check neither
                 //..
 
                 int expectedRet = IS_ERROR
-                                ? Status::k_INVALID_CHARS_BIT
+                                ? Status::k_INVALID_INPUT_BIT
                                 : 0;
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(check); }
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 int ret;
 
                 if (!checkNBytes) {
-                    ret = checkNChars
+                    ret = checkNumCPs
                         ? opposite
                           ? Util::utf32ToUtf8(&outVec,
                                               utf32Seq,
-                                              &numChars,
+                                              &numCodePoints,
                                               '?',
                                               oppositeEndian)
                           : Util::utf32ToUtf8(&outVec,
                                               utf32Seq,
-                                              &numChars)
+                                              &numCodePoints)
                         : Util::utf32ToUtf8(&outVec,
                                             utf32Seq);
 
-                    ASSERT(!checkNChars || 2 == numChars);
+                    ASSERT(!checkNumCPs || 2 == numCodePoints);
 
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
                     ASSERT(compareVec == outVec);
 
                     bsl::string outStr;
-                    numChars = -1;    ret = -1;
+                    numCodePoints = -1;    ret = -1;
 
-                    ret = checkNChars
+                    ret = checkNumCPs
                         ? opposite
                           ? Util::utf32ToUtf8(&outStr,
                                               utf32Seq,
-                                              &numChars,
+                                              &numCodePoints,
                                               '?',
                                               oppositeEndian)
                           : Util::utf32ToUtf8(&outStr,
                                               utf32Seq,
-                                              &numChars)
+                                              &numCodePoints)
                         : Util::utf32ToUtf8(&outStr,
                                             utf32Seq);
 
-                    ASSERT(!checkNChars || 2 == numChars);
+                    ASSERT(!checkNumCPs || 2 == numCodePoints);
 
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
                     ASSERT(compareStr == outStr);
@@ -5442,55 +5453,56 @@ int main(int argc, char **argv)
                                               (bsl::size_t) -1 != len; --len) {
                     char outBuf[100];
                     bsl::memset(outBuf, -1, sizeof(outBuf));
-                    numChars = -1;
+                    numCodePoints = -1;
 
                     expectedRet = IS_ERROR && len >= 1
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len < compareVec.size()
                                                ? Status::k_OUT_OF_SPACE_BIT
                                                : 0;
 
                     const bsl::size_t cvs = compareVec.size();
-                    const bsl::size_t expectedNumChars = len >= cvs   ? 2
+                    const bsl::size_t expectedNumCodePoints = len >= cvs   ? 2
                                                        : len >= 1     ? 1
                                                        :                0;
-                    ASSERT(expectedNumChars <= 3);
+                    ASSERT(expectedNumCodePoints <= 3);
                     const bsl::size_t expectedNumBytes =
-                                      expectedNumChars == 2 ? cvs
-                                    :                         expectedNumChars;
+                            expectedNumCodePoints == 2 ? cvs
+                                                       : expectedNumCodePoints;
 
                     if (veryVeryVerbose) {
                         P_(LINE);  P_(tm/NUM_UTF32_TABLE);   P_(len);  P_(cvs);
-                        P_(expectedNumChars);       P(expectedNumBytes);
+                        P_(expectedNumCodePoints);       P(expectedNumBytes);
                     }
 
                     bsl::size_t numBytes = -1;
-                    ret = checkNChars
+                    ret = checkNumCPs
                         ? checkNBytes
                           ? opposite
                             ? Util::utf32ToUtf8(outBuf,
                                                 len,
                                                 utf32Seq,
-                                                &numChars,
+                                                &numCodePoints,
                                                 &numBytes,
                                                 '?',
                                                 oppositeEndian)
                             : Util::utf32ToUtf8(outBuf,
                                                 len,
                                                 utf32Seq,
-                                                &numChars,
+                                                &numCodePoints,
                                                 &numBytes)
                           : Util::utf32ToUtf8(outBuf,
                                               len,
                                               utf32Seq,
-                                              &numChars)
+                                              &numCodePoints)
                         : Util::utf32ToUtf8(outBuf,
                                             len,
                                             utf32Seq);
 
                     LOOP4_ASSERT(LINE, len, expectedNumBytes, numBytes,
                                  !checkNBytes || expectedNumBytes == numBytes);
-                    ASSERT(!checkNChars || expectedNumChars == numChars);
+                    ASSERT(!checkNumCPs ||
+                                       expectedNumCodePoints == numCodePoints);
 
                     LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
 
@@ -5508,12 +5520,12 @@ int main(int argc, char **argv)
         // Testing UTF-8 -> UTF-32 OTHER VALUES OF ERRORCHAR
         //
         // Concerns:
-        //   That values of 'errorChar' other than 'default' and 0 work
+        //   That values of 'errorWord' other than 'default' and 0 work
         //   correctly.
         //
         // Plan:
         //   Repeat the first loop of the vector test in case 3 with multiple
-        //   values of 'errorChar' other than 0 and verify that the specified
+        //   values of 'errorWord' other than 0 and verify that the specified
         //   character is properly substituted.  Only do those cases where
         //   'IS_ERROR' is true and 'IS_TRUNC' is 0.  Repeat for string refs
         //   and both byte orders.
@@ -5523,9 +5535,9 @@ int main(int argc, char **argv)
                          "Testing UTF-8 -> UTF-32 OTHER VALUES OF ERRORCHAR\n"
                          "=================================================\n";
 
-        static unsigned int errorChars[] = { 1, 10, 20, 'a', 'A', 256, 500,
+        static unsigned int errorWords[] = { 1, 10, 20, 'a', 'A', 256, 500,
                           1000, 10 * 1000, 0xd7ff, 0xe000, 1 << 20, 0x10ffff };
-        enum { NUM_ERROR_CHARS = sizeof errorChars / sizeof *errorChars };
+        enum { NUM_ERROR_WORDS = sizeof errorWords / sizeof *errorWords };
 
         for (int tm = 0; tm < 4 * NUM_UTF8_TABLE; ++tm) {
             const int   ti            = tm % NUM_UTF8_TABLE;
@@ -5540,20 +5552,20 @@ int main(int argc, char **argv)
                 continue;
             }
 
-            for (int te = 0; te < NUM_ERROR_CHARS; ++te) {
-                const unsigned int ERROR_CHAR = errorChars[te];
+            for (int te = 0; te < NUM_ERROR_WORDS; ++te) {
+                const unsigned int ERROR_WORD = errorWords[te];
 
                 if (veryVeryVerbose) { P_(ti); P_(UTF8_STRING); P(te); }
 
-                unsigned int expectedOut[] = { '1', ERROR_CHAR, 'z', 0 };
+                unsigned int expectedOut[] = { '1', ERROR_WORD, 'z', 0 };
                 if (opposite) {
                     for (unsigned u = 0; u < sizeof(expectedOut)/sizeof(int);
                                                                          ++u) {
                         expectedOut[u] = sb(expectedOut[u]);
                     }
                 }
-                int expectedRet = Status::k_INVALID_CHARS_BIT;
-                const unsigned expectedChars = 4;
+                int expectedRet = Status::k_INVALID_INPUT_BIT;
+                const unsigned expectedWords = 4;
 
                 bsl::vector<unsigned int> outVec;
                 const PaddedStringRef sr(UTF8_STRING);
@@ -5561,21 +5573,21 @@ int main(int argc, char **argv)
                         ? opposite
                           ? Util::utf8ToUtf32(&outVec,
                                               sr,
-                                              ERROR_CHAR,
+                                              ERROR_WORD,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(&outVec,
                                               sr,
-                                              ERROR_CHAR)
+                                              ERROR_WORD)
                         : opposite
                           ? Util::utf8ToUtf32(&outVec,
                                               UTF8_STRING,
-                                              ERROR_CHAR,
+                                              ERROR_WORD,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(&outVec,
                                               UTF8_STRING,
-                                              ERROR_CHAR);
+                                              ERROR_WORD);
                 ASSERT(expectedRet == ret);
-                ASSERT(expectedChars == outVec.size());
+                ASSERT(expectedWords == outVec.size());
                 ASSERT(0 == outVec.back());
 
                 const bsl::size_t expectedMatch = 4 * sizeof(unsigned int);
@@ -5583,10 +5595,10 @@ int main(int argc, char **argv)
                 ASSERT(0 == bsl::memcmp(outVec.begin(), expectedOut,
                                                                expectedMatch));
 
-                unsigned int swappedErrorChar = opposite ? sb(ERROR_CHAR)
-                                                         : ERROR_CHAR;
-                LOOP3_ASSERT(ti, hx(swappedErrorChar), hx(outVec[1]),
-                                                swappedErrorChar == outVec[1]);
+                unsigned int swappedErrorWord = opposite ? sb(ERROR_WORD)
+                                                         : ERROR_WORD;
+                LOOP3_ASSERT(ti, hx(swappedErrorWord), hx(outVec[1]),
+                                                swappedErrorWord == outVec[1]);
             }
         }
       } break;
@@ -5647,8 +5659,8 @@ int main(int argc, char **argv)
             }
 
             const int expectedRet = IS_ERROR
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = 3 + !IS_ERROR;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedWords = 3 + !IS_ERROR;
 
             bsl::vector<unsigned int> outVec;
             const PaddedStringRef sr(UTF8_STRING);
@@ -5670,10 +5682,10 @@ int main(int argc, char **argv)
                                           UTF8_STRING,
                                           0);
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
-            LOOP3_ASSERT(LINE, expectedChars, outVec.size(),
-                                               expectedChars == outVec.size());
-            LOOP2_ASSERT(LINE, expectedChars, 0 == outVec.back());
-            bsl::size_t expectedMatch = expectedChars * sizeof(unsigned int);
+            LOOP3_ASSERT(LINE, expectedWords, outVec.size(),
+                                               expectedWords == outVec.size());
+            LOOP2_ASSERT(LINE, expectedWords, 0 == outVec.back());
+            bsl::size_t expectedMatch = expectedWords * sizeof(unsigned int);
             ASSERT(0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
 
@@ -5705,8 +5717,8 @@ int main(int argc, char **argv)
                 midVal = sb(midVal);
             }
 
-            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = IS_ERROR ? 2 : 3;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedWords = IS_ERROR ? 2 : 3;
 
             bsl::vector<unsigned int> outVec;
             const PaddedStringRef sr(UTF8_STRING);
@@ -5728,10 +5740,10 @@ int main(int argc, char **argv)
                                           UTF8_STRING,
                                           0);
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
-            ASSERT(expectedChars == outVec.size());
+            ASSERT(expectedWords == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const bsl::size_t expectedMatch = expectedChars *
+            const bsl::size_t expectedMatch = expectedWords *
                                                           sizeof(unsigned int);
             ASSERT(0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
@@ -5766,8 +5778,8 @@ int main(int argc, char **argv)
                 }
                 midVal = sb(midVal);
             }
-            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = IS_ERROR ? 2 : 3;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedWords = IS_ERROR ? 2 : 3;
 
             bsl::vector<unsigned int> outVec;
             PaddedStringRef sr(s);
@@ -5789,10 +5801,10 @@ int main(int argc, char **argv)
                                           s.c_str(),
                                           0);
             ASSERT(expectedRet == ret);
-            ASSERT(expectedChars == outVec.size());
+            ASSERT(expectedWords == outVec.size());
             ASSERT(0 == outVec.back());
 
-            const size_t expectedMatch = expectedChars * sizeof(unsigned int);
+            const size_t expectedMatch = expectedWords * sizeof(unsigned int);
             LOOP4_ASSERT(useStringRef, opposite, LINE, IS_ERROR,
                      0 == bsl::memcmp(&outVec[0], expectedOut, expectedMatch));
         }
@@ -5830,24 +5842,24 @@ int main(int argc, char **argv)
             }
             const bool fiveOctet = (UTF8_STRING[1] & 0xf8) == 0xf8;
             int expectedRet;
-            unsigned expectedChars;
+            unsigned expectedWords;
             size_t expectedMatch;
 
             switch (TRUNC_BY) {
               case 0: {
-                expectedRet = Status::k_INVALID_CHARS_BIT;
-                expectedChars = IS_ERROR ? 2 : 3;
-                expectedMatch = expectedChars;
+                expectedRet = Status::k_INVALID_INPUT_BIT;
+                expectedWords = IS_ERROR ? 2 : 3;
+                expectedMatch = expectedWords;
               } break;
               case 1: {
-                expectedRet = fiveOctet ? Status::k_INVALID_CHARS_BIT : 0;
-                expectedChars = fiveOctet ? 2 : 3;
+                expectedRet = fiveOctet ? Status::k_INVALID_INPUT_BIT : 0;
+                expectedWords = fiveOctet ? 2 : 3;
                 expectedMatch = 1;
               } break;
               default: {    // 2 or more
-                expectedRet = Status::k_INVALID_CHARS_BIT;
-                expectedChars = 2;
-                expectedMatch = expectedChars;
+                expectedRet = Status::k_INVALID_INPUT_BIT;
+                expectedWords = 2;
+                expectedMatch = expectedWords;
               }
             }
             expectedMatch *= sizeof(unsigned int);
@@ -5872,8 +5884,8 @@ int main(int argc, char **argv)
                                           s.c_str(),
                                           0);
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
-            LOOP3_ASSERT(LINE, expectedChars, outVec.size(),
-                                               expectedChars == outVec.size());
+            LOOP3_ASSERT(LINE, expectedWords, outVec.size(),
+                                               expectedWords == outVec.size());
             ASSERT(0 == outVec.back());
 
             LOOP3_ASSERT(LINE, expectedMatch, TRUNC_BY,
@@ -5882,7 +5894,7 @@ int main(int argc, char **argv)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // Testing UTF-8 -> UTF-32 Buffer Translation With 0 for errorChar
+        // Testing UTF-8 -> UTF-32 Buffer Translation With 0 for errorWord
         //
         // Concerns:
         //   That 'utf8ToUtf32' called with buffer output performs as expected:
@@ -5918,9 +5930,9 @@ int main(int argc, char **argv)
         //:   sequence, and calculate 'expectedMatch', the number of bytes of
         //:   it that are expected to match the translation output, and compare
         //:   to the output after the translation call.
-        //: 5 Calculate 'expectedChars', the expected number of characters
+        //: 5 Calculate 'expectedWords', the expected number of characters
         //:   output (including the terminating 0), and verify it is the value
-        //:   of 'numChars' returned by the translation call.
+        //:   of 'numCodePoints' returned by the translation call.
         //: 6 Calculate 'expectedMatch', the number of bytes of the output
         //:   which are expected to match 'expectedOut' from '5', note that
         //:   'expectedMatch' will vary with 'len'.  After the translation,
@@ -5965,52 +5977,52 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 3
-                                  ? Status::k_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 3 : 4)
                                ? Status::k_OUT_OF_SPACE_BIT : 0;
-                const unsigned expectedChars = bsl::min(len, 3+!IS_ERROR);
+                const unsigned expectedCodePoints = bsl::min(len, 3+!IS_ERROR);
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 const PaddedStringRef sr(UTF8_STRING);
                 int ret = useStringRef
                         ? opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               UTF8_STRING,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               UTF8_STRING,
-                                              &numChars,
+                                              &numCodePoints,
                                               0)
                         : opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0);
                 LOOP4_ASSERT(LINE, len, expectedRet, ret, expectedRet == ret);
-                LOOP3_ASSERT(LINE, expectedChars, numChars,
-                                                    expectedChars == numChars);
-                LOOP3_ASSERT(LINE, len, expectedChars,
-                                 0 == len || 0 == out32Buf[expectedChars - 1]);
+                LOOP3_ASSERT(LINE, expectedCodePoints, numCodePoints,
+                                          expectedCodePoints == numCodePoints);
+                LOOP3_ASSERT(LINE, len, expectedCodePoints,
+                            0 == len || 0 == out32Buf[expectedCodePoints - 1]);
                 int expectedMatch = 3 + !IS_ERROR;
                 expectedMatch = len >= expectedMatch ? expectedMatch
                                                      : bsl::max(0, len - 1);
                 ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                 for (int i = 0; i < expectedMatch; ++i) {
-                    LOOP6_ASSERT(LINE, len, expectedChars, i, out32Buf[i],
+                    LOOP6_ASSERT(LINE, len, expectedCodePoints, i, out32Buf[i],
                                 expectedOut[i], out32Buf[i] == expectedOut[i]);
                 }
             }
@@ -6049,48 +6061,50 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 2
-                                  ? Status::k_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < (IS_ERROR ? 2 : 3)
                                ? Status::k_OUT_OF_SPACE_BIT : 0;
-                const unsigned expectedChars = bsl::min(len, IS_ERROR ? 2 : 3);
+                const unsigned expectedCodePoints =
+                                               bsl::min(len, IS_ERROR ? 2 : 3);
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 const PaddedStringRef sr(UTF8_STRING);
                 int ret = useStringRef
                         ? opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0)
                         : opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               UTF8_STRING,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               UTF8_STRING,
-                                              &numChars,
+                                              &numCodePoints,
                                               0);
                 LOOP4_ASSERT(LINE, len, expectedRet, ret, expectedRet == ret);
-                ASSERT(expectedChars == numChars);
-                ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                ASSERT(expectedCodePoints == numCodePoints);
+                ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                 ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
-                const size_t expectedMatch = (3 == expectedChars ? 3 :
-                  bsl::max(0, (int) expectedChars - 1)) * sizeof(unsigned int);
+                const size_t expectedMatch = (3 == expectedCodePoints ? 3 :
+                                   bsl::max(0, (int) expectedCodePoints - 1)) *
+                                                          sizeof(unsigned int);
 
                 ASSERT(0 == bsl::memcmp(out32Buf, expectedOut, expectedMatch));
             }
@@ -6126,49 +6140,50 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet = IS_ERROR && len >= 3
-                                  ? Status::k_INVALID_CHARS_BIT : 0;
+                                  ? Status::k_INVALID_INPUT_BIT : 0;
                 expectedRet |= len < 3
                                ? Status::k_OUT_OF_SPACE_BIT : 0;
-                const unsigned expectedChars =
+                const unsigned expectedCodePoints =
                                            bsl::min(len, IS_ERROR ? 2 : 3);
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 PaddedStringRef sr(s);
                 int ret = useStringRef
                         ? opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0)
                         : opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               s.c_str(),
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               s.c_str(),
-                                              &numChars,
+                                              &numCodePoints,
                                               0);
                 LOOP4_ASSERT(LINE, len, expectedRet, ret, expectedRet == ret);
-                ASSERT(expectedChars == numChars);
-                ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                ASSERT(expectedCodePoints == numCodePoints);
+                ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                 ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
-                const size_t expectedMatch = (3 == expectedChars ? 3 :
-                  bsl::max(0, (int) expectedChars - 1)) * sizeof(unsigned int);
+                const size_t expectedMatch = (3 == expectedCodePoints ? 3 :
+                                   bsl::max(0, (int) expectedCodePoints - 1)) *
+                                                          sizeof(unsigned int);
 
                 ASSERT(0 == bsl::memcmp(out32Buf, expectedOut, expectedMatch));
             }
@@ -6211,70 +6226,70 @@ int main(int argc, char **argv)
             for (int len = MAX_LEN; len >= 0; --len) {
                 bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                 int expectedRet;
-                unsigned expectedChars;
+                unsigned expectedCodePoints;
 
                 switch (TRUNC_BY) {
                   case 0: {
                     expectedRet = (IS_ERROR && len >= 3) || len >= 4
-                                         ? Status::k_INVALID_CHARS_BIT : 0;
+                                         ? Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len < (IS_ERROR ? 3 : 4)
                                   ? Status::k_OUT_OF_SPACE_BIT  : 0;
-                    expectedChars = bsl::min(len, IS_ERROR ? 2 : 3);
+                    expectedCodePoints = bsl::min(len, IS_ERROR ? 2 : 3);
                   } break;
                   case 1: {
                     expectedRet = len < 3 ? Status::k_OUT_OF_SPACE_BIT : 0;
                     expectedRet |= len >= 3 && fiveOctet ?
-                                           Status::k_INVALID_CHARS_BIT : 0;
-                    expectedChars = bsl::min(len, fiveOctet ? 2 : 3);
+                                           Status::k_INVALID_INPUT_BIT : 0;
+                    expectedCodePoints = bsl::min(len, fiveOctet ? 2 : 3);
                   } break;
                   default: {    // 2 or more
                     expectedRet = len >= 3 ?
-                                           Status::k_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len<3 ? Status::k_OUT_OF_SPACE_BIT : 0;
-                    expectedChars = bsl::min(len, 2);
+                    expectedCodePoints = bsl::min(len, 2);
                   }
                 }
 
                 size_t expectedMatch = bsl::max(0,
-                       (!TRUNC_BY ? ((int) expectedChars -
+                       (!TRUNC_BY ? ((int) expectedCodePoints -
                        !!(expectedRet & Status::k_OUT_OF_SPACE_BIT)) :
                     bsl::min(len - 1, 1))) * sizeof(unsigned int);
 
-                bsl::size_t numChars = -1;
+                bsl::size_t numCodePoints = -1;
                 PaddedStringRef sr(s);
                 int ret = useStringRef
                         ? opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               sr,
-                                              &numChars,
+                                              &numCodePoints,
                                               0)
                         : opposite
                           ? Util::utf8ToUtf32(out32Buf,
                                               len,
                                               s.c_str(),
-                                              &numChars,
+                                              &numCodePoints,
                                               0,
                                               oppositeEndian)
                           : Util::utf8ToUtf32(out32Buf,
                                               len,
                                               s.c_str(),
-                                              &numChars,
+                                              &numCodePoints,
                                               0);
                 LOOP5_ASSERT(LINE, len, expectedRet, ret, TRUNC_BY,
                                                            expectedRet == ret);
-                LOOP4_ASSERT(LINE, len, expectedChars, numChars,
-                                                    expectedChars == numChars);
-                ASSERT(0 == numChars || 0 == out32Buf[numChars - 1]);
+                LOOP4_ASSERT(LINE, len, expectedCodePoints, numCodePoints,
+                                          expectedCodePoints == numCodePoints);
+                ASSERT(0 == numCodePoints || 0 == out32Buf[numCodePoints - 1]);
 
                 ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                 LOOP3_ASSERT(LINE, expectedMatch, len,
@@ -6325,8 +6340,8 @@ int main(int argc, char **argv)
                 }
                 midVal = sb(midVal);
             }
-            int expectedRet = IS_ERROR ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = 4;
+            int expectedRet = IS_ERROR ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedCodePoints = 4;
 
             bsl::vector<unsigned int> outVec;
             PaddedStringRef sr(UTF8_STRING);
@@ -6339,8 +6354,8 @@ int main(int argc, char **argv)
                                                                oppositeEndian)
                       : Util::utf8ToUtf32(&outVec, UTF8_STRING);
             ASSERT(expectedRet == ret);
-            LOOP4_ASSERT(useStringRef, LINE, expectedChars, outVec.size(),
-                                               expectedChars == outVec.size());
+            LOOP4_ASSERT(useStringRef, LINE, expectedCodePoints, outVec.size(),
+                                          expectedCodePoints == outVec.size());
             ASSERT(0 == outVec.back());
 
             const size_t expectedMatch = 4 * sizeof(unsigned int);
@@ -6376,8 +6391,8 @@ int main(int argc, char **argv)
             }
             bsl::vector<unsigned int> outVec;
             int expectedRet = IS_ERROR
-                              ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = 3;
+                              ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedCodePoints = 3;
 
             PaddedStringRef sr(UTF8_STRING);
             int ret = useStringRef
@@ -6390,7 +6405,7 @@ int main(int argc, char **argv)
                       : Util::utf8ToUtf32(&outVec, UTF8_STRING);
 
             ASSERT(expectedRet == ret);
-            ASSERT(expectedChars == outVec.size());
+            ASSERT(expectedCodePoints == outVec.size());
             ASSERT(0 == outVec.back());
 
             const size_t expectedMatch = 3 * sizeof(unsigned int);
@@ -6428,8 +6443,8 @@ int main(int argc, char **argv)
             }
             bsl::vector<unsigned int> outVec;
             int expectedRet = IS_ERROR
-                              ? Status::k_INVALID_CHARS_BIT : 0;
-            const unsigned expectedChars = 3;
+                              ? Status::k_INVALID_INPUT_BIT : 0;
+            const unsigned expectedCodePoints = 3;
 
             PaddedStringRef sr(s);
             int ret = useStringRef
@@ -6441,7 +6456,7 @@ int main(int argc, char **argv)
                                                                 oppositeEndian)
                       : Util::utf8ToUtf32(&outVec, s.c_str());
             ASSERT(expectedRet == ret);
-            ASSERT(expectedChars == outVec.size());
+            ASSERT(expectedCodePoints == outVec.size());
             ASSERT(0 == outVec.back());
 
             const size_t expectedMatch = 3 * sizeof(unsigned int);
@@ -6482,24 +6497,24 @@ int main(int argc, char **argv)
             }
             bsl::vector<unsigned int> outVec;
             int expectedRet;
-            unsigned expectedChars;
+            unsigned expectedCodePoints;
             size_t expectedMatch;
 
             switch (TRUNC_BY) {
               case 0: {
-                expectedRet = Status::k_INVALID_CHARS_BIT;
-                expectedChars = 4;
+                expectedRet = Status::k_INVALID_INPUT_BIT;
+                expectedCodePoints = 4;
                 expectedMatch = 4 * sizeof(unsigned int);
               } break;
               case 1: {
                 expectedRet = (UTF8_STRING[1] & 0xf8) == 0xf8 ?
-                                           Status::k_INVALID_CHARS_BIT : 0;
-                expectedChars = 3;
+                                           Status::k_INVALID_INPUT_BIT : 0;
+                expectedCodePoints = 3;
                 expectedMatch = sizeof(unsigned int);
               } break;
               default: {    // 2 or more
-                expectedRet = Status::k_INVALID_CHARS_BIT;
-                expectedChars = 3;
+                expectedRet = Status::k_INVALID_INPUT_BIT;
+                expectedCodePoints = 3;
                 expectedMatch = 3 * sizeof(unsigned int);
                 expectedOut[2] = 0;
               }
@@ -6515,7 +6530,7 @@ int main(int argc, char **argv)
                                                                 oppositeEndian)
                       : Util::utf8ToUtf32(&outVec, s.c_str());
             LOOP3_ASSERT(LINE, expectedRet, ret, expectedRet == ret);
-            ASSERT(expectedChars == outVec.size());
+            ASSERT(expectedCodePoints == outVec.size());
             ASSERT(0 == outVec.back());
 
             LOOP2_ASSERT(LINE, expectedMatch,
@@ -6553,27 +6568,28 @@ int main(int argc, char **argv)
         //   first to anticipate what the expected behavior of this translation
         //   call.
         //: 1 Iterate eight times over the variable 'mode', driving 3 booleans:
-        //:   o checkNumChars -- have 'numChars' returned and verify accuracy
+        //:   o checkNumCPs -- have 'numCodePoints' returned and verify
+        //:     accuracy
         //:   o useStringRef -- pass input as a string ref rather than a
         //:     'const char *'
         //:   o opposite -- use the opposite of host byte order
-        //: 2 Within the loop of '1', iterate through all the entries in
-        //:   the static array 'utf8Table' above, to determine the input
-        //:   string to pass to the translation call.
+        //: 2 Within the loop of '1', iterate through all the entries in the
+        //:   static array 'utf8Table' above, to determine the input string to
+        //:   pass to the translation call.
         //: 3 Iterate the value 'len', the capacity in words of the output
         //:   buffer, from 'more than enough room' down to zero, and pass 'len'
         //:   to the 'capacity' arg of 'utf8ToUtf32' on each call.
         //: 4 Calculate 'expectedRet', the expected return value for
-        //:   'utf8ToUtf32' and, after the call, verify it is indeed the
-        //:   return value.
+        //:   'utf8ToUtf32' and, after the call, verify it is indeed the return
+        //:   value.
         //: 5 Create an unsigned int array 'expectedOut' of the expected output
         //:   sequence, and calculate 'expectedMatch', the number of bytes of
         //:   it that are expected to match the translation output, and compare
         //:   to the output after the translation call.
-        //: 6 Calculate 'expectedChars', the expected number of characters
+        //: 6 Calculate 'expectedCodePoints', the expected number of characters
         //:   output (including the terminating 0), and verify it is the value
-        //:   of 'numChars' returned by the translation call (if'
-        //:   checkNumChars' is true, meaning 'numChars' is passed to the
+        //:   of 'numCodePoints' returned by the translation call (if'
+        //:   checkNumCPs' is true, meaning 'numCodePoints' is passed to the
         //:   translation call).
         //: 7 Calculate 'expectedMatch', the number of bytes of the output
         //:   which are expected to match 'expectedOut' from '5', note that
@@ -6590,11 +6606,11 @@ int main(int argc, char **argv)
         if (verbose) Q(4-char sequences);
 
         for (int mode = 0; mode < 8; ++mode) {
-            const bool checkNumChars = 0 != (1 & mode);
-            const bool useStringRef  = 0 != (2 & mode);
-            const bool opposite      = 0 != (4 & mode);
+            const bool checkNumCPs  = 0 != (1 & mode);
+            const bool useStringRef = 0 != (2 & mode);
+            const bool opposite     = 0 != (4 & mode);
 
-            if (opposite && !checkNumChars) {
+            if (opposite && !checkNumCPs) {
                 continue;
             }
 
@@ -6617,50 +6633,51 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len > 2
-                                      ? Status::k_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len < 4
                                    ? Status::k_OUT_OF_SPACE_BIT : 0;
-                    const unsigned expectedChars = bsl::min(len, 4);
+                    const unsigned expectedCodePoints = bsl::min(len, 4);
 
                     if (veryVeryVeryVerbose) { P_(mode); P_(ti); P(len); }
 
-                    bsl::size_t numChars = -1;
+                    bsl::size_t numCodePoints = -1;
                     PaddedStringRef sr(UTF8_STRING);
                     int ret = useStringRef
-                            ? (checkNumChars
+                            ? (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     sr))
-                            : (checkNumChars
+                            : (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        UTF8_STRING,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        UTF8_STRING,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     UTF8_STRING));
                     LOOP4_ASSERT(ti, len, expectedRet, ret,
                                                            expectedRet == ret);
-                    ASSERT(!checkNumChars || expectedChars == numChars);
-                    ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                    ASSERT(!checkNumCPs ||
+                                          expectedCodePoints == numCodePoints);
+                    ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                     const size_t expectedMatch =
                                           (len >= 4 ? 4 : bsl::max(len - 1, 0))
@@ -6670,7 +6687,7 @@ int main(int argc, char **argv)
                                                                expectedMatch));
 
                     ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                     if (len >= 3) {
@@ -6691,11 +6708,11 @@ int main(int argc, char **argv)
         if (verbose) Q(Skipping first char);
 
         for (int mode = 0; mode < 8; ++mode) {
-            const bool checkNumChars = 0 != (1 & mode);
-            const bool useStringRef  = 0 != (2 & mode);
-            const bool opposite      = 0 != (4 & mode);
+            const bool checkNumCPs  = 0 != (1 & mode);
+            const bool useStringRef = 0 != (2 & mode);
+            const bool opposite     = 0 != (4 & mode);
 
-            if (opposite && !checkNumChars) {
+            if (opposite && !checkNumCPs) {
                 continue;
             }
 
@@ -6718,47 +6735,48 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len > 1
-                                      ? Status::k_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len < 3
                                    ? Status::k_OUT_OF_SPACE_BIT : 0;
-                    const unsigned expectedChars = bsl::min(len, 3);
+                    const unsigned expectedCodePoints = bsl::min(len, 3);
 
-                    bsl::size_t numChars = -1;
+                    bsl::size_t numCodePoints = -1;
                     PaddedStringRef sr(UTF8_STRING);
                     int ret = useStringRef
-                            ? (checkNumChars
+                            ? (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     sr))
-                            : (checkNumChars
+                            : (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        UTF8_STRING,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        UTF8_STRING,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     UTF8_STRING));
                     ASSERT(expectedRet == ret);
-                    ASSERT(!checkNumChars || expectedChars == numChars);
-                    ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                    ASSERT(!checkNumCPs ||
+                                          expectedCodePoints == numCodePoints);
+                    ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                     const size_t expectedMatch =
                                           (len >= 3 ? 3 : bsl::max(len - 1, 0))
@@ -6768,7 +6786,7 @@ int main(int argc, char **argv)
                                                                expectedMatch));
 
                     ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                     if (len >= 2) {
@@ -6789,11 +6807,11 @@ int main(int argc, char **argv)
         if (verbose) Q(Eliminating last char);
 
         for (int mode = 0; mode < 8; ++mode) {
-            const bool checkNumChars = 0 != (1 & mode);
-            const bool useStringRef  = 0 != (2 & mode);
-            const bool opposite      = 0 != (4 & mode);
+            const bool checkNumCPs  = 0 != (1 & mode);
+            const bool useStringRef = 0 != (2 & mode);
+            const bool opposite     = 0 != (4 & mode);
 
-            if (opposite && !checkNumChars) {
+            if (opposite && !checkNumCPs) {
                 continue;
             }
 
@@ -6818,47 +6836,48 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet = IS_ERROR && len >= 3
-                                      ? Status::k_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_INPUT_BIT : 0;
                     expectedRet |= len < 3
                                    ? Status::k_OUT_OF_SPACE_BIT : 0;
-                    const unsigned expectedChars = bsl::min(len, 3);
+                    const unsigned expectedCodePoints = bsl::min(len, 3);
 
-                    bsl::size_t numChars = -1;
+                    bsl::size_t numCodePoints = -1;
                     PaddedStringRef sr(s);
                     int ret = useStringRef
-                            ? (checkNumChars
+                            ? (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     sr))
-                            : (checkNumChars
+                            : (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        s.c_str(),
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        s.c_str(),
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     s.c_str()));
                     ASSERT(expectedRet == ret);
-                    ASSERT(!checkNumChars || expectedChars == numChars);
-                    ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                    ASSERT(!checkNumCPs ||
+                                          expectedCodePoints == numCodePoints);
+                    ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                     const size_t expectedMatch =
                                           (len >= 3 ? 3 : bsl::max(len - 1, 0))
@@ -6868,7 +6887,7 @@ int main(int argc, char **argv)
                                                                expectedMatch));
 
                     ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                     if (len >= 3) {
@@ -6889,11 +6908,11 @@ int main(int argc, char **argv)
         if (verbose) Q(Replacing 'z' with continuation);
 
         for (int mode = 0; mode < 8; ++mode) {
-            const bool checkNumChars = 0 != (1 & mode);
-            const bool useStringRef  = 0 != (2 & mode);
-            const bool opposite      = 0 != (4 & mode);
+            const bool checkNumCPs  = 0 != (1 & mode);
+            const bool useStringRef = 0 != (2 & mode);
+            const bool opposite     = 0 != (4 & mode);
 
-            if (opposite && !checkNumChars) {
+            if (opposite && !checkNumCPs) {
                 continue;
             }
 
@@ -6922,16 +6941,16 @@ int main(int argc, char **argv)
                 for (int len = MAX_LEN; len >= 0; --len) {
                     bsl::fill(out32Buf + 0, out32Buf + MAX_LEN, fillWord);
                     int expectedRet;
-                    unsigned expectedChars;
+                    unsigned expectedCodePoints;
                     size_t expectedMatch;
 
                     switch (TRUNC_BY) {
                       case 0: {
                         expectedRet = (IS_ERROR && len >= 3) || len >= 4
-                                      ? Status::k_INVALID_CHARS_BIT : 0;
+                                      ? Status::k_INVALID_INPUT_BIT : 0;
                         expectedRet |= len < 4
                                       ? Status::k_OUT_OF_SPACE_BIT  : 0;
-                        expectedChars = bsl::min(len, 4);
+                        expectedCodePoints = bsl::min(len, 4);
                         expectedMatch =(len >= 4 ? 4 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
                       } break;
@@ -6940,67 +6959,68 @@ int main(int argc, char **argv)
                                       ? Status::k_OUT_OF_SPACE_BIT  : 0;
                         expectedRet |= len >= 3 &&
                                               (UTF8_STRING[1] & 0xf8) == 0xf8 ?
-                                           Status::k_INVALID_CHARS_BIT : 0;
-                        expectedChars = bsl::min(len, 3);
+                                           Status::k_INVALID_INPUT_BIT : 0;
+                        expectedCodePoints = bsl::min(len, 3);
                         expectedMatch = bsl::max(0, bsl::min(len - 1, 1)) *
                                                           sizeof(unsigned int);
                       } break;
                       default: {    // 2 or more
                         expectedRet = len >= 3 ?
-                                           Status::k_INVALID_CHARS_BIT : 0;
+                                           Status::k_INVALID_INPUT_BIT : 0;
                         expectedRet |= len < 3
                                        ? Status::k_OUT_OF_SPACE_BIT : 0;
-                        expectedChars = bsl::min(len, 3);
+                        expectedCodePoints = bsl::min(len, 3);
                         expectedMatch = (len >= 3 ? 3 : bsl::max(len - 1, 0))
                                                         * sizeof(unsigned int);
                         expectedOut[2] = 0;
                       }
                     }
 
-                    bsl::size_t numChars = -1;
+                    bsl::size_t numCodePoints = -1;
                     PaddedStringRef sr(s);
                     int ret = useStringRef
-                            ? (checkNumChars
+                            ? (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        sr,
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     sr))
-                            : (checkNumChars
+                            : (checkNumCPs
                                 ? (opposite
                                    ? Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        s.c_str(),
-                                                       &numChars,
+                                                       &numCodePoints,
                                                        '?',
                                                        oppositeEndian)
                                    : Util::utf8ToUtf32(out32Buf,
                                                        len,
                                                        s.c_str(),
-                                                       &numChars))
+                                                       &numCodePoints))
                                 : Util::utf8ToUtf32(out32Buf,
                                                     len,
                                                     s.c_str()));
                     LOOP5_ASSERT(LINE, len, expectedRet, ret, TRUNC_BY,
                                                            expectedRet == ret);
-                    ASSERT(!checkNumChars || expectedChars == numChars);
-                    ASSERT(0 == len || 0 == out32Buf[expectedChars - 1]);
+                    ASSERT(!checkNumCPs ||
+                                          expectedCodePoints == numCodePoints);
+                    ASSERT(0 == len || 0 == out32Buf[expectedCodePoints - 1]);
 
                     LOOP3_ASSERT(LINE, expectedMatch, len,
                                 0 == bsl::memcmp(out32Buf, expectedOut,
                                                                expectedMatch));
 
                     ASSERT(out32Buf + MAX_LEN ==
-                               bsl::find_if(out32Buf + expectedChars,
+                               bsl::find_if(out32Buf + expectedCodePoints,
                                             out32Buf + MAX_LEN,
                                             NotEqual<unsigned int>(fillWord)));
                     if (len >= 3 && TRUNC_BY != 1) {
@@ -7033,15 +7053,15 @@ int main(int argc, char **argv)
                            "\xf0\x98\x9a\xa0" "\n";   // 4-char UTF-8 100000
 
         unsigned int utf32[100];
-        bsl::size_t numChars, numBytes;
+        bsl::size_t numCodePoints, numBytes;
 
         int sts = Util::utf8ToUtf32(utf32,
                                     100,
                                     utf8,
-                                    &numChars);
+                                    &numCodePoints);
         ASSERT(0 == sts);
-        ASSERT(13 == numChars);
-        ASSERT(0 == utf32[numChars - 1]);
+        ASSERT(13 == numCodePoints);
+        ASSERT(0 == utf32[numCodePoints - 1]);
 
         const unsigned *putf32 = utf32;
 
@@ -7061,14 +7081,14 @@ int main(int argc, char **argv)
 
         char utf8Out[100];
 
-        numChars = numBytes = -1;
+        numCodePoints = numBytes = -1;
         sts = Util::utf32ToUtf8(utf8Out,
                                 100,
                                 utf32,
-                                &numChars,
+                                &numCodePoints,
                                 &numBytes);
         ASSERT(0  == sts);
-        ASSERT(13 == numChars);
+        ASSERT(13 == numCodePoints);
         ASSERT( bsl::strlen(utf8) + 1 == numBytes);
         ASSERT(!bsl::strcmp(utf8, utf8Out));
       } break;
