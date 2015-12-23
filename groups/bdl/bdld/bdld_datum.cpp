@@ -875,9 +875,9 @@ Datum Datum::copyBinary(const void       *value,
     Datum result;
 
     if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
-        bsl::memcpy(result.d_storage.buffer(), value, size);
+        bsl::memcpy(result.d_data.buffer(), value, size);
         result.d_as.d_type = e_INTERNAL_BINARY;
-        result.d_storage.buffer()[k_SMALLBINARY_SIZE_OFFSET] = size;
+        result.d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] = size;
         return result;                                                // RETURN
     }
 
@@ -890,11 +890,11 @@ Datum Datum::copyBinary(const void       *value,
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 }
 
-Datum Datum::copyString(const char       *value,
+Datum Datum::copyString(const char       *string,
                         SizeType          length,
                         bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT(value || 0 == length);
+    BSLS_ASSERT(string || 0 == length);
     BSLS_ASSERT(basicAllocator);
 
     Datum result;
@@ -905,7 +905,7 @@ Datum Datum::copyString(const char       *value,
     // Check for short string.
     if (length <= sizeof(result.d_string5.d_chars)) {
         result.d_string5.d_exponent = k_DOUBLE_MASK | e_INTERNAL_SHORTSTRING;
-        bsl::memcpy(result.d_string5.d_chars, value, length);
+        bsl::memcpy(result.d_string5.d_chars, string, length);
         result.d_string5.d_length = static_cast<char>(length);
         return result;                                                // RETURN
     }
@@ -913,7 +913,7 @@ Datum Datum::copyString(const char       *value,
     if (length == sizeof(result.d_string6.d_chars)) {
         result.d_string6.d_exponent
             = k_DOUBLE_MASK | e_INTERNAL_LONGEST_SHORTSTRING;
-        bsl::memcpy(result.d_string6.d_chars, value, length);
+        bsl::memcpy(result.d_string6.d_chars, string, length);
         return result;                                                // RETURN
     }
 
@@ -934,14 +934,14 @@ Datum Datum::copyString(const char       *value,
     *static_cast<SizeType *>(mem) = length;
     char *data = static_cast<char *>(mem) + sizeof(SizeType);
 
-    bsl::memcpy(data, value, length);
+    bsl::memcpy(data, string, length);
     result.d_as.d_cvp = mem;
 #else   // BSLS_PLATFORM_CPU_32_BIT
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *inlineString =
             reinterpret_cast<char *>(result.theInlineStorage());
         *inlineString++ = length;
-        bsl::memcpy(inlineString, value, length);
+        bsl::memcpy(inlineString, string, length);
         result.d_as.d_type = e_INTERNAL_SHORTSTRING;
         return result;                                                // RETURN
     }
@@ -949,7 +949,7 @@ Datum Datum::copyString(const char       *value,
     result.d_as.d_type = e_INTERNAL_STRING;
     result.d_as.d_int32 = length;
     result.d_as.d_ptr = basicAllocator->allocate(length);
-    bsl::memcpy(result.d_as.d_ptr, value, length);
+    bsl::memcpy(result.d_as.d_ptr, string, length);
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
     return result;
