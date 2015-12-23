@@ -1551,9 +1551,9 @@ int main(int argc, char *argv[])
 // First, we create an allocator that will supply dynamic memory needed for the
 // 'Datum' objects being created:
 //..
-    bslma::TestAllocator               oa("object");
+    bslma::TestAllocator oa("object");
 //..
-// Then, we create a 'Datum', 'number', having integer value of '3':
+// Then, we create a 'Datum', 'number', having an integer value of '3':
 //..
     Datum number = Datum::createInteger(3);
 //..
@@ -1561,18 +1561,18 @@ int main(int argc, char *argv[])
 // and verify that the value was set correctly:
 //..
     ASSERT(true == number.isInteger());
-    ASSERT(3 == number.theInteger());
+    ASSERT(3    == number.theInteger());
 //..
 // Note that this object does not allocate any dynamic memory on any supported
 // platforms and thus we do not need to explicitely destroy this object to
 // release any dynamic memory.
 //
-// Then, we create a 'Datum', 'cityName', having the string value:
+// Then, we create a 'Datum', 'cityName', having the string value "Boston":
 //..
     Datum cityName = Datum::copyString("Boston", strlen("Boston"), &oa);
 //..
-// Note, that the 'copyString' makes a copy of the specified string and need to
-// allocate memory to hold the copy.  Whether the copy is stored  in the object
+// Note, that the 'copyString' makes a copy of the specified string and will
+// allocate memory to hold the copy.  Whether the copy is stored in the object
 // internal storage buffer or in memory obtained from the allocator depends on
 // the length of the string and the platform.
 //
@@ -1588,8 +1588,8 @@ int main(int argc, char *argv[])
     Datum::destroy(cityName, &oa);
 //..
 ///
-///Example 2: Creating 'Datum' referring to the array of the 'Datum's
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Creating 'Datum' Referring to the Array of 'Datum' objects
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the construction of the 'Datum' object referring
 // to an existing array of 'Datum' object.
 //
@@ -1616,16 +1616,16 @@ int main(int argc, char *argv[])
     ASSERT(array[0] == arrayRef.theArray().data()[0]);
     ASSERT(array[1] == arrayRef.theArray().data()[1]);
 //..
-// Then, we destroy the 'arrayRef' object to deallocate memory to hold array
-// reference and verify that the original array is intact:
+// Then, we call 'destroy' on 'arrayRef', releasing any memory it may have
+// allocated, and verify that the external array is intact:
 //..
     Datum::destroy(arrayRef, &oa);
 
     ASSERT(bdlt::Date(2015, 10, 15) == array[0].theDate());
-    ASSERT("Birthday" == array[1].theString());
+    ASSERT("Birthday"               == array[1].theString());
 //..
-// Finally, we need to deallocate memory that was allocated when creating the
-// original array of 'Datum's:
+// Finally, we need to deallocate memory that was potentially allocated for the
+// (external) 'Datum' string in the external 'array':
 //..
     Datum::destroy(array[1], &oa);
 //..
@@ -1633,8 +1633,11 @@ int main(int argc, char *argv[])
 ///Example 3: Creating the 'Datum' having the array value.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of an owned array of
-// datums.  Note, that using corresponding builder components is a preferred
-// way of construction 'Datum's having array value.
+// datums.
+//
+// *WARNING*: Using corresponding builder components is a preferred way of
+// constructing 'Datum' array objects.  This example shows how a user-facing
+// builder component might use the primitives provided in 'bdld_datum'.
 //
 // First we create an array of datums:
 //..
@@ -1657,7 +1660,7 @@ int main(int argc, char *argv[])
 //
 // Now, we can access the contents of the array through the datum:
 //..
-    ASSERT(3 == bart.theArray().length());
+    ASSERT(3      == bart.theArray().length());
     ASSERT("Bart" == bart.theArray()[0].theString());
 //..
 // Finally, we destroy the datum, which releases all memory associated with the
@@ -1671,8 +1674,11 @@ int main(int argc, char *argv[])
 ///Example 4: Creating the 'Datum' having the map value
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of a map of datums
-// indexed by string keys.  Note, that using corresponding builder components
-// is a preferred way of construction 'Datum's having array value.
+// indexed by string keys.
+//
+// *WARNING*: Using corresponding builder components is a preferred way of
+// constructing 'Datum' map objects.  This example shows how a user-facing
+// builder component might use the primitives provided in 'bdld_datum'.
 //
 // First we create a map of datums:
 //..
@@ -1699,8 +1705,8 @@ int main(int argc, char *argv[])
 //
 // Now, we can access the contents of the map through the datum:
 //..
-    ASSERT(3 == lisa.theMap().size());
-    ASSERT("Lisa" ==  lisa.theMap().find("firstName")->theString());
+    ASSERT(3      == lisa.theMap().size());
+    ASSERT("Lisa" == lisa.theMap().find("firstName")->theString());
 //..
 // Finally, we destroy the datum, which releases all memory associated with the
 // array:
@@ -1713,7 +1719,7 @@ int main(int argc, char *argv[])
 ///Example 5: Mass Destruction
 ///- - - - - - - - - - - - - -
 // The following example illustrates an important idiom: the en masse
-// destruction of a series of datums allocated in an arena:
+// destruction of a series of datums allocated in an arena.
 //..
     {
         // scope
@@ -1740,43 +1746,63 @@ int main(int argc, char *argv[])
 // each datum individually is neither necessary nor permitted.
 //
 ///Example 6: User-defined, error and binary types
-///- - - - - - - - - - - - - - - - - - - - - - - -i
-// A datum can contain a user-defined type (Udt), consisting of a pointer and
-// an integer.  The pointer is held, not owned:
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Imagine we are using 'Datum' within an expression evaluation subsystem.
+// Within that subsystem, along with the set of types defined by
+// 'Datum::DataType' we also need to hold 'Sequence' and 'Choice' types within
+// 'Datum' values (which are not natively represented by 'Datum').  First, we
+// define the set of types used by our subsystem that are an extension to the
+// types in 'DatumType':
 //..
-    struct Beer { };
-    struct Donut { };
-    Beer   duff;
-    enum   Type { e_BEER, e_DONUT };
-    Datum  treat = Datum::createUdt(&duff, e_BEER);
-    ASSERT(treat.isUdt());
-    DatumUdt content = treat.theUdt();
-    ASSERT(content.type() == e_BEER);
-    ASSERT(content.data() == &duff);
+    struct Sequence {
+        struct Sequence *d_next_p;
+        int              d_value;
+    };
+
+    enum ExtraExpressionTypes {
+        e_SEQUENCE = 5,
+        e_CHOICE = 6
+    };
 //..
-// A datum can contain an error, consisting of a code and an optional
-// StringRef:
+// Notice that the numeric values will be provided as the 'type' attribute when
+// constructing 'Datum' object.
+//
+// Then we create a 'Sequence' object, and create a 'Datum' to hold it (note
+// that we've created the object on the stack for clarity):
 //..
-    enum { e_NO_MORE_BEER };
-    Datum error = Datum::createError(e_NO_MORE_BEER, "No more!", &oa);
-    ASSERT(error.isError());
-    DatumError what = error.theError();
-    ASSERT(e_NO_MORE_BEER == what.code());
-    ASSERT("No more!" == what.message());
-    Datum::destroy(error, &oa);
+    Sequence sequence;
+    const Datum datumS0 = Datum::createUdt(&sequence, e_SEQUENCE);
+    ASSERT(datumS0.isUdt());
 //..
-// A datum can contain an arbitrary sequence of bytes:
+// Next, we verify that the 'datumS0' refers to the external 'Sequence' object:
+//..
+    bdld::DatumUdt udt = datumS0.theUdt();
+    ASSERT(e_SEQUENCE == udt.type());
+    ASSERT(&sequence  == udt.data());
+//..
+// Then, we create a 'Datum' to hold a 'DatumError', consisting of an error
+// code and an error description message:
+//..
+    enum { e_FATAL_ERROR = 100 };
+    Datum datumError = Datum::createError(e_FATAL_ERROR, "Fatal error.", &oa);
+    ASSERT(datumError.isError());
+    DatumError error = datumError.theError();
+    ASSERT(e_FATAL_ERROR == error.code());
+    ASSERT("Fatal error." == error.message());
+    Datum::destroy(datumError, &oa);
+//..
+// Finally, we create a 'Datum' that holds an arbitrary binary data:
 //..
     int buffer[] = { 1, 2, 3 };
-    Datum bob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
+    Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
     buffer[2] = 666;
-    ASSERT(bob.isBinary());
-    DatumBinaryRef stuff = bob.theBinary();
-    ASSERT(stuff.size() == 3 * sizeof(int));
-    ASSERT(reinterpret_cast<const int*>(stuff.data())[2] == 3);
-    Datum::destroy(bob, &oa);
+    ASSERT(datumBlob.isBinary());
+    DatumBinaryRef blob = datumBlob.theBinary();
+    ASSERT(blob.size() == 3 * sizeof(int));
+    ASSERT(reinterpret_cast<const int*>(blob.data())[2] == 3);
+    Datum::destroy(datumBlob, &oa);
 //..
-// Note that the bytes have been copied.
+// Note, that the bytes have been copied.
       } break;
       case 29: {
         // --------------------------------------------------------------------
