@@ -1,0 +1,367 @@
+// bdepcre_regex.cpp                                                  -*-C++-*-
+#include <bdlpcre2_regex.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")
+//
+///IMPLEMENTATION NOTES
+///--------------------
+// This component depends on the open-source Perl Compatible Regular
+// Expressions (PCRE) library (http://www.pcre.org).
+//
+// The PCRE library can be configured with several options.  The complete list
+// of options is documented at:
+// http://www.pcre.org/pcre.txt (under 'PCRE BUILD-TIME OPTIONS')
+//
+// The PCRE library used by this component was configured with UTF8 support.
+// It was built using the following commands:
+//..
+//  $ configure --enable-utf8
+//  $ make
+//..
+// If successful, the library files are generated in a '.libs/' sub-directory.
+
+#include <bslma_allocator.h>
+#include <bslma_deallocatorproctor.h>
+#include <bslma_default.h>
+
+#include <bsls_assert.h>
+
+#include <bsl_cstring.h>    // bsl::memset
+#include <bsl_string.h>
+#include <bsl_utility.h>    // bsl::pair
+#include <bsl_vector.h>
+#include <bsl_iostream.h>
+
+extern "C" {
+
+void *bdepcre2_malloc(size_t size, void* context)
+{
+    void *result = 0;
+
+    BloombergLP::bslma::Allocator *basicAllocator =
+                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+    try {
+        result = basicAllocator->allocate(size);
+    } catch ( ... ) {
+    }
+    return result;
+}
+
+void bdepcre2_free(void* data, void* context)
+{
+    BloombergLP::bslma::Allocator *basicAllocator =
+                     reinterpret_cast<BloombergLP::bslma::Allocator*>(context);
+
+    basicAllocator->deallocate(data);
+    return;
+}
+
+}  // close extern "C"
+
+namespace BloombergLP {
+
+// CONSTANTS
+
+enum {
+    BDEPCRE_SUCCESS           =  0,
+    BDEPCRE_DEPTHLIMITFAILURE =  1,
+    BDEPCRE_FAILURE           = -1
+};
+    // Return values for this API.
+
+const int NUM_INTS_PER_CAPTURED_STRING = 3;
+    // Number of integers required by PCRE for each captured string.
+
+                             // -------------------
+                             // class bdepcre_RegEx
+                             // -------------------
+
+// CLASS DATA
+bsls::AtomicOperations::AtomicTypes::Int
+        bdepcre_RegEx::s_depthLimit = {10000000}; // from pcre's config.h
+                                                  // MATCH_LIMIT value
+
+// CREATORS
+bdepcre_RegEx::bdepcre_RegEx(bslma::Allocator *basicAllocator)
+: d_flags(0)
+, d_pattern(basicAllocator)
+, d_pcre2Context_p(0)
+, d_pcre2Code_p(0)
+, d_depthLimit(bdepcre_RegEx::defaultDepthLimit())
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_pcre2Context_p = pcre2_general_context_create(
+                                            &bdepcre2_malloc,
+                                            &bdepcre2_free,
+                                            static_cast<void*>(d_allocator_p));
+}
+
+// MANIPULATORS
+void bdepcre_RegEx::clear()
+{
+    if (isPrepared()) {
+        pcre2_code_free(d_pcre2Code_p);
+        d_pcre2Code_p = 0;
+        d_flags       = 0;
+        d_pattern.clear();
+    }
+}
+
+int bdepcre_RegEx::prepare(bsl::string *errorMessage,
+                           int         *errorOffset,
+                           const char  *pattern,
+                           int          options)
+{
+    BSLS_ASSERT(pattern);
+
+    // Free resources currently used by this object, if any, and put the object
+    // into the "unprepared" state.
+
+    clear();
+
+    // Set these data members here, before compiling the pattern.  In case of
+    // an exception (assigning to 'd_pattern' or compiling the pattern), the
+    // object will remain in the "unprepared" state.
+
+    d_flags   = options;
+    d_pattern = pattern;
+
+    // Compile the new pattern.
+
+    int    errorCodeFromPcre2;
+    size_t errorOffsetFromPcre2;
+
+    pcre2_compile_context *compileContext = pcre2_compile_context_create(
+                                                             d_pcre2Context_p);
+
+    if (0 == compileContext) {
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    pcre2_code *pcre2Code = pcre2_compile(
+                               reinterpret_cast<const unsigned char*>(pattern),
+                                          -1,
+                                          options,
+                                          &errorCodeFromPcre2,
+                                          &errorOffsetFromPcre2,
+                                          compileContext);
+
+    pcre2_compile_context_free(compileContext);
+
+    if (0 == pcre2Code) {
+#warning TODO: error handling
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    // Set object to the "prepared" state.
+
+    d_pcre2Code_p  = pcre2Code;
+
+    return BDEPCRE_SUCCESS;
+}
+
+// ACCESSORS
+int bdepcre_RegEx::match(const char *subject,
+                         size_t      subjectLength,
+                         size_t      subjectOffset) const
+{
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    int result = BDEPCRE_SUCCESS;
+
+    pcre2_match_context *matchContext = pcre2_match_context_create(
+                                                             d_pcre2Context_p);
+
+    if (0 == matchContext) {
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    pcre2_set_match_limit(matchContext, d_depthLimit);
+
+    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
+                                                             d_pcre2Code_p, 0);
+
+    if (0 == matchData) {
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    int returnValue = pcre2_match(d_pcre2Code_p,
+             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  subjectLength,
+                                  subjectOffset,
+                                  0,
+                                  matchData,
+                                  matchContext);
+
+    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
+        result = BDEPCRE_DEPTHLIMITFAILURE;
+    } else if (0 > returnValue) {
+        result = BDEPCRE_FAILURE;
+    }
+
+    pcre2_match_data_free(matchData);
+    pcre2_match_context_free(matchContext);
+
+    return result;
+}
+
+int bdepcre_RegEx::match(bsl::pair<size_t, size_t> *result,
+                         const char                *subject,
+                         size_t                     subjectLength,
+                         size_t                     subjectOffset) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    pcre2_match_context *matchContext = pcre2_match_context_create(
+                                                             d_pcre2Context_p);
+
+    if (0 == matchContext) {
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    pcre2_set_match_limit(matchContext, d_depthLimit);
+
+
+    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
+                                                            d_pcre2Code_p, 0);
+
+    if (0 == matchData) {
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    int returnValue = pcre2_match(d_pcre2Code_p,
+             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  subjectLength,
+                                  subjectOffset,
+                                  0,
+                                  matchData,
+                                  matchContext);
+
+    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
+        pcre2_match_data_free(matchData);
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    } else if (0 > returnValue) {
+        pcre2_match_data_free(matchData);
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
+
+    // Number of pairs in the ovector
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
+
+    BSLS_ASSERT(1 <= ovectorCount);
+
+    size_t offset = ovector[0];
+    size_t length = ovector[1] - offset;
+    *result = bsl::make_pair(offset, length);
+
+    pcre2_match_data_free(matchData);
+    pcre2_match_context_free(matchContext);
+
+    return BDEPCRE_SUCCESS;
+}
+
+int
+bdepcre_RegEx::match(bsl::vector<bsl::pair<size_t, size_t> > *result,
+                     const char                        *subject,
+                     size_t                             subjectLength,
+                     size_t                             subjectOffset) const
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(subject || 0 == subjectLength);
+    BSLS_ASSERT(subjectOffset <= subjectLength);
+    BSLS_ASSERT(isPrepared());
+
+    pcre2_match_context *matchContext = pcre2_match_context_create(
+                                                             d_pcre2Context_p);
+
+    if (0 == matchContext) {
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    pcre2_set_match_limit(matchContext, d_depthLimit);
+
+
+    pcre2_match_data *matchData = pcre2_match_data_create_from_pattern(
+                                                            d_pcre2Code_p, 0);
+
+    if (0 == matchData) {
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_FAILURE;                                       // RETURN
+    }
+
+    int returnValue = pcre2_match(d_pcre2Code_p,
+             reinterpret_cast<const unsigned char*>(subject ? subject : ""),
+                                  subjectLength,
+                                  subjectOffset,
+                                  0,
+                                  matchData,
+                                  matchContext);
+
+    if (PCRE2_ERROR_MATCHLIMIT == returnValue) {
+        pcre2_match_data_free(matchData);
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_DEPTHLIMITFAILURE;                             // RETURN
+    } else if (0 > returnValue) {
+        pcre2_match_data_free(matchData);
+        pcre2_match_context_free(matchContext);
+        return BDEPCRE_FAILURE;
+    }
+
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(matchData);
+
+    // Number of pairs in the ovector
+    unsigned int ovectorCount = pcre2_get_ovector_count(matchData);
+
+    result->resize(ovectorCount);
+
+    for (size_t i = 0, j = 0; i < ovectorCount; ++i, j += 2) {
+        size_t offset = ovector[j];
+        size_t length = ovector[j + 1] - offset;
+        (*result)[i] = bsl::make_pair(offset, length);
+    }
+
+    pcre2_match_data_free(matchData);
+    pcre2_match_context_free(matchContext);
+
+    return BDEPCRE_SUCCESS;
+}
+
+int bdepcre_RegEx::numSubpatterns() const
+{
+    BSLS_ASSERT(isPrepared());
+
+    int numSubpatterns;
+    int returnValue = pcre2_pattern_info(d_pcre2Code_p,
+                                         PCRE2_INFO_CAPTURECOUNT,
+                                         &numSubpatterns);
+    (void)returnValue;
+
+    BSLS_ASSERT(0 == returnValue);
+
+    return numSubpatterns;
+}
+
+int bdepcre_RegEx::subpatternIndex(const char *name) const
+{
+    BSLS_ASSERT(isPrepared());
+
+    const int index = pcre2_substring_number_from_name(
+                                 d_pcre2Code_p,
+                                 reinterpret_cast<const unsigned char*>(name));
+
+    return 0 < index && index <= numSubpatterns() ? index : -1;
+}
+
+}  // close enterprise namespace
