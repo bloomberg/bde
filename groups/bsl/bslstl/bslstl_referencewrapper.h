@@ -132,7 +132,7 @@ class reference_wrapper {
     typedef T type;
 
     // CREATORS
-    reference_wrapper(T& object);    // IMPLICIT
+    reference_wrapper(T& object);                                   // IMPLICIT
         // Create a reference wrapper representing the specified 'object'.
 
     // reference_wrapper(const reference_wrapper& original) = default;
@@ -180,19 +180,6 @@ reference_wrapper<T> ref(reference_wrapper<T> original);
 // ============================================================================
 //                      INLINE DEFINITIONS
 // ============================================================================
-
-                    // -----------------------
-                    // IsBitwiseMoveable trait
-                    // -----------------------
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class T>
-struct IsBitwiseMoveable<bsl::reference_wrapper<T> > : bsl::true_type { };
-
-}  // close namespace bslmf
-}  // close enterprise namespace
 
                     // -----------------------
                     // class reference_wrapper
@@ -249,6 +236,17 @@ bsl::reference_wrapper<T> bsl::ref(bsl::reference_wrapper<T> original)
 {
     return ref(original.get());
 }
+
+// TRAITS
+
+namespace BloombergLP {
+namespace bslmf {
+
+template <class T>
+struct IsBitwiseMoveable<bsl::reference_wrapper<T> > : bsl::true_type { };
+
+}  // close namespace bslmf
+}  // close enterprise namespace
 
 #endif
 
