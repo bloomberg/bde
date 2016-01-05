@@ -1,10 +1,19 @@
-bsl-internal (2.25.0.1) unstable; urgency=low
+bsl-internal (2.25.2.0) unstable; urgency=low
 
+  * 2553154 Merge pull request #100 from mgiroux/bump-patchversion-to-2.25.2
+  * 4a31c23 bump patchversion to 2.25.2
+  * 76ee5c8 Merge pull request #97 from ameredit/feature/2_5_fix_C_includes_drqs76458497
+
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 5 Jan 2016 09:46:31 -0500
+
+bsl-internal (2.25.0.1) git; urgency=low
+
+  * 0305635 Changelog for version 2.25.0.1
   * 4bce6d8 Changelog for version 2.25.0.1
   * 556681c Merge pull request #87 from mgiroux/review/add-missing-bsls-compilerfeatures-includes-drqs-75487826
   * 5667f4d Merge pull request #86 from mgiroux/review/add-delegatingdateimputil-stubs-drqs-75487826
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Dec 2015 16:59:51 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 Dec 2015 17:00:26 -0500
 
 bsl-internal (2.25.0.0) git; urgency=low
 
