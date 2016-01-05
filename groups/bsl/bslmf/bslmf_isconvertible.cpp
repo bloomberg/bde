@@ -79,8 +79,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // The macros make the code clearer because of the large number of
 // specializations: the sole purpose of these specializations is to suppress
-// GCC warnings when converting from 'FLOAT' to 'INT', where 'INT'
-// and 'FLOAT' are template parameter types representing an integral type and a
+// GCC warnings when converting from 'FLOAT' to 'INT', where 'INT' and 'FLOAT'
+// are template parameter types representing an integral type and a
 // floating-point type, respectively.
 //
 // Now, we will use the previously defined macros to define various partial

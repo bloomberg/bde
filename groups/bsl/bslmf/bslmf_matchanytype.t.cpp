@@ -16,44 +16,48 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
 
-void aSsErT(bool b, const char *s, int i)
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -132,10 +136,15 @@ inline bool my_isB(const volatile T&) { return my_isBtraits(my_Traits<T>()); }
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose = argc > 2;
-    // bool veryVerbose = argc > 3;
-    // bool veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVerbose;          // eliminate unused variable warning
+    (void) veryVeryVerbose;      // eliminate unused variable warning
+    (void) veryVeryVeryVerbose;  // eliminate unused variable warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
@@ -144,7 +153,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // TypeRep Usage Example
+        // 'TypeRep' USAGE EXAMPLE
         //
         // Concerns:
         //   Demonstrate a use for bslmf::TypeRep
@@ -157,21 +166,24 @@ int main(int argc, char *argv[])
         //   using them.
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\n'TypeRep' USAGE EXAMPLE"
+                            "\n=======================\n");
+
         using namespace USAGE_TYPEREP_NAMESPACE;
 
         ASSERT(1 == METAINT_TO_UINT(isX(X())));
         ASSERT(0 == METAINT_TO_UINT(isX(Y())));
         ASSERT(1 ==
-            METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
+                  METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
         ASSERT(0 ==
-            METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
+                  METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
         ASSERT(0 == METAINT_TO_UINT(isX(3)));
         ASSERT(0 == METAINT_TO_UINT(isX(3.0)));
         ASSERT(0 == METAINT_TO_UINT(isX("The king is a fink!")));
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Anytype Usage Example
+        // 'MathAnyType' USAGE EXAMPLE
         //
         // Concerns:
         //   Demonstrate a use for 'bslmf::MatchAnyType'.
@@ -182,6 +194,9 @@ int main(int argc, char *argv[])
         //   'bslmf::MatchAnyType', and the combination produces a function
         //   that can evaluate whether a type is 'Y' or not.
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\n'MathAnyType' USAGE EXAMPLE"
+                            "\n===========================\n");
 
         using namespace USAGE_MATCHANYTYPE_NAMESPACE;
 
@@ -202,7 +217,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // BREATHING TEST
         //
         // Concerns:
         //
@@ -220,9 +235,10 @@ int main(int argc, char *argv[])
         my_B  b;
         my_C  c;
         int   i;
-        volatile       int vi;
-        const          int ci = 4;
-        const volatile int &cvi = i;
+
+        volatile       int  vi;
+        const          int  ci  = 4;
+        const volatile int& cvi = i;
 
         ASSERT(! my_isB(a));
         ASSERT(! my_isB(a2));
@@ -239,7 +255,7 @@ int main(int argc, char *argv[])
         ASSERT(! my_isBtraits(&cvi));
 
         const my_Traits<my_A> ta = my_Traits<my_A>();
-        my_Traits<my_B> tb;
+        my_Traits<my_B>       tb;
         ASSERT(! my_isBtraits(ta));
         ASSERT(  my_isBtraits(tb));
 

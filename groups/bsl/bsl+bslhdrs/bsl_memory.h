@@ -95,6 +95,7 @@ namespace bsl
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
+#include <bslmf_allocatorargt.h>
 #include <bslstl_allocator.h>
 #include <bslstl_allocatortraits.h>
 #include <bslstl_badweakptr.h>

@@ -122,6 +122,13 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if 'static_assert' is supported by the current
 //:     compiler settings for this platform.
 //:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
+//:     This macro is defined if the standard library for the current compiler
+//:     supports some form of the standard <type_traits> header.  Note that
+//:     many standard library implementations provided partial support for a
+//:     long time, and those libraries WILL be identified as providing the
+//:     <type_traits> header.
+//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
@@ -409,6 +416,7 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 40300
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 40400
@@ -501,6 +509,11 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // clang supports __attribute__((noreturn)) in earlier versions
 #endif
+#if __has_feature(is_convertible_to)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// We use this flag to guess when library support is available, rather than try
+// to detect which standard library implementation is in use.
+#endif
 #endif
 
 
@@ -518,6 +531,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES

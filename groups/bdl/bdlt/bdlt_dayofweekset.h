@@ -226,6 +226,14 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_bitutil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -896,6 +904,13 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream& stream, const DayOfWeekSet& rhs)
 {
     return rhs.print(stream, 0, -1);
+}
+
+// TRAITS SPECIALIZATIONS
+namespace bslmf
+{
+template <>
+struct IsBitwiseMoveable<bdlt::DayOfWeekSet> : ::bsl::true_type {};
 }
 
 }  // close enterprise namespace

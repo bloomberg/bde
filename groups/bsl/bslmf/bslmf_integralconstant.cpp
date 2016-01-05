@@ -5,6 +5,12 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// STATIC MEMBER VARIABLES
+const bool bsl::integral_constant<bool, false>::VALUE;
+const bool bsl::integral_constant<bool, true>::VALUE;
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

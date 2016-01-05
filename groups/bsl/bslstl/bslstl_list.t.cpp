@@ -722,15 +722,16 @@ inline char value_of<TestTypeNoAlloc>(const TestTypeNoAlloc& x)
 bslma::TestAllocator OtherAllocatorDefaultImp;
 
 template <class T>
-class OtherAllocator
-{
+class OtherAllocator {
+    // This 'class' is An STL allocator type other than 'bsl::allocator'.  Like
+    // 'bsl::allocator', it is constructed with a 'bslma::Allocator' pointer,
+    // but it is not implicitly convertible from 'bslma::Allocator *'.  An
+    // additional constraint is that this class is not trivially copyable, and
+    // so containers using this allocator should not be bitwise movable.
+
     bslma::Allocator* d_implementation;
 
   public:
-    // An STL allocator type other than 'bsl::allocator'.  Like
-    // 'bsl::allocator', it is constructed with a 'bslma_Allocator' pointer,
-    // but it is not implicitly convertible from 'bslma_Allocator*'.
-
     // TYPES
     typedef T          value_type;
     typedef T         *pointer;
@@ -747,8 +748,10 @@ class OtherAllocator
     };
 
     // Constructors
-    explicit OtherAllocator(bslma::Allocator* a) : d_implementation(a) { }
     OtherAllocator() : d_implementation(&OtherAllocatorDefaultImp) { }
+    explicit OtherAllocator(bslma::Allocator* a) : d_implementation(a) { }
+    OtherAllocator(const OtherAllocator& other)
+        : d_implementation(other.implementation()) { }  // non-trivial copy
     template <class U> OtherAllocator(const OtherAllocator<U>& other)
         : d_implementation(other.implementation()) { }
 

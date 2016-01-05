@@ -1,6 +1,7 @@
 # Container headers
 bsl_array.h
 bsl_deque.h
+#bsl_forward_list.h     // Not yet implemented with BDE allocators
 bsl_iterator.h
 bsl_list.h
 bsl_map.h
@@ -50,6 +51,7 @@ bsl_strstream.h
 bsl_system_error.h
 bsl_thread.h
 bsl_tuple.h
+bsl_type_traits.h
 bsl_typeindex.h
 bsl_typeinfo.h
 bsl_utility.h
