@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //                                          attribute in the set of attributes
 //                                          from the source does not have a
 //                                          corresponding attribute (with the
-//                                          same name) from the source.  The
+//                                          same name) in the destination.  The
 //                                          conversion will also fail if any
 //                                          attributes from the source fail to
 //                                          convert to the corresponding
