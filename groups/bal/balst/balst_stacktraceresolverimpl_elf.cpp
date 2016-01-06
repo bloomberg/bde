@@ -1260,6 +1260,31 @@ bool u_AddressRange::overlaps(const u_AddressRange& other) const
            : other.d_address + other.d_size > d_address;
 }
 
+class u_FreeGuard {
+    // This 'class' will manage a buffer, which was allocated by 'malloc' and
+    // is returned by '__cxa_demangle'.
+
+    // DATA
+    char *d_buffer;
+
+  public:
+    // CREATORS
+    explicit
+    u_FreeGuard(char *buffer)
+    : d_buffer(buffer)
+        // Create a 'FreeGuard' object that manages the specified 'buffer'.
+    {}
+
+    ~u_FreeGuard()
+        // If 'd_buffer' is non-null, free it.
+    {
+        if (d_buffer) {
+            ::free(d_buffer);
+        }
+    }
+};
+
+
 }  // close unnamed namespace
 
                               // ----------------
@@ -3399,48 +3424,29 @@ void u_StackTraceResolver::setFrameSymbolName(
  || defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     // Linux or Sun g++ or HPUX
 
-    bsl::size_t *bufferLen_p = &bufferLen;
     int          status = -1;
-    char        *demangledSymbol = 0;
+    char        *demangled = 0;
     if (d_demangle) {
         // note the demangler uses 'malloc' to allocate its result
 
-        if (frame->mangledSymbolName().length() > bufferLen / 8) {
-            // If the buffer isn't long enough, '__cxa_demangle' will call
-            // 'realloc' on it, which would be a disaster.  So only pass a
-            // buffer if we'll be sure it will be long enough.
-
-            buffer      = 0;
-            bufferLen_p = 0;
-        }
-
 #if defined(BSLS_PLATFORM_OS_HPUX)
-        demangledSymbol = __cxa_demangle(frame->mangledSymbolName().c_str(),
-                                         buffer,
-                                         bufferLen_p,
+        char *demangled = __cxa_demangle(frame->mangledSymbolName().c_str(),
+                                         0,
+                                         0,
                                          &status);
 #else
-        demangledSymbol = abi::__cxa_demangle(
+        char *demangled = abi::__cxa_demangle(
                                             frame->mangledSymbolName().c_str(),
-                                            buffer,
-                                            bufferLen_p,
+                                            0,
+                                            0,
                                             &status);
 #endif
+        u_FreeGuard guard(demangled);
+        frame->setSymbolName(demangled ? demangled : "");
     }
-    if (demangledSymbol && 0 == status) {
-        u_TRACES && u_zprintf("Demangled to: %s\n", demangledSymbol);
-        frame->setSymbolName(demangledSymbol);
-    }
-    else {
+    if (0 != status || frame->symbolName().empty()) {
         u_TRACES && u_zprintf("Did not demangle: status: %d\n", status);
         frame->setSymbolName(frame->mangledSymbolName());
-    }
-    if (demangledSymbol && demangledSymbol != buffer) {
-        if (buffer) {
-            u_eprintf("Error: non-zero demangling buffer realloced!!!\n");
-        }
-
-        bsl::free(demangledSymbol);
     }
 #endif
 #if defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
