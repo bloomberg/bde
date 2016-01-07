@@ -445,7 +445,21 @@ const char *my_NoAllocString::c_str() const
                            // struct my_(Traits...)
                            // =====================
 
-struct my_MoveAbandonBslma {};
+struct my_NonTrivialBaseClass {
+    // C++11 compilers will detect trivial classes, including empty classes, by
+    // default, so we establish a simple non-trivial class that can be used as
+    // the base class for our testing types, which will have trivial traits
+    // only if explicitly marked as trivial for the relevant 'bsl' trait.
+
+    my_NonTrivialBaseClass(){}
+    my_NonTrivialBaseClass(const my_NonTrivialBaseClass&){}
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
+};
+
+struct my_MoveAbandonBslma : my_NonTrivialBaseClass {
+};
 
 namespace BloombergLP {
 namespace bslmf {
@@ -459,7 +473,7 @@ struct UsesBslmaAllocator<my_MoveAbandonBslma> : bsl::true_type {};
 }  // close namespace bslma
 }  // close enterprise namespace
 
-struct my_CopyTrivial {};
+struct my_CopyTrivial : my_NonTrivialBaseClass {};
 
 namespace bsl {
 template <>
@@ -469,7 +483,7 @@ struct is_trivially_default_constructible<my_CopyTrivial>
      : bsl::true_type {};
 }  // close namespace bsl
 
-struct my_EqualityTrivial {};
+struct my_EqualityTrivial : my_NonTrivialBaseClass {};
 
 namespace bsl {
 template <>
@@ -479,7 +493,7 @@ struct is_trivially_default_constructible<my_EqualityTrivial>
      : bsl::true_type {};
 }  // close namespace bsl
 
-struct my_NoTraits {};
+struct my_NoTraits : my_NonTrivialBaseClass {};
 
 namespace BloombergLP {
 namespace bslmf {

@@ -172,21 +172,23 @@ struct Identity {
 
 struct my_Class0
 {
+    int d_nonEmptyData;
+
     // Class with no defined traits.
+    my_Class0(){}
+    my_Class0(const my_Class0&){}
+        // Explicitly supply constructors that do nothing, to ensure that this
+        // class has no trivial traits detected with a conforming C++11 library
+        // implementation.
 };
 
-struct my_Class1
+struct my_Class1 : my_Class0
 {
     // Class that uses explicitly-specialized type traits.
 };
 
 namespace BloombergLP {
 namespace bslmf {
-
-// Being empty, 'my_Class0' would normally be implicitly bitwise moveable.
-// Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<my_Class0> : bsl::false_type { };
 
 // Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
 // Override, making it explicitly NOT bitwise moveable.
@@ -212,11 +214,13 @@ struct my_Class2
                                 bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
-struct my_Class4
+struct my_Class4 : my_Class0
 {
-    // Class with no special traits but has conversion from 'void*'.
-    // Used to check against false positives for 'bslma::Allocator*' traits.
-    my_Class4(void*);
+    // Class with no special traits but has conversion from 'void *'.
+    // Used to check against false positives for 'bslma::Allocator *' traits.
+    my_Class4(void*);  // IMPLICIT
+        // Construct a 'my_Class4' object from any pointer, including a pointer
+        // to 'bslma::Allocator', as an implicit conversion.
 };
 
 enum my_Enum
@@ -224,17 +228,6 @@ enum my_Enum
     // Enumeration type (is automatically bitwise copyable)
     MY_ENUM_0
 };
-
-namespace BloombergLP {
-namespace bslmf {
-
-// Being empty, 'my_Class4' would normally be implicitly bitwise moveable.
-// Override, making it explicitly NOT bitwise moveable.
-template <>
-struct IsBitwiseMoveable<my_Class4> : bsl::false_type { };
-
-}  // close bslmf namespace
-}  // close enterprise namespace
 
 //=============================================================================
 //                              USAGE EXAMPLE

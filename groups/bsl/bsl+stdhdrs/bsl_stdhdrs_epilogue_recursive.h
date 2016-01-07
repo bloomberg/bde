@@ -323,6 +323,145 @@
 # endif
 #endif
 
+// If '<type_traits>' was included, then include our implementation of many
+// type traits.
+#ifdef INCLUDED_NATIVE_TYPE_TRAITS
+// level 1
+# ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#   include <bslmf_integralconstant.h>    // This must be included first
+# endif
+// level 2
+# ifndef INCLUDED_BSLMF_ISARRAY
+#   include <bslmf_isarray.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISCONST
+#   include <bslmf_isconst.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
+#   include <bslmf_islvaluereference.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
+#   include <bslmf_isrvaluereference.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISVOLATILE
+#   include <bslmf_isvolatile.h>
+# endif
+// level 3
+# ifndef INCLUDED_BSLMF_ISREFERENCE
+#   include <bslmf_isreference.h>
+# endif
+// level 4
+# ifndef INCLUDED_BSLMF_ISSAME
+#   include <bslmf_issame.h>
+# endif
+// level 5
+# ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
+#   include <bslmf_addlvaluereference.h>
+# endif
+# ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
+#   include <bslmf_addrvaluereference.h>
+# endif
+# ifndef INCLUDED_BSLMF_CONDITIONAL
+#   include <bslmf_conditional.h>
+# endif
+# ifndef INCLUDED_BSLMF_REMOVECONST
+#   include <bslmf_removeconst.h>
+# endif
+# ifndef INCLUDED_BSLMF_REMOVEREFRENCE
+#   include <bslmf_removereference.h>
+# endif
+# ifndef INCLUDED_BSLMF_REMOVEVOLATILE
+#   include <bslmf_removevolatile.h>
+# endif
+// level 6
+# ifndef INCLUDED_BSLMF_ADDPOINTER
+#   include <bslmf_addpointer.h>
+# endif
+# ifndef INCLUDED_BSLMF_ADDREFERENCE
+#   include <bslmf_addreference.h>
+# endif
+# ifndef INCLUDED_BSLMF_REMOVECV
+#   include <bslmf_removecv.h>
+# endif
+// level 7
+# ifndef INCLUDED_BSLMF_ISCLASS
+#   include <bslmf_isclass.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
+#   include <bslmf_isfloatingpoint.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISFUNCTION
+#   include <bslmf_isfunction.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISINTEGRAL
+#   include <bslmf_isintegral.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
+#   include <bslmf_ismemberfunctionpointer.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISPOINTER
+#   include <bslmf_ispointer.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISVOID
+#   include <bslmf_isvoid.h>
+# endif
+// level 8
+# ifndef INCLUDED_BSLMF_ADDCONST
+#   include <bslmf_addconst.h>
+# endif
+# ifndef INCLUDED_BSLMF_ADDVOLATILE
+#   include <bslmf_addvolatile.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISARITHMETIC
+#   include <bslmf_isarithmetic.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISEMPTY
+#   include <bslmf_isempty.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
+#   include <bslmf_ismemberobjectpointer.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
+#   include <bslmf_ispolymorphic.h>
+# endif
+# ifndef INCLUDED_BSLMF_REMOVEPOINTER
+#   include <bslmf_removepointer.h>
+# endif
+// level 9
+# ifndef INCLUDED_BSLMF_ADDCV
+#   include <bslmf_addcv.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#   include <bslmf_isfundamental.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#   include <bslmf_ismemberpointer.h>
+# endif
+// level 10
+# ifndef INCLUDED_BSLMF_ENABLEIF
+#   include <bslmf_enableif.h>
+# endif
+// level 11
+# ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#   include <bslmf_isconvertible.h>
+# endif
+// level 12
+// level 13
+# ifndef INCLUDED_BSLMF_ISENUM
+#   include <bslmf_isenum.h>
+# endif
+// level 14
+# ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#   include <bslmf_istriviallycopyable.h>
+# endif
+# ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#   include <bslmf_istriviallydefaultconstructible.h>
+# endif
+// level 15
+
+#endif
+
+
 // Recursively re-try this header if there are any native STL headers for which
 // corresponding 'bslstp' or 'bslstl' headers still need to be included.
 #if defined(INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE)

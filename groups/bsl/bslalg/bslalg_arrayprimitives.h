@@ -1989,7 +1989,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2023,7 +2023,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2054,7 +2054,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2088,7 +2088,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2125,7 +2125,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2165,7 +2165,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2208,7 +2208,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -2247,7 +2247,7 @@ void ArrayPrimitives::emplace(TARGET_TYPE               *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
         return;
@@ -3044,7 +3044,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -3120,7 +3120,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
     //..
@@ -3372,7 +3372,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3423,7 +3423,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3478,7 +3478,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3537,7 +3537,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3600,7 +3600,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3667,7 +3667,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -3727,7 +3727,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -3795,7 +3795,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -3867,7 +3867,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -3943,7 +3943,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -4023,7 +4023,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -4107,7 +4107,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;
@@ -4208,7 +4208,7 @@ void ArrayPrimitives_Imp::emplace(
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     size_type tailLen    = toEnd - toBegin;
@@ -4260,7 +4260,7 @@ void ArrayPrimitives_Imp::emplace(TARGET_TYPE                  *toBegin,
 {
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
                                                           toEnd));
-    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 
     const size_type tailLen = toEnd - toBegin;

@@ -1,6 +1,7 @@
 # Standard Container headers
 array           array.SUNWCCh
 deque           deque.SUNWCCh
+#forward_list    forward_list.SUNWCCh    // Not implemented with BDE allocators
 iterator        iterator.SUNWCCh
 list            list.SUNWCCh
 map             map.SUNWCCh
@@ -98,6 +99,7 @@ scoped_allocator    scoped_allocator.SUNWCCh
 system_error        system_error.SUNWCCh
 thread              thread.SUNWCCh
 tuple               tuple.SUNWCCh
+type_traits         type_traits.SUNWCCh
 typeindex           typeindex.SUNWCCh
 
 #C11 headers

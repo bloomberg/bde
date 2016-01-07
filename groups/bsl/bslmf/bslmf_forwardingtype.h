@@ -296,7 +296,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_CSTDDEF
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
