@@ -1,8 +1,6 @@
 // bdlma_sequentialpool.cpp                                           -*-C++-*-
 #include <bdlma_sequentialpool.h>
 
-#include <bsls_performancehint.h>
-
 #include <bsl_climits.h>  // 'INT_MAX'
 
 enum {
@@ -13,266 +11,484 @@ enum {
 };
 
 namespace BloombergLP {
+
+// HELPER FUNCTIONS
+inline
+static int alignedAllocationSize(int size, int sizeOfBlock)
+    // Return the allocation size (in bytes) required to ensure proper
+    // alignment for a 'bdlma::SequentialPool::Block' containing a
+    // maximally-aligned payload of the specified 'size', where the specified
+    // 'sizeOfBlock' is presumed to be
+    // 'sizeof(bdlma::SequentialPool::Block)'.  Note that, to ensure
+    // that both the payload and header portions of the allocated memory are
+    // each separately guaranteed to be maximally aligned in the presence of a
+    // supplied allocator returning naturally-aligned memory, the size of the
+    // overall allocation will be rounded up to an integral multiple of
+    // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+{
+    ///IMPLEMENTATION NOTE
+    ///-------------------
+    //: 1 Append the size of the 'bdlma::SequentialPool::Block' header:
+    //:   'size += sizeof(Block) - bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'
+    //:
+    //: 2 Round to the nearest multiple of MAX_ALIGNMENT (a power of 2):
+    //:   'size = (size + MAX_ALIGNMENT - 1) & ~(MAX_ALIGNMENT - 1)'
+
+    return (size + sizeOfBlock - 1)
+           & ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+}
+
 namespace bdlma {
 
                            // --------------------
                            // class SequentialPool
                            // --------------------
 
-// PRIVATE ACCESSORS
-int SequentialPool::calculateNextBufferSize(int size) const
+// PRIVATE MANIPULATORS
+void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
 {
-    const int bufferSize = d_buffer.bufferSize();
+    if (static_cast<bsls::Types::size_type>(d_constantBlockSize) >= size) {
+        // Constant allocation.
 
-    unsigned int nextSize = 0 == bufferSize ? d_initialSize : bufferSize;
+        if (d_reuseHead_p) {
+            d_buffer.replaceBuffer(reinterpret_cast<char *>(
+                                                     &d_reuseHead_p->d_memory),
+                                   d_constantBlockSize);
 
-    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
-        return nextSize;                                              // RETURN
+            d_reuseHead_p = d_reuseHead_p->d_next_p;
+
+            return d_buffer.allocateRaw(static_cast<int>(size));      // RETURN
+        }
+        
+        Block *block = reinterpret_cast<Block *>(
+                                    d_geometricBlockList.allocator()->allocate(
+                                               d_constantBlockAllocationSize));
+
+        d_buffer.replaceBuffer(reinterpret_cast<char *>(&block->d_memory),
+                               d_constantBlockSize);
+
+        block->d_next_p = d_head_p;
+        d_head_p        = block;
+
+        return d_buffer.allocateRaw(static_cast<int>(size));          // RETURN
     }
+
+    BufferManager *buffer = &d_buffer;
+    
+    if (d_constantBlockSize) {
+        // Constant strategy after constant allocation failure.
+
+        void *result = d_secondaryBuffer.allocate(size);
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+            return result;                                            // RETURN
+        }
+
+        buffer = &d_secondaryBuffer;
+    }
+    
+    // Geometric allocation.
+    
+    unsigned int nextSize = calculateNextBufferSize(static_cast<int>(size));
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                       nextSize <= d_maxGeometricBufferSize)) {
+        buffer->replaceBuffer(
+                  static_cast<char *>(d_geometricBlockList.allocate(nextSize)),
+                  nextSize);
+        return buffer->allocateRaw(static_cast<int>(size));
+    }
+
+    // Allocation for very large requests.
+    
+    return d_geometricBlockList.allocate(static_cast<int>(size));
+}
+
+// PRIVATE ACCESSORS
+unsigned int SequentialPool::calculateNextBufferSize(int size) const
+{
+    unsigned int nextSize =   0 == d_buffer.bufferSize()
+                            ? d_initialSize
+                            : d_buffer.bufferSize();
 
     do {
         nextSize *= k_GROWTH_FACTOR;
     } while (nextSize < static_cast<unsigned>(size));
 
-    return nextSize < static_cast<unsigned>(d_maxBufferSize)
-           ? nextSize
-           : d_maxBufferSize;
+    return nextSize;
 }
 
 // CREATORS
 SequentialPool::SequentialPool(bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(k_INITIAL_SIZE)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
 }
 
-SequentialPool::
-SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer()
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(k_INITIAL_SIZE)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
 }
 
-SequentialPool::
-SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
-               bslma::Allocator          *basicAllocator)
+SequentialPool::SequentialPool(bsls::Alignment::Strategy  alignmentStrategy,
+                               bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(k_INITIAL_SIZE)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
 }
 
-SequentialPool::
-SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
-               bsls::Alignment::Strategy    alignmentStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(bsls::BlockGrowth::Strategy  growthStrategy,
+                               bsls::Alignment::Strategy    alignmentStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(k_INITIAL_SIZE)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
 }
 
-SequentialPool::
-SequentialPool(int initialSize, bslma::Allocator *basicAllocator)
+SequentialPool::SequentialPool(int               initialSize,
+                               bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
     BSLS_ASSERT(0 < initialSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                          initialSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(int                          initialSize,
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer()
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
     BSLS_ASSERT(0 < initialSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer;
+
+    if (0 < d_constantBlockSize) {
+        buffer = static_cast<char *>(
+                    d_geometricBlockList.allocator()->allocate(d_initialSize));
+    }
+    else {
+        buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    }
+
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                        initialSize,
-               bsls::Alignment::Strategy  alignmentStrategy,
-               bslma::Allocator          *basicAllocator)
+SequentialPool::SequentialPool(int                        initialSize,
+                               bsls::Alignment::Strategy  alignmentStrategy,
+                               bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
     BSLS_ASSERT(0 < initialSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                          initialSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               bsls::Alignment::Strategy    alignmentStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(int                          initialSize,
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               bsls::Alignment::Strategy    alignmentStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(INT_MAX)
+, d_geometricBlockList(basicAllocator)
 {
     BSLS_ASSERT(0 < initialSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer;
+
+    if (0 < d_constantBlockSize) {
+        buffer = static_cast<char *>(
+                    d_geometricBlockList.allocator()->allocate(d_initialSize));
+    }
+    else {
+        buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    }
+
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int               initialSize,
-               int               maxBufferSize,
-               bslma::Allocator *basicAllocator)
+SequentialPool::SequentialPool(int               initialSize,
+                               int               maxBufferSize,
+                               bslma::Allocator *basicAllocator)
 : d_buffer()
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(maxBufferSize)
+, d_geometricBlockList(basicAllocator)
 {
-    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(0           <  initialSize);
     BSLS_ASSERT(initialSize <= maxBufferSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                          initialSize,
-               int                          maxBufferSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(int                          initialSize,
+                               int                          maxBufferSize,
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer()
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer()
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(maxBufferSize)
+, d_geometricBlockList(basicAllocator)
 {
-    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(0           <  initialSize);
     BSLS_ASSERT(initialSize <= maxBufferSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer;
+
+    if (0 < d_constantBlockSize) {
+        buffer = static_cast<char *>(
+                    d_geometricBlockList.allocator()->allocate(d_initialSize));
+    }
+    else {
+        buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    }
+
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                        initialSize,
-               int                        maxBufferSize,
-               bsls::Alignment::Strategy  alignmentStrategy,
-               bslma::Allocator          *basicAllocator)
+SequentialPool::SequentialPool(int                        initialSize,
+                               int                        maxBufferSize,
+                               bsls::Alignment::Strategy  alignmentStrategy,
+                               bslma::Allocator          *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(0)
+, d_constantBlockAllocationSize(0)
+, d_maxGeometricBufferSize(maxBufferSize)
+, d_geometricBlockList(basicAllocator)
 {
-    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(0           <  initialSize);
     BSLS_ASSERT(initialSize <= maxBufferSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    d_buffer.replaceBuffer(buffer, d_initialSize);
 }
 
-SequentialPool::
-SequentialPool(int                          initialSize,
-               int                          maxBufferSize,
-               bsls::BlockGrowth::Strategy  growthStrategy,
-               bsls::Alignment::Strategy    alignmentStrategy,
-               bslma::Allocator            *basicAllocator)
+SequentialPool::SequentialPool(int                          initialSize,
+                               int                          maxBufferSize,
+                               bsls::BlockGrowth::Strategy  growthStrategy,
+                               bsls::Alignment::Strategy    alignmentStrategy,
+                               bslma::Allocator            *basicAllocator)
 : d_buffer(alignmentStrategy)
-, d_growthStrategy(growthStrategy)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
 , d_initialSize(initialSize)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(maxBufferSize)
+, d_geometricBlockList(basicAllocator)
 {
-    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(0           <  initialSize);
     BSLS_ASSERT(initialSize <= maxBufferSize);
 
-    char *buffer = static_cast<char *>(d_blockList.allocate(initialSize));
-    d_buffer.replaceBuffer(buffer, initialSize);
+    char *buffer;
+
+    if (0 < d_constantBlockSize) {
+        buffer = static_cast<char *>(
+                    d_geometricBlockList.allocator()->allocate(d_initialSize));
+    }
+    else {
+        buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+    }
+
+    d_buffer.replaceBuffer(buffer, d_initialSize);
+}
+
+SequentialPool::SequentialPool(
+                            int                          initialSize,
+                            int                          maxBufferSize,
+                            bsls::BlockGrowth::Strategy  growthStrategy,
+                            bsls::Alignment::Strategy    alignmentStrategy,
+                            bool                         allocateInitialBuffer,
+                            bslma::Allocator            *basicAllocator)
+: d_buffer(alignmentStrategy)
+, d_secondaryBuffer(alignmentStrategy)
+, d_head_p(0)
+, d_reuseHead_p(0)
+, d_initialSize(initialSize)
+, d_constantBlockSize(growthStrategy == bsls::BlockGrowth::BSLS_GEOMETRIC
+                      ? 0
+                      : d_initialSize)
+, d_constantBlockAllocationSize(alignedAllocationSize(d_constantBlockSize,
+                                                      sizeof(Block)))
+, d_maxGeometricBufferSize(maxBufferSize)
+, d_geometricBlockList(basicAllocator)
+{
+    BSLS_ASSERT(0           <  initialSize);
+    BSLS_ASSERT(initialSize <= maxBufferSize);
+
+    if (allocateInitialBuffer) {
+        char *buffer;
+
+        if (0 < d_constantBlockSize) {
+            buffer = static_cast<char *>(
+                    d_geometricBlockList.allocator()->allocate(d_initialSize));
+        }
+        else {
+            buffer = static_cast<char *>(d_geometricBlockList.allocate(
+                                                               d_initialSize));
+        }
+
+        d_buffer.replaceBuffer(buffer, d_initialSize);
+    }
 }
 
 // MANIPULATORS
-void *SequentialPool::allocate(bsls::Types::size_type size)
-{
-    BSLS_ASSERT(0 < size);
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_buffer.buffer())) {
-        void *result = d_buffer.allocate(size);
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
-            return result;                                            // RETURN
-        }
-    }
-
-    const int nextSize = calculateNextBufferSize(static_cast<int>(size));
-
-    if (nextSize < static_cast<int>(size)) {
-        return d_blockList.allocate(static_cast<int>(size));          // RETURN
-    }
-
-    d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
-                           nextSize);
-
-    return d_buffer.allocateRaw(static_cast<int>(size));
-}
-
 void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
 {
+    // TBD
     BSLS_ASSERT(size);
     BSLS_ASSERT(0 < *size);
 
-    void *result = allocate(static_cast<int>(*size));
-    *size = d_buffer.expand(result, static_cast<int>(*size));
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_constantBlockSize >= *size)) {
+        void *result = allocate(static_cast<int>(*size));
+        *size = d_buffer.expand(result, static_cast<int>(*size));
+        return result;                                                // RETURN
+    }
 
-    return result;
+    // TBD return d_geometricBlockList.allocateAndExpand(size);
+    return 0;
+}
+
+void SequentialPool::release()
+{
+    // 'BufferManager::release' keeps the buffer and just resets the internal
+    // cursor, so 'reset' is used instead.
+
+    d_buffer.reset();
+
+    d_secondaryBuffer.reset();
+
+    d_geometricBlockList.release();
+
+    d_reuseHead_p = 0;
+
+    while (d_head_p) {
+        void *lastBlock = d_head_p;
+        d_head_p        = d_head_p->d_next_p;
+        d_geometricBlockList.allocator()->deallocate(lastBlock);
+    }
 }
 
 void SequentialPool::reserveCapacity(int numBytes)
 {
+    // TBD
     BSLS_ASSERT(0 < numBytes);
 
-    // If 'd_buffer.bufferSize()' is 0, 'd_buffer' is not managing any buffer
-    // currently.
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_constantBlockSize >= numBytes)) {
+        // If 'd_buffer.bufferSize()' is 0, 'd_buffer' is not currently
+        // managing a buffer.
 
-    if (0 != d_buffer.bufferSize()
-     && d_buffer.hasSufficientCapacity(numBytes)) {
-        return;                                                       // RETURN
+        if (0     == d_buffer.bufferSize()
+         || false == d_buffer.hasSufficientCapacity(numBytes)) {
+            // TBD allocateBlock();
+        }
     }
-
-    int nextSize = calculateNextBufferSize(numBytes);
-
-    if (nextSize < numBytes) {
-        nextSize = numBytes;
+    else {
+        // TBD
+        // d_geometricBlockList.reserveCapacity(numBytes);
     }
-
-    d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
-                           nextSize);
 }
 
 }  // close package namespace

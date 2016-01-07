@@ -307,8 +307,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_buffermanager.h>
 #endif
 
-#ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
-#include <bdlma_infrequentdeleteblocklist.h>
+#ifndef INCLUDED_BDLMA_SEQUENTIALPOOL
+#include <bdlma_sequentialpool.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -319,8 +319,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignment.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -360,27 +368,13 @@ class BufferedSequentialPool {
     BufferManager        d_buffer;           // memory manager for current
                                              // buffer
 
-    bsls::BlockGrowth::Strategy
-                         d_growthStrategy;   // growth strategy for block list
-
-    int                  d_maxBufferSize;    // maximum internal buffer size
-
-    InfrequentDeleteBlockList
-                         d_blockList;        // memory manager used to supply
-                                             // dynamically allocated memory
-                                             // blocks
+    SequentialPool       d_pool;             // memory manager for allocations
+                                             // not from the buffer
 
   private:
     // NOT IMPLEMENTED
     BufferedSequentialPool(const BufferedSequentialPool&);
     BufferedSequentialPool& operator=(const BufferedSequentialPool&);
-
-  private:
-    // PRIVATE ACCESSORS
-    int calculateNextBufferSize(int size) const;
-        // Return the next buffer size (in bytes) that is sufficiently large to
-        // satisfy a memory allocation request of the specified 'size' (in
-        // bytes), or the maximum buffer size if the buffer can no longer grow.
 
   public:
     // CREATORS
@@ -488,17 +482,17 @@ class BufferedSequentialPool {
         // provided at construction, and makes the memory from the entire
         // external buffer supplied at construction available for subsequent
         // allocations, but has no effect on the contents of the buffer.  Note
-        // that this pool is reset to its initial state by this method. The
+        // that this pool is reset to its initial state by this method.  The
         // effect of using a pointer after this call that was obtained from
         // this object before this call is undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Return to the
-        // construction-time supplied allocator all but the last block obtained
-        // from it, if any, and satisfy subsequent allocations from that block,
-        // or from the buffer supplied upon construction, where possible. The
-        // effect of using a pointer after this call that was obtained from
-        // this object before this call is undefined.
+        // Release all memory allocated through this pool.  No memory is
+        // returned to the construction-time supplied allocator.  At least one
+        // block from the constuction-time supplied allocator will be used to
+        // satisfy subsequent allocations.  The effect of using a pointer after
+        // this call that was obtained from this object before this call is
+        // undefined.
 };
 
 }  // close package namespace
@@ -580,10 +574,23 @@ namespace bdlma {
 inline
 BufferedSequentialPool::~BufferedSequentialPool()
 {
-    d_blockList.release();
+    release();
 }
 
 // MANIPULATORS
+inline
+void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
+{
+    BSLS_ASSERT_SAFE(0 < size);
+
+    void *result = d_buffer.allocate(size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        return result;                                                // RETURN
+    }
+
+    return d_pool.allocate(size);
+}
+
 template <class TYPE>
 inline
 void BufferedSequentialPool::deleteObjectRaw(const TYPE *object)
@@ -607,15 +614,17 @@ void BufferedSequentialPool::deleteObject(const TYPE *object)
 inline
 void BufferedSequentialPool::release()
 {
-    d_buffer.replaceBuffer(d_initialBuffer_p, d_initialSize);
-    d_blockList.release();
+    d_buffer.release();  // Reset the internal cursor in the current block.
+
+    d_pool.release();
 }
 
 inline
 void BufferedSequentialPool::rewind()
 {
-    d_buffer.release();  // allocatefrom beginning of current block
-    d_blockList.rewind();  // free up previously allocated blocks
+    d_buffer.release();  // Reset the internal cursor in the current block.
+
+    d_pool.rewind();
 }
 
 }  // close package namespace

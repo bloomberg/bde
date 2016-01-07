@@ -4,15 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_bufferedsequentialpool_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
-#include <bsls_performancehint.h>
-
 #include <bsl_climits.h>  // 'INT_MAX'
-
-enum {
-    k_GROWTH_FACTOR = 2  // multiplicative factor by which to grow allocation
-                         // size
-};
 
 namespace BloombergLP {
 namespace bdlma {
@@ -20,24 +12,6 @@ namespace bdlma {
                        // ----------------------------
                        // class BufferedSequentialPool
                        // ----------------------------
-
-// PRIVATE ACCESSORS
-int BufferedSequentialPool::calculateNextBufferSize(int size) const
-{
-    unsigned int nextSize = d_buffer.bufferSize();
-
-    if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
-        return nextSize;                                              // RETURN
-    }
-
-    do {
-        nextSize *= k_GROWTH_FACTOR;
-    } while (nextSize < static_cast<unsigned>(size));
-
-    return nextSize < static_cast<unsigned>(d_maxBufferSize)
-           ? nextSize
-           : d_maxBufferSize;
-}
 
 // CREATORS
 BufferedSequentialPool::BufferedSequentialPool(
@@ -47,9 +21,12 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         INT_MAX,
+         bsls::BlockGrowth::BSLS_GEOMETRIC,
+         bsls::Alignment::BSLS_NATURAL,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
@@ -63,9 +40,12 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
-, d_growthStrategy(growthStrategy)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         INT_MAX,
+         growthStrategy,
+         bsls::Alignment::BSLS_NATURAL,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
@@ -79,9 +59,12 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size, alignmentStrategy)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         INT_MAX,
+         bsls::BlockGrowth::BSLS_GEOMETRIC,
+         alignmentStrategy,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
@@ -96,9 +79,12 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size, alignmentStrategy)
-, d_growthStrategy(growthStrategy)
-, d_maxBufferSize(INT_MAX)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         INT_MAX,
+         growthStrategy,
+         alignmentStrategy,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 < size);
@@ -112,12 +98,15 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         maxBufferSize,
+         bsls::BlockGrowth::BSLS_GEOMETRIC,
+         bsls::Alignment::BSLS_NATURAL,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
 }
 
@@ -130,12 +119,15 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size)
-, d_growthStrategy(growthStrategy)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         maxBufferSize,
+         growthStrategy,
+         bsls::Alignment::BSLS_NATURAL,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
 }
 
@@ -148,12 +140,15 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size, alignmentStrategy)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         maxBufferSize,
+         bsls::BlockGrowth::BSLS_GEOMETRIC,
+         alignmentStrategy,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
 }
 
@@ -167,37 +162,16 @@ BufferedSequentialPool::BufferedSequentialPool(
 : d_initialBuffer_p(buffer)
 , d_initialSize(size)
 , d_buffer(buffer, size, alignmentStrategy)
-, d_growthStrategy(growthStrategy)
-, d_maxBufferSize(maxBufferSize)
-, d_blockList(basicAllocator)
+, d_pool(size,
+         maxBufferSize,
+         growthStrategy,
+         alignmentStrategy,
+         false,
+         basicAllocator)
 {
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(0    <  size);
     BSLS_ASSERT(size <= maxBufferSize);
-}
-
-// MANIPULATORS
-void *BufferedSequentialPool::allocate(bsls::Types::size_type size)
-{
-    BSLS_ASSERT(0 < size);
-
-    void *result = d_buffer.allocate(size);
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
-        return result;                                                // RETURN
-    }
-
-    const int nextSize = calculateNextBufferSize(static_cast<int>(size));
-
-    if (nextSize < static_cast<int>(size)) {
-        return d_blockList.allocate(static_cast<int>(size));          // RETURN
-    }
-
-    // Manage the new buffer using 'BufferManager'.
-
-    d_buffer.replaceBuffer(static_cast<char *>(d_blockList.allocate(nextSize)),
-                           nextSize);
-
-    return d_buffer.allocateRaw(static_cast<int>(size));
 }
 
 }  // close package namespace

@@ -69,6 +69,8 @@ using namespace bsl;
 // [ 3] bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a = 0);
 // [ 3] bdlma::SequentialPool(int i, int m, GS g, AS a, *a = 0);
 //
+// [ 3] bdlma::SequentialPool(int i, int m, GS g, AS a, bool aIB, *a = 0);
+//
 // [  ] ~bdlma::SequentialPool();
 //
 // // MANIPULATORS
@@ -136,6 +138,8 @@ void aSsErT(int c, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //                  GLOBAL VARIABLES / TYPEDEF FOR TESTING
@@ -220,8 +224,10 @@ static int calculateNextSize(int currSize, int size)
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::SequentialPool' for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, 'my_IntDoubleArray', that holds both
 // 'int' and 'double' values.  The class can be implemented using two parallel
 // arrays: one storing the type information, and the other storing pointers to
@@ -364,6 +370,7 @@ static int calculateNextSize(int currSize, int size)
         ++d_length;
     }
 //..
+//
 ///Example 2: Implementing an Allocator Using 'bdlma::SequentialPool'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
@@ -1186,62 +1193,12 @@ int main(int argc, char *argv[])
                 mX.release();
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(0 == ta.numBytesInUse());
-
-                // Again, make 'NUMREQ' requests for memory, recording how the
-                // allocator was used after each request.
-
-                for (int reqNum = 0; reqNum < NUMREQ; ++reqNum) {
-                    void *returnAddr = mX.allocate(REQSIZE);
-                    LOOP2_ASSERT(LINE, reqNum, returnAddr);
-                    LOOP2_ASSERT(LINE, reqNum, ta.numBlocksInUse());
-
-                    if (veryVerbose) {
-                        P_(reqNum) P(returnAddr);
-                    }
-                }
-
-                void* addrPre =  mX.allocate(BUFSIZE);
-
-                // Now release all the allocations, but keep the last buffer
-                // to use again.
-
-                mX.rewind();
-                void* addrPost = mX.allocate(1);
-                ASSERT(addrPre == addrPost);
-                ASSERT(1 == ta.numBlocksInUse());
-
-                mX.release();
-                ASSERT(0 == ta.numBlocksInUse());
-                ASSERT(0 == ta.numBytesInUse());
-
-                if (1 == BUFSIZE) continue;
-
-                if (verbose) cout << "\nTesting alignment and growth"
-                                     " strategies." << endl;
-
-                // Testing alignment.
-                void *addr1 = mX.allocate(1);
-                void *addr2 = mX.allocate(2);
-
-                if (bsls::Alignment::BSLS_NATURAL == strategy) {
-                    ASSERT((char *)addr1 +         2 == (char *)addr2);
-                }
-                else if (bsls::Alignment::BSLS_MAXIMUM == strategy) {
-                    ASSERT((char *)addr1 + k_MAX_ALIGN == (char *)addr2);
-                }
-                else {  // bsls::Alignment::BSLS_BYTEALIGNED == strategy
-                    ASSERT((char *)addr1 +         1 == (char *)addr2);
-                }
-
-                ASSERT(                     1 == ta.numBlocksInUse());
-                ASSERT(    blockSize(BUFSIZE) == ta.numBytesInUse());
-                mX.allocate(BUFSIZE);
-                ASSERT(                     2 == ta.numBlocksInUse());
-                ASSERT(2 * blockSize(BUFSIZE) == ta.numBytesInUse());
             }
         }
 
 #undef CON
+
+        // TBD test rewind
 
       } break;
       case 4: {
@@ -1399,7 +1356,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, NC == tc.numBytesInUse());
                         LOOP_ASSERT(i, ND == td.numBytesInUse());
                     }
-                    else if (bsls::BlockGrowth::BSLS_GEOMETRIC == STRAT[j]) {
+                    else {
                         int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
                         LOOP3_ASSERT(i, NA + blockSize(nextSize),
                                      ta.numBytesInUse(),
@@ -1411,28 +1368,6 @@ int main(int argc, char *argv[])
                                                         == tc.numBytesInUse());
                         LOOP_ASSERT(i, ND + blockSize(nextSize)
                                                         == td.numBytesInUse());
-                    }
-                    else {
-                        if (0 == INITIAL_SIZE && SIZE < k_DEFAULT_SIZE) {
-                            LOOP_ASSERT(i, NA + blockSize(k_DEFAULT_SIZE)
-                                                        == ta.numBytesInUse());
-                            LOOP_ASSERT(i, NB + blockSize(k_DEFAULT_SIZE)
-                                                        == tb.numBytesInUse());
-                            LOOP_ASSERT(i, NC + blockSize(k_DEFAULT_SIZE)
-                                                        == tc.numBytesInUse());
-                            LOOP_ASSERT(i, ND + blockSize(k_DEFAULT_SIZE)
-                                                        == td.numBytesInUse());
-                        }
-                        else {
-                            LOOP_ASSERT(i, NA + blockSize(SIZE)
-                                                        == ta.numBytesInUse());
-                            LOOP_ASSERT(i, NB + blockSize(SIZE)
-                                                        == tb.numBytesInUse());
-                            LOOP_ASSERT(i, NC + blockSize(SIZE)
-                                                        == tc.numBytesInUse());
-                            LOOP_ASSERT(i, ND + blockSize(SIZE)
-                                                        == td.numBytesInUse());
-                        }
                     }
                 }
             }
@@ -1519,8 +1454,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(i, NC == tc.numBytesInUse());
                                 LOOP_ASSERT(i, ND == td.numBytesInUse());
                             }
-                            else if (bsls::BlockGrowth::BSLS_GEOMETRIC ==
-                                                                    STRATEGY) {
+                            else {
                                 if (ALLOC_SIZE < MAX_SIZE) {
                                     int nextSize = calculateNextSize(
                                                      INITIAL_SIZE, ALLOC_SIZE);
@@ -1543,16 +1477,6 @@ int main(int argc, char *argv[])
                                     LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
                                                         == td.numBytesInUse());
                                 }
-                            }
-                            else {
-                                LOOP_ASSERT(i, NA + blockSize(ALLOC_SIZE)
-                                                        == ta.numBytesInUse());
-                                LOOP_ASSERT(i, NB + blockSize(ALLOC_SIZE)
-                                                        == tb.numBytesInUse());
-                                LOOP_ASSERT(i, NC + blockSize(ALLOC_SIZE)
-                                                        == tc.numBytesInUse());
-                                LOOP_ASSERT(i, ND + blockSize(ALLOC_SIZE)
-                                                        == td.numBytesInUse());
                             }
                         }
                     }
@@ -1631,6 +1555,8 @@ int main(int argc, char *argv[])
         //   bdlma::SequentialPool(int i, int m, GS g, bslma::Allocator *a= 0);
         //   bdlma::SequentialPool(int i, int m, AS a, bslma::Allocator *a= 0);
         //   bdlma::SequentialPool(int, int, GS g, AS a, *a= 0);
+        //
+        //   bdlma::SequentialPool(int, int, GS g, AS a, bool aIB, *a= 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CTOR TEST" << endl
@@ -1996,6 +1922,44 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numBytesInUse());
         ASSERT(0 == globalAllocator.numBytesInUse());
 
+        if (verbose) {
+            cout << "\nTesting specification of 'allocateInitialBuffer'."
+                 << endl;
+        }
+        {
+            ASSERT(0 == objectAllocator.numBlocksInUse());
+            ASSERT(0 == defaultAllocator.numBlocksInUse());
+            ASSERT(0 == globalAllocator.numBlocksInUse());
+
+            {
+                Obj mX(128, 128, CON, NAT, false);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(0 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, CON, NAT, true);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(1 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, GEO, NAT, false);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(0 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+
+            {
+                Obj mX(128, 128, GEO, NAT, true);
+                ASSERT(0 == objectAllocator.numBlocksInUse());
+                ASSERT(1 == defaultAllocator.numBlocksInUse());
+                ASSERT(0 == globalAllocator.numBlocksInUse());
+            }
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
@@ -2003,86 +1967,86 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'Obj(i, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1));
+                ASSERT_PASS(Obj( 1));
 
-                ASSERT_SAFE_FAIL(Obj( 0));
-                ASSERT_SAFE_FAIL(Obj(-1));
+                ASSERT_FAIL_RAW(Obj( 0));
+                ASSERT_FAIL_RAW(Obj(-1));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON));
+                ASSERT_PASS(Obj( 1, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON));
-                ASSERT_SAFE_FAIL(Obj(-1, CON));
+                ASSERT_FAIL_RAW(Obj( 0, CON));
+                ASSERT_FAIL_RAW(Obj(-1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, MAX));
+                ASSERT_PASS(Obj( 1, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, MAX));
+                ASSERT_FAIL_RAW(Obj(-1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON, MAX));
+                ASSERT_PASS(Obj( 1, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, CON, MAX));
+                ASSERT_FAIL_RAW(Obj(-1, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8));
+                ASSERT_PASS(Obj( 1,  8));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8));
-                ASSERT_SAFE_FAIL(Obj(-1,  8));
+                ASSERT_FAIL_RAW(Obj( 0,  8));
+                ASSERT_FAIL_RAW(Obj(-1,  8));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2));
+                ASSERT_PASS(Obj( 2,  2));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1));
-                ASSERT_SAFE_FAIL(Obj( 2, -2));
+                ASSERT_FAIL_RAW(Obj( 2,  1));
+                ASSERT_FAIL_RAW(Obj( 2, -2));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, CON));
+                ASSERT_PASS(Obj( 1,  8, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, CON));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, CON));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON));
+                ASSERT_FAIL_RAW(Obj(-1,  8, CON));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, CON));
+                ASSERT_PASS(Obj( 2,  2, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, CON));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, CON));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON));
+                ASSERT_FAIL_RAW(Obj( 2, -2, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, MAX));
+                ASSERT_PASS(Obj( 1,  8, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, MAX));
+                ASSERT_FAIL_RAW(Obj(-1,  8, MAX));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, MAX));
+                ASSERT_PASS(Obj( 2,  2, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, MAX));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, MAX));
+                ASSERT_FAIL_RAW(Obj( 2, -2, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1,  8, CON, MAX));
+                ASSERT_PASS(Obj( 1,  8, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 0,  8, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj(-1,  8, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON, MAX));
+                ASSERT_FAIL_RAW(Obj(-1,  8, CON, MAX));
 
-                ASSERT_SAFE_PASS(Obj( 2,  2, CON, MAX));
+                ASSERT_PASS(Obj( 2,  2, CON, MAX));
 
-                ASSERT_SAFE_FAIL(Obj( 2,  1, CON, MAX));
-                ASSERT_SAFE_FAIL(Obj( 2, -2, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 2, -2, CON, MAX));
             }
         }
 
@@ -2222,8 +2186,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
+            if (verbose) cout << "\nTesting rewind." << endl;
             mX.rewind();
-            ASSERT(1 == objectAllocator.numBlocksInUse());
+
+            addr1 = mX.allocate(k_ALLOC_SIZE1);
+
+            ASSERT(0 != objectAllocator.numBytesInUse());
+            ASSERT(0 == defaultAllocator.numBlocksTotal());
+            ASSERT(0 == globalAllocator.numBlocksTotal());
         }
 
         if (verbose) cout << "\nTesting destruction." << endl;

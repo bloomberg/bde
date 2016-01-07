@@ -221,8 +221,10 @@ static int calculateNextSize(int currSize, int size)
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialPool' for Efficient Allocations
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we define a container class, 'my_BufferedIntDoubleArray', that holds
 // both 'int' and 'double' values.  The class can be implemented using two
 // parallel arrays: one storing the type information, and the other storing
@@ -380,8 +382,9 @@ static int calculateNextSize(int currSize, int size)
         ++d_length;
     }
 //..
+//
 ///Example 2: Implementing an Allocator Using 'bdlma::BufferedSequentialPool'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bslma::Allocator' is used throughout the interfaces of BDE components.
 // Suppose we would like to create a fast allocator, 'my_FastAllocator', that
 // allocates memory from a buffer in a similar fashion to
@@ -675,6 +678,7 @@ int main(int argc, char *argv[])
         }
       } break;
       case 5: {
+          // TBD rewind
         // --------------------------------------------------------------------
         // 'release' TEST
         //
@@ -759,14 +763,9 @@ int main(int argc, char *argv[])
             mX.allocate(k_BUFFER_SIZE + 1);
             mX.allocate(1);
             mX.allocate(16);
-            void* first = mX.allocate(k_BUFFER_SIZE + 1);
+            mX.allocate(k_BUFFER_SIZE + 1);
 
             ASSERT(0 != objectAllocator.numBlocksInUse());
-
-            mX.rewind();
-            ASSERT(1 == objectAllocator.numBlocksInUse());
-            void* second = mX.allocate(k_BUFFER_SIZE + 1);
-            ASSERT(first == second);
 
             // Release all memory.
             mX.release();
@@ -1645,10 +1644,10 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8));
 
-                ASSERT_SAFE_PASS(    Obj(buffer,  2,  2));
+                ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2));
 
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2,  1));
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2, -2));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, *ba)'" << endl;
@@ -1659,10 +1658,10 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON));
 
-                ASSERT_SAFE_PASS(    Obj(buffer,  2,  2, CON));
+                ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON));
 
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2,  1, CON));
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2, -2, CON));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, AS, *ba)'" << endl;
@@ -1673,10 +1672,10 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, MAX));
 
-                ASSERT_SAFE_PASS(    Obj(buffer,  2,  2, MAX));
+                ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, MAX));
 
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2,  1, MAX));
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2, -2, MAX));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, MAX));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, AS, *ba)'"
@@ -1688,10 +1687,10 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer,  0,  8, CON, MAX));
                 ASSERT_SAFE_FAIL_RAW(Obj(buffer, -1,  8, CON, MAX));
 
-                ASSERT_SAFE_PASS(    Obj(buffer,  2,  2, CON, MAX));
+                ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON, MAX));
 
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2,  1, CON, MAX));
-                ASSERT_SAFE_FAIL(    Obj(buffer,  2, -2, CON, MAX));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON, MAX));
+                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2, -2, CON, MAX));
             }
         }
 
@@ -1855,7 +1854,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
             mY.rewind();
-            ASSERT(1 == objectAllocator.numBlocksInUse());
         }
 
         // All dynamically allocated memory is released after the pool's

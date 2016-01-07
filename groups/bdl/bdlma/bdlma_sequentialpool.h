@@ -313,6 +313,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -344,32 +352,75 @@ class SequentialPool {
     // *exception* *neutral*: If memory cannot be allocated, the behavior is
     // defined by the (optional) allocator specified at construction.
 
+    // PRIVATE TYPES
+    struct Block {
+        // This 'struct' overlays the beginning of each managed block of
+        // allocated memory, implementing a singly-linked list of managed
+        // blocks, and thereby enabling constant-time additions to the list of
+        // blocks.
+
+        Block                               *d_next_p;  // next pointer
+        bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+    };
+
     // DATA
-    BufferManager       d_buffer;          // memory manager for current buffer
+    BufferManager              d_buffer;       // memory manager for current
+                                               // buffer
 
-    bsls::BlockGrowth::Strategy
-                        d_growthStrategy;  // growth strategy for block list
+    BufferManager              d_secondaryBuffer;
+                                               // memory manager for backup
+                                               // buffer of constant growth
+                                               // allocation; not used for
+                                               // geometric growth allocation
 
-    int                 d_initialSize;     // initial internal buffer size
+    Block                     *d_head_p;       // address of 1st block of
+                                               // memory for constant growth
+                                               // allocation (or 0)
 
-    int                 d_maxBufferSize;   // maximum internal buffer size
+    Block                     *d_reuseHead_p;  // address of 1st block of
+                                               // memory for reuse in constant
+                                               // growth allocation (or 0)
 
-    InfrequentDeleteBlockList
-                        d_blockList;       // memory manager used to supply
-                                           // dynamically-allocated memory
-                                           // blocks
+    const int                  d_initialSize;  // allocatable size of initial
+                                               // block
+
+    const int                  d_constantBlockSize;
+                                               // allocatable size of constant
+                                               // growth blocks; 0 when using
+                                               // geometric growth
+
+    const int                  d_constantBlockAllocationSize;
+                                               // size of constant growth
+                                               // blocks; 0 when using
+                                               // geometric growth
+
+    const int                  d_maxGeometricBufferSize;
+                                               // maximum internal buffer size
+                                               // for geometric growth
+
+    InfrequentDeleteBlockList  d_geometricBlockList;
+                                               // memory manager used to supply
+                                               // dynamically-allocated memory
+                                               // blocks for geometric growth
 
   private:
+    // PRIVATE MANIPULATORS
+    void *allocateNonFastPath(bsls::Types::size_type size);
+        // Use the allocator supplied at construction to allocate a new
+        // internal buffer, then return the address of a contiguous block of
+        // memory of the specified 'size' (in bytes) according to the alignment
+        // strategy specified at construction from this buffer.  The behavior
+        // is undefined unless '0 < size'.
+
+    // PRIVATE ACCESSORS
+    unsigned int calculateNextBufferSize(int size) const;
+        // Return the next buffer size (in bytes) that is sufficiently large to
+        // satisfy a memory allocation request of the specified 'size' (in
+        // bytes).
+
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
     SequentialPool& operator=(const SequentialPool&);
-
-  private:
-    // PRIVATE ACCESSORS
-    int calculateNextBufferSize(int size) const;
-        // Return the next buffer size (in bytes) that is sufficiently large to
-        // satisfy a memory allocation request of the specified 'size' (in
-        // bytes), or the maximum buffer size if the buffer can no longer grow.
 
   public:
     // CREATORS
@@ -461,6 +512,29 @@ class SequentialPool {
         // when constant growth is used, the size of the internal buffers will
         // always be the same as 'initialSize'.
 
+    SequentialPool(int                          initialSize,
+                   int                          maxBufferSize,
+                   bsls::BlockGrowth::Strategy  growthStrategy,
+                   bsls::Alignment::Strategy    alignmentStrategy,
+                   bool                         allocateInitialBuffer,
+                   bslma::Allocator            *basicAllocator = 0);
+        // Create a sequential pool for allocating memory blocks from a
+        // sequence of dynamically-allocated buffers, of which the initial
+        // buffer has the specified 'initialSize' (in bytes), and the internal
+        // buffer growth is limited to the specified 'maxBufferSize'.  Allocate
+        // the initial buffer only if the specified 'allocateInitialBuffer' is
+        // 'true'.  Optionally specify a 'basicAllocator' used to supply memory
+        // for the dynamically-allocated buffers.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Optionally
+        // specify a 'growthStrategy' used to control buffer growth.  If no
+        // 'growthStrategy' is specified, geometric growth is used.  Optionally
+        // specify an 'alignmentStrategy' used to control alignment of
+        // allocated memory blocks.  If no 'alignmentStrategy' is specified,
+        // natural alignment is used.  The behavior is undefined unless
+        // '0 < initialSize' and 'initialSize <= maxBufferSize'.  Note that
+        // when constant growth is used, the size of the internal buffers will
+        // always be the same as 'initialSize'.
+
     ~SequentialPool();
         // Destroy this sequential pool.  All memory allocated by this pool is
         // released.
@@ -498,19 +572,19 @@ class SequentialPool {
 
     void release();
         // Release all memory allocated through this pool.  The pool is reset
-        // to its default-constructed state, retaining the alignment and
-        // growth strategies, and the initial and maximum buffer sizes in
-        // effect following construction.  The effect of using a pointer after
-        // this call that was obtained before this call from this object is
+        // to its default-constructed state, retaining the alignment and growth
+        // strategies, and the initial and maximum buffer sizes in effect
+        // following construction.  The effect of using a pointer after this
+        // call that was obtained before this call from this object is
         // undefined.
 
     void rewind();
-        // Release all memory allocated through this pool.  Return to the
-        // construction-time supplied allocator all but the last block obtained
-        // from it, if any, and satisfy subsequent allocations from the
-        // beginning of the remaining block, where possible. The effect of
-        // using a pointer after this call that was obtained from this object
-        // before this call is undefined.
+        // Release all memory allocated through this pool.  No memory is
+        // returned to the construction-time supplied allocator.  At least one
+        // block from the constuction-time supplied allocator will be used to
+        // satisfy subsequent allocations.  The effect of using a pointer after
+        // this call that was obtained from this object before this call is
+        // undefined.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
@@ -612,10 +686,23 @@ namespace bdlma {
 inline
 SequentialPool::~SequentialPool()
 {
-    d_blockList.release();
+    release();
 }
 
 // MANIPULATORS
+inline
+void *SequentialPool::allocate(bsls::Types::size_type size)
+{
+    BSLS_ASSERT_SAFE(0 < size);
+
+    void *result = d_buffer.allocate(size);
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        return result;                                                // RETURN
+    }
+
+    return allocateNonFastPath(size);
+}
+
 template <class TYPE>
 inline
 void SequentialPool::deleteObjectRaw(const TYPE *object)
@@ -637,29 +724,43 @@ void SequentialPool::deleteObject(const TYPE *object)
 }
 
 inline
-void SequentialPool::release()
-{
-    // 'BufferManager::release' keeps the buffer and just resets the internal
-    // cursor, so 'reset' is used instead.
-
-    d_buffer.reset();
-
-    d_blockList.release();
-}
-
-inline
 void SequentialPool::rewind()
 {
-    d_buffer.release();  // Reset the internal cursor in the current block.
-    d_blockList.rewind();  // Free up all the other blocks.
+    if (d_constantBlockSize > 0) {
+        // Constant allocation strategy.
+
+        // Note that 'BufferManager::release' keeps the buffer and just resets
+        // the internal cursor, so 'reset' is used instead.
+
+        d_buffer.reset();
+
+        d_secondaryBuffer.release();
+
+        d_reuseHead_p = d_head_p;
+    }
+    else {
+        // Geometric allocation strategy.
+
+        d_buffer.release();
+    }
 }
 
 inline
 int SequentialPool::truncate(void *address, int originalSize, int newSize)
 {
+    // TBD
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= newSize);
     BSLS_ASSERT_SAFE(newSize <= originalSize);
+
+    if (originalSize >= d_constantBlockSize) {
+        return 0;
+        /* TBD
+        return d_geometricPool.truncate(address,
+                                        originalSize,
+                                        newSize);                     // RETURN
+        */
+    }
 
     return d_buffer.truncate(address, originalSize, newSize);
 }

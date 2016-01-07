@@ -221,6 +221,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_blockgrowth.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PERFORMANCEHINT
+#include <bsls_performancehint.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlma {
 
@@ -373,12 +377,12 @@ class SequentialAllocator : public ManagedAllocator {
         // obtained from this object before this call is undefined.
 
     virtual void rewind();
-        // Release all memory allocated through this allocator.  Return to the
-        // construction-time supplied allocator all but the last block obtained
-        // from it, if any, and satisfy subsequent allocations from the
-        // beginning of the remaining block, where possible. The effect of
-        // using a pointer after this call that was obtained from this object
-        // before this call is undefined.
+        // Release all memory allocated through this pool.  No memory is
+        // returned to the construction-time supplied allocator.  At least one
+        // block from the constuction-time supplied allocator will be used to
+        // satisfy subsequent allocations.  The effect of using a pointer after
+        // this call that was obtained from this object before this call is
+        // undefined.
 
     void reserveCapacity(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
@@ -544,6 +548,17 @@ SequentialAllocator(int                          initialSize,
 }
 
 // MANIPULATORS
+inline
+void *SequentialAllocator::allocate(size_type size)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return 0;                                                     // RETURN
+    }
+
+    return d_sequentialPool.allocate(size);
+}
+
 inline
 void SequentialAllocator::deallocate(void *)
 {

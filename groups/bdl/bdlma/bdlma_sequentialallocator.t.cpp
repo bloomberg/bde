@@ -880,7 +880,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == objectAllocator.numBlocksInUse());
 
             mX.allocate(1000);
-            ASSERT(3 == objectAllocator.numBlocksInUse());
+            ASSERT(2 == objectAllocator.numBlocksInUse());
 
             // Release all memory.
             mX.release();
@@ -1648,6 +1648,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBlocksTotal());
             ASSERT(0 == globalAllocator.numBlocksTotal());
 
+            if (verbose) cout << "\nTesting rewind." << endl;
             mX.rewind();
             ASSERT(objectAllocator.numBytesInUse() != 0);
             ASSERT(objectAllocator.numBlocksTotal() == 2);
