@@ -21,30 +21,6 @@ namespace bdlma {
                            // class BufferManager
                            // -------------------
 
-// PRIVATE MANIPULATORS
-void BufferManager::init(bsls::Alignment::Strategy strategy)
-{
-    switch (strategy) {
-      case bsls::Alignment::BSLS_MAXIMUM: {
-        d_allocate_p    = &BufferImpUtil::allocateMaximallyAlignedFromBuffer;
-        d_allocateRaw_p =
-                         &BufferImpUtil::allocateMaximallyAlignedFromBufferRaw;
-      } break;
-      case bsls::Alignment::BSLS_NATURAL: {
-        d_allocate_p    = &BufferImpUtil::allocateNaturallyAlignedFromBuffer;
-        d_allocateRaw_p =
-                         &BufferImpUtil::allocateNaturallyAlignedFromBufferRaw;
-      } break;
-      case bsls::Alignment::BSLS_BYTEALIGNED: {
-        d_allocate_p    = &BufferImpUtil::allocateOneByteAlignedFromBuffer;
-        d_allocateRaw_p = &BufferImpUtil::allocateOneByteAlignedFromBufferRaw;
-      } break;
-      default: {
-        BSLS_ASSERT_OPT(0 && "Invalid alignment 'strategy' value.");
-      } break;
-    }
-}
-
 // MANIPULATORS
 int BufferManager::expand(void *address, int size)
 {
