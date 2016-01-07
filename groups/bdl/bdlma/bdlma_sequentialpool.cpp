@@ -45,45 +45,46 @@ namespace bdlma {
                            // --------------------
 
 // PRIVATE MANIPULATORS
-void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
+void *SequentialPool::allocateNonFastPath(BufferManager          **buffer,
+                                          bsls::Types::size_type   size)
 {
+    *buffer = &d_buffer;
+    
     if (static_cast<bsls::Types::size_type>(d_constantBlockSize) >= size) {
         // Constant allocation.
 
         if (d_reuseHead_p) {
-            d_buffer.replaceBuffer(reinterpret_cast<char *>(
+            (*buffer)->replaceBuffer(reinterpret_cast<char *>(
                                                      &d_reuseHead_p->d_memory),
                                    d_constantBlockSize);
 
             d_reuseHead_p = d_reuseHead_p->d_next_p;
 
-            return d_buffer.allocateRaw(static_cast<int>(size));      // RETURN
+            return (*buffer)->allocateRaw(static_cast<int>(size));    // RETURN
         }
         
         Block *block = reinterpret_cast<Block *>(
                                     d_geometricBlockList.allocator()->allocate(
                                                d_constantBlockAllocationSize));
 
-        d_buffer.replaceBuffer(reinterpret_cast<char *>(&block->d_memory),
-                               d_constantBlockSize);
+        (*buffer)->replaceBuffer(reinterpret_cast<char *>(&block->d_memory),
+                                 d_constantBlockSize);
 
         block->d_next_p = d_head_p;
         d_head_p        = block;
 
-        return d_buffer.allocateRaw(static_cast<int>(size));          // RETURN
+        return (*buffer)->allocateRaw(static_cast<int>(size));        // RETURN
     }
-
-    BufferManager *buffer = &d_buffer;
     
     if (d_constantBlockSize) {
         // Constant strategy after constant allocation failure.
+
+        *buffer = &d_secondaryBuffer;
 
         void *result = d_secondaryBuffer.allocate(size);
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
             return result;                                            // RETURN
         }
-
-        buffer = &d_secondaryBuffer;
     }
     
     // Geometric allocation.
@@ -91,14 +92,16 @@ void *SequentialPool::allocateNonFastPath(bsls::Types::size_type size)
     unsigned int nextSize = calculateNextBufferSize(static_cast<int>(size));
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
                                        nextSize <= d_maxGeometricBufferSize)) {
-        buffer->replaceBuffer(
+        (*buffer)->replaceBuffer(
                   static_cast<char *>(d_geometricBlockList.allocate(nextSize)),
                   nextSize);
-        return buffer->allocateRaw(static_cast<int>(size));
+        return (*buffer)->allocateRaw(static_cast<int>(size));
     }
 
     // Allocation for very large requests.
-    
+
+    *buffer = 0;
+
     return d_geometricBlockList.allocate(static_cast<int>(size));
 }
 
@@ -435,22 +438,6 @@ SequentialPool::SequentialPool(
 }
 
 // MANIPULATORS
-void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
-{
-    // TBD
-    BSLS_ASSERT(size);
-    BSLS_ASSERT(0 < *size);
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_constantBlockSize >= *size)) {
-        void *result = allocate(static_cast<int>(*size));
-        *size = d_buffer.expand(result, static_cast<int>(*size));
-        return result;                                                // RETURN
-    }
-
-    // TBD return d_geometricBlockList.allocateAndExpand(size);
-    return 0;
-}
-
 void SequentialPool::release()
 {
     // 'BufferManager::release' keeps the buffer and just resets the internal

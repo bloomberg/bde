@@ -405,7 +405,8 @@ class SequentialPool {
 
   private:
     // PRIVATE MANIPULATORS
-    void *allocateNonFastPath(bsls::Types::size_type size);
+    void *allocateNonFastPath(BufferManager          **buffer,
+                              bsls::Types::size_type   size);
         // Use the allocator supplied at construction to allocate a new
         // internal buffer, then return the address of a contiguous block of
         // memory of the specified 'size' (in bytes) according to the alignment
@@ -700,8 +701,32 @@ void *SequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    return allocateNonFastPath(size);
+    BufferManager *buffer;
+
+    return allocateNonFastPath(&buffer, size);
 }
+
+inline
+void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
+{
+    BSLS_ASSERT_SAFE(size);
+    BSLS_ASSERT_SAFE(0 < *size);
+
+    void *result = d_buffer.allocate(static_cast<int>(*size));
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
+        *size = d_buffer.expand(result, static_cast<int>(*size));
+        return result;                                                // RETURN
+    }
+
+    BufferManager *buffer;
+
+    result = allocateNonFastPath(&buffer, static_cast<int>(*size));
+    if (buffer) {
+        *size = buffer->expand(result, static_cast<int>(*size));
+    }
+    return result;
+}
+
 
 template <class TYPE>
 inline
