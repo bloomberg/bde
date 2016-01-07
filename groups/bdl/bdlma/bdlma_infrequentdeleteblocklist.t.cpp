@@ -37,7 +37,9 @@ using namespace bsl;
 // [ 2] void *allocate(int size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
-// [ 3] void rewind();
+//
+// // ACCESSORS
+// [ 2] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -409,8 +411,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // DTOR & RELEASE
         //   Ensure that both the destructor and the 'release' method release
-        //   all memory allocated from the object allocator.  Ensure that
-        //   'rewind' frees all but the last-allocated block.
+        //   all memory allocated from the object allocator.
         //
         // Concerns:
         //: 1 All memory allocated from the object allocator is released at
@@ -496,30 +497,16 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
 
-                if ((ti & 1) == 0) {
-                    mX.release();
-                    LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
+                mX.release();
+                LOOP_ASSERT(ti,  0 == oa.numBlocksInUse());
 
-                    for (int tj = 0; tj < ti; ++tj) {
-                        const int SIZE = DATA[tj];
+                for (int tj = 0; tj < ti; ++tj) {
+                    const int SIZE = DATA[tj];
 
-                        void *p = mX.allocate(SIZE);
-                        if (veryVerbose) { T_; P_(SIZE); P(p); }
-                    }
-                    LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
-                } else {
-                    mX.rewind();
-                    LOOP_ASSERT(ti,  1 == oa.numBlocksInUse());
-
-                    for (int tj = 0; tj < ti; ++tj) {
-                        const int SIZE = DATA[tj];
-
-                        void *p = mX.allocate(SIZE);
-                        if (veryVerbose) { T_; P_(SIZE); P(p); }
-                    }
-                    LOOP_ASSERT(ti, ti + 1 == oa.numBlocksInUse());
-                    mX.release();
+                    void *p = mX.allocate(SIZE);
+                    if (veryVerbose) { T_; P_(SIZE); P(p); }
                 }
+                LOOP_ASSERT(ti, ti == oa.numBlocksInUse());
             }
         }
 
@@ -557,7 +544,9 @@ int main(int argc, char *argv[])
         //:
         //: 9 There is no temporary allocation from any allocator.
         //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        //:10 The 'allocator' method returns the used allocator.
+        //:
+        //:11 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using a loop-based approach, default-construct three distinct
@@ -620,12 +609,17 @@ int main(int argc, char *argv[])
         //: 5 Perform a separate test to verify that 'mX.allocate(0)' returns 0
         //:   and has no effect on any allocator.  (C-8)
         //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-10)
+        //: 6 Verify the 'allocator' method returns the used allocator for all
+        //:   constructors.
+        //:
+        //: 7 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered.  (C-11)
         //
         // Testing:
         //   bdlma::InfrequentDeleteBlockList(bslma::Allocator *ba = 0);
         //   void *allocate(int size);
+        //
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "DEFAULT CTOR & ALLOCATE" << endl
@@ -793,6 +787,23 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksTotal());
         }
 
+        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            ASSERT(&da == X.allocator());
+        }
+        {
+            Obj        mX(reinterpret_cast<bslma::TestAllocator *>(0));
+            const Obj& X = mX;
+            ASSERT(&da == X.allocator());
+        }
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            Obj mX(&sa);  const Obj& X = mX;
+            ASSERT(&sa == X.allocator());
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
@@ -823,10 +834,9 @@ int main(int argc, char *argv[])
         //: 2 Allocate a block 'b1' from 'mX'.
         //: 3 Deallocate block 'b1' (with no effect).
         //: 4 Allocate blocks 'b2' and 'b3' from 'mX'.
-        //: 5 Invoke the rewind method on 'mX'.
-        //: 6 Invoke the release method on 'mX'.
-        //: 7 Allocate a block 'b4' from 'mX'.
-        //: 8 Allow 'mX' to go out of scope.
+        //: 5 Invoke the release method on 'mX'.
+        //: 6 Allocate a block 'b4' from 'mX'.
+        //: 7 Allow 'mX' to go out of scope.
         //
         // Testing:
         //   BREATHING TEST
@@ -853,14 +863,11 @@ int main(int argc, char *argv[])
             mX.allocate(32);               ASSERT(3 == oa.numBlocksInUse());
 
             // 5
-            mX.rewind();                   ASSERT(1 == oa.numBlocksInUse());
-
-            // 6
             mX.release();                  ASSERT(0 == oa.numBlocksInUse());
 
-            // 7
+            // 6
             mX.allocate(1);                ASSERT(1 == oa.numBlocksInUse());
-        }   // 8
+        }   // 7
                                            ASSERT(0 == oa.numBlocksInUse());
 
       } break;

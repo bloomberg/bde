@@ -252,9 +252,11 @@ class InfrequentDeleteBlockList {
         // Deallocate all memory blocks managed by this object, returning it to
         // its default-constructed state.
 
-    void rewind();
-        // Deallocate all except the most-recently obtained of the memory
-        // blocks managed by this object.
+    // ACCESSORS
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
 };
 
 // ============================================================================
@@ -278,6 +280,14 @@ InfrequentDeleteBlockList::InfrequentDeleteBlockList(
 inline
 void InfrequentDeleteBlockList::deallocate(void *)
 {
+}
+
+// ACCESSORS
+                                  // Aspects
+
+inline
+bslma::Allocator *InfrequentDeleteBlockList::allocator() const {
+    return d_allocator_p;
 }
 
 }  // close package namespace
