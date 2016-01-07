@@ -748,21 +748,14 @@ void SequentialPool::rewind()
 inline
 int SequentialPool::truncate(void *address, int originalSize, int newSize)
 {
-    // TBD
     BSLS_ASSERT_SAFE(address);
     BSLS_ASSERT_SAFE(0 <= newSize);
     BSLS_ASSERT_SAFE(newSize <= originalSize);
 
-    if (originalSize >= d_constantBlockSize) {
-        return 0;
-        /* TBD
-        return d_geometricPool.truncate(address,
-                                        originalSize,
-                                        newSize);                     // RETURN
-        */
+    if (newSize == d_buffer.truncate(address, originalSize, newSize)) {
+        return newSize;                                               // RETURN
     }
-
-    return d_buffer.truncate(address, originalSize, newSize);
+    return d_secondaryBuffer.truncate(address, originalSize, newSize);
 }
 
 }  // close package namespace

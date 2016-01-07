@@ -45,7 +45,6 @@ int BufferManager::truncate(void *address, int originalSize, int newSize)
     BSLS_ASSERT(address);
     BSLS_ASSERT(0 <= newSize);
     BSLS_ASSERT(newSize <= originalSize);
-    BSLS_ASSERT(d_buffer_p);
     BSLS_ASSERT(0 <= d_cursor);
     BSLS_ASSERT(d_cursor <= d_bufferSize);
 
