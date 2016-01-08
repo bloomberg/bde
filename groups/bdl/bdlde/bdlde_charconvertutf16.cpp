@@ -210,7 +210,7 @@ enum {
 };
 
 typedef unsigned int UnicodeCodePoint;
-    // For storing uncompressed Unicode character (21 bit, 17 plane).
+    // For storing uncompressed Unicode code point (21 bit, 17 plane).
 
 // Portability check -- data type sizes.
 BSLMF_ASSERT(8 == CHAR_BIT);
@@ -356,7 +356,7 @@ struct Utf8 {
 
     // TYPES
     typedef unsigned char OctetType;
-        // Treating the octets as a signed (or default signed) character has so
+        // Treating the octets as a signed (or default signed) 'char' has so
         // many pitfalls in widening that the code would become unreadable.
         // This typedef (used especially for pointer punning) gives a shorter
         // way to write all the conversions necessary.
@@ -507,7 +507,7 @@ struct Utf8 {
 
     // CLASS METHODS
 
-    // Part 1: Determine how to decode a UTF-8 character.
+    // Part 1: Determine how to decode a UTF-8 code point.
     //   The functions 'isSingleOctet',
     //                 'isContinuation',
     //                 'isTwoOctetHeader',
@@ -516,16 +516,16 @@ struct Utf8 {
     //   according to what part it plays in the encoding.  Each function
     //   returns 'true' if the condition named is true, and 'false' otherwise.
     //   Note that they are mutually exclusive: an octet will satisfy at most
-    //   one of them.  Note also that none of these functions will return
+    //   one of them.  Also note that none of these functions will return
     //   'true' for the octet '0xff' nor for the header octets for five-, six-,
     //   and seven-octet encodings.  (The higher-order headers are part of
-    //   the original utf-8 scheme, but not utf-8 as it is used for encoding
-    //   iso10646 characters.)
+    //   the original UTF-8 scheme, but not UTF-8 as it is used for encoding
+    //   iso10646 code points.)
 
     static
     bool isSingleOctet(OctetType oct)
         // Return 'true' if the specified 'oct' is a complete Unicode
-        // character, and 'false' otherwise.
+        // code point, and 'false' otherwise.
     {
         return 0 == (oct & ONE_OCTET_MASK);
     }
@@ -559,21 +559,21 @@ struct Utf8 {
     //: The functions
     //: o 'decodeTwoOctets',
     //: o 'decodeThreeOctets', and
-    //: o 'decodeFourOctets' convert a multi-octet UTF-8 character (addressed
-    //:   by the second argument) into the corresponding iso10646 character.
+    //: o 'decodeFourOctets' convert a multi-octet UTF-8 code point (addressed
+    //:   by the second argument) into the corresponding iso10646 code point.
     //:   The result is invalid unless the input is encoded according to the
     //:   UTF-8 rules for that particular encoding.  Note that they do not
     //:   check for misuse of the encoding (e.g., use of a four-byte coding for
-    //:   a character that could be encoded in fewer bytes); they implement
-    //:   just this one step of the decoding process.  Note also that a
-    //:   single-octet character can be copied directly; no function is
+    //:   a code point that could be encoded in fewer bytes); they implement
+    //:   just this one step of the decoding process.  Also note that a
+    //:   single-octet code point can be copied directly; no function is
     //:   provided to cover this trivial computation.
 
     static
     UnicodeCodePoint decodeTwoOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a two-octet
         // sequence, decode that sequence, and return the decoded Unicode
-        // character.
+        // code point.
     {
         return (octBuf[1] & ~CONTINUE_MASK)
             | ((octBuf[0] & ~TWO_OCTET_MASK) << CONTINUE_CONT_WID);
@@ -583,7 +583,7 @@ struct Utf8 {
     UnicodeCodePoint decodeThreeOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a three-octet
         // sequence, decode that sequence, and return the decoded Unicode
-        // character.
+        // code point.
     {
         return (octBuf[2] & ~CONTINUE_MASK)
             | ((octBuf[1] & ~CONTINUE_MASK)    <<     CONTINUE_CONT_WID)
@@ -594,7 +594,7 @@ struct Utf8 {
     UnicodeCodePoint decodeFourOctets(const OctetType *octBuf)
         // Assume the specified 'octBuf' is the beginning of a four-octet
         // sequence, decode that sequence, and return the decoded Unicode
-        // character.
+        // code point.
     {
         return (octBuf[3] & ~CONTINUE_MASK)
             | ((octBuf[2] & ~CONTINUE_MASK)   <<     CONTINUE_CONT_WID)
@@ -602,21 +602,21 @@ struct Utf8 {
             | ((octBuf[0] & ~FOUR_OCTET_MASK) << 3 * CONTINUE_CONT_WID);
     }
 
-    // Part 3: Determine how to encode an iso10646 character as UTF-8.
+    // Part 3: Determine how to encode an iso10646 code point as UTF-8.
 
     //    The functions 'fitsInSingleOctet',
     //                  'fitsInTwoOctets', and
     //                  'fitsInThreeOctets' each return 'true' if the iso10646
-    //    character passed in the argument can be encoded in the specified
+    //    code point passed in the argument can be encoded in the specified
     //    number of octets, and 'false' otherwise.  Note that these functions
     //    do NOT check whether the specified encoding is the correct (i.e.,
-    //    minimal) encoding or whether the character is a valid iso10646
-    //    character (i.e., that it does not lie in the d800-to-dfff reserved
+    //    minimal) encoding or whether the code point is a valid iso10646
+    //    code point (i.e., that it does not lie in the d800-to-dfff reserved
     //    range).
 
     static
     bool fitsInSingleOctet(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode character 'uc' will fit in a
+        // Return 'true' if the specified Unicode code point 'uc' will fit in a
         // single octet of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << ONE_OCT_CONT_WID);
@@ -624,7 +624,7 @@ struct Utf8 {
 
     static
     bool fitsInTwoOctets(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode character 'uc' will fit in
+        // Return 'true' if the specified Unicode code point 'uc' will fit in
         // two octets of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << (TWO_OCT_CONT_WID +
@@ -633,7 +633,7 @@ struct Utf8 {
 
     static
     bool fitsInThreeOctets(UnicodeCodePoint uc)
-        // Return 'true' if the specified Unicode character 'uc' will fit in
+        // Return 'true' if the specified Unicode code point 'uc' will fit in
         // three octets of UTF-8, and 'false' otherwise.
     {
         return 0 == (uc & ~UnicodeCodePoint(0) << (THREE_OCT_CONT_WID +
@@ -644,11 +644,11 @@ struct Utf8 {
 
     //     The functions 'encodeTwoOctets',
     //                   'encodeThreeOctets' and
-    //                   'encodeFourOctets' encode the iso10646 character
+    //                   'encodeFourOctets' encode the iso10646 code point
     //     passed as their second argument into the specified number of octets
     //     in the byte array addressed by their first argument.  The result
     //     is invalid if there is not enough room in the array, or if the
-    //     specified encoding is not the correct coding for the character
+    //     specified encoding is not the correct coding for the code point
     //     given.  Note that the single-byte encoding is accomplished by a
     //     direct copy, for which no function is provided here.
 
@@ -708,8 +708,8 @@ struct Utf16 {
            CONTENT_CONT_WID = 10,      // Ten content bits
            CONTENT_MASK     = ~UnicodeCodePoint(RESERVED_MASK),
            RESERVE_OFFSET   = 0x10000, // Subtract this before coding two-part
-                                       // characters, per rfc 2871.
-           UPPER_LIMIT      = 0x110000 // Valid characters lie below this, and
+                                       // code points, per rfc 2871.
+           UPPER_LIMIT      = 0x110000 // Valid code points lie below this, and
                                        // outside the reserved range.
     };
 
@@ -760,9 +760,9 @@ struct Utf16 {
 
     // CLASS METHODS
 
-    // Part 1: Determine how to decode an iso10646 character into UTF-16.
+    // Part 1: Determine how to decode an iso10646 code point into UTF-16.
     //    The 'isSingleUtf8' static method returns true if the UTF-16 word
-    //    passed as an argument will decode into a single UTF-8 character,
+    //    passed as an argument will decode into a single UTF-8 code point
     //    false otherwise.
     //    The functions 'isSingleWord',
     //                  'isFirstWord' and
@@ -774,8 +774,8 @@ struct Utf16 {
     template <class UTF16_WORD>
     static
     bool isSingleUtf8(UTF16_WORD uc)
-        // Return 'true' if the specified 'uc' will fit in a single 'UTF-8'
-        // character, and 'false' otherwise.
+        // Return 'true' if the specified 'uc' will fit in a single UTF-8 code
+        // point, and 'false' otherwise.
     {
         enum { HIGH_BITS =
                         UTF16_WORD(~UTF16_WORD(0) << Utf8::ONE_OCT_CONT_WID) };
@@ -787,7 +787,7 @@ struct Utf16 {
     static
     bool isSingleWord(UTF16_WORD uc)
         // Return 'true' if the specified 'uc' is a Unicode value that will fit
-        // in a single UTF-16 character, and 'false' otherwise.
+        // in a single UTF-16 word, and 'false' otherwise.
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
@@ -812,40 +812,39 @@ struct Utf16 {
 
     // Part 2: The means to decode from UTF-16
 
-    //     The 'getUtf8Value' static method returns the UTF-8 character
-    //     corresponding to the single-word UTF-16 character passed in as its
+    //     The 'getUtf8Value' static method returns the UTF-8 code point
+    //     corresponding to the single-word UTF-16 code point passed in as its
     //     argument.  The result is invalid unless the word passed in is a
-    //     valid single-word UTF-16 character that can be encoded as a
-    //     single-byte UTF-8 character.
+    //     valid single-word UTF-16 code point that can be encoded as a
+    //     single-byte UTF-8 code point.
     //
     //     The functions 'decodeSingleWord' and
-    //                   'decodeTwoWords' store, in the iso10646 character
-    //     buffer addressed by their first argument, the iso10646 character
-    //     encoded by the single-word or two-word UTF-16 character in the
+    //                   'decodeTwoWords' store, in the iso10646 code point
+    //     buffer addressed by their first argument, the iso10646 code point
+    //     encoded by the single-word or two-word UTF-16 code point in the
     //     buffer addressed by their second argument.  The result is invalid
-    //     unless there is enough space to store one iso10646 character at the
+    //     unless there is enough space to store one iso10646 code point at the
     //     location addressed by the first argument, and unless the one or two
     //     words addressed by the second argument are a valid iso10646
-    //     character in the specified encoding.
+    //     code point in the specified encoding.
 
     template <class UTF16_WORD>
     static
     OctetType getUtf8Value(UTF16_WORD uc)
-        // Assuming the specified 'uc' is a Unicode value that can be
-        // expressed as a single ASCII character, return it without
-        // modification.
+        // Assuming the specified 'uc' is a Unicode value that can be expressed
+        // as a single ASCII 'char', return it without modification.
     {
         return static_cast<OctetType>(uc);
     }
 
-    // Part 3: Determine how to encode a UTF-16 character.
+    // Part 3: Determine how to encode a UTF-16 code point.
 
     //     The functions 'fitsInOneWord',
     //                   'isValidOneWord' and
     //                   'isValidTwoWords' return 'true' if the iso10646
-    //     character passed as their argument satisfies the specified
+    //     code point passed as their argument satisfies the specified
     //     condition, and 'false' otherwise.  'isValidTwoWords' yields an
-    //     invalid result for a character that can be encoded in a single
+    //     invalid result for a code point that can be encoded in a single
     //     word.
 
     static
@@ -879,7 +878,7 @@ struct Utf16 {
         // Assume that the specified 'first' is a valid first word of a 2-word
         // UTF-16 sequence, and that the specified 'second' is a valid second
         // word of such a sequence; return the two words combined into a
-        // single Unicode character.
+        // single Unicode code point.
     {
         return RESERVE_OFFSET + (((first  & ~HEADER_MASK) << CONTENT_CONT_WID)
                                 | (second & ~HEADER_MASK));
@@ -896,16 +895,16 @@ struct Swapper {
     // CLASS METHODS
     static
     UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
-        // 'utf16Buf' points to a swapped, single-word Unicode character.
-        // Return the Unicode character version of the specified '*utf16Buf' in
-        // host byte order.
+        // 'utf16Buf' points to a swapped, single-word Unicode code point.
+        // Return the Unicode code point version of the specified '*utf16Buf'
+        // in host byte order.
     {
         return swappedToHost<UTF16_WORD, k_SIZE>(*u16Buf);
     }
 
     static
     UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
-        // The specified 'uc' is a Unicode character, in host byte order,
+        // The specified 'uc' is a Unicode code point, in host byte order,
         // encodable as a single 'UTF16_WORD'.  Return the swapped single-word
         // encoding of the 'uc'.
     {
@@ -950,9 +949,9 @@ struct NoOpSwapper {
     // CLASS METHODS
     static
     UnicodeCodePoint decodeSingleWord(const UTF16_WORD *u16Buf)
-        // Return the Unicode character version of the specified '*utf16Buf' in
-        // host byte order.  'utf16Buf' points to a single-word Unicode
-        // character in host byte order.
+        // Return the Unicode code point version of the specified '*utf16Buf'
+        // in host byte order.  'utf16Buf' points to a single-word Unicode code
+        // point in host byte order.
     {
         return *u16Buf;
     }
@@ -960,7 +959,7 @@ struct NoOpSwapper {
     static
     UTF16_WORD encodeSingleWord(UnicodeCodePoint uc)
         // Return the single-word encoding of the specified 'uc' in host byte
-        // order.  The 'uc' is a Unicode character encodable as a single
+        // order.  The 'uc' is a Unicode code point encodable as a single
         // 'UTF16_WORD' in host byte order.
     {
         return static_cast<UTF16_WORD>(uc);
@@ -1009,12 +1008,12 @@ bsl::size_t utf16BufferLength(const char  *srcBuffer,
     // evaluate end of input and explore continuation bytes.  Note that this
     // routine will exactly estimate the right size except in two cases, in
     // which case it will either still return exactly the right value, or a
-    // slight over estimation.  The two cases where this routine will
-    // overestimate the size required are:
+    // slight over-estimation.  The two cases where this routine will
+    // over-estimate the size required are:
     //: o There are errors and the 'errorWord' is 0.  This routine assumes that
     //:   'errorWord' is non-zero.
     //: o if a four byte sequence is a non-minimal encoding.  This would be
-    //:   translated as a single error character, while we don't decode it so
+    //:   translated as a single error word, while we don't decode it so
     //:   we just assume it will result in 2 words output.
 {
     bsl::size_t wordsNeeded = 0;
@@ -1049,10 +1048,10 @@ bsl::size_t utf16BufferLength(const char  *srcBuffer,
             else {
                 octets = endFunctor.skipContinuations(octets + 1);
             }
-            wordsNeeded += 2;      // will be overestimate if error
+            wordsNeeded += 2;      // will be over-estimate if error
         }
         else {
-            // Handle a five-octet character (or anything else) sanely.
+            // Handle a five-octet code point (or anything else) sanely.
 
             ++octets;
             if (endFunctor.verifyContinuations(octets, 4)) {
@@ -1087,7 +1086,7 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
     // 'endFunctor' to evaluate end of input and continuation bytes.  Use the
     // specified 'swapper' to either swap UTF-16 words (if it is 'Swapper') or
     // not swap them (if it is 'NoopSwapper').  Return the number of Unicode
-    // characters in the specified '*numCodePointsWritten' and the number of
+    // code points in the specified '*numCodePointsWritten' and the number of
     // 'UTF16_WORD's written in the specified '*numWordsWritten'.  The
     // specified 'errorWord' is output in place of any error sequences
     // encountered, or nothing is output in their place if '0 == errorWord'.
@@ -1114,7 +1113,7 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
 
     (void) swapper;    // silence 'unused' warnings
 
-    // We need at least room for a null character in the output.
+    // We need at least room for a null word in the output.
 
     if (dstCapacity < 1) {
         if (numCodePointsWritten) {
@@ -1140,11 +1139,11 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
                                           static_cast<const void*>(srcBuffer));
     while (!endFunctor.isFinished(octets)) {
         // Checking for output space is tricky.  If we have an error case and
-        // no replacement character, we may consume input octets without using
-        // any space.
+        // no replacement word, we may consume input octets without using any
+        // space.
 
         if (swappedErrorWord && dstCapacity < 2) {
-            // If there is an error character, we'll need at least one output
+            // If there is an error word, we'll need at least one output
             // slot.
 
             returnStatus |= OUT_OF_SPACE_BIT;
@@ -1249,8 +1248,8 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
             }
         }
         else {
-            // First character of sequence is 11111xxx -- always illegal.  Skip
-            // as 5-byte sequence, interpret as error, ignore the data.
+            // First code point of sequence is 11111xxx -- always illegal.
+            // Skip as 5-byte sequence, interpret as error, ignore the data.
 
             ++octets;
             if (endFunctor.verifyContinuations(octets, 4)) {
@@ -1269,10 +1268,10 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
             continue;
         }
 
-        // The UTF-8 character is decoded.  Re-encode it in UTF-16.  We could
-        // assume that a two- or three-octet UTF-8 character will have to be a
-        // single-word UTF-16 character, and a four-octet UTF-8 character will
-        // have to be a two-word UTF-16 character.  But the logic is less
+        // The UTF-8 code point is decoded.  Re-encode it in UTF-16.  We could
+        // assume that a two- or three-octet UTF-8 code point will have to be a
+        // single-word UTF-16 code point, and a four-octet UTF-8 code point
+        // will have to be a two-word UTF-16 code point.  But the logic is less
         // tangled if the decode and encode, and all their cases, are kept
         // separate, especially since the validity tests must be made for
         // three- and four-octet UTF-8 encodings.
@@ -1297,7 +1296,7 @@ int localUtf8ToUtf16(UTF16_WORD       *dstBuffer,
             ++nCodePoints;
         }
         else {
-            // An invalid character can be coded in the one space we are
+            // An invalid code point can be coded in the one space we are
             // guaranteed, so test that first.
 
             if (!Utf16::isValidTwoWords(convBuf)) {
@@ -1356,7 +1355,7 @@ bsl::size_t utf8BufferLength(const UTF16_WORD *srcBuffer,
     // 'endFunctor' to evaluate end of input, and using the specified 'swapper'
     // to swap or not swap bytes.  Note that the method will get the length
     // exactly right unless there are errors and the 'errorByte' is 0, in which
-    // case it will slightly over estimate the necessary length.  Also note
+    // case it will slightly over-estimate the necessary length.  Also note
     // that 'SWAPPER' is a stateless type containing only static functions; we
     // take it as an argument to avoid having to explicitly specify template
     // arguments when calling this function.
@@ -1385,7 +1384,7 @@ bsl::size_t utf8BufferLength(const UTF16_WORD *srcBuffer,
         }
         else {
             ++srcBuffer;
-            ++bytesNeeded;    // error character
+            ++bytesNeeded;    // error byte
         }
     }
     BSLS_ASSERT(endFunctor.isFinished(srcBuffer));
@@ -1411,7 +1410,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
     // 'dstCapacity'; to evaluate the size of 'dstBuffer'.  Use the specified
     // 'swapper' to swap bytes (using type 'Swapper') or not swap them (using
     // type 'NoopSwapper') as the caller desires.  Return the number of Unicode
-    // characters translated in the specified '*numCodePointsWritten' and the
+    // code points translated in the specified '*numCodePointsWritten' and the
     // number of bytes written in the specified '*numBytesWritten'.  Return a
     // bit-wise or of the flags specified by 'bdlde::CharConvertStatus::Enum'
     // to indicate whether error sequences were encountered and/or whether the
@@ -1445,7 +1444,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
     int returnStatus = 0;
     while (!endFunctor.isFinished(srcBuffer)) {
         // We don't do the out-of-room tests until we know that we can
-        // generate valid UnicodeCodePoint characters from the UTF-16 string.
+        // generate valid Unicode code points from the UTF-16 string.
 
         // The single-byte case is the simplest.  It ought to be the fastest.
 
@@ -1454,7 +1453,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
         if (Utf16::isSingleUtf8(word0)) {
             if (dstCapacity < 2) {
-                // One for the character, one for the null.
+                // One for the code point, one for the null.
 
                 returnStatus |= OUT_OF_SPACE_BIT;
                 break;
@@ -1469,7 +1468,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
         UnicodeCodePoint convBuf;
 
-        // Is it a single-word character?
+        // Is it a single-word code point?
 
         if (Utf16::isSingleWord(word0)) {
             convBuf = word0;
@@ -1517,7 +1516,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
            || !Utf16::isFirstWord( word0)
            || !Utf16::isSecondWord(word1)) {
 
-            //: o If 'earlyFinish', there was a truncated character beginning
+            //: o If 'earlyFinish', there was a truncated code point beginning
             //:   with a 1st or 2nd word.  Skip one word to the end of input.
             //: o If '!Utf16::isFirstWord( word0)' it must be a 2nd word not
             //:   preceded by a 1st word.  Skip one word.
@@ -1531,7 +1530,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
 
             if (0 != errorByte) {
                 if (dstCapacity < 2) {
-                    // One for the character, one for the null.
+                    // One for the code point, one for the null.
 
                     returnStatus |= OUT_OF_SPACE_BIT;
                     break;
@@ -1590,7 +1589,7 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
     // the specified 'dstString', using the specified 'endFunctor' to evaluate
     // end of input.  Any pre-existing contents of 'dstString' are discarded.
     // Use the specified 'swapper' to swap bytes ('Swapper' type) or not swap
-    // them ('NoopSwapper' type).  Return the number of characters (not words
+    // them ('NoopSwapper' type).  Return the number of code points (not words
     // or bytes) translated to the specified '*numCodePointsWritten'.  If error
     // sequences are encountered, substitute the specified 'errorByte', or
     // eliminate the sequence entirely if '0 == errorByte'.  The behavior is
@@ -1650,7 +1649,7 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
     // end of input and null-terminating the result.  Use the specified
     // 'swapper' to swap bytes (using 'Swapper' type) or not swap them (using
     // 'NoopSwapper' type).  Any pre-existing contents of 'dstString' are
-    // discarded.  Return the number of characters (not words or bytes)
+    // discarded.  Return the number of code points (not words or bytes)
     // translated to the specified '*numCodePointsWritten'.  If error sequences
     // are encountered, substitute the specified 'errorByte', or eliminate the
     // sequence entirely if '0 == errorByte'.  The behavior is undefined if

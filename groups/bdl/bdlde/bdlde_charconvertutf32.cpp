@@ -716,14 +716,14 @@ bool isIllegalFourOctetValue(unsigned int uc)
 static inline
 bool isLegalUtf32ErrorWord(unsigned int uc)
     // Return 'true' if the specified 32-bit value 'uc' is legal to be
-    // represented in unicode and 'false' otherwise.
+    // represented in Unicode and 'false' otherwise.
 {
     return uc < 0xd800 || (uc >= 0xe000 && uc <= 0x10ffff);
 }
 
 static inline
 const OctetType *skipUtf8CodePoint(const OctetType *input)
-    // Return a pointer to the next Unicode character after the character in
+    // Return a pointer to the next Unicode code point after the code point in
     // the sequence beginning at the specified 'input'.  Note that an
     // incomplete sequence is skipped as a single char, and that any first byte
     // that is neither a single byte nor a header of a valid UTF-8 sequence is
@@ -754,14 +754,14 @@ bsl::size_t utf32BufferLengthNeeded(const char  *input,
     // sequence beginning at the specified 'input', including the terminating 0
     // word of the output.  Use the specified 'endFunctor' to determine end of
     // input.  Note that if the translation occurs with 0 specified as the
-    // error character and errors are present, this will be an over-estimate,
+    // error word and errors are present, this will be an over-estimate,
     // otherwise the result will be exact.  Also note that the end of 'input'
     // is determined by 'endFunctor', which will treat the input as either
     // null-terminated or fixed-length.
 {
     // Note that to exactly calculate the size would require much more detailed
     // decoding and would hence be much slower.  Also, the default is for the
-    // error character not to be 0, in which case this estimate will be exact.
+    // error word not to be 0, in which case this estimate will be exact.
     // Also, error sequences will usually range from extremely rare to totally
     // not present.  For these reasons, this faster, less exact algorithm was
     // chosen.
@@ -904,11 +904,11 @@ class Utf8ToUtf32Translator {
         // is undefined unless 'd_capacity >= 2'.
 
     int decodeCodePoint();
-        // Read one Unicode character of UTF-8 from the input stream 'd_input',
-        // and update the output and the state of this object accordingly.
-        // Return a non-zero value if there was insufficient capacity for the
-        // output, and 0 otherwise.  The behavior is undefined unless at least
-        // 1 word of space is available in the output buffer.
+        // Read one Unicode code point of UTF-8 from the input stream
+        // 'd_input', and update the output and the state of this object
+        // accordingly.  Return a non-zero value if there was insufficient
+        // capacity for the output, and 0 otherwise.  The behavior is undefined
+        // unless at least 1 word of space is available in the output buffer.
 
   public:
     // CLASS METHODS
@@ -923,17 +923,17 @@ class Utf8ToUtf32Translator {
         // to a UTF-32 stream written to the buffer at the specified 'output',
         // always null-terminating the result.  If the template argument is
         // type 'Capacity', the output buffer is the specified 'capacity' words
-        // long, and encode as many Unicode characters as will fit, including
-        // the terminating null character.  If the template argument is type
+        // long, and encode as many Unicode code points as will fit, including
+        // the terminating null code point.  If the template argument is type
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-32 sequence is to be
         // translated.  Use the specified 'endFunctor' to determine end of
         // input.  Write to the specified '*numWordsWritten' the number of
-        // Unicode characters written, including the terminating null
-        // character.  If the specified 'errorWord' is non-zero, write
-        // 'errorWord' to the output every time an error character is
+        // Unicode code points written, including the terminating null
+        // code point.  If the specified 'errorWord' is non-zero, write
+        // 'errorWord' to the output every time an error code point is
         // encountered in the input; otherwise write no output corresponding to
-        // error characters in the input.  The behavior is undefined unless
+        // error code points in the input.  The behavior is undefined unless
         // 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
@@ -1142,8 +1142,8 @@ class Utf32ToUtf8Translator {
     // PRIVATE MANIPULATORS
     void advance(unsigned delta);
         // Update the state of this object to reflect the fact that a single
-        // Unicode character of the specified 'delta' bytes of UTF-8 output has
-        // been written.
+        // Unicode code point of the specified 'delta' bytes of UTF-8 output
+        // has been written.
 
     int handleInvalidWord();
         // Update this object and the output, if appropriate, to reflect the
@@ -1152,11 +1152,11 @@ class Utf32ToUtf8Translator {
         // output, and 0 otherwise.
 
     int decodeCodePoint(const unsigned int uc);
-        // Translate the specified UTF-32 character 'uc' to UTF-8 in the output
-        // stream, updating this object appropriately.  If insufficient space
-        // exists in the output buffer for the character output plus a
-        // terminating null character, fail without doing any output.  Return 0
-        // if there was adequate space for the output, and a non-zero value
+        // Translate the specified UTF-32 code point 'uc' to UTF-8 in the
+        // output stream, updating this object appropriately.  If insufficient
+        // space exists in the output buffer for the code point output plus a
+        // terminating null code point, fail without doing any output.  Return
+        // 0 if there was adequate space for the output, and a non-zero value
         // otherwise.  The behavior is undefined unless 'uc' is non-zero, and
         // there are at least 2 bytes of room in the output buffer.
 
@@ -1173,14 +1173,14 @@ class Utf32ToUtf8Translator {
         // to a UTF-8 stream written to the buffer at the specified 'output',
         // always null terminating the result.  If the template argument is
         // type 'Capacity', the output buffer is the specified 'capacity' bytes
-        // long, and encode as many Unicode characters as will fit, including
-        // the terminating null character.  If the template argument is type
+        // long, and encode as many Unicode code points as will fit, including
+        // the terminating null byte.  If the template argument is type
         // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
         // to be long enough, and the entire UTF-8 sequence is to be
         // translated.  Write to the specified '*numCodePointsWritten' the
-        // number of Unicode characters written, including the terminating 0.
+        // number of Unicode code points written, including the terminating 0.
         // Write to the specified '*numBytesWritten' the number of bytes of
-        // output written, including the terminating null character.  If the
+        // output written, including the terminating null byte.  If the
         // specified 'errorByte' is non-zero, write 'errorByte' to the output
         // every time an error sequence is encountered in the input, otherwise
         // write no output corresponding to error sequences in the input.  The
@@ -1403,7 +1403,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     BSLS_ASSERT_SAFE(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
-        // '0 == errorWord' and invalid characters occurred.
+        // '0 == errorWord' and invalid code points occurred.
 
         BSLS_ASSERT_SAFE(0 == errorWord);
         BSLS_ASSERT_SAFE(ret & k_INVALID_INPUT_BIT);
@@ -1415,7 +1415,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
         BSLS_ASSERT_SAFE(bufferLen == numWordsWritten);
 
         // If the estimate was spot on, either 'errorWord' was non-zero,
-        // or no invalid characters occurred.
+        // or no invalid code points occurred.
 
         BSLS_ASSERT_SAFE(0 != errorWord || 0 == (ret & k_INVALID_INPUT_BIT));
     }
@@ -1477,7 +1477,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     BSLS_ASSERT_SAFE(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
-        // '0 == errorWord' and invalid characters occurred.
+        // '0 == errorWord' and invalid code points occurred.
 
         BSLS_ASSERT_SAFE(0 == errorWord);
         BSLS_ASSERT_SAFE(ret & k_INVALID_INPUT_BIT);
@@ -1489,7 +1489,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
         BSLS_ASSERT_SAFE(bufferLen == numWordsWritten);
 
         // If the estimate was spot on, either 'errorWord' was non-zero,
-        // or no invalid characters occurred.
+        // or no invalid code points occurred.
 
         BSLS_ASSERT_SAFE(0 != errorWord ||
                                              0 == (ret & k_INVALID_INPUT_BIT));

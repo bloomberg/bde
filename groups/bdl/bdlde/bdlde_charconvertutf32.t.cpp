@@ -2508,7 +2508,7 @@ static const struct Utf32TableStruct {
     { L_, (1<<16)-1,     "\xef\xbf\xbf",      0 },  // 3 byte max
     { L_, 0x10ffff,      "\xf4\x8f\xbf\xbf",  0 },  // 4 byte max
 
-    // values that are not valid unicode because they are in the lower
+    // Values that are not valid Unicode because they are in the lower
     // UTF-16 bit plane.
 
     { L_, 0xd800,        "?",                 1 },
@@ -2518,7 +2518,7 @@ static const struct Utf32TableStruct {
     { L_, 0xdb09,        "?",                 1 },
     { L_, 0xdbff,        "?",                 1 },
 
-    // values that are not valid unicode because they are in the upper
+    // Values that are not valid Unicode because they are in the upper
     // UTF-16 bit plane.
 
     { L_, 0xdc00,        "?",                 1 },
@@ -2528,7 +2528,7 @@ static const struct Utf32TableStruct {
     { L_, 0xdf03,        "?",                 1 },
     { L_, 0xdfff,        "?",                 1 },
 
-    // values that are not valid unicode because they are too high
+    // Values that are not valid Unicode because they are too high
 
     { L_, 0x110000,      "?",                 1 },
     { L_, 0x120000,      "?",                 1 },
@@ -2745,8 +2745,8 @@ int main(int argc, char **argv)
         "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
         "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of code points in the string
-// and verify that the counts add up to the length of the string:
+// Then, we declare an 'enum' summarizing the counts of code points in the
+// string and verify that the counts add up to the length of the string:
 //..
     enum { NUM_ASCII_CODE_POINTS   = 5,
            NUM_GREEK_CODE_POINTS   = 3,
@@ -2767,7 +2767,7 @@ int main(int argc, char **argv)
 //..
     bsl::vector<unsigned int> v32;
 //..
-// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))', it
+// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))'; it
 // is entirely redundant -- 'v32' will automatically be grown to the correct
 // size.  Also note that if 'v32' were not empty, that would not be a problem
 // -- any contents will be discarded.
@@ -2818,7 +2818,7 @@ int main(int argc, char **argv)
     bsl::size_t codePointsWritten;
 //..
 // Again, note that it would be a waste of time for the caller to 'resize' or
-// 'reserve' 'v32', it will be automatically 'resize'd by the translator to the
+// 'reserve' 'v32'; it will be automatically 'resize'd by the translator to the
 // right length.
 //
 // Now, we do the reverse transform:
@@ -2887,7 +2887,7 @@ int main(int argc, char **argv)
         enum { UNICODE_CODE_POINTS_MOD = 6 };
 
         for (int ti = 0; ti < 50 * 1000; ++ti) {
-            const int  numCondPointsIn =
+            const int  numCodePointsIn =
                                       myRand15() % UNICODE_CODE_POINTS_MOD + 1;
             const bool opposite  = ti & 1;
 
@@ -2901,12 +2901,12 @@ int main(int argc, char **argv)
 
             int nullIdx0, nullIdx1;
             do {
-                nullIdx0 = myRand15() % (numCondPointsIn + 2) - 1;
-                nullIdx1 = myRand15() % (numCondPointsIn + 2) - 1;
+                nullIdx0 = myRand15() % (numCodePointsIn + 2) - 1;
+                nullIdx1 = myRand15() % (numCodePointsIn + 2) - 1;
             } while (-1 == nullIdx0 && -1 == nullIdx1);
 
             ASSERT(bsl::max(nullIdx0, nullIdx1) >  -1);
-            ASSERT(bsl::max(nullIdx0, nullIdx1) <= numCondPointsIn);
+            ASSERT(bsl::max(nullIdx0, nullIdx1) <= numCodePointsIn);
             ASSERT(bsl::min(nullIdx0, nullIdx1) >= -1);
 
             bool prevTrunc = false;    // Was the prev char truncated?
@@ -2928,7 +2928,7 @@ int main(int argc, char **argv)
                     prevTrunc = false;
                 }
 
-                if (tj == numCondPointsIn) {
+                if (tj == numCodePointsIn) {
                     break;
                 }
 
@@ -3174,7 +3174,7 @@ int main(int argc, char **argv)
         //: 4 When '0 != errorWord', generate a corresponding UTF-8 sequence
         //:   'errorSeq'.
         //: 5 Generate a sequence of bytes in buffer 'utf8InBuf' (and a copy in
-        //:   vector 'utf8InVec') of 'numCodePoints' Unicode characters, but
+        //:   vector 'utf8InVec') of 'numCodePoints' Unicode code points, but
         //:   randomly selecting UTF-8 sequences from 'utf8Table' (and
         //:   eliminating the preceding '1' and trailing 'z'.  Simultaneously
         //:   construct vector 'utf32ExpVec' of what we expect the UTF-32
@@ -3269,7 +3269,7 @@ int main(int argc, char **argv)
                         if (veryVeryVeryVerbose) P(idx);
 
                         if (NUM_UTF8_TABLE == idx) {
-                            // continuation character, unless previous was
+                            // continuation code point, unless previous was
                             // truncated
 
                             repeat = prevTrunc;
@@ -3430,7 +3430,7 @@ int main(int argc, char **argv)
         // Plan:
         //: 1 Iterate thousands of times, enough to take 0.1 seconds on Linux.
         //: 2 For each iteration, generate a sequence of 1 to 6 UTF-32
-        //:   characters (not counting the 0), using the function
+        //:   code points (not counting the 0), using the function
         //:   'myRandUtf32Word', which has a possibility of generating any
         //:   non-zero 32 bit value, weighted toward the more interesting
         //:   values.
@@ -3923,8 +3923,8 @@ int main(int argc, char **argv)
         //   human-generated, multi-language prose.
         //
         // Plan:
-        //: o The character array 'utf8Multilang' above contains prose written
-        //:   in Chinese, Hindi, French, and Greek written in UTF-8, with a few
+        //: o The byte array 'utf8Multilang' above contains prose written in
+        //:   Chinese, Hindi, French, and Greek written in UTF-8, with a few
         //:   4-octet sequences added.  This will be translated into UTF-32 and
         //:   back, which should be achievable without any errors, and the
         //:   final result should be identical to the original.
@@ -4115,7 +4115,7 @@ int main(int argc, char **argv)
 
         const bsl::size_t minus1 = -1;
 
-        if (verbose) cout << "All illegal values of utf8 error character\n";
+        if (verbose) cout << "All illegal values of utf8 error byte\n";
 
         for (int i = 0x80; i < 0x100; ++i) {
             const char ERROR_CHAR = (char) i;
@@ -4177,7 +4177,7 @@ int main(int argc, char **argv)
                                                utf32Input));
         }
 
-        if (verbose) cout << "Some illegal values of utf32 error character\n";
+        if (verbose) cout << "Some illegal values of utf32 error words\n";
 
         for (unsigned int errorWord = 0xd800; errorWord < 0xffffff;
                               errorWord = errorWord < 0xdfff
@@ -4374,7 +4374,7 @@ int main(int argc, char **argv)
         //: 1 Repeat the tests from TC 7, omitting the 'check' iteration
         //:   and passing '0' to the 'errorByte' arguments.
         //: 2 For the buffer test, calculate 'enc', which is the expected
-        //:   number of characters output in the buffer test, derived from the
+        //:   number of code points output in the buffer test, derived from the
         //:   previously calculated 'expectedNumCodePoints' from the vector and
         //:   string tests.
         // --------------------------------------------------------------------
@@ -5526,7 +5526,7 @@ int main(int argc, char **argv)
         // Plan:
         //   Repeat the first loop of the vector test in case 3 with multiple
         //   values of 'errorWord' other than 0 and verify that the specified
-        //   character is properly substituted.  Only do those cases where
+        //   code point is properly substituted.  Only do those cases where
         //   'IS_ERROR' is true and 'IS_TRUNC' is 0.  Repeat for string refs
         //   and both byte orders.
         // --------------------------------------------------------------------
@@ -5615,7 +5615,7 @@ int main(int argc, char **argv)
         //: 3 Test 5 octet encodings (always taken to be illegal)
         //: 4 Test truncated encodings.
         //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII characters
+        //:   o Preceded by, and followed by, valid ASCII bytes
         //:   o At beginning of string
         //:   o At end of string
         //:   o Followed by a lone continuation char
@@ -5905,7 +5905,7 @@ int main(int argc, char **argv)
         //: 3 Test 5 octet encodings (always taken to be illegal)
         //: 4 Test truncated encodings.
         //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII characters
+        //:   o Preceded by, and followed by, valid ASCII bytes
         //:   o At beginning of string
         //:   o At end of string
         //:   o Followed by a lone continuation char
@@ -5930,7 +5930,7 @@ int main(int argc, char **argv)
         //:   sequence, and calculate 'expectedMatch', the number of bytes of
         //:   it that are expected to match the translation output, and compare
         //:   to the output after the translation call.
-        //: 5 Calculate 'expectedWords', the expected number of characters
+        //: 5 Calculate 'expectedWords', the expected number of code points
         //:   output (including the terminating 0), and verify it is the value
         //:   of 'numCodePoints' returned by the translation call.
         //: 6 Calculate 'expectedMatch', the number of bytes of the output
@@ -6556,7 +6556,7 @@ int main(int argc, char **argv)
         //: 3 Test 5 octet encodings (always taken to be illegal)
         //: 4 Test truncated encodings.
         //: 5 Repeat test for the following configurations
-        //:   o Preceded by, and followed by, valid ASCII characters
+        //:   o Preceded by, and followed by, valid ASCII bytes
         //:   o At beginning of string
         //:   o At end of string
         //:   o Followed by a lone continuation char
@@ -6586,9 +6586,9 @@ int main(int argc, char **argv)
         //:   sequence, and calculate 'expectedMatch', the number of bytes of
         //:   it that are expected to match the translation output, and compare
         //:   to the output after the translation call.
-        //: 6 Calculate 'expectedCodePoints', the expected number of characters
-        //:   output (including the terminating 0), and verify it is the value
-        //:   of 'numCodePoints' returned by the translation call (if'
+        //: 6 Calculate 'expectedCodePoints', the expected number of code
+        //:   points output (including the terminating 0), and verify it is the
+        //:   value of 'numCodePoints' returned by the translation call (if'
         //:   checkNumCPs' is true, meaning 'numCodePoints' is passed to the
         //:   translation call).
         //: 7 Calculate 'expectedMatch', the number of bytes of the output

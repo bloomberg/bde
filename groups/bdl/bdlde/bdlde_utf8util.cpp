@@ -61,18 +61,20 @@ bool isSurrogateValue(int value)
 
 static inline
 int get2ByteValue(const char *pc)
-    // Return the integral value of the 2-byte UTF-8 code point referred to by
-    // the specified 'pc'.  The behavior is undefined unless 'pc' refers to a
-    // valid 2-byte UTF-8 code point.
+    // Return the integral value of the single code point represented by the
+    // 2-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 2 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
 {
     return ((*pc & 0x1f) << 6) | (pc[1] & k_CONT_VALUE_MASK);
 }
 
 static inline
 int get3ByteValue(const char *pc)
-    // Return the integral value of the 3-byte UTF-8 code point referred to by
-    // the specified 'pc'.  The behavior is undefined unless 'pc' refers to a
-    // valid 3-byte UTF-8 code point.
+    // Return the integral value of the single code point represented by the
+    // 3-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 3 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
 {
     return ((*pc & 0xf) << 12) | ((pc[1] & k_CONT_VALUE_MASK) << 6)
                                |  (pc[2] & k_CONT_VALUE_MASK);
@@ -80,9 +82,10 @@ int get3ByteValue(const char *pc)
 
 static inline
 int get4ByteValue(const char *pc)
-    // Return the integral value of the 4-byte UTF-8 code point referred to by
-    // the specified 'pc'.  The behavior is undefined unless 'pc' refers to a
-    // valid 4-byte UTF-8 code point.
+    // Return the integral value of the single code point represented by the
+    // 4-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
+    // is undefined unless the 4 bytes starting at 'pc' contain a UTF-8
+    // sequence describing a single valid code point.
 {
     return ((*pc & 0x7) << 18) | ((pc[1] & k_CONT_VALUE_MASK) << 12)
                                | ((pc[2] & k_CONT_VALUE_MASK) <<  6)
@@ -91,13 +94,14 @@ int get4ByteValue(const char *pc)
 
 static
 int validateAndCountCodePoints(const char **invalidString, const char *string)
-    // Return the number of UTF-8 code points in the specified 'string' if it
+    // Return the number of Unicode code points in the specified 'string' if it
     // contains valid UTF-8, with no effect on the specified 'invalidString'.
     // Otherwise, return a negative value and load into 'invalidString' the
     // address of the first sequence in 'string' that does not constitute the
-    // start of a valid UTF-8 code point encoding.  'string' is necessarily
-    // null-terminated, so it cannot contain embedded null bytes.  Note that
-    // 'string' may contain less than 'bsl::strlen(string)' UTF-8 code points.
+    // start of a valid UTF-8 encoding specifying a valid Unicode code point.
+    // 'string' is necessarily null-terminated, so it cannot contain embedded
+    // null bytes.  Note that 'string' may contain less than
+    // 'bsl::strlen(string)' Unicode code points.
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.
@@ -194,14 +198,14 @@ int validateAndCountCodePoints(
                               const char                       **invalidString,
                               const char                        *string,
                               BloombergLP::bsls::Types::IntPtr   length)
-    // Return the number of UTF-8 code points in the specified 'string' having
-    // the specified 'length' (in bytes) if 'string' contains valid UTF-8, with
-    // no effect on the specified 'invalidString'.  Otherwise, return a
-    // negative value and load into 'invalidString' the address of the first
-    // sequence in 'string' that does not constitute the start of a valid UTF-8
-    // code point.  'string' need not be null-terminated and can contain
+    // Return the number of Unicode code points in the specified 'string'
+    // having the specified 'length' (in bytes) if 'string' contains valid
+    // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
+    // return a negative value and load into 'invalidString' the address of the
+    // first sequence in 'string' that does not constitute the start of a valid
+    // UTF-8 encoding.  'string' need not be null-terminated and can contain
     // embedded null bytes.  The behavior is undefined unless '0 <= length'.
-    // Note that 'string' may contain less than 'length' UTF-8 code points.
+    // Note that 'string' may contain less than 'length' Unicode code points.
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.
@@ -548,7 +552,6 @@ int Utf8Util::advanceIfValid(int          *status,
     BSLS_ASSERT(status);
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
-    BSLS_ASSERT(length        >= 0);
     BSLS_ASSERT(numCodePoints >= 0);
 
     int         ret = 0;      // return value -- number of code points advanced
@@ -835,7 +838,6 @@ int Utf8Util::advanceRaw(const char  **result,
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(string);
-    BSLS_ASSERT(length   >= 0);
     BSLS_ASSERT(numCodePoints >= 0);
 
     int ret = 0;        // return value, # of code points advanced

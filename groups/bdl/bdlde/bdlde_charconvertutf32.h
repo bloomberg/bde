@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // only take the form of null-terminated buffers of 'unsigned int'.  Output can
 // be to STL vectors, 'bsl::string's (in the case of UTF-8), and fixed-length
 // buffers.  Invalid byte sequences and code points forbidden by either
-// encoding are removed and (optionally) replaced by a error byte or word
+// encoding are removed and (optionally) replaced by an error byte or word
 // provided by the caller.  The byte order of the UTF-32 input or output can be
 // specified via the optional 'byteOrder' argument, which is assumed to be host
 // byte order if not specified.  The byte or word count and code point count
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///History and Motivation
 ///----------------------
-// UTF-8 is a unicode encoding that allows 32-bit unicode to be represented
+// UTF-8 is a Unicode encoding that allows 32-bit Unicode to be represented
 // using null-terminated (8-bit) byte strings, while allowing "standard ASCII"
 // strings to be used "as-is".  Note that UTF-8 is described in detail in RFC
 // 3629 (http://www.ietf.org/rfc/rfc3629.txt).
@@ -86,8 +86,8 @@ BSLS_IDENT("$Id: $")
 //      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
 //      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of code points in the string
-// and verify that the counts add up to the length of the string:
+// Then, we declare an 'enum' summarizing the counts of code points in the
+// string and verify that the counts add up to the length of the string:
 //..
 //  enum { NUM_ASCII_CODE_POINTS   = 5,
 //         NUM_GREEK_CODE_POINTS   = 3,
@@ -108,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsl::vector<unsigned int> v32;
 //..
-// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))', it
+// Note that it is a waste of time to 'v32.reserve(sizeof(utf8MultiLang))'; it
 // is entirely redundant -- 'v32' will automatically be grown to the correct
 // size.  Also note that if 'v32' were not empty, that would not be a problem
 // -- any contents will be discarded.
@@ -159,7 +159,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::size_t codePointsWritten;
 //..
 // Again, note that it would be a waste of time for the caller to 'resize' or
-// 'reserve' 'v32', it will be automatically 'resize'd by the translator to the
+// 'reserve' 'v32'; it will be automatically 'resize'd by the translator to the
 // right length.
 //
 // Now, we do the reverse transform:
@@ -213,11 +213,11 @@ namespace bdlde {
 
 struct CharConvertUtf32 {
     // This 'struct' provides a namespace for a suite of static functions to
-    // convert character buffers between UTF-8 and UTF-32.  Byte Order Mark
-    // (BOM) characters are neither generated nor recognized as special, and
-    // thus may be incorrect for the actual byte order of output.  If a BOM is
-    // present in the input, it will be translated, whether correct ('0xfeff')
-    // or incorrect ('0xfffe'), into the output without any special handling.
+    // convert buffers between UTF-8 and UTF-32.  Byte Order Mark (BOM) code
+    // points are neither generated nor recognized as special, and thus may be
+    // incorrect for the actual byte order of output.  If a BOM is present in
+    // the input, it will be translated, whether correct ('0xfeff') or
+    // incorrect ('0xfffe'), into the output without any special handling.
 
                           // UTF-8 to UTF-32 Methods
 
@@ -241,7 +241,7 @@ struct CharConvertUtf32 {
         // on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' otherwise.
         // Invalid encodings are multi-byte encoding parts out of sequence,
         // non-minimal UTF-8 encodings, UTF-8 encodings more than four bytes in
-        // length, or code points outside the ranges which UTF-32 can validly
+        // length, or code points outside the ranges that UTF-32 can validly
         // encode (i.e., '[ 1 .. 0xd7ff ]' and '[ 0xe000 .. 0x10ffff ]').  If
         // 'errorWord' is 0, invalid input sequences are ignored (i.e., produce
         // no corresponding output).  Any previous contents of the destination
@@ -274,14 +274,14 @@ struct CharConvertUtf32 {
                                                             ByteOrder::e_HOST);
         // Load into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-8 'srcString' to its
-        // UTF-32 equivalent.  Optionally specify 'numCodePointsWritten' which
+        // UTF-32 equivalent.  Optionally specify 'numCodePointsWritten', which
         // (if not 0) indicates the location of the variable into which the
         // number of Unicode code points (including the null terminator)
         // written is to be loaded.  Optionally specify 'errorWord' to be
         // substituted (if not 0) for invalid encodings in the input string.
         // Invalid encodings are multi-byte encoding parts out of sequence,
         // non-minimal UTF-8 encodings, UTF-8 encodings more than four bytes in
-        // length, or code points outside the ranges which UTF-32 can validly
+        // length, or code points outside the ranges that UTF-32 can validly
         // encode (i.e., '[ 1 .. 0xd7ff ]' and '[ 0xe000 .. 0x10ffff ]').  If
         // 'errorWord' is 0, invalid input code points are ignored (i.e.,
         // produce no corresponding output).  Optionally specify 'byteOrder' to
@@ -320,9 +320,9 @@ struct CharConvertUtf32 {
                                                             ByteOrder::e_HOST);
         // Load into the specified 'dstString' the result of converting the
         // specified null-terminated UTF-32 'srcString' to its UTF-8
-        // equivalent.  Optionally specify 'numCodePointsWritten' which (if not
-        // 0) indicates the location of the modifiable variable into which the
-        // number of Unicode code points written, including the null
+        // equivalent.  Optionally specify 'numCodePointsWritten', which (if
+        // not 0) indicates the location of the modifiable variable into which
+        // the number of Unicode code points written, including the null
         // terminator, is to be loaded.  Optionally specify 'errorByte' to be
         // substituted (if not 0) for invalid encodings in the input string.
         // Invalid encodings are illegal Unicode values (in the range
@@ -349,9 +349,9 @@ struct CharConvertUtf32 {
                                                             ByteOrder::e_HOST);
         // Load into the specified 'dstVector' the result of converting the
         // specified null-terminated UTF-32 'srcString' to its UTF-8
-        // equivalent.  Optionally specify 'numCodePointsWritten' which (if not
-        // 0) indicates the location of the modifiable variable into which the
-        // number of Unicode code points written, including the null
+        // equivalent.  Optionally specify 'numCodePointsWritten', which (if
+        // not 0) indicates the location of the modifiable variable into which
+        // the number of Unicode code points written, including the null
         // terminator, is to be loaded.  Optionally specify 'errorByte' to be
         // substituted (if not 0) for invalid encodings in the input string.
         // Invalid encodings are illegal Unicode values (in the range
@@ -381,10 +381,10 @@ struct CharConvertUtf32 {
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified null-terminated UTF-32
         // 'srcString' to its UTF-8 equivalent.  Optionally specify
-        // 'numCodePointsWritten' which (if not 0) indicates the location of
+        // 'numCodePointsWritten', which (if not 0) indicates the location of
         // the modifiable variable into which the number of Unicode code points
         // (including the terminating 0, if any) written is to be loaded.
-        // Optionally specify 'numBytesWritten' which (if not 0) indicates the
+        // Optionally specify 'numBytesWritten', which (if not 0) indicates the
         // location of the modifiable variable into which the number of bytes
         // written (including the null terminator, if any) is to be loaded.
         // Optionally specify 'errorByte' to be substituted (if not 0) for

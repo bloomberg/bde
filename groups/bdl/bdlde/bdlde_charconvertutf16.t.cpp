@@ -47,7 +47,7 @@ using namespace bsl;
 //  4) Create a properly null-terminated string on the output whenever there
 //     is room to write anything at all to the output.
 //
-//  5) Correctly convert single code point, of however many
+//  5) Correctly convert single code points, of however many
 //     bytes/words (in each direction).
 //
 //  6) (a) Correctly recognize every possible type of input string error
@@ -57,11 +57,11 @@ using namespace bsl;
 //     presence or absence will change the write-counts.)  (b) Verify that
 //     the preceding and subsequent bytes/words are handled properly.
 //
-//  7) Considering all characters that require a given encoding (2-byte,
+//  7) Considering all code points that require a given encoding (2-byte,
 //     single-word, etc.) to represent an equivalence class for that coding
 //     sequence, handle all the possible 'digraphs' and 'trigraphs' of those
 //     equivalence classes, and possibly larger sequences.  The test should
-//     use varying characters (bit patterns) within each encoding class.
+//     use varying code points (bit patterns) within each encoding class.
 //
 //  8) As in (7), but adding the various types of input string error to the
 //     set of equivalence classes.  (A 2-byte encoding cut short before
@@ -649,11 +649,11 @@ bool operator!=(const ConstArrayRange<VALUE_TYPE>& lhs,
 //        Returns the total number of bytes or words to be copied out or
 //        checked (no null assumed).
 //    void copy(value_type *toBuffer) [const]
-//        Copies the character sequence that it stores or generates into
+//        Copies the code point sequence that it stores or generates into
 //        the array beginning at 'toBuffer'
 //    bool check(value_type const *checkBuffer) [const]
-//        Returns 'true' if the character sequence in the array beginning at
-//        'checkBuffer' equals the character sequence represented by this
+//        Returns 'true' if the code point sequence in the array beginning at
+//        'checkBuffer' equals the code point sequence represented by this
 //        object, and false otherwise.
 
 // Generate/Check built from an ArrayRange
@@ -684,7 +684,7 @@ struct GenCheckArrRange {
 
     // 'value_type' may be a const type, which would prevent us from using it
     // as the parameter in 'fill()' So 'fill()' is a template on the copy-to
-    // type, and we verify that they are comparable by doing one character's
+    // type, and we verify that they are comparable by doing one code point's
     // copy by assignment.
 
     template<class TO_TYPE>
@@ -701,7 +701,7 @@ struct GenCheckArrRange {
 
     // We also have to pun signed and unsigned types against each other.  Thus
     // we play the template game for the 'check' method just as for 'fill()'.
-    // Note that in order to prevent signed/unsigned promotions on characters
+    // Note that in order to prevent signed/unsigned promotions on 'char's
     // and 'short's from messing up the tests, we have to force a static cast
     // to the value type in the equality comparison.
 
@@ -734,20 +734,20 @@ void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
 // ----------------------------------------------------------------------------
 
 //  Template and overloads: 'deChar'
-//      Character types get printed as characters; this is undesirable because
-//      not all are printable and because we are working with the coding of
-//      octets so we WANT to see the numeric format.  But we can't go putting
-//      conversions blindly into templates that handle a variety of types,
-//      including some that are not numeric.  The function template and
-//      overloads on the 'deChar' function will leave unchanged anything that
-//      is not the exact type of the overloads (char and unsigned char) but
-//      will convert those two to 'unsigned int' without sign extension.
+//     Code point types get printed as code points; this is undesirable because
+//     not all are printable and because we are working with the coding of
+//     octets so we WANT to see the numeric format.  But we can't go putting
+//     conversions blindly into templates that handle a variety of types,
+//     including some that are not numeric.  The function template and
+//     overloads on the 'deChar' function will leave unchanged anything that
+//     is not the exact type of the overloads (char and unsigned char) but
+//     will convert those two to 'unsigned int' without sign extension.
 //
-//      The template must use a reference parameter to avoid copying a
-//      who-knows-what.
+//     The template must use a reference parameter to avoid copying a
+//     who-knows-what.
 //
-//      When we get to C++09, with char, signed char, and unsigned char
-//      as distinct types, we'll need another overload.
+//     When we get to C++09, with char, signed char, and unsigned char
+//     as distinct types, we'll need another overload.
 
 template<class SOURCE>
 inline
@@ -1036,7 +1036,7 @@ struct BufferSizes {
     // metaprogramming.  There need be no instances of this object, as all its
     // products are enums.
 
-    enum { N_CHARS   = N_CHARS_P,    // Number of characters, of whatever size
+    enum { N_CHARS   = N_CHARS_P,    // Number of code points, of whatever size
            FROM_SIZE = FROM_SIZE_P,  // Bytes or words per input char
            TO_SIZE   = TO_SIZE_P,    // Bytes or words per output char
            MARGIN    = MARGIN_P      // Bytes or words in the security buffer
@@ -1066,7 +1066,7 @@ struct BufferSizes {
 
 struct ConvRslt {
     int         d_retVal;   // Return value
-    bsl::size_t d_symbols;  // Characters of whatever size
+    bsl::size_t d_symbols;  // Code Points of whatever size
     bsl::size_t d_units;    // No. of bytes/words written, including the null
 
     ConvRslt()
@@ -1118,7 +1118,7 @@ ostream& operator<<(ostream& os, const ConvRslt& cvr);
 //             SrcSpec: bundle parameters to a conversion test.
 // ----------------------------------------------------------------------------
 
-// SrcSpec gives the source data, error character, and output buffer size to
+// SrcSpec gives the source data, error code point, and output buffer size to
 // use for a test.  It does not contain the expected return and
 // return-by-argument values, which are stored in ConvRslt.
 
@@ -1264,7 +1264,7 @@ int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
                          const char             *srcBuffer,
                          bsl::size_t            *numCodePointsWritten,
                          bsl::size_t            *numWordsWritten,
-                         unsigned short          errorCharacter,
+                         unsigned short          errorWord,
                          bdlde::ByteOrder::Enum  byteOrder)
 {
     return Util::utf8ToUtf16(dstBuffer,
@@ -1272,7 +1272,7 @@ int surrogateUtf8ToUtf16(unsigned short         *dstBuffer,
                              srcBuffer,
                              numCodePointsWritten,
                              numWordsWritten,
-                             errorCharacter,
+                             errorWord,
                              byteOrder);
 }
 
@@ -1483,45 +1483,45 @@ struct FourWayRunner {
 // in case 2.
 
 enum {
-    SUCCESS                 = 0,
-    OK                      = 0,
-    INVALID_INPUT_CHARACTER = 1,
-    BADC                    = 1,
-    OUTPUT_BUFFER_TOO_SMALL = 2,
-    OBTS                    = 2,
-    BOTH                    = 3
+    SUCCESS                  = 0,
+    OK                       = 0,
+    INVALID_INPUT_CODE_POINT = 1,
+    BADC                     = 1,
+    OUTPUT_BUFFER_TOO_SMALL  = 2,
+    OBTS                     = 2,
+    BOTH                     = 3
 };
 
-// Some useful multi-octet characters:
+// Some useful multi-octet code points:
 
-    // The 2 lowest 2-octet characters.
+    // The 2 lowest 2-octet code points.
     #define U8_00080  "\xc2\x80"
     #define U8_00081  "\xc2\x81"
 
-    // A traditional "interesting" character, 0xff.
+    // A traditional "interesting" code point, 0xff.
     #define U8_000ff  "\xc3\xbf"
 
-    // The 2 highest 2-octet characters.
+    // The 2 highest 2-octet code points.
     #define U8_007fe  "\xdf\xbe"
     #define U8_007ff  "\xdf\xbf"
 
-    // The 2 lowest 3-octet characters.
+    // The 2 lowest 3-octet code points.
     #define U8_00800  "\xe0\xa0\x80"
     #define U8_00801  "\xe0\xa0\x81"
 
-    // The 2 highest 3-octet characters.
+    // The 2 highest 3-octet code points.
     #define U8_0fffe  "\xef\xbf\xbe"
     #define U8_0ffff  "\xef\xbf\xbf"
 
-    // The 2 lowest 4-octet characters.
+    // The 2 lowest 4-octet code points.
     #define U8_10000  "\xf0\x80\x80\x80"
     #define U8_10001  "\xf0\x80\x80\x81"
 
-    // The 2 highest 4-octet characters.
+    // The 2 highest 4-octet code points.
     #define U8_10fffe "\xf7\xbf\xbf\xbe"
     #define U8_10ffff "\xf7\xbf\xbf\xbf"
 
-// We will try all combinations of the 'PRECOMPUTED_DATA' characters up to
+// We will try all combinations of the 'PRECOMPUTED_DATA' code points up to
 // 'exhaustiveSearchDepth' in length.
 
 const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
@@ -1532,26 +1532,26 @@ const int exhaustiveSearchDepth = 4; // 5 works fine on AIX, but our Sun boxes
 // 'buildUpAndTestStringsU2ToU8'.
 
 const struct PrecomputedData {
-    const char           *d_utf8Character;
-    const bsl::size_t     d_utf8CharacterLength;
-    const unsigned short  d_utf16Character;
+    const char           *d_utf8CodePoint;
+    const bsl::size_t     d_utf8CodePointLength;
+    const unsigned short  d_utf16Word;
 } PRECOMPUTED_DATA[] =
 {
-    // valid 1-octet characters:
+    // valid 1-octet code points:
 
     { "\x1",    1, 0x0001 },
     { "\x21",   1, 0x0021 },
     { "\x7e",   1, 0x007e },
     { "\x7f",   1, 0x007f },
 
-    // valid 2-octet characters:
+    // valid 2-octet code points:
 
     { U8_00080, 2, 0x0080 },
     { U8_00081, 2, 0x0081 },
     { U8_007fe, 2, 0x07fe },
     { U8_007ff, 2, 0x07ff },
 
-    // valid 3-octet characters:
+    // valid 3-octet code points:
 
     { U8_00800, 3, 0x0800 },
     { U8_00801, 3, 0x0801 },
@@ -1570,7 +1570,7 @@ bsl::size_t precomputedDataCount = sizeof PRECOMPUTED_DATA
 void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              char           *expected_output,
                                              bsl::size_t     totalOutputLength,
-                                             unsigned short *characterSizes,
+                                             unsigned short *codePointSizes,
                                              bsl::size_t     codePointCount,
                                              int             verbose,
                                              int             veryVerbose);
@@ -1586,7 +1586,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
                                  char           *outputBuffer,
-                                 unsigned short *characterSizes,
+                                 unsigned short *codePointSizes,
                                  bsl::size_t     totalOutputLength,
                                  bsl::size_t     codePointCount,
                                  unsigned short *inputCursor,
@@ -1594,13 +1594,14 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             verbose,
                                  int             veryVerbose);
 
-// *Break* a copy of the input, manipulating the bits to make each character in
-// turn , and validating the reported 'numCodePointsWritten' and output string.
+// *Break* a copy of the input, manipulating the bits to make each code point
+// in turn , and validating the reported 'numCodePointsWritten' and output
+// string.
 
 struct PerturbationDesc {
     unsigned char   d_octetToConvertTo;
     bool            d_isNewValid;
-    unsigned short  d_newCharacter;
+    unsigned short  d_newCodePoint;
     int             d_extraInvalidBefore;
     int             d_extraInvalidAfter;
 };
@@ -1629,7 +1630,7 @@ void testSingleOctetPerturbation(const char             *input,
     int after  = perturb.d_extraInvalidAfter;
     int pos    = (int)perturbationChar;
 
-    // Increment codePointCount to account for additional error characters
+    // Increment 'codePointCount' to account for additional error code points
     // before and after 'pos' and for the null terminator.
 
     codePointCount += before + after + 1;
@@ -1665,7 +1666,7 @@ void testSingleOctetPerturbation(const char             *input,
              << "\n\tperturbation      = { '"
              <<            perturb.d_octetToConvertTo
              << "', '" << (perturb.d_isNewValid?"Y":"N")
-             << "', '" <<  perturb.d_newCharacter
+             << "', '" <<  perturb.d_newCodePoint
              << "', "  <<  perturb.d_extraInvalidBefore
              << "', "  <<  perturb.d_extraInvalidAfter
              << "}"
@@ -1681,13 +1682,13 @@ void testSingleOctetPerturbation(const char             *input,
                           SUCCESS == retVal );
     }
     else {
-        LOOP3_ASSERT( L_, INVALID_INPUT_CHARACTER,   retVal,
-                          INVALID_INPUT_CHARACTER == retVal );
+        LOOP3_ASSERT( L_, INVALID_INPUT_CODE_POINT,   retVal,
+                          INVALID_INPUT_CODE_POINT == retVal );
     }
 
     ASSERT ( codePointsWritten == codePointCount );
 
-    // Adjust the position in the output of the character we changed by adding
+    // Adjust the position in the output of the code point we changed by adding
     // 'before'.
 
     pos += before;
@@ -1704,10 +1705,10 @@ void testSingleOctetPerturbation(const char             *input,
                             outputBuffer[i] == '?');
         }
         else if (i == pos) {
-            // This is the perturbed character position.
+            // This is the perturbed code point position.
 
-            LOOP3_ASSERT(i, outputBuffer[i],   perturb.d_newCharacter,
-                            outputBuffer[i] == perturb.d_newCharacter);
+            LOOP3_ASSERT(i, outputBuffer[i],   perturb.d_newCodePoint,
+                            outputBuffer[i] == perturb.d_newCodePoint);
         }
         else if (after && i >  pos && i <= pos + after) {
             // We have introduced 'after' new '?'(s) after 'pos'
@@ -1726,9 +1727,9 @@ void testSingleOctetPerturbation(const char             *input,
     }
 }
 
-// This utility function perturbs each octet of each UTF-8 character in 'input'
-// into each possible alternative character class, making sure that the correct
-// errors are detected.
+// This utility function perturbs each octet of each UTF-8 code point in
+// 'input' into each possible alternative code point class, making sure that
+// the correct errors are detected.
 
 void perturbUtf8AndCheckConversionFailures(const char     *input,
                                            unsigned short *expected_output,
@@ -1757,17 +1758,18 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
         return;                                                       // RETURN
     }
 
-    // The perturbations we can apply to each UTF-8 input character will depend
-    // on its number of octets.  Depending on what permutation we apply to each
-    // octet in a character, some number of previously valid characters will
-    // become '?' error indicators or new valid characters, and additional
-    // error indicators may be created either before, after, or both before and
-    // after the perturbed octet.  For example, changing the middle octet of a
-    // 3-octet character to a '!' character changes the result from some valid
-    // character to an error, then a '!' character, then another error.
+    // The perturbations we can apply to each UTF-8 input code point will
+    // depend on its number of octets.  Depending on what permutation we apply
+    // to each octet in a code point, some number of previously valid code
+    // points will become '?' error indicators or new valid code points, and
+    // additional error indicators may be created either before, after, or both
+    // before and after the perturbed octet.  For example, changing the middle
+    // octet of a 3-octet code point to a '!' code point changes the result
+    // from some valid code point to an error, then a '!' code point, then
+    // another error.
     //
     //    +----------+-----------+-------------------+----------------------+
-    //    | CharLen  | Which     | Convert to        |       # of chars     |
+    //    | CdPtLen  | Which     | Convert to        |       # of bytes     |
     //    |          | Octet     |                   | becoming   | extra ? |
     //    |          |           |                   |            | bef/aft |
     //    +----------+-----------+-------------------+------------+---------+
@@ -1819,7 +1821,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
 
         switch (codePointSizes[currentCodePoint]) {
           case 1: {
-            // perturbing 1-octet character
+            // perturbing 1-octet code point
 
             static const PerturbationDesc oneOctetCharOctetOne[] = {
                 { 0xff, false, '?', 0, 0 },  // Illegal 1-octet
@@ -1846,7 +1848,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
           } break;
 
           case 2: {
-            // perturbing 2-octet character, octet 1
+            // perturbing 2-octet code point, octet 1
 
             {
                 static const PerturbationDesc twoOctetCharOctetOne[] = {
@@ -1874,7 +1876,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 }
             }
 
-            // perturbing 2-octet character, octet 2
+            // perturbing 2-octet code point, octet 2
 
             {
                 static const PerturbationDesc twoOctetCharOctetTwo[] = {
@@ -1904,7 +1906,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
           } break;
 
           case 3: {
-            // perturbing 3-octet character, octet 1
+            // perturbing 3-octet code point, octet 1
 
             {
                 static const PerturbationDesc threeOctetCharOctetOne[] = {
@@ -1931,7 +1933,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 }
 
                 // Changing this byte to a "2-octet char 1" can't be
-                // data-driven since we must compute the resulting character.
+                // data-driven since we must compute the resulting code point.
 
                 const unsigned short newChar = static_cast<unsigned short>(
                                       ((0xc2 & 0x1f) << 6 )
@@ -1951,7 +1953,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                                             veryVerbose);
             }
 
-            // perturbing 3-octet character, octet 2
+            // perturbing 3-octet code point, octet 2
             {
                 static const PerturbationDesc threeOctetCharOctetTwo[] = {
                     { 0xff, false, '?', 1, 1 },  // Illegal 1-octet
@@ -1977,7 +1979,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 }
 
                 // Changing this byte to a "2-octet char 1" can't be
-                // data-driven since we must compute the resulting character.
+                // data-driven since we must compute the resulting code point.
                 const
                 unsigned short newChar = static_cast<unsigned short>(
                                       ((0xc2 & 0x1f) << 6 )
@@ -1997,7 +1999,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                                             veryVerbose);
             }
 
-            // perturbing 3-octet character, octet 3
+            // perturbing 3-octet code point, octet 3
 
             {
                 static const PerturbationDesc threeOctetCharOctetThree[] = {
@@ -2026,7 +2028,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
             }
           } break;
 
-          default:// not perturbing 4-octet characters
+          default:// not perturbing 4-octet code points
           break;
         }
     }
@@ -2151,16 +2153,16 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
 
-    strcpy(inputCursor,      d.d_utf8Character);
-    inputCursor           += d.d_utf8CharacterLength;
+    strcpy(inputCursor,      d.d_utf8CodePoint);
+    inputCursor           += d.d_utf8CodePointLength;
 
-    *outputCursor++        = d.d_utf16Character;
+    *outputCursor++        = d.d_utf16Word;
     *outputCursor          = 0;
 
-    totalOutputLength += d.d_utf8CharacterLength;
+    totalOutputLength += d.d_utf8CodePointLength;
 
     codePointSizes[codePointCount++] = static_cast<unsigned short>(
-                                                      d.d_utf8CharacterLength);
+                                                      d.d_utf8CodePointLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
@@ -2280,7 +2282,7 @@ struct Permuter {
     }
 
     int advance()
-        // Returns true if the movement of the permuter which it has just
+        // Returns true if the movement of the permuter that it has just
         // executed has NOT returned the permuter to the starting position,
         // false otherwise.  (In other words, keep going while 'advance()'
         // returns true.)
@@ -2396,7 +2398,7 @@ unsigned char u8ReservedRangeLowerContin[] ={ '\x20', '\x21', '\x22', '\x23',
                                               '\x2c', '\x2d', '\x2e', '\x2f',
                                             };
     // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce characters in the (forbidden) lower
+    // octet header, these will produce code points in the (forbidden) lower
     // reserved range.
 
 const
@@ -2406,7 +2408,7 @@ unsigned char u8ReservedRangeUpperContin[] ={ '\x30', '\x31', '\x32', '\x33',
                                               '\x3c', '\x3d', '\x3e', '\x3f',
                                             };
     // Used as the first continuation octet content with 0xd in the three-
-    // octet header, these will produce characters in the (forbidden) upper
+    // octet header, these will produce code points in the (forbidden) upper
     // reserved range.
 
 const
@@ -2417,7 +2419,7 @@ unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x1c0, 0x200, 0x300, 0x380, 0x3ff,
                                    };
     // Used as the content part of the upper and lower words of 2-word utf-16
-    // characters.
+    // code points.
 
 typedef ArrayRange<const unsigned char> AvCharList;
     // 'AvCharList' provides an stl-like iterator to walk the lists of octet
@@ -2455,8 +2457,8 @@ bool testOneErrorCharConversion(int                          line,
     // data surrounding the output buffer are unchanged) and that the source
     // buffer is unchanged.  It performs this verification for the error
     // sequence alone in a string and for the sequence surrounded by two
-    // single-octet characters, and with and without error replacement
-    // characters (a total of four tests).  It returns 'true' if all the tests
+    // single-octet code points, and with and without error replacement
+    // code points (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any test or tests fail.
 
 template<class TO_CHAR,
@@ -4565,9 +4567,8 @@ int main(int argc, char**argv)
            4 * NUM_QUAD_CODE_POINTS == bsl::strlen(utf8MultiLang));
 //..
 // Next, we declare the vector where our UTF-16 output will go, and a variable
-// into which the number of code points (code points, not bytes or words)
-// written will be stored.  It is not necessary to initialize
-// 'utf16CodePointsWritten':
+// into which the number of code points (not bytes or words) written will be
+// stored.  It is not necessary to initialize 'utf16CodePointsWritten':
 //..
     bsl::vector<unsigned short> v16;
     bsl::size_t utf16CodePointsWritten;
@@ -4586,8 +4587,8 @@ int main(int argc, char**argv)
     ASSERT(0 == retVal);        // verify success
     ASSERT(0 == v16.back());    // verify null terminated
 //..
-// Next, we verify that the number of code points (code points, not bytes or
-// words) that was returned is correct:
+// Next, we verify that the number of code points (not bytes or words) that was
+// returned is correct:
 //..
     enum { EXPECTED_CODE_POINTS_WRITTEN =
                         NUM_ASCII_CODE_POINTS + NUM_GREEK_CODE_POINTS +
@@ -4625,7 +4626,7 @@ int main(int argc, char**argv)
 // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
 // into UTF-8, and we should get a result identical to our original input.  We
 // declare a 'bsl::string' for our output, and a variable to count the number
-// of code points (code points, not bytes or words) translated:
+// of code points (not bytes or words) translated:
 //..
     bsl::string s;
     bsl::size_t uf8CodePointsWritten;
@@ -4659,8 +4660,8 @@ int main(int argc, char**argv)
         if (verbose) cout << "USAGE EXAMPLE 1\n"
                              "===============\n";
 
-// In this example, we will translate a string containing a non-ASCII character
-// from UTF-16 to UTF-8 and back using fixed-length buffers.
+// In this example, we will translate a string containing a non-ASCII code
+// point from UTF-16 to UTF-8 and back using fixed-length buffers.
 //
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
 // with '0xc9', a non-ASCII 'e' with an accent over it:
@@ -4721,7 +4722,7 @@ int main(int argc, char**argv)
                                               &numWords);
 //..
 // Next, we observe that no errors or warnings were reported, and that the
-// number of characters and words were as expected.  Note that 'numCodePoints'
+// number of code points and words were as expected.  Note that 'numCodePoints'
 // and 'numWords' both include the terminating 0:
 //..
     ASSERT(0 == rc);
@@ -5688,7 +5689,7 @@ int main(int argc, char**argv)
         ASSERT(wStrB == wStr);
 
         // Don't test 'rc2', the implanted '\0' might have inflicted invalid
-        // characters.
+        // code points.
 
         nc2 = (bsl::size_t) -1;
         rc2 = Util::utf8ToUtf16(&dstB,
@@ -5963,7 +5964,7 @@ int main(int argc, char**argv)
         // TESTING ERROR SEQUENCES IN UTF8
         //
         // Concerns:
-        //   That sequences with error characters are handled correctly.
+        //   That sequences with error code points are handled correctly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Error Sequences\n"
@@ -6586,8 +6587,8 @@ int main(int argc, char**argv)
         // Plan:
         //   Guided by one or more 'coding-case strings' indicating the various
         //   coding cases (single-octet, two-octet ... single-word, two-word),
-        //   generate character sequences that have all possible coding-case
-        //   trigraphs--not trigraphs on the characters themselves, but on the
+        //   generate code point sequences that have all possible coding-case
+        //   trigraphs--not trigraphs on the code points themselves, but on the
         //   coding cases.  Start and end of string are treated as a coding
         //   type and are represented in the trigraphs (but only at the
         //   beginning or end) and coding case trigraphs consisting of a single
@@ -6608,12 +6609,12 @@ int main(int argc, char**argv)
         //
         // Testing:
         //   A set of control sequences governs the test, which creates strings
-        //   of UTF-8 characters according to their coding.  The control
+        //   of UTF-8 code points according to their coding.  The control
         //   sequences ensure that all coding-case trigraphs are tested,
         //   including those that include beginning-of-string and end-of-
         //   string.  This test is run three-to-the-fourth times five factorial
         //   times: three-to-the-fourth because three different values are used
-        //   for the single-octet character and each of the header content
+        //   for the single-octet code point and each of the header content
         //   fields; five factorial because in each combination of single-octet
         //   and header contents, all permutations of five different
         //   continuation octets are used.  (Actually, six are needed, but the
@@ -6629,13 +6630,14 @@ int main(int argc, char**argv)
         }
 
         const char* u8CodingCases[] ={
-            // The characters 'a', 'b', 'c', and 'd' in these strings represent
-            // not themselves but any valid single-, two-, three-, or four-
-            // octet character, respectively.  These strings together contain
-            // all coding-case trigraphs: trigraphs of Begin-/End-of-String,
-            // 'a', 'b', 'c', and 'd', except for the single-character
-            // Begin-'a'-End, Begin-'b'-End, etc.  And of course Begin and End
-            // occur only at the beginning and end, respectively.
+            // The code points 'a', 'b', 'c', and 'd' in these strings
+            // represent not themselves but any valid single-, two-, three-, or
+            // four- octet code point, respectively.  These strings together
+            // contain all coding-case trigraphs: trigraphs of
+            // Begin-/End-of-String, 'a', 'b', 'c', and 'd', except for the
+            // single-code point Begin-'a'-End, Begin-'b'-End, etc.  And of
+            // course Begin and End occur only at the beginning and end,
+            // respectively.
             //
             // This sequence list was generated with the aid of the manual
             // version of the 'ng' program (ng13.cpp).  A copy of ng13.cpp is
@@ -6665,7 +6667,7 @@ int main(int argc, char**argv)
                                          // of length of n-graph -- five to the
                                          // third.  In fact, it's NOT all one
                                          // string, but several (null
-                                         // characters the place of the
+                                         // code points the place of the
                                          // string-breaks) and and omits some
                                          // the break-letter- break trigraphs.
                                          // This allocation is safe and not
@@ -6675,13 +6677,13 @@ int main(int argc, char**argv)
                                                    // four octet char.  But
                                                    // this is safe and cheap.
                MAX_NWORDS = MAX_NCHARS * 2 + 1     // Excess again, only
-                                                   // 4-octet UTF-8 characters
+                                                   // 4-octet UTF-8 code points
                                                    // will translate to UTF-16.
         };
 
         // The test sets are created in two stages, using a four-wheel
         // OdomIter, three places per wheel, one wheel for the single-byte
-        // character and one for each of the headers, and a Permuter with five
+        // code point and one for each of the headers, and a Permuter with five
         // places to shift the continuation parts around.  Since we need six
         // different continuation contents but the permuter only permutes five
         // (to keep the execution time reasonable) we re-use one permuter value
@@ -6779,7 +6781,7 @@ int main(int argc, char**argv)
                         switch (*ccase) {
                           case 'a': {
 
-                            // One-byte character:
+                            // One-byte code point:
                             *genp++ = single;
                             *imgp++ = single;
 
@@ -6787,7 +6789,7 @@ int main(int argc, char**argv)
 
                           } break;
                           case 'b': {
-                            // Two-byte character:
+                            // Two-byte code point:
                             *genp++ = static_cast<unsigned short>(
                                                       0xc0 | twoHdr);
                             *genp++ = static_cast<unsigned short>(
@@ -6800,7 +6802,7 @@ int main(int argc, char**argv)
                           } break;
                           case 'c': {
 
-                            // Three-byte character:
+                            // Three-byte code point:
                             *genp++ = static_cast<unsigned short>(
                                                           0xe0 | threeHdr);
                             *genp++ = static_cast<unsigned short>(
@@ -6816,7 +6818,7 @@ int main(int argc, char**argv)
                           } break;
                           case 'd': {
 
-                            // four-byte character:
+                            // four-byte code point:
                             *genp++ = 0xf0 | fourHdr;
                             *genp++ = 0x80 | fourContin1;
                             *genp++ = 0x80 | fourContin2;
@@ -6837,7 +6839,7 @@ int main(int argc, char**argv)
                           } break;
                           default:
                             cerr << "Internal error in Test 5: "
-                                    "Invalid case coding character "
+                                    "Invalid case coding code point "
                                   << deChar(*ccase) << endl;
                             exit(1);
                         }
@@ -6976,90 +6978,6 @@ int main(int argc, char**argv)
         //   from scratch.
         // --------------------------------------------------------------------
 
-#if 0
-        Conversion<unsigned short, char>
-                                u8ToU16(bdlde::CharConvertUtf16::utf8ToUtf16);
-        Conversion<char, unsigned short>
-                                u16ToU8(bdlde::CharConvertUtf16::utf16ToUtf8);
-        enum { BUFFER_ZONE = 32  // Fill and check 32 memory units around
-                                 // the TO-string.
-        };
-
-        //  The nine disallowed octets, all at once.
-        struct DisallowedOctet {
-            const char* caseMessage[2];
-            unsigned char octet;
-        } disallowed [] ={
-            { { "\nTest 4a1: disallowed octet 0xff",
-                "\n===============================" },
-              0xff },
-            { { "\nTest 4a2: disallowed octet 0xfe "
-                      "(header for 7-octet character)",
-                "\n================================"
-                      "==============================" },
-              0xfe },
-            { { "\nTest 4a3: disallowed octet 0xfc "
-                      "(header for 6-octet character + 0)",
-                "\n================================"
-                      "==================================" },
-              0xfc },
-            { { "\nTest 4a4: disallowed octet 0xfd "
-                      "(header for 6-octet character + 1)",
-                "\n================================"
-                      "==================================" },
-              0xfd },
-            { { "\nTest 4a5: disallowed octet 0xf8 "
-                      "(header for 5-octet character + 0)",
-                "\n================================"
-                      "==================================" },
-              0xf8 },
-            { { "\nTest 4a6: disallowed octet 0xf9 "
-                      "(header for 5-octet character + 1)",
-                "\n================================"
-                      "==================================" },
-              0xf9 },
-            { { "\nTest 4a7: disallowed octet 0xfa "
-                      "(header for 5-octet character + 2)",
-                "\n================================"
-                      "==================================" },
-              0xfa },
-            { { "\nTest 4a8: disallowed octet 0xfb "
-                      "(header for 5-octet character + 3)",
-                "\n================================"
-                      "==================================" },
-              0xfb },
-        };
-
-        for (DisallowedOctet* disI = disallowed;
-                disI < disallowed + sizeof(disallowed)/sizeof(disallowed[0]);
-                                                                    ++disI) {
-            if (verbose) {
-                cout << disI->caseMessage[0] << disI->caseMessage[1] << endl;
-            }
-
-            typedef BufferSizes<3,  // Up to three input octets
-                                1,  // Input characters are each one byte.
-                                1,  // Output characters should be single-word.
-                                    // Margin of 32 words on the output buffer.
-                                BUFFER_ZONE> Sizes;
-
-            char           u8[Sizes::FROM_BUF_SIZE];
-            unsigned short u16[Sizes::TO_BUF_SIZE];
-
-            ArrayRange<char>           u8Range(u8);
-            ArrayRange<unsigned short> u16Range(u16);
-
-            char source[1] ={ disI->octet };
-
-            ArrayRange<char> sourceList(source);
-            GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-            testOneErrorCharConversion(__LINE__,
-                                       u16Range,
-                                       u8Range,
-                                       genCheck);
-        }
-#endif
-
         {
             if (verbose) cout << "Disallowed Octets:\n";
 
@@ -7119,9 +7037,10 @@ int main(int argc, char**argv)
                                 contins.end() != continIter; ++continIter) {
 
             typedef BufferSizes<3,  // Up to three input octets
-                                1,  // Input characters are each one byte.
-                                1,  // Output characters should be single-word.
-                                    // Margin of 32 words on the output buffer.
+                                1,  // Input code points are each one byte.
+                                1,  // Output code points should be
+                                    // single-word.  Margin of 32 words on the
+                                    // output buffer.
                                 BUFFER_ZONE> Sizes;
 
             char           u8[Sizes::FROM_BUF_SIZE];
@@ -7183,20 +7102,20 @@ int main(int argc, char**argv)
             unsigned char        headerTag;
             unsigned             octetSetLen;
         } cutShortAtOne[] ={
-          { { "\nTest 4a10: Two-octet character cut short after header",
-              "\n=====================================================", },
+          { { "\nTest 4a10: Two-octet code point cut short after header",
+              "\n======================================================", },
               u8TwoByteHdrCases,
               0xc0,
               sizeof(u8TwoByteHdrCases)/sizeof(u8TwoByteHdrCases[0]),
           },
-          { { "\nTest 4a11: Three-octet character cut short after header",
-              "\n=======================================================", },
+          { { "\nTest 4a11: Three-octet code point cut short after header",
+              "\n========================================================", },
               u8ThreeByteHdrCases,
               0xe0,
               sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
           },
-          { { "\nTest 4a12: Four-octet character cut short after header",
-              "\n======================================================", },
+          { { "\nTest 4a12: Four-octet code point cut short after header",
+              "\n=======================================================", },
               u8FourByteHdrCases,
               0xf0,
               sizeof(u8FourByteHdrCases)/sizeof(u8FourByteHdrCases[0]),
@@ -7225,8 +7144,8 @@ int main(int argc, char**argv)
                 }
 
                 typedef BufferSizes<3,  // Up to three input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7249,21 +7168,21 @@ int main(int argc, char**argv)
             }
         }
 
-        // Tests 4a13 and 4a14: Multi-octet characters incomplete
+        // Tests 4a13 and 4a14: Multi-octet code points incomplete
         //                     after one continuation octet.
 
         struct OctetListTests cutShortAtTwo[] ={
-          { { "\nTest 4a13: Three-octet character cut short "
+          { { "\nTest 4a13: Three-octet code point cut short "
               "after one continuation",
-              "\n==========================================="
+              "\n============================================"
               "======================", },
               u8ThreeByteHdrCases,
               0xe0,
               sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
           },
-          { { "\nTest 4a14: Four-octet character cut short "
+          { { "\nTest 4a14: Four-octet code point cut short "
               "after one continuation",
-              "\n=========================================="
+              "\n==========================================="
               "======================", },
               u8FourByteHdrCases,
               0xf0,
@@ -7293,8 +7212,8 @@ int main(int argc, char**argv)
                 unsigned char contin = 0x80 | *wheelIters[1];
 
                 typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7331,7 +7250,7 @@ int main(int argc, char**argv)
 
         {
             if (verbose) {
-                cout << "\nTest 4a15: Four-octet character cut short "
+                cout << "\nTest 4a15: Four-octet code point cut short "
                         "after two continuations"
                      << "\n=========================================="
                         "=======================" << endl;
@@ -7352,8 +7271,8 @@ int main(int argc, char**argv)
                 unsigned char contin2 = 0x80 | *wheelIters[2];
 
                 typedef BufferSizes<5,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7435,17 +7354,17 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a16: Single-octet character "
-                        "coded as a two-octet character"
-                     << "\n=================================="
-                        "==============================" << endl;
+                cout << "\nTest 4a16: Single-octet code point "
+                        "coded as a two-octet code point"
+                     << "\n==================================="
+                        "===============================" << endl;
             }
 
             for (unsigned char octet = 1; octet < 0x80; ++octet) {
 
                 typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7481,17 +7400,17 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a17: Single-octet character "
-                        "coded as a three-octet character"
-                     << "\n=================================="
-                        "================================" << endl;
+                cout << "\nTest 4a17: Single-octet code point "
+                        "coded as a three-octet code point"
+                     << "\n==================================="
+                        "=================================" << endl;
             }
 
             for (unsigned char octet = 1; octet < 0x80; ++octet) {
 
                 typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7530,17 +7449,17 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a18: Single-octet character "
-                        "coded as a four-octet character"
-                     << "\n=================================="
-                        "===============================" << endl;
+                cout << "\nTest 4a18: Single-octet code point "
+                        "coded as a four-octet code point"
+                     << "\n==================================="
+                        "================================" << endl;
             }
 
             for (unsigned char octet = 1; octet < 0x80; ++octet) {
 
                 typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7582,10 +7501,10 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a19: Two-octet character "
-                        "coded as a three-octet character"
-                     << "\n==============================="
-                        "================================" << endl;
+                cout << "\nTest 4a19: Two-octet code point "
+                        "coded as a three-octet code point"
+                     << "\n================================"
+                        "=================================" << endl;
             }
 
             AvCharList headers(u8TwoByteHdrCases);
@@ -7596,16 +7515,16 @@ MARK
             OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
 
             for ( ; wheelIters; wheelIters.next() ) {
-                unsigned short character =
+                unsigned short codePoint =
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char contin1 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin2 = 0x80 | (character & 0x3f);
+                unsigned char contin1 = 0x80 | (codePoint >> 6 & 0x3f);
+                unsigned char contin2 = 0x80 | (codePoint & 0x3f);
 
                 typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7626,9 +7545,9 @@ MARK
                                 << ", Content " << 0
                                 << "\n Continuation " << deChar(source[1])
                                 << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
+                                              << deChar(codePoint >> 6 & 0x3f)
                                 << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(character &0x3f)
+                                << ", Content " << deChar(codePoint &0x3f)
                          << dec << endl;
                 }
 
@@ -7645,10 +7564,10 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a20: Two-octet character "
-                        "coded as a four-octet character"
-                     << "\n==============================="
-                        "===============================" << endl;
+                cout << "\nTest 4a20: Two-octet code point "
+                        "coded as a four-octet code point"
+                     << "\n================================"
+                        "================================" << endl;
             }
 
             AvCharList headers(u8TwoByteHdrCases);
@@ -7659,18 +7578,18 @@ MARK
             OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
 
             for ( ; wheelIters; wheelIters.next() ) {
-                unsigned int character =
+                unsigned int codePoint =
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
+                unsigned char contin1 = 0x80 | (codePoint >> 12 & 0x3f);
                     // 'contin1' should end up as 0x80.
-                unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (character & 0x3f);
+                unsigned char contin2 = 0x80 | (codePoint >> 6 & 0x3f);
+                unsigned char contin3 = 0x80 | (codePoint & 0x3f);
 
                 typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7692,12 +7611,12 @@ MARK
                                 << ", Content " << 0
                                 << "\n Continuation " << deChar(source[1])
                                 << ", Content "
-                                              << deChar(character >> 12 & 0x3f)
+                                              << deChar(codePoint >> 12 & 0x3f)
                                 << "\n Continuation " << deChar(source[2])
                                 << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
+                                              << deChar(codePoint >> 6 & 0x3f)
                                 << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(character & 0x3f)
+                                << ", Content " << deChar(codePoint & 0x3f)
                          << dec << endl;
                 }
 
@@ -7714,17 +7633,17 @@ MARK
 
         {
             if (verbose) {
-                cout << "\nTest 4a21: Three-octet character "
-                        "coded as a four-octet character"
-                     << "\n================================="
-                        "===============================" << endl;
+                cout << "\nTest 4a21: Three-octet code point "
+                        "coded as a four-octet code point"
+                     << "\n=================================="
+                        "================================" << endl;
             }
 
             AvCharList headers(u8ThreeByteHdrCases);
             AvCharList contin1s(u8ContinByteCases);
             AvCharList contin2s(u8ContinByteCases);
 
-            // The character must be a valid 3-octet character, which means
+            // The code point must be a valid 3-octet code point, which means
             // that we have to skip some of the combinations that the test data
             // will give us (those in which the content of the three-byte
             // header is zero and the content of the first continuation is less
@@ -7744,22 +7663,22 @@ MARK
                     continue;
                 }
 
-                // Assemble a three-octet character.
-                unsigned int character =
+                // Assemble a three-octet code point.
+                unsigned int codePoint =
                                         ((unsigned short) *wheelIters[0] << 12)
                                       | ((unsigned short) *wheelIters[1] << 6)
                                       | *wheelIters[2];
 
-                // Break it up as a four-octet character.
-                unsigned char header  = 0xf0 | (character >> 18);
+                // Break it up as a four-octet code point.
+                unsigned char header  = 0xf0 | (codePoint >> 18);
                     // 'header' should end up as 0xf0.
-                unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
-                unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (character & 0x3f);
+                unsigned char contin1 = 0x80 | (codePoint >> 12 & 0x3f);
+                unsigned char contin2 = 0x80 | (codePoint >> 6 & 0x3f);
+                unsigned char contin3 = 0x80 | (codePoint & 0x3f);
 
                 typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7781,12 +7700,12 @@ MARK
                                 << ", Content " << 0
                                 << "\n Continuation " << deChar(source[1])
                                 << ", Content "
-                                              << deChar(character >> 12 & 0x3f)
+                                              << deChar(codePoint >> 12 & 0x3f)
                                 << "\n Continuation " << deChar(source[2])
                                 << ", Content "
-                                              << deChar(character >> 6 & 0x3f)
+                                              << deChar(codePoint >> 6 & 0x3f)
                                 << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(character &0x3f)
+                                << ", Content " << deChar(codePoint &0x3f)
                          << dec << endl;
                 }
 
@@ -7843,14 +7762,14 @@ MARK
 
             for ( ; wheelIters; wheelIters.next() ) {
 
-                // Assemble an illegal three-octet character.
+                // Assemble an illegal three-octet code point.
                 unsigned char header  = 0xe0 | 0xd;
                 unsigned char contin1 = 0x80 | *wheelIters[0];
                 unsigned char contin2 = 0x80 | *wheelIters[1];
 
                 typedef BufferSizes<5,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7873,7 +7792,7 @@ MARK
                                 << ", Content " << deChar(*wheelIters[0])
                                 << "\n Continuation " << deChar(source[2])
                                 << ", Content " << deChar(*wheelIters[1])
-                                << "\nCharacter " << ( 0xd << 12
+                                << "\nCode Point " << ( 0xd << 12
                                                      | *wheelIters[0] << 6
                                                      | *wheelIters[1] )
                          << dec << endl;
@@ -7888,8 +7807,8 @@ MARK
             }
         }
 
-        // Test 4a24 part 1: Out-of-range 4-octet character, header contents 4,
-        // first continuation 0x10 or above.
+        // Test 4a24 part 1: Out-of-range 4-octet code point, header contents
+        // 4, first continuation 0x10 or above.
 
         {
             if (verbose) {
@@ -7914,8 +7833,8 @@ MARK
             for (; continIter ; continIter.next()) {
 
                 typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -7953,7 +7872,7 @@ MARK
             }
         }
 
-        // Test 4a24 part 2: Out-of-range 4-octet character, header
+        // Test 4a24 part 2: Out-of-range 4-octet code point, header
         // contents in the closed interval [ 5, 7 ]
 
         {
@@ -7980,8 +7899,8 @@ MARK
             for (; charIter ; charIter.next()) {
 
                 typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input characters are each one byte.
-                                    1,  // Output characters should be
+                                    1,  // Input code points are each one byte.
+                                    1,  // Output code points should be
                                         // single-word.
                                         // Margin of 32 words on the output
                                         // buffer.
@@ -8019,22 +7938,22 @@ MARK
             }
         }
 
-        // Test 4b1 2-word character cut short after the first word, and
-        // Test 4b2 2-word character without the first word.
+        // Test 4b1 2-word code point cut short after the first word, and
+        // Test 4b2 2-word code point without the first word.
 
         struct TwoWordCase {
             const char*          caseMessage[2];
             const unsigned short header;
         } twoWordCases[] ={
-        { { "\nTest 4b1: Two-word character cut short after "
+        { { "\nTest 4b1: Two-word code point cut short after "
             "the first word",
-            "\n============================================="
+            "\n=============================================="
             "==============", },
             0xd800,
           },
-          { { "\nTest 4b2: Two-word character without "
+          { { "\nTest 4b2: Two-word code point without "
              "the first word",
-             "\n======================================="
+             "\n========================================"
              "==============", },
               0xdc00,
           }
@@ -8055,8 +7974,8 @@ MARK
                                 contents.end() != contentIter; ++contentIter) {
 
                 typedef BufferSizes<3,  // Up to three input words
-                                    1,  // Input characters are each one word.
-                                    1,  // Output characters are single-byte.
+                                    1,  // Input code points are each one word.
+                                    1,  // Output code points are single-byte.
                                         // Margin of 32 bytes on the
                                         // output buffer.
                                     BUFFER_ZONE> Sizes;
@@ -8098,7 +8017,7 @@ MARK
         //
         // Concerns:
         //   Ability to convert UTF-8 to UTF-16 correctly.  This test uses
-        //   runs of characters, each of the same size.  Mixing sizes and
+        //   runs of code points, each of the same size.  Mixing sizes and
         //   introducing errors come in higher level tests.
         //
         // Plan:
@@ -8110,7 +8029,7 @@ MARK
 
         int nEightToSixteen = 0;
         int nSixteenToEight = 0;
-            // Totals kept on characters processed.  We'll check that we have
+            // Totals kept on code points processed.  We'll check that we have
             // done enough to cover the whole range.
 
         enum { BUFFER_ZONE = 128   // These tests create a space of BUFFER_ZONE
@@ -8122,8 +8041,8 @@ MARK
                                    // the tests.
         };
 
-        // Test 3a1: utf-8 => UTF-16, one-octet characters.  A string of all
-        // legal one-octet characters is converted from utf-8 to utf-16 and
+        // Test 3a1: utf-8 => UTF-16, one-octet code points.  A string of all
+        // legal one-octet code points is converted from utf-8 to utf-16 and
         // checked.
 
         if (verbose) {
@@ -8132,7 +8051,7 @@ MARK
         }
 
         {
-            typedef BufferSizes<127,    // Source characters
+            typedef BufferSizes<127,    // Source code points
                                 1,      // Source char size
                                 1,      // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8143,8 +8062,8 @@ MARK
             char           u8[Sizes::FROM_BUF_SIZE];
             unsigned short u16[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal single-octet u8
-            // characters.
+            // Create a code point string with all legal single-octet u8
+            // code points.
 
             for (unsigned u8c = 1 ; u8c < 0x80 ; ++u8c ) {
                 u8[u8c - 1] = static_cast<char>(u8c);
@@ -8174,8 +8093,8 @@ MARK
                 }
 
                 if (! EXPECTED_GOT('\0', u8[0x80 - 1])) {
-                    cout << "\tNull character missing at end of source string."
-                         << endl;
+                    cout << "\tNull code point missing at end of source"
+                            " string.\n";
                 }
             }
 
@@ -8192,7 +8111,7 @@ MARK
         }
 
         {
-            typedef BufferSizes<0x800 - 0x80,   // Source characters
+            typedef BufferSizes<0x800 - 0x80,   // Source code points
                                 2,              // Source char size
                                 1,              // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8208,8 +8127,8 @@ MARK
             char           u8[Sizes::FROM_BUF_SIZE];
             unsigned short u16[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal two-octet u8
-            // characters.
+            // Create a code point string with all legal two-octet u8
+            // code points.
 
             for (unsigned u8c = 0x80 ; u8c < 0x800 ; ++u8c ) {
                 unsigned pos = u8c - 128;
@@ -8279,7 +8198,8 @@ MARK
                    CONTIN_LIM = 1 << 6             // Six content bits in a
                                                    // continuation octet
             };
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source code
+                                                           // points
                                 3,                         // Source char size
                                 1,                         // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8316,9 +8236,9 @@ MARK
                 u8[pos] = 0;
 // cout << R_(iFirst) << prHexRange(u8, pos) << endl ;
 
-                int nchar = pos / 3 + 1; // All the characters we built, plus
+                int nchar = pos / 3 + 1; // All the code points we built, plus
                                          // the null.  Note that all the 16-bit
-                                         // characters will be single-word.
+                                         // code points will be single-word.
 
                 SrcSpec<char> source(u8, 0, nchar);
                 ConvRslt expected(0, nchar, nchar);
@@ -8360,19 +8280,19 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                             if (! EXPECTED_GOT(0xe0 | iFirst,
                                                deChar(u8[3 * at + 0]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 0 << endl;
                             }
 
                             if (! EXPECTED_GOT(0x80 | iSecond,
                                                deChar(u8[3 * at + 1]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 1 << endl;
                             }
 
                             if (! EXPECTED_GOT(0x80 | iThird,
                                                deChar(u8[3 * at + 2]))) {
-                                cout << "\tdamaged source character at"
+                                cout << "\tdamaged source code point at"
                                      << 3 * pos + 2 << endl;
                             }
                         }
@@ -8403,7 +8323,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                    // continuation octet
             };
 
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source code points
                                 4,                        // Source char size
                                 2,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8439,9 +8359,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                     u8[pos] = 0;
 
-                    int nchar = pos / 4 + 1; // All the characters we built,
+                    int nchar = pos / 4 + 1; // All the code points we built,
                                              // plus the null.  All our
-                                             // characters, except for the
+                                             // code points, except for the
                                              // null, will require two words.
                     SrcSpec<char> source(u8, 0, nchar * 2 - 1);
                     ConvRslt expected(0, nchar, nchar * 2 - 1); // The null is
@@ -8500,25 +8420,25 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                                 if (! EXPECTED_GOT(0xf0 | iFirst,
                                                    deChar(u8[2 * at + 0]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 0 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iSecond,
                                                    deChar(u8[2 * at + 1]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 1 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iThird,
                                                    deChar(u8[2 * at + 2]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 2 << endl;
                                 }
 
                                 if (! EXPECTED_GOT(0x80 | iFourth,
                                                    deChar(u8[2 * at + 3]))) {
-                                    cout << "\tdamaged source character at"
+                                    cout << "\tdamaged source code point at"
                                          << 2 * at + 3 << endl;
                                 }
 
@@ -8528,7 +8448,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         }
 
                         if (! EXPECTED_GOT(0, deChar(u8[2 * at]))) {
-                            cout << "\tdamaged source character at"
+                            cout << "\tdamaged source code point at"
                                  << 2 * at << endl;
                         }
                     }
@@ -8541,7 +8461,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 #endif
         }
 
-        // Test 3b1: UTF-16 => UTF-8, one-octet characters.
+        // Test 3b1: UTF-16 => UTF-8, one-octet code points.
 
         if (verbose) {
             cout << "\nTest 3b1: UTF-16 => UTF-8, single-octet"
@@ -8549,7 +8469,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         }
 
         {
-            typedef BufferSizes<127,    // Source characters
+            typedef BufferSizes<127,    // Source code points
                                 1,      // Source char size
                                 1,      // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8560,8 +8480,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
             unsigned short u16[Sizes::FROM_BUF_SIZE];
             char           u8[Sizes::TO_BUF_SIZE];
 
-            // Create a character string with all legal single-octet u8
-            // characters.
+            // Create a code point string with all legal single-octet u8
+            // code points.
 
             for (unsigned u16c = 1 ; u16c < 0x80 ; ++u16c ) {
                 u16[u16c - 1] = static_cast<unsigned short>(u16c);
@@ -8602,7 +8522,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         }
 
         {
-            typedef BufferSizes<0x800 - 0x80,   // Source characters
+            typedef BufferSizes<0x800 - 0x80,   // Source code points
                                 1,              // Source char size
                                 2,              // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8675,7 +8595,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                    CONTIN_LIM = 1 << 6             // Six content bits in a
                                                    // continuation octet
             };
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,   // Source code
+                                                           // points
                                 1,                         // Source char size
                                 3,                         // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8714,9 +8635,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                 u16[pos] = 0;
 
-                int nchar = pos + 1; // All the characters we built, plus
+                int nchar = pos + 1; // All the code points we built, plus
                                          // the null.  Note that all the 16-bit
-                                         // characters will be single-word.
+                                         // code points will be single-word.
 
                 SrcSpec<unsigned short> source(u16, 0, 3 * pos + 1);
                 ConvRslt expected(0, nchar, pos * 3 + 1);
@@ -8791,7 +8712,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                    // continuation octet
             };
 
-            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source characters
+            typedef BufferSizes<CONTIN_LIM * CONTIN_LIM,  // Source code points
                                 2,                        // Source char size
                                 4,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -8833,9 +8754,9 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     u16[pos] = 0;
 // cout << R_(iFirst) << prHexRange(u8, pos) << endl ;
 
-                    int nchar = pos / 2 + 1; // All the characters we built,
+                    int nchar = pos / 2 + 1; // All the code points we built,
                                              // plus the null.  All our
-                                             // characters, except for the
+                                             // code points, except for the
                                              // null, will require two words.
                     SrcSpec<unsigned short> source(u16,
                                                    0,
@@ -8941,27 +8862,28 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
         //   - That the conversion functions properly null-terminate the string
         //     in the output buffer whenever there is room to do so: (4).
         //   - That the conversion functions return the correct values,
-        //     both by the value of the expression and via the character
+        //     both by the value of the expression and via the code point
         //     count and byte/word count pointer parameters: (2)
         //   - That the conversion functions can correctly handle all single
-        //     character values (whether single- or multi-byte/word): (5)
+        //     code point values (whether single- or multi-byte/word): (5)
         //
         // Plan:
         //   For UTF-8 to UTF-16 and for UTF-16 to UTF-8, generate all legal
-        //   characters (in the iso10646 domain supported by UTF-8 and UTF-16)
-        //   one at a time.  Place each character (of however many bytes/words)
-        //   in a source string and apply the conversion functions.
-        //   Convert the string.  Verify the converted output as well as the
-        //   return values generated.  (This will necessarily verify that
-        //   each input character's encoding was correctly recognized, and
-        //   that each output character received the correct encoding).
+        //   code points (in the iso10646 domain supported by UTF-8 and UTF-16)
+        //   one at a time.  Place each code point (of however many
+        //   bytes/words) in a source string and apply the conversion
+        //   functions.  Convert the string.  Verify the converted output as
+        //   well as the return values generated.  (This will necessarily
+        //   verify that each input code point's encoding was correctly
+        //   recognized, and that each output code point received the correct
+        //   encoding).
         //
         // Note:
         //
         // Testing:
         //   ............
         // --------------------------------------------------------------------
-        // Run intense testing on a selected group of characters.
+        // Run intense testing on a selected group of code points.
 
         enum { BUFFER_ZONE = 32,   // These tests create a space of BUFFER_ZONE
                                    // memory units (bytes or words) around the
@@ -9582,7 +9504,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
         //   - That the conversion functions properly null-terminate the string
         //     in the output buffer whenever there is room to do so: (4).
         //   - That the conversion functions return the correct values,
-        //     both by the value of the expression and via the character
+        //     both by the value of the expression and via the code point
         //     count and byte/word count pointer parameters: (2)
         //
         // Plan:
@@ -9630,7 +9552,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         // "... 1 on invalid input, ..."
 
-        ASSERT(1 == INVALID_INPUT_CHARACTER);
+        ASSERT(1 == INVALID_INPUT_CODE_POINT);
         ASSERT(1 == BADC);
 
         // "...  2 if 'dstCapacity' is insufficient to hold the complete
@@ -9641,7 +9563,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
         // "and 3 if both types of error occur."
 
-        ASSERT(3 == (OUTPUT_BUFFER_TOO_SMALL | INVALID_INPUT_CHARACTER));
+        ASSERT(3 == (OUTPUT_BUFFER_TOO_SMALL | INVALID_INPUT_CODE_POINT));
         ASSERT(3 == BOTH);
 
         if (verbose) {
@@ -9678,7 +9600,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                      << endl;
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9712,7 +9634,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                      << endl;
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9747,7 +9669,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     "UTF-8 => UTF-16, null string, no room for the null ...\n";
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9781,7 +9703,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     "UTF-16 => UTF-8, null string, no room for the null ...\n";
             }
 
-            typedef BufferSizes<0,  // Source characters
+            typedef BufferSizes<0,  // Source code points
                                 1,                        // Source char size
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
@@ -9890,12 +9812,12 @@ ostream &operator <<(ostream &os, const MixedPrImpl<T> &t)
 
     os << hex << bsl::right << bsl::showbase << "[";
 
-    // The tricky part here is that we want to print graphic characters as
-    // characters and everything else as hex.  The settings have to be
+    // The tricky part here is that we want to print graphic code points as
+    // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
-    // non-graphic characters; that's probably excessive.  Other things are
+    // non-graphic code points; that's probably excessive.  Other things are
     // restored at the end.  ('graphic' means ( 'printable' and not the space
-    // character ).)
+    // code point ).)
 
 // @@@@ MaT --- should adjust width to bit-size of type.
 
@@ -9970,8 +9892,8 @@ void printStr(const unsigned short *p)
 
 // strcmp() on arbitrary types.  It's concerned only with equality; it does not
 // define a partial order or a partitioning.  It requires that the end of the
-// string be marked by a sentinel which compares equal to zero.  Returns true
-// if the two strings are equal, false otherwise.
+// string be marked by a sentinel that compares equal to zero.  Returns true if
+// the two strings are equal, false otherwise.
 
 template<class CHAR_TYPE>
 int strEq(const CHAR_TYPE *lhs,
@@ -10025,11 +9947,11 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 {
     // A rough guide to the 'runFourWays' function:
     //   The "four ways" are (a) with valid pointers for both the number of
-    //   characters and the number of memory units, (b) with a valid pointer
-    //   for the number of characters and a null for the number memory units,
-    //   (c) with a null for the number of characters (symbols) and a valid
+    //   code points and the number of memory units, (b) with a valid pointer
+    //   for the number of code points and a null for the number memory units,
+    //   (c) with a null for the number of code points (symbols) and a valid
     //   pointer for the number of memory units, and (d) with nulls for both
-    //   the number of characters and the number of memory units.
+    //   the number of code points and the number of memory units.
     //
     //   For each of these cases, a clean copy of the expected 'ConvRslt' is
     //   made and the 'runAndCheck' function is run, with the second parameter
@@ -10283,18 +10205,18 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 
     struct PrecomputedData const &d = PRECOMPUTED_DATA[idx];
 
-    *inputCursor++         = d.d_utf16Character;
+    *inputCursor++         = d.d_utf16Word;
 
     // Null-terminate input:
 
     *inputCursor           = 0;
 
-    strcpy(outputCursor,    d.d_utf8Character);
-    outputCursor         += d.d_utf8CharacterLength;
-    totalOutputLength    += d.d_utf8CharacterLength;
+    strcpy(outputCursor,    d.d_utf8CodePoint);
+    outputCursor         += d.d_utf8CodePointLength;
+    totalOutputLength    += d.d_utf8CodePointLength;
 
     codePointSizes[codePointCount++] =
-                          static_cast<unsigned short>(d.d_utf8CharacterLength);
+                          static_cast<unsigned short>(d.d_utf8CodePointLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
@@ -11523,7 +11445,7 @@ int runPlainTextPerformanceTest(void)
 
     s.stop();
 
-    cout << "Performance test, converted " << prideLen << " characters "
+    cout << "Performance test, converted " << prideLen << " code points "
          << "back and forth " << iterLimit << " times in " << s.elapsedTime()
          << " seconds." << endl;
 
@@ -11603,12 +11525,12 @@ ostream& operator<<(ostream&                     os,
     char fill = os.fill( ' ' );
     os << bsl::right << "[";
 
-    // The tricky part here is that we want to print graphic characters as
-    // characters and everything else as hex.  The settings have to be
+    // The tricky part here is that we want to print graphic code points as
+    // code points and everything else as hex.  The settings have to be
     // restored!  This is set up to change the base between runs of graphic and
-    // non-graphic characters; that's probably excessive.  Other things are
+    // non-graphic code points; that's probably excessive.  Other things are
     // restored at the end.  ('graphic' means ( 'printable' and not the space
-    // character ).)
+    // code point ).)
 
     for (const CHAR_TYPE* cp = sv.d_arrayr; *cp;) {
         for (; *cp
@@ -11650,8 +11572,8 @@ bool testOneErrorCharConversion(int                          line,
     // that the data surrounding the output buffer are unchanged) and that the
     // source buffer is unchanged.  It performs this verification for the error
     // sequence alone in a string and for the sequence surrounded by two
-    // single-octet characters, and with and without error replacement
-    // characters (a total of four tests).  It returns 'true' if all the tests
+    // single-octet code points, and with and without error replacement
+    // code points (a total of four tests).  It returns 'true' if all the tests
     // succeed, or 'false' if any have failed.
 {
     enum {
@@ -11771,7 +11693,7 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    // Third, by itself, nothing around it, replacement character '$'.
+    // Third, by itself, nothing around it, replacement code point '$'.
 
     if (veryVerbose) {
         cout << " - Single octet, replacement char '$'" << endl;
@@ -11982,13 +11904,13 @@ Permuter<N>::print(ostream& os) const
 //  Below is the ng13.cpp version of ng.cpp which was used (manually) to
 //  generate the case strings for test 5.  Note that it does not have a save-
 //  to-file command; the output was saved by screen copy off the terminal
-//  window.  Note also that it uses 'X' as the sequence-break character, and
+//  window.  Note also that it uses 'X' as the sequence-break code point, and
 //  that it does not understand the special properties, so if you generate
 //  another set of strings, you will have to edit them (add the initial 'aa',
 //  break into strings on the X's, etc.
 //  ===========================================================================
 //  //
-//  //  Experiments in finding a string composed of C characters, each
+//  //  Experiments in finding a string composed of C code points, each
 //  //  occurring C^N times, containing all n-graph (digraph, trigraph, ...)
 //  //  instances as substrings.  Is it guaranteed to be possible?  I don't
 //  //  know.  Is there an algorithm, short of (intractable) exhaustive search?
@@ -12015,7 +11937,7 @@ Permuter<N>::print(ostream& os) const
 //
 //
 //  struct CharMap {
-//      // The visible characters (char names) are mapped into small integers
+//      // The visible code points (char names) are mapped into small integers
 //      // (their values).
 //
 //    private:
@@ -12052,9 +11974,10 @@ Permuter<N>::print(ostream& os) const
 //
 //
 //  struct DigraphRec {
-//      // A DigraphRec holds the successor paths (one per available character)
-//      // for each digraph.  (Gee, we could be about (N-1)-graphs here!)  It
-//      // also keeps some information t help us find a path through the graph.
+//      // A DigraphRec holds the successor paths (one per available code
+//      // point) for each digraph.  (Gee, we could be about (N-1)-graphs
+//      // here!)  It also keeps some information t help us find a path through
+//      // the graph.
 //
 //      struct NextRec
 //      {
@@ -12065,7 +11988,7 @@ Permuter<N>::print(ostream& os) const
 //      DigraphRec* d_next;  // A bit faster than vector<>[i][j]
 //      };
 //
-//      char d_entry[2];        // The characters that brought us in.
+//      char d_entry[2];        // The code points that brought us in.
 //
 //      vector<NextRec> d_next;  // Indexed by char value.
 //
@@ -12079,7 +12002,7 @@ Permuter<N>::print(ostream& os) const
 //
 //  struct      DigraphTab
 //      // A CxC table of DigraphRecs.  When this is set up the number of
-//      // character names must be known and fixed.  (They are known to this
+//      // code point names must be known and fixed.  (They are known to this
 //      // table by their values, not their names.)
 //  {
 //      explicit DigraphTab(int nChar);
@@ -12089,7 +12012,7 @@ Permuter<N>::print(ostream& os) const
 //
 //      ostream& print(ostream& os, int cursorI, int cursorJ) const;
 //      // Print varying the first subscript faster so the next digraph formed
-//      // is grouped by its leading character.
+//      // is grouped by its leading code point.
 //
 //      ostream& printLine(ostream& os, int cursorI, int cursorJ) const;
 //
@@ -12100,19 +12023,19 @@ Permuter<N>::print(ostream& os) const
 //
 //
 //  struct      Path
-//      // The Path records the current (complete or incomplete) character
+//      // The Path records the current (complete or incomplete) code point
 //      // sequence.  (It may get other duties in the future.)
 //  {
 //      struct  Element
 //      {
-//      int d_ch;       // Character value
+//      int d_ch;       // Code Point value
 //      };
 //
 //      vector<int> d_used;     // Indexed by char value; for each char, how
 //                      // many of that char appear in the path.
 //
 //      vector<Element> d_p;
-//      int d_cursor;   // Where the next character (next step in
+//      int d_cursor;   // Where the next code point (next step in
 //
 //      Path()
 //      : d_cursor(0)
@@ -12233,7 +12156,7 @@ Permuter<N>::print(ostream& os) const
 //
 //      int v = charMap.value(c);
 //      if (v == -1) {
-//          cout << c << " is not a valid character in this system."
+//          cout << c << " is not a valid code point in this system."
 //               << endl;
 //          continue;
 //      }

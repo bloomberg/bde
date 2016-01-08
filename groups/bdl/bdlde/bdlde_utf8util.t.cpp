@@ -36,8 +36,8 @@ using bsl::size_t;
 //                              Overview
 //                              --------
 //
-//: o Test cases 1-6 Test 'isValid', 'numCharactersRaw', and
-//:   'numCharactersIfValid'.
+//: o Test cases 1-6 Test 'isValid', 'numCodePointsRaw', and
+//:   'numCodePointsIfValid'.
 //: o Regarding 'advanceRaw' and 'advanceIfValid':
 //:   1 Test that they correctly advance through a long string of multilingual
 //:     prose.
@@ -55,12 +55,12 @@ using bsl::size_t;
 // [ 6] bool isValid(const char *s, int len);
 // [ 6] bool isValid(const char **err, const char *s);
 // [ 6] bool isValid(const char **err, const char *s, int len);
-// [ 6] int numCharactersIfValid(**err, const char *s);
-// [ 6] int numCharactersIfValid(**err, const char *s, int len);
-// [ 5] int numCharactersRaw(const char *s);
-// [ 5] int numCharactersRaw(const char *s, int len);
-// [ 5] int numCharacters(const char *s);
-// [ 5] int numCharacters(const char *s, int len);
+// [ 6] int numCodePointIfValid(**err, const char *s);
+// [ 6] int numCodePointsIfValid(**err, const char *s, int len);
+// [ 5] int numCodePointsRaw(const char *s);
+// [ 5] int numCodePointsRaw(const char *s, int len);
+// [ 5] int numCodePoints(const char *s);
+// [ 5] int numCodePoints(const char *s, int len);
 // [ 4] bool isValid(const char *s);
 // [ 4] bool isValid(const char *s, int len);
 // [ 4] bool isValid(const char **err, const char *s);
@@ -2282,7 +2282,7 @@ bsl::string codeBOM()
 }
 
 // note these decoders all assume they can look as far as they want down the
-// stream of chars without provoking a segfault.
+// stream of bytes without provoking a segfault.
 
 static
 int decode8(const char *pc)
@@ -2855,12 +2855,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "USAGE EXAMPLE 2: 'advance'\n"
                              "==========================\n";
 
-//..
-// In this example, we will re-use the 'utf8Append' function from Example 1 to
-// build a string.
+// In this example, we will use the various 'advance' functions to advance
+// through a UTF-8 string.
 //
-// First, build the string, keeping track of how many bytes are in each Unicode
-// code point:
+// First, build the string using 'utf8Append', keeping track of how many bytes
+// are in each Unicode code point:
 //..
     bsl::string string;
     utf8Append(&string, 0xff00);        // 3 bytes
@@ -2969,8 +2968,8 @@ int main(int argc, char *argv[])
                            "USAGE EXAMPLE 1: 'isValid' and 'numCodePoints*'\n"
                            "===============================================\n";
 
-// In this usage example, we will encode some UTF-8 strings and demonstrate
-// which ones are valid and which ones are not.
+// In this usage example, we will encode some Unicode code points in UTF-8
+// strings and demonstrate which ones are valid and which ones are not.
 //
 // First, we build an unquestionably valid UTF-8 string:
 //..
@@ -2985,22 +2984,22 @@ int main(int argc, char *argv[])
     utf8Append(&string, '.');
     utf8Append(&string, '\n');
 //..
-// Then we check its validity and measure its length:
+// Then, we check its validity and measure its length:
 //..
     ASSERT(true == bdlde::Utf8Util::isValid(string.data(), string.length()));
     ASSERT(true == bdlde::Utf8Util::isValid(string.c_str()));
 
     ASSERT(   9 == bdlde::Utf8Util::numCodePointsRaw(string.data(),
-                                                    string.length()));
+                                                     string.length()));
     ASSERT(   9 == bdlde::Utf8Util::numCodePointsRaw(string.c_str()));
 //..
-// Next we encode a lone surrogate value, which is not allowed:
+// Next, we encode a lone surrogate value, which is not allowed:
 //..
     bsl::string stringWithSurrogate = string;
     utf8Append(&stringWithSurrogate, 0xd8ab);
 //..
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithSurrogate.data(),
-                                            stringWithSurrogate.length()));
+                                             stringWithSurrogate.length()));
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithSurrogate.c_str()));
 //..
 // Then, we cannot use 'numCodePointsRaw' to count the code points in
@@ -3030,10 +3029,10 @@ int main(int argc, char *argv[])
     utf8AppendOneByte(&stringWithNull, 0);
 //..
     ASSERT(true == bdlde::Utf8Util::isValid(stringWithNull.data(),
-                                           stringWithNull.length()));
+                                            stringWithNull.length()));
 
     ASSERT(  10 == bdlde::Utf8Util::numCodePointsRaw(stringWithNull.data(),
-                                                    stringWithNull.length()));
+                                                     stringWithNull.length()));
 //..
 // Finally, we encode '0x61' ('a') as an overlong value using 2 bytes, which is
 // not valid UTF-8 (since 'a' can be "encoded" in 1 byte):
@@ -3042,7 +3041,7 @@ int main(int argc, char *argv[])
     utf8AppendTwoBytes(&stringWithOverlong, 'a');
 
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithOverlong.data(),
-                                            stringWithOverlong.length()));
+                                             stringWithOverlong.length()));
     ASSERT(false == bdlde::Utf8Util::isValid(stringWithOverlong.c_str()));
 //..
       } break;
@@ -3056,9 +3055,9 @@ int main(int argc, char *argv[])
         //
         // PLAN:
         //: o In TC 8, we generated correct sequences containing up to 2 of
-        //:   every type of correct unicode code point.  In this sequence, we
+        //:   every type of correct Unicode code point.  In this sequence, we
         //:   will generate correct sequences of only up to 1 of every type of
-        //:   correct unicode code point.
+        //:   correct Unicode code point.
         //: o We will follow these correct sequences with an error sequence,
         //:   and observe the 'advanceIfValid' detects and returns a pointer to
         //:   the incorrect sequence every time.
@@ -3285,28 +3284,28 @@ int main(int argc, char *argv[])
         //:   computer-generated sequences of correct UTF-8 input.
         //
         // PLAN:
-        //: o We create static functions 'appendRand*Char(bsl::string*)' which
-        //:   will append one random unicode char of the 4 possible valid
+        //: o We create static functions 'appendRand*Char(bsl::string*)' that
+        //:   will append one random Unicode code point of the 4 possible valid
         //:   lengths to a string.
-        //: o There are 5 types of chars we will have in the input strings:
-        //:   non-zero Unicode values of the 4 possible lengths, and the zero
-        //:   char.  We represent string containing up to two of each of those
-        //:   values with a vector 'vec' of integers, where value '1-4'
-        //:   represent non-zero unicode code points of the length indicated by
-        //:   the number, and 0 representing a 0 char.
-        //: o We do our tests twice, once where we don't include any 0 chars
-        //:   for testing functions that take zero-terminated input, and again
-        //:   including zero chars, by iterating on 'useZero', effectively a
-        //:   boolean.
+        //: o There are 5 types of code points we will have in the input
+        //:   strings: non-zero Unicode values of the 4 possible lengths, and
+        //:   the zero char.  We represent string containing up to two of each
+        //:   of those values with a vector 'vec' of integers, where value
+        //:   '1-4' represent non-zero Unicode code points of the length
+        //:   indicated by the number, and 0 representing a 0 code point.
+        //: o We do our tests twice, once where we don't include any 0 code
+        //:   points for testing functions that take zero-terminated input, and
+        //:   again including 0 code points, by iterating on 'useZero',
+        //:   effectively a boolean.
         //: o We have an integer key, where the bottom several bits of the
-        //:   value indicate whether unicode chars of a given length will be
-        //:   present in the value.  The key is 8 bits long if 0 is not used,
-        //:   10 bits long if 0 is used (two bits for each length, to indicate
-        //:   the presence or absence of up to 2 instances of unicode
+        //:   value indicate whether Unicode code points of a given length will
+        //:   be present in the value.  The key is 8 bits long if 0 is not
+        //:   used, 10 bits long if 0 is used (two bits for each length, to
+        //:   indicate the presence or absence of up to 2 instances of Unicode
         //:   code points).
         //: o The key is processed into 'vec', where each element of vec
-        //:   indicates the unicode char length (or 0 value) of a unicode
-        //:   char to be present in the test string.
+        //:   indicates the Unicode code point length (or 0 value) of a Unicode
+        //:   code point to be present in the test string.
         //: o We then iterate through all permutations of 'vec'.
         //: o For each permutation, we translate 'vec' into a string, using the
         //:   'appendRaw*Char' functions described above.
@@ -3317,7 +3316,7 @@ int main(int argc, char *argv[])
         //:   cause a reallocation of the buffer or invalidation of any of our
         //:   pointers at or into the string.
         //: o We then call the 'advance' functions that either don't take 0
-        //:   terminated input, or that are passed 'numCodePoints' which will
+        //:   terminated input, or that are passed 'numCodePoints', which will
         //:   tell the 'advance*' to finish before examining the garbage byte,
         //:   and observe the functions succeed.
         //
