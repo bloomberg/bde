@@ -51,14 +51,16 @@ using namespace bsl;  // automatically added by script
 // [ 6] void assign(const bsl::string& begin);
 //
 // ACCESSORS
-// [ 3] const_iterator begin() const;
-// [ 3] const_iterator data() const;
-// [ 3] const_iterator end() const;
-// [ 3] int            length() const;
-// [ 3] int            isEmpty() const;
-// [ 3]                operator bsl::string() const;
-// [ 3]                operator native_std::string() const;
-// [ 3] const char&    operator[](int index) const;
+// [ 3] const_iterator         begin() const;
+// [ 3] const_iterator         data() const;
+// [ 3] const_iterator         end() const;
+// [10] const_reverse_iterator rbegin() const;
+// [10] const_reverse_iterator rend() const;
+// [ 3] int                    length() const;
+// [ 3] int                    isEmpty() const;
+// [ 3]                        operator bsl::string() const;
+// [ 3]                        operator native_std::string() const;
+// [ 3] const char&            operator[](int index) const;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const StringRef& lhs, const StringRef& rhs);
@@ -116,7 +118,7 @@ using namespace bsl;  // automatically added by script
 // [ 8] bslh::Hash<>
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE
+// [11] USAGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -273,9 +275,74 @@ class TestDriver {
 
     static CHAR_TYPE charValue(char c);
 
+    static void testCase10();
+        // Testing reverse iterators.
+
     static void testCase9();
         // Testing 'StringRefImp(const StringRefImp& , int, int)'
 };
+
+
+template <class CHAR_TYPE>
+void TestDriver<CHAR_TYPE>::testCase10()
+{
+    // ------------------------------------------------------------------------
+    // TESTING ITERATORS
+    // Concerns:
+    //
+    //: 1 When then string reference is default constructed or the bounded
+    //:   string is empty, then 'rbegin()' compare equals to 'rend()'.
+    //:
+    //: 2 The range '[rbegin(), rend())' contains all values inserted into the
+    //:   container in descending order.
+    //:
+    //
+    // Plan:
+    //   We test the two concerns by manually constructing the appropriate
+    //   string reference objects and verify the expected output and behavior.
+    //   More exhaustive tests are not required because
+    //   'const_reverse_iterator' is implemented by the (fully-tested)
+    //   'bslstl_ReverseIterator'.
+    //
+    // Testing:
+    //   const_reverse_iterator rbegin() const;
+    //   const_reverse_iterator rend() const;
+    // ------------------------------------------------------------------------
+
+    if (verbose) std::cout << "\nTESTING REVERSE ITERATORS"
+                           << "\n========================="
+                           << std::endl;
+    {
+        // Default constructed value
+        bslstl::StringRefImp<CHAR_TYPE> mX;
+        const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
+        ASSERT(X.rbegin() == X.rend());
+
+    }
+    {
+        // Empty string
+        bslstl::StringRefImp<CHAR_TYPE> mX(TestData<CHAR_TYPE>::emptyString);
+        const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
+        ASSERT(X.rbegin() == X.rend());
+    }
+
+    {
+        // None-empty string
+        bslstl::StringRefImp<CHAR_TYPE> mX(
+            TestData<CHAR_TYPE>::nonEmptyString);
+        const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
+
+        int i = X.length() - 1;
+
+        for (typename bslstl::StringRefImp<CHAR_TYPE>::const_reverse_iterator
+                                                            riter = X.rbegin();
+             riter != X.rend(); ++riter, --i) {
+            ASSERT(TestData<CHAR_TYPE>::nonEmptyString[i] == *riter);
+        }
+
+        ASSERT(-1 == i);
+    }
+}
 
 template <class CHAR_TYPE>
 void TestDriver<CHAR_TYPE>::testCase9()
@@ -614,7 +681,7 @@ int main(int argc, char *argv[])
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -726,6 +793,18 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
+      } break;
+
+      case 10: {
+
+        // --------------------------------------------------------------------
+        // TESTING REVERSE ITERATORS
+        // --------------------------------------------------------------------
+
+        //  See 'TestDriver::testCase10' for concerns and plan.
+
+        RUN_EACH_TYPE(TestDriver, testCase10, char, wchar_t);
+
       } break;
       case 9: {
         // --------------------------------------------------------------------
