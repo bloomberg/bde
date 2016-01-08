@@ -80,6 +80,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 # if defined(BSLS_PLATFORM_CMP_IBM)                                           \
   || defined(BSLS_PLATFORM_CMP_SUN)                                           \
+  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
   ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
