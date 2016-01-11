@@ -1,10 +1,18 @@
-bsl-internal (2.25.2.0) unstable; urgency=low
+bsl-internal (2.25.2.0.icbeta) unstable; urgency=low
 
+  * 322f842 disable SAFE asserts on Sun for 2.24.5.2.icbeta
+  * a70d864 add defines to enable ICBETA assertions
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Dec 2015 14:01:54 -0500
+
+bsl-internal (2.25.2.0) git; urgency=low
+
+  * bd17510 Changelog for version 2.25.2.0
   * 2553154 Merge pull request #100 from mgiroux/bump-patchversion-to-2.25.2
   * 4a31c23 bump patchversion to 2.25.2
   * 76ee5c8 Merge pull request #97 from ameredit/feature/2_5_fix_C_includes_drqs76458497
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 5 Jan 2016 09:46:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 5 Jan 2016 09:51:31 -0500
 
 bsl-internal (2.25.0.1) git; urgency=low
 
