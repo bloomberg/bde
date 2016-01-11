@@ -473,7 +473,6 @@ void SequentialPool::release()
 
 void SequentialPool::reserveCapacity(int numBytes)
 {
-    /* TBD
     BSLS_ASSERT(0 < numBytes);
 
     // If 'd_buffer.bufferSize()' is 0, 'd_buffer' is not currently managing a
@@ -483,100 +482,50 @@ void SequentialPool::reserveCapacity(int numBytes)
         return;                                                       // RETURN
     }
 
+    // Note that the allocated block must be accessable from the primary buffer
+    // manager in case the 'reserveCapacity' was called before what will be a
+    // number of "small" allocations.
 
-    *buffer = &d_buffer;
-
-    // Prioritize reuse during constant allocation.
-
-    if (d_reuseHead_p) {
-        (*buffer)->replaceBuffer(reinterpret_cast<char *>(
-                                                     &d_reuseHead_p->d_memory),
-                                 d_initialSize);
-
-        d_reuseHead_p = d_reuseHead_p->d_next_p;
-
-        return (*buffer)->allocateRaw(static_cast<int>(size));        // RETURN
-    }
-
-    // Test for constant allocation.
-    
     if (d_blockSize) {
         // Constant allocation.
 
-        if (static_cast<bsls::Types::size_type>(d_initialSize) >= size) {
-            Block *block = reinterpret_cast<Block *>(
-                      d_geometricBlockList.allocator()->allocate(d_blockSize));
+        if (d_reuseHead_p && numBytes <= d_initialSize) {
+            // There is a sufficiently large block available for reuse.
 
-            (*buffer)->replaceBuffer(reinterpret_cast<char *>(
-                                                             &block->d_memory),
-                                     d_initialSize);
-
-            block->d_next_p = d_head_p;
-            d_head_p        = block;
-
-            return (*buffer)->allocateRaw(static_cast<int>(size));    // RETURN
+            return;                                                   // RETURN
         }
-    
-        // Constant strategy after constant allocation failure.
 
-        *buffer = &d_secondaryBuffer;
-
-        void *result = d_secondaryBuffer.allocate(size);
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
-            return result;                                            // RETURN
+        int blockSize = alignedAllocationSize(numBytes, sizeof(Block));
+        if (blockSize < d_blockSize) {
+            blockSize = d_blockSize;
+            numBytes = d_initialSize;
         }
-    }
-    
-    // Geometric allocation.
-    
-    unsigned int nextSize = calculateNextBufferSize(
-                                                (  0 == (*buffer)->bufferSize()
-                                                 ? d_initialSize
-                                                 : (*buffer)->bufferSize()),
-                                                static_cast<int>(size));
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                       nextSize <= d_maxGeometricBufferSize)) {
-        (*buffer)->replaceBuffer(
-                  static_cast<char *>(d_geometricBlockList.allocate(nextSize)),
-                  nextSize);
-        return (*buffer)->allocateRaw(static_cast<int>(size));
-    }
+        Block *block = reinterpret_cast<Block *>(
+                        d_geometricBlockList.allocator()->allocate(blockSize));
 
-    // Allocation for very large requests.
+        d_buffer.replaceBuffer(reinterpret_cast<char *>(&block->d_memory),
+                               numBytes);
 
-    *buffer = 0;
-
-    return d_geometricBlockList.allocate(static_cast<int>(size));
-
-
-
-
-
-
-
-
-    
-    if (d_blockSize) {
-        // Constant allocation.
-
-        
-    }
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_initialSize >= numBytes)) {
-        // If 'd_buffer.bufferSize()' is 0, 'd_buffer' is not currently
-        // managing a buffer.
-
-        if (0     == d_buffer.bufferSize()
-         || false == d_buffer.hasSufficientCapacity(numBytes)) {
-            // TBD allocateBlock();
-        }
+        block->d_next_p = d_head_p;
+        d_head_p        = block;
     }
     else {
-        // TBD
-        // d_geometricBlockList.reserveCapacity(numBytes);
+        // Geometric allocation.
+
+        unsigned int nextSize = calculateNextBufferSize(
+                                                (  0 == d_buffer.bufferSize()
+                                                 ? d_initialSize
+                                                 : d_buffer.bufferSize()),
+                                                numBytes);
+        if (nextSize > d_maxGeometricBufferSize) {
+            nextSize = numBytes;
+        }
+
+        d_buffer.replaceBuffer(
+                  static_cast<char *>(d_geometricBlockList.allocate(nextSize)),
+                  nextSize);
     }
-    */
 }
 
 }  // close package namespace
