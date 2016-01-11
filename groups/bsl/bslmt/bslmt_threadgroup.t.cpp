@@ -15,6 +15,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
+#include <bslma_default.h>
 #include <bsls_assert.h>
 
 #include <bsl_iostream.h>
@@ -340,6 +341,8 @@ int main(int argc, char *argv[])
                  << "==================================" << endl;
         }
 
+        bslma::TestAllocator ga(veryVeryVeryVerbose);
+        bslma::Default::setGlobalAllocator(&ga);
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 1000;
@@ -378,6 +381,7 @@ int main(int argc, char *argv[])
 
             ASSERT(NUM_ITERATIONS * NUM_THREADS * NUM_BATCHES == value);
         }
+        ASSERT(0 == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
@@ -406,6 +410,8 @@ int main(int argc, char *argv[])
                  << "=========================" << endl;
         }
 
+        bslma::TestAllocator ga(veryVeryVeryVerbose);
+        bslma::Default::setGlobalAllocator(&ga);
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS = 100;
@@ -447,6 +453,7 @@ int main(int argc, char *argv[])
             mX.joinAll();
             ASSERT(NUM_ITERATIONS * NUM_THREADS == value);
         }
+        ASSERT(0  == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
@@ -472,6 +479,8 @@ int main(int argc, char *argv[])
                  << "========================" << endl;
         }
 
+        bslma::TestAllocator ga(veryVeryVeryVerbose);
+        bslma::Default::setGlobalAllocator(&ga);
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int NUM_ITERATIONS               = 10000;
@@ -506,6 +515,7 @@ int main(int argc, char *argv[])
                  * NUM_ADDING_THREADS
                 == value);
         }
+        ASSERT(0  == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
@@ -535,6 +545,8 @@ int main(int argc, char *argv[])
                  << "==============" << endl;
         }
 
+        bslma::TestAllocator ga(veryVeryVeryVerbose);
+        bslma::Default::setGlobalAllocator(&ga);
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
            bslmt::ThreadGroup        mX(&ta);
@@ -567,6 +579,7 @@ int main(int argc, char *argv[])
                ASSERT(0 == mX.numThreads());
            }
         }
+        ASSERT(0  == ga.numAllocations());
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
