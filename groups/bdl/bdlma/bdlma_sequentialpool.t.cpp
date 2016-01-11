@@ -1332,7 +1332,8 @@ int main(int argc, char *argv[])
                                          td(veryVeryVerbose);
 
                     if (veryVerbose) {
-                        P(INITIAL_SIZE) P(SIZE)
+                        P_(bsls::BlockGrowth::toAscii(STRATEGY))
+                                                      P_(INITIAL_SIZE) P(SIZE);
                     }
 
                     Obj mV(INITIAL_SIZE, STRATEGY,      &ta);
@@ -1358,9 +1359,12 @@ int main(int argc, char *argv[])
                     }
                     else {
                         int nextSize = calculateNextSize(INITIAL_SIZE, SIZE);
-                        LOOP3_ASSERT(i, NA + blockSize(nextSize),
-                                     ta.numBytesInUse(),
-                                     NA + blockSize(nextSize)
+
+                        if (veryVerbose) {
+                            T_ P_(nextSize) P(blockSize(nextSize));
+                        }
+
+                        LOOP_ASSERT(i, NA + blockSize(nextSize)
                                                         == ta.numBytesInUse());
                         LOOP_ASSERT(i, NB + blockSize(nextSize)
                                                         == tb.numBytesInUse());

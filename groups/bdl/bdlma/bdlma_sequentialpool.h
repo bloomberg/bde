@@ -381,17 +381,12 @@ class SequentialPool {
                                                // memory for reuse in constant
                                                // growth allocation (or 0)
 
-    const int                  d_initialSize;  // allocatable size of initial
-                                               // block
+    const int                  d_initialSize;  // initial size and available
+                                               // size in every constant growth
+                                               // strategy block
 
-    const int                  d_constantBlockSize;
-                                               // allocatable size of constant
-                                               // growth blocks; 0 when using
-                                               // geometric growth
-
-    const int                  d_constantBlockAllocationSize;
-                                               // size of constant growth
-                                               // blocks; 0 when using
+    const int                  d_blockSize;    // size of constant growth
+                                               // strategy blocks; 0 when using
                                                // geometric growth
 
     const int                  d_maxGeometricBufferSize;
@@ -412,12 +407,6 @@ class SequentialPool {
         // memory of the specified 'size' (in bytes) according to the alignment
         // strategy specified at construction from this buffer.  The behavior
         // is undefined unless '0 < size'.
-
-    // PRIVATE ACCESSORS
-    unsigned int calculateNextBufferSize(int size) const;
-        // Return the next buffer size (in bytes) that is sufficiently large to
-        // satisfy a memory allocation request of the specified 'size' (in
-        // bytes).
 
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
@@ -751,7 +740,7 @@ void SequentialPool::deleteObject(const TYPE *object)
 inline
 void SequentialPool::rewind()
 {
-    if (d_constantBlockSize > 0) {
+    if (d_blockSize) {
         // Constant allocation strategy.
 
         // Note that 'BufferManager::release' keeps the buffer and just resets
