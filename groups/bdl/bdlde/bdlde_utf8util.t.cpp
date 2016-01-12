@@ -55,7 +55,7 @@ using bsl::size_t;
 // [ 6] bool isValid(const char *s, int len);
 // [ 6] bool isValid(const char **err, const char *s);
 // [ 6] bool isValid(const char **err, const char *s, int len);
-// [ 6] int numCodePointIfValid(**err, const char *s);
+// [ 6] int numCodePointsIfValid(**err, const char *s);
 // [ 6] int numCodePointsIfValid(**err, const char *s, int len);
 // [ 5] int numCodePointsRaw(const char *s);
 // [ 5] int numCodePointsRaw(const char *s, int len);

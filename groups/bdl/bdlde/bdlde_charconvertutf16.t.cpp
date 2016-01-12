@@ -266,54 +266,6 @@ static const bdlde::ByteOrder::Enum e_BACKWARDS =
 //                           CUSTOM TEST APPARATUS
 // ----------------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
-// Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
-// ----------------------------------------------------------------------------
-
-#if 0
-void fourByteUtf8Val(unsigned val)
-{
-    unsigned bs[4];
-
-    ASSERT(0 == (val & ~((1 << 21) - 1)));
-
-    bs[0] = ((val &  (7 << 18)) >> 18) | 0xf0;
-    bs[1] = ((val & (63 << 12)) >> 12) | 0x80;
-    bs[2] = ((val & (63 <<  6)) >>  6) | 0x80;
-    bs[3] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << ", " << bs[3] << endl;
-}
-
-void threeByteUtf8Val(unsigned val)
-{
-    unsigned bs[3];
-
-    ASSERT(0 == (val & ~((1 << 16) - 1)));
-
-    bs[0] = ((val & (15 << 12)) >> 12) | 0xe0;
-    bs[1] = ((val & (63 <<  6)) >>  6) | 0x80;
-    bs[2] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << ", " << bs[2] << endl;
-}
-
-void twoByteUtf8Val(unsigned val)
-{
-    unsigned bs[3];
-
-    ASSERT(0 == (val & ~((1 << 16) - 1)));
-
-    bs[0] = ((val & (31 <<  6)) >>  6) | 0xc0;
-    bs[1] = ((val &  63       )      ) | 0x80;
-
-    cout << setw(3);
-    cout << bs[0] << ", " << bs[1] << endl;
-}
-#endif
-
 void *hc(unsigned char c)
 {
     // convert a char value into a 'void *' so '<<' will print it in hex
@@ -719,15 +671,6 @@ struct GenCheckArrRange {
                               sizeof(value_type) * (size() - 1))));
     }
 };
-
-#if 0
-template struct GenCheckArrRange<ArrayRange<char> >;
-template struct GenCheckArrRange<ArrayRange<const char> >;
-template struct GenCheckArrRange<ArrayRange<unsigned short> >;
-template struct GenCheckArrRange<ArrayRange<const unsigned short> >;
-void dummyfun( char* c, GenCheckArrRange<ArrayRange<const char> >& a)
-{ a.fill(c); }
-#endif
 
 // ----------------------------------------------------------------------------
 //    deChar: Print and evaluate 'char's and 'unsigned char's as 'int's.
@@ -1449,11 +1392,6 @@ struct FourWayRunner {
     int checkFinalNull(int n)
     { return d_wp.checkFinalNull(d_outBuf[n]); }
 
-#if 0
-    int checkForInnerNulls(int n)
-    { return d_wp.checkForInnerNulls(d_outBuf[n]); }
-#endif
-
     ArrayRange<TO_CHAR> begin(int n)
     {
         return ArrayRange<TO_CHAR>(d_wp.begin(d_outBuf[n]),
@@ -1595,7 +1533,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
                                  int             veryVerbose);
 
 // *Break* a copy of the input, manipulating the bits to make each code point
-// in turn , and validating the reported 'numCodePointsWritten' and output
+// in turn, and validating the reported 'numCodePointsWritten' and output
 // string.
 
 struct PerturbationDesc {
@@ -2418,7 +2356,7 @@ unsigned short u16UpperAndLower[] ={ 0x00, 0x01, 0x02, 0x03, 0x04, 0x06,
                                      0x70, 0x80, 0xc0, 0xd0, 0x100, 0x180,
                                      0x1c0, 0x200, 0x300, 0x380, 0x3ff,
                                    };
-    // Used as the content part of the upper and lower words of 2-word utf-16
+    // Used as the content part of the upper and lower words of 2-word UTF-16
     // code points.
 
 typedef ArrayRange<const unsigned char> AvCharList;
@@ -2605,7 +2543,7 @@ void swapInPlace(UTF16_CHAR *word)
 // The following is a sample of Multilingual UTF-8.  It is an amalgamation of
 // prose in Chinese, Hindi, French, and Greek.
 //     It was discovered that none of this natural language sample contained
-// any four byte utf-8 encodings, so several were added on the end by hand.
+// any four byte UTF-8 encodings, so several were added on the end by hand.
 //-----------------------------------------------------------------------------
 
 unsigned char utf8MultiLang[] = {
@@ -6632,7 +6570,7 @@ int main(int argc, char**argv)
         const char* u8CodingCases[] ={
             // The code points 'a', 'b', 'c', and 'd' in these strings
             // represent not themselves but any valid single-, two-, three-, or
-            // four- octet code point, respectively.  These strings together
+            // four-octet code point, respectively.  These strings together
             // contain all coding-case trigraphs: trigraphs of
             // Begin-/End-of-String, 'a', 'b', 'c', and 'd', except for the
             // single-code point Begin-'a'-End, Begin-'b'-End, etc.  And of
@@ -7025,50 +6963,6 @@ int main(int argc, char**argv)
             }
         }
 
-#if 0
-        // Test 4a9: Continuation octets out of place.
-        if (verbose) {
-            cout << "\nTest 4a9: Continuation octets out of place."
-                    "\n===========================================" << endl;
-        }
-
-        AvCharList contins(u8ContinByteCases);
-        for (AvCharList::iterator continIter = contins.begin();
-                                contins.end() != continIter; ++continIter) {
-
-            typedef BufferSizes<3,  // Up to three input octets
-                                1,  // Input code points are each one byte.
-                                1,  // Output code points should be
-                                    // single-word.  Margin of 32 words on the
-                                    // output buffer.
-                                BUFFER_ZONE> Sizes;
-
-            char           u8[Sizes::FROM_BUF_SIZE];
-            unsigned short u16[Sizes::TO_BUF_SIZE];
-
-            unsigned char header = 0x80 | *continIter;
-
-            ArrayRange<char>           u8Range(u8);
-            ArrayRange<unsigned short> u16Range(u16);
-
-            char source[1] ={ header };
-
-            if (veryVerbose) {
-                cout << hex << "Continuation octet " << deChar(header)
-                            << ", contents "         << deChar(*continIter)
-                     << dec << endl;
-            }
-
-            ArrayRange<char> sourceList(source);
-            GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-
-            testOneErrorCharConversion(__LINE__,
-                                       u16Range,
-                                       u8Range,
-                                       genCheck);
-        }
-#endif
-
         {
             if (verbose) cout << "Continuation Octets out of place:\n";
 
@@ -7092,219 +6986,6 @@ int main(int argc, char**argv)
         }
 
         // The above code covers all cases covered below
-
-#if 0
-        // Tests 4a10 through 4a12 -- multi-octet headers without continuations
-
-        struct OctetListTests {
-            const char          *caseMessage[2];
-            const unsigned char *octetSet;
-            unsigned char        headerTag;
-            unsigned             octetSetLen;
-        } cutShortAtOne[] ={
-          { { "\nTest 4a10: Two-octet code point cut short after header",
-              "\n======================================================", },
-              u8TwoByteHdrCases,
-              0xc0,
-              sizeof(u8TwoByteHdrCases)/sizeof(u8TwoByteHdrCases[0]),
-          },
-          { { "\nTest 4a11: Three-octet code point cut short after header",
-              "\n========================================================", },
-              u8ThreeByteHdrCases,
-              0xe0,
-              sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
-          },
-          { { "\nTest 4a12: Four-octet code point cut short after header",
-              "\n=======================================================", },
-              u8FourByteHdrCases,
-              0xf0,
-              sizeof(u8FourByteHdrCases)/sizeof(u8FourByteHdrCases[0]),
-          },
-        };
-
-        for (int oltI = 0;
-                 oltI < (int) (sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]));
-                                                                    ++oltI) {
-            OctetListTests& olt = cutShortAtOne[oltI];
-
-            if (verbose) {
-                cout << olt.caseMessage[0] << olt.caseMessage[1] << endl;
-            }
-
-            AvCharList headers(olt.octetSet, olt.octetSetLen);
-
-            for (AvCharList::iterator hdrIter = headers.begin();
-                                headers.end() != hdrIter; ++hdrIter) {
-
-                unsigned char header = olt.headerTag | *hdrIter;
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*hdrIter) << endl;
-                }
-
-                typedef BufferSizes<3,  // Up to three input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[1] ={ header };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Tests 4a13 and 4a14: Multi-octet code points incomplete
-        //                     after one continuation octet.
-
-        struct OctetListTests cutShortAtTwo[] ={
-          { { "\nTest 4a13: Three-octet code point cut short "
-              "after one continuation",
-              "\n============================================"
-              "======================", },
-              u8ThreeByteHdrCases,
-              0xe0,
-              sizeof(u8ThreeByteHdrCases)/sizeof(u8ThreeByteHdrCases[0]),
-          },
-          { { "\nTest 4a14: Four-octet code point cut short "
-              "after one continuation",
-              "\n==========================================="
-              "======================", },
-              u8FourByteHdrCases,
-              0xf0,
-              sizeof(u8FourByteHdrCases)/sizeof(u8FourByteHdrCases[0]),
-          },
-        };
-
-        for (int oltI = 0;
-                 oltI < (int) (sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]));
-                                                                    ++oltI) {
-            OctetListTests& olt = cutShortAtTwo[oltI];
-
-            if (verbose) {
-                cout << olt.caseMessage[0] << olt.caseMessage[1] << endl;
-            }
-
-            AvCharList headers(olt.octetSet, olt.octetSetLen);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins, };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                unsigned char header = olt.headerTag | *wheelIters[0];
-                unsigned char contin = 0x80 | *wheelIters[1];
-
-                typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation octet " << deChar(contin)
-                                << ", Content " << deChar(*wheelIters[1])
-                         << dec << endl;
-                    cout << " - Error alone, no replacement char" << endl;
-                }
-
-                char source[2] ={ header, contin };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a15: Four-octet header cut short
-        //                 after the second continuation.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a15: Four-octet code point cut short "
-                        "after two continuations"
-                     << "\n=========================================="
-                        "=======================" << endl;
-            }
-
-            AvCharList headers(u8FourByteHdrCases);
-            AvCharList contin1s(u8ContinByteCases);
-            AvCharList contin2s(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contin1s, &contin2s, };
-
-            OdomIter<AvCharList::iterator, 3> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                unsigned char header  = 0xf8 | *wheelIters[0];
-                unsigned char contin1 = 0x80 | *wheelIters[1];
-                unsigned char contin2 = 0x80 | *wheelIters[2];
-
-                typedef BufferSizes<5,  // Up to four input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                if (veryVerbose) {
-                    cout << hex << "Header octet " << deChar(header)
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation octet1 " << deChar(contin1)
-                                << ", Content " << deChar(*wheelIters[1])
-                                << "\n Continuation octet2 " << deChar(contin2)
-                                << ", Content " << deChar(*wheelIters[2])
-                         << dec << endl;
-                }
-
-                char source[3] ={ header, contin1, contin2 };
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-#endif
 
         if (verbose) cout << "Missing continuation octets\n";
 
@@ -7348,664 +7029,6 @@ int main(int argc, char**argv)
             }
         }
 
-#if 0
-MARK
-        // Test case 4a16: Single-octet char coded as a two-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a16: Single-octet code point "
-                        "coded as a two-octet code point"
-                     << "\n==================================="
-                        "===============================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<4,  // Up to four input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[2] ={ static_cast<char>(0xc0 | octet >> 6),
-                                  static_cast<char>(0x80 | (octet & 0x3f)) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << (octet >> 6)
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(octet)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a17: Single-octet char coded as a three-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a17: Single-octet code point "
-                        "coded as a three-octet code point"
-                     << "\n==================================="
-                        "=================================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ static_cast<char>(0xe0),
-                                  static_cast<char>((0x80 | octet >> 6)),
-                                  static_cast<char>((0x80 | (octet & 0x3f))) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(octet >> 6)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(octet &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test case 4a18: Single-octet char coded as a four-octet char.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a18: Single-octet code point "
-                        "coded as a four-octet code point"
-                     << "\n==================================="
-                        "================================" << endl;
-            }
-
-            for (unsigned char octet = 1; octet < 0x80; ++octet) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0),
-                                  static_cast<char>(0x80),
-                                  static_cast<char>(0x80 | octet >> 6),
-                                  static_cast<char>(0x80 | (octet & 0x3f)) };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(octet >> 6)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(octet & 0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a19 two-octet char coded as three-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a19: Two-octet code point "
-                        "coded as a three-octet code point"
-                     << "\n================================"
-                        "=================================" << endl;
-            }
-
-            AvCharList headers(u8TwoByteHdrCases);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                unsigned short codePoint =
-                                        ((unsigned short) *wheelIters[0] << 6)
-                                       | *wheelIters[1];
-
-                unsigned char contin1 = 0x80 | (codePoint >> 6 & 0x3f);
-                unsigned char contin2 = 0x80 | (codePoint & 0x3f);
-
-                typedef BufferSizes<5,  // Up to five input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ static_cast<char>(0xe0),
-                                  contin1,
-                                  contin2 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(codePoint >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(codePoint &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a20 two-octet char coded as four-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a20: Two-octet code point "
-                        "coded as a four-octet code point"
-                     << "\n================================"
-                        "================================" << endl;
-            }
-
-            AvCharList headers(u8TwoByteHdrCases);
-            AvCharList contins(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &headers, &contins };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                unsigned int codePoint =
-                                        ((unsigned short) *wheelIters[0] << 6)
-                                       | *wheelIters[1];
-
-                unsigned char contin1 = 0x80 | (codePoint >> 12 & 0x3f);
-                    // 'contin1' should end up as 0x80.
-                unsigned char contin2 = 0x80 | (codePoint >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (codePoint & 0x3f);
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0),
-                                  contin1,
-                                  contin2,
-                                  contin3 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(codePoint >> 12 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content "
-                                              << deChar(codePoint >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(codePoint & 0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a21 three-octet char coded as four-octet char
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a21: Three-octet code point "
-                        "coded as a four-octet code point"
-                     << "\n=================================="
-                        "================================" << endl;
-            }
-
-            AvCharList headers(u8ThreeByteHdrCases);
-            AvCharList contin1s(u8ContinByteCases);
-            AvCharList contin2s(u8ContinByteCases);
-
-            // The code point must be a valid 3-octet code point, which means
-            // that we have to skip some of the combinations that the test data
-            // will give us (those in which the content of the three-byte
-            // header is zero and the content of the first continuation is less
-            // than THREE_BYTE_ZERO_NEEDS.  It looks a bit less expensive to
-            // do this with an outer and inner loop (see test 3a3) but the
-            // extra cost of turning a wheel and skipping the case seems
-            // small compared to the costs we bear when we don't skip.  This
-            // seems to justify the simpler-to-code version here.
-
-            AvCharList *wheels[] ={ &headers, &contin1s, &contin2s };
-
-            OdomIter<AvCharList::iterator, 3> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-                if (0 == *wheelIters[0]
-                 && *wheelIters[1] < THREE_BYTE_ZERO_NEEDS) {
-                    continue;
-                }
-
-                // Assemble a three-octet code point.
-                unsigned int codePoint =
-                                        ((unsigned short) *wheelIters[0] << 12)
-                                      | ((unsigned short) *wheelIters[1] << 6)
-                                      | *wheelIters[2];
-
-                // Break it up as a four-octet code point.
-                unsigned char header  = 0xf0 | (codePoint >> 18);
-                    // 'header' should end up as 0xf0.
-                unsigned char contin1 = 0x80 | (codePoint >> 12 & 0x3f);
-                unsigned char contin2 = 0x80 | (codePoint >> 6 & 0x3f);
-                unsigned char contin3 = 0x80 | (codePoint & 0x3f);
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ header,
-                                  contin1,
-                                  contin2,
-                                  contin3 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content "
-                                              << deChar(codePoint >> 12 & 0x3f)
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content "
-                                              << deChar(codePoint >> 6 & 0x3f)
-                                << "\n Continuation " << deChar(source[3])
-                                << ", Content " << deChar(codePoint &0x3f)
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // 4a22, 4a23 three-octet char with a value
-        // in the lower and upper reserved ranges
-
-        struct ReservedRangeOctetSet {
-            const char*          caseMessage[2];
-            const unsigned char* octetSet;
-            unsigned             octetSetLen;
-        } reservedRangeOctetSets[] ={
-        { { "\nTest 4a22: Three-octet char in the lower "
-              "reserved range",
-              "\n========================================"
-              "==============", },
-              u8ReservedRangeLowerContin,
-              sizeof(u8ReservedRangeLowerContin)/
-              sizeof(u8ReservedRangeLowerContin[0]),
-          },
-          { { "\nTest 4a23: Three-octet char in the upper "
-              "reserved range",
-              "\n=========================================="
-              "==============", },
-              u8ReservedRangeUpperContin,
-              sizeof(u8ReservedRangeUpperContin)/
-              sizeof(u8ReservedRangeUpperContin[0]),
-          }
-        };
-
-        for (int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
-                                            sizeof(reservedRangeOctetSets[0]));
-                                                             ++iOctSet) {
-            ReservedRangeOctetSet& octSet = reservedRangeOctetSets[iOctSet];
-
-            if (verbose) {
-                cout << octSet.caseMessage[0] << octSet.caseMessage[1] << endl;
-            }
-
-            AvCharList contin1s(octSet.octetSet, octSet.octetSetLen);
-            AvCharList contin2s(u8ContinByteCases);
-
-            AvCharList *wheels[] ={ &contin1s, &contin2s };
-
-            OdomIter<AvCharList::iterator, 2> wheelIters(wheels);
-
-            for ( ; wheelIters; wheelIters.next() ) {
-
-                // Assemble an illegal three-octet code point.
-                unsigned char header  = 0xe0 | 0xd;
-                unsigned char contin1 = 0x80 | *wheelIters[0];
-                unsigned char contin2 = 0x80 | *wheelIters[1];
-
-                typedef BufferSizes<5,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[3] ={ header,
-                                  contin1,
-                                  contin2 };
-
-                if (veryVerbose) {
-                    cout << hex << "Header " << deChar(source[0])
-                                << ", Content " << 0xed
-                                << "\n Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*wheelIters[0])
-                                << "\n Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*wheelIters[1])
-                                << "\nCode Point " << ( 0xd << 12
-                                                     | *wheelIters[0] << 6
-                                                     | *wheelIters[1] )
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4a24 part 1: Out-of-range 4-octet code point, header contents
-        // 4, first continuation 0x10 or above.
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a24: Four-octet char out of iso10646 range "
-                        "(part 1: header content 4)"
-                     << "\n================================================="
-                        "=========================="
-                     << endl;
-            }
-
-            // The header octet is a four-octet header with content 4.  The
-            // first continuation octet is 0x10 or above.
-
-            AvCharList contin1(u8ContinInvalidFourByteMaxCases);
-            AvCharList contin2(u8ContinByteCases);
-            AvCharList contin3(u8ContinByteCases);
-
-            AvCharList *wheels[3] ={ &contin1, &contin2, &contin3, };
-
-            OdomIter<AvCharList::iterator, 3> continIter(wheels);
-
-            for (; continIter ; continIter.next()) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] = { static_cast<char>(0xf0 | 4),
-                                   static_cast<char>(0x80 | *continIter[0]),
-                                   static_cast<char>(0x80 | *continIter[1]),
-                                   static_cast<char>(0x80 | *continIter[2]) };
-
-                if (veryVerbose) {
-                    cout << hex << "Octet " << deChar(source[0])
-                                << ", Content " << deChar(source[0] & ~0xf8)
-                                << ", Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*continIter[0])
-                                << "\n   Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*continIter[1])
-                                << ", Continuation " << deChar(source[3])
-                                << ", Content " << deChar(*continIter[2])
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4a24 part 2: Out-of-range 4-octet code point, header
-        // contents in the closed interval [ 5, 7 ]
-
-        {
-            if (verbose) {
-                cout << "\nTest 4a24: Four-octet char out of iso10646 range "
-                        "(part 2: header content 5-7)"
-                     << "\n================================================="
-                        "============================"
-                     << endl;
-            }
-
-            // The header octet is a four-octet header with content 4.  The
-            // first continuation octet is 0x10 or above.
-
-            AvCharList header(u8InvalidFourByteHdrCases);
-            AvCharList contin1(u8ContinByteCases);
-            AvCharList contin2(u8ContinByteCases);
-            AvCharList contin3(u8ContinByteCases);
-
-            AvCharList *wheels[4] ={ &header, &contin1, &contin2, &contin3, };
-
-            OdomIter<AvCharList::iterator, 4> charIter(wheels);
-
-            for (; charIter ; charIter.next()) {
-
-                typedef BufferSizes<6,  // Up to six input octets
-                                    1,  // Input code points are each one byte.
-                                    1,  // Output code points should be
-                                        // single-word.
-                                        // Margin of 32 words on the output
-                                        // buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                char           u8[Sizes::FROM_BUF_SIZE];
-                unsigned short u16[Sizes::TO_BUF_SIZE];
-
-                ArrayRange<char>           u8Range(u8);
-                ArrayRange<unsigned short> u16Range(u16);
-
-                char source[4] ={ static_cast<char>(0xf0 | *charIter[0]),
-                                  static_cast<char>(0x80 | *charIter[1]),
-                                  static_cast<char>(0x80 | *charIter[2]),
-                                  static_cast<char>(0x80 | *charIter[3]) };
-
-                if (veryVerbose) {
-                    cout << hex << "Octet " << deChar(source[0])
-                                << ", Content " << deChar(*charIter[0])
-                                << ", Continuation " << deChar(source[1])
-                                << ", Content " << deChar(*charIter[1])
-                                << "\n   Continuation " << deChar(source[2])
-                                << ", Content " << deChar(*charIter[2])
-                                << ", Continuation " << deChar(source[3])
-                                << ", Content " << deChar(*charIter[3])
-                         << dec << endl;
-                }
-
-                ArrayRange<char> sourceList(source);
-                GenCheckArrRange<ArrayRange<char> > genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u16Range,
-                                           u8Range,
-                                           genCheck);
-            }
-        }
-
-        // Test 4b1 2-word code point cut short after the first word, and
-        // Test 4b2 2-word code point without the first word.
-
-        struct TwoWordCase {
-            const char*          caseMessage[2];
-            const unsigned short header;
-        } twoWordCases[] ={
-        { { "\nTest 4b1: Two-word code point cut short after "
-            "the first word",
-            "\n=============================================="
-            "==============", },
-            0xd800,
-          },
-          { { "\nTest 4b2: Two-word code point without "
-             "the first word",
-             "\n========================================"
-             "==============", },
-              0xdc00,
-          }
-        };
-
-        for (int iTwoWordCase = 0 ; iTwoWordCase <
-                         (int) (sizeof(twoWordCases)/sizeof(twoWordCases[0]));
-                                                             ++iTwoWordCase) {
-            TwoWordCase& testCase = twoWordCases[iTwoWordCase];
-
-            if (verbose) {
-                cout << testCase.caseMessage[0]
-                     << testCase.caseMessage[1] << endl;
-            }
-
-            avWordList contents(u16UpperAndLower);
-            for (avWordList::iterator contentIter = contents.begin();
-                                contents.end() != contentIter; ++contentIter) {
-
-                typedef BufferSizes<3,  // Up to three input words
-                                    1,  // Input code points are each one word.
-                                    1,  // Output code points are single-byte.
-                                        // Margin of 32 bytes on the
-                                        // output buffer.
-                                    BUFFER_ZONE> Sizes;
-
-                unsigned short u16[Sizes::FROM_BUF_SIZE];
-                char           u8[Sizes::TO_BUF_SIZE];
-
-                unsigned short charWord = testCase.header | *contentIter;
-
-                ArrayRange<unsigned short> u16Range(u16);
-                ArrayRange<char>           u8Range(u8);
-
-                unsigned short source[1] ={ charWord, };
-
-                if (veryVerbose) {
-                    cout << hex << "Word " << deChar(source[0])
-                                << ", Content " << *contentIter
-                         << dec << endl;
-                }
-
-                ArrayRange<unsigned short> sourceList(source);
-                GenCheckArrRange<ArrayRange<unsigned short> >
-                                                        genCheck(sourceList);
-                testOneErrorCharConversion(__LINE__,
-                                           u8Range,
-                                           u16Range,
-                                           genCheck);
-            }
-        }
-#endif
         if (verbose) {
             cout << "\nTest 4 complete." << endl;
         }
@@ -8041,8 +7064,8 @@ MARK
                                    // the tests.
         };
 
-        // Test 3a1: utf-8 => UTF-16, one-octet code points.  A string of all
-        // legal one-octet code points is converted from utf-8 to utf-16 and
+        // Test 3a1: UTF-8 => UTF-16, one-octet code points.  A string of all
+        // legal one-octet code points is converted from UTF-8 to UTF-16 and
         // checked.
 
         if (verbose) {
@@ -8097,12 +7120,6 @@ MARK
                             " string.\n";
                 }
             }
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8175,13 +7192,6 @@ MARK
                     cout << "\tat "; P(2 * (0x800 - 80));
                 }
             }
-// cout << "Output range: " << prHexRange(wp.begin(u16), wp.end(u16)) << endl ;
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8258,10 +7268,6 @@ MARK
                     cout << "\t" << R(iFirst) << endl ;
                 }
                 else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
                     pos = 0;
                     for (unsigned iSecond = rangeStart ; iSecond < rangeLimit;
                                                                 ++iSecond) {
@@ -8303,11 +7309,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8383,10 +7384,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\t" << R(iFirst) << endl ;
                     }
                     else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
                         unsigned at = 0;
                         for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM;
                                                                     ++iThird) {
@@ -8454,11 +7451,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         // Test 3b1: UTF-16 => UTF-8, one-octet code points.
@@ -8508,12 +7500,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8572,13 +7558,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-// cout << "Output range: " << prHexRange(wp.begin(u8), wp.end(u8)) << endl ;
-
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8635,9 +7614,10 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
                 u16[pos] = 0;
 
-                int nchar = pos + 1; // All the code points we built, plus
-                                         // the null.  Note that all the 16-bit
-                                         // code points will be single-word.
+                int nchar = pos + 1; // All the code points we built, plus the
+                                     // null.  Note that all the 16-bit the
+                                     // null.  Note that all the 16-bit code
+                                     // points will be single-word.
 
                 SrcSpec<unsigned short> source(u16, 0, 3 * pos + 1);
                 ConvRslt expected(0, nchar, pos * 3 + 1);
@@ -8657,11 +7637,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     cout << "\t" << R(iFirst) << endl ;
                 }
                 else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
-
                     pos = 0;
 
                     for (unsigned iSecond = rangeStart ; iSecond < rangeLimit ;
@@ -8692,11 +7667,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 // cout << R(iFirst) << " " << prHexRange(u8, pos) << endl ;
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8780,11 +7750,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\t" << R(iFirst) << endl ;
                     }
                     else {
-#if 0
-cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
-     << prHexRange(wp.begin(u16), wp.end(u16)) << endl;
-#endif
-
                         unsigned at = 0;
                         for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM;
                                                                     ++iThird) {
@@ -8823,11 +7788,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     }
                 }
             }
-#if 0
-            if (veryVerbose) {
-                cout << " done." << endl ;
-            }
-#endif
         }
 
         if (verbose) {
@@ -8942,16 +7902,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                   expected);
                 RUN_FOUR_WAYS(runner);
                 EXPECTED_GOT(*c1i, runner.begin(0)[0]);
-
-#if 0
-cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 
@@ -9001,16 +7951,6 @@ cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
                 unsigned int low = deChar(*cCi);
 
                 EXPECTED_GOT((high << 6 | low), runner.begin(0)[0]);
-#if 0
-cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
- << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "Two-octet cases done." << endl ;
@@ -9057,10 +7997,6 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
                     u8[1] = *cC2i | 0x80;
                     u8[2] = *cC3i | 0x80;
                     u8[3] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                     SrcSpec<char> source(u8, 0, 2);
                     ConvRslt expected(0, 2, 2);
@@ -9079,16 +8015,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
                     EXPECTED_GOT((high << 12 | mid << 6 | low),
                                  runner.begin(0)[0]);
-#if 0
-cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i << " four ways." << endl ;
-#endif
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl ;
-                    }
-#endif
                 }
             }
         }
@@ -9139,10 +8065,6 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
                         u8[2] = *cC3i | 0x80;
                         u8[3] = *cC4i | 0x80;
                         u8[4] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                         SrcSpec<char> source(u8, 0, 3);
                         ConvRslt expected(0, 2, 3);
@@ -9177,19 +8099,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                      runner.begin(0)[0]);
                         EXPECTED_GOT((utf16Conv & 0x3ff) | 0xdc00,
                                      runner.begin(0)[1]);
-#if 0
-cout << hex << "[0] " << runner.begin(0)[0] << "; [1] "
-     << runner.begin(0)[1] << endl ;
-cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i
- << ", "   << (unsigned) *cC4i << " four ways." << endl ;
-#endif
-
-#if 0
-                        if (veryVerbose) {
-                            cout << " done." << endl ;
-                        }
-#endif
                 }
             }
         }
@@ -9228,13 +8137,6 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                                                   expected);
                 RUN_FOUR_WAYS(runner);
                 EXPECTED_GOT(*c1i, runner.begin(0)[0]);
-// cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "One-octet UTF-16=>UTF-8 case done." << endl ;
@@ -9287,16 +8189,6 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                              (unsigned) deChar(runner.begin(0)[0]));
                 EXPECTED_GOT((unsigned) deChar(0x80 | *cCi),
                              (unsigned) deChar(runner.begin(0)[1]));
-#if 0
-cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
- << " four ways." << endl ;
-#endif
-
-#if 0
-                if (veryVerbose) {
-                    cout << " done." << endl ;
-                }
-#endif
             }
         }
 // cout << "Two-octet UTF-16=>UTF-8 cases done." << endl ;
@@ -9342,10 +8234,6 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
                     u16[0] = static_cast<unsigned short>(
                                               *c3i << 12 | *cC2i << 6 | *cC3i);
                     u16[1] = 0;
-#if 0
-ArrayRange<char> SunFake(u8);
-cout << "u8 " << prHexRange( SunFake ) << endl ;
-#endif
 
                     SrcSpec<unsigned short> source(u16, 0, 4);
                     ConvRslt expected(0, 2, 4);
@@ -9364,19 +8252,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                  (unsigned) deChar(runner.begin(0)[1]));
                     EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
                                  (unsigned) deChar(runner.begin(0)[2]));
-
-// cout << hex << "source " << u16[0] << " "
-//      << prHexRange(&runner.begin(0)[0], 4) << dec << endl ;
-#if 0
-// cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
- << ", "   << (unsigned) *cC3i << " four ways." << endl ;
-#endif
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl ;
-                    }
-#endif
                 }
             }
         }
@@ -9468,15 +8343,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                     EXPECTED_GOT((unsigned) deChar(0x80 | *cC4i),
                                  (unsigned) deChar(runner.begin(0)[3]));
                     nCases++;
-
-// cout << hex << "source " << u16[0] << ", " << u16[1] << " "
-//      << prHexRange(&runner.begin(0)[0], 5) << dec << endl ;
-
-#if 0
-                    if (veryVerbose) {
-                        cout << " done." << endl;
-                    }
-#endif
                 }
             }
             if (verbose) {
@@ -9774,24 +8640,6 @@ ostream &operator <<(ostream &os, const HexPrImpl<T> &t)
     return os << " ]";
 }
 
-#if 0
-template <>
-ostream &operator <<(ostream &os, const HexPrImpl<char> &t)
-{
-    const ios_base::fmtflags flags = os.flags();
-    const char fill = os.fill();
-    os << hex << bsl::internal << "[";
-    for (int i = 0; i < t.d_av.size(); ++i) {
-        os << " "
-           << bsl::setw(6)
-           << unsigned((unsigned char)t.d_av[i]);
-    }
-    os.fill(fill);
-    os.flags(flags);
-    return os << " ]";
-}
-#endif
-
 template <class T>
 MixedPrImpl<T> prMixedRange(const T* ptr, size_t size)
 {
@@ -9937,21 +8785,16 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runAndCheck(int bufN, int line)
     return !failed;
 }
 
-#if 0
-template <> bool FourWayRunner<char, unsigned short>::runAndCheck(int, int);
-template <> bool FourWayRunner<unsigned short, char>::runAndCheck(int, int);
-#endif
-
 template <class TO_CHAR, class FROM_CHAR>
 bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 {
     // A rough guide to the 'runFourWays' function:
     //   The "four ways" are (a) with valid pointers for both the number of
     //   code points and the number of memory units, (b) with a valid pointer
-    //   for the number of code points and a null for the number memory units,
-    //   (c) with a null for the number of code points (symbols) and a valid
-    //   pointer for the number of memory units, and (d) with nulls for both
-    //   the number of code points and the number of memory units.
+    //   for the number of code points and a null for the number of memory
+    //   units, (c) with a null for the number of code points (symbols) and a
+    //   valid pointer for the number of memory units, and (d) with nulls for
+    //   both the number of code points and the number of memory units.
     //
     //   For each of these cases, a clean copy of the expected 'ConvRslt' is
     //   made and the 'runAndCheck' function is run, with the second parameter
@@ -10034,11 +8877,6 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
 
     return !failed;
 }
-
-#if 0
-template <> bool FourWayRunner<char, unsigned short>::runFourWays(int);
-template <> bool FourWayRunner<unsigned short, char>::runFourWays(int);
-#endif
 
 // @+@+@+@ Not necessarily FixedVector<>() ... but it must act like an array
 // Given a FixedVector of arrays of (CHAR_TYPE*), compare them for equality and
@@ -11899,460 +10737,6 @@ Permuter<N>::print(ostream& os) const
             os << " " << d_val[i];
     return os << " )";
 }
-
-//  ===========================================================================
-//  Below is the ng13.cpp version of ng.cpp which was used (manually) to
-//  generate the case strings for test 5.  Note that it does not have a save-
-//  to-file command; the output was saved by screen copy off the terminal
-//  window.  Note also that it uses 'X' as the sequence-break code point, and
-//  that it does not understand the special properties, so if you generate
-//  another set of strings, you will have to edit them (add the initial 'aa',
-//  break into strings on the X's, etc.
-//  ===========================================================================
-//  //
-//  //  Experiments in finding a string composed of C code points, each
-//  //  occurring C^N times, containing all n-graph (digraph, trigraph, ...)
-//  //  instances as substrings.  Is it guaranteed to be possible?  I don't
-//  //  know.  Is there an algorithm, short of (intractable) exhaustive search?
-//  //  I don't know.  For the case of C=5, K=3 I can use some help, and that's
-//  //  where I'll start; with data structures and statistics that will help
-//  //  me do it manually.  For C=31 (26 error cases, 4 good cases, end of
-//  //  string) it's hopeless without a decently efficient machine solution.
-//  //  (The brute-force search space is (31^3)!/(31!)^3 .)  (I'm only
-//  //  interested in k=3, BTW)
-//
-//  #include <iostream>
-//  #include <map>
-//  #include <vector>
-//  #include <string>
-//  #include <sstream>
-//  #include <iomanip>
-//
-//  #include <ctype.h>
-//
-//  using namespace bsl;
-//
-//  #define R(X) #X ": " << X
-//  #define R_(X) #X ": " << X << " "
-//
-//
-//  struct CharMap {
-//      // The visible code points (char names) are mapped into small integers
-//      // (their values).
-//
-//    private:
-//      typedef map<char, int> ValueTab;
-//
-//      vector<char> d_names;   // Indexed by value.
-//      ValueTab d_values;      // Map name to value.
-//
-//    public:
-//      CharMap()
-//      { }
-//
-//      CharMap(const char* newNameList)
-//      {
-//      add(newNameList);
-//      }
-//
-//      int add(char newName);  // Returns new value, or -1 if char
-//                              // is already present.
-//      void add(const char *newNameList);
-//
-//      char name(int v) const  // Lookup name by value.
-//      {
-//      return (unsigned) v < size() ? d_names[v] : ~0 ;
-//      }
-//
-//      int value(char) const;
-//
-//      int size() const
-//      {
-//      return d_names.size();
-//      }
-//  };
-//
-//
-//  struct DigraphRec {
-//      // A DigraphRec holds the successor paths (one per available code
-//      // point) for each digraph.  (Gee, we could be about (N-1)-graphs
-//      // here!)  It also keeps some information t help us find a path through
-//      // the graph.
-//
-//      struct NextRec
-//      {
-//      int d_step;     // The step at which this char, following the
-//                      // DigraphRec's digraph, is used to extend the
-//                      // string (counting from 1; 0 means that it
-//                      // does not extend the string TEY).
-//      DigraphRec* d_next;  // A bit faster than vector<>[i][j]
-//      };
-//
-//      char d_entry[2];        // The code points that brought us in.
-//
-//      vector<NextRec> d_next;  // Indexed by char value.
-//
-//      int d_nextsFree;             // Number of next[*] that are unused
-//      int d_nextsUnblocked;    // Number of next[*] that are
-//                           // unused and unblocked.
-//      int d_pathsAvail;            // Sum of nextsUnblocked in our successors
-//      int d_maxPathsAvail;     // Highest of nextsUnblocked in our successors
-//  };
-//
-//
-//  struct      DigraphTab
-//      // A CxC table of DigraphRecs.  When this is set up the number of
-//      // code point names must be known and fixed.  (They are known to this
-//      // table by their values, not their names.)
-//  {
-//      explicit DigraphTab(int nChar);
-//      ~DigraphTab();
-//
-//      // There's lots to do in here.   ...
-//
-//      ostream& print(ostream& os, int cursorI, int cursorJ) const;
-//      // Print varying the first subscript faster so the next digraph formed
-//      // is grouped by its leading code point.
-//
-//      ostream& printLine(ostream& os, int cursorI, int cursorJ) const;
-//
-//      vector<vector<DigraphRec*> > d_table;  // Indexed first by value of
-//                                         // earlier char, then by value
-//                                         // of later char.
-//  };
-//
-//
-//  struct      Path
-//      // The Path records the current (complete or incomplete) code point
-//      // sequence.  (It may get other duties in the future.)
-//  {
-//      struct  Element
-//      {
-//      int d_ch;       // Code Point value
-//      };
-//
-//      vector<int> d_used;     // Indexed by char value; for each char, how
-//                      // many of that char appear in the path.
-//
-//      vector<Element> d_p;
-//      int d_cursor;   // Where the next code point (next step in
-//
-//      Path()
-//      : d_cursor(0)
-//      { }
-//
-//      void init(int nChars)
-//      {
-//      d_used.resize(nChars);
-//      d_p.resize(nChars * nChars * nChars);
-//      d_cursor = 0;
-//      }
-//
-//      // Functions to push char on and take char off
-//
-//      int size() const
-//      {
-//      return d_cursor;
-//      }
-//
-//      int top() const
-//      {
-//      return d_p[d_cursor - 1].d_ch;
-//      }
-//
-//      int operator[](int i) const
-//      {
-//      return d_p[i].d_ch;
-//      }
-//
-//      void push(int ch)
-//      {
-//      d_p[d_cursor++].d_ch = ch;
-//      ++d_used[ch];
-//      }
-//
-//      int pop()
-//      {
-//      --d_used[d_p[--d_cursor].d_ch];
-//      return d_p[d_cursor].d_ch;
-//      }
-//
-//      ostream& print(ostream&) const;
-//                      // the sequence) will go.
-//  };
-//
-//  template<class T> struct input {
-//      T& d_ref;
-//
-//      input(T& target)
-//      : d_ref(target)
-//      { }
-//
-//      istream& get(istream&);
-//
-//  #if 1
-//      friend istream& operator>>(istream& is, input& in)
-//      {
-//      return in.get(is);
-//      }
-//  #endif
-//  };
-//
-//  #if 0
-//  template< class T >
-//  istream&
-//  operator>>( istream& is, input< T >& in )
-//  {
-//      return in.get( is );
-//  }
-//  #endif
-//
-//  CharMap charMap;
-//  Path path;
-//
-//
-//  int
-//  main()
-//  {
-//      charMap.add("abcdX");
-//
-//      DigraphTab digraphs(charMap.size());
-//
-//      digraphs.print(cout, 0, 0) << endl;
-//
-//      path.init(charMap.size());
-//      path.print(cout) << endl;
-//
-//      char c;
-//
-//      DigraphRec* dr = digraphs.d_table[0][0];
-//
-//      input<char> ic(c);
-//      while(cin >> ic) {
-//      if (c == '=') {
-//          digraphs.print(cout, 0, 0) << endl;
-//          path.print(cout) << endl;
-//          continue;
-//      }
-//
-//      if (c == '<') {
-//          if (path.size() <= 0) {
-//              cout << "Path is empty; can't pop." << endl;
-//              continue;
-//          }
-//
-//          // Back off and adjust
-//          char oldTop = path.top();
-//          path.pop();
-//          int s = path.size();
-//          dr = digraphs.d_table[s > 1 ? path[s - 2] : 0]
-//                                                  [s > 0 ? path[s - 1] : 0];
-//          dr->d_next[oldTop].d_step = 0;
-//          ++dr->d_nextsFree;
-//          digraphs.print(cout, dr->d_entry[0], dr->d_entry[1] ) << endl;
-//          path.print(cout);
-//          continue;
-//      }
-//
-//      int v = charMap.value(c);
-//      if (v == -1) {
-//          cout << c << " is not a valid code point in this system."
-//               << endl;
-//          continue;
-//      }
-//
-//      // Go forward (if we can) and adjust
-//      if (dr->d_next[v].d_step) {
-//          cout << "Path through " << c << " is in use." << endl;
-//          path.print(cout) << endl;
-//          continue;
-//      }
-//      dr->d_next[v].d_step = path.size() + 1;
-//      dr->d_nextsFree--;
-//      path.push(v);
-//      dr = dr->d_next[v].d_next;
-//
-//      digraphs.print(cout, dr->d_entry[0], dr->d_entry[1] ) << endl;
-//      path.print(cout) << endl;
-//      }
-//
-//      return 0;
-//  }
-//
-//  int
-//  CharMap::add(char newName)
-//  {
-//      int place = d_names.size();     // Where it will go in the names table
-//                              // if we insert it.
-//
-//      pair<ValueTab::iterator, bool> r =
-//                      d_values.insert(ValueTab::value_type(newName, place));
-//
-//      if (! r.second)
-//      return -1;
-//
-//      d_names.push_back(newName);
-//
-//      return place;
-//  }
-//
-//
-//  void
-//  CharMap::add(const char* newNameList)
-//  {
-//      for (const char* cp = newNameList; *cp; ++cp) {
-//      add(*cp);
-//      }
-//  }
-//
-//  int
-//  CharMap::value(char name) const
-//  {
-//      ValueTab::const_iterator r = d_values.find(name);
-//      return r == d_values.end() ? -1 : r->second;
-//  }
-//
-//
-//  DigraphTab::DigraphTab(int nChar)
-//  : d_table(nChar)
-//  {
-//      for (int i = 0; i < nChar; ++i) {
-//      d_table[i].resize(nChar);
-//
-//      for (int j = 0; j < nChar; ++j) {
-//          DigraphRec* dgr = new DigraphRec;
-//
-//          d_table[i][j] = dgr;
-//
-//          dgr->d_entry[0] = i;
-//          dgr->d_entry[1] = j;
-//
-//          dgr->d_next.resize(nChar);
-//      }
-//      }
-//
-//      for (int i = 0; i < nChar; ++i) {
-//      for (int j = 0; j < nChar; ++j) {
-//          DigraphRec* dgr = d_table[i][j];
-//
-//          for (int k = 0; k < nChar; ++k) {
-//              dgr->d_next[k].d_step = 0;
-//              dgr->d_next[k].d_next = d_table[j][k];
-//          }
-//
-//          dgr->d_nextsFree = nChar;
-//          dgr->d_nextsUnblocked = nChar;
-//          dgr->d_pathsAvail = nChar * nChar;
-//          dgr->d_maxPathsAvail = nChar;
-//      }
-//      }
-//  }
-//
-//
-//  DigraphTab::~DigraphTab()
-//  {
-//      for (int i = 0; i < d_table.size(); ++i) {
-//      for (int j = 0; j < d_table.size(); ++j) {
-//          delete d_table[i][j];
-//      }
-//      }
-//  }
-//
-//
-//  ostream&
-//  DigraphTab::print(ostream& os,int cursI,int cursJ) const
-//  {
-//      for (int j = 0; j < d_table.size(); ++j) {
-//      for (int i = 0; i < d_table.size(); ++i) {
-//          if (i == cursI
-//           && j == cursJ) {
-//              os << "===================="
-//                    "===================="
-//                    "===================="
-//                    "===================" << endl;
-//          }
-//
-//          printLine(os, i, j) << endl;
-//
-//          if (i == cursI
-//           && j == cursJ) {
-//              os << "===================="
-//                    "===================="
-//                    "===================="
-//                    "===================" << endl;
-//          }
-//      }
-//      }
-//
-//      return os;
-//  }
-//
-//
-//  ostream&
-//  DigraphTab::printLine(ostream& os, int cursI, int cursJ) const
-//  {
-//      DigraphRec* dgr = d_table[cursI][cursJ];
-//
-//      os << charMap.name(dgr->d_entry[0])
-//         << charMap.name(dgr->d_entry[1]) << "  " ;
-//
-//      // Need to print charMap.size() names.  We have already spent 5
-//      // spaces out of an assumed 80.  Ultimately we'll have to squeeze stats
-//      // in here somewhere.
-//
-//      int printwidth = 74 / charMap.size();
-//
-//      for (int k = 0 ; k < dgr->d_next.size(); ++k) {
-//          char nm = charMap.name(k);
-//          os << (char)( dgr->d_next[k].d_step ? tolower(nm)
-//                                              : toupper(nm));
-//          os << setw(4) << dgr->d_next[k].d_next->d_nextsFree;
-//          for (int l = 4; l < printwidth; ++l)
-//              os << " " ;
-//      }
-//
-//      return os;
-//  }
-//
-//
-//  ostream&
-//  Path::print(ostream& os) const
-//  {
-//      for (int i = 0; ; ++i) {
-//      os << charMap.name(i) << ": " << d_used[i];
-//
-//      if (i >= d_used.size() - 1)
-//          break;
-//
-//      os << "    ";
-//      }
-//
-//      for (int i = 0; i < d_cursor; ++i) {
-//      if (i % 79 == 0)
-//          os << endl;
-//      os << charMap.name(d_p[i].d_ch);
-//      }
-//
-//      return os << endl;
-//  }
-//
-//
-//  template<class T>
-//  istream& input<T>::get(istream& is)
-//  {
-//      string s;
-//
-//      while(getline(is, s)) {
-//      istringstream iss( s );
-//
-//      if (iss >> d_ref)
-//          break;
-//      }
-//
-//      return is;
-//  }
-
-// ============================================================================
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

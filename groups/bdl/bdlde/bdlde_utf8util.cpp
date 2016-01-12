@@ -202,7 +202,7 @@ int validateAndCountCodePoints(
     // having the specified 'length' (in bytes) if 'string' contains valid
     // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
     // return a negative value and load into 'invalidString' the address of the
-    // first sequence in 'string' that does not constitute the start of a valid
+    // first byte in 'string' that does not constitute the start of a valid
     // UTF-8 encoding.  'string' need not be null-terminated and can contain
     // embedded null bytes.  The behavior is undefined unless '0 <= length'.
     // Note that 'string' may contain less than 'length' Unicode code points.

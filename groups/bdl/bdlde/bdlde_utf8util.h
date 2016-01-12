@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: o 'numCodePointsIfValid' and 'numCodePointsRaw', which return the number of
 //:   Unicode code points in a UTF-8 string.  Note that 'numCodePointsIfValid'
-//:   both validates a (candidate) UTF-8 string and counts the number of UTF-8
-//:   code points that it contains.
+//:   both validates a (candidate) UTF-8 string and counts the number of
+//:   Unicode code points that it contains.
 //
 // Embedded null bytes are allowed in strings that are accompanied by an
 // explicit length argument.  Naturally, null-terminated C-style strings cannot
@@ -366,22 +366,20 @@ struct Utf8Util {
         // Return 'true' if the specified 'string' having the specified
         // 'length' (in bytes) contains valid UTF-8, and 'false' otherwise.  If
         // 'string' contains invalid UTF-8, load into the specified
-        // 'invalidString' the address after the last valid code point
-        // traversed; 'invalidString' is uneffected if 'string' contains only
-        // valid UTF-8.  'string' need not be null-terminated and can contain
-        // embedded null bytes.  The behavior is undefined unless
-        // '0 <= length'.
+        // 'invalidString' the address of the byte after the last valid code
+        // point traversed; 'invalidString' is uneffected if 'string' contains
+        // only valid UTF-8.  'string' need not be null-terminated and can
+        // contain embedded null bytes.
 
     static int numCharactersIfValid(const char **invalidString,
                                     const char  *string);
         // Return the number of Unicode code points in the specified 'string'
         // if it contains valid UTF-8, with no effect on the specified
         // 'invalidString'.  Otherwise, return a negative value and load into
-        // 'invalidString' the address of the address after the last valid
-        // Unicode code point traversed.  'string' is necessarily
-        // null-terminated, so it cannot contain embedded null bytes.  Note
-        // that 'string' may contain less than 'bsl::strlen(string)' Unicode
-        // code points.
+        // 'invalidString' the address of the byte after the last valid Unicode
+        // code point traversed.  'string' is necessarily null-terminated, so
+        // it cannot contain embedded null bytes.  Note that 'string' may
+        // contain less than 'bsl::strlen(string)' Unicode code points.
         //
         // DEPRECATED: Use 'numCodePointsIfValid' instead.
 
@@ -392,9 +390,10 @@ struct Utf8Util {
         // having the specified 'length' (in bytes) if 'string' contains valid
         // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
         // return a negative value and load into 'invalidString' the address
-        // after the last valid Unicode code point traversed.  'string' need
-        // not be null-terminated and may contain embedded null bytes.  Note
-        // that 'string' may contain less than 'length' Unicode code points.
+        // of the byte after the last valid Unicode code point traversed.
+        // 'string' need not be null-terminated and may contain embedded null
+        // bytes.  Note that 'string' may contain less than 'length' Unicode
+        // code points.
         //
         // DEPRECATED: Use 'numCodePointsIfValid' instead.
 
@@ -439,11 +438,10 @@ struct Utf8Util {
         // Return the number of Unicode code points in the specified 'string'
         // if it contains valid UTF-8, with no effect on the specified
         // 'invalidString'.  Otherwise, return a negative value and load into
-        // 'invalidString' the address of the address after the last valid
-        // Unicode code point traversed.  'string' is necessarily
-        // null-terminated, so it cannot contain embedded null bytes.  Note
-        // that 'string' may contain less than 'bsl::strlen(string)' Unicode
-        // code points.
+        // 'invalidString' the address of the byte after the last valid Unicode
+        // code point traversed.  'string' is necessarily null-terminated, so
+        // it cannot contain embedded null bytes.  Note that 'string' may
+        // contain less than 'bsl::strlen(string)' Unicode code points.
 
     static int numCodePointsIfValid(const char  **invalidString,
                                     const char   *string,
@@ -451,10 +449,11 @@ struct Utf8Util {
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes) if 'string' contains valid
         // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
-        // return a negative value and load into 'invalidString' the address
-        // after the last valid Unicode code point traversed.  'string' need
-        // not be null-terminated and may contain embedded null bytes.  Note
-        // that 'string' may contain less than 'length' Unicode code points.
+        // return a negative value and load into 'invalidString' the address of
+        // the byte after the last valid Unicode code point traversed.
+        // 'string' need not be null-terminated and may contain embedded null
+        // bytes.  Note that 'string' may contain less than 'length' Unicode
+        // code points.
 
     static int numCodePointsRaw(const char *string);
         // Return the number of Unicode code points in the specified 'string'.
@@ -467,8 +466,8 @@ struct Utf8Util {
         // Return the number of Unicode code points in the specified 'string'
         // having the specified 'length' (in bytes).  'string' need not be
         // null-terminated and can contain embedded null bytes.  The behavior
-        // is undefined 'string' contains valid UTF-8.  Note that 'string' may
-        // contain less than 'length' Unicode code points.
+        // is undefined unless 'string' contains valid UTF-8.  Note that
+        // 'string' may contain less than 'length' Unicode code points.
 };
 
 // ============================================================================
