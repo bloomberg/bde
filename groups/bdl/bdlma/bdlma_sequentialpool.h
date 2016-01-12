@@ -360,48 +360,50 @@ class SequentialPool {
         // blocks.
 
         Block                               *d_next_p;  // next pointer
+        bsls::Types::size_type               d_size;    // available size
         bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
     };
 
     // DATA
-    BufferManager              d_buffer;       // memory manager for current
-                                               // buffer
+    BufferManager                  d_buffer;       // memory manager for
+                                                   // current buffer
 
-    BufferManager              d_secondaryBuffer;
-                                               // memory manager for backup
-                                               // buffer of constant growth
-                                               // allocation; not used for
-                                               // geometric growth allocation
+    Block                         *d_head_p;       // address of 1st block of
+                                                   // memory (or 0)
 
-    Block                     *d_head_p;       // address of 1st block of
-                                               // memory for constant growth
-                                               // allocation (or 0)
+    Block                        **d_reuseHead_p;  // address of the pointer to
+                                                   // the next block of memory
+                                                   // available for use (which
+                                                   // may be 0)
 
-    Block                     *d_reuseHead_p;  // address of 1st block of
-                                               // memory for reuse in constant
-                                               // growth allocation (or 0)
+    const bsls::Types::size_type   d_minSize;      // minimum available size
+                                                   // from an allocated block;
+                                                   // 0 when using geometric
+                                                   // growth
 
-    const int                  d_initialSize;  // initial size and available
-                                               // size in every constant growth
-                                               // strategy block
+    const bsls::Types::size_type   d_maxSize;      // maximum available size
+                                                   // for which a step in the
+                                                   // geometric progression of
+                                                   // allocation sizes will be
+                                                   // performed
 
-    const int                  d_blockSize;    // size of constant growth
-                                               // strategy blocks; 0 when using
-                                               // geometric growth
+    bsls::Types::size_type         d_lastSize;     // last available size from
+                                                   // an allocated block; used
+                                                   // for geometric growth
 
-    const int                  d_maxGeometricBufferSize;
-                                               // maximum internal buffer size
-                                               // for geometric growth
-
-    InfrequentDeleteBlockList  d_geometricBlockList;
-                                               // memory manager used to supply
-                                               // dynamically-allocated memory
-                                               // blocks for geometric growth
+    bslma::Allocator              *d_allocator_p;  // memory allocator (held,
+                                                   // not owned)
 
   private:
     // PRIVATE MANIPULATORS
-    void *allocateNonFastPath(BufferManager          **buffer,
-                              bsls::Types::size_type   size);
+    void allocateBlock(bsls::Types::size_type size);
+        // Use the allocator supplied at construction to allocate a new
+        // internal buffer that has a contiguous block of memory of the
+        // specified 'size' (in bytes) according to the alignment strategy
+        // specified at construction from this buffer.  The behavior is
+        // undefined unless '0 < size'.
+
+    void *allocateNonFastPath(bsls::Types::size_type size);
         // Use the allocator supplied at construction to allocate a new
         // internal buffer, then return the address of a contiguous block of
         // memory of the specified 'size' (in bytes) according to the alignment
@@ -690,9 +692,7 @@ void *SequentialPool::allocate(bsls::Types::size_type size)
         return result;                                                // RETURN
     }
 
-    BufferManager *buffer;
-
-    return allocateNonFastPath(&buffer, size);
+    return allocateNonFastPath(size);
 }
 
 inline
@@ -707,15 +707,10 @@ void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
         return result;                                                // RETURN
     }
 
-    BufferManager *buffer;
-
-    result = allocateNonFastPath(&buffer, static_cast<int>(*size));
-    if (buffer) {
-        *size = buffer->expand(result, static_cast<int>(*size));
-    }
+    result = allocateNonFastPath(static_cast<int>(*size));
+    *size = d_buffer.expand(result, static_cast<int>(*size));
     return result;
 }
-
 
 template <class TYPE>
 inline
@@ -740,22 +735,11 @@ void SequentialPool::deleteObject(const TYPE *object)
 inline
 void SequentialPool::rewind()
 {
-    if (d_blockSize) {
-        // Constant allocation strategy.
+    d_reuseHead_p = &d_head_p;
 
-        // Note that 'BufferManager::release' keeps the buffer and just resets
-        // the internal cursor, so 'reset' is used instead.
-
-        d_buffer.reset();
-
-        d_secondaryBuffer.release();
-
-        d_reuseHead_p = d_head_p;
-    }
-    else {
-        // Geometric allocation strategy.
-
-        d_buffer.release();
+    if (d_head_p) {
+        d_buffer.replaceBuffer(reinterpret_cast<char *>(&d_head_p->d_memory),
+                               static_cast<int>(d_head_p->d_size));
     }
 }
 
@@ -766,10 +750,7 @@ int SequentialPool::truncate(void *address, int originalSize, int newSize)
     BSLS_ASSERT_SAFE(0 <= newSize);
     BSLS_ASSERT_SAFE(newSize <= originalSize);
 
-    if (newSize == d_buffer.truncate(address, originalSize, newSize)) {
-        return newSize;                                               // RETURN
-    }
-    return d_secondaryBuffer.truncate(address, originalSize, newSize);
+    return d_buffer.truncate(address, originalSize, newSize);
 }
 
 }  // close package namespace
@@ -791,7 +772,7 @@ void operator delete(void *, BloombergLP::bdlma::SequentialPool&)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

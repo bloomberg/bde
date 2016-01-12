@@ -332,7 +332,7 @@ class BufferedSequentialAllocator : public ManagedAllocator {
         // This method has no effect on the memory block at the specified
         // 'address' as all memory allocated by this allocator is managed.  The
         // behavior is undefined unless 'address' is 0, or was allocated by
-        // this allocator and has not already been deallocated. The effect of
+        // this allocator and has not already been deallocated.  The effect of
         // using 'address' after this call is undefined.
 
     virtual void release();
@@ -487,7 +487,7 @@ void BufferedSequentialAllocator::rewind()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

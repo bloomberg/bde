@@ -505,7 +505,7 @@ void *BufferManager::allocate(bsls::Types::size_type size)
         d_cursor = cursor;
         return address + offset;
     }
-    
+
     return 0;
 }
 
@@ -610,7 +610,6 @@ bool BufferManager::hasSufficientCapacity(int size) const
     BSLS_ASSERT_SAFE(0 <= d_cursor);
     BSLS_ASSERT_SAFE(d_cursor <= d_bufferSize);
 
-
     char *address = d_buffer_p + d_cursor;
 
     int offset = calculateAlignmentOffsetFromSize(address, size);
@@ -624,7 +623,7 @@ bool BufferManager::hasSufficientCapacity(int size) const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2016 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

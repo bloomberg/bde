@@ -154,8 +154,10 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a method, 'calculate', that performs
 // calculations (where the specifics are not important to illustrate the use of
 // this component), which require three vectors of 'double' values.
