@@ -735,11 +735,14 @@ void SequentialPool::deleteObject(const TYPE *object)
 inline
 void SequentialPool::rewind()
 {
-    d_reuseHead_p = &d_head_p;
-
     if (d_head_p) {
         d_buffer.replaceBuffer(reinterpret_cast<char *>(&d_head_p->d_memory),
                                static_cast<int>(d_head_p->d_size));
+
+        d_reuseHead_p = &d_head_p->d_next_p;
+    }
+    else {
+        d_reuseHead_p = &d_head_p;
     }
 }
 
