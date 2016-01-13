@@ -13,12 +13,12 @@
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
 #include <bdlsb_memoutstreambuf.h>
-#include <bdls_fdstreambuf.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
+#include <bsl_fstream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -39,6 +39,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 #include <libproc.h>
 #endif
+
 
 namespace BloombergLP {
 
@@ -95,14 +96,15 @@ int ProcessUtil::getProcessName(bsl::string *result)
     os << "/proc/" << getpid() << "/cmdline" << bsl::ends;
     const char *procfs = osb.data();
 
-    int fd = open(procfs, O_RDONLY);
-    if (fd == -1) {
+
+    bsl::ifstream ifs;
+    ifs.open(procfs, bsl::ios_base::in | bsl::ios_base::binary);
+
+    if (ifs.fail()) {
         return -1;                                                    // RETURN
     }
 
-    FdStreamBuf isb(fd, true, true, true);
-    bsl::istream      is(&isb);
-    is >> *result;
+    ifs >> *result;
 
     bsl::string::size_type pos = result->find_first_of('\0');
     if (bsl::string::npos != pos) {
