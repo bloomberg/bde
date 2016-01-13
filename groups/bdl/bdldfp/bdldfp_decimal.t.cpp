@@ -6,11 +6,15 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_climits.h> // CHAR_BIT
 #include <bsl_limits.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslx_testinstream.h>
+#include <bslx_testoutstream.h>
+#include <bslx_versionfunctions.h>
 
 #include <typeinfo>
 
@@ -83,6 +87,7 @@ using bsl::atoi;
 // ACCESSORS
 //: o 'data'
 //: o 'value'
+//: o 'print'
 //
 // FREE OPERATORS
 //: o 'operator+' -- Unary
@@ -244,6 +249,8 @@ struct TestDriver {
     // the test driver main program.  This class is necessitated by
     // compile-time performance issues on some platforms.
 
+    static void testCase7();
+    static void testCase6();
     static void testCase5();
     static void testCase4();
     static void testCase3();
@@ -252,7 +259,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase5()
+void TestDriver::testCase7()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLES
@@ -321,12 +328,367 @@ void TestDriver::testCase5()
     }
 }
 
+void TestDriver::testCase6()
+{
+    // ------------------------------------------------------------------------
+    // TESTING BDEX STREAMING
+    //   Verify the BDEX streaming implementation works correctly.  Specific
+    //   concerns include wire format, handling of stream states (valid, empty,
+    //   invalid, incomplete, and corrupted), and exception neutrality.
+    //
+    // Concerns:
+    //: 1 The class method 'maxSupportedBdexVersion' returns the correct
+    //:   version to be used for the specified 'versionSelector'.
+    //:
+    //: 2 The 'bdexStreamOut' method is callable on a reference providing only
+    //:   non-modifiable access.
+    //:
+    //: 3 For valid streams, externalization and unexternalization are inverse
+    //:   operations.
+    //:
+    //: 4 For invalid streams, externalization leaves the stream invalid and
+    //:   unexternalization does not alter the value of the object and leaves
+    //:   the stream invalid.
+    //:
+    //: 5 Unexternalizing of incomplete, invalid, or corrupted data results in
+    //:   a valid object of unspecified value and an invalidated stream.
+    //:
+    //: 6 The wire format of the object is as expected.
+    //:
+    //: 7 All methods are exception neutral.
+    //:
+    //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference to
+    //:   the provided stream in all situations.
+    //:
+    //: 9 The initial value of the object has no affect on unexternalization.
+    //:
+    //:10 Streaming version 1 provides the expected compatibility between
+    //:   the two calendar modes.
+    //
+    // Testing:
+    //   static int maxSupportedBdexVersion(int versionSelector);
+    //   static int maxSupportedBdexVersion();
+    //   STREAM& bdexStreamIn(STREAM& stream, int version);
+    //   STREAM& bdexStreamOut(STREAM& stream, int version) const;
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+                      << "TESTING BDEX STREAMING" << endl
+                      << "======================" << endl;
+
+    // Allocator to use instead of the default allocator.
+    bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
+
+    // Scalar obj
+    // ect values used in various stream tests.
+
+    typedef BDEC::Decimal64 Obj;
+    typedef bslx::TestInStream In;
+    typedef bslx::TestOutStream Out;
+
+    const Obj VA(BDLDFP_DECIMAL_DD(1.12));
+    const Obj VB(BDLDFP_DECIMAL_DD(2.55));
+    const Obj VC(BDLDFP_DECIMAL_DD(3.67));
+    const Obj VD(BDLDFP_DECIMAL_DD(5.17));
+    const Obj VE(BDEC::DecimalImpUtil::parse64("Inf"));
+    const Obj VF(BDEC::DecimalImpUtil::parse64("-Inf"));
+    const Obj VG(BDLDFP_DECIMAL_DD(-7.64));
+
+    // Array object used in various stream tests.
+    const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
+    const int NUM_VALUES =
+        static_cast<int>(sizeof VALUES / sizeof *VALUES);
+    const int VERSION_SELECTOR = 20151026;
+
+    // Testing maxSupportedBDexVersion
+    {
+        ASSERT(1 == Obj::maxSupportedBdexVersion());
+        ASSERT(1 == Obj::maxSupportedBdexVersion(0));
+        ASSERT(1 == Obj::maxSupportedBdexVersion(
+                   VERSION_SELECTOR));
+
+        using bslx::VersionFunctions::maxSupportedBdexVersion;
+        ASSERT(1 == maxSupportedBdexVersion(
+                   reinterpret_cast<Obj *>(0), 0));
+        ASSERT(1 == maxSupportedBdexVersion(
+                   reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
+    }
+
+    // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+    // functionality.
+    const int VERSION = Obj::maxSupportedBdexVersion(0);
+    {
+        const Obj X(VC);
+        Out out(VERSION_SELECTOR, &allocator);
+
+        Out& rvOut = X.bdexStreamOut(out, VERSION);
+        ASSERT(&out == &rvOut);
+
+        const char *const OD  = out.data();
+        const int         LOD = static_cast<int>(out.length());
+
+        In in(OD, LOD);
+        ASSERT(in);
+        ASSERT(!in.isEmpty());
+
+        Obj mT(VA);  const Obj& T = mT;
+        ASSERT(X != T);
+
+        In& rvIn = mT.bdexStreamIn(in, VERSION);
+        ASSERT(&in == &rvIn);
+        ASSERT(X == T);
+        ASSERT(in);
+        ASSERT(in.isEmpty());
+    }
+
+    // Testing valid streams
+    {
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const Obj X(VALUES[i]);
+
+            Out out(VERSION_SELECTOR, &allocator);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            Out& rvOut = bdexStreamOut(out, X, VERSION);
+            LOOP_ASSERT(i, &out == &rvOut);
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            // Verify that each new value overwrites every old value and
+            // that the input stream is emptied, but remains valid.
+
+            for (int j = 0; j < NUM_VALUES; ++j) {
+                In in(OD, LOD);
+                LOOP2_ASSERT(i, j, in);
+                LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                Obj mT(VALUES[j]);  const Obj& T = mT;
+                LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    In& rvIn = bdexStreamIn(in, mT, VERSION);
+                    LOOP2_ASSERT(i, j, &in == &rvIn);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+
+                LOOP2_ASSERT(i, j, X == T);
+                LOOP2_ASSERT(i, j, in);
+                LOOP2_ASSERT(i, j, in.isEmpty());
+            }
+        }
+    }
+
+    // Testing empty streams (valid and invalid).
+    {
+        Out               out(VERSION_SELECTOR, &allocator);
+        const char *const OD  = out.data();
+        const int         LOD = static_cast<int>(out.length());
+        ASSERT(0 == LOD);
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            In in(OD, LOD);
+            LOOP_ASSERT(i, in);
+            LOOP_ASSERT(i, in.isEmpty());
+
+            // Ensure that reading from an empty or invalid input stream
+            // leaves the stream invalid and the target object unchanged.
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            const Obj  X(VALUES[i]);
+            Obj        mT(X);
+            const Obj& T = mT;
+            LOOP_ASSERT(i, X == T);
+
+            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                in.reset();
+
+                // Stream is valid.
+                In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                LOOP_ASSERT(i, &in == &rvIn1);
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, X == T);
+
+                // Stream is invalid.
+                In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                LOOP_ASSERT(i, &in == &rvIn2);
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, X == T);
+            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+        }
+    }
+
+    // Testing non-empty, invalid streams.
+
+    {
+        Out out(VERSION_SELECTOR, &allocator);
+
+        using bslx::OutStreamFunctions::bdexStreamOut;
+        Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+        ASSERT(&out == &rvOut);
+
+        const char *const OD  = out.data();
+        const int         LOD = static_cast<int>(out.length());
+        ASSERT(0 < LOD);
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            In in(OD, LOD);
+            in.invalidate();
+            LOOP_ASSERT(i, !in);
+            LOOP_ASSERT(i, !in.isEmpty());
+
+            // Ensure that reading from a non-empty, invalid input stream
+            // leaves the stream invalid and the target object unchanged.
+
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            const Obj  X(VALUES[i]);
+            Obj        mT(X);
+            const Obj& T = mT;
+            LOOP_ASSERT(i, X == T);
+
+            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                in.reset();
+                in.invalidate();
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, !in.isEmpty());
+
+                In& rvIn = bdexStreamIn(in, mT, VERSION);
+                LOOP_ASSERT(i, &in == &rvIn);
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, X == T);
+            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+        }
+    }
+
+    // Test wire-format
+    {
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            const Obj X(VALUES[i]);
+            bslx::ByteOutStream out(VERSION_SELECTOR, &allocator);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            using bslx::InStreamFunctions::bdexStreamIn;
+
+            bdexStreamOut(out, X, VERSION);
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            bdldfp::BinaryIntegralDecimalImpUtil::StorageType64 bidVal =
+                bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+            bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(
+                bidVal.d_raw);
+
+            bsl::cout << LOD << bsl::endl;
+            ASSERTV(i, X, LOD == 8);
+            ASSERT(memcmp(OD, &expectedValue, 8) == 0);
+        }
+    }
+}
+
+void TestDriver::testCase5()
+{
+    // ------------------------------------------------------------------------
+    // TESTING PRINT METHOD
+    //
+    // Concerns:
+    //: 1 The 'print' method writes the value to the specified 'ostream'.
+    //:
+    //: 2 The 'print' method write the value in the intended format.
+    //:
+    //: 3 The 'print' method uses the same underlying formatting function as
+    //:   'operator<<'.
+    //:
+    //: 4 The 'print' method's signature and return type are standard.
+    //:
+    //: 5 The 'print' method returns the supplied 'ostream'.
+    //:
+    //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+    //:   correct default values (0 and 4, respectively).
+    //
+    // Testing:
+    //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+    // ------------------------------------------------------------------------
+
+    if (verbose) bsl::cout << "\nTESTING PRINT METHOD"
+                           << "\n===================="
+                           << bsl::endl;
+
+    // Verify that the signatures and return types are standard.
+    {
+        typedef bsl::ostream& (BDEC::Decimal64::*funcPtr)(bsl::ostream&,
+                                                          int, int) const;
+
+        funcPtr     printMember = &BDEC::Decimal64::print;
+
+        (void)printMember;
+    }
+
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
+    static const struct {
+        int              d_line;
+        BDEC::Decimal64  d_decimalValue;
+        int              d_level;
+        int              d_spacesPerLevel;
+        const char      *d_expected_p;
+    } DATA[] = {
+
+        // -8 implies using default values
+
+        //LINE  NUMBER     LEVEL  SPL  EXPECTED
+        //----  ---------  -----  ---  --------
+        { L_,  DFP(4.25),     0,   0,  "4.25\n" },
+        { L_,  DFP(4.25),     0,   1,  "4.25\n" },
+        { L_,  DFP(4.25),     0,  -1,  "4.25"   },
+        { L_,  DFP(4.25),     0,  -8,  "4.25\n" },
+
+        { L_,  DFP(4.25),     3,   0,  "4.25\n" },
+        { L_,  DFP(4.25),     3,   2,  "      4.25\n" },
+        { L_,  DFP(4.25),     3,  -2,  "      4.25" },
+        { L_,  DFP(4.25),     3,  -8,  "            4.25\n" },
+        { L_,  DFP(4.25),    -3,   0,  "4.25\n" },
+        { L_,  DFP(4.25),    -3,   2,  "4.25\n" },
+        { L_,  DFP(4.25),    -3,  -2,  "4.25" },
+        { L_,  DFP(4.25),    -3,  -8,  "4.25\n" },
+
+        { L_,  DFP(4.25),    -8,  -8,  "4.25\n" },
+    };
+
+#undef DFP
+
+    const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int             LINE     = DATA[ti].d_line;
+        const BDEC::Decimal64 VALUE    = DATA[ti].d_decimalValue;
+        const int             LEVEL    = DATA[ti].d_level;
+        const int             SPL      = DATA[ti].d_spacesPerLevel;
+        const char*           EXPECTED = DATA[ti].d_expected_p;
+
+        bsl::stringstream outdec;
+        if (-8 != SPL) {
+            VALUE.print(outdec, LEVEL, SPL);
+        }
+        else if (-8 != LEVEL) {
+            VALUE.print(outdec, LEVEL);
+        }
+        else {
+            VALUE.print(outdec);
+        }
+        bsl::string ACTUAL = outdec.str();
+
+        ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+    }
+}
+
 void TestDriver::testCase4()
 {
     // ------------------------------------------------------------------------
     // TESTING IOSTREAM OPERATORS
     //
-    // Concerns: 
+    // Concerns:
     //: 1 Calling 'operator<<' on a 'Decimal32', 'Decimal64', 'Decimal128' type
     //:   renders the decimals value to the appropriate stream.
     //:
@@ -343,6 +705,13 @@ void TestDriver::testCase4()
     //:   internal, or right justification.
     //:
     //: 7 That 'operator<<' correctly handles 'bsl::uppercase'.
+    //:
+    //: 8 That the 'print' method writes the value to the specified 'ostream'.
+    //:
+    //: 9 That the 'print' method write the vlaue in the intended format.
+    //:
+    //:10 That the output using 's << obj' is the same as
+    //:   'obj.print(s, 0, -1)'.
     //
     // Note that this is not (yet) a complete set of concerns (or test) for
     // this function.
@@ -359,8 +728,9 @@ void TestDriver::testCase4()
     //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal64 );
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTesting operator<<"
-                           << "\n==================" << bsl::endl;
+    if (verbose) bsl::cout << "\nTESTING IOSTREAM OPERATORS"
+                           << "\n=========================="
+                           << bsl::endl;
 
     // Note that this test is not yet complete.  Possible improvements:
     //
@@ -369,7 +739,7 @@ void TestDriver::testCase4()
     //:
     //: o Testing a wider array of numbers, including values rendered in
     //:   scientific notation.
-    
+
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
     BDEC::Decimal32 INF_P = BDEC::Decimal32(
@@ -573,6 +943,25 @@ void TestDriver::testCase4()
             if (CAPITAL)  { outdec << bsl::uppercase;   }
             else          { outdec << bsl::nouppercase; }
             outdec << VALUE;
+
+            bsl::string ACTUAL = outdec.str();
+
+            ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+        }
+
+        // Test with print
+        {
+            const BDEC::Decimal64 VALUE(DECIMAL32);
+
+            bsl::stringstream outdec;
+
+            outdec.width(WIDTH);
+            if (LEFT)     { outdec << bsl::left;        }
+            if (INTERNAL) { outdec << bsl::internal;    }
+            if (RIGHT)    { outdec << bsl::right;       }
+            if (CAPITAL)  { outdec << bsl::uppercase;   }
+            else          { outdec << bsl::nouppercase; }
+            VALUE.print(outdec, 0, -1);
 
             bsl::string ACTUAL = outdec.str();
 
@@ -2539,6 +2928,12 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 7: {
+        TestDriver::testCase7();
+      } break;
+      case 6: {
+        TestDriver::testCase6();
+      } break;
       case 5: {
         TestDriver::testCase5();
       } break;
