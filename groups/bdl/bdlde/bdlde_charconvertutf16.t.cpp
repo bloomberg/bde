@@ -7615,7 +7615,6 @@ int main(int argc, char**argv)
                 u16[pos] = 0;
 
                 int nchar = pos + 1; // All the code points we built, plus the
-                                     // null.  Note that all the 16-bit the
                                      // null.  Note that all the 16-bit code
                                      // points will be single-word.
 
