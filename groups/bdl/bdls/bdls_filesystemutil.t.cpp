@@ -58,6 +58,8 @@ using namespace bsl;
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
+// typedef bsl::function<void (const char *path)> Func;
+//
 // CLASS METHODS
 // [ 2] FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
 // [ 2] FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
@@ -82,22 +84,10 @@ using namespace bsl;
 // [19] createTemporaryFile(string *, const StringRef&)
 // [20] createTemporaryDirectory(string *, const StringRef&)
 // [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [21] int visitTree(
-//           const char                                  *root,
-//           const bsl::string&                           pattern,
-//           const bdef_Function<void(*)(const char *)>&  visitor,
-//           bool                                         sortFlag);
-// [21] int visitTree(
-//            const bsl::string&                          root,
-//            const bsl::string&                          pattern,
-//            const bdef_Function<void(*)(const char *)>& visitor,
-//            bool                                        sortFlag);
-// [21] void visitPaths(
-//           const bsl::string&                               pattern,
-//           const bdef_Function<void(*)(const char *path)>&  visitor);
-// [21] void visitPaths(
-//           const char                                      *pattern,
-//           const bdef_Function<void(*)(const char *path)>&  visitor);
+// [21] int visitTree(const char *, const string&, const Func&, bool);
+// [21] int visitTree(const string&, const string&, const Func&, bool);
+// [21] void visitPaths(const string&, const Func&);
+// [21] void visitPaths(const char *, const Func&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -771,48 +761,38 @@ int main(int argc, char *argv[])
         // TESTING VISITTREE AND VISITPATHS
         //
         // Concerns:
-        //: o That 'visitTree' will visit every matching node in a directory
+        //: 1 That 'visitTree' will visit every matching node in a directory
         //:   tree.
-        //: o That if 'sortFlag' is specified, nodes will be visited in sorted
+        //: 2 That if 'sortFlag' is specified, nodes will be visited in sorted
         //:   order, with directories visited before their contents.
-        //: o That 'visitPaths' and 'visitTree' respond approriately to
+        //: 3 That 'visitPaths' and 'visitTree' respond approriately to
         //:   non-readable directories on Unix (it did not seem to be possible
         //:   to make a directory non-readable on Windows).
         //
         // Plan:
-        //: o Create a tree with two types of nodes, 'woof*' nodes and 'meow*'
+        //: 1 Create a tree with two types of nodes, 'woof*' nodes and 'meow*'
         //:   nodes.  'woof*' nodes include both plain files and directories,
         //:   'meow*' nodes include only plain files.
-        //: o Create a function object type, 'VisitTreeTestVisitor', that will
+        //: 2 Create a function object type, 'VisitTreeTestVisitor', that will
         //:   append file names to the end of a vector.
-        //: o Apply 'visitTree' with the sort flag clear, doing 2 separate
+        //: 3 Apply 'visitTree' with the sort flag clear, doing 2 separate
         //:   searches, one for 'woof*' nodes and one for 'meow*' nodes.  Sort
         //:   the vector afterward and verify it matches the sorted expected
         //:   value vector.
-        //: o Apply 'visitTree' with the sort flag set, doing 2 separate
+        //: 4 Apply 'visitTree' with the sort flag set, doing 2 separate
         //:   searches, one for 'woof*' nodes and one for 'meow*' nodes.
         //:   Verify after that the vector matches the sorted expected value
         //:   vector without itself having had to be sorted.
-        //: o Make one of the directories temporarily non-readable on Unix,
+        //: 5 Make one of the directories temporarily non-readable on Unix,
         //:   and observe that the functions perform appropriately.
         //
         // TESTING
-        // int visitTree(
-        //              const char                                  *root,
-        //              const bsl::string&                           pattern,
-        //              const bdef_Function<void(*)(const char *)>&  visitor,
-        //              bool                                         sortFlag);
-        // int visitTree(
-        //               const bsl::string&                          root,
-        //               const bsl::string&                          pattern,
-        //               const bdef_Function<void(*)(const char *)>& visitor,
-        //               bool                                        sortFlag);
-        // void visitPaths(
-        //           const bsl::string&                               pattern,
-        //           const bdef_Function<void(*)(const char *path)>&  visitor);
-        // void visitPaths(
-        //           const char                                      *pattern,
-        //           const bdef_Function<void(*)(const char *path)>&  visitor);
+        //   typedef bsl::function<void (const char *path)> Func;
+        //
+        //   int visitTree(const char *, const string&, const Func&, bool);
+        //   int visitTree(const string&, const string&, const Func&, bool);
+        //   void visitPaths(const string&, const Func&);
+        //   void visitPaths(const char *, const Func&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing 'visitTree'\n"
