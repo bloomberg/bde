@@ -94,10 +94,15 @@ printImpl(bsl::basic_ostream<CHARTYPE, TRAITS>& out,
         const Facet& facet(bsl::has_facet<Facet>(out.getloc())
                            ? bsl::use_facet<Facet>(out.getloc())
                            : Facet::object());
-        facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
-                  out,
-                  out.fill(),
-                  value);
+
+        bsl::ostreambuf_iterator<CHARTYPE, TRAITS> itr =
+                     facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
+                               out,
+                               out.fill(),
+                               value);
+        if (itr.failed()) {
+            out.setstate(bsl::ios::failbit | bsl::ios::badbit);
+        }
     }
     return out;
 }
