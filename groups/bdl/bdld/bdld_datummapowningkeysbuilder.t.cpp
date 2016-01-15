@@ -46,6 +46,7 @@ using namespace BloombergLP::bdld;
 // ACCESSORS
 // [ 3] SizeType capacity() const;
 // [ 3] SizeType keysCapacity() const;
+// [ 3] SizeType size() const;
 //
 // TRAITS
 // [ 8] bslma::UsesBslmaAllocator
@@ -203,20 +204,20 @@ int main(int argc, char *argv[])
 
     bsl::string firstName = "firstName";
     bsl::string lastName  = "lastName";
-    bsl::string sex       = "sex";
+    bsl::string gender    = "gender";
     bsl::string age       = "age";
 
     DatumMapEntry bartData[] = {
         DatumMapEntry(firstName, Datum::createStringRef("Bart", &ta)),
         DatumMapEntry(lastName,  Datum::createStringRef("Simpson", &ta)),
-        DatumMapEntry(sex,       Datum::createStringRef("male", &ta)),
+        DatumMapEntry(gender,    Datum::createStringRef("male", &ta)),
         DatumMapEntry(age,       Datum::createInteger(10))
     };
 
     const size_t DATA_SIZE  = sizeof(bartData) / sizeof(DatumMapEntry);
     const size_t KEYS_SIZE  = firstName.length()
                             + lastName.length()
-                            + sex.length()
+                            + gender.length()
                             + age.length();
 //..
 // Next, we create an object of 'DatumMapOwningKeysBuilder' class with initial
@@ -249,7 +250,7 @@ int main(int argc, char *argv[])
     ASSERT(true        == bart.theMap()[1].value().isString());
     ASSERT("Simpson"   == bart.theMap()[1].value().theString());
 
-    ASSERT("sex"       == bart.theMap()[2].key());
+    ASSERT("gender"    == bart.theMap()[2].key());
     ASSERT(true        == bart.theMap()[2].value().isString());
     ASSERT("male"      == bart.theMap()[2].value().theString());
 
@@ -674,20 +675,28 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'capacity' method returns the capacity of the datum map.
+        //:
+        //: 2 The 'keysCapacity' method returns the keys capacity of the datum
+        //:    map.
+        //:
+        //: 3 The 'size' method returns the current size of the datum map.
         //
         // Plan:
         //: 1 Create a 'DatumMapOwningKeysBuilder' object. Append few elements
-        //:    to the map and verify that the capacities are represented
-        //:    correctly.  (C-1)
+        //:    to the map and verify that the 'capacity', 'keysCapacity' and
+        //:    'seze' methods return expected values.  (C-1..3)
         //
         // Testing:
         //    SizeType capacity() const;
         //    SizeType keysCapacity() const;
+        //    SizeType size() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
+        if (verbose)
+            cout << "\nTesting 'capacity', 'keysCapacity' and 'size'." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -696,21 +705,25 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == B.capacity());
             ASSERT(0 == B.keysCapacity());
+            ASSERT(0 == B.size());
 
             mB.append(values, 1);
 
             ASSERT(1 == B.capacity());
             ASSERT(1 == B.keysCapacity());
+            ASSERT(1 == B.size());
 
             mB.append(values + 1, 1);
 
             ASSERT(2 == B.capacity());
             ASSERT(4 == B.keysCapacity());
+            ASSERT(2 == B.size());
 
             mB.append(values + 2, 3);
 
-            ASSERT(8 == B.capacity());
+            ASSERT(8  == B.capacity());
             ASSERT(16 == B.keysCapacity());
+            ASSERT(5  == B.size());
         }
       } break;
       case 2: {

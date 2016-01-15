@@ -24,7 +24,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 using namespace bslstl;
-using namespace BloombergLP::bdld;
+using namespace bdld;
 
 // ============================================================================
 //                                TEST PLAN
@@ -45,7 +45,6 @@ using namespace BloombergLP::bdld;
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 5] ManagedDatum(bslma::Allocator *basicAllocator);
-// [ 5] ManagedDatum(const Datum& value);
 // [ 2] ManagedDatum(const Datum&, bslma::Allocator *);
 // [ 5] ManagedDatum(const ManagedDatum&, bslma::Allocator *);
 // [ 2] ~ManagedDatum();
@@ -70,6 +69,9 @@ using namespace BloombergLP::bdld;
 // [ 6] bool operator!=(const ManagedDatum&, const ManagedDatum&);
 // [10] bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
 //
+// FREE FUNCTIONS
+// [13] void swap(ManagedDatum& a, ManagedDatum& b);
+//
 // TRAITS
 // [12] bslmf::IsBitwiseEqualityComparable
 // [12] bslma::UsesBslmaAllocator
@@ -77,7 +79,7 @@ using namespace BloombergLP::bdld;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -247,7 +249,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -267,15 +269,22 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-// The following snippets of code illustrate how to create and use a
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Use of 'bdld::MangedDatum'
+///- - - - - - - - - - - - - - - - - - - - - -
+// The example demonstrates the basic construction and manipulation of a
 // 'ManagedDatum' object.
 //
-// First, create a 'ManagedDatum' object that holds a double value and verify
-// that it has the same double value inside it:
+// First, we create a 'ManagedDatum' object that holds a double value and
+// verify that it has the same double value inside it:
 //..
     bslma::TestAllocator ta("test", veryVeryVerbose);
 
     const ManagedDatum realObj(Datum::createDouble(-3.4375), &ta);
+
     ASSERT(realObj->isDouble());
     ASSERT(-3.4375 == realObj->theDouble());
 //..
@@ -284,6 +293,7 @@ int main(int argc, char *argv[])
 //..
     const char         *str = "This is a string";
     const ManagedDatum  strObj(Datum::copyString(str, &ta), &ta);
+
     ASSERT(strObj->isString());
     ASSERT(str == strObj->theString());
 //..
@@ -306,6 +316,7 @@ int main(int argc, char *argv[])
 //..
     bdlt::Date   udt;
     ManagedDatum udtObj(Datum::createUdt(&udt, UDT_TYPE), &ta);
+
     ASSERT(udtObj->isUdt());
     ASSERT(&udt == udtObj->theUdt().data());
     ASSERT(UDT_TYPE == udtObj->theUdt().type());
@@ -318,7 +329,8 @@ int main(int argc, char *argv[])
     ASSERT(true == udtObj->theBoolean());
 //..
 // Then, we create a 'ManagedDatum' object having an array and verify that it
-// has the same array value:
+// has the same array value.  Note that in practice we would use
+// {'bdld_datumarraybuilder'}, but do not do so here to for dependency reasons.
 //..
     const Datum datumArray[2] = {
         Datum::createInteger(12),
@@ -332,11 +344,13 @@ int main(int argc, char *argv[])
     }
     *(arr.length()) = 2;
     const ManagedDatum arrayObj(Datum::adoptArray(arr), &ta);
+
     ASSERT(arrayObj->isArray());
     ASSERT(DatumArrayRef(datumArray, 2) == arrayObj->theArray());
 //..
 // Next, we create a 'ManagedDatum' object having a map and verify that it has
-// the same map value:
+// the same map value.  Note that in practice we would use
+// {'bdld_datummapbuilder'}, but do not do so here to for dependency reasons.
 //..
     const DatumMapEntry datumMap[2] = {
         DatumMapEntry(StringRef("first", static_cast<int>(strlen("first"))),
@@ -352,6 +366,7 @@ int main(int argc, char *argv[])
     }
     *(mp.size()) = 2;
     const ManagedDatum mapObj(Datum::adoptMap(mp), &ta);
+
     ASSERT(mapObj->isMap());
     ASSERT(DatumMapRef(datumMap, 2, false) == mapObj->theMap());
 //..
@@ -374,6 +389,81 @@ int main(int argc, char *argv[])
 //..
     Datum::destroy(internalObj, obj.allocator());
 //..
+      } break;
+      case 13: {
+        //---------------------------------------------------------------------
+        // TESTING FREE FUNCTION 'swap'
+        //
+        // Concerns:
+        //: 1 The 'swap' function swaps object with the same and different
+        //:   allocators.
+        //
+        // Plan:
+        //: 1 Create 'Datum' objects with a set of allocators. Ensure that free
+        //:   'swap' function correctly swaps those objects.  (C-1)
+        //
+        // Testing:
+        //   void swap(ManagedDatum& a, ManagedDatum& b);
+        //---------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING FREE FUNCTION 'swap'" << endl
+                          << "============================" << endl;
+        const char* str1 = "First long test string";
+        const char* str2 = "Second long test string";
+
+        if (verbose)
+            cout << "\nSwapping objects with the same allocator." << endl;
+        {
+            bslma::TestAllocator ta("test", veryVeryVerbose);
+
+            {
+                Obj        mMD1(Datum::copyString(str1, &ta), &ta);
+                const Obj& MD1 = mMD1;
+                Obj        mMD2(Datum::copyString(str2, &ta), &ta);
+                const Obj& MD2 = mMD2;
+
+                ASSERT(true == MD1->isString());
+                ASSERT(str1 == MD1->theString());
+                ASSERT(true == MD2->isString());
+                ASSERT(str2 == MD2->theString());
+
+                swap(mMD1, mMD2);
+
+                ASSERT(true == MD1->isString());
+                ASSERT(str2 == MD1->theString());
+                ASSERT(true == MD2->isString());
+                ASSERT(str1 == MD2->theString());
+            }
+            ASSERT(0 == ta.numBytesInUse());
+        }
+
+        if (verbose)
+            cout << "\nSwapping objects with different allocators." << endl;
+        {
+            bslma::TestAllocator ta1("test1", veryVeryVerbose);
+            bslma::TestAllocator ta2("test2", veryVeryVerbose);
+
+            {
+                Obj        mMD1(Datum::copyString(str1, &ta1), &ta1);
+                const Obj& MD1 = mMD1;
+                Obj        mMD2(Datum::copyString(str2, &ta2), &ta2);
+                const Obj& MD2 = mMD2;
+
+                ASSERT(true == MD1->isString());
+                ASSERT(str1 == MD1->theString());
+                ASSERT(true == MD2->isString());
+                ASSERT(str2 == MD2->theString());
+
+                swap(mMD1, mMD2);
+
+                ASSERT(true == MD1->isString());
+                ASSERT(str2 == MD1->theString());
+                ASSERT(true == MD2->isString());
+                ASSERT(str1 == MD2->theString());
+            }
+            ASSERT(0 == ta1.numBytesInUse());
+            ASSERT(0 == ta2.numBytesInUse());
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -404,7 +494,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         //---------------------------------------------------------------------
-        // TESTING 'PRINT' METHOD
+        // TESTING 'print'
         //
         // Concerns:
         //: 1 The 'print' method should print held 'Datum' object to the
@@ -418,8 +508,8 @@ int main(int argc, char *argv[])
         //   bsl::ostream& print(bsl::ostream&, int, int) const;
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'PRINT' METHOD" << endl
-                                  << "======================" << endl;
+        if (verbose) cout << endl << "TESTING 'print'" << endl
+                                  << "===============" << endl;
 
         bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -632,7 +722,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.status());
 
-        if (verbose) cout << "\nTesting adopting a Datum object." << endl;
+        if (verbose) cout << "\nTesting 'adopt' method." << endl;
         {
             // Create ManagedDatum with a string value.
 
@@ -657,7 +747,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.status());
 
-        if (verbose) cout << "\nTesting cloning a Datum object." << endl;
+        if (verbose) cout << "\nTesting 'clone' method." << endl;
         {
             // Create ManagedDatum with a string value.
 
@@ -684,7 +774,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.status());
 
-        if (verbose) cout << "\nTesting releasing a Datum object." << endl;
+        if (verbose) cout << "\nTesting 'release' method." << endl;
         {
             // Create ManagedDatum with a string value.
 
@@ -734,13 +824,13 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         //---------------------------------------------------------------------
-        // TESTING SWAP FUNCTION
+        // TESTING 'swap'
         //
         // Concerns:
-        //: 1 The 'swap' function should swap the corresponding (underlying)
+        //: 1 The 'swap' method should swap the corresponding (underlying)
         //:   'Datum' objects.
         //:
-        //: 2 The 'swap' function does't allocate any additional memory.
+        //: 2 The 'swap' method does't allocate any additional memory.
         //
         // Plan:
         //: 1 Create 'Datum' object with a sufficiently long string value, so
@@ -757,8 +847,8 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING SWAP FUNCTION" << endl
-                          << "=====================" << endl;
+                          << "TESTING 'swap'" << endl
+                          << "==============" << endl;
 
         bslma::TestAllocator ta("test", veryVeryVerbose);
         bdlt::Date           udt;
@@ -850,8 +940,7 @@ int main(int argc, char *argv[])
             // Swap two ManagedDatum objects and verify that there were no
             // memory allocations or deallocations.
 
-            Obj        mMD1(Datum::copyString(str, &ta),
-                            &ta);
+            Obj        mMD1(Datum::copyString(str, &ta), &ta);
             const Obj& MD1 = mMD1;
             Obj        mMD2(DATA[i].d_obj, &ta);
             const Obj& MD2 = mMD2;
@@ -1049,7 +1138,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedDatum(bslma::Allocator *basicAllocator);
-        //   ManagedDatum(const Datum& value);
         //   ManagedDatum(const ManagedDatum&, bslma::Allocator *);
         // --------------------------------------------------------------------
 
@@ -1101,54 +1189,6 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == ta.status());
             ASSERT(0 == da.status());
-        }
-
-        if (verbose) cout <<
-             "\nTesting constructor with 'Datum' object and default allocator."
-                          << endl;
-        {
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            {
-                bslma::DefaultAllocatorGuard guard(&da);
-
-                const Datum D = Datum::copyString("A very long string", &da);
-                Obj         mMD(D);
-                const Obj&  MD = mMD;
-
-                ASSERT(D   == MD.datum());
-                ASSERT(&da == MD.allocator());
-
-                bslma::TestAllocator ada("another default",
-                                         veryVeryVeryVerbose);
-                {
-                    // Another default allocator and 'ManagedDatum' object.
-
-                    bslma::DefaultAllocatorGuard guard(&ada);
-
-                    const Datum DA = Datum::copyString("A very long string",
-                                                       &ada);
-                    Obj         mMDA(DA);
-                    const Obj&  MDA = mMDA;
-
-                    ASSERT(true                 == DA.isString());
-                    ASSERT("A very long string" == DA.theString());
-                    ASSERT(DA                   == MDA.datum());
-                    ASSERT(&ada                 == MDA.allocator());
-                }
-
-                // Other than another 'ManagedDatum' object.
-
-                const Datum DOta = Datum::copyString("A very long string",
-                                                     &da);
-                Obj         mMDOta(DOta);
-                const Obj&  MDOta = mMDOta;
-
-                ASSERT(0    != da.numBytesInUse());
-                ASSERT(0    == ada.numBytesInUse());
-                ASSERT(DOta == MDOta.datum());
-                ASSERT(&da  == MDOta.allocator());
-            }
-            ASSERT(0 == da.numBytesInUse());
         }
 
         if (verbose) cout <<
@@ -1427,8 +1467,8 @@ int main(int argc, char *argv[])
         //:   (C-2)
         //:
         //: 3 Create a 'ManagedDatum' object.  Let it go out the scope.  Verify
-        //:   that all allocated memory (even on held 'Datum' object creation)
-        //:   is released.  (C-3)
+        //:   that all allocated memory (including memory allocated by the
+        //:   'Datum' object) is released.  (C-3)
         //:
         //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
@@ -1443,10 +1483,57 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PRIMARY MANIPULATORS" << endl
                                   << "====================" << endl;
 
-        bslma::TestAllocator ta("test", veryVeryVerbose);
+        if (verbose) cout << "\nTesting constructor with default allocator."
+                          << endl;
+        {
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            {
+                bslma::DefaultAllocatorGuard guard(&da);
+
+                const Datum D = Datum::copyString("A very long string", &da);
+                Obj         mMD(D);
+                const Obj&  MD = mMD;
+
+                ASSERT(D   == MD.datum());
+                ASSERT(&da == MD.allocator());
+
+                bslma::TestAllocator ada("another default",
+                                         veryVeryVeryVerbose);
+                {
+                    // Another default allocator and 'ManagedDatum' object.
+
+                    bslma::DefaultAllocatorGuard guard(&ada);
+
+                    const Datum DA = Datum::copyString("A very long string",
+                                                       &ada);
+                    Obj         mMDA(DA);
+                    const Obj&  MDA = mMDA;
+
+                    ASSERT(true                 == DA.isString());
+                    ASSERT("A very long string" == DA.theString());
+                    ASSERT(DA                   == MDA.datum());
+                    ASSERT(&ada                 == MDA.allocator());
+                }
+
+                // Other than another 'ManagedDatum' object.
+
+                const Datum DOta = Datum::copyString("A very long string",
+                                                     &da);
+                Obj         mMDOta(DOta);
+                const Obj&  MDOta = mMDOta;
+
+                ASSERT(0    != da.numBytesInUse());
+                ASSERT(0    == ada.numBytesInUse());
+                ASSERT(DOta == MDOta.datum());
+                ASSERT(&da  == MDOta.allocator());
+            }
+            ASSERT(0 == da.numBytesInUse());
+        }
 
 
         if (verbose) cout << "\nTesting constructor." << endl;
+
+        bslma::TestAllocator ta("test", veryVeryVerbose);
         {
             // Create ManagedDatum with a Datum value.
 
@@ -1493,17 +1580,6 @@ int main(int argc, char *argv[])
 
             ASSERT(0  == ta.numBytesInUse());
         }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            ASSERT_SAFE_FAIL(Obj(Datum::createInteger(1),
-                                 static_cast<bslma::Allocator *>(0)));
-            ASSERT_SAFE_PASS(Obj(Datum::createInteger(1), &ta));
-        }
-
         ASSERT(0    == ta.numBytesInUse());
       } break;
       case 1: {

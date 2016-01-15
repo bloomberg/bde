@@ -90,6 +90,8 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // length) and binary values are stored directly in the 14 bytes of available
 // storage.
 //
+///Immutability
+///------------
 // 'Datum' is immutable.  Thus the value stored inside a 'Datum' object cannot
 // be changed.  However, 'Datum' is copy-assignable.  So a 'Datum' object can
 // be copied by another 'Datum' object.  'Datum' objects are "shallow-copied".
@@ -98,22 +100,22 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // bitwise.  'Datum' exposes a 'clone' method to "deep-copy" 'Datum' objects,
 // so that any dynamically allocated memory is cloned and not shared like copy-
 // assignment.
-
-///Implementation Notes
-///--------------------
-// On 32-bit platforms, memory is allocated in 'copyString' only if the string
-// has more than 6 characters (not including the terminating null character),
-// storing the pointer to the allocated string.  Note that the string value
-// passed in is copied.  If the string has fewer than 6 characters, a copy is
-// stored inline.  On 64-bit platforms, memory is allocated in 'copyString'
-// only if the string has more than 15 characters (not including the
-// terminating null character).
 //
-// On 32-bit platforms, NaN value is stored is stored as a separate type and
-// cannot be directly retrieved as a 'double' value.
+///Further Notes
+///-------------
+// * On 32-bit platforms, memory is allocated in 'copyString' only if the
+//   string has more than 6 characters (not including the terminating null
+//   character), storing the pointer to the allocated string.  Note that the
+//   string value passed in is copied.  If the string has fewer than 6
+//   characters, a copy is stored inline.  On 64-bit platforms, memory is
+//   allocated in 'copyString' only if the string has more than 15 characters
+//   (not including the terminating null character).
 //
-// DatumMapRef::find() does a binary search if the map is sorted.  Otherwise it
-// does a linear search.
+// * On 32-bit platforms, NaN value is stored as a separate type and cannot be
+//   directly retrieved as a 'double' value.
+//
+// * DatumMapRef::find() does a binary search if the map is sorted.  Otherwise
+//   it does a linear search.
 
 #include <bdlt_currenttime.h>
 #include <bdldfp_decimal.h>
@@ -808,7 +810,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64  value,
         unsigned char buffer[9];
         unsigned char* end = DecimalConvertUtil::
             decimal64ToVariableWidthEncoding(buffer, value);
-        if (end - buffer <= sizeof(int)) {
+        if (end - buffer <= static_cast<int>(sizeof(int))) {
             result.d_as.d_ushort = e_EXTENDED_INTERNAL_DECIMAL64;
             result.d_as.d_int = *reinterpret_cast<const int *>(buffer);
             return result;                                            // RETURN
@@ -877,14 +879,17 @@ Datum Datum::copyBinary(const void       *value,
     if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
         bsl::memcpy(result.d_data.buffer(), value, size);
         result.d_as.d_type = e_INTERNAL_BINARY;
-        result.d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] = size;
+        result.d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] =
+                                                       static_cast<char>(size);
         return result;                                                // RETURN
     }
 
-    result.d_as.d_type = e_INTERNAL_BINARY_ALLOC;
-    result.d_as.d_int32 = size;
-    result.d_as.d_ptr = basicAllocator->allocate(result.d_as.d_int32);
-    bsl::memcpy(result.d_as.d_ptr, value, result.d_as.d_int32);
+    BSLS_ASSERT(size <= bsl::numeric_limits<unsigned int>::max());
+
+    result.d_as.d_type  = e_INTERNAL_BINARY_ALLOC;
+    result.d_as.d_int32 = static_cast<int>(size);
+    result.d_as.d_ptr   = basicAllocator->allocate(size);
+    bsl::memcpy(result.d_as.d_ptr, value, size);
 
     return result;
 #endif  // BSLS_PLATFORM_CPU_32_BIT
@@ -940,15 +945,17 @@ Datum Datum::copyString(const char       *string,
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *inlineString =
             reinterpret_cast<char *>(result.theInlineStorage());
-        *inlineString++ = length;
+        *inlineString++ = static_cast<char>(length);
         bsl::memcpy(inlineString, string, length);
         result.d_as.d_type = e_INTERNAL_SHORTSTRING;
         return result;                                                // RETURN
     }
 
-    result.d_as.d_type = e_INTERNAL_STRING;
-    result.d_as.d_int32 = length;
-    result.d_as.d_ptr = basicAllocator->allocate(length);
+    BSLS_ASSERT(length <= bsl::numeric_limits<unsigned int>::max());
+
+    result.d_as.d_type  = e_INTERNAL_STRING;
+    result.d_as.d_int32 = static_cast<int>(length);
+    result.d_as.d_ptr   = basicAllocator->allocate(length);
     bsl::memcpy(result.d_as.d_ptr, string, length);
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 
@@ -961,6 +968,8 @@ void Datum::createUninitializedArray(DatumMutableArrayRef *result,
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
+    BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max()/
+                                                              sizeof(Datum)-1);
 
     // Allocate one extra element to store length of the array.
 
@@ -979,6 +988,8 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
+    BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max()/
+                                                      sizeof(DatumMapEntry)-2);
 
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
@@ -1009,13 +1020,15 @@ void Datum::createUninitializedMap(
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
+    BSLS_ASSERT(capacity < (bsl::numeric_limits<SizeType>::max()-keysCapacity)/
+                                                      sizeof(DatumMapEntry)-2);
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
     SizeType     bufferSize =
         bsls::AlignmentUtil::roundUpToMaximalAlignment(
                         sizeof(DatumMapEntry) * (capacity + 2) + keysCapacity);
-    void * const mem    = basicAllocator->allocate(bufferSize);
+    void * const mem = basicAllocator->allocate(bufferSize);
 
     // Store size of the map in the front.
     SizeType *size = static_cast<SizeType *>(mem);
@@ -1067,17 +1080,20 @@ char *Datum::createUninitializedString(Datum            *result,
     *reinterpret_cast<SizeType *>(mem) = length;
     result->d_as.d_cvp = mem;
 
-    return mem + sizeof(int);                                         // RETURN
+    return mem + sizeof(length);                                      // RETURN
 #else   // BSLS_PLATFORM_CPU_32_BIT
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *str = reinterpret_cast<char *>(result->theInlineStorage());
-        *str++ = length;
+        *str++ = static_cast<char>(length);
         result->d_as.d_type = e_INTERNAL_SHORTSTRING;
         return str;                                                   // RETURN
     }
+
+    BSLS_ASSERT(length <= bsl::numeric_limits<unsigned int>::max());
+
     result->d_as.d_type = e_INTERNAL_STRING;
-    result->d_as.d_int32 = length;
-    result->d_as.d_ptr = basicAllocator->allocate(result->d_as.d_int32);
+    result->d_as.d_int32 = static_cast<int>(length);
+    result->d_as.d_ptr = basicAllocator->allocate(length);
     return static_cast<char *>(result->d_as.d_ptr);
 #endif  // BSLS_PLATFORM_CPU_32_BIT
 }
@@ -1267,9 +1283,9 @@ bsl::ostream& Datum::print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-                         // ------------------------
+                         // -------------------
                          // class DatumArrayRef
-                         // ------------------------
+                         // -------------------
 
 // ACCESSORS
 bsl::ostream& DatumArrayRef::print(bsl::ostream& stream,
@@ -1316,9 +1332,9 @@ bsl::ostream& DatumMapEntry::print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
-                          // ----------------------
+                          // -----------------
                           // class DatumMapRef
-                          // ----------------------
+                          // -----------------
 // ACCESSORS
 const Datum *DatumMapRef::find(const bslstl::StringRef& key) const
 {
@@ -1419,8 +1435,7 @@ bsl::ostream& bdld::operator<<(bsl::ostream& stream, const Datum::DataType rhs)
 bool bdld::operator==(const DatumArrayRef& lhs, const DatumArrayRef& rhs)
 {
     if (lhs.length() == rhs.length()) {
-        for (DatumArrayRef::SizeType i = 0; i < lhs.length(); ++i)
-        {
+        for (DatumArrayRef::SizeType i = 0; i < lhs.length(); ++i) {
             if (lhs[i] != rhs[i]) {
                 return false;                                         // RETURN
             }
@@ -1433,8 +1448,7 @@ bool bdld::operator==(const DatumArrayRef& lhs, const DatumArrayRef& rhs)
 bool bdld::operator==(const DatumMapRef& lhs, const DatumMapRef& rhs)
 {
     if (lhs.size() == rhs.size()) {
-        for (DatumMapRef::SizeType i = 0; i < lhs.size(); ++i)
-        {
+        for (DatumMapRef::SizeType i = 0; i < lhs.size(); ++i) {
             if (lhs[i] != rhs[i]) {
                 return false;                                         // RETURN
             }

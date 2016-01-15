@@ -37,6 +37,7 @@ using namespace bsl;
 // [ 2] Datum commit();
 // ACCESSORS
 // [ 3] SizeType capacity() const;
+// [ 3] SizeType size() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
@@ -112,71 +113,143 @@ typedef bdld::DatumArrayBuilder Obj;
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-static bsl::size_t nextValue(bsl::string *value, const bsl::string& input)
-    // Extract the next value from a list of comma separated values in the
-    // specified 'input' string and load it in the specified 'value'.  Return
-    // the index of the next value within 'input'.
-{
-    if (input.empty()) {
-        return bsl::string::npos;
+namespace {
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using a 'DatumArrayBuilder' to Create a 'Datum' array.
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we receive a string that is constructed by streaming a bunch of
+// values together in the format shown below:
+//..
+//  "2.34,4,hi there,true"
+//..
+// Notice that the values are separated by a ','.  Also note that a ',' is not
+// allowed to be part of a string value to simplify the implementation of the
+// utility that parses this string.  The following code snippets illustrate how
+// to create a 'Datum' object that holds an array of 'Datum' objects
+// constructed using the streamed values.
+//
+// First we define a function 'nextValue' that we will use to tokenize the
+// input string:
+//..
+    bsl::size_t nextValue(bsl::string *value, const bsl::string& input)
+        // Extract the next value from a list of comma separated values in the
+        // specified 'input' string and load it in the specified 'value'.
+        // Return the index of the next value within 'input'.
+    {
+        if (input.empty()) {
+            return bsl::string::npos;
+        }
+        int start = 0;
+        bsl::size_t nextIndex = input.find(',', start);
+        if (bsl::string::npos != nextIndex) {
+            *value = input.substr(start, nextIndex - start);
+        }
+        else {
+            *value = input.substr(start);
+        }
+        return nextIndex;
     }
-
-    const bsl::size_t start = 0;
-    const bsl::size_t nextIndex = input.find(',', start);
-    if (bsl::string::npos != nextIndex) {
-        *value = input.substr(start, nextIndex - start);
-    }
-    else {
-        *value = input.substr(start);
-    }
-    return nextIndex;
-}
-
-bdld::Datum convertToDatum(const bsl::string&  value,
-                           bslma::Allocator   *basicAllocator)
-    // Convert the specified 'value' into the appropriate type of scalar value
-    // and then create and return a 'Datum' object using that value.  Use the
-    // specified 'basicAllocator' to allocate memory.
-{
-    bool isInteger = true;
-    bool isDouble  = false;
-    bool isBoolean = false;
-
-    for (int i = 0; i < value.size(); ++i) {
-        if (!isdigit(value[i])) {
-            if ('.' == value[i] && !isDouble) {
-                isDouble  = true;
+//..
+// Next, we define a function 'convertToDatum' that will convert a string
+// token into a 'Datum' scalar value:
+//..
+    bdld::Datum convertToDatum(const bsl::string&  token,
+                               bslma::Allocator   *basicAllocator)
+        // Convert the specified 'token' into the appropriate type of scalar
+        // value and then create and return a 'Datum' object using that value.
+        // Use the specified 'basicAllocator' to allocate memory.
+    {
+        bool isInteger = true;
+        bool isDouble = false;
+        bool isBoolean = false;
+        for (bsl::size_t i = 0; i < token.size(); ++i) {
+            if (!isdigit(token[i])) {
+                if ('.' == token[i] && !isDouble) {
+                    isDouble = true;
+                    isInteger = false;
+                    continue;
+                }
                 isInteger = false;
-                continue;
+                isDouble = false;
+                break;
             }
-            isInteger = false;
-            isDouble  = false;
-            break;
+        }
+
+        if (!isInteger && !isDouble) {
+            if ("true" == token || "false" == token) {
+                isBoolean = true;
+            }
+        }
+
+        if (isInteger) { // integer token
+            return bdld::Datum::createInteger(atoi(token.c_str()));
+        }
+        else if (isDouble) { // double token
+            return bdld::Datum::createDouble(atof(token.c_str()));
+        }
+        else if (isBoolean) { // boolean token
+            return bdld::Datum::createBoolean("true" == token ? true : false);
+        }
+        else { // string value
+            return bdld::Datum::copyString(token, basicAllocator);
         }
     }
+//..
+// Now, in our example main, we tokenize an input string "2.34,4,hi there,true"
+// to populate a 'Datum' array containing the values '[2.34, 4, "hi there",
+// true]':
+//..
+    void exampleMain() {
+        bslma::TestAllocator allocator;
+        const bsl::string    input("2.34,4,hi there,true", &allocator);
+//..
+// Here, we create a 'DatumArrayBuilder', and iterate over the parsed tokens
+// from 'input', using 'pushBack' on the array builder to add the tokens to a
+// 'Datum' array value:
+//..
+        bdld::DatumArrayBuilder builder(0, &allocator);
 
-    if (!isInteger && !isDouble) {
-        if ("true" == value || "false" == value) {
-            isBoolean = true;
-        }
-    }
+        bsl::string str(input, &allocator);
 
-    if (isInteger) {       // integer value
-        return bdld::Datum::createInteger(atoi(value.c_str()));
+        bsl::string value;
+        bsl::size_t nextIndex;
+        do {
+            nextIndex = nextValue(&value, str);
+            builder.pushBack(convertToDatum(value, &allocator));
+            if (bsl::string::npos == nextIndex) {
+                break;
+            }
+            str = str.substr(nextIndex + 1);
+        } while (bsl::string::npos != nextIndex);
+
+        bdld::Datum result = builder.commit();
+//..
+// Notice that calling 'commit' on the 'DatumArrayBuilder' adopts ownership
+// for the returned 'Datum' object, and that the behavior is undefined if
+// 'pushBack' is called after 'commit'.
+//
+// Finally, we verify that 'result' has the expected array value, and destroy
+// the created 'Datum' value:
+//..
+        ASSERT(true       == result.isArray());
+        ASSERT(4          == result.theArray().length());
+        ASSERT(true       == result.theArray()[0].isDouble());
+        ASSERT(2.34       == result.theArray()[0].theDouble());
+        ASSERT(true       == result.theArray()[1].isInteger());
+        ASSERT(4          == result.theArray()[1].theInteger());
+        ASSERT(true       == result.theArray()[2].isString());
+        ASSERT("hi there" == result.theArray()[2].theString());
+        ASSERT(true       == result.theArray()[3].isBoolean());
+        ASSERT(true       == result.theArray()[3].theBoolean());
+
+        // Destroy the 'Datum' object.
+        bdld::Datum::destroy(result, &allocator);
     }
-    else if (isDouble) {   // double value
-        return bdld::Datum::createDouble(atof(value.c_str()));
-    }
-    else if (isBoolean) {  // boolean value
-        return bdld::Datum::createBoolean("true" == value ? true : false);
-    }
-    else { // string value
-        return bdld::Datum::copyString(value.c_str(),
-                                       value.size(),
-                                       basicAllocator);
-    }
-}
+//..
+}  // close unnamed namespace
 
 // ============================================================================
 //                              TYPE TRAITS
@@ -201,7 +274,6 @@ int main(int argc, char *argv[]) {
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocatorRaw(&ta);
-    bslma::Allocator *alloc(&ta);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -226,41 +298,7 @@ int main(int argc, char *argv[]) {
                           << "USAGE EXAMPLE TEST" << endl
                           << "==================" << endl;
 
-        const bsl::string input("2.34,4,hi there,true", alloc);
-
-        // Create a builder object.
-        bdld::DatumArrayBuilder builder(0, alloc);
-
-        bsl::string  str(input, alloc);
-
-        bsl::string  value;
-        unsigned int numValues = 0;
-        bsl::size_t  nextIndex;
-        do {
-            nextIndex = nextValue(&value, str);
-            ++numValues;
-            builder.pushBack(convertToDatum(value, alloc));
-            if (bsl::string::npos == nextIndex) {
-                break;
-            }
-            str = str.substr(nextIndex + 1);
-        } while (bsl::string::npos != nextIndex);
-
-        bdld::Datum result = builder.commit();
-
-        ASSERT(result.isArray());
-        ASSERT(numValues == result.theArray().length());
-        ASSERT(result.theArray()[0].isDouble());
-        ASSERT(2.34 == result.theArray()[0].theDouble());
-        ASSERT(result.theArray()[1].isInteger());
-        ASSERT(4 == result.theArray()[1].theInteger());
-        ASSERT(result.theArray()[2].isString());
-        ASSERT("hi there" == result.theArray()[2].theString());
-        ASSERT(result.theArray()[3].isBoolean());
-        ASSERT(true == result.theArray()[3].theBoolean());
-
-        // Destroy the 'Datum' object.
-        bdld::Datum::destroy(result, alloc);
+        exampleMain();
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -336,15 +374,12 @@ int main(int argc, char *argv[]) {
                                           /sizeof(valuesAppend[0]);
 
             Obj        mBA(0, &ta);
-            const Obj& BA = mBA;
-
             Obj        mBB(0, &ta);
-            const Obj& BB = mBB;
 
             mBA.append(valuesAppend, numValues);
             appendResult = mBA.commit();
 
-            ASSERT(appendResult.isArray());
+            ASSERT(true      == appendResult.isArray());
             ASSERT(numValues == appendResult.theArray().length());
 
             for (bsl::size_t i = 0; i < numValues; ++i) {
@@ -353,7 +388,7 @@ int main(int argc, char *argv[]) {
 
             pushBackResult = mBB.commit();
 
-            ASSERT(pushBackResult.isArray());
+            ASSERT(true      == pushBackResult.isArray());
             ASSERT(numValues == pushBackResult.theArray().length());
 
             ASSERTV(appendResult, pushBackResult,
@@ -376,17 +411,19 @@ int main(int argc, char *argv[]) {
         //:   constructor and verify the initial capacity.  (C-1)
         //:
         //: 2 Call 'pushBack' to insert 'Datum' elements to the array and
-        //:   verify that the capacity grows.  (C-1)
+        //:   verify that the 'capacity' and 'size' return expected values.
+        //:   (C-1)
         //
         // Testing:
         //   SizeType capacity() const;
+        //   SizeType size() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'capacity' method." << endl;
+        if (verbose) cout << "\nTesting 'capacity' and 'size' method." << endl;
         {
             static const struct {
                 int           d_line;               // line number
@@ -428,6 +465,7 @@ int main(int argc, char *argv[]) {
                     const Obj& B = mB;
 
                     ASSERTV(i, B.capacity(), INIT_CAPACITY == B.capacity());
+                    ASSERTV(i, B.size(),     0             == B.size());
 
                     for (size_t n = 0; n < NUM_PUSH; ++n) {
                         const int   value = static_cast<int>(n);
@@ -436,10 +474,11 @@ int main(int argc, char *argv[]) {
                     }
 
                     ASSERTV(i, B.capacity(), EXP_CAPACITY == B.capacity());
+                    ASSERTV(i, B.size(),     NUM_PUSH     == B.size());
 
                     result = mB.commit();
 
-                    ASSERTV(i, result.isArray());
+                    ASSERTV(i, true     == result.isArray());
                     ASSERTV(i, NUM_PUSH == result.theArray().length());
 
                     for (size_t n = 0; n < NUM_PUSH; ++n) {
@@ -449,7 +488,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
 
-                ASSERTV(i, result.isArray());
+                ASSERTV(i, true     == result.isArray());
                 ASSERTV(i, NUM_PUSH == result.theArray().length());
 
                 for (size_t n = 0; n < NUM_PUSH; ++n) {
@@ -650,9 +689,9 @@ int main(int argc, char *argv[]) {
 
                     result = mB.commit();
 
-                    ASSERT(0 == da.numAllocations());
-                    ASSERT(result.isArray());
-                    ASSERT(0 == result.theArray().length());
+                    ASSERT(0    == da.numAllocations());
+                    ASSERT(true == result.isArray());
+                    ASSERT(0    == result.theArray().length());
                 }
                 ASSERTV(da.numAllocations(), 0 == da.numAllocations());
             }
@@ -681,13 +720,13 @@ int main(int argc, char *argv[]) {
 
                     result = mB.commit();
 
-                    ASSERT(0 == B.capacity());
-                    ASSERT(result.isArray());
-                    ASSERT(1 == result.theArray().length());
+                    ASSERT(0    == B.capacity());
+                    ASSERT(true == result.isArray());
+                    ASSERT(1    == result.theArray().length());
                 }
                 // Verify that array is not destroyed
-                ASSERT(result.isArray());
-                ASSERT(1 == result.theArray().length());
+                ASSERT(true == result.isArray());
+                ASSERT(1    == result.theArray().length());
 
                 // Now explicitly destroy array and check that all memory has
                 // been released.
@@ -762,16 +801,16 @@ int main(int argc, char *argv[]) {
                 ASSERT(numValues <= B.capacity());
 
                 result = mB.commit();
-                ASSERT(result.isArray());
-                ASSERT(result.theArray().length() == numValues);
+                ASSERT(true      == result.isArray());
+                ASSERT(numValues == result.theArray().length());
 
                 for (bsl::size_t i = 0; i < numValues; ++i) {
                     ASSERTV(i, result.theArray()[i] == values[i]);
                 }
             }
 
-            ASSERT(result.isArray());
-            ASSERT(result.theArray().length() == numValues);
+            ASSERT(true      == result.isArray());
+            ASSERT(numValues == result.theArray().length());
 
             for (bsl::size_t i = 0; i < numValues; ++i) {
                 ASSERTV(i, result.theArray()[i] == values[i]);

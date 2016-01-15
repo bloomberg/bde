@@ -43,6 +43,7 @@ using namespace bslstl;
 //
 // ACCESSORS
 // [ 3] SizeType capacity() const;
+// [ 3] SizeType size() const;
 //
 // TRAITS
 // [ 7] bslma::UsesBslmaAllocator
@@ -583,19 +584,23 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'capacity' method returns the capacity of the datum map.
+        //:
+        //: 2 The 'size' method returns the current size of the datum map.
         //
         // Plan:
         //: 1 Create a 'DatumMapBuilder' object. Append few elements to the
-        //:   map and verify that the capacity is represented correctly.  (C-1)
+        //:   map and verify that the 'capacity' and 'size' methods return
+        //:   expected values.  (C-1,2)
         //
         // Testing:
         //    SizeType capacity() const;
+        //    SizeType size() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'capacity'." << endl;
+        if (verbose) cout << "\nTesting 'capacity' and 'size'." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -603,18 +608,22 @@ int main(int argc, char *argv[])
             const Obj& B = mB;
 
             ASSERT(0 == B.capacity());
+            ASSERT(0 == B.size());
 
             mB.append(values, 1);
 
             ASSERT(1 == B.capacity());
+            ASSERT(1 == B.size());
 
             mB.append(values + 1, 1);
 
             ASSERT(2 == B.capacity());
+            ASSERT(2 == B.size());
 
             mB.append(values + 2, 3);
 
             ASSERT(8 == B.capacity());
+            ASSERT(5 == B.size());
         }
       } break;
       case 2: {

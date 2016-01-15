@@ -7,27 +7,26 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide a utility to build a 'Datum' object holding map.
+//@PURPOSE: Provide a utility to build a 'Datum' object holding a map.
 //
 //@CLASSES:
-//  bdld::DatumMapBuilder: utility to build map of 'Datum' objects
+//  bdld::DatumMapBuilder: utility to build a 'Datum' object holding a map
 //
-//@SEE ALSO: bdld_datum, bdld_datummapref
+//@SEE ALSO: bdld_datum, bdld_datummapowningkeysbuilder
 //
-//@DESCRIPTION: This component provides a utility 'bdld::DatumMapBuilder' to
-// build a 'Datum' object holding a map of 'Datum' objects that is keyed by
-// string keys.  This 'class' is especially useful when the size of the map to
-// be constructed is not known in advance.  The user can append elements to the
-// datum map.  When the size of the datum map exceeds its capacity, the datum
-// map grows.  The user can indicate that it does not have more elements to
-// append (by calling 'commit'), and the datum map is then adopted into a
-// 'Datum' object and returned to the user.  The user should not try to append
-// any more elements to the datum map then.  The user can indicate that the
-// elements need to be sorted (by keys) by calling 'sortAndCommit' and the
-// elements will be sorted before the map is adopted into a 'Datum' object.
-// The user can also insert elements in a sorted order and tag the map as
-// sorted.  It is undefined behavior to tag the map as sorted unless all of the
-// elements are added in ascending order.
+//@DESCRIPTION: This component defined a mechanism, 'bdld::DatumMapBuilder',
+// used to populate a 'Datum' map value in an exception-safe manner.  In
+// addition to providing exception safety, a 'DatumMapBuilder' is particularly
+// useful when the size of the map to be constructed is not known in advance.
+// The user can append elements to the datum map as needed, and when there are
+// no more elements to append the user calls 'commit' or 'sortAndCommit' and
+// ownership of the populated 'Datum' object is transferred to the caller.
+// After calling 'commit' or 'sortAndCommit', no additional elements can be
+// appended to the 'Datum' map value.  Note that 'sortAndCommit' method will
+// sort the populated map (by keys) and tag the resulting 'Datum' map value as
+// sorted.  Also note that the user can insert elements in a (ascending) sorted
+// order and tag the map as sorted.  The behaviour is undefined if unsorted map
+// is tagged sorted.
 //
 ///Usage
 ///-----
@@ -48,7 +47,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //                    Datum:: createStringRef("Bart", &ta)),
 //      DatumMapEntry(StringRef("lastName"),
 //                    Datum:: createStringRef("Simpson", &ta)),
-//      DatumMapEntry(StringRef("sex"), Datum::createStringRef("male", &ta)),
+//      DatumMapEntry(StringRef("gender"),
+//                    Datum::createStringRef("male", &ta)),
 //      DatumMapEntry(StringRef("age"), Datum::createInteger(10))
 //  };
 //
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(true        == bart.theMap()[1].value().isString());
 //  assert("Simpson"   == bart.theMap()[1].value().theString());
 //
-//  assert("sex"       == bart.theMap()[2].key());
+//  assert("gender"    == bart.theMap()[2].key());
 //  assert(true        == bart.theMap()[2].value().isString());
 //  assert("male"      == bart.theMap()[2].value().theString());
 //
@@ -126,8 +126,8 @@ namespace bdld {
                            // =====================
 
 class DatumMapBuilder {
-    // This 'class' provides a utility to build 'Datum' object holding a map of
-    // 'Datum' objects.
+    // This 'class' provides a mechanism to build a 'Datum' object having a map
+    // value in an exception-safe manner.
 
   public:
     // TYPES
@@ -148,13 +148,19 @@ class DatumMapBuilder {
     DatumMapBuilder& operator=(const DatumMapBuilder&);
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapBuilder, bslma::UsesBslmaAllocator);
+        // 'DatumMapBuilder' objects use 'bslma::Allocator'.
+
     // CREATORS
     explicit DatumMapBuilder(SizeType          initialCapacity = 0,
                              bslma::Allocator *basicAllocator  = 0);
-        // Create a 'DatumMapBuilder' object having the optionally specified
-        // 'initialCapacity' and optionally specified 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently-installed
-        // default allocator is used.
+        // Create a 'DatumMapBuilder' object managing the ownership of 'Datum'
+        // map.  Optionally specify an 'initialCapacity' for the map.  If
+        // 'initialCapacity' is not supplied, the initial capacity of the map
+        // is 0.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the currently installed default allocator
+        // is used.
 
     ~DatumMapBuilder();
         // Destroy this object. If this object is holding a datum map that has
@@ -162,21 +168,9 @@ class DatumMapBuilder {
         // each of its elements.
 
     // MANIPULATORS
-    void pushBack(const bslstl::StringRef& key, const Datum& value);
-        // Append the entry with the specified 'key' and the specified 'value'
-        // to the end of the held datum map.  If the datum map is full, a new
-        // datum map with larger capacity is allocated and any previous datum
-        // map is disposed after copying its elements.  The behavior is
-        // undefined if 'entry' needs dynamic memory and it was allocated using
-        // a different allocator than the one used to construct this object.
-        // The behavior is also undefined if 'commit' or 'sortAndCommit' has
-        // already been called on this object.
-
     void append(const DatumMapEntry *entries, SizeType size);
         // Append the specified array 'entries' having the specified 'size' to
-        // the end of the held datum map.  Note that if the datum map is full,
-        // a new datum map with larger capacity is allocated and the previous
-        // datum map is disposed after copying its elements.  The behavior is
+        // the 'Datum' map being build by this object.  The behavior is
         // undefined unless and '0 != entries && 0 != size'  and each element
         // in 'entries' that needs dynamic memory, is allocated with the same
         // allocator that was used to construct this object.  The behavior is
@@ -184,11 +178,21 @@ class DatumMapBuilder {
         // this object.
 
     Datum commit();
-        // Return a 'Datum' object holding a map of 'Datum' objects built using
-        // 'pushBack' or 'append'.  This method indicates that the caller is
-        // finished building the datum map and no further values shall be
-        // appended.  The behavior is undefined if any method of this object,
-        // other than its destructor, is called after 'commit' invocation.
+        // Return a 'Datum' map value holding the elements supplied to
+        // 'pushBack' or 'append'.  The caller is responsible for releasing the
+        // resources of the returned 'Datum' object.  Calling this method
+        // indicates that the caller is finished building the 'Datum' map and
+        // no further values shall be appended.  The behavior is undefined if
+        // any method of this object, other than its destructor, is called
+        // after 'commit' invocation.
+
+    void pushBack(const bslstl::StringRef& key, const Datum& value);
+        // Append the entry with the specified 'key' and the specified 'value'
+        // to the 'Datum' map being build by this object.  The behavior is
+        // undefined if 'value' needs dynamic memory and was allocated using a
+        // different allocator than the one used to construct this object.  The
+        // behavior is also undefined if 'commit' or 'sortAndCommit' has
+        // already been called on this object.
 
     void setSorted(bool value);
         // Indicate that the underlying map is sorted if the specified 'value'
@@ -197,22 +201,52 @@ class DatumMapBuilder {
         // Note that the map is unsorted by default.
 
     Datum sortAndCommit();
-        // Return a 'Datum' object holding a map of 'Datum' objects build using
-        // 'pushBack' or 'append'.  Sort the elements of the map.  This method
-        // indicates that the caller is finished building the datum map and no
-        // further values shall be appended.  The behavior is undefined if any
-        // method of this object, other than its destructor, is called after
-        // 'sortAndCommit' invocation.
+        // Return a 'Datum' map value holding the elements supplied to
+        // 'pushBack' or 'append' sorted by their keys.  The caller is
+        // responsible for releasing the resources of the returned 'Datum'
+        // object.  Calling this method indicates that the caller is finished
+        // building the 'Datum' map and no further values shall be appended.
+        // The behavior is undefined if any method of this object, other than
+        // its destructor, is called after 'sortAndCommit' invocation.
 
     // ACCESSORS
     SizeType capacity() const;
-        // Return the capacity.  The behavior is undefined if 'commit' or
-        // 'sortAndCommit' has already been called on this object.
+        // Return the capacity of the held 'Datum' map.  The behavior is
+        // undefined if 'commit' or 'sortAndCommit' has already been called on
+        // this object.  Note that similar to the capacity of a 'vector', the
+        // returned capacity has no bearing on the value of the 'Datum' being
+        // constructed, but does indicate at which point additional memory will
+        // be required to grow the 'Datum' map being built.
 
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapBuilder, bslma::UsesBslmaAllocator);
-        // 'DatumMapBuilder' objects use 'bslma::Allocator'.
+    SizeType size() const;
+        // Return the size of the held 'Datum' map.  The behavior is undefined
+        // if 'commit' or 'sortAndCommit' has already been called on this
+        // object.
 };
+
+// ============================================================================
+//                               INLINE DEFINITIONS
+// ============================================================================
+
+                      // ---------------------
+                      // class DatumMapBuilder
+                      // ---------------------
+
+// ACCESSORS
+inline
+DatumMapBuilder::SizeType DatumMapBuilder::capacity() const
+{
+    return d_capacity;
+}
+
+inline
+DatumMapBuilder::SizeType DatumMapBuilder::size() const
+{
+    if (d_capacity) {
+        return *d_mapping.size();                                     // RETURN
+    }
+    return 0;
+}
 
 }  // close package namespace
 }  // close enterprise namespace

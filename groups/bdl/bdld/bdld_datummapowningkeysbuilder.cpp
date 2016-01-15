@@ -17,26 +17,20 @@ namespace bdld {
 
 namespace {
 
-static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
-                                             bsls::Types::size_type size)
+static DatumMapOwningKeysBuilder::SizeType getNewCapacity(
+                                  DatumMapOwningKeysBuilder::SizeType capacity,
+                                  DatumMapOwningKeysBuilder::SizeType size)
     // Calculate the new capacity needed to accommodate data/keys having the
     // specified 'size' for the datum-key-owning map having the specified
     // 'capacity' as its capacity/'keys-capacity'.
 {
-    // Maximum size/keys-size of map that is supported. Half is reserved for
-    // the data section of the map and half for the keys section.
-    //
-    static const bsl::size_t MAX_BYTES    = ~bsl::size_t(0) / 4;
-    static const bsl::size_t MAX_MAP_SIZE = MAX_BYTES / sizeof(DatumMapEntry);
+    // Maximum allowed size (theoretical limit)
+    static const DatumMapOwningKeysBuilder::SizeType MAX_BYTES =
+               bsl::numeric_limits<DatumMapOwningKeysBuilder::SizeType>::max();
 
-    if (size >= MAX_MAP_SIZE / 2) {
-        capacity = MAX_MAP_SIZE;
-    }
-    else {
-        capacity += !capacity;    // get to 1 from 0 (no op afterwards)
-        while (capacity < size) { // get higher than 1
-            capacity *= 2;
-        }
+    capacity += !capacity;    // get to 1 from 0 (no op afterwards)
+    while (capacity < size && capacity < MAX_BYTES/4) { // get higher than 1
+        capacity *= 2;
     }
 
     // Verify capacity at outer size limits.
@@ -46,10 +40,11 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
     return capacity;
 }
 
-static void createMapStorage(DatumMutableMapOwningKeysRef *mapping,
-                             bsls::Types::size_type        capacity,
-                             bsls::Types::size_type        keysCapacity,
-                             bslma::Allocator             *basicAllocator)
+static void createMapStorage(
+                           DatumMutableMapOwningKeysRef        *mapping,
+                           DatumMapOwningKeysBuilder::SizeType  capacity,
+                           DatumMapOwningKeysBuilder::SizeType  keysCapacity,
+                           bslma::Allocator                    *basicAllocator)
     // Load the specified 'mapping' with a reference to newly created
     // datum-key-owning map having the specified 'capacity' and 'keysCapacity'
     // using the specified 'basicAllocator'.
@@ -185,7 +180,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
     if (newCapacity != d_capacity || newKeysCapacity != d_keysCapacity) {
         // Capacity(s) has to be increased.
 
-        d_capacity = newCapacity;
+        d_capacity     = newCapacity;
         d_keysCapacity = newKeysCapacity;
 
         // Create a new map with the higher capacity(s).
@@ -207,6 +202,7 @@ void DatumMapOwningKeysBuilder::append(const DatumMapEntry *entries,
                           static_cast<int>(d_mapping.data()[i].key().length());
             bslstl::StringRef key(keyBegin, KEY_LENGTH);
             const Datum       value = d_mapping.data()[i].value();
+
             mapping.data()[i] = DatumMapEntry(key, value);
 
             // Determine the position where the next key was inserted by
@@ -247,9 +243,9 @@ Datum DatumMapOwningKeysBuilder::commit()
                                         compareGreater)
                          == d_mapping.data() + *d_mapping.size());
 
-    Datum result = Datum::adoptMap(d_mapping);
-    d_mapping = DatumMutableMapOwningKeysRef();
-    d_capacity = 0;
+    Datum result   = Datum::adoptMap(d_mapping);
+    d_mapping      = DatumMutableMapOwningKeysRef();
+    d_capacity     = 0;
     d_keysCapacity = 0;
     return result;
 }
