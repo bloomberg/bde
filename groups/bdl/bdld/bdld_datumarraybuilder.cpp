@@ -14,23 +14,19 @@ namespace bdld {
 
 namespace {
 
-static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
-                                             bsls::Types::size_type length)
+static DatumArrayBuilder::SizeType getNewCapacity(
+                                          DatumArrayBuilder::SizeType capacity,
+                                          DatumArrayBuilder::SizeType length)
     // Calculate the new capacity needed to accommodate data having the
     // specified 'length' for the datum array having the specified 'capacity'.
 {
-    // Maximum allowed array length (theoretical limit)
-    static const bsl::size_t MAX_BYTES        = ~bsl::size_t(0) / 2;
-    static const bsl::size_t MAX_ARRAY_LENGTH = MAX_BYTES / sizeof(Datum);
+    // Maximum allowed length (theoretical limit)
+    static const DatumArrayBuilder::SizeType MAX_BYTES =
+                       bsl::numeric_limits<DatumArrayBuilder::SizeType>::max();
 
-    if (length >= MAX_ARRAY_LENGTH / 2) {
-        capacity = MAX_ARRAY_LENGTH;
-    }
-    else {
-        capacity += !capacity; // get to 1 from 0 (no op afterwards)
-        while (capacity < length) { // get higher than 1
-            capacity *= 2;
-        }
+    capacity += !capacity; // get to 1 from 0 (no op afterwards)
+    while (capacity < length && capacity < MAX_BYTES/2) { // get higher than 1
+        capacity *= 2;
     }
 
     // Verify capacity at outer size limits.
@@ -39,11 +35,11 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
     return capacity;
 }
 
-static void createArrayStorage(DatumMutableArrayRef   *array,
-                               bsls::Types::size_type  capacity,
-                               bslma::Allocator       *basicAllocator)
-    // Load the specified 'array' with a reference to newly created datum array
-    // having the specified 'capacity', using the specified specified
+static void createArrayStorage(DatumMutableArrayRef        *array,
+                               DatumArrayBuilder::SizeType  capacity,
+                               bslma::Allocator            *basicAllocator)
+    // Load the specified 'array' with a reference to a newly created datum
+    // array having the specified 'capacity', using the specified
     // 'basicAllocator'.
 {
     Datum::createUninitializedArray(array, capacity, basicAllocator);
@@ -107,7 +103,7 @@ void DatumArrayBuilder::append(const Datum *values, SizeType length)
                     sizeof(Datum) * (*d_array.length()));
         Datum::disposeUninitializedArray(d_array, d_allocator_p);
 
-        d_array = array;
+        d_array    = array;
         d_capacity = newCapacity;
     }
 
@@ -121,8 +117,8 @@ void DatumArrayBuilder::append(const Datum *values, SizeType length)
 Datum DatumArrayBuilder::commit()
 {
     Datum result = Datum::adoptArray(d_array);
-    d_array = DatumMutableArrayRef();
-    d_capacity = 0;
+    d_array      = DatumMutableArrayRef();
+    d_capacity   = 0;
     return result;
 }
 
@@ -135,6 +131,14 @@ void DatumArrayBuilder::pushBack(const Datum& value)
 DatumArrayBuilder::SizeType DatumArrayBuilder::capacity() const
 {
     return d_capacity;
+}
+
+DatumArrayBuilder::SizeType DatumArrayBuilder::size() const
+{
+    if (d_capacity) {
+        return *d_array.length();                                     // RETURN
+    }
+    return 0;
 }
 
 }  // close package namespace

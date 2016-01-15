@@ -18,14 +18,6 @@ BSLMF_ASSERT(bsl::is_trivially_copyable<ManagedDatum>::value);
 BSLMF_ASSERT(bslma::UsesBslmaAllocator<ManagedDatum>::value);
 BSLMF_ASSERT(bslmf::IsBitwiseMoveable<ManagedDatum>::value);
 
-// ACCESSORS
-bsl::ostream& ManagedDatum::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
-{
-    return d_data.print(stream, level, spacesPerLevel);
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 

@@ -335,10 +335,11 @@ using bdldfp::Decimal64;
 // [13] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [30] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 // [22] Datum_ArrayProctor
-// [29] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
-// [28] COMPRESSIBILITY OF DECIMAL64
+// [30] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
+// [29] COMPRESSIBILITY OF DECIMAL64
+// [28] TYPE TRAITS
 // [-2] EFFICIENCY TEST
 // ----------------------------------------------------------------------------
 
@@ -1519,7 +1520,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1541,6 +1542,8 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
 ///Example 1: Basic Use of 'bdld::Datum'
 ///- - - - - - - - - - - - - - - - - - -
 // This example illustrates the construction, manipulation and lifecycle of
@@ -1739,6 +1742,10 @@ int main(int argc, char *argv[])
         maggieArray.data()[1] = Datum::createStringRef("Simpson", &arena);
         *maggieArray.length() = 2;
         Datum maggie = Datum::adoptArray(maggieArray);
+
+        (void) patty;   // supress compiler warning
+        (void) selma;   // supress compiler warning
+        (void) maggie;  // supress compiler warning
     } // end of scope
 //..
 // Here all the allocated memory is lodged in the 'arena' allocator. At the end
@@ -1804,7 +1811,7 @@ int main(int argc, char *argv[])
 //..
 // Note, that the bytes have been copied.
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
         //
@@ -1837,7 +1844,7 @@ int main(int argc, char *argv[])
         Datum::destroy(obj2, &bufAlloc);
         ASSERT(0 == ta.status());
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
         //    Check that 'Decimal64' fit in 6 bytes or not (as expected).
@@ -1879,6 +1886,42 @@ int main(int argc, char *argv[])
                                                 BDLDFP_DECIMAL_DD(12.3456789));
             ASSERT(variable2 > buffer + 6);
         }
+      } break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //   The object is trivially copyable, default constructable and
+        //   bitwise copyable and should have appropriate bsl type traits to
+        //   reflect this.
+        //
+        // Concerns:
+        //: 1 The class has the bsl::is_trivially_copyable trait.
+        //:
+        //: 2 The class has the bsl::is_trivially_default_constructible trait.
+        //:
+        //: 3 The class has the bslmf::IsBitwiseMoveable trait.
+        //:
+        //: 4 The class doesn't have the bslma::UsesBslmaAllocator trait.
+        //:
+        //: 5 The class doesn't have the bslmf::IsBitwiseEqualityComparable
+        //:   trait.
+        //
+        // Plan:
+        //: 1 ASSERT the presence of each trait required by the type.  (C-1..5)
+        //
+        // Testing:
+        //   TYPE TRAITS
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING TYPE TRAITS" << endl
+                          << "===================" << endl;
+
+        ASSERT((bsl::is_trivially_copyable<Datum>::value));
+        ASSERT((bsl::is_trivially_default_constructible<Datum>::value));
+        ASSERT((bslmf::IsBitwiseMoveable<Datum>::value));
+        ASSERT(!(bslma::UsesBslmaAllocator<Datum>::value));
+        ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
+
       } break;
       case 27: {
         // --------------------------------------------------------------------
@@ -2174,6 +2217,8 @@ int main(int argc, char *argv[])
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
+            (void) nullAllocPtr;  // supress compiler warning
+
             if (verbose) cout << "\tTesting 'DatumMutableMapRef'."
                               << endl;
             {
@@ -2248,6 +2293,8 @@ int main(int argc, char *argv[])
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
             DatumMutableArrayRef  array;
+
+            (void) nullAllocPtr;  // supress compiler warning
 
             Datum::createUninitializedArray(&array, 0, &oa);
 
@@ -3823,6 +3870,8 @@ int main(int argc, char *argv[])
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
+            (void) nullAllocPtr;  // supress compiler warning
+
             const Datum D = Datum::createNull();
 
             ASSERT_SAFE_FAIL(D.clone(nullAllocPtr));
@@ -4856,8 +4905,12 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
+            (void) nullAllocPtr;  // supress compiler warning
+
             Datum  mD;
             Datum *nullDatumPtr = static_cast<Datum *>(0);
+
+            (void) nullDatumPtr;  // supress compiler warning
 
             ASSERT_SAFE_FAIL(Datum::createUninitializedString(nullDatumPtr,
                                                               0,
@@ -5367,6 +5420,8 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
+            (void) nullAllocPtr;  // supress compiler warning
+
             if (verbose) cout << "\tTesting 'createUninitializedMap'"
                               << " for map with external keys"
                               << endl;
@@ -5374,6 +5429,8 @@ int main(int argc, char *argv[])
                 DatumMutableMapRef  map;
                 DatumMutableMapRef *nullRefPtr =
                                           static_cast<DatumMutableMapRef *>(0);
+
+                (void) nullRefPtr;  // supress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                                0,
@@ -5395,6 +5452,8 @@ int main(int argc, char *argv[])
                 DatumMutableMapOwningKeysRef  map;
                 DatumMutableMapOwningKeysRef *nullRefPtr =
                                 static_cast<DatumMutableMapOwningKeysRef *>(0);
+
+                (void) nullRefPtr;  // supress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                                0,
@@ -5421,6 +5480,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeMap.theMap());
                 ASSERT_SAFE_PASS(realMap.theMap());
+
+                Datum::destroy(fakeMap, &oa);
+                Datum::destroy(realMap, &oa);
             }
         }
       } break;
@@ -5685,23 +5747,27 @@ int main(int argc, char *argv[])
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
-            const Datum       TEMP = Datum::createNull();
-            const Datum      *NULL_DATUM_PTR = static_cast<Datum *>(0);
+
+            const Datum  D            = Datum::createNull();
+            const Datum *nullDatumPtr = static_cast<Datum *>(0);
+
+            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullDatumPtr;  // supress compiler warning
 
             if (verbose) cout << "\tTesting 'createArrayReference"
                               << "(const Datum *, SizeType, Allocator *)'."
                               << endl;
             {
 
-                ASSERT_SAFE_PASS(Datum::createArrayReference(NULL_DATUM_PTR,
+                ASSERT_SAFE_PASS(Datum::createArrayReference(nullDatumPtr,
                                                              0,
                                                              &oa));
-                ASSERT_SAFE_FAIL(Datum::createArrayReference(NULL_DATUM_PTR,
+                ASSERT_SAFE_FAIL(Datum::createArrayReference(nullDatumPtr,
                                                              1,
                                                              &oa));
-                ASSERT_SAFE_PASS(Datum::createArrayReference(&TEMP, 0, &oa));
-                ASSERT_SAFE_PASS(Datum::createArrayReference(&TEMP, 1, &oa));
-                ASSERT_SAFE_FAIL(Datum::createArrayReference(&TEMP,
+                ASSERT_SAFE_PASS(Datum::createArrayReference(&D, 0, &oa));
+                ASSERT_SAFE_PASS(Datum::createArrayReference(&D, 1, &oa));
+                ASSERT_SAFE_FAIL(Datum::createArrayReference(&D,
                                                              1,
                                                              nullAllocPtr));
             }
@@ -5710,11 +5776,11 @@ int main(int argc, char *argv[])
                               << "(const DatumArrayRef&, Allocator *)'."
                               << endl;
             {
-                const DatumArrayRef TEMP_REF(&TEMP, 0);
+                const DatumArrayRef arrayRef(&D, 0);
 
-                ASSERT_SAFE_FAIL(Datum::createArrayReference(TEMP_REF,
+                ASSERT_SAFE_FAIL(Datum::createArrayReference(arrayRef,
                                                              nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createArrayReference(TEMP_REF, &oa));
+                ASSERT_SAFE_PASS(Datum::createArrayReference(arrayRef, &oa));
             }
 
             if (verbose) cout << "\tTesting 'createUninitializedArray'"
@@ -5723,6 +5789,9 @@ int main(int argc, char *argv[])
                 DatumMutableArrayRef  array;
                 DatumMutableArrayRef *nullRefPtr =
                                         static_cast<DatumMutableArrayRef *>(0);
+
+                (void) nullRefPtr;  // supress compiler warning
+
                 ASSERT_SAFE_FAIL(Datum::createUninitializedArray(nullRefPtr,
                                                                  0,
                                                                  &oa));
@@ -5746,6 +5815,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeArray.theArray());
                 ASSERT_SAFE_PASS(realArray.theArray());
+
+                Datum::destroy(fakeArray, &oa);
+                Datum::destroy(realArray, &oa);
             }
 
         }
@@ -9322,9 +9394,12 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
+            (void) nullAllocPtr;  // supress compiler warning
+
             if (verbose) cout << "\tTesting 'createDatetime'." << endl;
             {
                 bdlt::Datetime temp;
+
                 ASSERT_SAFE_FAIL(Datum::createDatetime(temp, nullAllocPtr));
                 ASSERT_SAFE_PASS(Datum::destroy(
                                        Datum::createDatetime(temp, &ta), &ta));
@@ -9333,6 +9408,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting 'createDatetimeInterval'." << endl;
             {
                 bdlt::DatetimeInterval temp;
+
                 ASSERT_SAFE_FAIL(Datum::createDatetimeInterval(temp,
                                                                nullAllocPtr));
                 ASSERT_SAFE_PASS(Datum::destroy(
@@ -9343,6 +9419,7 @@ int main(int argc, char *argv[])
             {
                 const int       CODE = 1;
                 const StringRef MESSAGE("temp");
+
                 ASSERT_SAFE_FAIL(Datum::createError(CODE,
                                                     MESSAGE,
                                                     nullAllocPtr));
@@ -9353,6 +9430,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting 'createInteger64'." << endl;
             {
                 bsls::Types::Int64 temp = 1;
+
                 ASSERT_SAFE_FAIL(Datum::createInteger64(temp, nullAllocPtr));
                 ASSERT_SAFE_PASS(Datum::destroy(
                                       Datum::createInteger64(temp, &ta), &ta));
@@ -9362,23 +9440,19 @@ int main(int argc, char *argv[])
             "\tTesting 'createStringRef(const char *, SizeType, Allocator *)'."
                               << endl;
             {
-                const char     *temp = "";
-                const SizeType  LENGTH = 1;
-                const char     *NULL_CHAR_PTR = static_cast<const char *>(0);
+                const char     *temp        = "";
+                const SizeType  LENGTH      = 1;
+                const char     *nullCharPtr = static_cast<const char *>(0);
 
                 // Data check.
-
-                ASSERT_SAFE_PASS(Datum::createStringRef(NULL_CHAR_PTR,
-                                                        0,
-                                                        &ta));
-                ASSERT_SAFE_FAIL(Datum::createStringRef(NULL_CHAR_PTR,
+                ASSERT_SAFE_PASS(Datum::createStringRef(nullCharPtr, 0, &ta));
+                ASSERT_SAFE_FAIL(Datum::createStringRef(nullCharPtr,
                                                         LENGTH,
                                                         &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp, 0,      &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp, LENGTH, &ta));
 
                 // Allocator check.
-
                 ASSERT_SAFE_FAIL(Datum::createStringRef(temp,
                                                         LENGTH,
                                                         nullAllocPtr));
@@ -9389,11 +9463,12 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 const char *temp = "temp";
-                const char *NULL_CHAR_PTR = static_cast<const char *>(0);
+                const char *nullCharPtr = static_cast<const char *>(0);
 
-                ASSERT_SAFE_FAIL(Datum::createStringRef(NULL_CHAR_PTR, &ta));
-                ASSERT_SAFE_PASS(Datum::createStringRef(temp,          &ta));
+                (void) nullCharPtr;  // supress compiler warning
 
+                ASSERT_SAFE_FAIL(Datum::createStringRef(nullCharPtr, &ta));
+                ASSERT_SAFE_PASS(Datum::createStringRef(temp,        &ta));
                 ASSERT_SAFE_FAIL(Datum::createStringRef(temp, nullAllocPtr));
             }
 
@@ -9402,6 +9477,7 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 const bslstl::StringRef temp("temp");
+
                 ASSERT_SAFE_FAIL(Datum::createStringRef(temp, nullAllocPtr));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp, &ta));
             }
@@ -9409,6 +9485,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting 'createUdt'." << endl;
             {
                 void *temp = static_cast<void *>(0);
+
                 ASSERT_SAFE_FAIL(Datum::createUdt(temp, -1));
                 ASSERT_SAFE_FAIL(Datum::createUdt(temp, 65536));
                 ASSERT_SAFE_PASS(Datum::createUdt(temp, 0));
@@ -9420,17 +9497,17 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTesting 'copyBinary'." << endl;
             {
                 char            temp;
-                const void     *VALUE = static_cast<void *>(&temp);
-                const SizeType  SIZE = 1;
-                const void     *NULL_PTR = static_cast<const void *>(0);
+                const void     *VALUE   = static_cast<void *>(&temp);
+                const SizeType  SIZE    = 1;
+                const void     *nullPtr = static_cast<const void *>(0);
 
                 // Data check.
 
-                ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(NULL_PTR,
+                ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(nullPtr,
                                                                   0,
                                                                   &ta),
                                                 &ta));
-                ASSERT_SAFE_FAIL(Datum::copyBinary(NULL_PTR, SIZE, &ta));
+                ASSERT_SAFE_FAIL(Datum::copyBinary(nullPtr, SIZE, &ta));
                 ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(VALUE,
                                                                   0,
                                                                   &ta),
@@ -9447,16 +9524,16 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTesting 'copyString'." << endl;
             {
-                const char     *temp = "temp";
-                const SizeType  LEN = 1;
-                const char     *NULL_CHAR_PTR = static_cast<const char *>(0);
+                const char     *temp        = "temp";
+                const SizeType  LEN         = 1;
+                const char     *nullCharPtr = static_cast<const char *>(0);
 
                 // Data check.
 
-                ASSERT_SAFE_PASS(Datum::copyString(NULL_CHAR_PTR, 0,   &ta));
-                ASSERT_SAFE_FAIL(Datum::copyString(NULL_CHAR_PTR, LEN, &ta));
-                ASSERT_SAFE_PASS(Datum::copyString(temp,          0,   &ta));
-                ASSERT_SAFE_PASS(Datum::copyString(temp,          LEN, &ta));
+                ASSERT_SAFE_PASS(Datum::copyString(nullCharPtr, 0,   &ta));
+                ASSERT_SAFE_FAIL(Datum::copyString(nullCharPtr, LEN, &ta));
+                ASSERT_SAFE_PASS(Datum::copyString(temp,        0,   &ta));
+                ASSERT_SAFE_PASS(Datum::copyString(temp,        LEN, &ta));
 
                 // Allocator check.
 
@@ -9471,7 +9548,6 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Datum::destroy(temp, &ta));
             }
 
-
             if (verbose) cout << "\tTesting 'theBinary'." << endl;
             {
                 void        *temp = static_cast<void *>(0);
@@ -9480,6 +9556,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeBinary.theBinary());
                 ASSERT_SAFE_PASS(realBinary.theBinary());
+
+                Datum::destroy(fakeBinary, &ta);
                 Datum::destroy(realBinary, &ta);
             }
 
@@ -9490,6 +9568,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeBoolean.theBoolean());
                 ASSERT_SAFE_PASS(realBoolean.theBoolean());
+
+                Datum::destroy(fakeBoolean, &ta);
+                Datum::destroy(realBoolean, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theDate'." << endl;
@@ -9499,6 +9580,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeDate.theDate());
                 ASSERT_SAFE_PASS(realDate.theDate());
+
+                Datum::destroy(fakeDate, &ta);
+                Datum::destroy(realDate, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theDatetime'." << endl;
@@ -9509,6 +9593,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeDatetime.theDatetime());
                 ASSERT_SAFE_PASS(realDatetime.theDatetime());
+
+                Datum::destroy(fakeDatetime, &ta);
                 Datum::destroy(realDatetime, &ta);
             }
 
@@ -9520,6 +9606,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeDatetimeInterval.theDatetimeInterval());
                 ASSERT_SAFE_PASS(realDatetimeInterval.theDatetimeInterval());
+
+                Datum::destroy(fakeDatetimeInterval, &ta);
                 Datum::destroy(realDatetimeInterval, &ta);
             }
 
@@ -9532,6 +9620,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeDecimal64.theDecimal64());
                 ASSERT_SAFE_PASS(realDecimal64.theDecimal64());
+
+                Datum::destroy(fakeDecimal64, &ta);
                 Datum::destroy(realDecimal64, &ta);
             }
 
@@ -9542,6 +9632,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeDouble.theDouble());
                 ASSERT_SAFE_PASS(realDouble.theDouble());
+
+                Datum::destroy(fakeDouble, &ta);
+                Datum::destroy(realDouble, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theError'." << endl;
@@ -9551,6 +9644,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeError.theError());
                 ASSERT_SAFE_PASS(realError.theError());
+
+                Datum::destroy(fakeError, &ta);
+                Datum::destroy(realError, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theInteger'." << endl;
@@ -9560,6 +9656,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeInteger.theInteger());
                 ASSERT_SAFE_PASS(realInteger.theInteger());
+
+                Datum::destroy(fakeInteger, &ta);
+                Datum::destroy(realInteger, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theInteger64'." << endl;
@@ -9569,6 +9668,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeInteger64.theInteger64());
                 ASSERT_SAFE_PASS(realInteger64.theInteger64());
+
+                Datum::destroy(fakeInteger64, &ta);
                 Datum::destroy(realInteger64, &ta);
             }
 
@@ -9581,6 +9682,8 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeStringRef.theString());
                 ASSERT_SAFE_PASS(realStringRef.theString());
+
+                Datum::destroy(fakeStringRef, &ta);
                 Datum::destroy(realStringRef, &ta);
             }
 
@@ -9591,6 +9694,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeTime.theTime());
                 ASSERT_SAFE_PASS(realTime.theTime());
+
+                Datum::destroy(fakeTime, &ta);
+                Datum::destroy(realTime, &ta);
             }
 
             if (verbose) cout << "\tTesting 'theUdt'." << endl;
@@ -9601,6 +9707,9 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(fakeUdt.theUdt());
                 ASSERT_SAFE_PASS(realUdt.theUdt());
+
+                Datum::destroy(fakeUdt, &ta);
+                Datum::destroy(realUdt, &ta);
             }
         }
 

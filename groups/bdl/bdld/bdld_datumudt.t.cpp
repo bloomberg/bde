@@ -154,6 +154,7 @@ int main(int argc, char **argv)
     const bool     veryVeryVerbose = argc > 4;
     const bool veryVeryVeryVerbose = argc > 5;
 
+    (void) veryVeryVerbose;
     (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
@@ -630,8 +631,8 @@ int main(int argc, char **argv)
         if (verbose) cout << "\nTesting constructor."
                           << endl;
         {
-            int       udt  = 0xfeedbee0;
-            const int type = 15;
+            unsigned int udt  = 0xfeedbee0;
+            const int    type = 15;
             ASSERT(0xfeedbee0 == udt);
             {
                 Obj        mU(&udt, type);

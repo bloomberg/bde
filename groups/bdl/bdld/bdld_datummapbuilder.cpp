@@ -18,25 +18,19 @@ namespace bdld {
 
 namespace {
 
-static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
-                                             bsls::Types::size_type size)
+static DatumMapBuilder::SizeType getNewCapacity(
+                                            DatumMapBuilder::SizeType capacity,
+                                            DatumMapBuilder::SizeType size)
     // Calculate the new capacity needed to accommodate data having the
     // specified 'size' for the datum map having the specified 'capacity'.
 {
-    // Maximum number of map elements supported (theoretical limit)
+    // Maximum allowed size (theoretical limit)
+    static const DatumMapBuilder::SizeType MAX_BYTES =
+                         bsl::numeric_limits<DatumMapBuilder::SizeType>::max();
 
-    static const bsl::size_t k_MAX_BYTES    = ~bsl::size_t(0) / 2;
-    static const bsl::size_t k_MAX_MAP_SIZE =
-                                           k_MAX_BYTES / sizeof(DatumMapEntry);
-
-    if (size >= k_MAX_MAP_SIZE / 2) {
-        capacity = k_MAX_MAP_SIZE;
-    }
-    else {
-        capacity += !capacity;    // get to 1 from 0 (no op afterwards)
-        while (capacity < size) { // get higher than 1
-            capacity *= 2;
-        }
+    capacity += !capacity;    // get to 1 from 0 (no op afterwards)
+    while (capacity < size && capacity < MAX_BYTES/2) { // get higher than 1
+        capacity *= 2;
     }
 
     // Verify capacity at outer size limits.
@@ -46,9 +40,9 @@ static bsls::Types::size_type getNewCapacity(bsls::Types::size_type capacity,
     return capacity;
 }
 
-static void createMapStorage(DatumMutableMapRef     *mapping,
-                             bsls::Types::size_type  capacity,
-                             bslma::Allocator       *basicAllocator)
+static void createMapStorage(DatumMutableMapRef        *mapping,
+                             DatumMapBuilder::SizeType  capacity,
+                             bslma::Allocator          *basicAllocator)
     // Load the specified 'mapping' with a reference to newly created datum map
     // having the specified 'capacity', using the specified 'basicAllocator'.
 {
@@ -167,8 +161,8 @@ Datum DatumMapBuilder::commit()
                          == d_mapping.data() + *d_mapping.size());
 
     Datum result = Datum::adoptMap(d_mapping);
-    d_mapping = DatumMutableMapRef();
-    d_capacity = 0;
+    d_mapping    = DatumMutableMapRef();
+    d_capacity   = 0;
     return result;
 }
 
@@ -198,12 +192,6 @@ Datum DatumMapBuilder::sortAndCommit()
         setSorted(true);
     }
     return commit();
-}
-
-// ACCESSORS
-DatumMapBuilder::SizeType DatumMapBuilder::capacity() const
-{
-    return d_capacity;
 }
 
 }  // close package namespace
