@@ -1226,9 +1226,11 @@ BSLS_IDENT("$Id: $")
     } while (false)
 
 #define BSLS_ASSERT_ASSERT_SAFE(X)                                           \
+    do {                                                                     \
         if (!(X)) {                                                          \
             BloombergLP::bsls::Assert::invokeHandler(0, 0, __LINE__);        \
-        }
+        }                                                                    \
+    } while (false)
 
                         // ================
                         // BSLS_ASSERT_SAFE
