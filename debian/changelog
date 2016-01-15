@@ -1,7 +1,9 @@
 bsl-internal (2.25.2.0.1.icbeta) unstable; urgency=low
 
+  * 1a117e0 Changelog for version 2.25.2.0.1.icbeta
+  * 7713901 need do/while around BSLS_ASSERT_SAFE_SAFE for sclutil_datetime.cpp
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Jan 2016 15:02:05 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 Jan 2016 15:03:18 -0500
 
 bsl-internal (2.25.2.0.icbeta) git; urgency=low
 
@@ -437,6 +439,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * e1ecad0 Update managed pointer doc on deleters and conversions
   * 88579ec [APPROVAL] INTERNAL pending/master/fix-windows-test-driver-build to master
   * a0cb83e [APPROVAL] pending/master/fix-windows-test-driver-build to master
+  * 969b223 added BSLS_ASSERT_SAFE to check length of converted number can fit in the short string buffer
   * d03b26c [APPROVAL] INTERNAL pending/master/fix_msvc_warnings_in_hashtable_drqs48192470 to master
   * a7d9fbd [APPROVAL] pending/master/fix_msvc_warnings_in_hashtable_drqs48192470 to master
   * 0a8a445 [APPROVAL] INTERNAL pending/master/update_ambiguous_documentation-drqs-31570262 to master
@@ -1073,6 +1076,7 @@ bsl-internal (2.20.0.0.bsl.freeze) git; urgency=low
   * 6ec7326 [APPROVAL] OSS review/dunix_requirement_drqs-46631049 to master
   * 7642033 [APPROVAL] review/dunix_requirement_drqs-46631049 to master
   * 8212d81 [APPROVAL] OSS review/bde-oss-drqs-46743768
+  * 4762ea4 BSLS_ASSERT -> BSLS_ASSERT_SAFE in 'inline' dtor
   * b7e11e3 use bsls_linkercoercion for version symbols
   * 5d8f2c6 merge s/d_/s_/ change into version assert branch
   * a573ae5 force bslscm_version assertion symbol in on Linux
