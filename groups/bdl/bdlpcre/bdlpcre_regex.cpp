@@ -1,5 +1,5 @@
 // bdepcre_regex.cpp                                                  -*-C++-*-
-#include <bdlpcre2_regex.h>
+#include <bdlpcre_regex.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlpcre2_regex_cpp,"$Id$ $CSID$")

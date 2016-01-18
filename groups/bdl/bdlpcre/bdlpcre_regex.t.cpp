@@ -1,6 +1,6 @@
 // bdlpcre_regex.t.cpp                                                -*-C++-*-
 
-#include <bdlpcre2_regex.h>
+#include <bdlpcre_regex.h>
 
 #include <bdlma_bufferedsequentialallocator.h>
 #include <bslma_defaultallocatorguard.h>
